@@ -1,6 +1,7 @@
 from django.contrib import admin
 from rserver.api.models import Project, Document, Page, Image, Transcription
 from rserver.api.models import Workflow, WorkflowStep, Task, TaskStatus, Queue
+from rserver.api.models import UserProfile
 
 class ProjectAdmin(admin.ModelAdmin):
     pass
@@ -55,3 +56,7 @@ class QueueAdmin(admin.ModelAdmin):
 
 admin.site.register(Queue, QueueAdmin)
 
+class UserProfileAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(UserProfile, UserProfileAdmin)

@@ -1,6 +1,7 @@
 from tastypie import resources
 from rserver.api.models import Project, Document, Page, Image, Transcription
-from rserver.api.models import Workflow, Task, Queue
+from rserver.api.models import Workflow, WorkflowStep, Task, TaskStatus, Queue
+from rserver.api.models import UserProfile
 
 class ProjectResource(resources.ModelResource):
     class Meta:
@@ -51,3 +52,8 @@ class QueueResource(resources.ModelResource):
     class Meta:
         queryset = Queue.objects.all()
         resource_name = 'queue'
+        
+class UserProfileResource(resources.ModelResource):
+    class Meta:
+        queryset = UserProfile.objects.all()
+        resource_name = 'user_profile'

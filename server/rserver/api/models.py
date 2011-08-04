@@ -89,6 +89,10 @@ class Task(models.Model):
 
     def __unicode__(self):
         return u"Task"
+
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    app_settings = models.TextField()
         
 class TaskStatus(models.Model):
     status_description = models.CharField(max_length=255)

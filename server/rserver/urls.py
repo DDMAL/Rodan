@@ -1,8 +1,8 @@
 from django.conf.urls.defaults import patterns, include, url
 from tastypie.api import Api
 from api.api import ProjectResource, DocumentResource, PageResource
-from api.api import ImageResource, TranscriptionResource, WorkflowResource
-from api.api import TaskResource, QueueResource
+from api.api import ImageResource, TranscriptionResource, WorkflowResource, TaskStatusResource
+from api.api import TaskResource, QueueResource, UserProfileResource, WorkflowStepResource
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -15,8 +15,11 @@ v1_api.register(PageResource())
 v1_api.register(ImageResource())
 v1_api.register(TranscriptionResource())
 v1_api.register(WorkflowResource())
+v1_api.register(WorkflowStepResource())
 v1_api.register(TaskResource())
+v1_api.register(TaskStatusResource())
 v1_api.register(QueueResource())
+v1_api.register(UserProfileResource())
 
 urlpatterns = patterns('',
     #api
