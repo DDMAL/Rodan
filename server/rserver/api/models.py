@@ -5,15 +5,15 @@ from django.contrib.auth.models import User
 class Project(models.Model):
     """(Project description)"""
     project_name = models.CharField(max_length=255)
-    documents = models.ManyToManyField("Document")
-    assigned_users = models.ManyToManyField(User)
+    # documents = models.ManyToManyField("Document", optional=True)
+    # assigned_users = models.ManyToManyField(User, optional=True)
     
     class Admin:
         list_display = ('',)
         search_fields = ('',)
 
     def __unicode__(self):
-        return u"Project"
+        return self.project_name
 
 class Document(models.Model):
     """(Document description)"""
