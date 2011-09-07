@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'tastypie',
     'rserver.api',
+    'gserver'
 )
 
 # A sample logging configuration. The only tangible logging

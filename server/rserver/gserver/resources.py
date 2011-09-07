@@ -1,7 +1,8 @@
 from tastypie.resources import ModelResource
-from rserver.gserver.models import Image, ImageTransformation
+from gserver.models import Image, ImageTransformation
 
-class MyModelResource(ModelResource):
+class ImageResource(ModelResource):
 	class Meta:
-		queryset = MyModel.objects.all()
-		allowed_methods = ['get']
+		queryset = Image.objects.all()
+		resource_name = 'entry'
+		# allowed_methods = ['get']
