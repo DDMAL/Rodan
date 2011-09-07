@@ -12,8 +12,10 @@ class Image(models.Model):
 
 class ImageTransformation(models.Model):
 	it = models.CharField(max_length = 255)
+	id = UUIDField(auto = True, primary_key = True)
 
-
+	def __unicode__(self):
+		return u"\nTransformation:{0} \nID:{1}".format(self.it, self.id)
 
 
 

@@ -3,7 +3,7 @@ from tastypie.api import Api
 from api.api import ProjectResource, DocumentResource, PageResource
 from api.api import ImageResource, TranscriptionResource, WorkflowResource, TaskStatusResource
 from api.api import TaskResource, QueueResource, UserProfileResource, WorkflowStepResource
-from rserver.gserver.resources import ImageResource
+from rserver.gserver.resources import ImageResource, ImageTransformationResource
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -23,6 +23,7 @@ v1_api.register(QueueResource())
 v1_api.register(UserProfileResource())
 
 image_resource = ImageResource()
+imagetransformation_resource = ImageTransformationResource()
 
 urlpatterns = patterns('',
     #api
@@ -40,4 +41,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     (r'^gserver/', include(image_resource.urls)),
+    (r'^gserver/', include(imagetransformation_resource.urls)),
 )
