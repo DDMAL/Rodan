@@ -22,24 +22,27 @@ class Image(models.Model):
 
 
     def save(self, *args, **kwargs):
-        super(Image, self).save(*args, **kwargs)
-        u = urllib2.urlopen(self.url)
-        os.makedirs(os.path.join("images", self.id))
+
+        super(Image, self).save(*args, **kwargs)   # This one stores the ID to be used afterwards  
+
         image_folder = os.path.join("images", self.id)
-        print "Image Folder:{0}".format(image_folder)
-        localpath = os.path.join(image_folder, self.id)
-        self.localpath = localpath
-        print "LocalPath:{0}".format(self.localpath)
-        f = open(localpath, 'w')
+        if os.path.exists(image_folder) is not True:
+            os.mkdir(image_folder)
+
+        extension = os.path.splitext(self.url)[-1]
+        self.localpath = os.path.join(image_folder, (self.id + extension))
+
+        u = urllib2.urlopen(self.url)
+        f = open(self.localpath, 'w')
         f.write(u.read())
         f.close()
         image = load_image(self.localpath)
-        pixel_type = image.data.pixel_type
-        self.pixel_type = pixel_type
-        print "\nIMAGE: {0}".format(self)
-        # image_plugings = plugin.plugin_methods[self.pixel_type]
-        print "IMAGE PLUGINS: {0}".format(plugin.plugin_methods[self.pixel_type])
+        self.pixel_type = image.data.pixel_type
 
+        print "\nIMAGE: {0}".format(self)
+        print "\nAVAILABLE PLUGINS: {0}".format(plugin.plugin_methods[self.pixel_type].keys())
+        
+        super(Image, self).save(*args, **kwargs)
 
 
 
