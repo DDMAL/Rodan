@@ -13,13 +13,9 @@ class Image(models.Model):
     localpath = models.CharField(max_length = 255)
     pixel_type = models.IntegerField(max_length = 1, null = True)
     
-
-
     def __unicode__(self):
         return u"\nURL:{0} \nID:{1} \nPIXEL TYPE:{2} \nLOCAL PATH:{3}".format(
             self.url, self.id, self.pixel_type, self.localpath)
-
-
 
     def save(self, *args, **kwargs):
 
@@ -39,28 +35,27 @@ class Image(models.Model):
         image = load_image(self.localpath)
         self.pixel_type = image.data.pixel_type
 
-        print "\nIMAGE: {0}".format(self)
-        print "\nAVAILABLE PLUGINS: {0}".format(plugin.plugin_methods[self.pixel_type].keys())
+        # print "\nIMAGE: {0}".format(self)
+        # print "\nAVAILABLE PLUGINS: {0}".format(
+        #     plugin.plugin_methods[self.pixel_type].keys())
         
         super(Image, self).save(*args, **kwargs)
 
-
-
-
-    
-
 class ImageTransformation(models.Model):
-    it = models.CharField(max_length = 255)
+    image = models.ForeignKey(Image)    # There is an unique set of image transformation according to the image type
+    img_transformation = models.CharField(max_length = 255)
     id = UUIDField(auto = True, primary_key = True)
 
+    def available_plugins(self):
+        # print "LOCAL PATH: {0}".format(Image.objects.get(id = self.image_id).localpath)
+        image_ = load_image(Image.objects.get(id = self.image_id).localpath)
+        pixel_type = image_.data.pixel_type
+        plugins = plugin.plugin_methods[pixel_type].keys()
+        print plugins
+
     def __unicode__(self):
-        return u"\nTransformation:{0} \nID:{1}".format(self.it, self.id)
-
-
-# class GameraPlugin():
-#   plugin_name = models.Charfield(max_length = 255)
-#   plugin_settings = models.Charfield(max_length = 255)
-
+        return u"\nTransformation:{0} \nID:{1} \nImage:{2}".format(
+            self.img_transformation, self.id, self.image)
 
 
 
