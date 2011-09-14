@@ -7,6 +7,16 @@ from gamera.core import *
 from gamera import plugin
 init_gamera()
 
+# development -- logging & debugging
+import logging
+lg = logging.getLogger('gserver.models')
+f = logging.Formatter("%(levelname)s %(asctime)s On Line: %(lineno)d %(message)s")
+h = logging.StreamHandler()
+h.setFormatter(f)
+lg.setLevel(logging.DEBUG)
+lg.addHandler(h)
+
+
 class Image(models.Model):
     url = models.URLField()
     id = UUIDField(auto = True, primary_key = True)
@@ -21,10 +31,10 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)   # This one stores the ID to be used afterwards  
 
+        lg.debug("Saving Image ID:{0}".format(self.id))
         image_folder = os.path.join("images", self.id)
         if os.path.exists(image_folder) is not True:
             os.mkdir(image_folder)
-
         extension = os.path.splitext(self.url)[-1]
         self.localpath = os.path.join(image_folder, (self.id + extension))
 
@@ -51,11 +61,12 @@ class ImageTransformation(models.Model):
         image_ = load_image(Image.objects.get(id = self.image_id).localpath)
         pixel_type = image_.data.pixel_type
         plugins = plugin.plugin_methods[pixel_type].keys()
-        print plugins
+        lg.debug("\nAvailable plugins for this image: \n{0}".format (plugins))
 
     def __unicode__(self):
         return u"\nTransformation:{0} \nID:{1} \nImage:{2}".format(
             self.img_transformation, self.id, self.image)
+
 
 
 
