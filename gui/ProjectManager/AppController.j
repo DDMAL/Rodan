@@ -10,7 +10,8 @@
 @import <AppKit/CPOutlineView.j>
 
 @import "Controllers/RPMProjectController.j"
-
+@import "Controllers/RPMUsersWindowController.j"
+@import "Controllers/RPMWorkflowController.j"
 
 @implementation AppController : CPObject
 {
@@ -55,13 +56,11 @@
     if (item === nil)
     {
         var keys = [items allKeys];
-        console.log([keys objectAtIndex:index]);
         return [keys objectAtIndex:index];
     }
     else
     {
         var values = [items objectForKey:item];
-        console.log([values objectAtIndex:index]);
         return [values objectAtIndex:index];
     }
 }
@@ -71,7 +70,6 @@
     CPLog("outlineView:%@ isItemExpandable:%@", outlineView, item);
     
     var values = [items objectForKey:item];
-    console.log(([values count] > 0));
     return ([values count] > 0);
 }
 
@@ -81,13 +79,11 @@
 
     if (item === nil)
     {
-        console.log([items count]);
         return [items count];
     }
     else
     {
         var values = [items objectForKey:item];
-        console.log([values count]);
         return [values count];
     }
 }
@@ -95,8 +91,6 @@
 - (id)outlineView:(CPOutlineView)outlineView objectValueForTableColumn:(CPTableColumn)tableColumn byItem:(id)item
 {
     CPLog("outlineView:%@ objectValueForTableColumn:%@ byItem:%@", outlineView, tableColumn, item);
-
-    console.log(item);
     
     return item;   
 }
