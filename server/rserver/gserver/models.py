@@ -42,30 +42,35 @@ class Image(models.Model):
         f = open(self.localpath, 'w')
         f.write(u.read())
         f.close()
+        
         image = load_image(self.localpath)
         self.pixel_type = image.data.pixel_type
-
-        # print "\nIMAGE: {0}".format(self)
-        # print "\nAVAILABLE PLUGINS: {0}".format(
-        #     plugin.plugin_methods[self.pixel_type].keys())
-        
+        self.sequence = 0
         super(Image, self).save(*args, **kwargs)
 
 class ImageTransformation(models.Model):
-    image = models.ForeignKey(Image)    # There is an unique set of image transformation according to the image type
-    img_transformation = models.CharField(max_length = 255)
+    original_image = models.ForeignKey(Image)    # There is an unique set of image transformation according to the image type
     id = UUIDField(auto = True, primary_key = True)
+    sequence = models.IntegerField(null = True)
+    transformed_image = models.CharField(max_length = 255)
+    image_type = models.IntegerField(null = True)
 
-    def available_plugins(self):
-        # print "LOCAL PATH: {0}".format(Image.objects.get(id = self.image_id).localpath)
-        image_ = load_image(Image.objects.get(id = self.image_id).localpath)
-        pixel_type = image_.data.pixel_type
-        plugins = plugin.plugin_methods[pixel_type].keys()
-        lg.debug("\nAvailable plugins for this image: \n{0}".format (plugins))
+
+    def save(self, *args, **kwargs):
+        self.image_type = self.original_image.pixel_type
+        self.sequence = len(ImageTransformation.objects.filter(original_image = Image.objects.get(id = self.original_image.id))) # Sequence number increments according to the number of image transformations for a specific image
+        
+        super(ImageTransformation, self).save(*args, **kwargs)
+
+    # def available_plugins(self):
+    #     image = load_image(Image.objects.get(id = self.original_image_id).localpath)
+    #     pixel_type = image.data.pixel_type
+    #     plugins = plugin.plugin_methods[pixel_type].keys()
+    #     lg.debug("\nAvailable plugins for this image: \n{0}".format (plugins))
 
     def __unicode__(self):
-        return u"\nTransformation:{0} \nID:{1} \nImage:{2}".format(
-            self.img_transformation, self.id, self.image)
+        return u"\n\nORIGINAL IMAGE:{0} \n\nTRANSFORMED IMAGE:{1} \nIMAGE TYPE:{2} \nSEQUENCE:{3} \nID:{4}".format(
+            self.original_image, self.transformed_image, self.image_type, self.sequence, self.id)
 
 
 
