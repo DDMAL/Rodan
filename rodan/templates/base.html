@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rodan</title>
+    <link rel="stylesheet/less" href="{{ STATIC_URL }}css/style.less" />
+    <script src="{{ STATIC_URL }}js/less.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/underscore.min.js"></script>
+    <script src="{{ STATIC_URL }}js/backbone.min.js"></script>
+    <script src="{{ STATIC_URL }}js/rodan.js"></script>
+</head>
+<body>
+    <div id="navbar">
+        <ul>
+            {% if user.is_authenticated %}
+                <li class="title"><a href="/">Rodan dashboard</a></li>
+                <li><a href="/projects/settings">Settings</a></li>
+                <li><a href="/projects/status">Status</a></li>
+                <li><a href="/projects/create">Create project</a></li>
+                <li><a href="/logout">Log out</a></li>
+            {% else %}
+                <li class="title"><a href="/">Rodan</a></li>
+                <li><a href="/">Login/register</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div id="wrap">
+        {% if not dialog %}
+        <div id="sidebar">
+            {% block sidebar %}{% endblock %}
+        </div>
+        {% endif %}
+        <div id="{% if dialog %}dialog{% else %}content{% endif %}">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

@@ -6,6 +6,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     url(r'^$', 'rodan.views.main'),
+    url(r'^logout', 'rodan.views.logout_view'),
     url(r'^projects/', include('projects.urls')),
     url(r'^processing/', include('processing.urls')),
     url(r'^recognition/', include('recognition.urls')),

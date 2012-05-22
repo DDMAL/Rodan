@@ -1,1 +1,28 @@
-This is a sample signup/login page. Pretend there's stuff here
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create an account or sign in</h1>
+<form method="post">
+    {% csrf_token %}
+    {% if errors %}
+    <div class="errors">
+        <p>There were errors with the form submission!</p>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    <fieldset>
+        <label>Username:</label><input type="text" name="username" placeholder="Blah" value="{{ username }}" />
+    </fieldset>
+    <fieldset>
+        <label>Password:</label><input type="password" name="password" placeholder="Blah" value="{{ password }}" />
+    </fieldset>
+    <fieldset class="submit">
+        <input type="submit" name="login" value="Login" />
+        <input type="submit" name="create" value="Create account" />
+    </fieldset>
+</form>
+{% endblock %}
