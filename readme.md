@@ -39,7 +39,7 @@ Instructions
 * `cd` into the rodan directory
 * `source rodan_env/bin/activate` to setup the virtualenv
 * `python manage.py syncdb` should do all the database stuff for you
-* `python manage.py runserver`. Access the site at http://localhost:8080
+* `python manage.py runserver`. Access the site at http://localhost:8000
 * If you're running it on susato and want to be able to access it remotely, pick a port (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`. You can now access your Django instance from http://rodan.simssa.ca:8001. If the port you're trying to use is already taken, use another one.
 
 Project layout
