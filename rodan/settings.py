@@ -128,7 +128,14 @@ INSTALLED_APPS = (
     'recognition',
     'correction',
     'display',
+    'celery',
 )
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "rodanuser"
+BROKER_PASSWORD = "DDMALrodan"
+BROKER_VHOST = "DDMAL"
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
