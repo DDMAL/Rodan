@@ -6,7 +6,7 @@ def list_projects(request):
         this_project = {
             'name': 'Project %d' % i,
             'desc': 'Some random description',
-            'slug': i,
+            'id': i,
         }
         projects.append(this_project)
 

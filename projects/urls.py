@@ -5,4 +5,5 @@ urlpatterns = patterns('',
     url(r'^create', 'projects.views.create'),
     url(r'^settings', 'projects.views.settings'),
     url(r'^status', 'projects.views.status'),
+    url(r'^view/(?P<project_id>\d+)', 'projects.views.view'),
 )
