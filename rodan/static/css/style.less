@@ -58,18 +58,29 @@ p {
         display: none;
     }
     position: absolute;
+    overflow-y: auto;
     left: 0px;
     top: 0px;
     height: 100%;
     width: @sidebarWidth;
     background: @sidebarBg;
+    h2 {
+        padding: 10px;
+        border-bottom: 1px solid darken(@sidebarBg, 20%);
+    }
     ul {
         list-style-type: none;
         width: 100%;
-        li {
+        li a {
+            display: block;
             height: @sidebarItemHeight;
             line-height: @sidebarItemHeight;
             padding-left: 10px;
+            text-decoration: none;
+            color: @sidebarItemText;
+            &:hover {
+                background: @sidebarItemHoverBg;
+            }
         }
     }
 }
