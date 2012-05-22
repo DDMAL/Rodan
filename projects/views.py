@@ -8,3 +8,7 @@ def dashboard(request):
 def create(request):
     data = {}
     return render(request, 'projects/create.html', data)
+
+def settings(request):
+    data = {}
+    return render(request, 'projects/settings.html', data)
