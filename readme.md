@@ -10,13 +10,36 @@ Dependencies
 * Python 2.7 (also installed on Susato)
 * PostgreSQL (maybe sqlite for individual development)
 
+Development
+-----------
+
+We're using virtualenv to manage dependencies
+
+to install it: `sudo pip install virtualenv`
+
+Create a virtual environemnt:
+
+in your checked out directory, run
+
+    virtualenv --no-site-packages rodan_env
+
+Install all the dependencies:
+
+    pip install -E rodan_env install -r requirements.txt
+
+if you need to add a dependency, install it with pip then run
+
+    pip freeze > requirements.txt and commit the requirements file
+
 Instructions
 ------------
 
 * Check out the source with `git clone git@github.com:DDMAL/Rodan.git rodan`
 * `cd` into the rodan directory
+* `source rodan_env/bin/activate` to setup the virtualenv
 * `python manage.py syncdb` should do all the database stuff for you
-* `python manage.py runserver`. If you're running it on susato and want to be able to access it remotely, pick a port (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`. You can now access your Django instance from http://rodan.simssa.ca:8001. If the port you're trying to use is already taken, use another one.
+* `python manage.py runserver`. Access the site at http://localhost:8080
+* If you're running it on susato and want to be able to access it remotely, pick a port (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`. You can now access your Django instance from http://rodan.simssa.ca:8001. If the port you're trying to use is already taken, use another one.
 
 Project layout
 -------------
