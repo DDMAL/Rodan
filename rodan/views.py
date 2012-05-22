@@ -12,6 +12,7 @@ def main(request):
 
 # View to allow unauthenticate users to log in or create accounts
 def signup(request):
+    data = {}
     if request.POST:
         errors = []
         username = request.POST.get('username', '')
