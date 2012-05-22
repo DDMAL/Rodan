@@ -1,8 +1,19 @@
-{% extends "base.html" %}
+{% extends "main.html" %}
 
 {% block content %}
-<section>
-    <h1>Dashboard</h1>
-    <p>Dashboard stuff here</p>
-</section>
+    <section>
+        <h1>Dashboard</h1>
+        <p>Dashboard stuff here</p>
+    </section>
+{% endblock %}
+
+{% block sidebar %}
+    <h2>All projects</h2>
+    {% if projects %}
+        <ul>
+            {% for project in projects %}
+                <li>{{ project }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}

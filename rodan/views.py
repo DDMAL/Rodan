@@ -12,10 +12,6 @@ def main(request):
 
 # View to allow unauthenticate users to log in or create accounts
 def signup(request):
-    data = {
-        'dialog': True,
-    }
-
     if request.POST:
         errors = []
         username = request.POST.get('username', '')
@@ -45,7 +41,6 @@ def signup(request):
             'username': username,
             'password': password,
             'email': email,
-            'dialog': True, # this shouldn't have to be defined twice
         }
 
     return render(request, 'signup.html', data)

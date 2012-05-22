@@ -25,14 +25,8 @@
         </ul>
     </div>
     <div id="wrap">
-        {% if not dialog %}
-        <div id="sidebar">
-            {% block sidebar %}{% endblock %}
-        </div>
-        {% endif %}
-        <div id="{% if dialog %}dialog{% else %}content{% endif %}">
-            {% block content %}{% endblock %}
-        </div>
+        {% block wrap %}
+        {% endblock %}
     </div>
 </body>
 </html>

@@ -1,31 +1,32 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1>Login/register</h1>
-<form method="post">
-    {% csrf_token %}
-    {% if errors %}
-    <div class="errors">
-        <p>There were errors with the form submission!</p>
-        <ul>
-            {% for error in errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    <fieldset>
-        <label>Username:</label><input type="text" name="username" placeholder="Blah" value="{{ username }}" />
-    </fieldset>
-    <fieldset>
-        <label>Password:</label><input type="password" name="password" placeholder="Blah" value="{{ password }}" />
-    </fieldset>
-    <p>If you wish to create a new account, email your email address below.</p>
-    <fieldset>
-        <label>Email:</label><input type="text" name="email" placeholder="email@email.com" value="{{ email }}" />
-    </fieldset>
-    <fieldset class="submit">
-        <input type="submit" name="submit" value="Submit" />
-    </fieldset>
-</form>
+{% block wrap %}
+    <div id="dialog">
+        <h1>Login/register</h1>
+        <form method="post">
+            {% csrf_token %}
+            {% if errors %}
+            <div class="errors">
+                <p>There were errors with the form submission!</p>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <fieldset>
+                <label>Username:</label><input type="text" name="username" placeholder="Blah" value="{{ username }}" />
+            </fieldset>
+            <fieldset>
+                <label>Password:</label><input type="password" name="password" placeholder="Blah" value="{{ password }}" />
+            </fieldset>
+            <p>If you wish to create a new account, email your email address below.</p>
+            <fieldset>
+                <label>Email:</label><input type="text" name="email" placeholder="email@email.com" value="{{ email }}" />
+            </fieldset>
+            <fieldset class="submit">
+                <input type="submit" name="submit" value="Submit" />
+            </fieldset>
+        </form>
 {% endblock %}
