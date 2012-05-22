@@ -5,13 +5,10 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'rodan.views.home', name='home'),
-    # url(r'^rodan/', include('rodan.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', 'rodan.views.main'),
+    url(r'^projects/', include('projects.urls')),
+    url(r'^processing/', include('processing.urls')),
+    url(r'^recognition/', include('recognition.urls')),
+    url(r'^correction/', include('correction.urls')),
+    url(r'^display/', include('display.urls')),
 )

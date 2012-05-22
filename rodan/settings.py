@@ -122,6 +122,12 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'rodan',
+    'projects',
+    'processing',
+    'recognition',
+    'correction',
+    'display',
 )
 
 # A sample logging configuration. The only tangible logging
