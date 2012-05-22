@@ -14,20 +14,39 @@ def main(request):
 def signup(request):
     data = {
         'dialog': True,
-        'errors': [],
     }
 
     if request.POST:
-        # Try to log the user in
-        if 'login' in request.POST:
-            username = request.POST.get('username', '')
-            password = request.POST.get('password', '')
+        errors = []
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        email = request.POST.get('email', '')
+
+        # If email is defined, try to create a new user
+        if email:
+            # Case-insensitive usernames
+            if User.objects.filter(username__iexact=username).count() > 0:
+                errors.append("This username is already in use. Please find a new one.")
+            else:
+                User.objects.create_user(username, email, password)
+                new_user = authenticate(username=username, password=password)
+                login(request, new_user)
+                return main(request)
+        else:
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('/projects/dashboard')
+                return main(request)
             else:
-                data['errors'].append("Login error. Wrong password/username?")
+                errors.append("Login error. Wrong password/username?")
+
+        data = {
+            'errors': errors,
+            'username': username,
+            'password': password,
+            'email': email,
+            'dialog': True, # this shouldn't have to be defined twice
+        }
 
     return render(request, 'signup.html', data)
 
