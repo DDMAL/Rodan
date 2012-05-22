@@ -12,3 +12,7 @@ def create(request):
 def settings(request):
     data = {}
     return render(request, 'projects/settings.html', data)
+
+def status(request):
+    data = {}
+    return render(request, 'projects/status.html', data)
