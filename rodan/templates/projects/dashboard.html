@@ -6,14 +6,3 @@
         <p>Dashboard stuff here</p>
     </section>
 {% endblock %}
-
-{% block sidebar %}
-    <h2>All projects</h2>
-    {% if projects %}
-        <ul>
-            {% for project in projects %}
-                <li><a href="/projects/view/{{ project.slug }}" title="{{ project.description }}">{{ project.name }}</a></li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endblock %}
