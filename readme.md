@@ -21,4 +21,19 @@ Instructions
 Project layout
 -------------
 
-Each of the 5 components (correction, display, processing, projects, recognition) exists as a separate app. The `rodan` directory just contains project-specific settings and URLs. More coming
+Each of the 5 components (correction, display, processing, projects, recognition) exists as a separate app. The `rodan` directory just contains project-specific settings and URLs as well as some basic views (the main view, which either redirects the user to the dashboard or asks the user to sign up or login).
+
+* `correction/`
+* `db.sqlite` - for development only. not tracked by git. created upon running `python manage.py syncdb`
+* `display/`
+* `__init__.py`
+* `manage.py` - comes with Django. Not modified.
+* `projects/`
+* `readme.md`
+* `recognition/`
+* `rodan/`
+    * `__init__.py` - empty file, needed to be able to import the app
+    * `settings.py` - the project-wide settings. should not need to be changed
+    * `templates/` - all the template files will go under here. there will be a directory for each app.
+    * `urls.py` - includes all the urls.py files for each app (e.g. `correction/urls.py`) and maps the base url to the `main` view defined in `views.py`
+    * `views.py` - defines the `main` view, which either returns the `dashboard` view in `projects.views` or asks the user to register/login
