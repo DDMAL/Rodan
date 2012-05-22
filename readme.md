@@ -8,7 +8,8 @@ Dependencies
 
 * Django 1.4 (installed on Susato)
 * Python 2.7 (also installed on Susato)
-* PostgreSQL (maybe sqlite for individual development)
+* PostgreSQL (sqlite for local development)
+* Celery (installed on Susato)
 
 Instructions
 ------------
