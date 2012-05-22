@@ -1,24 +1,43 @@
-// Pre-defined colours
+// Pre-defined colours of the colour scheme
 @white:                 #FFF;
+@offWhite:              #FAFAFA;
 @black:                 #000;
+@lightGrey:             #E4E4E4;
+@mediumGrey:            #888;
+@darkShadow:            rgba(0, 0, 0, 0.5);
+@brightBlue:            #3493E0;
+@mediumBlue:            darken(@brightBlue, 10%);
+@lightBlue:             lighten(@brightBlue, 42%);
+@lighterBlue:           lighten(@lightBlue, 5%);
+@lightRed:              #F2C4C4;
 
-// Colours for various elements
-@navbarBgStart:         #34A3ED;
-@navbarBgEnd:           #2595FF;
-@sidebarBg:             #E1E7F0;
-@sidebarItemHoverBg:    lighten(@sidebarBg, 5%);
+// Colours for various elements. Taken from the pre-defined colours above
+@navbarBgStart:         @brightBlue;
+@navbarBgEnd:           @mediumBlue;
+@navbarTitleShadow:     @black;
+@navbarTextShadow:      @darkShadow;
+@navbarTextHover:       @lightGrey;
+
+@sidebarBg:             @lightBlue;
+@sidebarInset:          @mediumGrey;
+@sidebarItemHoverBg:    @lighterBlue;
 @sidebarItemText:       @black;
-@contentBg:             #FAFAFA;
-@createBg:              #EEE;
-@createFrame:           #CCC;
-@createText:            #333;
-@createHoverBg:         #F2F2F2;
-@createHoverText:       #111;
+@sidebarTitle:          @mediumGrey;
+
+@contentBg:             @offWhite;
+
+@errorBg:               @lightRed;
+
+@dialogBg:              @offWhite;
+@dialogFrameBg:         @lightGrey;
 
 // Dimensions for the elemnents
 @navbarHeight:          45px;
+
 @sidebarWidth:          220px;
 @sidebarItemHeight:     35px;
+
+@dialogWidth:           600px;
 
 // For the grid
 @column-width:          60;
