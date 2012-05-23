@@ -5,7 +5,8 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', 'rodan.views.main'),
+    url(r'^$', 'rodan.views.home'),
+    url(r'^signup', 'rodan.views.signup'),
     url(r'^logout', 'rodan.views.logout_view'),
     url(r'^projects/', include('projects.urls')),
     url(r'^processing/', include('processing.urls')),

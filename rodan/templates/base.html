@@ -13,15 +13,13 @@
 <body>
     <div id="navbar">
         <ul>
+            <li class="title"><a href="/">Rodan</a></li>
             {% if user.is_authenticated %}
-                <li class="title"><a href="/">Rodan dashboard</a></li>
+                <li><a href="/projects/dashboard">Dashboard</a></li>
                 <li><a href="/projects/settings">Settings</a></li>
-                <li><a href="/projects/status">Status</a></li>
-                <li><a href="/projects/create">Create project</a></li>
                 <li><a href="/logout">Log out ({{ user.username }})</a></li>
             {% else %}
-                <li class="title"><a href="/">Rodan</a></li>
-                <li><a href="/">Login/register</a></li>
+                <li><a href="/signup">Login/register</a></li>
             {% endif %}
         </ul>
     </div>

@@ -10,6 +10,7 @@
 body {
     font-family: "Helvetica Neue", Helvetica, sans-serif;
     font-size: 13px;
+    overflow: hidden;
 }
 
 #navbar {
@@ -101,6 +102,7 @@ p {
     section {
         padding: 20px;
     }
+    overflow-y: auto;
 }
 
 h1 {
@@ -135,4 +137,60 @@ h1 {
     }
     margin-bottom: 20px;
     .border-radius(5px);
+}
+
+.center-align {
+    text-align: center;
+}
+
+#masthead {
+    margin-top: 20px;
+    .center-align;
+    h1 {
+        font-size: 5.0em;
+        color: @darkGrey;
+    }
+    p {
+        font-size: 1.5em;
+        color: @mediumGrey;
+    }
+}
+
+.one-third {
+    .column(4);
+}
+
+.two-thirds {
+    .column(8);
+}
+
+.blue-block {
+    background: @lightBlue;
+    .border-radius(10px);
+    .large {
+        font-size: 1.9em;
+        color: @darkGrey;
+        font-weight: bold;
+    }
+    section {
+        padding: 10px;
+    }
+    ul {
+        margin-left: 20px;
+        li {
+            color: @mediumGrey;
+            span {
+                color: @darkGrey;
+            }
+        }
+    }
+    margin-bottom: 40px;
+}
+
+.row {
+    clear: both;
+}
+
+#main-line-graph {
+    .column(12);
 }

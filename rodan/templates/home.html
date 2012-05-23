@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+
+{% block content %}
+    <div id="masthead">
+        <h1>Rodan</h1>
+        <p>A remote, online document analysis network for musical image processing.</p>
+    </div>
+    <br />
+    <div class="row">
+        <div class="blue-block one-third">
+            <section>
+                <span class="large">{{ num_projects }} projects with {{ num_pages }} pages - {{ total_size }} total.</span>
+            </section>
+        </div>
+        <div class="blue-block one-third">
+            <section>
+                <span class="large">Some other copy, with an icon.</span>
+            </section>
+        </div>
+        <div class="blue-block one-third">
+            <section>
+                <span class="large">More text, another icon.</span>
+            </section>
+        </div>
+    </div>
+    <div class="row">
+        <div id="main-pie-chart" class="one-third">
+            &nbsp;
+        </div>
+        <div class="blue-block two-thirds">
+            <section>
+                <h2>Some text</h2>
+                <br />
+                <ul>
+                    <li><span>Blah 1234</span></li>
+                    <li><span>Blah 1234</span></li>
+                    <li><span>More blah</span></li>
+                    <li><span>More blah</span></li>
+                    <li><span>More blah</span></li>
+                    <li><span>More blah</span></li>
+                    <li><span>More blah</span></li>
+                </ul>
+            </section>
+        </div>
+    </div>
+    <div id="main-line-graph"></div>
+{% endblock %}
