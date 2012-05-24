@@ -128,14 +128,19 @@ INSTALLED_APPS = (
     'recognition',
     'correction',
     'display',
-    'celery',
+    'djcelery'
 )
 
+import djcelery
+djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
+
+CELERY_RESULT_BACKEND="database"
+CELERY_RESULT_DBURI = "sqlite:///celerydb.sqlite"
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
