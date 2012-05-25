@@ -1,0 +1,12 @@
+{% extends "main.html" %}
+
+{% block content %}
+    <section>
+    	<form method="POST" action="">
+    	{% csrf_token %}
+        <h1> You are binarizing page: {{ page.image_name }}</h1>
+        Threshold Value (max 255): <input type="text" name="thresh_value"/>
+        <input type="submit" value="Submit"/>
+    	</form>
+    </section>
+{% endblock %}
