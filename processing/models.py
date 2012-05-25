@@ -12,7 +12,7 @@ class Result(models.Model):
     end_time = models.DateTimeField(null=True)
 
     work_flow = models.ForeignKey(Workflow)
-    page = models.OneToOneField(Page)
+    page = models.ForeignKey(Page)
 
 class Rotate(models.Model):
     rotation_value = models.IntegerField()
