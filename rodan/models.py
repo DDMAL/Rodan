@@ -1,20 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
 from views import *
 from django.utils import *
+from projects.models import *
 
 import gamera.core as gam
 from gamera.plugins import threshold
-
-#this model is to extend the default user behaviour if we need additional information such as avatar
-class RodanUser(models.Model):
-	user = models.OneToOneField(User)
-	affiliation = models.CharField(max_length=100)
-
-class Project(models.Model):
-	proj_name = models.CharField(max_length=50)
-
-	rodan_users = models.ManyToManyField(RodanUser)
 
 class Page(models.Model):
 	PIXELTYPE_CHOICES = (
