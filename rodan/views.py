@@ -14,7 +14,7 @@ def home(request):
         'Cropping': 0,
         'Whatever': 1,
         'Fake worker': 3,
-        'Another fake': 19,
+        'Another fake': 1,
     }
 
     data = {
@@ -39,12 +39,20 @@ def signup(request):
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
 
+        # Make sure the username and password are specified first of fall
+        if not username:
+            errors.append("Please enter a username.")
+
+        if not password:
+            errors.append("Please enter a password.")
+
         # If email is defined, try to create a new user
         if email:
             # Case-insensitive usernames
             if User.objects.filter(username__iexact=username).count() > 0:
                 errors.append("This username is already in use. Please find a new one.")
-            else:
+
+            if not errors:
                 User.objects.create_user(username, email, password)
                 new_user = authenticate(username=username, password=password)
                 login(request, new_user)
