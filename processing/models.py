@@ -1,7 +1,6 @@
 import os
 from django.db import models
-from django.utils import *
-from rodan.models import *
+from projects.models import Workflow, Page
 
 import gamera.core as gam
 from gamera.plugins import threshold
@@ -10,20 +9,10 @@ from gamera.plugins import threshold
 
 class Result(models.Model):
     start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True)
 
     work_flow = models.ForeignKey(Workflow)
     page = models.OneToOneField(Page)
-
-'''
-class Result(models.Model):
-    RESULT_TYPES=(
-    ("BI","Binarize"),
-    ("RO","Rotate"))
-
-    work_flow = models.ForeignKey(Workflow)
-    result_type = models.CharField(max_length=2,choices=RESULT_TYPES)
-'''
 
 class Rotate(models.Model):
     rotation_value = models.IntegerField()
