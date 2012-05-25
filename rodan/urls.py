@@ -1,8 +1,7 @@
 from django.conf.urls import patterns, include, url
+from django.contrib import admin
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'rodan.views.home'),
@@ -13,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^recognition/', include('recognition.urls')),
     url(r'^correction/', include('correction.urls')),
     url(r'^display/', include('display.urls')),
+    url(r'^admin/', include(admin.site.urls)),
 )
