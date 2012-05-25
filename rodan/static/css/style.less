@@ -103,24 +103,20 @@ p {
         padding: 20px;
     }
     overflow-y: auto;
-    a {
-        color: @linkText;
-        text-decoration: none;
-        &:hover {
-            color: @linkHoverText;
-            text-decoration: underline;
-        }
+}
+
+a {
+    color: @linkText;
+    text-decoration: none;
+    &:hover {
+        color: @linkHoverText;
+        text-decoration: underline;
     }
 }
 
 h1 {
     margin-bottom: 20px;
     font-size: 2.5em;
-}
-
-#create-form {
-    display: none;
-    #form;
 }
 
 #dialog {
@@ -132,7 +128,8 @@ h1 {
     background: @dialogBg;
     padding: 20px;
     form {
-        #form;
+        width: 420px;
+        margin: 0 auto;
     }
 }
 
@@ -262,4 +259,23 @@ table {
     th {
         border-bottom: 1px solid @lightGrey;
     }
+}
+
+a.button {
+    #gradient(@offWhite, @lightGrey);
+    color: @darkGrey;
+    .border-radius(5px);
+    padding: 10px;
+    font-weight: bold;
+    box-shadow: 0px 0px 2px @mediumGrey;
+    &:hover {
+        #gradient(@brightBlue, @mediumBlue);
+        color: @white;
+        text-decoration: none;
+    }
+}
+
+.right-float {
+    float: right;
+    margin-top: 10px;
 }

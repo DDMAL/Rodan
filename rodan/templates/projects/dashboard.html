@@ -2,6 +2,9 @@
 
 {% block content %}
     <section>
+        <div class="right-float">
+            <a class="button" href="/projects/create">Create project</a>
+        </div>
         <h1>Dashboard</h1>
         {% with my_projects=user.get_profile.project_set.all %}
         {% if my_projects %}
