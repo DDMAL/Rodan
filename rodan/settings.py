@@ -178,3 +178,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "projects.context_processors.list_projects",
 )
+
+# So that calling get_profile on a user will return the RodanUser instance
+AUTH_PROFILE_MODULE = 'projects.RodanUser'
