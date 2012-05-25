@@ -18,6 +18,7 @@
                 <li><a href="/projects/dashboard">Dashboard</a></li>
                 <li><a href="/projects/settings">Settings</a></li>
                 <li><a href="/logout">Log out ({{ user.username }})</a></li>
+                {% if user.is_staff %}<li><a href="/admin/">Admin</a></li>{% endif %}
             {% else %}
                 <li><a href="/signup">Login/register</a></li>
             {% endif %}
