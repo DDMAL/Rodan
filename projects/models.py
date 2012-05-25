@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 
-#this model is to extend the default user behaviour if we need additional information such as avatar
 class RodanUser(models.Model):
     user = models.OneToOneField(User)
     affiliation = models.CharField(max_length=100)
@@ -56,3 +56,12 @@ class Workflow(models.Model):
 
     def __unicode__(self):
         return "Workflow name: %s" % self.name
+
+def create_rodan_user(sender, instance, created, **kwargs):
+    if created:
+        RodanUser.objects.create(user=instance)
+
+# Register a handler for the post_save signal for User
+# This ensures that a RodanUser is always created when a User is
+# The demo user's RodanUser is created as a fixture
+post_save.connect(create_rodan_user, sender=User)
