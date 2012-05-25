@@ -1,3 +1,86 @@
+import os
 from django.db import models
+from django.utils import *
+from rodan.models import *
 
-# Create your models here.
+import gamera.core as gam
+from gamera.plugins import threshold
+
+
+
+class Result(models.Model):
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField()
+
+    work_flow = models.ForeignKey(Workflow)
+    page = models.OneToOneField(Page)
+
+'''
+class Result(models.Model):
+    RESULT_TYPES=(
+    ("BI","Binarize"),
+    ("RO","Rotate"))
+
+    work_flow = models.ForeignKey(Workflow)
+    result_type = models.CharField(max_length=2,choices=RESULT_TYPES)
+'''
+
+class Rotate(models.Model):
+    rotation_value = models.IntegerField()
+
+    result = models.OneToOneField(Result)
+
+    def __unicode__(self):
+        return "Rotate Result w/ rotation_value=%s" % self.rotation_value
+
+'''
+class Crop(Job):
+
+
+class Segmentation(Job):
+
+
+class SegCorrection(Job):
+    def do_stuff(self):
+        return seg_correct_view
+'''
+#inherits the default behaviour and attributes from job, and adds additional information specific to this type of relationship
+class Binarize(models.Model):
+    #TO DO: find possible parameters for a binarize job
+    #perhaps extend this as well for different types of binarization jobs??
+    threshold_value = models.IntegerField()
+
+    result = models.OneToOneField(Result)
+
+    def __unicode__(self):
+        return "Binarize Result w/ threshold_value=%s" % self.threshold_value
+
+    def binarize_image(self):
+        bin_page = self.result.page
+        path_to_img = bin_page.path_to_image.encode('ascii','ignore') #not used for now
+        image_name = bin_page.image_name.encode('ascii','ignore')
+
+        file_name,file_extension = os.path.splitext(image_name)
+        gam.init_gamera()
+        simple_thresh_obj = threshold.threshold()
+
+        if not os.path.exists("images"):
+            os.makedirs("images")
+        
+        output_img = simple_thresh_obj(gam.load_image("images/" + image_name),self.threshold_value)
+
+        if not os.path.exists("resultimages"):
+            os.makedirs("resultimages")
+
+        output_path =  "resultimages/" + file_name + "_binarize_simpletresh_" + str(self.threshold_value) + file_extension
+        gam.save_image(output_img, output_path)
+
+        return output_path
+
+
+
+
+
+
+
+
