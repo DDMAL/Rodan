@@ -4,5 +4,12 @@
     <section>
         <h1>{{ project.name }}</h1>
         <p>{{ project.description }}</p>
+        {% if project.page_set.count %}
+        <ul>
+        {% for page in project.page_set.all %}
+        <li> <a href="{{ page.get_absolute_url }}">{{page.image_name}} </a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     </section>
 {% endblock %}
