@@ -1,5 +1,6 @@
 # Create your views here.
 from django.shortcuts import render
+from projects.models import Project, Page
 
 def dashboard(request):
     data = {}
@@ -11,13 +12,17 @@ def settings(request):
 
 def view(request, project_id):
     # Fake project for now (until the model is set up)
-    project = {
-        'name': 'Project %d' % int(project_id),
-        'description': 'Fake description',
-        'id': project_id,
-    }
+    project = Project.objects.get(pk=project_id)
 
     data = {
         'project': project,
     }
     return render(request, 'projects/view.html', data)
+
+def page_view(request,page_id):
+    page = Page.objects.get(pk=page_id)
+
+    data = {
+        'page':page
+    }
+    return render(request,'projects/page_view.html', data)
