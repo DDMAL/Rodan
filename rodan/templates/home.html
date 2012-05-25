@@ -24,6 +24,17 @@
         </div>
     </div>
     <div class="row">
+        <div class="blue-block entire">
+            <section>
+                <ul id="workers">
+                {% for worker, queue in workers.iteritems %}
+                    <li id="worker-{{ forloop.counter }}" data-queue="{{ queue }}""><div><span class="queue-size">{{ queue }}</span></div><span class="worker-name">{{ worker }}</span></li>
+                {% endfor %}
+                </ul>
+            </section>
+        </div>
+    </div>
+    <div class="row">
         <div id="main-pie-chart" class="one-third">
             &nbsp;
         </div>

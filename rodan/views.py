@@ -6,10 +6,22 @@ from django.contrib.auth.models import User
 
 # The statistics and everything
 def home(request):
+    workers = {
+        # Format: Job: number of things in queue
+        'Binarisation': 4,
+        'Recognition': 5,
+        'Segmentation': 1,
+        'Cropping': 0,
+        'Whatever': 1,
+        'Fake worker': 3,
+        'Another fake': 19,
+    }
+
     data = {
         'num_projects': 100,
         'num_pages': 1000,
-        'total_size': '5421 GB'
+        'total_size': '5421 GB',
+        'workers': workers,
     }
 
     return render(request, 'home.html', data)

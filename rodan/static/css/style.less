@@ -160,6 +160,10 @@ h1 {
     .column(4);
 }
 
+.entire {
+    .column(12);
+}
+
 .two-thirds {
     .column(8);
 }
@@ -193,4 +197,45 @@ h1 {
 
 #main-line-graph {
     .column(12);
+}
+
+#workers {
+    list-style-type: none;
+    text-align: center;
+    li {
+        position: relative;
+        display: inline-block;
+        height: 120px;
+        border: 1px solid @workerFrame;
+        padding: 5px;
+        margin: 0 5px;
+        div {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            background: @workerBg;
+            &.green {
+                background: @green;
+            }
+            &.yellow {
+                background: @yellow;
+            }
+            &.orange {
+                background: @orange;
+            }
+            &.red {
+                background: @red;
+            }
+            .queue-size {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+        }
+        .worker-name {
+            position: relative;
+            top: 110px;
+            color: @workerText;
+        }
+    }
 }
