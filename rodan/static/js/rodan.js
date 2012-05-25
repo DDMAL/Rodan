@@ -3,6 +3,7 @@ $(document).ready(function () {
     var graph = new Highcharts.Chart({
 
             chart: {
+                backgroundColor: null,
                 height: 300,
 
                 renderTo: 'main-line-graph',
@@ -130,7 +131,7 @@ $(document).ready(function () {
 
                 renderTo: 'main-pie-chart',
 
-                plotBackgroundColor: null,
+                backgroundColor: null,
 
                 plotBorderWidth: null,
                 height: 200,
