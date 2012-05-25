@@ -46,7 +46,7 @@ class Page(models.Model):
         return (size_in_kB / 1024)
 
     def get_absolute_url(self):
-        return '/projects/page_view/%d' % self.id
+        return '/projects/page/%d' % self.id
 
 class Workflow(models.Model):
     name = models.CharField(max_length=50)
