@@ -18,6 +18,9 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return '/projects/%d' % self.id
+
 class Page(models.Model):
     PIXELTYPE_CHOICES = (
         (0, "RGB"),
