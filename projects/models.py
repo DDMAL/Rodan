@@ -48,4 +48,4 @@ class Workflow(models.Model):
 	project = models.ForeignKey(Project)
 
 	def __unicode__(self):
-		return "Workflow name: %s" % self.wf_name
+		return "Workflow name: %s" % self.name
