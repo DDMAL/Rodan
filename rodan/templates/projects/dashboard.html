@@ -3,10 +3,25 @@
 {% block content %}
     <section>
         <h1>Dashboard</h1>
-        <p>What should go on this page??????</p>
-        <p>Create page button (and form - backbone)</p>
-        <p>A listing of all YOUR projects (projects you are associated with)</p>
-        <p>Some statistics about your own projects (brief overview, like one progress bar per project, etc - more in-depth statistics on the project view page)</p>
-        <p>Consider doing the view switching with backbone? Or maybe not, could be buggy (e.g. travis)</p>
+        {% with my_projects=user.get_profile.project_set.all %}
+        {% if my_projects %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Project name</th><th>Number of pages</th><th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in my_projects %}
+                <tr>
+                    <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
+                    <td>{{ project.page_set.count }}</td>
+                    <td>Lol</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% endwith %}
     </section>
 {% endblock %}

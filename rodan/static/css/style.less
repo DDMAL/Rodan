@@ -103,6 +103,14 @@ p {
         padding: 20px;
     }
     overflow-y: auto;
+    a {
+        color: @linkText;
+        text-decoration: none;
+        &:hover {
+            color: @linkHoverText;
+            text-decoration: underline;
+        }
+    }
 }
 
 h1 {
@@ -237,5 +245,21 @@ h1 {
             top: 110px;
             color: @workerText;
         }
+    }
+}
+
+table {
+    width: 100%;
+    border: 1px solid @lightGrey;
+    border-left: 0;
+    border-spacing: 0;
+    th, td {
+        padding: 8px;
+        line-height: 18px;
+        text-align: left;
+        border-left: 1px solid @lightGrey;
+    }
+    th {
+        border-bottom: 1px solid @lightGrey;
     }
 }
