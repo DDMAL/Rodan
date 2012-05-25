@@ -3,13 +3,26 @@
 {% block content %}
     <section>
         <h1>{{ project.name }}</h1>
-        <p>{{ project.description }}</p>
+        <p><strong>Description:</strong> {{ project.description }}</p>
+        <p><strong>Owner{{ project.rodan_users.count|pluralize }}</strong>: {{ project.rodan_users.all|join:", " }}</p>
+        <h2>Project pages</h2>
         {% if project.page_set.count %}
-        <ul>
-        {% for page in project.page_set.all %}
-        <li> <a href="{{ page.get_absolute_url }}">{{page.image_name}} </a></li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for page in project.page_set.all %}
+                    <td><a href="{{ page.get_absolute_url }}">{{page.image_name}}</a></td>
+                    <td>Lol</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
     </section>
 {% endblock %}
