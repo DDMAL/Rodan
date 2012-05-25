@@ -1,0 +1,54 @@
+[
+    {
+        "pk": 1,
+        "model": "projects.rodanuser",
+        "fields": {
+            "affiliation": "Some university",
+            "user": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "projects.project",
+        "fields": {
+            "rodan_users": [
+                1
+            ],
+            "name": "My first project",
+            "description": "This is a project"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "projects.project",
+        "fields": {
+            "rodan_users": [
+                1
+            ],
+            "name": "My second project",
+            "description": "This is another project"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "projects.page",
+        "fields": {
+            "pixel_type": 0,
+            "image_name": "test.tif",
+            "height": 100,
+            "project": 1,
+            "width": 100,
+            "size_in_kB": 100,
+            "path_to_image": "test"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "projects.workflow",
+        "fields": {
+            "project": 1,
+            "name": "Fake workflow",
+            "description": "Fake description"
+        }
+    }
+]
