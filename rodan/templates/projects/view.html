@@ -2,6 +2,9 @@
 
 {% block content %}
     <section>
+        <div class="right-float">
+            <a href="{{ project.get_absolute_url }}/edit" class="button">Edit project</a>
+        </div>
         <h1>{{ project.name }}</h1>
         <p><strong>Description:</strong> {{ project.description }}</p>
         <p><strong>Owner{{ project.rodan_users.count|pluralize }}</strong>: {{ project.rodan_users.all|join:", " }}</p>
