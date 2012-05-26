@@ -1,6 +1,11 @@
-<h2>All projects</h2>
+<form id="search" method="get" action="">
+    <fieldset>
+        <input type="text" name="search" id="search-query" placeholder="Search for a project..." />
+    </fieldset>
+</form>
+<span id="title-tab" class="active">All projects</span><span id="results-tab"></span>
 {% if projects %}
-    <ul>
+    <ul id="project-list">
         {% for project in projects %}
             <li><a href="{{ project.get_absolute_url }}" title="{{ project.description }}">{{ project.name }}</a></li>
         {% endfor %}

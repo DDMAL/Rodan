@@ -322,4 +322,40 @@ $(document).ready(function () {
 
         updateWorkers(fakeSizes);
     }, 4000);
+
+
+    // The search box
+    $('#search').submit(function () {
+        var query = $('#search-query').val().toLowerCase();
+        var numResults = 0;
+        // Hide all the projects that don't have the search term in their name/desc
+        $('#project-list').find('a').each(function () {
+            var projectName = $(this).text().toLowerCase();
+            var projectDesc = $(this).attr('title').toLowerCase();
+            if (projectName.indexOf(query) + projectDesc.indexOf(query) === -2) {
+                // Not present in either the name or the description; hide
+                $(this).hide();
+            } else {
+                $(this).show();
+                numResults++;
+            }
+        });
+
+        var resultsText = numResults + ' result' + ((numResults === 1) ? '' : 's');
+        $('#results-tab').show().addClass('active').text(resultsText);
+        $('#title-tab').removeClass('active');
+        return false;
+    });
+
+    $('#title-tab').click(function () {
+        if (!$('#results-tab').is(':hidden')) {
+            $('#results-tab').removeClass('active').hide();
+            $(this).addClass('active');
+            // Show all the project lis
+            $('#project-list').find('a').each(function () {
+                console.log("lol");
+                $(this).show();
+            });
+        }
+    });
 });
