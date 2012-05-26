@@ -12,7 +12,7 @@ class RodanUser(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=250)
+    description = models.CharField(max_length=250, blank=True, null=True)
     rodan_users = models.ManyToManyField(RodanUser)
 
     def __unicode__(self):
@@ -50,7 +50,7 @@ class Page(models.Model):
 
 class Workflow(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=250)
+    description = models.CharField(max_length=250, blank=True, null=True)
 
     project = models.ForeignKey(Project)
 
