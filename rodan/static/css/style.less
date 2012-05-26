@@ -262,15 +262,15 @@ table {
 }
 
 a.button {
-    #gradient(@offWhite, @lightGrey);
-    color: @darkGrey;
+    #gradient(@buttonBgStart, @buttonBgEnd);
+    color: @buttonText;
     .border-radius(5px);
     padding: 10px;
     font-weight: bold;
-    box-shadow: 0px 0px 2px @mediumGrey;
+    box-shadow: 0px 0px 2px @buttonShadow;
     &:hover {
-        #gradient(@brightBlue, @mediumBlue);
-        color: @white;
+        #gradient(@buttonHoverBgStart, @buttonHoverBgEnd);
+        color: @buttonHoverText;
         text-decoration: none;
     }
 }
