@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from projects.models import Project, Page
+from projects.forms import ProjectForm
 
 def dashboard(request):
     data = {}
@@ -30,18 +31,19 @@ def create(request):
     if not request.user.is_authenticated():
         return redirect('/signup')
 
-    data = {
-        'errors': [],
-    }
     if request.method == 'POST':
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-        if name == '':
-            data['errors'].append("You must enter a project name!")
+        project = Project()
+        form = ProjectForm(request.POST, instance=project)
 
-        if not data['errors']:
-            project = Project.objects.create(name=name, description=description)
+        if form.is_valid():
+            form.save()
             project.rodan_users.add(request.user.get_profile())
             return redirect(project.get_absolute_url())
+    else:
+        form = ProjectForm()
+
+    data = {
+        'form': form,
+    }
 
     return render(request, 'projects/create.html', data)

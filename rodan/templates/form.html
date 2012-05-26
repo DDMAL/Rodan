@@ -1,0 +1,24 @@
+{% comment %}
+A reusable form snippet. Include it in any template file that has a {{ form }}
+instance (or use the `with` keyword).
+    Errors should be passed as a list ({{ errors }}).
+{% endcomment %}
+
+<form method="post" action="">
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="errors">
+        <p>There were errors with the submission!</p>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+    {% for field in form %}
+        <fieldset>
+        <label for="{{ field.html_name }}">{{ field.label }}</label>
+        {{ field }}
+        </fieldset>
+    {% endfor %}
+    <fieldset class="submit">
+        <input type="submit" name="submit" value="Submit" />
+    </fieldset>
+</form>
