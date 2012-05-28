@@ -7,6 +7,9 @@ django-celery==2.5.5
 django-picklefield==0.2.1
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
+ipython==0.12.1
 kombu==2.1.8
+psycopg2==2.4.5
 python-dateutil==1.5
+readline==6.2.2
 wsgiref==0.1.2
