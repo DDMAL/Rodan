@@ -14,7 +14,8 @@ class Project(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250, blank=True, null=True)
     rodan_users = models.ManyToManyField(RodanUser)
-    #workflow = models.ForeignKey('Workflow', null=True)
+    # The default workflow (can be overridden per page)
+    workflow = models.ForeignKey('Workflow', null=True)
 
     def __unicode__(self):
         return self.name
@@ -34,7 +35,8 @@ class Page(models.Model):
     width = models.IntegerField()
     height = models.IntegerField()
     size_in_kB = models.IntegerField()
-
+    # Only NOT NULL if set to something other than the default
+    workflow = models.ForeignKey('Workflow', null=True)
     project = models.ForeignKey(Project)
 
     def __unicode__(self):
