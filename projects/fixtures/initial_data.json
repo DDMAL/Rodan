@@ -43,11 +43,35 @@
         }
     },
     {
-        "pk": 1,
+        "pk": 1, 
+        "model": "projects.job", 
+        "fields": {
+            "name": "An economy-boosting job", 
+            "module": "Flipping burgers"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "projects.job", 
+        "fields": {
+            "name": "Another economy-boosting job", 
+            "module": "Flipping bits"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "projects.workflow", 
+        "fields": {
+            "name": "Fake workflow", 
+            "description": "Fake description"
+        }
+    },
+    {
+        "pk": 2,
         "model": "projects.workflow",
         "fields": {
-            "name": "Fake workflow",
-            "description": "Fake description"
+            "name": "Another workflow",
+            "description": "Another fake description"
         }
     }
 ]
