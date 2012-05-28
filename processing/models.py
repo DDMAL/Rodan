@@ -34,7 +34,7 @@ class SegCorrection(Job):
         return seg_correct_view
 '''
 #inherits the default behaviour and attributes from job, and adds additional information specific to this type of relationship
-class binarise(models.Model):
+class Binarise(models.Model):
     #TO DO: find possible parameters for a ize job
     #perhaps extend this as well for different types of binarisation jobs??
     threshold_value = models.IntegerField()
