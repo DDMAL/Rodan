@@ -10,63 +10,9 @@ class RodanUser(models.Model):
     def __unicode__(self):
         return self.user.username
 
-class Project(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=250, blank=True, null=True)
-    rodan_users = models.ManyToManyField(RodanUser)
-    # The default workflow (can be overridden per page)
-    workflow = models.ForeignKey('Workflow', null=True)
-
-    def __unicode__(self):
-        return self.name
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('projects.views.view', str(self.id))
-
-    # Pass it a regular user (NOT a rodan user)
-    def is_owned_by(self, user):
-        if user.is_authenticated():
-            return self.rodan_users.filter(id=user.get_profile().id).exists()
-        else:
-            return False
-
-class Page(models.Model):
-    PIXELTYPE_CHOICES = (
-        (0, "RGB"),
-        (1, "grey_scale")
-    )
-
-    # Could be just the filename, or something more description
-    image_name = models.CharField(max_length=50)
-    # Full path to the image eventually, just the filename for now
-    path_to_image = models.CharField(max_length=200)
-    pixel_type = models.IntegerField(choices=PIXELTYPE_CHOICES)
-    width = models.IntegerField()
-    height = models.IntegerField()
-    size_in_kB = models.IntegerField()
-    # Only NOT NULL if set to something other than the default
-    workflow = models.ForeignKey('Workflow', null=True)
-    project = models.ForeignKey(Project)
-
-    def __unicode__(self):
-        return self.image_name
-
-    def get_num_pixels(self):
-        return self.width * self.height
-
-    def get_size_in_mB(self):
-        return (size_in_kB / 1024)
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('projects.views.page_view', str(self.id))
-
-    def get_image_url(self):
-        return 'http://rodan.simssa.ca/images/%d/%d/thumbs/0.jpg' % (self.project.id, self.id)
-
 class Job(models.Model):
     name = models.CharField(max_length=50)
+    description = models.CharField(max_length=250)
     module = models.CharField(max_length=100)
 
     def __unicode__(self):
@@ -86,7 +32,48 @@ class Workflow(models.Model):
 class JobItem(models.Model):
     workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
-    sequence = models.IntegerField()
+    sequence = models.IntegerField()        
+
+class Project(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=250, blank=True, null=True)
+    rodan_user = models.ForeignKey(RodanUser)
+    # The default workflow (can be overridden per page)
+    workflow = models.ForeignKey(Workflow, null=True)
+
+    def __unicode__(self):
+        return self.name
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('projects.views.view', str(self.id))
+
+    # Pass it a regular user (NOT a rodan user)
+    def is_owned_by(self, user):
+        if user.is_authenticated():
+            return self.rodan_users.filter(id=user.get_profile().id).exists()
+        else:
+            return False
+
+class Page(models.Model):
+    # Could be just the filename, or something more description
+    image_name = models.CharField(max_length=50)
+    # Full path to the image eventually, just the filename for now
+    path_to_image = models.CharField(max_length=200)
+
+    # Only NOT NULL if set to something other than the default
+    workflow = models.ForeignKey(Workflow, null=True)
+    project = models.ForeignKey(Project)
+
+    def __unicode__(self):
+        return self.image_name
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('projects.views.page_view', str(self.id))
+
+    def get_image_url(self):
+        return 'http://rodan.simssa.ca/images/%d/%d/thumbs/0.jpg' % (self.project.id, self.id)
 
 def create_rodan_user(sender, instance, created, **kwargs):
     if created:
