@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from projects.models import Project, Page
-from projects.forms import ProjectForm
+from projects.models import Project, Page, Job
+from projects.forms import ProjectForm, JobForm, WorkflowForm
 
 def dashboard(request):
-    data = {}
+    jobs = Job.objects.all()
+    data = {'jobs': jobs}
     return render(request, 'projects/dashboard.html', data)
 
 def settings(request):
@@ -47,6 +48,73 @@ def create(request):
     }
 
     return render(request, 'projects/create.html', data)
+
+def job_create(request):
+    if not request.user.is_authenticated():
+        return redirect('/signup')
+
+    if request.method == 'POST':
+        # XXX: Make sure we don't create more than 1 job of the
+        # same details.
+        job = Job()
+        form = JobForm(request.POST, instance=job)
+
+        if form.is_valid():
+            form.save()
+            return redirect("/projects/dashboard")
+    else:
+        form = JobForm()
+
+    data = {
+        'form': form,
+        'action': 'Create'
+    }
+
+    return render(request, 'projects/job_create.html', data)
+
+def job_edit(request, job_id):
+    job = get_object_or_404(Job, pk=job_id)
+    if request.method == "POST":
+        form = JobForm(request.POST, instance=job)
+        if form.is_valid():
+            form.save()
+            return redirect("/projects/dashboard")
+    else:
+        form = JobForm(instance=job)
+
+    data = {
+        'form': form,
+        'action': 'Edit'
+    }
+    return render(request, 'projects/job_create.html', data)
+
+def workflow_edit(request, workflow_id):
+    pass
+
+def workflow_create(request):
+    # https://docs.djangoproject.com/en/dev/topics/forms/media/
+    # For form-specific javascript files
+    if not request.user.is_authenticated():
+        return redirect('/signup')
+
+    if request.method == 'POST':
+        # XXX: Make sure we don't create more than 1 job of the
+        # same details.
+        job = Job()
+        form = JobForm(request.POST, instance=job)
+
+        if form.is_valid():
+            form.save()
+            return redirect(job.get_absolute_url())
+    else:
+        form = WorkflowForm()
+
+    data = {
+        'form': form,
+        'action': 'Create'
+    }
+
+    return render(request, 'projects/workflow_create.html', data)
 
 def edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)

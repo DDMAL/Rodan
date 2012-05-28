@@ -14,6 +14,7 @@ class Project(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250, blank=True, null=True)
     rodan_users = models.ManyToManyField(RodanUser)
+    #workflow = models.ForeignKey('Workflow', null=True)
 
     def __unicode__(self):
         return self.name
@@ -48,14 +49,28 @@ class Page(models.Model):
     def get_absolute_url(self):
         return '/projects/page/%d' % self.id
 
+class Job(models.Model):
+    name = models.CharField(max_length=50)
+    module = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return "Job %s (%s)" % (self.name, self.module)
+
+    def get_absolute_url(self):
+        return '/projects/job/%d' % self.id
+
 class Workflow(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=250, blank=True, null=True)
-
-    project = models.ForeignKey(Project)
+    description = models.CharField(max_length=250)
+    jobs = models.ManyToManyField(Job, through='JobItem')
 
     def __unicode__(self):
         return "Workflow name: %s" % self.name
+
+class JobItem(models.Model):
+    workflow = models.ForeignKey(Workflow)
+    job = models.ForeignKey(Job)
+    sequence = models.IntegerField()
 
 def create_rodan_user(sender, instance, created, **kwargs):
     if created:

@@ -29,4 +29,58 @@
         {% endif %}
         {% endwith %}
     </section>
+
+    <section>
+        <div class="right-float">
+            <a class="button" href="/projects/job/create">Create job</a>
+        </div>
+        <h1>Jobs</h1>
+
+        {% if jobs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Job name</th><th>Job module</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in jobs %}
+                <tr>
+                    <td>{{ j.name }}</td>
+                    <td>{{ j.module }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Jobs make the economy stronger!</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <div class="right-float">
+            <a class="button" href="/projects/workflow/create">Create workflow</a>
+        </div>
+        <h1>Workflows</h1>
+
+        {% if workflows %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Workflow name</th><th>Number of jobs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flow in workflows %}
+                <tr>
+                    <td><a href="{{ flow.get_absolute_url }}">{{ flow.name }}</a></td>
+                    <td>{{ flow.job_set.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Create some jobs in order to make a workflow</p>
+        {% endif %}
+    </section>
 {% endblock %}

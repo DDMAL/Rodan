@@ -258,4 +258,6 @@ $(document).ready(function () {
             });
         }
     });
+
+    $("#workflow_list").sortable();
 });
