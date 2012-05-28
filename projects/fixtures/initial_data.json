@@ -34,12 +34,12 @@
         "model": "projects.page",
         "fields": {
             "pixel_type": 0,
-            "image_name": "test.tif",
+            "image_name": "salzinnes_001.tif",
             "height": 100,
             "project": 1,
             "width": 100,
             "size_in_kB": 100,
-            "path_to_image": "test"
+            "path_to_image": "/mnt/images/salzinnes_001.tif"
         }
     },
     {
