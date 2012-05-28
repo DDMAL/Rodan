@@ -6,7 +6,6 @@
             <a class="button" href="{% url projects.views.create %}">Create project</a>
         </div>
         <h1>Dashboard</h1>
-        {% with my_projects=user.get_profile.project_set.all %}
         {% if my_projects %}
         <table>
             <thead>
@@ -27,7 +26,6 @@
         {% else %}
         <p>You have no projects. How sad. Create one! (See the button above)</p>
         {% endif %}
-        {% endwith %}
     </section>
 
     <section>

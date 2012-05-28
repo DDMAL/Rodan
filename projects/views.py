@@ -7,7 +7,10 @@ from django.http import Http404
 @login_required
 def dashboard(request):
     jobs = Job.objects.all()
-    data = {'jobs': jobs}
+    data = {
+        'jobs': jobs,
+        'my_projects': request.user.get_profile().project_set.all(),
+    }
     return render(request, 'projects/dashboard.html', data)
 
 def settings(request):
