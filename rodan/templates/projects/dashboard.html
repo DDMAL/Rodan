@@ -72,7 +72,7 @@
                 {% for flow in workflows %}
                 <tr>
                     <td><a href="{{ flow.get_absolute_url }}">{{ flow.name }}</a></td>
-                    <td>{{ flow.job_set.count }}</td>
+                    <td>{{ flow.jobs.count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,14 +1,16 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from projects.models import Project, Page, Job
+from projects.models import Project, Page, Job, Workflow
 from projects.forms import ProjectForm, JobForm, WorkflowForm
 from django.http import Http404
 
 @login_required
 def dashboard(request):
     jobs = Job.objects.all()
+    workflows = Workflow.objects.all()
     data = {
         'jobs': jobs,
+        'workflows': workflows,
         'my_projects': request.user.get_profile().project_set.all(),
     }
     return render(request, 'projects/dashboard.html', data)
