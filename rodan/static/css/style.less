@@ -311,3 +311,20 @@ a.button {
 h2 {
     margin: 15px 0px;
 }
+
+.breadcrumbs {
+    list-style-type: none;
+    .border-radius(5px);
+    #gradient(@offWhite, @lighterGrey);
+    border: 1px solid @lightGrey;
+    padding: 7px 14px;
+    li {
+        display: inline-block;
+    }
+    li:not(:last-child):after {
+        // Add a » between the elements
+        content: "\00a0\00a0\00a0\00BB\00a0\00a0";
+    }
+    margin-bottom: 20px;
+
+}

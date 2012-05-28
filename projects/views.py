@@ -27,7 +27,8 @@ def page_view(request,page_id):
     page = Page.objects.get(pk=page_id)
 
     data = {
-        'page':page
+        'page': page,
+        'project': page.project,
     }
     return render(request,'projects/page_view.html', data)
 

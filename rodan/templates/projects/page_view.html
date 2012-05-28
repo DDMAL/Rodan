@@ -2,6 +2,10 @@
 
 {% block content %}
     <section>
+        <ul class="breadcrumbs">
+            <li><a href="{{ project.get_absolute_url }}">{{ project }}</a></li>
+            <li>{{ page }}</li>
+        </ul>
         <h1>{{ page.image_name }}</h1>
         <a href="/processing/binarise/simple/{{ page.id }}">Binarise</a>
     </section>
