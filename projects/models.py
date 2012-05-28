@@ -20,8 +20,9 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    @models.permalink
     def get_absolute_url(self):
-        return '/projects/%d' % self.id
+        return ('projects.views.view', str(self.id))
 
 class Page(models.Model):
     PIXELTYPE_CHOICES = (
@@ -48,8 +49,9 @@ class Page(models.Model):
     def get_size_in_mB(self):
         return (size_in_kB / 1024)
 
+    @models.permalink
     def get_absolute_url(self):
-        return '/projects/page/%d' % self.id
+        return ('projects.views.page_view', str(self.id))
 
 class Job(models.Model):
     name = models.CharField(max_length=50)
