@@ -7,6 +7,7 @@
             <li>{{ page }}</li>
         </ul>
         <h1>{{ page.image_name }}</h1>
+        <p><img src="{{ page.get_image_url }}"></p>
         <a href="/processing/binarise/simple/{{ page.id }}">Binarise</a>
     </section>
 {% endblock %}

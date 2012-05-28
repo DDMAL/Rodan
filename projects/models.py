@@ -62,6 +62,9 @@ class Page(models.Model):
     def get_absolute_url(self):
         return ('projects.views.page_view', str(self.id))
 
+    def get_image_url(self):
+        return 'http://rodan.simssa.ca/images/%d/%d/thumbs/0.jpg' % (self.project.id, self.id)
+
 class Job(models.Model):
     name = models.CharField(max_length=50)
     module = models.CharField(max_length=100)
