@@ -30,8 +30,10 @@ class Page(models.Model):
         (1, "grey_scale")
     )
 
+    # Could be just the filename, or something more description
     image_name = models.CharField(max_length=50)
-    path_to_image = models.CharField(max_length=200) #full path + file name? or just directory location?
+    # Full path to the image eventually, just the filename for now
+    path_to_image = models.CharField(max_length=200)
     pixel_type = models.IntegerField(choices=PIXELTYPE_CHOICES)
     width = models.IntegerField()
     height = models.IntegerField()
