@@ -15,14 +15,14 @@
 <body>
     <div id="navbar">
         <ul>
-            <li class="title"><a href="/">Rodan</a></li>
+            <li class="title"><a href="{% url rodan.views.home %}">Rodan</a></li>
             {% if user.is_authenticated %}
-                <li><a href="/projects/dashboard">Dashboard</a></li>
-                <li><a href="/projects/settings">Settings</a></li>
-                <li><a href="/logout">Log out ({{ user.username }})</a></li>
-                {% if user.is_staff %}<li><a href="/admin/">Admin</a></li>{% endif %}
+                <li><a href="{% url projects.views.dashboard %}">Dashboard</a></li>
+                <li><a href="{% url projects.views.settings %}">Settings</a></li>
+                <li><a href="{% url rodan.views.logout_view %}">Log out ({{ user.username }})</a></li>
+                {% if user.is_staff %}<li><a href="{% url admin:index %}">Admin</a></li>{% endif %}
             {% else %}
-                <li><a href="/signup">Login/register</a></li>
+                <li><a href="{% url rodan.views.signup %}">Login/register</a></li>
             {% endif %}
         </ul>
     </div>
