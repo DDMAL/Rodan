@@ -102,14 +102,12 @@ def workflow_create(request):
     # https://docs.djangoproject.com/en/dev/topics/forms/media/
     # For form-specific javascript files
     if request.method == 'POST':
-        # XXX: Make sure we don't create more than 1 job of the
-        # same details.
-        job = Job()
-        form = JobForm(request.POST, instance=job)
+        workflow = Workflow()
+        form = WorkflowForm(request.POST, instance=job)
 
         if form.is_valid():
             form.save()
-            return redirect(job.get_absolute_url())
+            return redirect(workflow.get_absolute_url())
     else:
         form = WorkflowForm()
 
