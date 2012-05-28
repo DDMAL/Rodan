@@ -43,7 +43,7 @@ class Page(models.Model):
     project = models.ForeignKey(Project)
 
     def __unicode__(self):
-        return "Page %s" % (self.path_to_image + self.image_name)
+        return self.image_name
 
     def get_num_pixels(self):
         return self.width * self.height
