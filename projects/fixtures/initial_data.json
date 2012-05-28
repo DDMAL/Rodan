@@ -46,7 +46,6 @@
         "pk": 1,
         "model": "projects.workflow",
         "fields": {
-            "project": 1,
             "name": "Fake workflow",
             "description": "Fake description"
         }
