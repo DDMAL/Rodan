@@ -30,7 +30,16 @@ Install all the dependencies:
 
 if you need to add a dependency, install it with pip then run
 
-    pip freeze > requirements.txt and commit the requirements file
+    pip freeze > requirements.txt
+
+and commit the requirements file
+
+Setup
+-----
+* Install rabbitmq if required
+* /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
+* /usr/local/sbin/rabbitmqctl add_vhost DDMAL
+* /usr/local/sbin/rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
 
 Instructions
 ------------
@@ -38,9 +47,14 @@ Instructions
 * Check out the source with `git clone git@github.com:DDMAL/Rodan.git rodan`
 * `cd` into the rodan directory
 * `source rodan_env/bin/activate` to setup the virtualenv
-* `python manage.py syncdb` should do all the database stuff for you
+* `python manage.py syncdb` should do all the database stuff for you. Don't say yes when asked
+   to create a superuser and a fixture will be created
+* `python manage.py celeryd --loglevel=info` to start the celery broker
 * `python manage.py runserver`. Access the site at http://localhost:8000
-* If you're running it on susato and want to be able to access it remotely, pick a port (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`. You can now access your Django instance from http://rodan.simssa.ca:8001. If the port you're trying to use is already taken, use another one.
+* If you're running it on susato and want to be able to access it remotely, pick a port
+  (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`.
+  You can now access your Django instance from http://rodan.simssa.ca:8001. If the
+  port you're trying to use is already taken, use another one.
 
 Project layout
 -------------
