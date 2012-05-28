@@ -3,7 +3,7 @@
 {% block wrap %}
     <div id="dialog">
         <h1>Login/register</h1>
-        <form method="post">
+        <form method="post" action="{{ full_path }}">
             {% csrf_token %}
             {% if errors %}
             <div class="errors">

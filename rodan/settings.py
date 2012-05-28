@@ -182,3 +182,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 # So that calling get_profile on a user will return the RodanUser instance
 AUTH_PROFILE_MODULE = 'projects.RodanUser'
+
+# Used in conjunction with the @login_required decorator
+LOGIN_URL = '/signup'

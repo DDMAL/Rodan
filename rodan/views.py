@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from projects.views import dashboard
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 
 # The statistics and everything
@@ -26,13 +27,16 @@ def home(request):
 
     return render(request, 'home.html', data)
 
-# View to allow unauthenticate users to log in or create accounts
+# View to allow unauthenticated users to log in or create accounts
 def signup(request):
+    path = request.GET.get('next', '') or reverse('dashboard')
     # If the user is already logged in, go to dashboard
     if request.user.is_authenticated():
-        return redirect('/projects/dashboard')
+        return redirect(path)
 
-    data = {}
+    data = {
+        'full_path': request.get_full_path,
+    }
     if request.POST:
         errors = []
         username = request.POST.get('username', '')
@@ -56,12 +60,12 @@ def signup(request):
                 User.objects.create_user(username, email, password)
                 new_user = authenticate(username=username, password=password)
                 login(request, new_user)
-                return redirect('/projects/dashboard')
+                return redirect(path)
         else:
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('/projects/dashboard')
+                return redirect(path)
             else:
                 errors.append("Login error. Wrong password/username?")
 

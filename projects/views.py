@@ -1,7 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from projects.models import Project, Page, Job
 from projects.forms import ProjectForm, JobForm, WorkflowForm
 
+@login_required
 def dashboard(request):
     jobs = Job.objects.all()
     data = {'jobs': jobs}
@@ -28,10 +30,8 @@ def page_view(request,page_id):
     }
     return render(request,'projects/page_view.html', data)
 
+@login_required
 def create(request):
-    if not request.user.is_authenticated():
-        return redirect('/signup')
-
     if request.method == 'POST':
         project = Project()
         form = ProjectForm(request.POST, instance=project)
@@ -49,10 +49,8 @@ def create(request):
 
     return render(request, 'projects/create.html', data)
 
+@login_required
 def job_create(request):
-    if not request.user.is_authenticated():
-        return redirect('/signup')
-
     if request.method == 'POST':
         # XXX: Make sure we don't create more than 1 job of the
         # same details.
@@ -72,6 +70,7 @@ def job_create(request):
 
     return render(request, 'projects/job_create.html', data)
 
+@login_required
 def job_edit(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
     if request.method == "POST":
@@ -91,12 +90,10 @@ def job_edit(request, job_id):
 def workflow_edit(request, workflow_id):
     pass
 
+@login_required
 def workflow_create(request):
     # https://docs.djangoproject.com/en/dev/topics/forms/media/
     # For form-specific javascript files
-    if not request.user.is_authenticated():
-        return redirect('/signup')
-
     if request.method == 'POST':
         # XXX: Make sure we don't create more than 1 job of the
         # same details.
@@ -116,6 +113,7 @@ def workflow_create(request):
 
     return render(request, 'projects/workflow_create.html', data)
 
+@login_required
 def edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     if request.method == "POST":
