@@ -24,6 +24,13 @@ class Project(models.Model):
     def get_absolute_url(self):
         return ('projects.views.view', str(self.id))
 
+    # Pass it a regular user (NOT a rodan user)
+    def is_owned_by(self, user):
+        if user.is_authenticated():
+            return self.rodan_users.filter(id=user.get_profile().id).exists()
+        else:
+            return False
+
 class Page(models.Model):
     PIXELTYPE_CHOICES = (
         (0, "RGB"),

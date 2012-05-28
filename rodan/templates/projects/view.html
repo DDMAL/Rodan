@@ -2,9 +2,11 @@
 
 {% block content %}
     <section>
+        {% if user_can_edit %}
         <div class="right-float">
             <a href="{{ project.get_absolute_url }}/edit" class="button">Edit project</a>
         </div>
+        {% endif %}
         <h1>{{ project.name }}</h1>
         <p><strong>Description:</strong> {% if project.description %}{{ project.description }}{% else %}<em>No description</em>{% endif %}</p>
         <p><strong>Owner{{ project.rodan_users.count|pluralize }}</strong>: {{ project.rodan_users.all|join:", " }}</p>

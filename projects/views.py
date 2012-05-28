@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from projects.models import Project, Page, Job
 from projects.forms import ProjectForm, JobForm, WorkflowForm
+from django.http import Http404
 
 @login_required
 def dashboard(request):
@@ -14,11 +15,11 @@ def settings(request):
     return render(request, 'projects/settings.html', data)
 
 def view(request, project_id):
-    # Fake project for now (until the model is set up)
     project = Project.objects.get(pk=project_id)
 
     data = {
         'project': project,
+        'user_can_edit': project.is_owned_by(request.user),
     }
     return render(request, 'projects/view.html', data)
 
@@ -116,6 +117,11 @@ def workflow_create(request):
 @login_required
 def edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    # If the user is not one of the owners, show 404
+    if not project.is_owned_by(request.user):
+        raise Http404
+
     if request.method == "POST":
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
