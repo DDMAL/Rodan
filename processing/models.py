@@ -34,17 +34,17 @@ class SegCorrection(Job):
         return seg_correct_view
 '''
 #inherits the default behaviour and attributes from job, and adds additional information specific to this type of relationship
-class Binarize(models.Model):
-    #TO DO: find possible parameters for a binarize job
-    #perhaps extend this as well for different types of binarization jobs??
+class binarise(models.Model):
+    #TO DO: find possible parameters for a ize job
+    #perhaps extend this as well for different types of binarisation jobs??
     threshold_value = models.IntegerField()
 
     result = models.OneToOneField(Result)
 
     def __unicode__(self):
-        return "Binarize Result w/ threshold_value=%s" % self.threshold_value
+        return "binarise Result w/ threshold_value=%s" % self.threshold_value
 
-    def binarize_image(self):
+    def binarise_image(self):
         bin_page = self.result.page
         path_to_img = bin_page.path_to_image.encode('ascii','ignore') #not used for now
         image_name = bin_page.image_name.encode('ascii','ignore')
@@ -61,7 +61,7 @@ class Binarize(models.Model):
         if not os.path.exists("resultimages"):
             os.makedirs("resultimages")
 
-        output_path =  "resultimages/" + file_name + "_binarize_simpletresh_" + str(self.threshold_value) + file_extension
+        output_path =  "resultimages/" + file_name + "_binarise_simplethresh_" + str(self.threshold_value) + file_extension
         gam.save_image(output_img, output_path)
 
         return output_path
