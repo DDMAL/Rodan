@@ -10,9 +10,9 @@ class ProjectForm(ModelForm):
 
 class JobForm(ModelForm):
     class Meta:
-        exclude = ('rodan_users',)
         model = Job
 
 class WorkflowForm(ModelForm):
     class Meta:
         model = Workflow
+        exclude = ('jobs',)
