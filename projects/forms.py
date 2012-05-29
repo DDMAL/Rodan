@@ -5,7 +5,7 @@ from projects.models import Workflow
 
 class ProjectForm(ModelForm):
     class Meta:
-        exclude = ('rodan_users',)
+        exclude = ('rodan_user', 'workflow')
         model = Project
 
 class JobForm(ModelForm):
