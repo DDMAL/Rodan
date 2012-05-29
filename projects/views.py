@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from projects.models import Project, Page, Job, Workflow
-from projects.forms import ProjectForm, JobForm, WorkflowForm, PageForm
+from projects.forms import ProjectForm, JobForm, WorkflowForm, PageForm, PageUploadForm
 from django.http import Http404
+from django.conf import settings as django_settings
 
 import logging
 import pdb
@@ -26,16 +27,22 @@ def settings(request):
 
 def view(request, project_id):
     project = Project.objects.get(pk=project_id)
+    path = 'uploads/rodan/static/'
     if request.method == "POST":
-        form = PageForm(request.POST, request.FILES)
-        logger.error(request.FILES)
+        
+        #page.save()
+        #page = Page()
+        form = PageUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(request.FILES['path_to_image'])
-            form.save();
+            handle_uploaded_file(request.FILES['path_to_image'], path)
+            page = Page.objects.create(image_name=request.FILES['path_to_image'],path_to_image=django_settings.MEDIA_ROOT, project=project)
+            #page.save()
+            #page.image_name = request.FILES['path_to_image']
+            project.page_set.add(page)
+            #form.save()
     else:
-        form = PageForm(request.FILES)
+        form = PageUploadForm()
     
-    logger.error("hello!")
     #pdb.set_trace()
     data = {
         'file_upload': True,
@@ -46,7 +53,7 @@ def view(request, project_id):
     return render(request, 'projects/view.html', data)
 
 def handle_uploaded_file(f):
-    dest = open('/Users/bstern/Desktop/TestImages/test.jpg', 'wb')
+    dest = open(django_settings.MEDIA_ROOT + "/" + f.name, 'wb')
     for chunk in f.chunks():
         dest.write(chunk)
     dest.close()
@@ -129,20 +136,20 @@ def workflow_edit(request, workflow_id):
     workflow = get_object_or_404(Workflow, pk=workflow_id)
     if request.method == 'POST':
         form = WorkflowForm(request.POST, instance=workflow)
-
+        
         if form.is_valid():
             form.save()
             return redirect(workflow.get_absolute_url())
         # If there are errors?
     else:
         form = WorkflowForm(instance=workflow)
-
+    
     data = {
         'form': form,
         'action': 'Edit',
         'jobs': Job.objects.all()
     }
-
+    
     return render(request, 'projects/workflow_create.html', data)
 
 @login_required
@@ -171,7 +178,7 @@ def workflow_view(request, workflow_id):
     data = {
         'workflow': workflow,
     }
-
+    
     return render(request, 'projects/workflow_view.html', data)
 
 @login_required

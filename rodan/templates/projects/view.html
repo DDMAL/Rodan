@@ -20,12 +20,12 @@
                 </tr>
             </thead>
             <tbody>
+				{% for page in project.page_set.all %}
                 <tr>
-                    {% for page in project.page_set.all %}
                     <td><a href="{{ page.get_absolute_url }}">{{page.image_name}}</a></td>
-                    <td>Lol</td>
-                    {% endfor %}
+                    <td>:O</td>
                 </tr>
+				{% endfor %}
             </tbody>
         </table>
         {% else %}
