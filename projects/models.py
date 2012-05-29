@@ -37,7 +37,7 @@ class Workflow(models.Model):
         return ('projects.views.workflow_view', str(self.id))
 
     def __unicode__(self):
-        return "Workflow name: %s" % self.name
+        return self.name
 
 class JobItem(models.Model):
     workflow = models.ForeignKey(Workflow)
