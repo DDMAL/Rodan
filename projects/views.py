@@ -33,19 +33,18 @@ def page_view(request,page_id):
 
     data = {
         'page': page,
-        'project': page.project,
+        'jobs': Job.objects.all(),
     }
     return render(request,'projects/page_view.html', data)
 
 @login_required
 def create(request):
     if request.method == 'POST':
-        project = Project()
+        project = Project(rodan_user=request.user.get_profile())
         form = ProjectForm(request.POST, instance=project)
 
         if form.is_valid():
             form.save()
-            project.rodan_user = request.user.get_profile()
             return redirect(project.get_absolute_url())
     else:
         form = ProjectForm()
