@@ -84,7 +84,7 @@ class Page(models.Model):
         return ('projects.views.page_view', str(self.id))
 
     def get_image_url(self):
-        return 'http://rodan.simssa.ca/images/%d/%d/thumbs/0.jpg' % (self.project.id, self.id)
+        return '%s/%d/%d/thumbs/0.jpg' % (settings.IMAGE_SERVER_URL, self.project.id, self.id)
 
 def create_rodan_user(sender, instance, created, **kwargs):
     if created:

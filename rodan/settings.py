@@ -1,5 +1,3 @@
-# Django settings for rodan project.
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -185,3 +183,6 @@ AUTH_PROFILE_MODULE = 'projects.RodanUser'
 
 # Used in conjunction with the @login_required decorator
 LOGIN_URL = '/signup'
+
+# URL to the directory under which the images are located
+IMAGE_SERVER_URL = 'http://rodan.simssa.ca/images'
