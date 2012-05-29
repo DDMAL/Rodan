@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 
+
 urlpatterns = patterns('projects.views',
     url(r'^dashboard', 'dashboard', name='dashboard'),
     url(r'^settings', 'settings'),
@@ -11,4 +12,5 @@ urlpatterns = patterns('projects.views',
     url(r'^job/(?P<job_id>\d+)', 'job_edit'),
     url(r'^workflow/create', 'workflow_create'),
     url(r'^workflow/(?P<workflow_id>\d+)', 'workflow_edit'),
+
 )

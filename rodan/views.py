@@ -82,3 +82,9 @@ def logout_view(request):
     if request.user.is_authenticated():
         logout(request)
     return redirect('/')
+
+def upload(request):
+    if request.user.is_authenticated():
+        return render(request, 'upload.html')
+    else:
+        return redirect('/')

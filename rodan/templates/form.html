@@ -4,7 +4,7 @@ instance (or use the `with` keyword).
     Errors should be passed as a list ({{ errors }}).
 {% endcomment %}
 
-<form method="post" action="">
+<form method="post" action=""{% if file_upload %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     {% if form.errors %}
     <div class="errors">
