@@ -11,9 +11,14 @@ class RodanUser(models.Model):
         return self.user.username
 
 class Job(models.Model):
+    MODULE_CHOICES = (
+        ('BI','Binarise'),
+        ('RO','Rotate')
+    )
+
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
-    module = models.CharField(max_length=100)
+    module = models.CharField(max_length=100,choices=MODULE_CHOICES)
 
     def __unicode__(self):
         return "Job %s (%s)" % (self.name, self.module)
@@ -51,7 +56,8 @@ class Project(models.Model):
     # Pass it a regular user (NOT a rodan user)
     def is_owned_by(self, user):
         if user.is_authenticated():
-            return self.rodan_users.filter(id=user.get_profile().id).exists()
+            return (self.rodan_user.id == user.id)
+            #return self.rodan_user.filter(id=user.get_profile().id).exists()
         else:
             return False
 

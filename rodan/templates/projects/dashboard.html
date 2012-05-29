@@ -38,13 +38,14 @@
         <table>
             <thead>
                 <tr>
-                    <th>Job name</th><th>Job module</th>
+                    <th>Job name</th><th>Job description</th><th>Job module</th>
                 </tr>
             </thead>
             <tbody>
                 {% for j in jobs %}
                 <tr>
                     <td>{{ j.name }}</td>
+                    <td>{{ j.description }}</td>
                     <td>{{ j.module }}</td>
                 </tr>
                 {% endfor %}
