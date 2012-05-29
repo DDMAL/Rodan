@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 
+
 urlpatterns = patterns('projects.views',
     url(r'^dashboard', 'dashboard', name='dashboard'),
     url(r'^settings', 'settings'),

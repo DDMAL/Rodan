@@ -20,16 +20,18 @@
                 </tr>
             </thead>
             <tbody>
+				{% for page in project.page_set.all %}
                 <tr>
-                    {% for page in project.page_set.all %}
                     <td><a href="{{ page.get_absolute_url }}">{{page.image_name}}</a></td>
-                    <td>Lol</td>
-                    {% endfor %}
+                    <td>:O</td>
                 </tr>
+				{% endfor %}
             </tbody>
         </table>
         {% else %}
         <p>This project doesn't have any pages yet. Add a new one using some button, not sure how this should work yet</p>
         {% endif %}
+        <h2> Upload a file! </h2>
+        {% include "form.html" %}
     </section>
 {% endblock %}
