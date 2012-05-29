@@ -9,7 +9,7 @@
         {% endif %}
         <h1>{{ project.name }}</h1>
         <p><strong>Description:</strong> {% if project.description %}{{ project.description }}{% else %}<em>No description</em>{% endif %}</p>
-        <p><strong>Owner{{ project.rodan_users.count|pluralize }}</strong>: {{ project.rodan_users.all|join:", " }}</p>
+        <p><strong>Owner</strong>: {{ project.rodan_user }}</p>
         <h2>Project pages</h2>
         {% if project.page_set.count %}
         <table>

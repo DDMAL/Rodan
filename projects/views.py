@@ -45,7 +45,7 @@ def create(request):
 
         if form.is_valid():
             form.save()
-            project.rodan_users.add(request.user.get_profile())
+            project.rodan_user = request.user.get_profile()
             return redirect(project.get_absolute_url())
     else:
         form = ProjectForm()
