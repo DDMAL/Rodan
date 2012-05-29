@@ -23,13 +23,18 @@ class Job(models.Model):
     def __unicode__(self):
         return "Job %s (%s)" % (self.name, self.module)
 
+    @models.permalink
     def get_absolute_url(self):
-        return '/projects/job/%d' % self.id
+        return ('projects.views.job_view', str(self.id))
 
 class Workflow(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
     jobs = models.ManyToManyField(Job, through='JobItem')
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('projects.views.workflow_view', str(self.id))
 
     def __unicode__(self):
         return "Workflow name: %s" % self.name
