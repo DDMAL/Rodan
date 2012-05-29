@@ -9,8 +9,9 @@ urlpatterns = patterns('projects.views',
     url(r'^page/(?P<page_id>\d+)', 'page_view'),
     url(r'^create', 'create'),
     url(r'^job/create', 'job_create'),
-    url(r'^job/(?P<job_id>\d+)', 'job_edit'),
+    url(r'^job/(?P<job_id>\d+)/edit', 'job_edit'),
+    url(r'^job/(?P<job_id>\d+)', 'job_view'),
     url(r'^workflow/create', 'workflow_create'),
-    url(r'^workflow/(?P<workflow_id>\d+)', 'workflow_edit'),
-
+    url(r'^workflow/(?P<workflow_id>\d+)/edit', 'workflow_edit'),
+    url(r'^workflow/(?P<workflow_id>\d+)', 'workflow_view'),
 )

@@ -1,5 +1,3 @@
-# Django settings for rodan project.
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -204,5 +202,7 @@ AUTH_PROFILE_MODULE = 'projects.RodanUser'
 # Used in conjunction with the @login_required decorator
 LOGIN_URL = '/signup'
 
-MEDIA_ROOT = "Users/bstern/Desktop"
-MEDIA_URL = "Users/bstern/Desktop"
+MEDIA_ROOT = "uploads"
+MEDIA_URL = "/uploads/"
+# URL to the directory under which the images are located
+IMAGE_SERVER_URL = 'http://rodan.simssa.ca/images'

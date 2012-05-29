@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from rodan import settings
 
 class RodanUser(models.Model): 
     user = models.OneToOneField(User)
@@ -22,18 +23,22 @@ class Job(models.Model):
     
     def __unicode__(self):
         return "Job %s (%s)" % (self.name, self.module)
-    
+
+    @models.permalink
     def get_absolute_url(self):
-        return '/projects/job/%d' % self.id
-    
+        return ('projects.views.job_view', str(self.id))
 
 class Workflow(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
     jobs = models.ManyToManyField(Job, through='JobItem')
-    
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('projects.views.workflow_view', str(self.id))
+
     def __unicode__(self):
-        return "Workflow name: %s" % self.name
+        return self.name
 
 class JobItem(models.Model):
     workflow = models.ForeignKey(Workflow)
@@ -81,7 +86,7 @@ class Page(models.Model):
         return ('projects.views.page_view', str(self.id))
     
     def get_image_url(self):
-        return 'http://rodan.simssa.ca/images/%d/%d/thumbs/0.jpg' % (self.project.id, self.id)
+        return '%s/%d/%d/thumbs/0.jpg' % (settings.IMAGE_SERVER_URL, self.project.id, self.id)
 
 def create_rodan_user(sender, instance, created, **kwargs):
     if created:

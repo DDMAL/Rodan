@@ -68,7 +68,7 @@ def create(request):
         
         if form.is_valid():
             form.save()
-            project.rodan_users.add(request.user.get_profile())
+            project.rodan_user = request.user.get_profile()
             return redirect(project.get_absolute_url())
     else:
         form = ProjectForm()
@@ -117,8 +117,33 @@ def job_edit(request, job_id):
     }
     return render(request, 'projects/job_create.html', data)
 
+def job_view(request, job_id):
+    job = get_object_or_404(Job, pk=job_id)
+    data = {
+        'job': job,
+    }
+
+    return render(request, 'projects/job_view.html', data)
+
 def workflow_edit(request, workflow_id):
-    pass
+    workflow = get_object_or_404(Workflow, pk=workflow_id)
+    if request.method == 'POST':
+        form = WorkflowForm(request.POST, instance=workflow)
+
+        if form.is_valid():
+            form.save()
+            return redirect(workflow.get_absolute_url())
+        # If there are errors?
+    else:
+        form = WorkflowForm(instance=workflow)
+
+    data = {
+        'form': form,
+        'action': 'Edit',
+        'jobs': Job.objects.all()
+    }
+
+    return render(request, 'projects/workflow_create.html', data)
 
 @login_required
 def workflow_create(request):
@@ -126,8 +151,7 @@ def workflow_create(request):
     # For form-specific javascript files
     if request.method == 'POST':
         workflow = Workflow()
-        form = WorkflowForm(request.POST, instance=job)
-        
+        form = WorkflowForm(request.POST, instance=workflow)
         if form.is_valid():
             form.save()
             return redirect(workflow.get_absolute_url())
@@ -136,10 +160,19 @@ def workflow_create(request):
     
     data = {
         'form': form,
-        'action': 'Create'
+        'action': 'Create',
+        'jobs': Job.objects.all()
     }
     
     return render(request, 'projects/workflow_create.html', data)
+
+def workflow_view(request, workflow_id):
+    workflow = get_object_or_404(Workflow, pk=workflow_id)
+    data = {
+        'workflow': workflow,
+    }
+
+    return render(request, 'projects/workflow_view.html', data)
 
 @login_required
 def edit(request, project_id):
