@@ -1,77 +1,74 @@
 [
     {
-        "pk": 1,
-        "model": "projects.rodanuser",
+        "pk": 1, 
+        "model": "projects.rodanuser", 
         "fields": {
-            "affiliation": "Some university",
+            "affiliation": "Some university", 
             "user": 1
         }
-    },
-    {
-        "pk": 1,
-        "model": "projects.project",
-        "fields": {
-            "rodan_users": [
-                1
-            ],
-            "name": "My first project",
-            "description": "This is a project"
-        }
-    },
-    {
-        "pk": 2,
-        "model": "projects.project",
-        "fields": {
-            "rodan_users": [
-                1
-            ],
-            "name": "My second project",
-            "description": "This is another project"
-        }
-    },
-    {
-        "pk": 1,
-        "model": "projects.page",
-        "fields": {
-            "pixel_type": 0,
-            "image_name": "salzinnes_001.tif",
-            "height": 100,
-            "project": 1,
-            "width": 100,
-            "size_in_kB": 100,
-            "path_to_image": "/mnt/images/salzinnes_001.tif"
-        }
-    },
+    }, 
     {
         "pk": 1, 
         "model": "projects.job", 
         "fields": {
-            "name": "An economy-boosting job", 
-            "module": "Flipping burgers"
+            "name": "bin job", 
+            "module": "BI", 
+            "description": "gotta binarise them all"
         }
     }, 
     {
         "pk": 2, 
         "model": "projects.job", 
         "fields": {
-            "name": "Another economy-boosting job", 
-            "module": "Flipping bits"
+            "name": "rot job", 
+            "module": "RO", 
+            "description": "rotate all day"
         }
     }, 
     {
         "pk": 1, 
         "model": "projects.workflow", 
         "fields": {
-            "name": "Fake workflow", 
-            "description": "Fake description"
+            "name": "mywf", 
+            "description": "cool wf"
         }
-    },
+    }, 
     {
-        "pk": 2,
-        "model": "projects.workflow",
+        "pk": 1, 
+        "model": "projects.jobitem", 
         "fields": {
-            "name": "Another workflow",
-            "description": "Another fake description"
+            "job": 1, 
+            "sequence": 1, 
+            "workflow": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "projects.jobitem", 
+        "fields": {
+            "job": 2, 
+            "sequence": 2, 
+            "workflow": 1
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "projects.project", 
+        "fields": {
+            "rodan_user": 1, 
+            "workflow": null, 
+            "name": "myproj", 
+            "description": "my favorite project"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "projects.page", 
+        "fields": {
+            "path_to_image": "/mnt/images/1/1/", 
+            "project": 1, 
+            "image_name": "AntA_1520_1520.1_D.Mu_01_006.tif", 
+            "workflow": null
         }
     }
 ]
