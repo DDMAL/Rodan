@@ -25,8 +25,8 @@ in your checked out directory, run
     virtualenv --no-site-packages rodan_env
 
 Install all the dependencies:
-
-    pip install -E rodan_env install -r requirements.txt
+    source rodan_env/bin/activate
+    pip install -r requirements.txt
 
 if you need to add a dependency, install it with pip then run
 
