@@ -35,7 +35,7 @@ def view(request, project_id):
         form = PageUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_file(request.FILES['path_to_image'])
-            page = Page.objects.create(image_name=request.FILES['path_to_image'],path_to_image=django_settings.MEDIA_ROOT, project=project)
+            page = Page.objects.create(image_name=request.FILES['path_to_image'].name,path_to_image=django_settings.MEDIA_ROOT, project=project)
             #page.save()
             #page.image_name = request.FILES['path_to_image']
             project.page_set.add(page)
@@ -63,6 +63,7 @@ def page_view(request,page_id):
     
     data = {
         'page': page,
+        'project' : page.project,
         'jobs': Job.objects.all(),
     }
     return render(request,'projects/page_view.html', data)
