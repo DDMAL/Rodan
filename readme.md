@@ -25,14 +25,23 @@ in your checked out directory, run
     virtualenv --no-site-packages rodan_env
 
 Install all the dependencies:
-
-    pip install -E rodan_env install -r requirements.txt
+    source rodan_env/bin/activate
+    pip install -r requirements.txt
 
 if you need to add a dependency, install it with pip then run
 
     pip freeze > requirements.txt
 
 and commit the requirements file
+
+Note:
+Since gamera is not installable with pip, you have to download it from http://sourceforge.net/projects/gamera/
+and then build the python module with `python setup.py build && sudo python setup.py install`
+
+```
+cd rodan_env/lib/python2.7/site-packages/
+ln -s <python module directory>/gamera gamera
+```
 
 Setup
 -----
