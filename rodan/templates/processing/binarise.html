@@ -2,11 +2,21 @@
 
 {% block content %}
     <section>
+		<script src="{{ STATIC_URL }}js/binarize.js"></script>
     	<form method="POST" action="">
-    	{% csrf_token %}
-        <h1> You are binarising page: {{ page.image_name }}</h1>
-        Threshold Value (max 255): <input type="text" name="thresh_value"/>
-        <input type="submit" value="Submit"/>
+    		{% csrf_token %}
+        	<h1>Binarising {{ page.image_name }}</h1>
+			<h2 id="thresh_disp"></h2>
+        	<div class="buttons">
+	            <input name="thresh_value" type="hidden" id="thresh_value"></input>
+				<input type="submit" value="Submit"></input>
+	        </div>
+	        <div id="slider"></div>
+	        <br>
+	        <div class="canvases">
+	            <canvas id="imview" alt="Image Preview"></canvas>
+				<img id="imorig" src="/images/{{ page.image_name }}">
+	        </div>
     	</form>
     </section>
 {% endblock %}

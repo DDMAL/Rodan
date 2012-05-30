@@ -14,7 +14,7 @@ def simple_binarise_image(page,threshold_value):
         gam.init_gamera()
         simple_thresh_obj = threshold.threshold()
         
-        output_img = simple_thresh_obj(gam.load_image(path_to_img + "/" + image_name),threshold_value)
+        output_img = simple_thresh_obj(gam.load_image(path_to_img + image_name),threshold_value)
 
         if not os.path.exists("resultimages"):
             os.makedirs("resultimages")

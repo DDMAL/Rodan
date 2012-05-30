@@ -86,7 +86,7 @@ class Page(models.Model):
         return ('projects.views.page_view', str(self.id))
     
     def get_image_url(self):
-        return '%s/%d/%d/thumbs/0.jpg' % (settings.IMAGE_SERVER_URL, self.project.id, self.id)
+        return '%s%s' % (settings.MEDIA_URL, self.image_name)
 
 def create_rodan_user(sender, instance, created, **kwargs):
     if created:

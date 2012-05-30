@@ -35,7 +35,9 @@ def view(request, project_id):
         form = PageUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_file(request.FILES['path_to_image'])
-            page = Page.objects.create(image_name=request.FILES['path_to_image'].name,path_to_image=django_settings.MEDIA_ROOT, project=project)
+            page = Page.objects.create(image_name=request.FILES['path_to_image'].name,
+                                       path_to_image=django_settings.MEDIA_URL,
+                                       project=project)
             #page.save()
             #page.image_name = request.FILES['path_to_image']
             project.page_set.add(page)
@@ -53,7 +55,7 @@ def view(request, project_id):
     return render(request, 'projects/view.html', data)
 
 def handle_uploaded_file(f):
-    dest = open(django_settings.MEDIA_ROOT + "/" + f.name, 'wb')
+    dest = open(django_settings.MEDIA_ROOT + django_settings.MEDIA_URL + f.name, 'wb')
     for chunk in f.chunks():
         dest.write(chunk)
     dest.close()

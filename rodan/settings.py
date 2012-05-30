@@ -203,6 +203,6 @@ AUTH_PROFILE_MODULE = 'projects.RodanUser'
 LOGIN_URL = '/signup'
 
 MEDIA_ROOT = "uploads"
-MEDIA_URL = "/uploads/"
+MEDIA_URL = "/images/"
 # URL to the directory under which the images are located
 IMAGE_SERVER_URL = 'http://rodan.simssa.ca/images'
