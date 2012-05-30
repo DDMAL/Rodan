@@ -34,7 +34,7 @@ def view(request, project_id):
         #page = Page()
         form = PageUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(request.FILES['path_to_image'], path)
+            handle_uploaded_file(request.FILES['path_to_image'])
             page = Page.objects.create(image_name=request.FILES['path_to_image'],path_to_image=django_settings.MEDIA_ROOT, project=project)
             #page.save()
             #page.image_name = request.FILES['path_to_image']
