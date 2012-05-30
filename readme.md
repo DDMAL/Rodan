@@ -39,7 +39,7 @@ Since gamera is not installable with pip, you have to download it from http://so
 and then build the python module with `python setup.py build && sudo python setup.py install`
 
 ```
-cd rodan_env/bin
+cd rodan_env/lib/python2.7/site-packages/
 ln -s <python module directory>/gamera gamera
 ```
 
