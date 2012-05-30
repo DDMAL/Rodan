@@ -1,0 +1,10 @@
+<h2>Do something</h2>
+<p>This should be a grid showing all the things you can do (binarise, correction w/ neon, etc) for all the projects or the specific, depending on what view you're in (dashboard, or project view). (This bit of HTML has no idea what view it's being called in since it's just an include. That's okay though, because the view will populate the template with the relevant data.)</p>
+<p>For now it will be a list because, whatever.</p>
+{% if jobs %}
+<ul>
+    {% for job, available in jobs.iteritems %}
+    <li>{% if available %}<a href="{% url project_task project.id job.slug %}">{% endif %}{{ job }}{% if available %}</a>{% else %}(N/A){% endif %}</li>
+    {% endfor %}
+</ul>
+{% endif %}

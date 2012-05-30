@@ -1,28 +1,82 @@
 [
     {
-        "pk": 1,
-        "model": "auth.user",
+        "pk": 1, 
+        "model": "auth.user", 
         "fields": {
-            "username": "demo",
-            "first_name": "",
-            "last_name": "",
-            "is_active": true,
-            "is_superuser": true,
-            "is_staff": true,
-            "last_login": "2012-05-24T03:09:24.279Z",
-            "groups": [],
-            "user_permissions": [],
-            "password": "pbkdf2_sha256$10000$aqBsOjJI8EX8$1JQeh2xmmtn8Ig7KFNSrKcLTaXz+C8gh8mMfFKFwQsM=",
-            "email": "demo@demo.com",
-            "date_joined": "2012-05-23T22:54:41.887Z"
+            "username": "demo", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2012-05-30T19:32:53.572Z", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "pbkdf2_sha256$10000$6V2rUWJUAr3D$isa3+fwV0LC0x3oCGFPaTVt0Jf/XgDUzZ+IN/5PpHQQ=", 
+            "email": "demo@demo.com", 
+            "date_joined": "2012-05-30T19:32:53.572Z"
         }
     },
     {
-        "pk": 1,
-        "model": "projects.rodanuser",
+        "pk": 1, 
+        "model": "rodan.rodanuser", 
         "fields": {
-            "affiliation": "Some university",
+            "affiliation": "", 
             "user": 1
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.project", 
+        "fields": {
+            "creator": 1, 
+            "name": "This is my project", 
+            "description": "It's an awesome project"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "rodan.project", 
+        "fields": {
+            "creator": 1, 
+            "name": "This is my other project",
+            "description": "It's even better than my first one"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.workflow", 
+        "fields": {
+            "name": "Some workflow", 
+            "description": "Meh"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": 1, 
+            "sequence": 1, 
+            "workflow": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": 2, 
+            "sequence": 2, 
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.page", 
+        "fields": {
+            "project": 1, 
+            "filename": "lol.tif", 
+            "tag": null, 
+            "workflow": 1
         }
     }
 ]

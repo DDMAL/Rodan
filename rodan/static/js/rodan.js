@@ -259,5 +259,24 @@ $(document).ready(function () {
         }
     });
 
-    $("#workflow_list").sortable();
+    $("#jobs-list-all").sortable({
+        connectWith: '#jobs-list-workflow',
+        forcePlaceholderSize: true,
+        placeholder: 'ui-state-highlight',
+        cursor: 'grabbing',
+        items: '.job',
+        tolerance: 'pointer'
+    });
+
+    $("#jobs-list-workflow").sortable({
+        items: '.job',
+        placeholder: 'ui-state-highlight',
+        forcePlaceholderSize: true,
+        tolerance: 'pointer',
+        connectWith: '#jobs-list-all'
+    });
+
+    $('.job i').click(function () {
+        $(this).parent().find('p').toggle();
+    });
 });

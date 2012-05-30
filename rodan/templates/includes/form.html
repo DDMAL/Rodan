@@ -1,0 +1,25 @@
+{% comment %}
+A reusable form snippet. Include it in any template file that has a {{ form }}
+instance (or use the `with` keyword).
+{% endcomment %}
+
+{% autoescape off %}
+    <form method="post" action="{{ form_action }}"{% if file_upload %} enctype="multipart/form-data"{% endif %}{% if form_id %} id="{{ form_id }}"{% endif %}>
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="errors">
+        <p>There were errors with the submission!</p>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+    {% for field in form %}
+        <fieldset>
+        {% if field.help_text %}<p>{{ field.help_text }}</p>{% endif %}
+        <label for="{{ field.html_name }}">{{ field.label }}</label>
+        {{ field }}        </fieldset>
+    {% endfor %}
+    <fieldset class="submit">
+        <input type="submit" name="submit" value="Submit" />
+    </fieldset>
+</form>
+{% endautoescape %}

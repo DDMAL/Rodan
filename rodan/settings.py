@@ -100,9 +100,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'rodan.urls'
 
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'rodan.wsgi.application'
-
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -116,15 +113,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'rodan',
-    'projects',
-    'processing',
-    'recognition',
-    'correction',
-    'display',
     'djcelery'
 )
 
@@ -180,7 +169,7 @@ LOGGING = {
         },
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
             },
         }
@@ -193,16 +182,15 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
-    "projects.context_processors.list_projects",
+    "rodan.context_processors.list_projects",
+    "rodan.context_processors.login_url",
 )
 
 # So that calling get_profile on a user will return the RodanUser instance
-AUTH_PROFILE_MODULE = 'projects.RodanUser'
+AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 
 # Used in conjunction with the @login_required decorator
 LOGIN_URL = '/signup'
 
 MEDIA_ROOT = "uploads"
 MEDIA_URL = "/images/"
-# URL to the directory under which the images are located
-IMAGE_SERVER_URL = 'http://rodan.simssa.ca/images'

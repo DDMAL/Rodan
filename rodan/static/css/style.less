@@ -7,6 +7,10 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: "Helvetica Neue", Helvetica, sans-serif;
     font-size: 13px;
@@ -131,6 +135,7 @@ p {
         padding: 20px;
     }
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 a {
@@ -327,4 +332,33 @@ h2 {
     }
     margin-bottom: 20px;
 
+}
+
+.job-lists {
+    width: 65%;
+    margin: 0 10px;
+    display: inline-block;
+    th {
+        width: 50%;
+    }
+    td {
+        vertical-align: top;
+        .message {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .job {
+            cursor: pointer;
+            margin: 0 3px 3px 3px;
+            padding: 5px;
+            padding-left: 25px;
+            span {
+                position: absolute;
+                margin-left: -20px;
+            }
+            i {
+                font-style: normal;
+            }
+        }
+    }
 }

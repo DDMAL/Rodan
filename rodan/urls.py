@@ -1,17 +1,29 @@
 from django.conf.urls import patterns, include, url
-from django.contrib import admin
 
-admin.autodiscover()
+project_urls = patterns('rodan.views.projects',
+    url(r'^/?$', 'view'),
+    url(r'^/edit', 'edit', name='edit_project'),
+    url(r'^/add', 'add_pages', name='add_pages'),
+    url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
+)
 
-urlpatterns = patterns('',
-    url(r'^$', 'rodan.views.home'),
-    url(r'^signup', 'rodan.views.signup'),
-    url(r'^logout', 'rodan.views.logout_view'),
-    url(r'^upload', 'rodan.views.upload'),
-    url(r'^projects/', include('projects.urls')),
-    url(r'^processing/', include('processing.urls')),
-    url(r'^recognition/', include('recognition.urls')),
-    url(r'^correction/', include('correction.urls')),
-    url(r'^display/', include('display.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+urlpatterns = patterns('rodan.views.main',
+    url(r'^$', 'home', name='home'),
+    url(r'^signup', 'signup', name='signup'),
+    url(r'^logout', 'logout_view', name='logout'),
+    url(r'^settings', 'settings', name='settings'),
+)
+
+urlpatterns += patterns('rodan.views.projects',
+    url(r'^dashboard', 'dashboard', name='dashboard'),
+    url(r'^create', 'create', name='create_project'),
+    url(r'^projects/(?P<project_id>\d+)', include(project_urls)),
+)
+
+urlpatterns += patterns('rodan.views.workflows',
+    url(r'^workflows/(?P<workflow_id>\d+)', 'view'),
+)
+
+urlpatterns += patterns('rodan.views.jobs',
+    url(r'^jobs/(?P<job_slug>[^/]+)', 'view'),
 )

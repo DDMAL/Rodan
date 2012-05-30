@@ -3,9 +3,9 @@
 {% block content %}
     <section>
         <div class="right-float">
-            <a class="button" href="{% url projects.views.create %}">Create project</a>
+            <a class="button" href="{% url create_project %}">Create project</a>
         </div>
-        <h1>Dashboard</h1>
+        <h1>Your projects</h1>
         {% if my_projects %}
         <table>
             <thead>
@@ -26,60 +26,8 @@
         {% else %}
         <p>You have no projects. How sad. Create one! (See the button above)</p>
         {% endif %}
-    </section>
-
-    <section>
-        <div class="right-float">
-            <a class="button" href="{% url projects.views.job_create %}">Create job</a>
-        </div>
-        <h1>Jobs</h1>
-
-        {% if jobs %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Job name</th><th>Job description</th><th>Job module</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for j in jobs %}
-                <tr>
-                    <td>{{ j.name }}</td>
-                    <td>{{ j.description }}</td>
-                    <td>{{ j.module }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>Jobs make the economy stronger!</p>
-        {% endif %}
-    </section>
-
-    <section>
-        <div class="right-float">
-            <a class="button" href="{% url projects.views.workflow_create %}">Create workflow</a>
-        </div>
-        <h1>Workflows</h1>
-
-        {% if workflows %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Workflow name</th><th>Number of jobs</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for flow in workflows %}
-                <tr>
-                    <td><a href="{{ flow.get_absolute_url }}">{{ flow.name }}</a></td>
-                    <td>{{ flow.jobs.count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>Create some jobs in order to make a workflow</p>
-        {% endif %}
+        {% include "includes/job_grid.html" %}
+        <hr />
+        {% include "includes/job_status.html" %}
     </section>
 {% endblock %}
