@@ -14,7 +14,7 @@ var globalThresh = 0;
 //Setup
 $(document).ready(function() {
     imageObj = new Image();
-    //Calculate initial threshold with the Brink formula and draw binarized image
+    //Calculate initial threshold with the Brink formula and draw binarised image
     imageObj.onload = initImage;
     
     //Image path (TO BE REPLACED LATER)
@@ -29,7 +29,7 @@ $(document).ready(function() {
                         step: 1,
                         value: defThresh,
                         range: false,
-                        slide: function(event, ui) {binarize(ui.value)},
+                        slide: function(event, ui) {binarise(ui.value)},
                         });
 });
 
@@ -49,15 +49,15 @@ initImage = function() {
     }
     var pmf = genPMF(imageObj);
     defThresh = threshBrink(pmf);
-    binarize(defThresh);
+    binarise(defThresh);
 
     //Manually set inital value for slider
     $("#slider").slider("value", defThresh);
     $("#slider").width(imageObj.width * 2);
 }
 
-//Binarizes data, splitting foreground and background at a given brightness level
-binarize = function(thresh) {
+//binarises data, splitting foreground and background at a given brightness level
+binarise = function(thresh) {
     var canvas = document.getElementById("imview");
     var context = canvas.getContext("2d");
     $("#thresh_value").attr("value", thresh);
@@ -71,7 +71,7 @@ binarize = function(thresh) {
         //Brightness is the greyscale value for the given pixel
         var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
         
-        // Binarize image (set to black or white)
+        // binarise image (set to black or white)
         if (brightness > thresh) {
             data[i] = G;
             data[i + 1] = G;
@@ -82,7 +82,7 @@ binarize = function(thresh) {
             data[i + 2] = 0;
         }
     }
-    //Draw binarized image
+    //Draw binarised image
     context.putImageData(imageData, 0, 0);
 }
 
@@ -110,7 +110,7 @@ genPMF = function(imageObj) {
     return pmf;
 }
 
-//Johanna's Brnk Thresholding function
+//Johanna's Brink Thresholding function
 threshBrink = function(pmf) {
     var Topt = 0;       // threshold value
     var locMin;         // local minimum
@@ -153,7 +153,7 @@ threshBrink = function(pmf) {
     for (var i = 0; i < 256; i++)
         mB[i] = mF[255] - mB[i];
     
-    // compute brink entropy binarization
+    // compute brink entropy binarisation
     for (var i = 0; i < 256; i++) {
         for (var j = 0; j < 256; j++) {
             tmp1[i][j] = mF[j] / i;

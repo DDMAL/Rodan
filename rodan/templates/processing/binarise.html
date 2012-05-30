@@ -2,7 +2,7 @@
 
 {% block content %}
     <section>
-		<script src="{{ STATIC_URL }}js/binarize.js"></script>
+		<script src="{{ STATIC_URL }}js/binarise.js"></script>
     	<form method="POST" action="">
     		{% csrf_token %}
         	<h1>Binarising {{ page.image_name }}</h1>
