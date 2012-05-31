@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
-from rodan.jobs import jobs
 
 class RodanUser(models.Model):
     class Meta:
