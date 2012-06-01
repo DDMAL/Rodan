@@ -114,6 +114,28 @@ class Page(models.Model):
             'filename': self.filename,
         }
 
+    def get_next_job(self, user=None):
+        """
+        If user is None, it returns the next available job that has not yet
+        been started. If the user is specified, it returns the next
+        available job that has either not been started or that has been
+        started by the specified user.
+        """
+        for job_item in self.workflow.jobitem_set.all():
+            # Is there a result attached to this job item?
+            page_results = job_item.result_set.filter(page=self)
+            no_result = page_results.count() == 0
+
+            if no_result:
+                return job_item.job
+            else:
+                # There is a result. If the end time is empty and the user is the same ...
+                first_result = page_results.all()[0]
+                if first_result.end_total_time is None and first_result.user == user:
+                    return job_item.job
+                else:
+                    continue
+
 
 class JobItem(models.Model):
     class Meta:
