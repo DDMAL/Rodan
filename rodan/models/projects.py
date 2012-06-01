@@ -60,7 +60,6 @@ class Job(models.Model):
     module = models.CharField(max_length=100, primary_key=True)
 
     def __unicode__(self):
-        # Return everything after the .
         return self.name
 
     @models.permalink
@@ -174,6 +173,9 @@ class JobItem(models.Model):
     job = models.ForeignKey(Job)
     sequence = models.IntegerField()
 
+    def __unicode__(self):
+        return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
+
 
 class ActionParam(models.Model):
     class Meta:
@@ -183,6 +185,9 @@ class ActionParam(models.Model):
     job_item = models.ForeignKey(JobItem)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=50)
+
+    def __unicode__(self):
+        return "%s: %s, for %s" % (job_item, key, value)
 
 
 # Defines a post_save hook to ensure that a RodanUser is created for each User
