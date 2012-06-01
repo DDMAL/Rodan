@@ -114,7 +114,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rodan',
-    'djcelery'
+    'djcelery',
+    'rodan.jobs',
 )
 
 import djcelery
@@ -126,7 +127,9 @@ BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
 
 CELERY_RESULT_BACKEND="database"
-CELERY_RESULT_DBURI = "sqlite:///celerydb.sqlite"
+#Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time, 
+#this is because SQLite doesnt allow concurrent writes.
+CELERY_RESULT_DBURI = "sqlite:///db.sqlite"
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

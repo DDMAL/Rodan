@@ -5,5 +5,4 @@ def remove_prefixes(s):
 
     Preserves case.
     """
-    print s
     return s[s.rfind('.')+1:]

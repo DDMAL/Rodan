@@ -2,6 +2,10 @@
 
 {% block content %}
 <section>
+    <ul class="breadcrumbs">
+        <li><a href="{{ project.get_absolute_url }}">{{ project }}</a></li>
+        <li>{{ job }}</li>
+    </ul>
     <h1>{{ job }}</h1>
     <p>Not implemented yet, but eventually it will show you the task page for a random page in this project (for the specified job). For example, the Neon interface.</p>
 </section>
