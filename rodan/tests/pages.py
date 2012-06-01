@@ -10,7 +10,7 @@ class GetNextJob(unittest.TestCase):
         self.crop = Job.objects.get(name="Crop")
         self.rotate = Job.objects.get(name="Awesome rotation")
         self.binarise = Job.objects.get(name="Binarise")
-        self.result = Result.objects.get(pk=1)
+        self.result_1 = Result.objects.get(pk=1)
 
     def runTest(self):
         """Just the fixtures, no changes
@@ -24,8 +24,8 @@ class GetNextJob(unittest.TestCase):
         self.assertEqual(self.page_2.get_next_job(user=user), self.binarise)
 
         # Now let's make that first result done, we should get rotation
-        self.result.end_total_time = timezone.now()
-        self.result.save()
+        self.result_1.end_total_time = timezone.now()
+        self.result_1.save()
 
         self.assertEqual(self.page_2.get_next_job(user=user), self.rotate)
         self.assertEqual(self.page_2.get_next_job(), self.rotate)
@@ -37,27 +37,40 @@ class GetNextJob(unittest.TestCase):
 
     def tearDown(self):
         # Clear the end_total_time thing for the result
-        self.result.end_total_time = None
-        self.result.save()
+        self.result_1.end_total_time = None
+        self.result_1.save()
 
         # Delete the result we created
         Result.objects.get(pk=2).delete()
 
 class GetLatestImagePath(unittest.TestCase):
     def setUp(self):
-        self.result = Result.objects.get(pk=1)
-        self.result.end_total_time = timezone.now()
-        self.result.save()
+        self.result_1 = Result.objects.get(pk=1)
+        self.result_1.end_total_time = timezone.now()
+        self.result_1.save()
         self.page_1 = Page.objects.get(pk=1)
         self.page_2 = Page.objects.get(pk=2)
-        self.result_file = ResultFile.objects.create(result=self.result, result_type=JobType.IMAGE, filename='binarised.tif')
 
-    def test_shit(self):
+        # A result for the rotate job
+        self.result_2 = Result.objects.create(job_item=JobItem.objects.get(pk=4), user=user_1, page=self.page_2, end_total_time = timezone.now())
+
+    def runTest(self):
+        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "another.tif")
+        self.result_file_1 = ResultFile.objects.create(result=self.result_1, result_type=JobType.IMAGE, filename='binarised.tif')
+
         # Should return the original filename
         self.assertEqual(self.page_1.get_latest_file(JobType.IMAGE), 'lol.tif')
         self.assertEqual(self.page_1.get_latest_file(JobType.OTHER), None)
-        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE).filename, "binarised.tif")
+        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "binarised.tif")
+
+        self.result_file_2 = ResultFile.objects.create(result=self.result_2, result_type=JobType.IMAGE, filename='recent.tif')
+
+        self.assertEqual(self.page_2.geT_latest_file(JobType.IMAGE), 'recent.tif')
 
     def tearDown(self):
-        self.result.end_total_time = None
-        self.result.save()
+        self.result_1.end_total_time = None
+        self.result_1.save()
+
+        self.result_2.delete()
+        self.result_file_1.delete()
+        self.result_file_2.delete()
