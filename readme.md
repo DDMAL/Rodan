@@ -43,6 +43,14 @@ cd rodan_env/lib/python2.7/site-packages/
 ln -s <python module directory>/gamera gamera
 ```
 
+You will also need these plugins for gamera, which have to be added manually as well:
+
+* MusicStaves Toolkit @ `http://gamera.informatik.hsnr.de/addons/musicstaves/index.html`
+  Note that this plugin has an build error in the file <root dir of toolkit>/include/plugins/line_tracking.hpp
+  To fix it, simply copy paste the "chord_length" function at the end of the file to the beginning of the file
+  right after the preprocessor commands.
+
+
 Setup
 -----
 * Install rabbitmq if required
