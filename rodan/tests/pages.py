@@ -1,6 +1,7 @@
 from django.utils import unittest, timezone
 from rodan.models.projects import Project, Job, Page, JobItem, RodanUser
-from rodan.models.results import Result
+from rodan.models.results import Result, ResultFile
+from rodan.models.jobs import JobType
 
 class GetNextJob(unittest.TestCase):
     def setUp(self):
@@ -41,3 +42,22 @@ class GetNextJob(unittest.TestCase):
 
         # Delete the result we created
         Result.objects.get(pk=2).delete()
+
+class GetLatestImagePath(unittest.TestCase):
+    def setUp(self):
+        self.result = Result.objects.get(pk=1)
+        self.result.end_total_time = timezone.now()
+        self.result.save()
+        self.page_1 = Page.objects.get(pk=1)
+        self.page_2 = Page.objects.get(pk=2)
+        self.result_file = ResultFile.objects.create(result=self.result, result_type=JobType.IMAGE, filename='binarised.tif')
+
+    def test_shit(self):
+        # Should return the original filename
+        self.assertEqual(self.page_1.get_latest_file(JobType.IMAGE), 'lol.tif')
+        self.assertEqual(self.page_1.get_latest_file(JobType.OTHER), None)
+        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE).filename, "binarised.tif")
+
+    def tearDown(self):
+        self.result.end_total_time = None
+        self.result.save()

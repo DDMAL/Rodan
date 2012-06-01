@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from rodan.models.jobs import JobType
 
 class RodanUser(models.Model):
     class Meta:
@@ -113,6 +114,33 @@ class Page(models.Model):
             'size': size,
             'filename': self.filename,
         }
+
+    def get_latest_file(self, file_type):
+        """
+        To get the latest image: page.get_latest_file(JobType.IMAGE)
+
+        Will return the original image if no image-generating jobs have
+        been completed on the page.
+
+        For now it's just the filename, not the absolute path. Still need
+        to work out the directory structure.
+        """
+        # Because importing ResultFile would cause circular imports etc
+        result_files = models.loading.get_model('rodan', 'ResultFile')
+
+        # Don't worry about the query below. It works.
+        result_files = result_files.objects.filter(result__page=self, result__job_item__workflow=self.workflow, result__end_total_time__isnull=False, result_type=file_type).order_by('-result__job_item__sequence').all()
+
+        if result_files.count():
+            # If there are any result_files of this type, return the latest
+            return result_files[0]
+        else:
+            # If we're looking for an image, and no jobs have changed it
+            # Then just return the original ...
+            if file_type == JobType.IMAGE:
+                return self.filename
+            else:
+                return None
 
     def get_next_job(self, user=None):
         """
