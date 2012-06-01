@@ -6,7 +6,7 @@ def up():
 def reset():
     with settings(warn_only=True):
         local("rm db.sqlite")
-    local("echo 'no' | python manage.py syncdb")
+    local("python manage.py syncdb --noinput")
 
 def test():
     local("python manage.py test rodan")
