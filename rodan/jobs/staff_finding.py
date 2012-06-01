@@ -2,6 +2,8 @@ from rodan.models.jobs import JobType, JobBase
 from tasks import tasks 
 
 class StaffFind(JobBase):
+    name = 'Find staff lines'
+    slug = 'staff-find'
     input_type = JobType.IMAGE
     output_type = input_type
     description = 'Convert a binarized image with all musical information to a image with only staff lines(??)'

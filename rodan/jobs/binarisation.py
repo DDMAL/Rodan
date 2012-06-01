@@ -2,6 +2,8 @@ from rodan.models.jobs import JobType, JobBase
 from tasks import tasks 
 
 class SimpleThresholdBinarise(JobBase):
+    name = 'Binarise (simple threshold)'
+    slug = 'simple-binarise'
     input_type = JobType.IMAGE
     output_type = input_type
     description = 'Convert a greyscale image to black and white.'
@@ -16,6 +18,8 @@ class SimpleThresholdBinarise(JobBase):
         tasks.simple_binarise.delay(result_id,tv)
 
 class DJVUBinarise(JobBase):
+    name = 'Binarise (DJVU)'
+    slug = 'djvu-binarise'
     input_type = JobType.IMAGE
     output_type = input_type
     description = 'Convert a RGB image to black and white.'
