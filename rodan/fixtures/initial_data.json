@@ -101,7 +101,7 @@
         "pk": 3, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.binarisation.Binarise", 
+            "job": "rodan.jobs.binarisation.SimpleThresholdBinarise", 
             "sequence": 1, 
             "workflow": 2
         }
