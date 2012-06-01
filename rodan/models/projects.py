@@ -132,7 +132,7 @@ class Page(models.Model):
 
         if result_files.count():
             # If there are any result_files of this type, return the latest
-            return result_files[0]
+            return result_files[0].filename
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
