@@ -118,10 +118,11 @@ class Page(models.Model):
 class JobItem(models.Model):
     class Meta:
         app_label = 'rodan'
+        unique_together = ('workflow', 'sequence')
 
     workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
-    sequence = models.IntegerField(unique=True)
+    sequence = models.IntegerField()
 
 
 class ActionParam(models.Model):
