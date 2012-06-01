@@ -42,8 +42,9 @@ class Job(models.Model):
     again, can be overridden, this time by setting the 'name' attribute. This
     is used for display purposes.
 
-    The module is in the form 'binarisation.Binarise', where 'binarisation.py'
-    is a file under rodan/jobs, and Binarise is a class defined in that file.
+    The module is in the form 'rodan.jobs.binarisation.Binarise', where
+    'binarisation.py' is a file under rodan/jobs, and Binarise is a class
+    defined in that file.
 
     All instances of this model (i.e. rows in the database) are created after
     syncing the database (if they have not already been created), using the
@@ -55,7 +56,7 @@ class Job(models.Model):
 
     name = models.CharField(max_length=50)
     slug = models.CharField(max_length=20)
-    module = models.CharField(max_length=100)
+    module = models.CharField(max_length=100, primary_key=True)
 
     def __unicode__(self):
         # Return everything after the .

@@ -47,26 +47,16 @@
         "pk": 1, 
         "model": "rodan.workflow", 
         "fields": {
-            "name": "Some workflow", 
+            "name": "Crop then rotate",
             "description": "Meh"
         }
     },
     {
-        "pk": 1, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": 1, 
-            "sequence": 1, 
-            "workflow": 1
-        }
-    }, 
-    {
         "pk": 2, 
-        "model": "rodan.jobitem", 
+        "model": "rodan.workflow", 
         "fields": {
-            "job": 2, 
-            "sequence": 2, 
-            "workflow": 1
+            "name": "Binarise, rotate, crop",
+            "description": "Meh"
         }
     },
     {
@@ -77,6 +67,73 @@
             "filename": "lol.tif", 
             "tag": null, 
             "workflow": 1
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "rodan.page", 
+        "fields": {
+            "project": 1, 
+            "filename": "another.tif", 
+            "tag": null, 
+            "workflow": 2
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.cropping.Crop", 
+            "sequence": 1, 
+            "workflow": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.rotation.Rotate", 
+            "sequence": 2, 
+            "workflow": 1
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.binarisation.Binarise", 
+            "sequence": 1, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.rotation.Rotate", 
+            "sequence": 2, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.cropping.Crop", 
+            "sequence": 3, 
+            "workflow": 2
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "rodan.result", 
+        "fields": {
+            "start_time": "2012-05-31T20:37:22.365Z", 
+            "end_manual_time": null, 
+            "page": 2, 
+            "job_item": 3, 
+            "user": 1, 
+            "end_total_time": null
         }
     }
 ]
