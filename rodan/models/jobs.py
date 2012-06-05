@@ -17,8 +17,11 @@ class JobBase:
         """
         return self.slug or self.get_name().lower()
 
+#still needs updating
 class JobType:
-    IMAGE = 1
-    SEGMENTED_IMAGE = 2
-    SEGMENTED_SHIT = 4
-    OTHER = 8
+    IMAGE_ONEBIT = 1
+    IMAGE_GREY = 2
+    IMAGE_RGB = 3
+    JSON = 4
+    XML = 5
+    MEI = 6
