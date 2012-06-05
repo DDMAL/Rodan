@@ -4,8 +4,8 @@ from tasks import tasks
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
     slug = 'simple-binarise'
-    input_type = JobType.IMAGE
-    output_type = input_type
+    input_type = JobType.IMAGE_GREY
+    output_type = JobType.IMAGE_ONEBIT
     description = 'Convert a greyscale image to black and white.'
     show_during_wf_create = True
 
@@ -20,8 +20,8 @@ class SimpleThresholdBinarise(JobBase):
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'
     slug = 'djvu-binarise'
-    input_type = JobType.IMAGE
-    output_type = input_type
+    input_type = JobType.IMAGE_RGB
+    output_type = JobType.IMAGE_ONEBIT
     description = 'Convert a RGB image to black and white.'
     show_during_wf_create = True
 

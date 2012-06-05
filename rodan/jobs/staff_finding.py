@@ -4,9 +4,9 @@ from tasks import tasks
 class StaffFind(JobBase):
     name = 'Find staff lines'
     slug = 'staff-find'
-    input_type = JobType.IMAGE
-    output_type = input_type
-    description = 'Convert a binarized image with all musical information to a image with only staff lines(??)'
+    input_type = JobType.IMAGE_ONEBIT
+    output_type = JobType.JSON
+    description = 'Retrieves and outputs staff line point coordinates information in json format.'
     show_during_wf_create = True
 
     '''
