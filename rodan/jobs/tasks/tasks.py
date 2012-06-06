@@ -1,35 +1,96 @@
 from celery.task import task
-from rodan.models.results import Result
+from rodan.models.results import Result, Parameter, ResultFile
 
 from django.utils import timezone
 import os
 from gamera.core import *
+from gamera.classify import BoundingBoxGroupingFunction
 from gamera.plugins import threshold
 
 from gamera.toolkits import musicstaves
+from gamera.knn import kNNNonInteractive
+from gamera import gamera_xml
 
-#####BINARISE######
-@task(name="binarisation.simple_binarise")
-def simple_binarise(result_id,threshold_value):
+result = None
+
+def __setup_task(result_id):
+    global result
     result = Result.objects.get(pk=result_id)
 
     page = result.page
     image_name = page.filename.encode('ascii','ignore')
 
-    file_name,file_extension = os.path.splitext(image_name)
     init_gamera()
+    return image_name
 
-    output_img = load_image("images/" + image_name).threshold(threshold_value)
-    
-    if not os.path.exists("resultimages"):
-        os.makedirs("resultimages")
 
-    output_path =  "resultimages/" + file_name + "_binarize_simplethresh_" + str(threshold_value) + file_extension
-    save_image(output_img, output_path)
-
+def __save_results(filename, **kwargs):
+    global result
     result.end_total_time = timezone.now()
     result.save()
-    
+
+    for key in kwargs:
+        param = Parameter(result=result,key=key,value=kwargs[key])
+        param.save()
+
+    #!!!result type needs to be changed!!!
+    resfile = ResultFile(result=result,filename=filename,result_type=1)
+    resfile.save()
+
+    result = None#null it out for next result
+
+def __create_polygon_xml_string(poly_list):
+    xml_output_string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<polygons>\n"
+    for i in xrange(0,len(poly_list)):
+        xml_output_string += "\t<polygon number=\"%s\">\n" % i
+        for j in xrange(0,len(poly_list[i][0].vertices)):
+            xml_output_string += "\t\t<point>\n"
+            xml_output_string += "\t\t\t<x>%s</x>\n" % poly_list[i][0].vertices[j].x
+            xml_output_string += "\t\t\t<y>%s</y>\n" % poly_list[i][0].vertices[j].y
+            xml_output_string += "\t\t</point>\n"
+        for j in xrange(len(poly_list[i][3].vertices)-1,-1,-1):
+            xml_output_string += "\t\t<point>\n"
+            xml_output_string += "\t\t\t<x>%s</x>\n" % poly_list[i][3].vertices[j].x
+            xml_output_string += "\t\t\t<y>%s</y>\n" % poly_list[i][3].vertices[j].y
+            xml_output_string += "\t\t</point>\n"
+        xml_output_string += "\t</polygon>\n"
+
+    xml_output_string += "</polygons>"
+
+    return xml_output_string
+
+
+'''
+    The following function is used to retrieve polygon points data of the first
+    and last staff lines of a particular polygon that is drawn over a staff.
+    Note that we iterate through the points of the last staff line in reverse (i.e starting
+    from the last point on the last staff line going to the first) - We do this to simplify
+    recreating the polygon on the front-end
+'''
+def __create_polygon_json_dict(poly_list):
+    poly_json_list = []
+    for i in xrange(0,len(poly_list)):
+        point_list = []
+        for j in xrange(0,len(poly_list[i][0].vertices)):#first staff line
+            point_set = {"x":poly_list[i][0].vertices[j].x, "y":poly_list[i][0].vertices[j].y}
+            point_list.append(point_set)
+        for j in xrange(len(poly_list[i][3].vertices)-1,-1,-1):#last staff line
+            point_set = {"x":poly_list[i][3].vertices[j].x,"y":poly_list[i][3].vertices[j].y}
+            point_list.append(point_set)
+        poly_json_list.append(point_list)
+    return poly_json_list
+
+#####BINARISE######
+@task(name="binarisation.simple_binarise")
+def simple_binarise(result_id,threshold_value):
+    image_name = __setup_task(result_id)
+    output_img = load_image("images/" + image_name).threshold(threshold_value)
+
+    file_name,file_extension = os.path.splitext(image_name)
+    output_file_name =file_name + "_binarize_simplethresh_" + str(threshold_value) + file_extension
+
+    save_image(output_img,"resultimages/" + output_file_name)
+    __save_results(output_file_name,threshold_value=threshold_value)
 
 '''
     *smoothness*
@@ -50,24 +111,14 @@ def simple_binarise(result_id,threshold_value):
 '''
 @task(name="binarisation.djvu_threshold")
 def djvu_binarise(result_id,smoothness=0.2,max_block_size=512,min_block_size=64,block_factor=2):
-    result = Result.objects.get(pk=result_id)
-
-    page = result.page
-    image_name = page.filename.encode('ascii','ignore')
-
-    file_name,file_extension = os.path.splitext(image_name)
-    init_gamera()
-
+    image_name = __setup_task(result_id)
     output_img = load_image("images/" + image_name).djvu_threshold(smoothness,max_block_size,min_block_size,block_factor)
 
-    if not os.path.exists("resultimages"):
-        os.makedirs("resultimages")
+    file_name,file_extension = os.path.splitext(image_name)
+    output_file_name =  "resultimages/" + file_name + "_binarize_djvu_smo" + str(smoothness) + "max" + str(max_block_size) + "min" + str(min_block_size) + "fac" + str(block_factor) + file_extension
 
-    output_path =  "resultimages/" + file_name + "_binarize_djvu_smo" + str(smoothness) + "max" + str(max_block_size) + "min" + str(min_block_size) + "fac" + str(block_factor) + file_extension
-    save_image(output_img, output_path)
-
-    result.end_total_time = timezone.now()
-    result.save()
+    save_image(output_img,"resultimages/" + output_file_name)
+    __save_results(output_file_name,smoothness=smoothness,max_block_size=max_block_size,min_block_size=min_block_size,block_factor=block_factor)
 
 #####FILTERS(ONLY RANK?)#####
 """
@@ -84,24 +135,14 @@ def djvu_binarise(result_id,smoothness=0.2,max_block_size=512,min_block_size=64,
 """
 @task(name="filters.rank")
 def rank_filter(result_id, rank_val, k,border_treatment):
-    result = Result.objects.get(pk=result_id)
-
-    page = result.page
-    image_name = page.filename.encode('ascii','ignore')
-
-    file_name,file_extension = os.path.splitext(image_name)
-    init_gamera()
-
+    image_name = __setup_task(result_id)
     output_img = load_image("images/" + image_name).rank(rank_val,k,border_treatment)
 
-    if not os.path.exists("resultimages"):
-        os.makedirs("resultimages")
-
-    output_path =  "resultimages/" + file_name + "_rankfilter_rkv" + str(rank_val) + "k" + str(k) + "bt" + str(border_treatment) + file_extension
-    save_image(output_img, output_path)
-
-    result.end_total_time = timezone.now()
-    result.save()
+    file_name,file_extension = os.path.splitext(image_name)
+    output_file_name =  "resultimages/" + file_name + "_rankfilter_rkv" + str(rank_val) + "k" + str(k) + "bt" + str(border_treatment) + file_extension
+    
+    save_image(output_img,"resultimages/" + output_file_name)
+    __save_results(output_file_name,rank_val=rank_val,k=k,border_treatment=border_treatment)
 
 
 #####DESPECKLE#####
@@ -123,26 +164,16 @@ def rank_filter(result_id, rank_val, k,border_treatment):
 """
 @task(name="morphology.despeckle")
 def despeckle(result_id,despeckle_value=100):
-    result = Result.objects.get(pk=result_id)
-
-    page = result.page
-    image_name = page.filename.encode('ascii','ignore')
-
-    file_name,file_extension = os.path.splitext(image_name)
-    init_gamera()
+    image_name = __setup_task(result_id)
 
     output_img = load_image("images/" + image_name)
     output_img.despeckle(despeckle_value)
 
-    if not os.path.exists("resultimages"):
-        os.makedirs("resultimages")
+    file_name,file_extension = os.path.splitext(image_name)
+    output_file_name ="resultimages/" + file_name + "_despeckle_" + str(despeckle_value) + file_extension
 
-    output_path =  "resultimages/" + file_name + "_despeckle_" + str(despeckle_value) + file_extension
-    save_image(output_img, output_path)
-
-    result.end_total_time = timezone.now()
-    result.save()
-
+    save_image(output_img,"resultimages/" + output_file_name)
+    __save_results(output_file_name,despeckle_value=despeckle_value)
 
 #####STAFF FINDING#####
 '''
@@ -164,21 +195,40 @@ def despeckle(result_id,despeckle_value=100):
 '''
 @task(name="staff_find.miyao")
 def find_staves(result_id, num_lines=0, scanlines=20, blackness=0.8, tolerance=-1):
-    result = Result.objects.get(pk=result_id)
-
-    page = result.page
-    image_name = page.filename.encode('ascii','ignore')
-
-    file_name,file_extension = os.path.splitext(image_name)
-    init_gamera()
-
+    image_name = __setup_task(result_id)
+    
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     staff_finder = musicstaves.StaffFinder_miyao(load_image("images/" + image_name),0,0)
     staff_finder.find_staves(num_lines,scanlines,blackness,tolerance)
-    output_img = staff_finder.show_result()
+    poly_list = staff_finder.get_polygon()
 
-    output_path =  "resultimages/" + file_name + "_stafffind_nli" + str(num_lines) + "scl" + str(scanlines) + "blc" + str(blackness) + "tol" + str(tolerance) + file_extension
-    output_img.save_tiff(output_path)
+    poly_json_list = __create_polygon_json_dict(poly_list)
 
-    result.end_total_time = timezone.now()
-    result.save()
+    import json
+    encoded = json.dumps(poly_json_list)
+    print type(encoded)
+
+    output_file_name ="resultimages/json/" + image_name + "_stdata.json"
+    with open(output_file_name,"w") as f:
+        f.write(encoded)
+
+    __save_results(output_file_name,num_lines=num_lines,scanlines=scanlines,blackness=blackness,tolerance=tolerance)
+
+
+@task(name="classifier")
+def classifier(result_id):
+    image_name = __setup_task(result_id)
+
+    cknn = kNNNonInteractive("optimized_classifier_31Jan.xml",'all',True,1) #will be replaced by a new classifier that will be created soon
+
+    ccs = load_image("images/" + image_name).cc_analysis()
+    func = BoundingBoxGroupingFunction(4)
+
+    cs_image = cknn.group_and_update_list_automatic(ccs,grouping_function=func,max_parts_per_group=4,max_graph_size=16)
+
+    cknn.generate_features_on_glyphs(cs_image)
+    myxml = gamera_xml.WriteXMLFile(glyphs=cs_image,with_features=True)
+    output_file_name = "resultimages/xml/" + image_name + "_cl.xml"
+    myxml.write_filename(output_file_name)
+
+    __save_results(output_file_name)

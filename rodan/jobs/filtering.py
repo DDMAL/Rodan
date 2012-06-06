@@ -4,7 +4,7 @@ from tasks import tasks
 class RankFilter(JobBase):
     name = 'Rank filter'
     slug = 'rank-filter'
-    input_type = JobType.IMAGE
+    input_type = JobType.IMAGE_GREY
     output_type = input_type
     description = 'Applies rank filter on a binarized image'
     show_during_wf_create = True

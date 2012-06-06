@@ -14,8 +14,8 @@ class Result(models.Model):
     end_total_time = models.DateTimeField(null=True)
 
     def __unicode__(self):
-        status = 'Incomplete' if end_total_time is None else 'Complete'
-        return 'Result of %s on workflow %s - %s' % (self.job_item.job, page, status)
+        status = 'Incomplete' if self.end_total_time is None else 'Complete'
+        return 'Result of %s on workflow %s - %s' % (self.job_item.job, self.page, status)
 
 
 class Parameter(models.Model):
@@ -27,7 +27,7 @@ class Parameter(models.Model):
     value = models.CharField(max_length=50)
 
     def __unicode__(self):
-        return '%s: %s. %s' % (key, value, result)
+        return '%s: %s. %s' % (self.key, self.value, self.result)
 
 
 class ResultFile(models.Model):
@@ -39,4 +39,4 @@ class ResultFile(models.Model):
     filename = models.CharField(max_length=50)
 
     def __unicode__(self):
-        return 'File %s. %s' % (filename, result)
+        return 'File %s. %s' % (self.filename, self.result)

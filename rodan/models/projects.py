@@ -125,14 +125,29 @@ class Page(models.Model):
         to work out the directory structure.
         """
         # Because importing ResultFile would cause circular imports etc
-        result_files = models.loading.get_model('rodan', 'ResultFile')
+        file_manager = models.loading.get_model('rodan', 'ResultFile').objects
 
-        # Don't worry about the query below. It works.
-        result_files = result_files.objects.filter(result__page=self, result__job_item__workflow=self.workflow, result__end_total_time__isnull=False, result_type=file_type).order_by('-result__job_item__sequence').all()
+        """
+        The query below selects all the result files that match the following criteria:
 
-        if result_files.count():
+        * The page of the result is the current page
+        * The workflow that the result's job item belongs to is this page's
+        * The result's end_total_time field is not null (so, job is complete)
+        * The file type is the desired type
+
+        It is then ordered by result's job item's sequence in the workflow.
+        This is so that we get the latest file of the type we want.
+        """
+        files = file_manager.filter(result__page=self,
+                                    result__job_item__workflow=self.workflow,
+                                    result__end_total_time__isnull=False,
+                                    result_type=file_type) \
+                                    .order_by('-result__job_item__sequence') \
+                                    .all()
+
+        if files.count():
             # If there are any result_files of this type, return the latest
-            return result_files[0].filename
+            return files[0].filename
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
