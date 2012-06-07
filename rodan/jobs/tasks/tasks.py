@@ -5,11 +5,12 @@ from django.utils import timezone
 import os
 from gamera.core import *
 from gamera.classify import BoundingBoxGroupingFunction
-from gamera.plugins import threshold
+from gamera.plugins import threshold,transformation
 
 from gamera.toolkits import musicstaves
 from gamera.knn import kNNNonInteractive
 from gamera import gamera_xml
+import json
 
 result = None
 
@@ -72,10 +73,10 @@ def __create_polygon_json_dict(poly_list):
     for i in xrange(0,len(poly_list)):
         point_list = []
         for j in xrange(0,len(poly_list[i][0].vertices)):#first staff line
-            point_set = {"x":poly_list[i][0].vertices[j].x, "y":poly_list[i][0].vertices[j].y}
+            point_set = (poly_list[i][0].vertices[j].x,poly_list[i][0].vertices[j].y)
             point_list.append(point_set)
         for j in xrange(len(poly_list[i][3].vertices)-1,-1,-1):#last staff line
-            point_set = {"x":poly_list[i][3].vertices[j].x,"y":poly_list[i][3].vertices[j].y}
+            point_set = (poly_list[i][3].vertices[j].x,poly_list[i][3].vertices[j].y)
             point_list.append(point_set)
         poly_json_list.append(point_list)
     return poly_json_list
@@ -115,7 +116,7 @@ def djvu_binarise(result_id,smoothness=0.2,max_block_size=512,min_block_size=64,
     output_img = load_image("images/" + image_name).djvu_threshold(smoothness,max_block_size,min_block_size,block_factor)
 
     file_name,file_extension = os.path.splitext(image_name)
-    output_file_name =  "resultimages/" + file_name + "_binarize_djvu_smo" + str(smoothness) + "max" + str(max_block_size) + "min" + str(min_block_size) + "fac" + str(block_factor) + file_extension
+    output_file_name = file_name + "_binarize_djvu_smo" + str(smoothness) + "max" + str(max_block_size) + "min" + str(min_block_size) + "fac" + str(block_factor) + file_extension
 
     save_image(output_img,"resultimages/" + output_file_name)
     __save_results(output_file_name,smoothness=smoothness,max_block_size=max_block_size,min_block_size=min_block_size,block_factor=block_factor)
@@ -139,7 +140,7 @@ def rank_filter(result_id, rank_val, k,border_treatment):
     output_img = load_image("images/" + image_name).rank(rank_val,k,border_treatment)
 
     file_name,file_extension = os.path.splitext(image_name)
-    output_file_name =  "resultimages/" + file_name + "_rankfilter_rkv" + str(rank_val) + "k" + str(k) + "bt" + str(border_treatment) + file_extension
+    output_file_name = file_name + "_rankfilter_rkv" + str(rank_val) + "k" + str(k) + "bt" + str(border_treatment) + file_extension
     
     save_image(output_img,"resultimages/" + output_file_name)
     __save_results(output_file_name,rank_val=rank_val,k=k,border_treatment=border_treatment)
@@ -170,7 +171,7 @@ def despeckle(result_id,despeckle_value=100):
     output_img.despeckle(despeckle_value)
 
     file_name,file_extension = os.path.splitext(image_name)
-    output_file_name ="resultimages/" + file_name + "_despeckle_" + str(despeckle_value) + file_extension
+    output_file_name =file_name + "_despeckle_" + str(despeckle_value) + file_extension
 
     save_image(output_img,"resultimages/" + output_file_name)
     __save_results(output_file_name,despeckle_value=despeckle_value)
@@ -204,9 +205,7 @@ def find_staves(result_id, num_lines=0, scanlines=20, blackness=0.8, tolerance=-
 
     poly_json_list = __create_polygon_json_dict(poly_list)
 
-    import json
     encoded = json.dumps(poly_json_list)
-    print type(encoded)
 
     output_file_name ="resultimages/json/" + image_name + "_stdata.json"
     with open(output_file_name,"w") as f:
@@ -214,7 +213,7 @@ def find_staves(result_id, num_lines=0, scanlines=20, blackness=0.8, tolerance=-
 
     __save_results(output_file_name,num_lines=num_lines,scanlines=scanlines,blackness=blackness,tolerance=tolerance)
 
-
+######CLASSIFICATION######
 @task(name="classifier")
 def classifier(result_id):
     image_name = __setup_task(result_id)
@@ -228,7 +227,21 @@ def classifier(result_id):
 
     cknn.generate_features_on_glyphs(cs_image)
     myxml = gamera_xml.WriteXMLFile(glyphs=cs_image,with_features=True)
-    output_file_name = "resultimages/xml/" + image_name + "_cl.xml"
-    myxml.write_filename(output_file_name)
+    output_file_name = image_name + "_cl.xml"
+    myxml.write_filename("resultimages/xml/" + output_file_name)
 
     __save_results(output_file_name)
+
+
+#####TRANSFORMATION#####
+@task(name="rotate")
+def rotate(result_id,angle):
+    image_name = __setup_task(result_id)
+
+    output_img = load_image("images/" + image_name).rotate(angle)
+
+    file_name,file_extension = os.path.splitext(image_name)
+    output_file_name = file_name + "_rotate_" + str(angle) + file_extension
+
+    output_img.save_image("resultimages/" + output_file_name)
+    __save_results(output_file_name,angle=angle)

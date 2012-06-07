@@ -8,7 +8,7 @@ class GetNextJob(unittest.TestCase):
         self.page_1 = Page.objects.get(pk=1)
         self.page_2 = Page.objects.get(pk=2)
         self.crop = Job.objects.get(name="Crop")
-        self.rotate = Job.objects.get(name="Awesome rotation")
+        self.rotate = Job.objects.get(name="Rotate")
         self.binarise = Job.objects.get(name="Binarise (simple threshold)")
         self.result_1 = Result.objects.get(pk=1)
 
@@ -57,14 +57,14 @@ class GetLatestImagePath(unittest.TestCase):
 
     def runTest(self):
         self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "another.tif")
-        self.result_file_1 = ResultFile.objects.create(result=self.result_1, result_type=JobType.IMAGE, filename='binarised.tif')
+        self.result_file_1 = ResultFile.objects.create(result=self.result_1, result_type=JobType.IMAGE_ONEBIT, filename='binarised.tif')
 
         # Should return the original filename
         self.assertEqual(self.page_1.get_latest_file(JobType.IMAGE), 'lol.tif')
-        self.assertEqual(self.page_1.get_latest_file(JobType.OTHER), None)
+        self.assertEqual(self.page_1.get_latest_file(JobType.MEI), None)
         self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "binarised.tif")
 
-        self.result_file_2 = ResultFile.objects.create(result=self.result_2, result_type=JobType.IMAGE, filename='recent.tif')
+        self.result_file_2 = ResultFile.objects.create(result=self.result_2, result_type=JobType.IMAGE_ONEBIT, filename='recent.tif')
 
         self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), 'recent.tif')
 

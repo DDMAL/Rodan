@@ -92,7 +92,7 @@
         "pk": 2, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.rotation.Rotate", 
+            "job": "rodan.jobs.transformation.Rotate", 
             "sequence": 2, 
             "workflow": 1
         }
@@ -110,7 +110,7 @@
         "pk": 4, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.rotation.Rotate", 
+            "job": "rodan.jobs.transformation.Rotate", 
             "sequence": 2, 
             "workflow": 2
         }

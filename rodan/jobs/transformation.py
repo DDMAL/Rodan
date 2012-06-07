@@ -1,12 +1,12 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks 
 
-class Classifier(JobBase):
-    name = 'Gamera classifier'
-    slug = 'classifier'
+class Rotate(JobBase):
+    name = 'Rotate'
+    slug = 'rotate'
     input_type = JobType.IMAGE_ONEBIT
-    output_type = JobType.XML
-    description = 'Performs classification on a binarized staff-less image and outputs an xml file'
+    output_type = JobType.IMAGE_ONEBIT
+    description = 'Rotates an image'
     show_during_wf_create = True
 
     '''
@@ -14,4 +14,5 @@ class Classifier(JobBase):
     '''
     def on_post(self, **kwargs):
         result_id = kwargs['result_id']
-        tasks.classifier.delay(result_id)
+        angle = kwargs['angle']
+        tasks.rotate.delay(result_id,angle)
