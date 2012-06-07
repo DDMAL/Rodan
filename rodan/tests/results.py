@@ -1,7 +1,7 @@
-
 from django.utils import unittest
 from rodan.models.results import Result, Parameter, ResultFile
 from rodan.models.projects import JobItem, RodanUser, Page
+
 
 class TestResult(unittest.TestCase):
     def setUp(self):
@@ -23,4 +23,3 @@ class TestResult(unittest.TestCase):
         # saved. Just check generally
         self.assertTrue(savedParams[0].key in ["param1", "param2"])
         self.assertTrue(savedParams[0].value in ["v1", "v2"])
-
