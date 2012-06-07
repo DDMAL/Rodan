@@ -11,6 +11,7 @@ from gamera.plugins import threshold,transformation
 from gamera.toolkits import musicstaves
 from gamera.knn import kNNNonInteractive
 from gamera import gamera_xml
+from gamera.gameracore import Point
 import json
 
 result = None
@@ -71,16 +72,96 @@ def __create_polygon_xml_string(poly_list):
 '''
 def __create_polygon_json_dict(poly_list):
     poly_json_list = []
-    for i in xrange(0,len(poly_list)):
-        point_list = []
-        for j in xrange(0,len(poly_list[i][0].vertices)):#first staff line
-            point_set = (poly_list[i][0].vertices[j].x,poly_list[i][0].vertices[j].y)
-            point_list.append(point_set)
-        for j in xrange(len(poly_list[i][3].vertices)-1,-1,-1):#last staff line
-            point_set = (poly_list[i][3].vertices[j].x,poly_list[i][3].vertices[j].y)
-            point_list.append(point_set)
-        poly_json_list.append(point_list)
+
+    for poly in poly_list:
+        point_list_one = [(vert.x, vert.y) for vert in poly[0].vertices]
+        point_list_four = [(vert.x, vert.y) for vert in poly[3].vertices]
+        point_list_four.reverse()
+        point_list_one.extend(point_list_four)
+        poly_json_list.append(point_list_one)
+
     return poly_json_list
+
+
+# def __fix_poly_point_list(poly_list, staffspace_height):
+#     debug_string = ''
+#     for poly in poly_list:#loop over polygons
+#         debug_string += "\nPOLYGON\n"
+#         #following condition checks if there are the same amount of points on all 4 staff lines
+#         if len(poly[0].vertices) == len(poly[1].vertices) and \
+#         len(poly[0].vertices) == len(poly[2].vertices) and \
+#         len(poly[0].vertices) == len(poly[3].vertices):
+#             debug_string += "polygon is fine.\n"
+#             continue
+#         else:
+#             debug_string += "polygon needs fixing..\n"
+#             for j in xrange(0,len(poly)):#loop over all 4 staff lines
+#                 debug_string += "outer loop on staff %s\n" % j
+#                 for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
+#                     debug_string += "point %s\n" % k
+#                     for l in xrange(0,len(poly)):#loop over all 4 staff lines
+#                         debug_string += "inner loop on staff %s\n" % l
+#                         if l == j:# optimization to not loop through the same staff line as outer loop
+#                             continue
+
+#                         if(k < len(poly[l].vertices)):
+#                             y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
+#                         else:
+#                             y_pix_diff = -10000
+
+#                         debug_string += "y_pix_diff = %s\n" % y_pix_diff
+#                         if(y_pix_diff < 5 and y_pix_diff > -5): #if the y coordinate pixel difference within acceptable deviation
+#                             debug_string += "matching point found within deviation range\n"
+#                             continue
+#                         else:
+#                             debug_string += "NO matching point found within deviation range\n"
+#                             #missing a point on that staff
+#                             staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
+#                             poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
+#                             debug_string += "current staff %s points: %s\n" % (l, poly[l].vertices)
+
+#     return poly_list
+
+
+def __fix_poly_point_list(poly_list, staffspace_height):
+    for poly in poly_list:#loop over polygons
+        #following condition checks if there are the same amount of points on all 4 staff lines
+        if len(poly[0].vertices) == len(poly[1].vertices) and \
+        len(poly[0].vertices) == len(poly[2].vertices) and \
+        len(poly[0].vertices) == len(poly[3].vertices):
+            continue
+        else:
+            for j in xrange(0,len(poly)):#loop over all 4 staff lines
+                for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
+                    for l in xrange(0,len(poly)):#loop over all 4 staff lines
+                        if l == j:# optimization to not loop through the same staff line as outer loop
+                            continue
+
+                        if(k < len(poly[l].vertices)): #before doing the difference make sure index k is within indexable range of poly[l]
+                            y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
+                        else:
+                            #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
+                            y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
+                            
+                        if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
+                            continue
+                        else:
+                            #missing a point on that staff
+                            staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
+                            poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
+
+    return poly_list
+
+def __print_poly_list(poly_list):
+    outputstring = ''
+    for poly in poly_list:
+        outputstring += "\nPOLYGON\n"
+        for (i,staff) in enumerate(poly):
+            outputstring += "STAFF:  %s\n" % i
+            outputstring += str(staff.vertices) + "\n"
+
+    return outputstring
+
 
 #####BINARISE######
 @task(name="binarisation.simple_binarise")
@@ -219,16 +300,22 @@ def find_staves(result_id, num_lines=0, scanlines=20, blackness=0.8, tolerance=-
     staff_finder = musicstaves.StaffFinder_miyao(load_image("images/" + image_name),0,0)
     staff_finder.find_staves(num_lines,scanlines,blackness,tolerance)
     poly_list = staff_finder.get_polygon()
+    with open("resultimages/test/before.txt","w") as f:
+        f.write(__print_poly_list(poly_list))
 
-    poly_json_list = __create_polygon_json_dict(poly_list)
+    poly_list = __fix_poly_point_list(poly_list,staff_finder.staffspace_height)
+    with open("resultimages/test/after.txt","w") as f:
+        f.write(__print_poly_list(poly_list))
 
-    encoded = json.dumps(poly_json_list)
+    # poly_json_list = __create_polygon_json_dict(poly_list)
 
-    output_file_name ="resultimages/json/" + image_name + "_stdata.json"
-    with open(output_file_name,"w") as f:
-        f.write(encoded)
+    # encoded = json.dumps(poly_json_list)
 
-    __save_results(output_file_name,num_lines=num_lines,scanlines=scanlines,blackness=blackness,tolerance=tolerance)
+    # output_file_name ="resultimages/json/" + image_name + "_stdata.json"
+    # with open(output_file_name,"w") as f:
+    #     f.write(encoded)
+
+    # __save_results(output_file_name,num_lines=num_lines,scanlines=scanlines,blackness=blackness,tolerance=tolerance)
 
 ######CLASSIFICATION######
 @task(name="classifier")
