@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+
 from rodan.models.projects import JobItem, RodanUser, Page
 from rodan.models.jobs import JobType
 
@@ -27,6 +29,14 @@ class Result(models.Model):
     def create_file(self, filename, result_type):
         resfile = ResultFile(result=self, filename=filename, result_type=result_type)
         resfile.save()
+
+    def update_end_manual_time(self):
+        self.end_manual_time = timezone.now()
+        self.save()
+
+    def update_end_total_time(self):
+        self.end_total_time = timezone.now()
+        self.save()
 
 
 class Parameter(models.Model):
