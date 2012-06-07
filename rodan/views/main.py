@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout, models
 from rodan.forms.users import SignupLoginForm
 from django.core.urlresolvers import reverse
 
+
 # The statistics and everything
 def home(request):
     workers = {
@@ -32,7 +33,6 @@ def signup(request):
 
     if request.user.is_authenticated():
         return redirect(path)
-
 
     if request.POST:
         form = SignupLoginForm(request.POST)

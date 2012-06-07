@@ -4,6 +4,7 @@ from django.conf import settings
 import rodan.jobs
 from rodan.models.jobs import JobType
 
+
 class RodanUser(models.Model):
     class Meta:
         app_label = 'rodan'

@@ -3,6 +3,7 @@ from rodan.models.projects import Project, Job, Page, JobItem, RodanUser
 from rodan.models.results import Result, ResultFile
 from rodan.models.jobs import JobType
 
+
 class GetNextJob(unittest.TestCase):
     def setUp(self):
         self.page_1 = Page.objects.get(pk=1)
@@ -31,7 +32,8 @@ class GetNextJob(unittest.TestCase):
         self.assertEqual(self.page_2.get_next_job(), self.rotate)
 
         # Now let's pretend to start the rotate job
-        new_result = Result.objects.create(page=self.page_2, job_item=JobItem.objects.get(pk=4), user=user)
+        new_result = Result.objects.create(page=self.page_2, \
+                        job_item=JobItem.objects.get(pk=4), user=user)
         self.assertEqual(self.page_2.get_next_job(user=user), self.rotate)
         self.assertEqual(self.page_2.get_next_job(), self.crop)
 
@@ -43,6 +45,7 @@ class GetNextJob(unittest.TestCase):
         # Delete the result we created
         Result.objects.get(pk=2).delete()
 
+
 class GetLatestImagePath(unittest.TestCase):
     def setUp(self):
         self.result_1 = Result.objects.get(pk=1)
@@ -53,18 +56,21 @@ class GetLatestImagePath(unittest.TestCase):
         self.user = RodanUser.objects.get(pk=1)
 
         # A result for the rotate job
-        self.result_2 = Result.objects.create(job_item=JobItem.objects.get(pk=4), user=self.user, page=self.page_2, end_total_time = timezone.now())
+        self.result_2 = Result.objects.create(job_item = JobItem.objects.get(pk=4), \
+                                user=self.user, page=self.page_2, end_total_time=timezone.now())
 
     def runTest(self):
         self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("another.tif"))
-        self.result_file_1 = ResultFile.objects.create(result=self.result_1, result_type=JobType.IMAGE_ONEBIT, filename='binarised.tif')
+        self.result_file_1 = ResultFile.objects.create(result=self.result_1, \
+                                result_type=JobType.IMAGE_ONEBIT, filename='binarised.tif')
 
         # Should return the original filename
         self.assertTrue(self.page_1.get_latest_file(JobType.IMAGE).endswith('lol.tif'))
         self.assertEqual(self.page_1.get_latest_file(JobType.MEI), None)
         self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("binarised.tif"))
 
-        self.result_file_2 = ResultFile.objects.create(result=self.result_2, result_type=JobType.IMAGE_ONEBIT, filename='recent.tif')
+        self.result_file_2 = ResultFile.objects.create(result=self.result_2, \
+                                result_type=JobType.IMAGE_ONEBIT, filename='recent.tif')
 
         self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith('recent.tif'))
 

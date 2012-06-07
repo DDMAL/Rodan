@@ -1,6 +1,7 @@
 from django.utils import unittest
 from rodan.models.projects import Job
 
+
 class TestTyping(unittest.TestCase):
     def setUp(self):
         self.binarise = Job.objects.get(name="Binarise (simple threshold)")

@@ -6,6 +6,7 @@ from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm
 import random
 
+
 @login_required
 def dashboard(request):
     data = {
