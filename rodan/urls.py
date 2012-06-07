@@ -1,4 +1,5 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, include, url, static
+from django.conf import settings
 
 project_urls = patterns('rodan.views.projects',
     url(r'^/?$', 'view'),
@@ -27,3 +28,12 @@ urlpatterns += patterns('rodan.views.workflows',
 urlpatterns += patterns('rodan.views.jobs',
     url(r'^jobs/(?P<job_slug>[^/]+)', 'view'),
 )
+
+urlpatterns += patterns('rodan.views.pages',
+    url(r'^pages/(?P<page_id>\d+)/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
+    url(r'^pages/(?P<page_id>\d+)', 'view'),
+)
+
+# For serving stuff under MEDIA_ROOT in debug mode only
+if settings.DEBUG:
+    urlpatterns += static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,12 +1,15 @@
 <p>This is a binarisation job!!! Look at my beautiful slider etc</p>
 <p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
-<div class="buttons">
-    <input name="tval" type="button" id="threshsend"></input>
-</div>
+<form method="post" action="{% url task_complete page.id job.slug %}" id="binarise-form">
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="threshold" value="0" id="threshold-input" />
+        <input type="submit" name="submit" value="Binarise" class="submit" />
+    </fieldset>
+</form>
+
 <div id="slider"></div>
-<br>
-<div class="canvases">
-    <canvas id="imview" width=859 height=1111 alt="Image Preview"></canvas>
-    <canvas id="imorig" width=859 height=1111 alt="Original Image"></canvas>
-</div>
-{% include "includes/page_image.html" %}
+<div class="images">
+    {% include "includes/page_image.html" %}
+    <canvas id="image-preview" alt="Image preview"></canvas>
+<script src="{{ STATIC_URL }}js/binarise.js"></script>

@@ -17,28 +17,34 @@ $(document).ready(function() {
     //Calculate initial threshold with the Brink formula and draw binarised image
     imageObj.onload = initImage;
     
-    //Image path (TO BE REPLACED LATER)
-    imageObj.src = $("#imorig").attr("src");
+    imageObj.src = $("#image-original").attr("src");
     
     //jQuery slider definition for threshold controller
     $("#slider").slider({
-                        animate: true,
-                        min: 0,
-                        max: G,
-                        orientation: "horizontal",
-                        step: 1,
-                        value: defThresh,
-                        range: false,
-                        slide: function(event, ui) {binarise(ui.value)},
-                        });
+        animate: true,
+        min: 0,
+        max: G,
+        orientation: "horizontal",
+        step: 1,
+        value: defThresh,
+        range: false,
+        slide: function(event, ui) {
+            defThresh = ui.value;
+            binarise(defThresh);
+        }
+    });
+
+    $('#binarise-form').submit(function () {
+        $('#threshold-input').val(defThresh);
+    });
 });
 
 initImage = function() {
     //Adjust size of canvas to fit image
-    $("#imview").attr("width", imageObj.width);
-    $("#imview").attr("height", imageObj.height);
+    $("#image-preview").attr("width", imageObj.width);
+    $("#image-preview").attr("height", imageObj.height);
     if (imageObj.width > widthLim || imageObj.height > heightLim) {
-        var canvas = document.getElementById("imview");
+        var canvas = document.getElementById("image-preview");
         var context = canvas.getContext("2d");
         var scaleVal = widthLim / imageObj.width;
         canvas.width = canvas.width * scaleVal;
@@ -58,7 +64,7 @@ initImage = function() {
 
 //binarises data, splitting foreground and background at a given brightness level
 binarise = function(thresh) {
-    var canvas = document.getElementById("imview");
+    var canvas = document.getElementById("image-preview");
     var context = canvas.getContext("2d");
     $("#thresh_value").attr("value", thresh);
     $("#thresh_disp").text(thresh);
@@ -89,7 +95,7 @@ binarise = function(thresh) {
 // Generates a PMF (Probability Mass Function) for the given image
 genPMF = function(imageObj) {
     var canvas = document
-    var canvas = document.getElementById("imview");
+    var canvas = document.getElementById("image-preview");
     var context = canvas.getContext("2d");
     
     //Have to redraw image and then scrape data
