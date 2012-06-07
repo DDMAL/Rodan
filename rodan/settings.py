@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',   # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'db.sqlite',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -129,7 +129,7 @@ BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
 
-CELERY_RESULT_BACKEND="database"
+CELERY_RESULT_BACKEND = "database"
 #Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
 #this is because SQLite doesnt allow concurrent writes.
 CELERY_RESULT_DBURI = "sqlite:///db.sqlite"

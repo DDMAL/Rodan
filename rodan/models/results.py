@@ -2,6 +2,7 @@ from django.db import models
 from rodan.models.projects import JobItem, RodanUser, Page
 from rodan.models.jobs import JobType
 
+
 class Result(models.Model):
     class Meta:
         app_label = 'rodan'

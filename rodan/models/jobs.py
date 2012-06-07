@@ -2,6 +2,7 @@ from rodan.utils import remove_prefixes
 
 # These are not actual Django models
 
+
 class JobBase:
     name = ''
     slug = ''

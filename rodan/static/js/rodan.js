@@ -8,7 +8,7 @@ $(document).ready(function () {
                 type: 'spline'
             },
             credits: {
-                enabled: false,
+                enabled: false
             },
             title: {
                 text: ''
@@ -22,7 +22,7 @@ $(document).ready(function () {
                 },
                 labels: {
                     formatter: function() {
-                        return this.value
+                        return this.value;
                     }
                 }
             },
@@ -75,7 +75,7 @@ $(document).ready(function () {
                 plotShadow: false
             },
             credits: {
-                enabled: false,
+                enabled: false
             },
             title: {
                 text: ''

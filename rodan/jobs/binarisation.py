@@ -1,6 +1,7 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks
 
+
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
     slug = 'simple-binarise'
@@ -31,4 +32,4 @@ class DJVUBinarise(JobBase):
         max_block_size = kwargs['max_block_size']
         min_block_size = kwargs['min_block_size']
         block_factor = kwargs['block_factor']
-        tasks.djvu_binarise.delay(result_id,smoothness,max_block_size,min_block_size,block_factor)
+        tasks.djvu_binarise.delay(result_id, smoothness, max_block_size, min_block_size, block_factor)

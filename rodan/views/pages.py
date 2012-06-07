@@ -4,8 +4,10 @@ from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
 from django.utils import timezone
 
+
 def view(request, page_id):
     return redirect('/')
+
 
 @login_required
 # Called when submiting the form on the task page

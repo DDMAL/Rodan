@@ -1,6 +1,7 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks
 
+
 class Despeckle(JobBase):
     name = 'Despeckle'
     slug = 'despeckle'
@@ -15,4 +16,4 @@ class Despeckle(JobBase):
     def on_post(self, **kwargs):
         result_id = kwargs['result_id']
         dv = kwargs['despeckle_value']
-        tasks.despeckle.delay(result_id,dv)
+        tasks.despeckle.delay(result_id, dv)

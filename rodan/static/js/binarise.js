@@ -60,7 +60,7 @@ initImage = function() {
     //Manually set inital value for slider
     $("#slider").slider("value", defThresh);
     $("#slider").width(imageObj.width * 2);
-}
+};
 
 //binarises data, splitting foreground and background at a given brightness level
 binarise = function(thresh) {
@@ -90,31 +90,34 @@ binarise = function(thresh) {
     }
     //Draw binarised image
     context.putImageData(imageData, 0, 0);
-}
+};
 
 // Generates a PMF (Probability Mass Function) for the given image
 genPMF = function(imageObj) {
-    var canvas = document
+    // var canvas = document;  <- Canvas is overridden below?
     var canvas = document.getElementById("image-preview");
     var context = canvas.getContext("2d");
+    var i = 0;
     
     //Have to redraw image and then scrape data
     context.drawImage(imageObj, 0, 0);
     var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     var data = imageData.data;
     var pmf = new Array(G + 1);
-    for (var i = 0; i < pmf.length; i++)
+    for (i = 0; i < pmf.length; i++)
         pmf[i] = 0;
-    for (var i = 0; i < data.length; i +=4) {
+
+    for (i = 0; i < data.length; i +=4) {
         //Brightness is the greyscale value for the given pixel
         var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
         pmf[Math.round(brightness)]++;
     }
+
     // Normalize PMF values to total 1
-    for (var i = 0; i < pmf.length; i++)
+    for (i = 0; i < pmf.length; i++)
         pmf[i] /= (data.length / 4);
     return pmf;
-}
+};
 
 //Johanna's Brink Thresholding function
 threshBrink = function(pmf) {
@@ -136,9 +139,12 @@ threshBrink = function(pmf) {
     
     var tmpMat1 = new Array(256);   // local temporary matrix 1
     var tmpMat2 = new Array(256);   // local temporary matrix 2
+
+    var i = 0;
+    var j = 0;
     
     //2-dimensionalize matrices
-    for (var i = 0; i < 256; i++) {
+    for (i = 0; i < 256; i++) {
         tmp1[i] = new Array(256);
         tmp2[i] = new Array(256);
         tmp3[i] = new Array(256);
@@ -150,20 +156,21 @@ threshBrink = function(pmf) {
     
     // compute foreground moment
     mF[0] = 0.0;
-    for (var i = 1; i < 256; i++)
+    for (i = 1; i < 256; i++)
         mF[i] = i * pmf[i] + mF[i - 1];
     
     // compute background moment
     mB = mF.slice(0);
     
-    for (var i = 0; i < 256; i++)
+    for (i = 0; i < 256; i++)
         mB[i] = mF[255] - mB[i];
     
     // compute brink entropy binarisation
-    for (var i = 0; i < 256; i++) {
-        for (var j = 0; j < 256; j++) {
+    for (i = 0; i < 256; i++) {
+        for (j = 0; j < 256; j++) {
             tmp1[i][j] = mF[j] / i;
-            if ((mF[j] == 0) || (i == 0)) {
+
+            if ((mF[j] === 0) || (i === 0)) {
                 tmp2[i][j] = 0.0;
                 tmp3[i][j] = 0.0;
             } else {
@@ -176,18 +183,20 @@ threshBrink = function(pmf) {
     
     // compute the diagonal of the cumulative sum of tmp4 and store result in tmpVec1
     tmpMat1[0] = tmp4[0].slice(0);      // copies first row of tmp4 to the first row of tmpMat1
-    for (var i = 1; i < 256; i++)       // get cumulative sum
-        for (var j = 0; j < 256; j++)
+    for (i = 1; i < 256; i++) {      // get cumulative sum
+        for (j = 0; j < 256; j++) {
             tmpMat1[i][j] = tmpMat1[i - 1][j] + tmp4[i][j];
-    for (var i = 0; i < 256; i++)       // set to diagonal
+        }
+    }
+    for (i = 0; i < 256; i++)       // set to diagonal
         tmpVec1[i] = tmpMat1[i][i];     // tmpVec1 is now the diagonal of the cumulative sum of tmp4
     
     
     // same operation but for background moment, NOTE: tmp1 through tmp4 get overwritten
-    for (var i = 0; i < 256; i++) {
-        for (var j = 0; j < 256; j++) {
+    for (i = 0; i < 256; i++) {
+        for (j = 0; j < 256; j++) {
             tmp1[i][j] = mB[j] / i;     // tmpb0 = m_b_rep ./ g_rep;
-            if ((mB[j] == 0) || (i == 0)) {
+            if ((mB[j] === 0) || (i === 0)) {
                 tmp2[i][j] = 0.0;       // replace inf or NaN values with 0
                 tmp3[i][j] = 0.0;
             } else {
@@ -198,29 +207,29 @@ threshBrink = function(pmf) {
         }
     }
     
-    // sum columns, subtract diagonal of cumulative sum of tmp4 
-    tmpVec2 = tmp4[0].slice(0);         // copies first row of tmp4 to the first row of tmpMat2	
-    for (var i = 0; i < 256; i++)
-        for (var j = 0; j < 256; j++)
+    // sum columns, subtract diagonal of cumulative sum of tmp4
+    tmpVec2 = tmp4[0].slice(0);         // copies first row of tmp4 to the first row of tmpMat2
+    for (i = 0; i < 256; i++)
+        for (j = 0; j < 256; j++)
             tmpVec2[j] += tmp4[i][j];   // sums of columns of tmp4 and store result in tmpVec2
     
     // compute the diagonal of the cumulative sum of tmp4 and store result in tmpVec1
-    tmpMat2[0] = tmp4[0].slice(0);      // copies first row of tmp4 to the first row of tmpMat2	
-    for (var i = 1; i < 256; i++)       // get cumulative sum
-        for (var j = 0; j < 256; j++)
+    tmpMat2[0] = tmp4[0].slice(0);      // copies first row of tmp4 to the first row of tmpMat2
+    for (i = 1; i < 256; i++)       // get cumulative sum
+        for (j = 0; j < 256; j++)
             tmpMat2[i][j] = tmpMat2[i - 1][j] + tmp4[i][j];
-    for (var i = 0; i < 256; i++)       // set to diagonal
+    for (i = 0; i < 256; i++)       // set to diagonal
         tmpVec3[i] = tmpMat2[i][i];     // tmpVec3 is now the diagonal of the cumulative sum of tmpMat2
     
-    for (var i = 0; i < 256; i++)
+    for (i = 0; i < 256; i++)
         tmpVec2[i] -= tmpVec3[i];
-    for (var i = 0; i < 256; i++)
+    for (i = 0; i < 256; i++)
         tmpVec1[i] += tmpVec2[i];
     
     // calculate the threshold value
-    for (var i = 0; i < 256; i++) {
-        if (mF[i] != 0 && mB[i] != 0) {
-            if ((isMinInit == 0) || (tmpVec1[i] < locMin)) {
+    for (i = 0; i < 256; i++) {
+        if (mF[i] !== 0 && mB[i] !== 0) {
+            if ((isMinInit === 0) || (tmpVec1[i] < locMin)) {
                 isMinInit = 1;
                 locMin = tmpVec1[i];    // gets a new minimum
                 Topt = i;
@@ -230,4 +239,4 @@ threshBrink = function(pmf) {
     
     // return optimal threshold
     return Topt;
-}
+};

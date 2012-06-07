@@ -1,9 +1,9 @@
-
 from django.utils import unittest
 
 from rodan.models.jobs import JobType
 from rodan.models.projects import JobItem, RodanUser, Page
 from rodan.models.results import Result, Parameter, ResultFile
+
 
 class TestResult(unittest.TestCase):
     @classmethod
@@ -40,3 +40,4 @@ class TestResult(unittest.TestCase):
         self.assertEqual(2, len(self.result.resultfile_set.all()))
         files = self.result.resultfile_set.all()
         self.assertEqual(JobType.MEI, files[1].result_type)
+
