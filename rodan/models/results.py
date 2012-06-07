@@ -24,7 +24,7 @@ class Result(models.Model):
             param = Parameter(result=self, key=key, value=value)
             param.save()
 
-    def create_file(self, filename, result_type=JobType.IMAGE):
+    def create_file(self, filename, result_type):
         resfile = ResultFile(result=self, filename=filename, result_type=result_type)
         resfile.save()
 
