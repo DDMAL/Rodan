@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+import rodan.jobs
 from rodan.models.jobs import JobType
 
 class RodanUser(models.Model):
@@ -67,7 +68,18 @@ class Job(models.Model):
         return ('rodan.views.jobs.view', self.slug)
 
     def get_object(self):
-        return jobs[self.module]
+        return rodan.jobs.jobs[self.module]
+
+    def is_compatible(self, other_job):
+        """
+        Given another job, checks if it's compatible as the next job
+        (based on input/output types)
+        """
+        return self.get_object().output_type == other_job.get_object().input_type
+
+    def get_compatible_jobs(self):
+        compatible_function = self.is_compatible
+        return filter(compatible_function, Job.objects.all())
 
 
 class Workflow(models.Model):
@@ -114,7 +126,7 @@ class Page(models.Model):
             'filename': self.filename,
         }
 
-    def get_latest_file(self, file_type):
+    def get_latest_file(self, file_types):
         """
         To get the latest image: page.get_latest_file(JobType.IMAGE)
 
@@ -123,7 +135,13 @@ class Page(models.Model):
 
         For now it's just the filename, not the absolute path. Still need
         to work out the directory structure.
+
+        You can pass in either a tuple of file types or just one.
         """
+
+        if isinstance(file_types, int):
+            file_types = (file_types,)
+
         # Because importing ResultFile would cause circular imports etc
         file_manager = models.loading.get_model('rodan', 'ResultFile').objects
 
@@ -141,7 +159,7 @@ class Page(models.Model):
         files = file_manager.filter(result__page=self,
                                     result__job_item__workflow=self.workflow,
                                     result__end_total_time__isnull=False,
-                                    result_type=file_type) \
+                                    result_type__in=file_types) \
                                     .order_by('-result__job_item__sequence') \
                                     .all()
 
@@ -151,7 +169,7 @@ class Page(models.Model):
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
-            if file_type == JobType.IMAGE:
+            if file_types == JobType.IMAGE:
                 return self.filename
             else:
                 return None

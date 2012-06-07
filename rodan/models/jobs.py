@@ -21,7 +21,9 @@ class JobBase:
 class JobType:
     IMAGE_ONEBIT = 1
     IMAGE_GREY = 2
-    IMAGE_RGB = 3
-    JSON = 4
-    XML = 5
-    MEI = 6
+    IMAGE_RGB = 4
+    JSON = 8
+    XML = 16
+    MEI = 32
+
+    IMAGE = (IMAGE_ONEBIT, IMAGE_GREY, IMAGE_RGB)
