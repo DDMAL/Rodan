@@ -1,6 +1,7 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks
 
+
 class StaffFind(JobBase):
     name = 'Find staff lines'
     slug = 'staff-find'

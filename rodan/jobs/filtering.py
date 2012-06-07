@@ -1,6 +1,7 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks
 
+
 class RankFilter(JobBase):
     name = 'Rank filter'
     slug = 'rank-filter'
@@ -17,4 +18,4 @@ class RankFilter(JobBase):
         rank_val = kwargs['rank_val']
         k = kwargs['k']
         border_treatment = kwargs['border_treatment']
-        tasks.rank_filter.delay(result_id,rank_val,k,border_treatment)
+        tasks.rank_filter.delay(result_id, rank_val, k, border_treatment)
