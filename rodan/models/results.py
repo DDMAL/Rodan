@@ -1,5 +1,6 @@
 from django.db import models
 from rodan.models.projects import JobItem, RodanUser, Page
+from rodan.models.jobs import JobType
 
 class Result(models.Model):
     class Meta:
@@ -16,6 +17,15 @@ class Result(models.Model):
     def __unicode__(self):
         status = 'Incomplete' if self.end_total_time is None else 'Complete'
         return 'Result of %s on workflow %s - %s' % (self.job_item.job, self.page, status)
+
+    def save_parameters(self, **params):
+        for key, value in params.iteritems():
+            param = Parameter(result=self, key=key, value=value)
+            param.save()
+
+    def create_file(self, filename, result_type=JobType.IMAGE):
+        resfile = ResultFile(result=self, filename=filename, result_type=result_type)
+        resfile.save()
 
 
 class Parameter(models.Model):
