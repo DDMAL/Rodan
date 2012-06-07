@@ -6,12 +6,13 @@ import utility
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
+
 @task(name="transformation.rotate")
-def rotate(result_id,**kwargs):
+def rotate(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE) 
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
     output_img = gamera.core.load_image(page_file_name).rotate(kwargs['angle'])
 
@@ -21,8 +22,10 @@ def rotate(result_id,**kwargs):
     output_img.gamera.core.save_image(full_output_path)
 
     result.save_parameters(**kwargs)
-    result.create_file(output_file_name, JobType.IMAGE_ONEBIT) #same problem as for rank filter, need more specific output type
+    # same problem as for rank filter, need more specific output type
+    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
     result.total_timestamp()
+
 
 class Rotate(JobBase):
     name = 'Rotate'

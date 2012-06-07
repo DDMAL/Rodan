@@ -9,31 +9,38 @@ import utility
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
+
 @task(name="classification.classifier")
-def classifier(result_id,**kwargs):
+def classifier(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE_ONEBIT) 
+    page_file_name = result.page.get_latest_file(JobType.IMAGE_ONEBIT)
 
-    cknn = kNNNonInteractive("optimized_classifier_31Jan.xml",'all',True,1)#will be replaced by a new classifier that will be created soon
+    #will be replaced by a new classifier that will be created soon
+    cknn = kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
 
     ccs = gamera.core.load_image(page_file_name).cc_analysis()
     func = BoundingBoxGroupingFunction(4)
 
-    cs_image = cknn.group_and_update_list_automatic(ccs,grouping_function=func,max_parts_per_group=4,max_graph_size=16)
+    cs_image = cknn.group_and_update_list_automatic(ccs, \
+                    grouping_function=func,
+                    max_parts_per_group=4,
+                    max_graph_size=16)
 
     cknn.generate_features_on_glyphs(cs_image)
-    myxml = gamera_xml.WriteXMLFile(glyphs=cs_image,with_features=True)
+    myxml = gamera_xml.WriteXMLFile(glyphs=cs_image, with_features=True)
 
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)#same problem as for find_staves,bad extension
+    #same problem as for find_staves,bad extension
+    full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
 
-    myxml.write_filename("%s.xml" % full_output_path)#temp fix ??
+    myxml.write_filename("%s.xml" % full_output_path)
 
     result.save_parameters(**kwargs)
-    result.create_file(output_file_name,JobType.XML)
+    result.create_file(full_output_path, JobType.XML)
     result.total_timestamp()
+
 
 class Classifier(JobBase):
     name = 'Gamera classifier'

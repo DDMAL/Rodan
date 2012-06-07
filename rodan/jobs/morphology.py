@@ -6,6 +6,7 @@ import utility
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
+
 @task(name="morphology.despeckle")
 def despeckle(result_id, **kwargs):
     """
@@ -27,7 +28,7 @@ def despeckle(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE_ONEBIT) 
+    page_file_name = result.page.get_latest_file(JobType.IMAGE_ONEBIT)
 
     output_img = gamera.core.load_image(page_file_name)
     output_img.despeckle(kwargs['despeckle_value'])
@@ -38,8 +39,9 @@ def despeckle(result_id, **kwargs):
     gamera.core.save_image(output_img, full_output_path)
 
     result.save_parameters(**kwargs)
-    result.create_file(output_file_name, JobType.IMAGE_ONEBIT)
+    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
     result.total_timestamp()
+
 
 class Despeckle(JobBase):
     name = 'Despeckle'

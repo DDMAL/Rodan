@@ -6,6 +6,7 @@ import utility
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
+
 @task(name="filters.rank")
 def rank_filter(result_id, **kwargs):
     """
@@ -23,9 +24,9 @@ def rank_filter(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE) 
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).rank(kwargs['rank_val'],kwargs['k'],kwargs['border_treatment'])
+    output_img = gamera.core.load_image(page_file_name).rank(kwargs['rank_val'], kwargs['k'], kwargs['border_treatment'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -33,8 +34,10 @@ def rank_filter(result_id, **kwargs):
     gamera.core.save_image(output_img, full_output_path)
 
     result.save_parameters(**kwargs)
-    result.create_file(output_file_name, JobType.IMAGE_ONEBIT) #need to specify output type in this case its the same as input but we cannot send JobType.IMAGE --> tuple
+    #need to specify output type in this case its the same as input but we cannot send JobType.IMAGE --> tuple
+    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
     result.total_timestamp()
+
 
 class RankFilter(JobBase):
     name = 'Rank filter'
@@ -46,6 +49,6 @@ class RankFilter(JobBase):
     arguments = {
         'rank_val': 9,
         'k': 9,
-        'border_treatment':0
+        'border_treatment': 0
     }
     task = rank_filter

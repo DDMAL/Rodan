@@ -10,6 +10,7 @@ import utility
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
+
 def __create_polygon_outer_points_json_dict(poly_list):
     '''
         The following function is used to retrieve polygon points data of the first
@@ -29,8 +30,9 @@ def __create_polygon_outer_points_json_dict(poly_list):
 
     return poly_json_list
 
+
 def __fix_poly_point_list(poly_list, staffspace_height):
-    for poly in poly_list:#loop over polygons
+    for poly in poly_list:
         #following condition checks if there are the same amount of points on all 4 staff lines
         if len(poly[0].vertices) == len(poly[1].vertices) and \
         len(poly[0].vertices) == len(poly[2].vertices) and \
@@ -48,7 +50,7 @@ def __fix_poly_point_list(poly_list, staffspace_height):
                         else:
                             #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
                             y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
-                            
+
                         if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
                             continue
                         else:
@@ -57,6 +59,7 @@ def __fix_poly_point_list(poly_list, staffspace_height):
                             poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
 
     return poly_list
+
 
 @task(name="staff_find.miyao")
 def find_staves(result_id, **kwargs):
@@ -80,29 +83,31 @@ def find_staves(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE) 
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
-    staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(page_file_name),0,0)
+    staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(page_file_name), 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
 
-    poly_list = __fix_poly_point_list(poly_list,staff_finder.staffspace_height)
-
+    poly_list = __fix_poly_point_list(poly_list, staff_finder.staffspace_height)
 
     poly_json_list = __create_polygon_outer_points_json_dict(poly_list)
 
     encoded = json.dumps(poly_json_list)
 
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)#this will not work, we need extension information
+    #this will not work, we need extension information
+    full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
 
-    with open("%s.json" % full_output_path,"w") as f: #temp fix??
+    #temp fix??
+    with open("%s.json" % full_output_path, "w") as f:
         f.write(encoded)
 
     result.save_parameters(**kwargs)
-    result.create_file(output_file_name, JobType.JSON)
+    result.create_file(full_output_path, JobType.JSON)
     result.total_timestamp()
+
 
 class StaffFind(JobBase):
     name = 'Find staff lines'
