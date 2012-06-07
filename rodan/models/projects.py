@@ -172,7 +172,7 @@ class Page(models.Model):
 
         if files.count():
             # If there are any result_files of this type, return the latest
-            filename = '%d/%s' % (files[0].result.page, files[0].filename)
+            filename = '%d/%s' % (files[0].result.page.id, files[0].filename)
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
