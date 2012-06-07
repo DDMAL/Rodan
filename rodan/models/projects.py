@@ -138,15 +138,15 @@ class Page(models.Model):
 
     def get_filename_for_job(self, job):
         if isinstance(job, Job):
-            job_id = job.id
+            job_name = job.module
         else:
-            job_id = job
+            job_name = job
 
         #mediaroot/project/page/job/afile.ext
         return os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
                             "%d" % self.id,
-                            "%d" % job_id,
+                            "%s" % job_name,
                             self.filename)
 
     def get_latest_file(self, file_types):
