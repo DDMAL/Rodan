@@ -1,5 +1,5 @@
 from rodan.models.jobs import JobType, JobBase
-from tasks import tasks 
+from tasks import tasks
 
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'

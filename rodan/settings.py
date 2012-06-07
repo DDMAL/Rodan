@@ -130,7 +130,7 @@ BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
 
 CELERY_RESULT_BACKEND="database"
-#Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time, 
+#Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
 #this is because SQLite doesnt allow concurrent writes.
 CELERY_RESULT_DBURI = "sqlite:///db.sqlite"
 

@@ -158,7 +158,7 @@ def rank_filter(result_id, rank_val, k,border_treatment):
 
     file_name,file_extension = os.path.splitext(image_name)
     output_file_name = file_name + "_rankfilter_rkv" + str(rank_val) + "k" + str(k) + "bt" + str(border_treatment) + file_extension
-    
+
     save_image(output_img,"resultimages/" + output_file_name)
     __save_results(output_file_name,rank_val=rank_val,k=k,border_treatment=border_treatment)
 
@@ -214,7 +214,7 @@ def despeckle(result_id,despeckle_value=100):
 @task(name="staff_find.miyao")
 def find_staves(result_id, num_lines=0, scanlines=20, blackness=0.8, tolerance=-1):
     image_name = __setup_task(result_id)
-    
+
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     staff_finder = musicstaves.StaffFinder_miyao(load_image("images/" + image_name),0,0)
     staff_finder.find_staves(num_lines,scanlines,blackness,tolerance)
