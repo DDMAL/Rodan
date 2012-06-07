@@ -88,7 +88,7 @@ def simple_binarise(result_id, **kwargs):
     gamera.core.init_gamera()
 
     result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE)   
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
     output_img = gamera.core.load_image(page_file_name).threshold(kwargs['threshold'])
 
