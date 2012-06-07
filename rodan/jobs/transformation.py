@@ -9,11 +9,7 @@ class Rotate(JobBase):
     output_type = JobType.IMAGE_ONEBIT
     description = 'Rotates an image'
     show_during_wf_create = True
-
-    '''
-    Requires a valid result_id and a threshold value
-    '''
-    def on_post(self, **kwargs):
-        result_id = kwargs['result_id']
-        angle = kwargs['angle']
-        tasks.rotate.delay(result_id, angle)
+    parameters = {
+        'angle': 0
+    }
+    task = tasks.rotate

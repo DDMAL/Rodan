@@ -9,11 +9,7 @@ class Despeckle(JobBase):
     output_type = JobType.IMAGE_ONEBIT
     description = 'Despeckle a binarized image'
     show_during_wf_create = True
-
-    '''
-    Requires a valid result_id and a threshold value
-    '''
-    def on_post(self, **kwargs):
-        result_id = kwargs['result_id']
-        dv = kwargs['despeckle_value']
-        tasks.despeckle.delay(result_id, dv)
+    parameters = {
+        'despeckle_value': 100
+    }
+    task = tasks.despeckle

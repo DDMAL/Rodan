@@ -6,6 +6,6 @@ class Crop(jobs.JobBase):
     output_type = input_type
     description = 'Crop an image.'
     show_during_wf_create = True
-
-    def on_post(self, **kwargs):
-        pass
+    parameters = {
+    }
+    task = None

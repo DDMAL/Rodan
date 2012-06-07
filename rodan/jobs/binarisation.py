@@ -14,7 +14,6 @@ class SimpleThresholdBinarise(JobBase):
     }
     task = tasks.simple_binarise
 
-
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'
     slug = 'djvu-binarise'
@@ -22,14 +21,10 @@ class DJVUBinarise(JobBase):
     output_type = JobType.IMAGE_ONEBIT
     description = 'Convert a RGB image to black and white.'
     show_during_wf_create = True
-
-    '''
-    Requires a valid result_id and a threshold value
-    '''
-    def on_post(self, **kwargs):
-        result_id = kwargs['result_id']
-        smoothness = kwargs['smoothness']
-        max_block_size = kwargs['max_block_size']
-        min_block_size = kwargs['min_block_size']
-        block_factor = kwargs['block_factor']
-        tasks.djvu_binarise.delay(result_id, smoothness, max_block_size, min_block_size, block_factor)
+    parameters = {
+        'smoothness': 0.2,
+        'max_block_size': 512,
+        'min_block_size': 64,
+        'block_factor':2
+    }
+    task = tasks.djvu_binarise
