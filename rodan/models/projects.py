@@ -36,7 +36,8 @@ class Project(models.Model):
 
 
 class Job(models.Model):
-    """The slug is automatically generated from the class definition, but
+    """
+    The slug is automatically generated from the class definition, but
     can be overridden by setting the 'slug' attribute. This is used for URL
     routing purposes.
 
@@ -217,10 +218,12 @@ class JobItem(models.Model):
 
 
 class ActionParam(models.Model):
+    """
+    Specifies the intended defaults for a job.
+    """
     class Meta:
         app_label = 'rodan'
-    """Specifies the intended defaults for a job.
-    """
+
     job_item = models.ForeignKey(JobItem)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=50)
