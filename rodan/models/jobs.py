@@ -7,6 +7,10 @@ class JobBase:
     slug = ''
     description = ''
     template = ''
+    """A dict of parameters to pass to a celery task"""
+    parameters = {}
+    """The celery task to execute"""
+    task = None
 
     def get_name(self):
         return self.name or remove_prefixes(self.__class__.__name__)
@@ -25,6 +29,13 @@ class JobBase:
         the template.
         """
         return {}
+
+    def on_post(self, result, **kwargs):
+        """
+        If you want to perform a custom action after submit that is
+        not a celery task, override this
+        """
+        pass
 
 
 class JobType:
