@@ -8,7 +8,7 @@ class GetNextJob(unittest.TestCase):
         self.page_1 = Page.objects.get(pk=1)
         self.page_2 = Page.objects.get(pk=2)
         self.crop = Job.objects.get(name="Crop")
-        self.rotate = Job.objects.get(name="Awesome rotation")
+        self.rotate = Job.objects.get(name="Rotate")
         self.binarise = Job.objects.get(name="Binarise (simple threshold)")
         self.result_1 = Result.objects.get(pk=1)
 
