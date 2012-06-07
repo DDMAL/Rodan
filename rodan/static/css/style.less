@@ -362,3 +362,39 @@ h2 {
         }
     }
 }
+
+#job-grid {
+    li {
+        position: relative;
+        display: inline-block;
+        min-width: 200px;
+        height: 50px;
+        margin-top: 10px;
+        text-align: center;
+        background: @lightGrey;
+        line-height: 50px;
+        &.available {
+            background: @brightBlue;
+            &:hover {
+                background: @brighterBlue;
+            }
+        }
+        a {
+            display: block;
+            min-width: 160px;
+            padding: 0 20px;
+            height: 100%;
+            color: @white;
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover {
+            background: @lighterGrey;
+        }
+    }
+}
+
+hr {
+    margin: 10px 0;
+}
