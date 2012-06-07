@@ -8,14 +8,11 @@ class SimpleThresholdBinarise(JobBase):
     output_type = JobType.IMAGE_ONEBIT
     description = 'Convert a greyscale image to black and white.'
     show_during_wf_create = True
+    parameters = {
+        'threshold': 0
+    }
+    task = tasks.simple_binarise
 
-    '''
-    Requires a valid result_id and a threshold value
-    '''
-    def on_post(self, **kwargs):
-        result_id = kwargs['result_id']
-        tv = kwargs['threshold']
-        tasks.simple_binarise.delay(result_id,tv)
 
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'
