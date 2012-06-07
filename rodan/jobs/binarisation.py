@@ -1,6 +1,64 @@
-from rodan.models.jobs import JobType, JobBase
-from tasks import tasks
+import gamera.core
 
+from celery.task import task
+
+import utility
+from rodan.models.jobs import JobType, JobBase
+from rodan.models import Result
+
+@task(name="binarisation.simple_binarise")
+def simple_binarise(result_id, **kwargs):
+    gamera.core.init_gamera()
+
+    result = Result.objects.get(pk=result_id)
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)
+
+    output_img = gamera.core.load_image(page_file_name).threshold(kwargs['threshold'])
+
+    full_output_path = result.page.get_filename_for_job(result.job_item.job)
+    utility.create_result_output_dirs(full_output_path)
+
+    gamera.core.save_image(output_img, full_output_path)
+
+    result.save_parameters(**kwargs)
+    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
+    result.update_end_total_time()
+
+
+@task(name="binarisation.djvu_threshold")
+def djvu_binarise(result_id, **kwargs):
+    """
+        *smoothness*
+          The amount of effect that parent blocks have on their children
+          blocks.  Higher values will result in more smoothness between
+          blocks.  Expressed as a percentage between 0.0 and 1.0.
+
+        *max_block_size*
+          The size of the largest block to determine a threshold.
+
+        *min_block_size*
+          The size of the smallest block to determine a threshold.
+
+        *block_factor*
+          The number of child blocks (in each direction) per parent block.
+          For instance, a *block_factor* of 2 results in 4 children per
+          parent.
+    """
+    gamera.core.init_gamera()
+
+    result = Result.objects.get(pk=result_id)
+    page_file_name = result.page.get_latest_file(JobType.IMAGE)  
+
+    output_img = gamera.core.load_image(page_file_name).djvu_threshold(kwargs['smoothness'],kwargs['max_block_size'],kwargs['min_block_size'],kwargs['block_factor'])
+
+    full_output_path = result.page.get_filename_for_job(result.job_item.job)
+    utility.create_result_output_dirs(full_output_path)
+
+    gamera.core.save_image(output_img, full_output_path)
+
+    result.save_parameters(**kwargs)
+    result.create_file(output_file_name, JobType.IMAGE_ONEBIT)
+    result.total_timestamp()
 
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
@@ -12,7 +70,7 @@ class SimpleThresholdBinarise(JobBase):
     parameters = {
         'threshold': 0
     }
-    task = tasks.simple_binarise
+    task = simple_binarise
 
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'
@@ -27,4 +85,4 @@ class DJVUBinarise(JobBase):
         'min_block_size': 64,
         'block_factor':2
     }
-    task = tasks.djvu_binarise
+    task = djvu_binarise
