@@ -28,6 +28,14 @@ class JobBase:
 
 
 class JobType:
+    """
+    IMAGE is a tuple used for Page.get_latest_file() (when you want to get
+    the latest image and don't care what the colour palette is).
+
+    The others are powers of two. To specify that a job's output type is
+    MEI + a one-bit image, use IMAGE_ONEBIT + MEI. A ResultFile will always
+    have only one type (e.g. MEI or IMAGE_ONEBIT, not both).
+    """
     IMAGE_ONEBIT = 1
     IMAGE_GREY = 2
     IMAGE_RGB = 4
