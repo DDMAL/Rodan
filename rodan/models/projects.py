@@ -1,9 +1,11 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+
 import rodan.jobs
 from rodan.models.jobs import JobType
-
 
 class RodanUser(models.Model):
     class Meta:
@@ -134,6 +136,19 @@ class Page(models.Model):
             'filename': self.filename,
         }
 
+    def get_filename_for_job(self, job):
+        if isinstance(job, Job):
+            job_id = job.id
+        else:
+            job_id = job
+
+        #mediaroot/project/page/job/afile.ext
+        return os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.project.id,
+                            "%d" % self.id,
+                            "%d" % job_id,
+                            self.filename)
+
     def get_latest_file(self, file_types):
         """
         To get the latest image: page.get_latest_file(JobType.IMAGE)
@@ -183,12 +198,10 @@ class Page(models.Model):
                 return None
 
         # If there is a filename, return the ABSOLUTE path
-        return "%(media_root)s%(project_id)d/%(page_id)d/%(filename)s" % {
-            'media_root': settings.MEDIA_ROOT,
-            'project_id': self.project.id,
-            'page_id': self.id,
-            'filename': filename,
-        }
+        return os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.project.id,
+                            "%d" % self.id,
+                            filename)
 
     def get_next_job(self, user=None):
         """

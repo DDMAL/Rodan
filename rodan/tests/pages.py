@@ -1,7 +1,11 @@
+import os
+
 from django.utils import unittest, timezone
+
 from rodan.models.projects import Project, Job, Page, JobItem, RodanUser
 from rodan.models.results import Result, ResultFile
 from rodan.models.jobs import JobType
+import rodan.settings
 
 
 class GetNextJob(unittest.TestCase):
@@ -81,3 +85,12 @@ class GetLatestImagePath(unittest.TestCase):
         self.result_2.delete()
         self.result_file_1.delete()
         self.result_file_2.delete()
+
+class PageTest(unittest.TestCase):
+    def setUp(self):
+        self.page_1 = Page.objects.get(pk=1)
+
+    def testGetFilenameForJob(self):
+        root = rodan.settings.MEDIA_ROOT
+        path = os.path.join(root, "1", "1", "2", "lol.tif")
+        self.assertEqual(path, self.page_1.get_filename_for_job(2))
