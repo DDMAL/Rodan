@@ -56,17 +56,17 @@ class GetLatestImagePath(unittest.TestCase):
         self.result_2 = Result.objects.create(job_item=JobItem.objects.get(pk=4), user=self.user, page=self.page_2, end_total_time = timezone.now())
 
     def runTest(self):
-        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "another.tif")
+        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("another.tif"))
         self.result_file_1 = ResultFile.objects.create(result=self.result_1, result_type=JobType.IMAGE_ONEBIT, filename='binarised.tif')
 
         # Should return the original filename
-        self.assertEqual(self.page_1.get_latest_file(JobType.IMAGE), 'lol.tif')
+        self.assertTrue(self.page_1.get_latest_file(JobType.IMAGE).endswith('lol.tif'))
         self.assertEqual(self.page_1.get_latest_file(JobType.MEI), None)
-        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), "binarised.tif")
+        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("binarised.tif"))
 
         self.result_file_2 = ResultFile.objects.create(result=self.result_2, result_type=JobType.IMAGE_ONEBIT, filename='recent.tif')
 
-        self.assertEqual(self.page_2.get_latest_file(JobType.IMAGE), 'recent.tif')
+        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith('recent.tif'))
 
     def tearDown(self):
         self.result_1.end_total_time = None
