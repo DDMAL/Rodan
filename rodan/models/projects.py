@@ -124,9 +124,9 @@ class Page(models.Model):
         return ('rodan.views.pages.view', str(self.id))
 
     # Returns the path to a thumbnail of the image (size can be small or large)
-    def get_image_url(self, size='small'):
-        return '%(media_root)/%(project_id)/%(page_id)/%(size)/%(filename)' % {
-            'media_root': settings.MEDIA_ROOT,
+    def get_image_url(self, size='large'):
+        return '%(media_url)s/%(project_id)d/%(page_id)d/%(size)s/%(filename)s.jpg' % {
+            'media_url': settings.MEDIA_URL,
             'project_id': self.project.id,
             'page_id': self.id,
             'size': size,
