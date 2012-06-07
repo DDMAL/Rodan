@@ -39,24 +39,40 @@ def __fix_poly_point_list(poly_list, staffspace_height):
         len(poly[0].vertices) == len(poly[3].vertices):
             continue
         else:
-            for j in xrange(0,len(poly)):#loop over all 4 staff lines
-                for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
-                    for l in xrange(0,len(poly)):#loop over all 4 staff lines
-                        if l == j:# optimization to not loop through the same staff line as outer loop
+            for j, line in enumerate(poly):
+                for k, vert in enumerate(line.vertices):
+                    for m, innerline in enumerate(poly):
+                        if line == innerline:
                             continue
-
-                        if(k < len(poly[l].vertices)): #before doing the difference make sure index k is within indexable range of poly[l]
-                            y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
+                        if k < len(line.vertices):
+                            y_pix_diff = vert.x - innerline.vertices[k].x
                         else:
-                            #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
-                            y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
+                            y_pix_diff = -10000
 
-                        if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
+                        if y_pix_diff < 3 and y_pix_diff > -3:
                             continue
                         else:
-                            #missing a point on that staff
-                            staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
-                            poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
+                            staffspace_multiplier = m - j
+                            line.vertices.insert(k, Point(vert.x, vert.y + (staffspace_multiplier * staffspace_height)))
+
+            # for j in xrange(0,len(poly)):#loop over all 4 staff lines
+            #     for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
+            #         for l in xrange(0,len(poly)):#loop over all 4 staff lines
+            #             if l == j:# optimization to not loop through the same staff line as outer loop
+            #                 continue
+
+            #             if(k < len(poly[l].vertices)): #before doing the difference make sure index k is within indexable range of poly[l]
+            #                 y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
+            #             else:
+            #                 #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
+            #                 y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
+
+            #             if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
+            #                 continue
+            #             else:
+            #                 #missing a point on that staff
+            #                 staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
+            #                 poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
 
     return poly_list
 
