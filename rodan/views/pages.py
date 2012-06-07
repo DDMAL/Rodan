@@ -35,6 +35,10 @@ def process(request, page_id, job_slug):
 
         # Figure out the relevant task etc
         task = job_object.task
-        task.delay(result.id, **kwargs)
+        print task
+        if task:
+            task.delay(result.id, **kwargs)
+        else:
+            job_object.on_post(result, **kwargs)
 
         return redirect(page.project.get_absolute_url())
