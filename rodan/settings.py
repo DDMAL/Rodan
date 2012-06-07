@@ -1,3 +1,6 @@
+import os
+PROJECT_DIR = os.path.dirname(__file__)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -195,5 +198,5 @@ AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 # Used in conjunction with the @login_required decorator
 LOGIN_URL = '/signup'
 
-MEDIA_ROOT = "uploads"
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'uploads/')
 MEDIA_URL = "/images/"
