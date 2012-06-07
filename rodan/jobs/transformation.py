@@ -1,6 +1,7 @@
 from rodan.models.jobs import JobType, JobBase
 from tasks import tasks
 
+
 class Rotate(JobBase):
     name = 'Rotate'
     slug = 'rotate'
@@ -15,4 +16,4 @@ class Rotate(JobBase):
     def on_post(self, **kwargs):
         result_id = kwargs['result_id']
         angle = kwargs['angle']
-        tasks.rotate.delay(result_id,angle)
+        tasks.rotate.delay(result_id, angle)
