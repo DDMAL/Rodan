@@ -172,14 +172,22 @@ class Page(models.Model):
 
         if files.count():
             # If there are any result_files of this type, return the latest
-            return files[0].filename
+            filename = '%d/%s' % (files[0].result.page, files[0].filename)
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
             if file_types == JobType.IMAGE:
-                return self.filename
+                filename = self.filename
             else:
                 return None
+
+        # If there is a filename, return the ABSOLUTE path
+        return "%(media_root)s%(project_id)d/%(page_id)d/%(filename)s" % {
+            'media_root': settings.MEDIA_ROOT,
+            'project_id': self.project.id,
+            'page_id': self.id,
+            'filename': filename,
+        }
 
     def get_next_job(self, user=None):
         """
