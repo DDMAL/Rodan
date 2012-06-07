@@ -1,6 +1,7 @@
 from celery.task import task
 from rodan.models.results import Result, Parameter, ResultFile
-
+from rodan.models.jobs import JobType
+from django.conf import settings
 from django.utils import timezone
 import os
 from gamera.core import *
@@ -83,15 +84,31 @@ def __create_polygon_json_dict(poly_list):
 
 #####BINARISE######
 @task(name="binarisation.simple_binarise")
-def simple_binarise(result_id,threshold_value):
-    image_name = __setup_task(result_id)
-    output_img = load_image("images/" + image_name).threshold(threshold_value)
+def simple_binarise(result_id, threshold=0):
+    file = open(os.path.join(settings.MEDIA_ROOT, 'lol'), 'wt')
+    file.write("lol")
+    filepath = Result.objects.get(pk=result_id).page.get_latest_file(JobType.IMAGE)
+    file.write(filepath)
+    return filepath
 
-    file_name,file_extension = os.path.splitext(image_name)
-    output_file_name =file_name + "_binarize_simplethresh_" + str(threshold_value) + file_extension
+"""
 
-    save_image(output_img,"resultimages/" + output_file_name)
-    __save_results(output_file_name,threshold_value=threshold_value)
+The below has been commented out because it doesn't work
+The above is for debugging
+use Page.get_latest_image() to get the abs filepath to the latest image
+Save it to MEDIA_ROOT, project_id/page_id/job_id/filename
+maybe add a method to Page to make it easier to do that?
+====================
+
+image_name = __setup_task(result_id)
+output_img = load_image("images/" + image_name).threshold(threshold_value)
+
+file_name,file_extension = os.path.splitext(image_name)
+output_file_name =file_name + "_binarize_simplethresh_" + str(threshold_value) + file_extension
+
+save_image(output_img,"resultimages/" + output_file_name)
+__save_results(output_file_name,threshold_value=threshold_value)
+"""
 
 '''
     *smoothness*
