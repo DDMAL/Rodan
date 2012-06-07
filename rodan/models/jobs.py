@@ -17,7 +17,16 @@ class JobBase:
         """
         return self.slug or self.get_name().lower()
 
-#still needs updating
+    def get_context(self):
+        """
+        Override this if you want to pass custom variables to the template.
+        Will be accessible in the template as "context" (so if you return
+        {'blah': 'blah'}, then it's accessible through {{ context.blah }} in
+        the template.
+        """
+        return {}
+
+
 class JobType:
     IMAGE_ONEBIT = 1
     IMAGE_GREY = 2
