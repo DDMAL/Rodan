@@ -124,6 +124,8 @@ INSTALLED_APPS = (
     'rodan.jobs',
 )
 
+import djcelery
+djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
@@ -162,14 +164,15 @@ LOGGING = {
     }
 }
 
-
 TEMPLATE_CONTEXT_PROCESSORS = (
-        "django.contrib.auth.context_processors.auth",
-        "django.core.context_processors.debug",
-        "django.core.context_processors.media",
-        "django.core.context_processors.static",
-        "django.contrib.messages.context_processors.messages",
-        "projects.context_processors.list_projects",
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.csrf",
+    "django.contrib.messages.context_processors.messages",
+    "rodan.context_processors.list_projects",
+    "rodan.context_processors.login_url",
 )
 
 # So that calling get_profile on a user will return the RodanUser instance
