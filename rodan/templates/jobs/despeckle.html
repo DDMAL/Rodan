@@ -1,0 +1,15 @@
+<p>This is a despeckling job!!! Look at my beautiful slider etc</p>
+<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<form method="post" action="{% url task_complete page.id job.slug %}" id="despeckle-form">
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="size" value="0" id="size-input" />
+        <input type="submit" name="submit" value="Despeckle" class="submit" />
+    </fieldset>
+</form>
+
+<div id="slider"></div>
+<div class="images">
+    {% include "includes/page_image.html" %}
+    <canvas id="image-preview" alt="Image preview"></canvas>
+<script src="{{ STATIC_URL }}js/despeckle.js"></script>

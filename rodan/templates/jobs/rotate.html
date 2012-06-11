@@ -1,1 +1,16 @@
-Will be included and will show the slider and crap
+<p>This is a rotation job!!! Look at my beautiful dial etc</p>
+<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<form method="post" action="{% url task_complete page.id job.slug %}" id="rotate-form">
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="angle" value="0" id="angle-input" />
+        <input type="submit" name="submit" value="Rotate" class="submit" />
+    </fieldset>
+</form>
+
+<input class="knob" id="dialctrl" data-cursor=true data-thickness=".3"></input>
+<div class="images">
+    <canvas id="image-preview" alt="Image preview"></canvas>
+	{% include "includes/page_image.html" %}
+<script src="{{ STATIC_URL }}js/jquery.knob.js"></script>
+<script src="{{ STATIC_URL }}js/rotate.js"></script>
