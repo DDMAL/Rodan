@@ -83,7 +83,7 @@
         "pk": 1, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.cropping.Crop", 
+            "job": "rodan.jobs.preprocessing.Crop", 
             "sequence": 1, 
             "workflow": 1
         }
@@ -119,7 +119,7 @@
         "pk": 5, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.cropping.Crop", 
+            "job": "rodan.jobs.preprocessing.Crop", 
             "sequence": 3, 
             "workflow": 2
         }
