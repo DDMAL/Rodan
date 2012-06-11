@@ -12,4 +12,4 @@ class TestTask(unittest.TestCase):
     def testGenerateThumbnails(self):
         page = Page.objects.get(pk=2)
         output_img = gamera.core.load_image(page.get_filename_for_job("rodan.jobs.binarisation.SimpleThresholdBinarise"))
-        utility.create_thumbnails(output_img, page)
+        #utility.create_thumbnails(output_img, page)

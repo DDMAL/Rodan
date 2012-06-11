@@ -18,7 +18,7 @@ def simple_binarise(result_id, **kwargs):
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
-    utility.create_thumbnails(output_img, result.page)
+    utility.create_thumbnails(output_img, result)
 
     gamera.core.save_image(output_img, full_output_path)
 

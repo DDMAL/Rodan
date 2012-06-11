@@ -137,11 +137,12 @@ class Page(models.Model):
             'filename': self.filename,
         }
         
-    def get_path_to_image(self, size='large'):
-        return '%(media_root)s%(project_id)d/%(page_id)d/%(filename)s_%(size)s.png' % {
+    def get_path_to_image(self, size='large', job='start'):
+        return '%(media_root)s%(project_id)d/%(page_id)d/%(job)s/%(filename)s_%(size)s.png' % {
             'media_root': settings.MEDIA_ROOT,
             'project_id': self.project.id,
             'page_id': self.id,
+            'job' : job,
             'filename': self.filename,
             'size' : size,
         }
