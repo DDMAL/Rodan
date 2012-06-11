@@ -1,5 +1,5 @@
 import gamera.core
-from gamera.toolkits import border_removal
+from gamera.toolkits.border_removal.plugins.border_removal import border_removal
 
 from celery.task import task
 import utility
@@ -14,7 +14,7 @@ def border_remover(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    orig_image = gamera.core.load_image(page_file_name)
+    orig_image = utility.load_image_for_job(page_file_name, border_removal)
 
     mask = orig_image.border_removal()  # use defaults
 

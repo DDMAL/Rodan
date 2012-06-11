@@ -1,4 +1,5 @@
 import gamera.core
+from gamera.plugins.misc_filters import rank
 
 from celery.task import task
 
@@ -26,7 +27,10 @@ def rank_filter(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).rank(kwargs['rank_val'], kwargs['k'], kwargs['border_treatment'])
+    output_img = utility.load_image_for_job(page_file_name, rank).rank( \
+        kwargs['rank_val'],
+        kwargs['k'],
+        kwargs['border_treatment'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -36,7 +40,7 @@ def rank_filter(result_id, **kwargs):
     result.save_parameters(**kwargs)
     #need to specify output type in this case its the same as input but we cannot send JobType.IMAGE --> tuple
     result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class RankFilter(JobBase):

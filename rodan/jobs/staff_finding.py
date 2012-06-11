@@ -102,6 +102,7 @@ def find_staves(result_id, **kwargs):
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
+    #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
     staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(page_file_name), 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
@@ -122,7 +123,7 @@ def find_staves(result_id, **kwargs):
 
     result.save_parameters(**kwargs)
     result.create_file(full_output_path, JobType.JSON)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class StaffFind(JobBase):

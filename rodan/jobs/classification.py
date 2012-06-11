@@ -20,7 +20,7 @@ def classifier(result_id, **kwargs):
     #will be replaced by a new classifier that will be created soon
     cknn = kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
 
-    ccs = gamera.core.load_image(page_file_name).cc_analysis()
+    ccs = gamera.core.load_image(page_file_name).cc_analysis()  # must be OneBit, not using rodan load image (although it does prevent conversion to one bit)
     func = BoundingBoxGroupingFunction(4)
 
     cs_image = cknn.group_and_update_list_automatic(ccs, \
@@ -39,7 +39,7 @@ def classifier(result_id, **kwargs):
 
     result.save_parameters(**kwargs)
     result.create_file(full_output_path, JobType.XML)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class Classifier(JobBase):

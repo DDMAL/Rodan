@@ -14,7 +14,7 @@ def rotate(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).rotate(kwargs['angle'])
+    output_img = gamera.core.load_image(page_file_name).rotate(kwargs['angle'])  # accepts any type
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -24,7 +24,7 @@ def rotate(result_id, **kwargs):
     result.save_parameters(**kwargs)
     # same problem as for rank filter, need more specific output type
     result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class Rotate(JobBase):

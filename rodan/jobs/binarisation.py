@@ -1,4 +1,6 @@
 import gamera.core
+from gamera.plugins.threshold import threshold
+from gamera.plugins.threshold import djvu_threshold
 
 from celery.task import task
 
@@ -14,7 +16,7 @@ def simple_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).threshold(kwargs['threshold'])
+    output_img = utility.load_image_for_job(page_file_name, threshold).threshold(kwargs['threshold'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -50,7 +52,8 @@ def djvu_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).djvu_threshold(kwargs['smoothness'],
+    output_img = utility.load_image_for_job(page_file_name, djvu_threshold).djvu_threshold( \
+                        kwargs['smoothness'],
                         kwargs['max_block_size'],
                         kwargs['min_block_size'],
                         kwargs['block_factor'])
@@ -62,7 +65,7 @@ def djvu_binarise(result_id, **kwargs):
 
     result.save_parameters(**kwargs)
     result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class SimpleThresholdBinarise(JobBase):
