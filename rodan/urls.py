@@ -1,5 +1,8 @@
 from django.conf.urls import patterns, include, url, static
 from django.conf import settings
+from django.contrib import admin
+
+admin.autodiscover()
 
 project_urls = patterns('rodan.views.projects',
     url(r'^/?$', 'view'),
@@ -8,7 +11,11 @@ project_urls = patterns('rodan.views.projects',
     url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
 )
 
-urlpatterns = patterns('rodan.views.main',
+urlpatterns = patterns('',
+    url(r'^admin/', include(admin.site.urls)),
+)
+
+urlpatterns += patterns('rodan.views.main',
     url(r'^$', 'home', name='home'),
     url(r'^signup', 'signup', name='signup'),
     url(r'^logout', 'logout_view', name='logout'),
