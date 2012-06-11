@@ -1,6 +1,6 @@
-import gamera.core
-
 import os
+
+import gamera.core
 
 
 def create_result_output_dirs(full_output_path):
@@ -46,3 +46,14 @@ def __convert_image_for_job(image, job_input_types):
         return image  # Note that we return the original image, that is because we shouldn't convert directly to onebit
 
     return converted_img
+
+
+def create_thumbnails(output_img, result):
+    page = result.page
+    job_module = result.job_item.job.module
+    page.scale_value = 100. / max(output_img.ncols, output_img.nrows)
+    scale_img_s = output_img.scale(page.scale_value, 0)
+    scale_img_l = output_img.scale(page.scale_value * 10, 0)
+    create_result_output_dirs(page.get_path_to_image('small', job_module))
+    scale_img_s.save_PNG(page.get_path_to_image('small', job_module))
+    scale_img_l.save_PNG(page.get_path_to_image('large', job_module))

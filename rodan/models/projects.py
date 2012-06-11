@@ -117,6 +117,7 @@ class Page(models.Model):
     workflow = models.ForeignKey(Workflow, null=True)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, help_text="Optional tag for the page. Sort of like a nickname.")
+    scale_value = 1
 
     # If the tag is defined, it returns that; otherwise, returns the filename
     def __unicode__(self):
@@ -134,6 +135,16 @@ class Page(models.Model):
             'page_id': self.id,
             'size': size,
             'filename': self.filename,
+        }
+        
+    def get_path_to_image(self, size='large', job='start'):
+        return '%(media_root)s%(project_id)d/%(page_id)d/%(job)s/%(filename)s_%(size)s.png' % {
+            'media_root': settings.MEDIA_ROOT,
+            'project_id': self.project.id,
+            'page_id': self.id,
+            'job' : job,
+            'filename': self.filename,
+            'size' : size,
         }
 
     def get_filename_for_job(self, job):
