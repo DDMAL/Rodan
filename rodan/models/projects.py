@@ -117,7 +117,6 @@ class Page(models.Model):
     workflow = models.ForeignKey(Workflow, null=True, blank=True)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
-    scale_value = 1
 
     # If the tag is defined, it returns that; otherwise, returns the filename
     def __unicode__(self):
