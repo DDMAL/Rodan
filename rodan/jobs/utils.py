@@ -18,8 +18,6 @@ def create_thumbnails(output_img, result):
     page.scale_value = 100. / max(output_img.ncols, output_img.nrows)
     scale_img_s = output_img.scale(page.scale_value, 0)
     scale_img_l = output_img.scale(page.scale_value * 10, 0)
-    create_dirs(page.get_path_to_image('small', job_module))
-    create_dirs(page.get_path_to_image('large', job_module))
     scale_img_s.save_PNG(page.get_path_to_image('small', job_module))
     scale_img_l.save_PNG(page.get_path_to_image('large', job_module))
 
