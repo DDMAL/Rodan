@@ -16,5 +16,14 @@
         {% include "includes/job_grid.html" %}
         <hr />
         {% include "includes/job_status.html" %}
+        <hr />
+        <h2>Project pages</h2>
+        {% if num_pages > 0 %}
+        <ul class="grid">
+        {% for page in project.page_set.all %}
+            <li><a href="{{ page.get_absolute_url }}"><img src="{{ page.get_original_thumb_url }}" /></a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
     </section>
 {% endblock %}

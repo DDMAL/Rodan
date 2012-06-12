@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
@@ -6,7 +6,12 @@ from django.utils import timezone
 
 
 def view(request, page_id):
-    return redirect('/')
+    page = get_object_or_404(Page, pk=page_id)
+    data = {
+        'page': page,
+    }
+
+    return render(request, 'pages/view.html', data)
 
 
 @login_required

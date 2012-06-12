@@ -11,6 +11,11 @@ project_urls = patterns('rodan.views.projects',
     url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
 )
 
+page_urls = patterns('rodan.views.pages',
+    url(r'^/?$', 'view', name='view_page'),
+    url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
+)
+
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 )
@@ -37,8 +42,7 @@ urlpatterns += patterns('rodan.views.jobs',
 )
 
 urlpatterns += patterns('rodan.views.pages',
-    url(r'^pages/(?P<page_id>\d+)/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
-    url(r'^pages/(?P<page_id>\d+)', 'view'),
+    url(r'^pages/(?P<page_id>\d+)', include(page_urls)),
 )
 
 # For serving stuff under MEDIA_ROOT in debug mode only

@@ -133,6 +133,11 @@ class Page(models.Model):
         path = self.get_latest_file('tiff')[len(settings.MEDIA_ROOT):]
         url = settings.MEDIA_URL + path + '_%s.jpg' % size
         return url
+
+    def get_original_thumb_url(self, size='small'):
+        path = self.get_path_to_image(size=size)[len(settings.MEDIA_ROOT):]
+        url = settings.MEDIA_URL + path
+        return url
         
     def get_path_to_image(self, size='large', job=None):
         return os.path.join(settings.MEDIA_ROOT,
@@ -231,6 +236,12 @@ class Page(models.Model):
         if next_job_item is not None and next_job_item.result_set.filter(page=self).count() == 0:
             Result = models.loading.get_model('rodan', 'Result')
             result = Result.objects.create(job_item=next_job_item, user=user, page=self)
+
+    def get_percent_done(self):
+        Result = models.loading.get_model('rodan', 'Result')
+        num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
+        num_jobs = self.workflow.jobitem_set.count()
+        return (100 * num_complete) / num_jobs
 
 
 class JobItem(models.Model):

@@ -1,0 +1,14 @@
+{% extends "main.html" %}
+
+{% block content %}
+    <section>
+        <h1>{{ page }}</h1>
+        <p>What should go on this page?</p>
+        <p>Progress: % percent (so X jobs, figure out which the next one is, from there get how many are done)</p>
+        <p>Also: show some thumbs for every step</p>
+        <hr />
+        <p>Progress: {{ page.get_percent_done }}% done</p>
+        <p>Thumbnails for the steps:</p>
+        <p>This will have to be done later (after the methods are reorganised and stuff)</p>
+    </section>
+{% endblock %}
