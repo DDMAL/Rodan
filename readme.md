@@ -18,7 +18,7 @@ We're using virtualenv to manage dependencies
 
 to install it: `sudo pip install virtualenv`
 
-Create a virtual environemnt:
+Create a virtual environment:
 
 in your checked out directory, run
 
@@ -54,9 +54,12 @@ You will also need these plugins for gamera, which have to be added manually as 
 Setup
 -----
 * Install rabbitmq if required
-* /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
-* /usr/local/sbin/rabbitmqctl add_vhost DDMAL
-* /usr/local/sbin/rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
+
+Configure rabbitmq with 
+
+    /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
+    /usr/local/sbin/rabbitmqctl add_vhost DDMAL
+    /usr/local/sbin/rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
 
 Instructions
 ------------
@@ -78,14 +81,10 @@ Project layout
 
 Each of the 5 components (correction, display, processing, projects, recognition) exists as a separate app. The `rodan` directory just contains project-specific settings and URLs as well as some basic views (the main view, which either redirects the user to the dashboard or asks the user to sign up or login).
 
-* `correction/`
 * `db.sqlite` - for development only. not tracked by git. created upon running `python manage.py syncdb`
-* `display/`
 * `__init__.py`
 * `manage.py` - comes with Django. Not modified.
-* `projects/`
 * `readme.md`
-* `recognition/`
 * `rodan/`
     * `__init__.py` - empty file, needed to be able to import the app
     * `settings.py` - the project-wide settings. should not need to be changed
