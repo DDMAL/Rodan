@@ -4,11 +4,8 @@ import gamera.core
 from gamera.toolkits import musicstaves
 from gamera.gameracore import Point
 
-from celery.task import task
-
 import utils
 from rodan.models.jobs import JobType, JobBase
-from rodan.models import Result
 
 
 def __create_polygon_outer_points_json_dict(poly_list):

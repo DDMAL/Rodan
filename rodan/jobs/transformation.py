@@ -1,7 +1,7 @@
 import gamera.core
+
 import utils
 from rodan.models.jobs import JobType, JobBase
-from rodan.models import Result
 
 
 @utils.rodan_task(inputs='tiff')
@@ -13,6 +13,7 @@ def rotate(image_filepath, **kwargs):
     return {
         'tiff': output_image
     }
+
 
 class Rotate(JobBase):
     name = 'Rotate'

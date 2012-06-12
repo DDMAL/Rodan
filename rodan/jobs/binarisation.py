@@ -1,7 +1,7 @@
 import gamera.core
 from gamera.plugins.threshold import threshold
 from gamera.plugins.threshold import djvu_threshold
-from celery.task import task
+
 import utils
 from rodan.models.jobs import JobType, JobBase
 

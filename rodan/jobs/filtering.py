@@ -1,11 +1,7 @@
-import gamera.core
 from gamera.plugins.misc_filters import rank
-
-from celery.task import task
 
 import utils
 from rodan.models.jobs import JobType, JobBase
-from rodan.models import Result
 
 
 @utils.rodan_task(inputs='tiff')

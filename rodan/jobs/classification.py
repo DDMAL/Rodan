@@ -5,7 +5,6 @@ from gamera.knn import kNNNonInteractive
 
 import utils
 from rodan.models.jobs import JobType, JobBase
-from rodan.models import Result
 
 
 @utils.rodan_task(inputs='tiff')
