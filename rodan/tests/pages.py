@@ -85,6 +85,18 @@ class GetLatestImagePath(unittest.TestCase):
         self.result_2.delete()
         self.result_file_1.delete()
         self.result_file_2.delete()
+        
+class GetPathToImage(unittest.TestCase):
+    def setUp(self):
+        self.result = Result.objects.get(pk=1)
+        self.page = self.result.page
+        self.job = self.result.job_item.job
+    
+    def runTest(self):
+        self.assertTrue(self.page.get_path_to_image(job=self.job).endswith("another.tif_large.png"))
+    
+    def tearDown(self):
+        self.result.delete()
 
 class PageTest(unittest.TestCase):
     def setUp(self):
