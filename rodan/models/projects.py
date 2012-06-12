@@ -137,11 +137,11 @@ class Page(models.Model):
             'filename': self.filename,
         }
         
-    def get_path_to_image(self, size='large', job=''):
+    def get_path_to_image(self, size='large', job=None):
         return os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
                             "%d" % self.id,
-                            "%s" % job.slug,
+                            "%s" % job.slug if job is not None else '',
                             "%s_%s.png" % (self.filename, size))
 
     def get_filename_for_job(self, job):
