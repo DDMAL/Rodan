@@ -47,7 +47,8 @@ class JobType:
     the parent type.
     """
     IMAGE = 2
-    BINARISED_IMAGE = 4
     JSON = 3
     XML = 5
     MEI = 7
+    BINARISED_IMAGE = 11
+    SEGMENTED_IMAGE = 13

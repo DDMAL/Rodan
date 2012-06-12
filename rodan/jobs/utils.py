@@ -1,9 +1,12 @@
-from celery.task import task
 import os
-import gamera.core
-from rodan.models.results import Result
 from functools import wraps
+
 import PIL.Image
+import PIL.ImageFile
+import gamera.core
+from celery.task import task
+
+from rodan.models.results import Result
 
 
 def create_dirs(full_path):
@@ -55,12 +58,18 @@ def rodan_task(inputs=''):
                 # Change the extension
                 if output_type == 'tiff':
                     # Write it with gamera (it's an image)
-                    gamera.core.save_image(output_content, output_path)
+                    if isinstance(output_content, gamera.core.Image):
+                        gamera.core.save_image(output_content, output_path)
+                    elif isinstance(output_content, PIL.ImageFile.ImageFile):
+                        output_content.save(output_path)
+
                     # Create thumbnails for the image as well
                     create_thumbnails(output_path, result)
                 elif output_type == 'mei':
                     # later output_content
                     pass
+                elif output_type == 'xml':
+                    output_content.write_filename("%s.xml" % output_path)
                 else:
                     fp = open(output_path)
                     fp.write(output_content)
