@@ -43,7 +43,8 @@ def __convert_image_for_job(image, job_input_types):
     elif 5 in job_input_types:  # then COMPLEX
         converted_img = image.to_complex()
     else:  # else OneBit is only input option to job
-        return image  # Note that we return the original image, that is because we shouldn't convert directly to onebit
+        #Note that we return the original image, that is because we shouldn't convert directly to onebit
+        return image
 
     return converted_img
 

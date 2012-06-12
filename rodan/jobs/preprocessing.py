@@ -14,11 +14,11 @@ def border_remover(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    orig_image = utility.load_image_for_job(page_file_name, border_removal)
+    input_img = utility.load_image_for_job(page_file_name, border_removal)
 
-    mask = orig_image.border_removal()  # use defaults
+    mask = input_img.border_removal()  # use defaults
 
-    output_img = orig_image.mask(mask)
+    output_img = input_img.mask(mask)
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -37,10 +37,12 @@ def crop(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    orig_image = gamera.core.load_image(page_file_name)
+    input_img = gamera.core.load_image(page_file_name)
 
     #added '- 1' to bottom right point coordinates because gamera goes 1 pixel over.
-    output_img = orig_image.subimage((kwargs['top_left_x'], kwargs['top_left_y']), (kwargs['bottom_right_x'] - 1, kwargs['bottom_right_y'] - 1))
+    output_img = input_img.subimage( \
+        (kwargs['top_left_x'], kwargs['top_left_y']),
+        (kwargs['bottom_right_x'] - 1, kwargs['bottom_right_y'] - 1))
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)

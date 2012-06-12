@@ -20,8 +20,10 @@ def classifier(result_id, **kwargs):
     #will be replaced by a new classifier that will be created soon
     cknn = kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
 
-    ccs = gamera.core.load_image(page_file_name).cc_analysis()  # must be OneBit, not using rodan load image (although it does prevent conversion to one bit)
     func = BoundingBoxGroupingFunction(4)
+    # must be OneBit image
+    input_image = gamera.core.load_image(page_file_name)
+    ccs = input_image.cc_analysis()
 
     cs_image = cknn.group_and_update_list_automatic(ccs, \
                     grouping_function=func,
@@ -29,13 +31,13 @@ def classifier(result_id, **kwargs):
                     max_graph_size=16)
 
     cknn.generate_features_on_glyphs(cs_image)
-    myxml = gamera_xml.WriteXMLFile(glyphs=cs_image, with_features=True)
+    output_xml = gamera_xml.WriteXMLFile(glyphs=cs_image, with_features=True)
 
-    #same problem as for find_staves,bad extension
+    #same problem as for find_staves, bad extension
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
 
-    myxml.write_filename("%s.xml" % full_output_path)
+    output_xml.write_filename("%s.xml" % full_output_path)
 
     result.save_parameters(**kwargs)
     result.create_file(full_output_path, JobType.XML)

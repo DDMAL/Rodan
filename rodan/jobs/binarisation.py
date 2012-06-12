@@ -16,7 +16,9 @@ def simple_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = utility.load_image_for_job(page_file_name, threshold).threshold(kwargs['threshold'])
+    input_img = utility.load_image_for_job(page_file_name, threshold)
+
+    output_img = input_img.threshold(kwargs['threshold'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
     utility.create_result_output_dirs(full_output_path)
@@ -53,7 +55,9 @@ def djvu_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = utility.load_image_for_job(page_file_name, djvu_threshold).djvu_threshold( \
+    input_img = utility.load_image_for_job(page_file_name, djvu_threshold)
+
+    output_img = input_img.djvu_threshold( \
                         kwargs['smoothness'],
                         kwargs['max_block_size'],
                         kwargs['min_block_size'],
