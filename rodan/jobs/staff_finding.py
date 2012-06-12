@@ -55,30 +55,11 @@ def __fix_poly_point_list(poly_list, staffspace_height):
                             staffspace_multiplier = m - j
                             line.vertices.insert(k, Point(vert.x, vert.y + (staffspace_multiplier * staffspace_height)))
 
-            # for j in xrange(0,len(poly)):#loop over all 4 staff lines
-            #     for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
-            #         for l in xrange(0,len(poly)):#loop over all 4 staff lines
-            #             if l == j:# optimization to not loop through the same staff line as outer loop
-            #                 continue
-
-            #             if(k < len(poly[l].vertices)): #before doing the difference make sure index k is within indexable range of poly[l]
-            #                 y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
-            #             else:
-            #                 #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
-            #                 y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
-
-            #             if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
-            #                 continue
-            #             else:
-            #                 #missing a point on that staff
-            #                 staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
-            #                 poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
-
     return poly_list
 
 
-@task(name="staff_find.miyao")
-def find_staves(result_id, **kwargs):
+@utils.rodan_task(inputs='tiff')
+def find_staves(image_filepath, **kwargs):
     """
       *num_lines*:
         Number of lines within one staff. When zero, the number is automatically
@@ -96,14 +77,9 @@ def find_staves(result_id, **kwargs):
         from staffline_height. When negative, this value is set to
         *max([2, staffline_height / 4])*.
     """
-    gamera.core.init_gamera()
-
-    result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE)
-
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
-    staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(page_file_name), 0, 0)
+    staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(image_filepath), 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
 
@@ -113,17 +89,9 @@ def find_staves(result_id, **kwargs):
 
     encoded = json.dumps(poly_json_list)
 
-    #this will not work, we need extension information
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utils.create_result_output_dirs(full_output_path)
-
-    #temp fix??
-    with open("%s.json" % full_output_path, "w") as f:
-        f.write(encoded)
-
-    result.save_parameters(**kwargs)
-    result.create_file(full_output_path, JobType.JSON)
-    result.update_end_total_time()
+    return {
+        'json': encoded
+    }
 
 
 class StaffFind(JobBase):

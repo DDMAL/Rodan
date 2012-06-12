@@ -8,8 +8,8 @@ from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
 
-@task(name="filters.rank")
-def rank_filter(result_id, **kwargs):
+@utils.rodan_task(inputs='tiff')
+def rank_filter(image_filepath, **kwargs):
     """
       *rank_val* (1, 2, ..., *k* * *k*)
         The rank of the windows pixels to select for the center. (k*k+1)/2 is
@@ -22,27 +22,15 @@ def rank_filter(result_id, **kwargs):
         When 0 ('padwhite'), window pixels outside the image are set to white.
         When 1 ('reflect'), reflecting boundary conditions are used.
     """
-    gamera.core.init_gamera()
-
-    result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE)
-
-    input_img = utils.load_image_for_job(page_file_name, rank)
-
-    output_img = input_img.rank( \
+    input_image = utils.load_image_for_job(image_filepath, rank)
+    output_image = input_image.rank( \
         kwargs['rank_val'],
         kwargs['k'],
         kwargs['border_treatment'])
 
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utils.create_result_output_dirs(full_output_path)
-
-    gamera.core.save_image(output_img, full_output_path)
-
-    result.save_parameters(**kwargs)
-    #need to specify output type in this case its the same as input but we cannot send JobType.IMAGE --> tuple
-    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.update_end_total_time()
+    return {
+        'tiff': output_image
+    }
 
 
 class RankFilter(JobBase):
