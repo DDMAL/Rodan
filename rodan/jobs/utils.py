@@ -3,6 +3,7 @@ import os
 import gamera.core
 from rodan.models.results import Result
 from functools import wraps
+import PIL.Image
 
 
 def create_dirs(full_path):
@@ -12,14 +13,22 @@ def create_dirs(full_path):
         pass
 
 
-def create_thumbnails(output_img, result):
+def create_thumbnails(output_path, result):
     page = result.page
     job = result.job_item.job
-    page.scale_value = 100. / max(output_img.ncols, output_img.nrows)
-    scale_img_s = output_img.scale(page.scale_value, 0)
-    scale_img_l = output_img.scale(page.scale_value * 10, 0)
-    scale_img_s.save_PNG(page.get_path_to_image('small', job))
-    scale_img_l.save_PNG(page.get_path_to_image('large', job))
+    image = PIL.Image.open(output_path)
+    original_size = image.size
+    small_width = 100
+    large_width = 400
+    small_size = (small_width, original_size[0] / float(small_width) * original_size[1])
+    large_size = (large_width, original_size[0] / float(large_width) * original_size[1])
+
+    image.thumbnail(small_size, PIL.Image.ANTIALIAS)
+    image.save(page.get_path_to_image('small', job))
+
+    image = PIL.Image.open(output_path)
+    image.thumbnail(large_size, PIL.Image.ANTIALIAS)
+    image.save(page.get_path_to_image('large', job))
 
 
 def rodan_task(inputs=''):
@@ -48,7 +57,7 @@ def rodan_task(inputs=''):
                     # Write it with gamera (it's an image)
                     gamera.core.save_image(output_content, output_path)
                     # Create thumbnails for the image as well
-                    create_thumbnails(output_content, result)
+                    create_thumbnails(output_path, result)
                 elif output_type == 'mei':
                     # later output_content
                     pass

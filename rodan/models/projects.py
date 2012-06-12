@@ -131,7 +131,7 @@ class Page(models.Model):
     def get_thumb_url(self, size='large'):
         # Remove the MEDIA_ROOT part
         path = self.get_latest_file('tiff')[len(settings.MEDIA_ROOT):]
-        url = settings.MEDIA_URL + path + '_%s.png' % size
+        url = settings.MEDIA_URL + path + '_%s.jpg' % size
         return url
         
     def get_path_to_image(self, size='large', job=None):
@@ -139,7 +139,7 @@ class Page(models.Model):
                             "%d" % self.project.id,
                             "%d" % self.id,
                             "%s" % job.slug if job is not None else '',
-                            "%s_%s.png" % (self.filename, size))
+                            "%s_%s.jpg" % (self.filename, size))
 
     def get_filename_for_job(self, job):
         #mediaroot/project/page/job/afile.ext
