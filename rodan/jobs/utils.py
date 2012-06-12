@@ -5,13 +5,21 @@ from rodan.models.results import Result
 from functools import wraps
 
 
+def create_dirs(full_path):
+    try:
+        os.makedirs(os.path.dirname(full_path))
+    except OSError:
+        pass
+
+
 def create_thumbnails(output_img, result):
     page = result.page
     job_module = result.job_item.job.module
     page.scale_value = 100. / max(output_img.ncols, output_img.nrows)
     scale_img_s = output_img.scale(page.scale_value, 0)
     scale_img_l = output_img.scale(page.scale_value * 10, 0)
-    create_result_output_dirs(page.get_path_to_image('small', job_module))
+    create_dirs(page.get_path_to_image('small', job_module))
+    create_dirs(page.get_path_to_image('large', job_module))
     scale_img_s.save_PNG(page.get_path_to_image('small', job_module))
     scale_img_l.save_PNG(page.get_path_to_image('large', job_module))
 
@@ -35,14 +43,11 @@ def rodan_task(inputs=''):
                 job_filepath = result.page.get_filename_for_job(result.job_item.job)
                 output_path = "%s.%s" % (os.path.splitext(job_filepath)[0], output_type)
 
-                # Write it with gamera (it's an image)
-                try:
-                    os.makedirs(os.path.dirname(output_path))
-                except OSError:
-                    pass
+                create_dirs(output_path)
 
                 # Change the extension
                 if output_type == 'tiff':
+                    # Write it with gamera (it's an image)
                     gamera.core.save_image(output_content, output_path)
                     # Create thumbnails for the image as well
                     create_thumbnails(output_content, result)
