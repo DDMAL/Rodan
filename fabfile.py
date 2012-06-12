@@ -8,5 +8,8 @@ def reset():
         local("rm db.sqlite")
     local("python manage.py syncdb --noinput")
 
+def dump():
+    local("python manage.py dumpdata rodan --indent=4")
+
 def test():
     local("python manage.py test rodan")

@@ -47,38 +47,92 @@
         "pk": 1, 
         "model": "rodan.workflow", 
         "fields": {
-            "name": "Crop then rotate",
+            "name": "Crop then rotate", 
             "description": "Meh"
         }
-    },
+    }, 
     {
         "pk": 2, 
         "model": "rodan.workflow", 
         "fields": {
-            "name": "Binarise, rotate, crop",
+            "name": "Binarise, rotate, crop", 
             "description": "Meh"
         }
-    },
+    }, 
+    {
+        "pk": 3, 
+        "model": "rodan.workflow", 
+        "fields": {
+            "name": "Find staff lines only", 
+            "description": ""
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "rodan.workflow", 
+        "fields": {
+            "name": "Rank filter", 
+            "description": ""
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "rodan.workflow", 
+        "fields": {
+            "name": "Despeckle", 
+            "description": ""
+        }
+    }, 
     {
         "pk": 1, 
         "model": "rodan.page", 
         "fields": {
             "project": 1, 
-            "filename": "lol.tif", 
-            "tag": null, 
+            "filename": "lol.tiff", 
+            "tag": "Some random page", 
             "workflow": 1
         }
-    },
+    }, 
     {
         "pk": 2, 
         "model": "rodan.page", 
         "fields": {
             "project": 1, 
-            "filename": "another.tif", 
-            "tag": null, 
+            "filename": "another.tiff", 
+            "tag": "Whatever", 
             "workflow": 2
         }
-    },
+    }, 
+    {
+        "pk": 3, 
+        "model": "rodan.page", 
+        "fields": {
+            "project": 2, 
+            "filename": "1.tif", 
+            "tag": "Find staff lines page", 
+            "workflow": 3
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "rodan.page", 
+        "fields": {
+            "project": 2, 
+            "filename": "2.tif", 
+            "tag": "Despeckle page", 
+            "workflow": 5
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "rodan.page", 
+        "fields": {
+            "project": 2, 
+            "filename": "3.tif", 
+            "tag": "Rank filter page", 
+            "workflow": 4
+        }
+    }, 
     {
         "pk": 1, 
         "model": "rodan.jobitem", 
@@ -122,6 +176,33 @@
             "job": "rodan.jobs.preprocessing.Crop", 
             "sequence": 3, 
             "workflow": 2
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.staff_finding.StaffFind", 
+            "sequence": 1, 
+            "workflow": 3
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.filtering.RankFilter", 
+            "sequence": 1, 
+            "workflow": 4
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.morphology.Despeckle", 
+            "sequence": 1, 
+            "workflow": 5
         }
     },
     {
