@@ -2,7 +2,7 @@ import gamera.core
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
 
 from celery.task import task
-import utility
+import utils
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
@@ -14,14 +14,14 @@ def border_remover(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    orig_image = utility.load_image_for_job(page_file_name, border_removal)
+    orig_image = utils.load_image_for_job(page_file_name, border_removal)
 
     mask = orig_image.border_removal()  # use defaults
 
     output_img = orig_image.mask(mask)
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     gamera.core.save_image(output_img, full_output_path)
 
@@ -43,7 +43,7 @@ def crop(result_id, **kwargs):
     output_img = orig_image.subimage((kwargs['top_left_x'], kwargs['top_left_y']), (kwargs['bottom_right_x'] - 1, kwargs['bottom_right_y'] - 1))
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     gamera.core.save_image(output_img, full_output_path)
 
@@ -55,8 +55,8 @@ def crop(result_id, **kwargs):
 class BorderRemoval(JobBase):
     name = 'Border Removal'
     slug = 'border-remove'
-    input_type = JobType.IMAGE_GREY
-    output_type = JobType.IMAGE_ONEBIT
+    input_type = JobType.IMAGE
+    output_type = JobType.BINARISED_IMAGE
     description = 'Removes the borders of a greyscale image.'
     show_during_wf_create = True
     parameters = {
@@ -66,7 +66,7 @@ class BorderRemoval(JobBase):
 
 
 class Crop(JobBase):
-    input_type = JobType.IMAGE_RGB
+    input_type = JobType.IMAGE
     output_type = input_type
     description = 'Crop an image.'
     show_during_wf_create = True

@@ -25,22 +25,16 @@ def process(request, page_id, job_slug):
 
         for parameter, default in parameters.iteritems():
             param_type = type(default)
-            # Cast it to the right type (<3 python)
+            # The `type` method returns a typecasting function
+            # For example, type(1) returns int; int('1') -> 1 (of type int)
             kwargs[parameter] = param_type(request.POST.get(parameter, default))
 
         # First create a result ...
         job_item = JobItem.objects.get(workflow=page.workflow, job=job)
-        try:
-            result = Result.objects.get(job_item=job_item, user=request.user.get_profile(), page=page)
-        except Result.DoesNotExist:
-            result = Result.objects.create(job_item=job_item, user=request.user.get_profile(), page=page, end_manual_time=timezone.now())
+        result = Result.objects.get(job_item=job_item, user=request.user.get_profile(), page=page)
 
         # Figure out the relevant task etc
-        task = job_object.task
-        print task
-        if task:
-            task.delay(result.id, **kwargs)
-        else:
-            job_object.on_post(result, **kwargs)
+        result.update_end_manual_time()
+        job_object.on_post(result.id, **kwargs)
 
         return redirect(page.project.get_absolute_url())

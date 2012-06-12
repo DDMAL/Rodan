@@ -6,7 +6,7 @@ from gamera.gameracore import Point
 
 from celery.task import task
 
-import utility
+import utils
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
@@ -115,7 +115,7 @@ def find_staves(result_id, **kwargs):
 
     #this will not work, we need extension information
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     #temp fix??
     with open("%s.json" % full_output_path, "w") as f:
@@ -129,7 +129,7 @@ def find_staves(result_id, **kwargs):
 class StaffFind(JobBase):
     name = 'Find staff lines'
     slug = 'staff-find'
-    input_type = JobType.IMAGE_ONEBIT
+    input_type = JobType.BINARISED_IMAGE
     output_type = JobType.JSON
     description = 'Retrieves and outputs staff line point coordinates information in json format.'
     show_during_wf_create = True

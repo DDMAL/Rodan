@@ -1,12 +1,57 @@
+from celery.task import task
 import os
-
 import gamera.core
+from rodan.models.results import Result
+from functools import wraps
 
 
-def create_result_output_dirs(full_output_path):
-    output_dir = os.path.dirname(full_output_path)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def rodan_task(inputs=''):
+    def inner_function(f):
+        @task
+        @wraps(f)
+        def real_inner(result_id, **kwargs):
+            input_types = (inputs,) if isinstance(inputs, str) else inputs
+            result = Result.objects.get(pk=result_id)
+
+            # Figure out the paths to the requested input files
+            # For one input, pass in a string; for multiple, a tuple
+            input_paths = map(result.page.get_latest_file, input_types)
+
+            outputs = f(*input_paths, **kwargs)
+
+            # Loop through all the outputs and write them to disk
+            for output_type, output_content in outputs.iteritems():
+                job_filepath = result.page.get_filename_for_job(result.job_item.job)
+                output_path = "%s.%s" % (os.path.splitext(job_filepath)[0], output_type)
+
+                # Write it with gamera (it's an image)
+                try:
+                    os.makedirs(os.path.dirname(output_path))
+                except OSError:
+                    pass
+
+                # Change the extension
+                if output_type == 'tiff':
+                    gamera.core.save_image(output_content, output_path)
+                    # Create thumbnails for the image as well
+                    utils.create_thumbnails(output_content, result)
+                elif output_type == 'mei':
+                    # later output_content
+                    pass
+                else:
+                    fp = open(output_path)
+                    fp.write(output_content)
+                    fp.close()
+
+                result.create_file(output_path, output_type)
+
+            # Mark the job as finished, and save the parameters
+            result.update_end_total_time()
+            result.save_parameters(**kwargs)
+
+        return real_inner
+
+    return inner_function
 
 
 def load_image_for_job(path_to_image, job_gamera_func):

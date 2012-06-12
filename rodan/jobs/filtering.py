@@ -3,7 +3,7 @@ from gamera.plugins.misc_filters import rank
 
 from celery.task import task
 
-import utility
+import utils
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
@@ -27,13 +27,13 @@ def rank_filter(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = utility.load_image_for_job(page_file_name, rank).rank( \
+    output_img = utils.load_image_for_job(page_file_name, rank).rank( \
         kwargs['rank_val'],
         kwargs['k'],
         kwargs['border_treatment'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     gamera.core.save_image(output_img, full_output_path)
 
@@ -46,9 +46,9 @@ def rank_filter(result_id, **kwargs):
 class RankFilter(JobBase):
     name = 'Rank filter'
     slug = 'rank-filter'
-    input_type = JobType.IMAGE_GREY
+    input_type = JobType.IMAGE
     output_type = input_type
-    description = 'Applies rank filter on a binarized image'
+    description = 'Applies rank filter on image'
     show_during_wf_create = True
     arguments = {
         'rank_val': 9,

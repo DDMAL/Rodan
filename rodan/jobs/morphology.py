@@ -3,7 +3,7 @@ from gamera.plugins.morphology import despeckle
 
 from celery.task import task
 
-import utility
+import utils
 from rodan.models.jobs import JobType, JobBase
 from rodan.models import Result
 
@@ -35,7 +35,7 @@ def despeckle(result_id, **kwargs):
     output_img.despeckle(kwargs['despeckle_value'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     gamera.core.save_image(output_img, full_output_path)
 
@@ -47,8 +47,8 @@ def despeckle(result_id, **kwargs):
 class Despeckle(JobBase):
     name = 'Despeckle'
     slug = 'despeckle'
-    input_type = JobType.IMAGE_ONEBIT
-    output_type = JobType.IMAGE_ONEBIT
+    input_type = JobType.BINARISED_IMAGE
+    output_type = JobType.BINARISED_IMAGE
     description = 'Despeckle a binarized image'
     show_during_wf_create = True
     parameters = {
