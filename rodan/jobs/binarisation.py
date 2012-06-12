@@ -17,28 +17,6 @@ def simple_binarise(image_filepath, **kwargs):
     }
 
 
-"""
-@task(name="binarisation.simple_binarise")
-def simple_binarise(result_id, **kwargs):
-    gamera.core.init_gamera()
-
-    result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE)
-
-    output_img = utils.load_image_for_job(page_file_name, threshold).threshold(kwargs['threshold'])
-
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utils.create_result_output_dirs(full_output_path)
-    utils.create_thumbnails(output_img, result)
-
-    gamera.core.save_image(output_img, full_output_path)
-
-    result.save_parameters(**kwargs)
-    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.update_end_total_time()
-"""
-
-
 @task(name="binarisation.djvu_threshold")
 def djvu_binarise(result_id, **kwargs):
     """
@@ -63,7 +41,9 @@ def djvu_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = utils.load_image_for_job(page_file_name, djvu_threshold).djvu_threshold( \
+    input_img = utils.load_image_for_job(page_file_name, djvu_threshold)
+
+    output_img = input_img.djvu_threshold( \
                         kwargs['smoothness'],
                         kwargs['max_block_size'],
                         kwargs['min_block_size'],

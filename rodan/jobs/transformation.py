@@ -14,7 +14,6 @@ def rotate(image_filepath, **kwargs):
         'tiff': output_image
     }
 
-
 class Rotate(JobBase):
     name = 'Rotate'
     slug = 'rotate'

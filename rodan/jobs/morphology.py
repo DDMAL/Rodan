@@ -31,7 +31,8 @@ def despeckle(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE_ONEBIT)
 
-    output_img = gamera.core.load_image(page_file_name)  # must be OneBit, not using rodan load image (although it does prevent conversion to one bit)
+    # must be OneBit, not using rodan load image (although it does prevent conversion to one bit)
+    output_img = gamera.core.load_image(page_file_name)
     output_img.despeckle(kwargs['despeckle_value'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)

@@ -27,7 +27,9 @@ def rank_filter(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = utils.load_image_for_job(page_file_name, rank).rank( \
+    input_img = utils.load_image_for_job(page_file_name, rank)
+
+    output_img = input_img.rank( \
         kwargs['rank_val'],
         kwargs['k'],
         kwargs['border_treatment'])

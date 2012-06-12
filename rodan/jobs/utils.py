@@ -55,6 +55,16 @@ def rodan_task(inputs=''):
 
 
 def load_image_for_job(path_to_image, job_gamera_func):
+    '''
+        load_image_for_job does two things:
+            1) Loads the image using gamera's load_image function
+            2) Converts the image to the appropriate pixel type needed as input by the gamera function supplied
+                Note: The conversion will only occur if the input image is of wrong pixel type for the function and there are input
+                types to the function other than ONEBIT. That is, if the only input type to the gamera function is
+                ONEBIT, the input image will be returned without any conversion applied to it, even if its of wrong pixel type.
+                The reason being we want to enforce conversion to ONEBIT only by applying a binarisation function to the image.
+
+    '''
     loaded_img = gamera.core.load_image(path_to_image)
 
     return __convert_image_for_job(loaded_img, job_gamera_func.self_type.pixel_types)
@@ -88,7 +98,8 @@ def __convert_image_for_job(image, job_input_types):
     elif 5 in job_input_types:  # then COMPLEX
         converted_img = image.to_complex()
     else:  # else OneBit is only input option to job
-        return image  # Note that we return the original image, that is because we shouldn't convert directly to onebit
+        #Note that we return the original image, that is because we shouldn't convert directly to onebit
+        return image
 
     return converted_img
 
