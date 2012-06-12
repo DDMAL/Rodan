@@ -4,6 +4,11 @@
 var widthLim = 750;
 var heightLim = 750;
 var imageObj;
+var stage;
+var defRulerWidth = 100;
+var defRulerHeight = 4;
+rulerShow = true;
+rulerHoriz = true;
 var defAngle = 0;
 var scaleVal = 1;
 
@@ -36,39 +41,89 @@ window.onload = function() {
 };
 
 initImage = function() {
-    //Adjust size of canvas to fit image
-    var canvas = document.getElementById("image-preview");
-    var context = canvas.getContext("2d");
     if (imageObj.width > widthLim || imageObj.height > heightLim) {
         var scaleValX = 0;
         var scaleValY = 0;
         scaleValX = widthLim / imageObj.width;
         scaleValY = heightLim / imageObj.height;
         scaleVal = Math.min(scaleValX, scaleValY);
-        canvas.width = canvas.width * scaleVal;
-        canvas.height = canvas.height * scaleVal;
         imageObj.height *= scaleVal;
         imageObj.width *= scaleVal;
     }
     var dist = Math.ceil(Math.sqrt(Math.pow(imageObj.width, 2) + Math.pow(imageObj.height, 2)));
-    canvas.width = dist;
-    canvas.height = dist;
-    context.scale(scaleVal, scaleVal);
+    stage = new Kinetic.Stage({
+        container: "image-preview",
+        width: dist,
+        height: dist
+    });
+    var layer = new Kinetic.Layer();
+    var image = new Kinetic.Image({
+        x: dist / 2,
+        y: dist / 2,
+        width: imageObj.width,
+        height: imageObj.height,
+        centerOffset: [imageObj.width / 2, imageObj.height / 2],
+        image: imageObj,
+        name: "image"
+    });
+    layer.add(image);
+    stage.add(layer);
+    
+    var rulerOffset = dist / 10;
+    defRulerWidth = dist;
+    var rLayer = new Kinetic.Layer();
+    var ruler = new Kinetic.Rect({
+        x: 0,
+        y: rulerOffset,
+        width: defRulerWidth,
+        height: defRulerHeight,
+        fill: 'black',
+        draggable: true,
+        dragConstraint: "vertical",
+        name: "ruler"
+    });
+    
+    rLayer.add(ruler);
+    stage.add(rLayer);
+    toggleRuler();
     rotate(0);
 }
 
 //Binarizes data, splitting foreground and background at a given brightness level
 rotate = function(angle) {
     defAngle = angle;
-    var canvas = document.getElementById("image-preview");
-    var context = canvas.getContext("2d");
-    context.clearRect(0, 0, canvas.width / scaleVal, canvas.height /  scaleVal);
-    context.save();
-    context.translate(canvas.width / (2 * scaleVal), canvas.height / (2 * scaleVal));
-    context.rotate(angle * Math.PI / 180);
-    context.translate(-canvas.width / (2 * scaleVal), -canvas.height / (2 * scaleVal));
-    var drawX = (canvas.width - imageObj.width) / (2 * scaleVal);
-    var drawY = (canvas.height - imageObj.height) / (2 * scaleVal);
-    context.drawImage(imageObj, drawX, drawY);
-    context.restore();
+    var image = stage.get(".image")[0];
+    image.setRotationDeg(angle);
+    image.getLayer().draw();
+}
+
+toggleRuler = function() {
+    var ruler = stage.get(".ruler")[0];
+    if (rulerShow) {
+        rulerShow = false;
+        ruler.hide();
+    } else {
+        rulerShow = true;
+        ruler.show();
+    }
+    ruler.getLayer().draw();
+}
+
+reorientRuler = function() {
+    var ruler = stage.get(".ruler")[0];
+    if (rulerHoriz) {
+        rulerHoriz = false;
+        ruler.attrs.width = defRulerHeight;
+        ruler.attrs.height = defRulerWidth;
+        ruler.attrs.dragConstraint = "horizontal";
+    } else {
+        rulerHoriz = true;
+        ruler.attrs.width = defRulerWidth;
+        ruler.attrs.height = defRulerHeight;
+        ruler.attrs.dragConstraint = "vertical";
+    }
+    var rX = ruler.attrs.x;
+    ruler.attrs.x = ruler.attrs.y;
+    ruler.attrs.y = rX;
+    ruler.getLayer().draw();
 }

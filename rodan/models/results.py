@@ -56,7 +56,7 @@ class ResultFile(models.Model):
         app_label = 'rodan'
 
     result = models.ForeignKey(Result)
-    result_type = models.IntegerField()
+    result_type = models.CharField(max_length=10)
     filename = models.CharField(max_length=50)
 
     def __unicode__(self):

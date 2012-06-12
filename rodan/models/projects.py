@@ -148,21 +148,16 @@ class Page(models.Model):
         }
 
     def get_filename_for_job(self, job):
-        if isinstance(job, Job):
-            job_name = job.module
-        else:
-            job_name = job
-
         #mediaroot/project/page/job/afile.ext
         return os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
                             "%d" % self.id,
-                            "%s" % job_name,
+                            "%s" % job.slug,
                             self.filename)
 
-    def get_latest_file(self, file_types):
+    def get_latest_file(self, file_type):
         """
-        To get the latest image: page.get_latest_file(JobType.IMAGE)
+        To get the latest image: page.get_latest_file('tiff')
 
         Will return the original image if no image-generating jobs have
         been completed on the page.
@@ -172,9 +167,6 @@ class Page(models.Model):
 
         You can pass in either a tuple of file types or just one.
         """
-
-        if isinstance(file_types, int):
-            file_types = (file_types,)
 
         # Because importing ResultFile would cause circular imports etc
         file_manager = models.loading.get_model('rodan', 'ResultFile').objects
@@ -193,26 +185,41 @@ class Page(models.Model):
         files = file_manager.filter(result__page=self,
                                     result__job_item__workflow=self.workflow,
                                     result__end_total_time__isnull=False,
-                                    result_type__in=file_types) \
+                                    result_type=file_type) \
                                     .order_by('-result__job_item__sequence') \
                                     .all()
 
         if files.count():
             # If there are any result_files of this type, return the latest
-            filename = '%d/%s' % (files[0].result.page.id, files[0].filename)
+            return files[0].filename
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
-            if file_types == JobType.IMAGE:
-                filename = self.filename
+            if file_type == 'tiff':
+                # If there is a filename, return the ABSOLUTE path
+                return os.path.join(settings.MEDIA_ROOT,
+                                    "%d" % self.project.id,
+                                    "%d" % self.id,
+                                    self.filename)
             else:
                 return None
 
-        # If there is a filename, return the ABSOLUTE path
-        return os.path.join(settings.MEDIA_ROOT,
-                            "%d" % self.project.id,
-                            "%d" % self.id,
-                            filename)
+    def get_next_job_item(self, user=None):
+        for job_item in self.workflow.jobitem_set.all():
+            page_results = job_item.result_set.filter(page=self)
+            no_result = page_results.count() == 0
+
+            if no_result:
+                return job_item
+            else:
+                first_result = page_results.all()[0]
+                manual_not_done = first_result.end_manual_time is None
+                automatic_not_done = first_result.end_total_time is None
+                if manual_not_done and first_result.user == user:
+                    return job_item
+                elif automatic_not_done:
+                    # This job is still processing - return None
+                    return None
 
     def get_next_job(self, user=None):
         """
@@ -221,20 +228,15 @@ class Page(models.Model):
         available job that has either not been started or that has been
         started by the specified user.
         """
-        for job_item in self.workflow.jobitem_set.all():
-            # Is there a result attached to this job item?
-            page_results = job_item.result_set.filter(page=self)
-            no_result = page_results.count() == 0
+        next_job_item = self.get_next_job_item(user=user)
+        return next_job_item.job if next_job_item is not None else None
 
-            if no_result:
-                return job_item.job
-            else:
-                # There is a result. If the end time is empty and the user is the same ...
-                first_result = page_results.all()[0]
-                if first_result.end_total_time is None and first_result.user == user:
-                    return job_item.job
-                else:
-                    continue
+    def start_next_job(self, user=None):
+        next_job_item = self.get_next_job_item(user=user)
+        # Create a new result only if there are none
+        if next_job_item is not None and next_job_item.result_set.filter(page=self).count() == 0:
+            Result = models.loading.get_model('rodan', 'Result')
+            result = Result.objects.create(job_item=next_job_item, user=user, page=self)
 
 
 class JobItem(models.Model):

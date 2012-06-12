@@ -96,13 +96,19 @@ def task(request, job_slug, project_id=0):
         job = get_object_or_404(Job, slug=job_slug)
 
         # Now, try to find a page in this project that has this job next
-        possible_pages = [page for page in project.page_set.all() if page.get_next_job(user=request.user.get_profile()) == job]
+        # (May have been started by the current user but never finished)
+        rodan_user = request.user.get_profile()
+        possible_pages = [page for page in project.page_set.all() if page.get_next_job(user=rodan_user) == job]
         # No pages that need this job. Show a 404 for now.
         if not possible_pages:
             raise Http404
         page = random.choice(possible_pages)
 
         view_data = job.get_view()
+
+        # Start the job, noting this user (create the result, with no end time)
+        # If the job has already been started by this user, do nothing
+        page.start_next_job(user=rodan_user)
 
         data = {
             'project': project,

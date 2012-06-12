@@ -1,7 +1,7 @@
+from celery.task import task
 from rodan.utils import remove_prefixes
 
 # These are not actual Django models
-
 
 class JobBase:
     name = ''
@@ -31,28 +31,23 @@ class JobBase:
         """
         return {}
 
-    def on_post(self, result, **kwargs):
+    def on_post(self, result_id, **kwargs):
         """
         If you want to perform a custom action after submit that is
         not a celery task, override this
         """
-        pass
+        self.task.delay(result_id, **kwargs)
 
 
 class JobType:
     """
-    IMAGE is a tuple used for Page.get_latest_file() (when you want to get
-    the latest image and don't care what the colour palette is).
+    I will put in a nice descriptive docstring very very soon
 
-    The others are powers of two. To specify that a job's output type is
-    MEI + a one-bit image, use IMAGE_ONEBIT + MEI. A ResultFile will always
-    have only one type (e.g. MEI or IMAGE_ONEBIT, not both).
+    For now, note that all main types are prime and subtypes are factors of
+    the parent type.
     """
-    IMAGE_ONEBIT = 1
-    IMAGE_GREY = 2
-    IMAGE_RGB = 4
-    JSON = 8
-    XML = 16
-    MEI = 32
-
-    IMAGE = (IMAGE_ONEBIT, IMAGE_GREY, IMAGE_RGB)
+    IMAGE = 2
+    BINARISED_IMAGE = 4
+    JSON = 3
+    XML = 5
+    MEI = 7

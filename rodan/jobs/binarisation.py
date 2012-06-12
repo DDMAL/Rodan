@@ -1,30 +1,20 @@
 import gamera.core
-
+from gamera.plugins.threshold import threshold
+from gamera.plugins.threshold import djvu_threshold
 from celery.task import task
-
-import utility
+import utils
 from rodan.models.jobs import JobType, JobBase
-from rodan.models import Result
 
+gamera.core.init_gamera()
 
-@task(name="binarisation.simple_binarise")
-def simple_binarise(result_id, **kwargs):
-    gamera.core.init_gamera()
+@utils.rodan_task(inputs='tiff')
+def simple_binarise(image_filepath, **kwargs):
+    input_image = utils.load_image_for_job(image_filepath, threshold)
+    output_image = input_image.threshold(kwargs['threshold'])
 
-    result = Result.objects.get(pk=result_id)
-    page_file_name = result.page.get_latest_file(JobType.IMAGE)
-
-    output_img = gamera.core.load_image(page_file_name).threshold(kwargs['threshold'])
-
-    full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
-    utility.create_thumbnails(output_img, result)
-
-    gamera.core.save_image(output_img, full_output_path)
-
-    result.save_parameters(**kwargs)
-    result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.update_end_total_time()
+    return {
+        'tiff': output_image
+    }
 
 
 @task(name="binarisation.djvu_threshold")
@@ -51,26 +41,29 @@ def djvu_binarise(result_id, **kwargs):
     result = Result.objects.get(pk=result_id)
     page_file_name = result.page.get_latest_file(JobType.IMAGE)
 
-    output_img = gamera.core.load_image(page_file_name).djvu_threshold(kwargs['smoothness'],
+    input_img = utils.load_image_for_job(page_file_name, djvu_threshold)
+
+    output_img = input_img.djvu_threshold( \
+                        kwargs['smoothness'],
                         kwargs['max_block_size'],
                         kwargs['min_block_size'],
                         kwargs['block_factor'])
 
     full_output_path = result.page.get_filename_for_job(result.job_item.job)
-    utility.create_result_output_dirs(full_output_path)
+    utils.create_result_output_dirs(full_output_path)
 
     gamera.core.save_image(output_img, full_output_path)
 
     result.save_parameters(**kwargs)
     result.create_file(full_output_path, JobType.IMAGE_ONEBIT)
-    result.total_timestamp()
+    result.update_end_total_time()
 
 
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
     slug = 'simple-binarise'
-    input_type = JobType.IMAGE_GREY
-    output_type = JobType.IMAGE_ONEBIT
+    input_type = JobType.IMAGE
+    output_type = JobType.BINARISED_IMAGE
     description = 'Convert a greyscale image to black and white.'
     show_during_wf_create = True
     parameters = {
@@ -78,12 +71,11 @@ class SimpleThresholdBinarise(JobBase):
     }
     task = simple_binarise
 
-
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'
     slug = 'djvu-binarise'
-    input_type = JobType.IMAGE_RGB
-    output_type = JobType.IMAGE_ONEBIT
+    input_type = JobType.IMAGE
+    output_type = JobType.BINARISED_IMAGE
     description = 'Convert a RGB image to black and white.'
     show_during_wf_create = True
     parameters = {
