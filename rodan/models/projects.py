@@ -142,7 +142,7 @@ class Page(models.Model):
             'media_root': settings.MEDIA_ROOT,
             'project_id': self.project.id,
             'page_id': self.id,
-            'job' : job,
+            'job' : job.slug,
             'filename': self.filename,
             'size' : size,
         }
