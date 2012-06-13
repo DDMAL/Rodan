@@ -44,12 +44,12 @@ class JobType:
     """
     I will put in a nice descriptive docstring very very soon
 
-    For now, note that all main types are prime and subtypes are factors of
+    For now, note that all main types are prime and subtypes are multiples of
     the parent type.
     """
     IMAGE = 2
+    BINARISED_IMAGE = 4
     JSON = 3
     XML = 5
     MEI = 7
-    BINARISED_IMAGE = 11
-    SEGMENTED_IMAGE = 13
+    SEGMENTED_IMAGE = 11
