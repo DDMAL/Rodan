@@ -55,7 +55,7 @@ def __fix_poly_point_list(poly_list, staffspace_height):
     return poly_list
 
 
-@utils.rodan_task(inputs='tiff')
+@utils.rodan_task(inputs='png')
 def find_staves(image_filepath, **kwargs):
     """
       *num_lines*:

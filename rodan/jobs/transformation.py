@@ -4,14 +4,14 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='tiff')
+@utils.rodan_task(inputs='png')
 def rotate(image_filepath, **kwargs):
     # load_image is called because rotate can accept any type of image
     input_image = gamera.core.load_image(image_filepath)
     output_image = input_image.rotate(kwargs['angle'])
 
     return {
-        'tiff': output_image
+        'png': output_image
     }
 
 

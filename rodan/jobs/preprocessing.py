@@ -5,18 +5,18 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='tiff')
+@utils.rodan_task(inputs='png')
 def border_remover(image_filepath, **kwargs):
     input_image = utils.load_image_for_job(image_filepath, border_removal)
     mask = input_image.border_removal()  # use defaults
     output_image = input_image.mask(mask)
 
     return {
-        "tiff": output_image
+        "png": output_image
     }
 
 
-@utils.rodan_task(inputs='tiff')
+@utils.rodan_task(inputs='png')
 def crop(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
 
@@ -26,7 +26,7 @@ def crop(image_filepath, **kwargs):
         (kwargs['bottom_right_x'] - 1, kwargs['bottom_right_y'] - 1))
 
     return {
-        "tiff": output_image
+        "png": output_image
     }
 
 

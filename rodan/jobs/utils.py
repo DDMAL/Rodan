@@ -56,7 +56,7 @@ def rodan_task(inputs=''):
                 create_dirs(output_path)
 
                 # Change the extension
-                if output_type == 'tiff':
+                if output_type == 'tiff' or output_type == 'png':
                     # Write it with gamera (it's an image)
                     if isinstance(output_content, gamera.core.Image):
                         gamera.core.save_image(output_content, output_path)
