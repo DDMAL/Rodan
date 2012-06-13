@@ -198,3 +198,5 @@ AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 
 # Used in conjunction with the @login_required decorator
 LOGIN_URL = '/signup'
+
+THUMBNAIL_EXT = 'jpg'

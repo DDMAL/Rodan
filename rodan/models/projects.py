@@ -126,47 +126,27 @@ class Page(models.Model):
     def get_absolute_url(self):
         return ('rodan.views.pages.view', str(self.id))
 
-    # Returns the path to a thumbnail of the image (size can be small or large)
-    def get_thumb_url(self, size='large'):
-        # Remove the MEDIA_ROOT part
-        path = self.get_latest_file('tiff')[len(settings.MEDIA_ROOT):]
-        url = settings.MEDIA_URL + path + '_%s.jpg' % size
-        return url
+    @staticmethod
+    def _get_thumb_filename(path, size):
+        base_path, _ = os.path.splitext(path)
+        return "%s_%d.%s" % (base_path, size, settings.THUMBNAIL_EXT)
 
-    def get_original_thumb_url(self, size='small'):
-        path = self.get_path_to_image(size=size)[len(settings.MEDIA_ROOT):]
-        url = settings.MEDIA_URL + path
-        return url
-        
-    def get_path_to_image(self, size='large', job=None):
-        return os.path.join(settings.MEDIA_ROOT,
-                            "%d" % self.project.id,
+    def _get_thumb_path(self, size, job):
+        return os.path.join("%d" % self.project.id,
                             "%d" % self.id,
                             "%s" % job.slug if job is not None else '',
-                            "%s_%s.jpg" % (self.filename, size))
+                            self._get_thumb_filename(self.filename, size))
 
-    def get_filename_for_job(self, job):
-        #mediaroot/project/page/job/afile.ext
-        return os.path.join(settings.MEDIA_ROOT,
-                            "%d" % self.project.id,
-                            "%d" % self.id,
-                            "%s" % job.slug,
-                            self.filename)
-
-    def get_latest_file(self, file_type):
+    def _get_latest_file_path(self, file_type):
         """
-        To get the latest image: page.get_latest_file('tiff')
+        Helper method used by both get_file_url and get_file_path.
+        Does not include the MEDIA_ROOT or MEDIA_URL.
+        For getting the path to a file associated with a page.
 
-        Will return the original image if no image-generating jobs have
-        been completed on the page.
-
-        For now it's just the filename, not the absolute path. Still need
-        to work out the directory structure.
-
-        You can pass in either a tuple of file types or just one.
+        If the `latest` keyword argument is set to True, it will return the
+        most recently created file of the specified type. Otherwise,
         """
-
-        # Because importing ResultFile would cause circular imports etc
+        # Importing ResultFile directly would result in circular imports
         file_manager = models.loading.get_model('rodan', 'ResultFile').objects
 
         """
@@ -187,20 +167,86 @@ class Page(models.Model):
                                     .order_by('-result__job_item__sequence') \
                                     .all()
 
-        if files.count():
-            # If there are any result_files of this type, return the latest
+        try:
             return files[0].filename
+        except IndexError:
+            return None
+
+    def get_latest_file_path(self, file_type):
+        """
+        Returns the absolute filepath to the latest result file creatd
+        of the specified type. The `file_type` keyword argument is a string
+        indicating the file extension (e.g. 'json', 'xml').
+
+        For images, use get_image_path() as that will return the original
+        image if no image result files have been created.
+        """
+        latest_file_path = self._get_latest_file_path(file_type)
+
+        if latest_file_path is not None:
+            return os.path.join(settings.MEDIA_ROOT,
+                                latest_file_path)
         else:
-            # If we're looking for an image, and no jobs have changed it
-            # Then just return the original ...
-            if file_type == 'tiff':
-                # If there is a filename, return the ABSOLUTE path
-                return os.path.join(settings.MEDIA_ROOT,
-                                    "%d" % self.project.id,
-                                    "%d" % self.id,
-                                    self.filename)
-            else:
-                return None
+            return None
+
+    def get_latest_image_path(self):
+        """
+        Returns the path to the latest TIFF available for this page.
+
+        If no jobs have been completed on this page, the original image
+        file is returned (and so this method will always return something).
+        """
+        latest_file_path = self._get_latest_file_path('tiff')
+
+        if latest_file_path is not None:
+            return latest_file_path
+        else:
+            return os.path.join(settings.MEDIA_ROOT,
+                                "%d" % self.project_id,
+                                "%d" % self.id,
+                                self.filename)
+
+    def get_latest_thumb_url(self, size=100):
+        latest_file_path = self._get_latest_file_path('tiff')
+
+        if latest_file_path is not None:
+            file_path = self._get_thumb_filename(latest_file_path, size)
+            return settings.MEDIA_URL + file_path
+        else:
+            return self.get_thumb_url(size, None)
+
+    def get_thumb_url(self, size=100, job=None):
+        return settings.MEDIA_URL + self._get_thumb_path(size, job)
+
+    def get_thumb_path(self, size=100, job=None):
+        """
+        Get the absolute path to the thumbnail image.
+
+        `size` is the width, in pixels, of the desired thumbnail image.
+        `job` is the job object (either of type JobBase or a model).
+
+        If you want to get the thumbnail for the latest job, use
+        get_latest_image_path() and pass in the desired size as a keyword
+        argument.
+        """
+        return os.path.join(settings.MEDIA_ROOT,
+                            self._get_thumb_path(size=size, job=job))
+
+    def get_job_path(self, job, ext):
+        """
+        Returns the absolute path to the file for the specified
+        job and extension. Used when saving files (only).
+
+        Job will never be None. To save original image thumbnails, use
+        get_thumb_path.
+        """
+        basename, _ = os.path.splitext(self.filename)
+
+        return os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.project.id,
+                            "%d" % self.id,
+                            "%s" % job.slug,
+                            "%s.%s" % (basename, ext))
 
     def get_next_job_item(self, user=None):
         for job_item in self.workflow.jobitem_set.all():

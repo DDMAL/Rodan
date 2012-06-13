@@ -8,6 +8,33 @@ from rodan.models.jobs import JobType
 import rodan.settings
 
 
+class TestPageMethods(unittest.TestCase):
+    """
+    Testing the various non-trivial methods on page.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.page_1 = Page.objects.get(pk=1)
+        cls.page_2 = Page.objects.get(pk=2)
+        cls.crop = Job.objects.get(slug='crop')
+        cls.rotate = Job.objects.get(slug='rotate')
+        cls.binarise = Job.objects.get(slug='simple-binarise')
+        cls.result_1 = Result.objects.get(pk=1)
+
+    def test_get_latest_file_path(self):
+        self.assertEqual(self.page_1.get_latest_file_path('json'), None)
+        self.assertEqual(self.page_1.get_latest_file_path('tiff'), None)
+
+    def test_get_latest_image_path(self):
+        self.assertTrue(self.page_1.get_latest_image_path().endswith('lol.tiff'))
+
+    def test_get_latest_thumb_url(self):
+        self.assertEqual(self.page_1.get_latest_thumb_url(size=200), '/images/1/1/lol_200.jpg')
+
+    def test_get_thumb_url(self):
+        self.assertEqual(self.page_1.get_thumb_url(size=800, job=self.crop), '/images/1/1/crop/lol_800.jpg')
+
+
 class GetNextJob(unittest.TestCase):
     def setUp(self):
         self.page_1 = Page.objects.get(pk=1)
@@ -99,9 +126,7 @@ class GetThumbnailsToImage(unittest.TestCase):
     
     def runTest(self):
         self.assertTrue(self.page.get_thumb_path(size=100, job=None).endswith("another_100.jpg"))
-    
-    def tearDown(self):
-        self.result.delete()
+
 
 class PageTest(unittest.TestCase):
     def setUp(self):
