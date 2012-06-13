@@ -24,8 +24,8 @@ def pitch_find(image_filepath, xml_filepath, **kwargs):
 class PitchFinding(JobBase):
     name = 'Pitch Finding'
     slug = 'pitch-finding'
-    input_type = JobType.IMAGE
-    output_type = JobType.JSON
+    input_type = JobType.CLASSIFY_XML
+    output_type = JobType.PITCH_JSON
     description = 'Finds the pitchs of a given image using the output of classification on that image. Returns a .json file containing all the information'
     show_during_wf_create = True
     parameters = {

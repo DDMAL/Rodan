@@ -35,7 +35,7 @@ def segment(image_filepath, **kwargs):
 class Segmentation(JobBase):
     name = 'Segmentation'
     slug = 'segmentation'
-    input_type = JobType.IMAGE
+    input_type = JobType.POLYGON_JSON
     output_type = JobType.SEGMENTED_IMAGE
     description = 'Segments an image based on polygon definitions in json.'
     show_during_wf_create = True

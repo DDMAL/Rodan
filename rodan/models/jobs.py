@@ -49,8 +49,10 @@ class JobType:
     """
     IMAGE = 1
     BINARISED_IMAGE = 2
-    JSON = 3
-    XML = 4
+    POLYGON_JSON = 3
+    CLASSIFY_XML = 4
     MEI = 5
     SEGMENTED_IMAGE = 6
     NEUME_IMAGE = 7
+    RANKED_IMAGE = 8
+    PITCH_JSON = 9
