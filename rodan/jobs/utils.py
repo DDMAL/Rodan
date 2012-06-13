@@ -4,6 +4,7 @@ from functools import wraps
 import PIL.Image
 import PIL.ImageFile
 import gamera.core
+from gamera.gameracore import Point
 from celery.task import task
 
 from rodan.models.results import Result
@@ -134,3 +135,50 @@ def __convert_image_for_job(image, job_input_types):
         return image
 
     return converted_img
+
+
+def create_polygon_outer_points_json_dict(poly_list):
+    '''
+        The following function is used to retrieve polygon points data of the first
+        and last staff lines of a particular polygon that is drawn over a staff.
+        Note that we iterate through the points of the last staff line in reverse (i.e starting
+        from the last point on the last staff line going to the first) - We do this to simplify
+        recreating the polygon on the front-end
+    '''
+    poly_json_list = []
+
+    for poly in poly_list:
+        point_list_one = [(vert.x, vert.y) for vert in poly[0].vertices]
+        point_list_four = [(vert.x, vert.y) for vert in poly[3].vertices]
+        point_list_four.reverse()
+        point_list_one.extend(point_list_four)
+        poly_json_list.append(point_list_one)
+
+    return poly_json_list
+
+
+def fix_poly_point_list(poly_list, staffspace_height):
+    for poly in poly_list:
+        #following condition checks if there are the same amount of points on all 4 staff lines
+        if len(poly[0].vertices) == len(poly[1].vertices) and \
+        len(poly[0].vertices) == len(poly[2].vertices) and \
+        len(poly[0].vertices) == len(poly[3].vertices):
+            continue
+        else:
+            for j, line in enumerate(poly):
+                for k, vert in enumerate(line.vertices):
+                    for m, innerline in enumerate(poly):
+                        if line == innerline:
+                            continue
+                        if k < len(line.vertices):
+                            y_pix_diff = vert.x - innerline.vertices[k].x
+                        else:
+                            y_pix_diff = -10000
+
+                        if y_pix_diff < 3 and y_pix_diff > -3:
+                            continue
+                        else:
+                            staffspace_multiplier = m - j
+                            line.vertices.insert(k, Point(vert.x, vert.y + (staffspace_multiplier * staffspace_height)))
+
+    return poly_list
