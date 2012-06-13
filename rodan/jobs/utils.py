@@ -59,13 +59,15 @@ def rodan_task(inputs=''):
                 # Change the extension
                 if output_type == 'tiff':
                     # Write it with gamera (it's an image)
-                    if isinstance(output_content, gamera.core.Image):
+                    if isinstance(output_content, gamera.core.Image) or isinstance(output_content, gamera.core.SubImage):
                         gamera.core.save_image(output_content, output_path)
                     elif isinstance(output_content, PIL.ImageFile.ImageFile):
                         output_content.save(output_path)
+                    else:
+                        print "The output_content was not recognized.\n"
 
                     # Create thumbnails for the image as well
-                    create_thumbnails(output_path, result)
+                    # create_thumbnails(output_path, result)
                 elif output_type == 'mei':
                     # later output_content
                     pass
