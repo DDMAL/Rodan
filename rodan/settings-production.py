@@ -130,7 +130,7 @@ BROKER_HOST = "localhost"
 BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
-BROKER_VHOST = "DDMAL"
+BROKER_VHOST = "DDMAL-production"
 
 CELERY_RESULT_BACKEND = "database"
 CELERY_RESULT_DBURI = "postgresql://rodan@localhost/rodan"
