@@ -23,7 +23,7 @@ def create_thumbnails(output_path, result):
     image = PIL.Image.open(output_path)
     original_size = image.size
     small_width = 100
-    large_width = 750
+    large_width = 400
     small_size = (small_width, original_size[0] / float(small_width) * original_size[1])
     large_size = (large_width, original_size[0] / float(large_width) * original_size[1])
 
