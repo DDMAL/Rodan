@@ -7,6 +7,7 @@ from rodan.models.jobs import JobType, JobBase
 
 gamera.core.init_gamera()
 
+
 @utils.rodan_task(inputs='tiff')
 def simple_binarise(image_filepath, **kwargs):
     input_image = utils.load_image_for_job(image_filepath, threshold)
@@ -59,6 +60,7 @@ class SimpleThresholdBinarise(JobBase):
         'threshold': 0
     }
     task = simple_binarise
+
 
 class DJVUBinarise(JobBase):
     name = 'Binarise (DJVU)'

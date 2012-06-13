@@ -1,7 +1,4 @@
-var widthLim = 750;
-var heightLim = 750;
 var imageObj;
-var scaleVal = 1;
 var BLACK = 0;
 var WHITE = 255;
 var rScale = 0.2989;
@@ -55,7 +52,7 @@ window.onload = function() {
                         });
                         
     $('#despeckle-form').submit(function () {
-        $('#size-input').val(defSize);
+        $('#size-input').val(defSize * defSize);
     });
 };
 
@@ -63,18 +60,8 @@ initImage = function() {
     //Adjust size of canvas to fit image
     var canvas = document.getElementById("image-preview");
     var context = canvas.getContext("2d");
-    if (imageObj.width > widthLim || imageObj.height > heightLim) {
-        var scaleValX = 0;
-        var scaleValY = 0;
-        scaleValX = widthLim / imageObj.width;
-        scaleValY = heightLim / imageObj.height;
-        scaleVal = Math.min(scaleValX, scaleValY);
-        imageObj.height *= scaleVal;
-        imageObj.width *= scaleVal;
-    }
     canvas.width = imageObj.width;
     canvas.height = imageObj.height;
-    context.scale(scaleVal, scaleVal);
     binarize(100);
 };
 

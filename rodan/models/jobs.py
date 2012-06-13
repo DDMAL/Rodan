@@ -53,3 +53,4 @@ class JobType:
     XML = 4
     MEI = 5
     SEGMENTED_IMAGE = 6
+    NEUME_IMAGE = 7
