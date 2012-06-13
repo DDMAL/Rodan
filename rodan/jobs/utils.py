@@ -71,7 +71,7 @@ def rodan_task(inputs=''):
                 elif output_type == 'xml':
                     output_content.write_filename("%s.xml" % output_path)
                 else:
-                    fp = open(output_path)
+                    fp = open(output_path, 'w')
                     fp.write(output_content)
                     fp.close()
 
