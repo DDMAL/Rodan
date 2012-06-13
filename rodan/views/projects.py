@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from rodan.models.projects import Project, Workflow, Job
+from rodan.models.projects import Project, Workflow, Job, JobItem
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm
 import random
@@ -104,21 +104,31 @@ def task(request, job_slug, project_id=0):
             raise Http404
         page = random.choice(possible_pages)
 
-        view_data = job.get_view()
-
         # Start the job, noting this user (create the result, with no end time)
         # If the job has already been started by this user, do nothing
         page.start_next_job(user=rodan_user)
 
-        data = {
-            'project': project,
-            'job': job,
-            'page': page,
-            'template': view_data[0],
-            'context': view_data[1]
-        }
+        job_object = job.get_object()
+        if job_object.is_automatic:
+            print "in here"
+            # Update the manual end time, and kick off the job
+            job_item = JobItem.objects.get(workflow=page.workflow, job=job)
+            result = Result.objects.get(job_item=job_item, user=request.user.get_profile(), page=page)
+            result.update_end_manual_time()
 
-        return render(request, 'projects/task.html', data)
+            job_object.on_post(result.id, **job_object.parameters)
+            return redirect(project.get_absolute_url())
+        else:
+            view_data = job.get_view()
+            data = {
+                'project': project,
+                'job': job,
+                'page': page,
+                'template': view_data[0],
+                'context': view_data[1]
+            }
+
+            return render(request, 'projects/task.html', data)
     else:
         print "NOT IMPLEMENTED YET"
         raise Http404

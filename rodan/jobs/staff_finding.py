@@ -105,3 +105,4 @@ class StaffFind(JobBase):
         'tolerance': -1
     }
     task = find_staves
+    is_automatic = True

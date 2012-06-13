@@ -4,6 +4,7 @@ from rodan.utils import remove_prefixes
 # These are not actual Django models
 
 class JobBase:
+    is_automatic = False
     name = ''
     slug = ''
     description = ''
