@@ -47,9 +47,9 @@ class JobType:
     For now, note that all main types are prime and subtypes are multiples of
     the parent type.
     """
-    IMAGE = 2
-    BINARISED_IMAGE = 4
+    IMAGE = 1
+    BINARISED_IMAGE = 2
     JSON = 3
-    XML = 5
-    MEI = 7
-    SEGMENTED_IMAGE = 11
+    XML = 4
+    MEI = 5
+    SEGMENTED_IMAGE = 6

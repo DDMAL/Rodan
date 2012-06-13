@@ -9,5 +9,5 @@ class TestTyping(unittest.TestCase):
 
     def runTest(self):
         # A simple test for now, until the real types are set up
-        self.assertTrue(self.rotate in self.binarise.get_compatible_jobs())
+        self.assertFalse(self.rotate in self.binarise.get_compatible_jobs())
         self.assertTrue(self.binarise in self.rotate.get_compatible_jobs())
