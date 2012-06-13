@@ -6,8 +6,6 @@ var G = 255;
 var rScale = 0.2989;
 var gScale = 0.5870;
 var bScale = 0.1140;
-var widthLim = 750;
-var heightLim = 750;
 var imageObj;
 var globalThresh = 0;
 
@@ -41,22 +39,13 @@ $(document).ready(function() {
 
 initImage = function() {
     //Adjust size of canvas to fit image
-    $("#image-preview").attr("width", imageObj.width);
-    $("#image-preview").attr("height", imageObj.height);
-    if (imageObj.width > widthLim || imageObj.height > heightLim) {
-        var canvas = document.getElementById("image-preview");
-        var context = canvas.getContext("2d");
-        var scaleVal = widthLim / imageObj.width;
-        canvas.width = canvas.width * scaleVal;
-        canvas.height = canvas.height * scaleVal;
-        imageObj.height *= scaleVal;
-        imageObj.width *= scaleVal;
-        context.scale(scaleVal, scaleVal);
-    }
+    var canvas = document.getElementById("image-preview");
+    var context = canvas.getContext("2d");
+    canvas.width = imageObj.width;
+    canvas.height = imageObj.height;
     var pmf = genPMF(imageObj);
     defThresh = threshBrink(pmf);
     binarise(defThresh);
-
     //Manually set inital value for slider
     $("#slider").slider("value", defThresh);
     $("#slider").width(imageObj.width * 2);

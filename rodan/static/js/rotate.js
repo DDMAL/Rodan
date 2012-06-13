@@ -1,8 +1,3 @@
-//Default threshold before user input
-//Maximum value for greyness
-//Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
-var widthLim = 750;
-var heightLim = 750;
 var imageObj;
 var stage;
 var defRulerWidth = 100;
@@ -10,7 +5,6 @@ var defRulerHeight = 4;
 rulerShow = true;
 rulerHoriz = true;
 var defAngle = 0;
-var scaleVal = 1;
 
 //Setup
 window.onload = function() {
@@ -41,15 +35,6 @@ window.onload = function() {
 };
 
 initImage = function() {
-    if (imageObj.width > widthLim || imageObj.height > heightLim) {
-        var scaleValX = 0;
-        var scaleValY = 0;
-        scaleValX = widthLim / imageObj.width;
-        scaleValY = heightLim / imageObj.height;
-        scaleVal = Math.min(scaleValX, scaleValY);
-        imageObj.height *= scaleVal;
-        imageObj.width *= scaleVal;
-    }
     var dist = Math.ceil(Math.sqrt(Math.pow(imageObj.width, 2) + Math.pow(imageObj.height, 2)));
     stage = new Kinetic.Stage({
         container: "image-preview",
