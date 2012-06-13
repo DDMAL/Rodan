@@ -19,11 +19,12 @@ def border_remover(image_filepath, **kwargs):
 @utils.rodan_task(inputs='tiff')
 def crop(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
-
+    for k, v in kwargs.iteritems():
+        print k, v
     #added '- 1' to bottom right point coordinates because gamera goes 1 pixel over.
     output_image = input_image.subimage( \
-        (kwargs['top_left_x'], kwargs['top_left_y']),
-        (kwargs['bottom_right_x'] - 1, kwargs['bottom_right_y'] - 1))
+        (kwargs['tlx'], kwargs['tly']),
+        (kwargs['brx'] - 1, kwargs['bry'] - 1))
 
     return {
         "tiff": output_image
@@ -49,9 +50,9 @@ class Crop(JobBase):
     description = 'Crop an image.'
     show_during_wf_create = True
     parameters = {
-        'top_left_x': 0,
-        'top_left_y': 0,
-        'bottom_right_x': 0,
-        'bottom_right_y': 0,
+        'tlx': 0,
+        'tly': 0,
+        'brx': 0,
+        'bry': 0,
     }
     task = crop
