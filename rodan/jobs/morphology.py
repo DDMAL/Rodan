@@ -5,7 +5,7 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='png')
+@utils.rodan_task(inputs='tiff')
 def despeckle(image_filepath, **kwargs):
     """
       Removes connected components that are smaller than the given size.
@@ -28,7 +28,7 @@ def despeckle(image_filepath, **kwargs):
     input_image.despeckle(kwargs['despeckle_value'])
 
     return {
-        'png': input_image
+        'tiff': input_image
     }
 
 

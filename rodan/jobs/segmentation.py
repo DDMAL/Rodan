@@ -6,7 +6,7 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='png')
+@utils.rodan_task(inputs='tiff')
 def segment(image_filepath, **kwargs):
     input_img = Image.open(image_filepath)
 
@@ -27,7 +27,7 @@ def segment(image_filepath, **kwargs):
     encoded = json.dumps(json_poly_data)
 
     return {
-        'png': output_img,
+        'tiff': output_img,
         'json': encoded
     }
 

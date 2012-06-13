@@ -193,7 +193,7 @@ class Page(models.Model):
         else:
             # If we're looking for an image, and no jobs have changed it
             # Then just return the original ...
-            if file_type == 'tiff' or file_type == 'png':
+            if file_type == 'tiff':
                 # If there is a filename, return the ABSOLUTE path
                 return os.path.join(settings.MEDIA_ROOT,
                                     "%d" % self.project.id,

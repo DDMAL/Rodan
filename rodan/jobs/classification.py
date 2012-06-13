@@ -7,7 +7,7 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='png')
+@utils.rodan_task(inputs='tiff')
 def classifier(image_filepath, **kwargs):
     #will be replaced by a new classifier that will be created soon
     cknn = kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)

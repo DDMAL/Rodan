@@ -4,7 +4,7 @@ import utils
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='png')
+@utils.rodan_task(inputs='tiff')
 def rank_filter(image_filepath, **kwargs):
     """
       *rank_val* (1, 2, ..., *k* * *k*)
@@ -25,7 +25,7 @@ def rank_filter(image_filepath, **kwargs):
         kwargs['border_treatment'])
 
     return {
-        'png': output_image
+        'tiff': output_image
     }
 
 

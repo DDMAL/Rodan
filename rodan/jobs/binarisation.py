@@ -8,17 +8,17 @@ from rodan.models.jobs import JobType, JobBase
 gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs='png')
+@utils.rodan_task(inputs='tiff')
 def simple_binarise(image_filepath, **kwargs):
     input_image = utils.load_image_for_job(image_filepath, threshold)
     output_image = input_image.threshold(kwargs['threshold'])
 
     return {
-        'png': output_image
+        'tiff': output_image
     }
 
 
-@utils.rodan_task(inputs="png")
+@utils.rodan_task(inputs="tiff")
 def djvu_binarise(image_filepath, **kwargs):
     """
         *smoothness*
@@ -45,7 +45,7 @@ def djvu_binarise(image_filepath, **kwargs):
                         kwargs['block_factor'])
 
     return {
-        'png': output_image
+        'tiff': output_image
     }
 
 
