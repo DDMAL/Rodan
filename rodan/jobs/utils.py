@@ -72,7 +72,10 @@ def rodan_task(inputs=''):
                     # later output_content
                     pass
                 elif output_type == 'xml':
-                    output_content.write_filename("%s.xml" % output_path)
+                    output_content.write_filename(output_path)
+                elif output_type == 'json':
+                    with open(output_path, "w") as file_handle:
+                        file_handle.write(output_content)
                 else:
                     fp = open(output_path)
                     fp.write(output_content)
