@@ -69,13 +69,10 @@ def rodan_task(inputs=''):
                     # Create thumbnails for the image as well
                     # create_thumbnails(output_path, result)
                 elif output_type == 'mei':
-                    # later output_content
+                    # This is a special case because an object is used
                     pass
                 elif output_type == 'xml':
                     output_content.write_filename(output_path)
-                elif output_type == 'json':
-                    with open(output_path, "w") as file_handle:
-                        file_handle.write(output_content)
                 else:
                     fp = open(output_path, 'w')
                     fp.write(output_content)
