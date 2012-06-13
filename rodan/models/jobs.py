@@ -52,3 +52,4 @@ class JobType:
     MEI = 7
     BINARISED_IMAGE = 11
     SEGMENTED_IMAGE = 13
+    NEUME_IMAGE = 17
