@@ -28,16 +28,15 @@ class TestResult(unittest.TestCase):
         self.assertTrue(savedParams[0].value in ["v1", "v2"])
 
     def testCreateFile(self):
-        self.result.create_file("testfilename", JobType.IMAGE_GREY)
+        self.result.create_file("testfilename", 'tiff')
 
         self.assertEqual(1, len(self.result.resultfile_set.all()))
         files = self.result.resultfile_set.all()
         self.assertEqual("testfilename", files[0].filename)
         # Default
-        self.assertEqual(JobType.IMAGE_GREY, files[0].result_type)
+        self.assertEqual('tiff', files[0].result_type)
 
-        self.result.create_file("anotherfile", JobType.MEI)
+        self.result.create_file("anotherfile", 'mei')
         self.assertEqual(2, len(self.result.resultfile_set.all()))
         files = self.result.resultfile_set.all()
-        self.assertEqual(JobType.MEI, files[1].result_type)
-
+        self.assertEqual('mei', files[1].result_type)

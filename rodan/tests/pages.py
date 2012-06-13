@@ -22,15 +22,15 @@ class GetNextJob(unittest.TestCase):
         """
         self.assertEqual(self.page_1.get_next_job(), self.crop)
 
-        self.assertEqual(self.page_2.get_next_job(), self.rotate)
+        self.assertEqual(self.page_2.get_next_job(), None)
 
         # When you pass in the RodanUser with ID 1, should return Binarise
         user = RodanUser.objects.get(pk=1)
         self.assertEqual(self.page_2.get_next_job(user=user), self.binarise)
 
         # Now let's make that first result done, we should get rotation
-        self.result_1.end_total_time = timezone.now()
-        self.result_1.save()
+        self.result_1.update_end_manual_time()
+        self.result_1.update_end_total_time()
 
         self.assertEqual(self.page_2.get_next_job(user=user), self.rotate)
         self.assertEqual(self.page_2.get_next_job(), self.rotate)
@@ -39,6 +39,11 @@ class GetNextJob(unittest.TestCase):
         new_result = Result.objects.create(page=self.page_2, \
                         job_item=JobItem.objects.get(pk=4), user=user)
         self.assertEqual(self.page_2.get_next_job(user=user), self.rotate)
+        self.assertEqual(self.page_2.get_next_job(), None)
+
+        # When we finish the job ...
+        new_result.update_end_manual_time()
+        new_result.update_end_total_time()
         self.assertEqual(self.page_2.get_next_job(), self.crop)
 
     def tearDown(self):
@@ -64,19 +69,19 @@ class GetLatestImagePath(unittest.TestCase):
                                 user=self.user, page=self.page_2, end_total_time=timezone.now())
 
     def runTest(self):
-        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("another.tif"))
+        self.assertTrue(self.page_2.get_latest_image_path().endswith("another.tiff"))
         self.result_file_1 = ResultFile.objects.create(result=self.result_1, \
-                                result_type=JobType.IMAGE_ONEBIT, filename='binarised.tif')
+                                result_type='tiff', filename='binarised.tiff')
 
         # Should return the original filename
-        self.assertTrue(self.page_1.get_latest_file(JobType.IMAGE).endswith('lol.tif'))
-        self.assertEqual(self.page_1.get_latest_file(JobType.MEI), None)
-        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith("binarised.tif"))
+        self.assertTrue(self.page_1.get_latest_image_path().endswith('lol.tiff'))
+        self.assertEqual(self.page_1.get_latest_file_path('mei'), None)
+        self.assertTrue(self.page_2.get_latest_image_path().endswith("binarised.tiff"))
 
         self.result_file_2 = ResultFile.objects.create(result=self.result_2, \
-                                result_type=JobType.IMAGE_ONEBIT, filename='recent.tif')
+                                result_type='tiff', filename='recent.tiff')
 
-        self.assertTrue(self.page_2.get_latest_file(JobType.IMAGE).endswith('recent.tif'))
+        self.assertTrue(self.page_2.get_latest_image_path().endswith('recent.tiff'))
 
     def tearDown(self):
         self.result_1.end_total_time = None
@@ -86,14 +91,14 @@ class GetLatestImagePath(unittest.TestCase):
         self.result_file_1.delete()
         self.result_file_2.delete()
         
-class GetPathToImage(unittest.TestCase):
+class GetThumbnailsToImage(unittest.TestCase):
     def setUp(self):
         self.result = Result.objects.get(pk=1)
         self.page = self.result.page
         self.job = self.result.job_item.job
     
     def runTest(self):
-        self.assertTrue(self.page.get_path_to_image(job=self.job).endswith("another.tif_large.png"))
+        self.assertTrue(self.page.get_thumb_path(size=100, job=None).endswith("another_100.jpg"))
     
     def tearDown(self):
         self.result.delete()
@@ -103,6 +108,7 @@ class PageTest(unittest.TestCase):
         self.page_1 = Page.objects.get(pk=1)
 
     def testGetFilenameForJob(self):
+        rotate_job = Job.objects.get(slug='rotate')
         root = rodan.settings.MEDIA_ROOT
-        path = os.path.join(root, "1", "1", "2", "lol.tif")
-        self.assertEqual(path, self.page_1.get_filename_for_job(2))
+        path = os.path.join(root, "1", "1", "rotate", "lol.tif")
+        self.assertEqual(path, self.page_1.get_job_path(rotate_job, 'tif'))
