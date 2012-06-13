@@ -46,8 +46,8 @@ def find_staves(image_filepath, **kwargs):
 class StaffFind(JobBase):
     name = 'Find staff lines'
     slug = 'staff-find'
-    input_type = JobType.BINARISED_IMAGE
-    output_type = JobType.JSON
+    input_type = JobType.RANKED_IMAGE
+    output_type = JobType.POLYGON_JSON
     description = 'Retrieves and outputs staff line point coordinates information in json format.'
     show_during_wf_create = True
     parameters = {

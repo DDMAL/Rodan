@@ -32,8 +32,8 @@ def rank_filter(image_filepath, **kwargs):
 class RankFilter(JobBase):
     name = 'Rank filter'
     slug = 'rank-filter'
-    input_type = JobType.IMAGE
-    output_type = input_type
+    input_type = JobType.BINARISED_IMAGE
+    output_type = JobType.RANKED_IMAGE
     description = 'Applies rank filter on image'
     show_during_wf_create = True
     arguments = {
