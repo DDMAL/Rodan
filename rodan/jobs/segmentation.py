@@ -21,10 +21,9 @@ def segment(image_filepath, **kwargs):
     image_width = kwargs['imw']
     for polygon in json_poly_data:
         flattened_poly = [j for i in polygon for j in i]
-        for val in flattened_poly:
-            
-        mask_drawer.polygon(flattened_poly, outline=1, fill=1)
-
+        l = [x*image_width for x in flattened_poly]
+        mask_drawer.polygon(l, outline=1, fill=1)
+    
     output_img = ImageMath.eval("~(a - b)", a=input_img, b=mask_img)
     encoded = json.dumps(json_poly_data)
 
