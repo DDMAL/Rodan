@@ -55,7 +55,7 @@
         "pk": 2, 
         "model": "rodan.workflow", 
         "fields": {
-            "name": "Binarise, rotate, crop", 
+            "name": "Everything workflow",
             "description": "Meh"
         }
     }, 
@@ -137,7 +137,7 @@
         "pk": 1, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.preprocessing.Crop", 
+            "job": "rodan.jobs.preprocessing.BorderRemoval", 
             "sequence": 1, 
             "workflow": 1
         }
@@ -155,7 +155,7 @@
         "pk": 3, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.binarisation.SimpleThresholdBinarise", 
+            "job": "rodan.jobs.preprocessing.Crop", 
             "sequence": 1, 
             "workflow": 2
         }
@@ -173,7 +173,7 @@
         "pk": 5, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.preprocessing.Crop", 
+            "job": "rodan.jobs.binarisation.SimpleThresholdBinarise", 
             "sequence": 3, 
             "workflow": 2
         }
@@ -203,6 +203,51 @@
             "job": "rodan.jobs.morphology.Despeckle", 
             "sequence": 1, 
             "workflow": 5
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.morphology.Despeckle", 
+            "sequence": 4, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.filtering.RankFilter", 
+            "sequence": 5, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.staff_polygons_find.StaffPolygonsFind", 
+            "sequence": 6, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.segmentation.Segmentation", 
+            "sequence": 7, 
+            "workflow": 2
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "rodan.jobitem", 
+        "fields": {
+            "job": "rodan.jobs.staff_removal.StaffRemoval", 
+            "sequence": 8, 
+            "workflow": 2
         }
     },
     {
