@@ -33,7 +33,7 @@ def crop(image_filepath, **kwargs):
 class BorderRemoval(JobBase):
     name = 'Border Removal'
     slug = 'border-remove'
-    input_type = JobType.IMAGE
+    input_type = JobType.BINARISED_IMAGE
     output_type = JobType.BINARISED_IMAGE
     description = 'Removes the borders of a greyscale image.'
     show_during_wf_create = True
