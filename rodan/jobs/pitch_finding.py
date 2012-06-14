@@ -32,3 +32,4 @@ class PitchFinding(JobBase):
         'discard_size': 12
     }
     task = pitch_find
+    is_automatic = True

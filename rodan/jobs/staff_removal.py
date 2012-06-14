@@ -28,3 +28,4 @@ class StaffRemoval(JobBase):
     parameters = {
     }
     task = remove_staves
+    is_automatic = True
