@@ -8,7 +8,7 @@ from rodan.models.jobs import JobType, JobBase
 
 
 @utils.rodan_task(inputs='tiff')
-def find_staves(image_filepath, **kwargs):
+def find_staves_polygons(image_filepath, **kwargs):
     """
       *num_lines*:
         Number of lines within one staff. When zero, the number is automatically
@@ -43,12 +43,12 @@ def find_staves(image_filepath, **kwargs):
     }
 
 
-class StaffFind(JobBase):
-    name = 'Find staff lines'
-    slug = 'staff-find'
+class StaffPolygonsFind(JobBase):
+    name = 'Staff Polygons Find'
+    slug = 'staff-find-polygons'
     input_type = JobType.RANKED_IMAGE
     output_type = JobType.POLYGON_JSON
-    description = 'Retrieves and outputs staff line point coordinates information in json format.'
+    description = 'Retrieves and outputs polygon point coordinates information contouring staves in json format.'
     show_during_wf_create = True
     parameters = {
         'num_lines': 0,
@@ -56,5 +56,5 @@ class StaffFind(JobBase):
         'blackness': 0.8,
         'tolerance': -1
     }
-    task = find_staves
+    task = find_staves_polygons
     is_automatic = True
