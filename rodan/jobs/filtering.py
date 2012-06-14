@@ -36,7 +36,7 @@ class RankFilter(JobBase):
     output_type = JobType.RANKED_IMAGE
     description = 'Applies rank filter on image'
     show_during_wf_create = True
-    arguments = {
+    parameters = {
         'rank_val': 9,
         'k': 9,
         'border_treatment': 0
