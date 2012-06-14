@@ -44,7 +44,7 @@ def find_staves_polygons(image_filepath, **kwargs):
 
 
 class StaffPolygonsFind(JobBase):
-    name = 'Staff Polygons Find'
+    name = 'Find staff polygons'
     slug = 'staff-find-polygons'
     input_type = JobType.RANKED_IMAGE
     output_type = JobType.POLYGON_JSON
