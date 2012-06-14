@@ -48,7 +48,7 @@ window.onload = function() {
                         step: 1,
                         value: 0,
                         range: false,
-                        change: function(event, ui) {despeckle(ui.value)},
+                        slide: function(event, ui) {despeckle(ui.value)},
                         });
                         
     $('#despeckle-form').submit(function () {
