@@ -23,7 +23,7 @@ class JobBase:
         """
         return self.slug or self.get_name().lower()
 
-    def get_context(self):
+    def get_context(self, page):
         """
         Override this if you want to pass custom variables to the template.
         Will be accessible in the template as "context" (so if you return

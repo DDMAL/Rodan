@@ -4,6 +4,8 @@ from gamera.plugins.morphology import despeckle
 import utils
 from rodan.models.jobs import JobType, JobBase
 
+gamera.core.init_gamera()
+
 
 @utils.rodan_task(inputs='tiff')
 def despeckle(image_filepath, **kwargs):
@@ -43,3 +45,10 @@ class Despeckle(JobBase):
         'despeckle_value': 100
     }
     task = despeckle
+
+    def get_context(self, page):
+        latest_image_path = page.get_latest_file_path('tiff')
+        image = gamera.core.load_image(latest_image_path)
+        return {
+            'width': image.size.width,
+        }

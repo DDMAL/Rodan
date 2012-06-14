@@ -71,11 +71,11 @@ class Job(models.Model):
     def get_absolute_url(self):
         return ('rodan.views.jobs.view', self.slug)
 
-    def get_view(self):
+    def get_view(self, page):
         """
         Returns a tuple of the template to use and a context dictionary
         """
-        return ('jobs/%s.html' % self.slug, self.get_object().get_context())
+        return ('jobs/%s.html' % self.slug, self.get_object().get_context(page))
 
     def get_object(self):
         return rodan.jobs.jobs[self.module]

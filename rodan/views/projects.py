@@ -124,7 +124,7 @@ def task(request, job_slug, project_id=0):
     page.start_next_job(user=rodan_user)
 
     job_object = job.get_object()
-    view_data = job.get_view()
+    view_data = job.get_view(page)
     data = {
         'project': project,
         'job': job,
