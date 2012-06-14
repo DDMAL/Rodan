@@ -107,7 +107,6 @@ function update(group, activeAnchor) {
 
     rect.setPosition(topLeft.attrs.x, topLeft.attrs.y);
     rect.setSize(topRight.attrs.x - topLeft.attrs.x, bottomLeft.attrs.y - topLeft.attrs.y);
-    alert(logRect());
 }
 
 addAnchor = function(group, x, y, name) {

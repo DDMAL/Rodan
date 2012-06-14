@@ -1,39 +1,13 @@
-//Default threshold before user input
-//Maximum value for greyness
-//Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
-var widthLim = 750;
-var heightLim = 750;
 defBoxX = 10;
 defBoxY = 10;
 defBoxW = 100;
 defBoxH = 50;
 defColour = "blue"
 defSelColour = "red"
-var deletionMode = false;
+var jsonPath = "/static/json_in/imdata.json";
 var imageObj;
 var stage;
-
-function IData(data) {
-    this.data = data;
-    this.getPoint = function(x, y) {
-        var convX = x * 4;
-        var convY = y * imageObj.width * 4;
-        return this.data[convX + convY];
-    };
-    this.setPoint = function(x, y, val) {
-        var convX = x * 4;
-        var convY = y * imageObj.width * 4;
-        this.data[convX + convY] = val;
-        this.data[convX + convY + 1] = val;
-        this.data[convX + convY + 2] = val;
-    };
-    this.isBlack = function(x, y) {
-        return this.getPoint(x, y) === BLACK;
-    };
-    this.isFail = function(x, y) {
-        return this.getPoint(x, y) === FAIL;
-    };
-}
+var sPoints;
 
 //Setup
 $(document).ready(function() {
@@ -42,22 +16,10 @@ $(document).ready(function() {
     imageObj.onload = initImage;
     
     //Image path (TO BE REPLACED LATER)
-    imageObj.src = "/static/images/mhd.jpg";
-    
-    
+    imageObj.src = $("#image-original").attr("src");
 });
 
 initImage = function() {
-    if (imageObj.width > widthLim || imageObj.height > heightLim) {
-        var scaleValX = 0;
-        var scaleValY = 0;
-        scaleValX = widthLim / imageObj.width;
-        scaleValY = heightLim / imageObj.height;
-        var scaleVal = Math.min(scaleValX, scaleValY);
-        imageObj.height *= scaleVal;
-        imageObj.width *= scaleVal;
-    }
-    
     stage = new Kinetic.Stage({
         container: "container",
         width: imageObj.width,
@@ -78,7 +40,18 @@ initImage = function() {
     image.on("mousedown", function() {
         resetColours();
     });
-    addPoly([0, 0, 100, 0, 200, 0, 200, 100, 100, 100, 0, 100]);
+    $.get(jsonPath, function(data) {
+        sPoints = $(data);
+        var polys = new Array(sPoints.length);
+        for (var i = 0; i < sPoints.length; i++) {
+            polys[i] = new Array();
+            for (var j = 0; j < sPoints[i].length; j++) {
+                polys[i].push(sPoints[i][j][0]);
+                polys[i].push(sPoints[i][j][1]);
+            }
+            addPoly(polys[i], 0, 0);
+        }
+    });
 }
 
 addPoly = function(points, x, y, sel) {
@@ -86,11 +59,11 @@ addPoly = function(points, x, y, sel) {
     if (!points) {
         points = [0, 0, 100, 0, 100, 50, 0, 50];
     }
-    if (!x) {
+    if (x == undefined) {
         x = 10 + defBoxX;
         undef = true;
     }
-    if (!y) {
+    if (y == undefined) {
         y = 10 + defBoxY;
         undef = true;
     }
@@ -114,6 +87,7 @@ addPoly = function(points, x, y, sel) {
         alpha: .2,
         name: "poly"
     });
+    
     group.add(poly);
     
     for (var i in poly.attrs.points) {
@@ -371,37 +345,25 @@ removePoly = function() {
         var poly = group.get(".poly")[0];
         if (poly.attrs.fill == defSelColour) {
             layer = group.getLayer();
-            layer.remove(poly);
+            layer.remove(group);
             stage.remove(layer);
         }
-    }
+    } 
 }
 
 logPolys = function() {
-    for (var i = stage.get(".staff").length - 1; i >= 0; i--) {
-        var group = stage.get(".staff")[i];
-        if (group.get(".poly").length > 0) {
-            var poly = group.get(".poly")[0];
-            var oCoords = "";
-            for (var j in poly.attrs.points) {
-                var point = poly.attrs.points[j];
-                oCoords += " (" + point.x + ", " + point.y + ")";
-            }
-            console.log("Bounding Points:" + oCoords);
+    var staves = stage.get(".staff");
+    var oCoords = new Array(staves.length);
+    for (var i = staves.length - 1; i >= 0; i--) {
+        var group = staves[i];
+        var poly = group.get(".poly")[0];
+        oCoords[i] = new Array(poly.attrs.points.length);
+        for (var j in poly.attrs.points) {
+            oCoords[i][j] = new Array(2);
+            var point = poly.attrs.points[j];
+            oCoords[i][j][0] = Math.round((point.x + group.attrs.x));
+            oCoords[i][j][1] = Math.round((point.y + group.attrs.y));
         }
     }
-}
-
-maskImage = function() {
-    for (var i = stage.get(".box").length - 1; i >= 0; i--) {
-        var box = stage.get(".box")[i];
-        if (box.get(".rect").length > 0) {
-            var rect = box.get(".rect")[0];
-            var x1 = box.attrs.x;
-            var y1 = box.attrs.y;
-            var x2 = box.attrs.x + rect.attrs.width;
-            var y2 = box.attrs.y + rect.attrs.height;
-            
-        }
-    }
+    $('input[name="JSON"]').attr("value", (JSON.stringify(oCoords)));
 }
