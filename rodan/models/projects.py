@@ -176,10 +176,13 @@ class Page(models.Model):
         """
         Returns the absolute filepath to the latest result file creatd
         of the specified type. The `file_type` keyword argument is a string
-        indicating the file extension (e.g. 'json', 'xml', 'tiff').
+        indicating the file extension (e.g. 'json', 'xml', 'tiff'). If no
+        result files have been created of that type, then None will be
+        returned.
 
-        If the file_type is tiff, then an image will always be returned.
-        For all other cases, the return type may be None.
+        If the file_type is tiff and no jobs have been completed on this page,
+        the original image file is returned (and so None will never be
+        returned).
         """
 
         latest_file_path = self._get_latest_file_path(file_type)
