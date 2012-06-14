@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from rodan.models.projects import Project, Workflow, Job, JobItem
+from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm
 import random
@@ -93,13 +93,16 @@ def add_pages(request, project_id):
 # If project_id == 0, then use all projects
 @login_required
 def task(request, job_slug, project_id=0):
-    if project_id == 0:
-        # Choose a random project!
-        project = random.choice(Project.objects.all())
+    job = get_object_or_404(Job, slug=job_slug)
+    rodan_user = request.user.get_profile()
+
+    if int(project_id) == 0:
+        # Choose a random page!
+        print "what"
+        all_pages = Page.objects.all()
     else:
         project = get_object_or_404(Project, pk=project_id)
-
-    job = get_object_or_404(Job, slug=job_slug)
+        all_pages = project.page_set.all()
 
     # Don't allow users to view this for automatic jobs
     if job.get_object().is_automatic:
@@ -107,12 +110,14 @@ def task(request, job_slug, project_id=0):
 
     # Now, try to find a page in this project that has this job next
     # (May have been started by the current user but never finished)
-    rodan_user = request.user.get_profile()
-    possible_pages = [page for page in project.page_set.all() if page.get_next_job(user=rodan_user) == job]
+    possible_pages = [page for page in all_pages if page.get_next_job(user=rodan_user) == job]
     # No pages that need this job. Show a 404 for now.
     if not possible_pages:
         raise Http404
     page = random.choice(possible_pages)
+
+    # This is needed in case we're looking at all the projects
+    project = page.project
 
     # Start the job, noting this user (create the result, with no end time)
     # If the job has already been started by this user, do nothing
