@@ -42,3 +42,4 @@ class RankFilter(JobBase):
         'border_treatment': 0
     }
     task = rank_filter
+    is_automatic = True
