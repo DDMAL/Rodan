@@ -24,6 +24,7 @@ def create(request):
 
 
 def view(request, project_id):
+    done = bool(request.GET.get('done', False))
     project = get_object_or_404(Project, pk=project_id)
 
     # This is a upser hacky way of doing it. If you can improve this, please do
@@ -40,6 +41,7 @@ def view(request, project_id):
         jobs[job] = job in available_jobs
 
     data = {
+        'done': done,
         'user_can_edit': project.is_owned_by(request.user),
         'project': project,
         'num_pages': project.page_set.count(),
@@ -117,7 +119,7 @@ def task(request, job_slug, project_id=0):
             result.update_end_manual_time()
 
             job_object.on_post(result.id, **job_object.parameters)
-            return redirect(project.get_absolute_url())
+            return redirect(project.get_absolute_url() + '?done=1')
         else:
             view_data = job.get_view()
             data = {

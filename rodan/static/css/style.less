@@ -409,3 +409,17 @@ ul.grid {
         display: inline-block;
     }
 }
+
+.flash-message {
+    width: 100%;
+    text-align: center;
+    position: fixed;
+    top: @flashMessageTop;
+    left: @sidebarWidth/2;
+    z-index: 100;
+    span {
+        background: @flashMessageBg;
+        padding: 5px;
+        .border-radius(3px);
+    }
+}

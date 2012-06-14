@@ -2,6 +2,11 @@
 
 {% block content %}
     <section>
+        {% if done %}
+            <div class="flash-message">
+                <span>Thank you for starting that job. It has been added to the queue.</span>
+            </div>
+        {% endif %}
         {% if user_can_edit %}
         <div class="right-float">
             <a href="{% url edit_project project.id %}" class="button">Edit project</a>
