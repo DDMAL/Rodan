@@ -279,4 +279,15 @@ $(document).ready(function () {
     $('.job i').click(function () {
         $(this).parent().find('p').toggle();
     });
+
+    // If the flash message exists, make it disappear after some time
+    // and also refresh the page
+    if ($('.flash-message').length) {
+        setTimeout(function () {
+            $('.flash-message').fadeOut('slow');
+            setTimeout(function () {
+                window.location.search = '';
+            }, 1000);
+        }, 2000);
+    }
 });

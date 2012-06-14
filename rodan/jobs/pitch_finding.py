@@ -22,7 +22,7 @@ def pitch_find(image_filepath, xml_filepath, **kwargs):
 
 
 class PitchFinding(JobBase):
-    name = 'Pitch Finding'
+    name = 'Pitch finding'
     slug = 'pitch-finding'
     input_type = JobType.CLASSIFY_XML
     output_type = JobType.PITCH_JSON

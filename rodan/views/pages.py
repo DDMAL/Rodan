@@ -60,4 +60,4 @@ def process(request, page_id, job_slug):
         result.update_end_manual_time()
         job_object.on_post(result.id, **kwargs)
 
-        return redirect(page.project.get_absolute_url())
+        return redirect(page.project.get_absolute_url() + '?done=1')

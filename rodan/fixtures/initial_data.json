@@ -104,36 +104,6 @@
         }
     }, 
     {
-        "pk": 3, 
-        "model": "rodan.page", 
-        "fields": {
-            "project": 2, 
-            "filename": "1.tif", 
-            "tag": "Find staff lines page", 
-            "workflow": 3
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "rodan.page", 
-        "fields": {
-            "project": 2, 
-            "filename": "2.tif", 
-            "tag": "Despeckle page", 
-            "workflow": 5
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "rodan.page", 
-        "fields": {
-            "project": 2, 
-            "filename": "3.tif", 
-            "tag": "Rank filter page", 
-            "workflow": 4
-        }
-    }, 
-    {
         "pk": 1, 
         "model": "rodan.jobitem", 
         "fields": {

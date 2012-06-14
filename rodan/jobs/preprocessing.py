@@ -33,7 +33,7 @@ def crop(image_filepath, **kwargs):
 
 
 class BorderRemoval(JobBase):
-    name = 'Border Removal'
+    name = 'Border removal'
     slug = 'border-remove'
     input_type = JobType.BINARISED_IMAGE
     output_type = JobType.BINARISED_IMAGE

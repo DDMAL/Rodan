@@ -19,7 +19,7 @@ def remove_staves(image_filepath, **kwargs):
 
 
 class StaffRemoval(JobBase):
-    name = 'Staff Removal'
+    name = 'Staff removal'
     slug = 'staff_removal'
     input_type = JobType.SEGMENTED_IMAGE
     output_type = JobType.NEUME_IMAGE
