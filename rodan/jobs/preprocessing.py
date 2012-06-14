@@ -55,5 +55,6 @@ class Crop(JobBase):
         'tly': 0,
         'brx': 0,
         'bry': 0,
+        'imw': 0
     }
     task = crop
