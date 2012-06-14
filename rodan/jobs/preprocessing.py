@@ -43,6 +43,7 @@ class BorderRemoval(JobBase):
 
     }
     task = border_removal
+    is_automatic = True
 
 
 class Crop(JobBase):
