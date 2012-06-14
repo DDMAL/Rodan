@@ -5,6 +5,7 @@ var rScale = 0.2989;
 var gScale = 0.5870;
 var bScale = 0.1140;
 var defSize = 0;
+var scalVal = 1;
 
 function Point(x, y) {
     this.x = x;
@@ -38,7 +39,8 @@ window.onload = function() {
     
     //Image path (TO BE REPLACED LATER)
     imageObj.src = $("#image-original").attr("src");
-    
+    var origWidth = $("#width").text();
+    scaleVal = imageObj.width / origWidth;
     //jQuery slider definition for threshold controller
     $("#slider").slider({
                         animate: true,
@@ -52,7 +54,7 @@ window.onload = function() {
                         });
                         
     $('#despeckle-form').submit(function () {
-        $('#size-input').val(defSize * defSize);
+        $('#size-input').val(defSize);
     });
 };
 
@@ -67,7 +69,7 @@ initImage = function() {
 
 despeckle = function(size) {
     defSize = size;
-    var cSize = size;
+    var cSize = Math.round(size * scaleVal * scaleVal);
     var canvas = document.getElementById("image-preview");
     var context = canvas.getContext("2d");
     binarize(100);
