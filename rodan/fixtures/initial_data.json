@@ -125,33 +125,6 @@
         }
     }, 
     {
-        "pk": 6, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": "rodan.jobs.staff_polygons_find.StaffPolygonsFind", 
-            "sequence": 1, 
-            "workflow": 3
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": "rodan.jobs.filtering.RankFilter", 
-            "sequence": 1, 
-            "workflow": 4
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": "rodan.jobs.morphology.Despeckle", 
-            "sequence": 1, 
-            "workflow": 5
-        }
-    }, 
-    {
         "pk": 9, 
         "model": "rodan.jobitem", 
         "fields": {
