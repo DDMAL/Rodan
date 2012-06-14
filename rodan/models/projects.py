@@ -176,47 +176,38 @@ class Page(models.Model):
         """
         Returns the absolute filepath to the latest result file creatd
         of the specified type. The `file_type` keyword argument is a string
-        indicating the file extension (e.g. 'json', 'xml').
+        indicating the file extension (e.g. 'json', 'xml', 'tiff').
 
-        For images, use get_image_path() as that will return the original
-        image if no image result files have been created.
+        If the file_type is tiff, then an image will always be returned.
+        For all other cases, the return type may be None.
         """
+
         latest_file_path = self._get_latest_file_path(file_type)
 
         if latest_file_path is not None:
             return os.path.join(settings.MEDIA_ROOT,
                                 latest_file_path)
         else:
-            return None
+            if file_type == 'tiff':
+                return os.path.join(settings.MEDIA_ROOT,
+                                    "%d" % self.project_id,
+                                    "%d" % self.id,
+                                    self.filename)
 
-    def get_latest_image_path(self):
-        """
-        Returns the path to the latest TIFF available for this page.
-
-        If no jobs have been completed on this page, the original image
-        file is returned (and so this method will always return something).
-        """
-        latest_file_path = self._get_latest_file_path('tiff')
-
-        if latest_file_path is not None:
-            return latest_file_path
-        else:
-            return os.path.join(settings.MEDIA_ROOT,
-                                "%d" % self.project_id,
-                                "%d" % self.id,
-                                self.filename)
-
-    def get_latest_thumb_url(self, size=100):
+    def get_latest_thumb_url(self, size=400):
         latest_file_path = self._get_latest_file_path('tiff')
 
         if latest_file_path is not None:
             file_path = self._get_thumb_filename(latest_file_path, size)
-            return settings.MEDIA_URL + file_path
+            # This is not actually a filepath but there are / issues otherwise
+            return os.path.join(settings.MEDIA_URL,
+                                file_path)
         else:
             return self.get_thumb_url(size, None)
 
     def get_thumb_url(self, size=100, job=None):
-        return settings.MEDIA_URL + self._get_thumb_path(size, job)
+        return os.path.join(settings.MEDIA_URL,
+                            self._get_thumb_path(size, job))
 
     def get_thumb_path(self, size=100, job=None):
         """
