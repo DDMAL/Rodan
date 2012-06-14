@@ -17,6 +17,11 @@ $(document).ready(function() {
     
     //Image path (TO BE REPLACED LATER)
     imageObj.src = $("#image-original").attr("src");
+    
+    $('#segment-form').submit(function () {
+        $('#JSON-input').val(logPolys());
+        $('#imw-input').val(imageObj.width);
+    });
 });
 
 initImage = function() {
@@ -365,5 +370,5 @@ logPolys = function() {
             oCoords[i][j][1] = Math.round((point.y + group.attrs.y));
         }
     }
-    $('input[name="JSON"]').attr("value", (JSON.stringify(oCoords)));
+    return JSON.stringify(oCoords);
 }

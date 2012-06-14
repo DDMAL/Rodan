@@ -18,11 +18,12 @@ def segment(image_filepath, **kwargs):
 
     # get the JSON data and load it as a string
     json_poly_data = json.loads(kwargs['JSON'])
-
+    image_width = kwargs['imw']
     for polygon in json_poly_data:
         flattened_poly = [j for i in polygon for j in i]
-        mask_drawer.polygon(flattened_poly, outline=1, fill=1)
-
+        l = [x*image_width for x in flattened_poly]
+        mask_drawer.polygon(l, outline=1, fill=1)
+    
     output_img = ImageMath.eval("~(a - b)", a=input_img, b=mask_img)
     encoded = json.dumps(json_poly_data)
 
@@ -40,6 +41,7 @@ class Segmentation(JobBase):
     description = 'Segments an image based on polygon definitions in json.'
     show_during_wf_create = True
     parameters = {
-        'JSON': None
+        'JSON': None,
+        'imw': 1.0
     }
     task = segment
