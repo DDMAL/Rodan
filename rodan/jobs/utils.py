@@ -6,6 +6,7 @@ import PIL.ImageFile
 import gamera.core
 from gamera.gameracore import Point
 from celery.task import task
+from django.conf import settings
 
 from rodan.models.results import Result
 
@@ -21,18 +22,14 @@ def create_thumbnails(output_path, result):
     page = result.page
     job = result.job_item.job
     image = PIL.Image.open(output_path)
-    original_size = image.size
-    small_width = 100
-    large_width = 400
-    small_size = (small_width, original_size[0] / float(small_width) * original_size[1])
-    large_size = (large_width, original_size[0] / float(large_width) * original_size[1])
+    width, height = image.size
 
-    image.thumbnail(small_size, PIL.Image.ANTIALIAS)
-    image.save(page.get_path_to_image('small', job))
-
-    image = PIL.Image.open(output_path)
-    image.thumbnail(large_size, PIL.Image.ANTIALIAS)
-    image.save(page.get_path_to_image('large', job))
+    for thumbnail_size in settings.THUMBNAIL_SIZES:
+        dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
+        image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
+        image.save(page.get_thumb_path(size=thumbnail_size, job=job))
+        # Have to open a new image for the next iteration of the loop
+        image = PIL.Image.open(output_path)
 
 
 def rodan_task(inputs=''):
@@ -67,7 +64,7 @@ def rodan_task(inputs=''):
                         print "The output_content was not recognized.\n"
 
                     # Create thumbnails for the image as well
-                    # create_thumbnails(output_path, result)
+                    create_thumbnails(output_path, result)
                 elif output_type == 'mei':
                     # This is a special case because an object is used
                     pass

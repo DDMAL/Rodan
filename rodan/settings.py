@@ -200,3 +200,4 @@ AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 LOGIN_URL = '/signup'
 
 THUMBNAIL_EXT = 'jpg'
+THUMBNAIL_SIZES = (100, 400, 800)
