@@ -60,30 +60,6 @@
         }
     }, 
     {
-        "pk": 3, 
-        "model": "rodan.workflow", 
-        "fields": {
-            "name": "Find staff lines only", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "rodan.workflow", 
-        "fields": {
-            "name": "Rank filter", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "rodan.workflow", 
-        "fields": {
-            "name": "Despeckle", 
-            "description": ""
-        }
-    }, 
-    {
         "pk": 1, 
         "model": "rodan.page", 
         "fields": {
