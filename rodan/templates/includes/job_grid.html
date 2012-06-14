@@ -4,7 +4,9 @@
 {% if jobs %}
 <ul id="job-grid">
     {% for job, available in jobs.iteritems %}
+    {% if not job.get_object.is_automatic %}
     <li{% if available %} class="available"{% endif %}>{% if available %}<a href="{% url project_task project.id job.slug %}">{% endif %}{{ job }}{% if available %}</a>{% endif %}</li>
+    {% endif %}
     {% endfor %}
 </ul>
 {% endif %}

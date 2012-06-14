@@ -9,6 +9,7 @@ from celery.task import task
 from django.conf import settings
 
 from rodan.models.results import Result
+from rodan.models.projects import JobItem
 
 
 def create_dirs(full_path):
@@ -39,16 +40,17 @@ def rodan_task(inputs=''):
         def real_inner(result_id, **kwargs):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
             result = Result.objects.get(pk=result_id)
+            page = result.page
 
             # Figure out the paths to the requested input files
             # For one input, pass in a string; for multiple, a tuple
-            input_paths = map(result.page.get_latest_file_path, input_types)
+            input_paths = map(page.get_latest_file_path, input_types)
 
             outputs = f(*input_paths, **kwargs)
 
             # Loop through all the outputs and write them to disk
             for output_type, output_content in outputs.iteritems():
-                output_path = result.page.get_job_path(result.job_item.job, output_type)
+                output_path = page.get_job_path(result.job_item.job, output_type)
 
                 create_dirs(output_path)
 
@@ -79,6 +81,15 @@ def rodan_task(inputs=''):
             # Mark the job as finished, and save the parameters
             result.update_end_total_time()
             result.save_parameters(**kwargs)
+
+            # If the next job is automatic, start that too!
+            next_job = page.get_next_job()
+            next_job_obj = next_job.get_object()
+            if next_job_obj.is_automatic:
+                job_item = JobItem.objects.get(workflow=page.workflow, job=next_job)
+                next_result = Result.objects.create(job_item=job_item, page=page, user=result.user)
+                next_result.update_end_manual_time()
+                next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
         return real_inner
 

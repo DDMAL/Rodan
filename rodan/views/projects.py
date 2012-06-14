@@ -93,44 +93,39 @@ def add_pages(request, project_id):
 # If project_id == 0, then use all projects
 @login_required
 def task(request, job_slug, project_id=0):
-    if project_id > 0:
-        project = get_object_or_404(Project, pk=project_id)
-        job = get_object_or_404(Job, slug=job_slug)
-
-        # Now, try to find a page in this project that has this job next
-        # (May have been started by the current user but never finished)
-        rodan_user = request.user.get_profile()
-        possible_pages = [page for page in project.page_set.all() if page.get_next_job(user=rodan_user) == job]
-        # No pages that need this job. Show a 404 for now.
-        if not possible_pages:
-            raise Http404
-        page = random.choice(possible_pages)
-
-        # Start the job, noting this user (create the result, with no end time)
-        # If the job has already been started by this user, do nothing
-        page.start_next_job(user=rodan_user)
-
-        job_object = job.get_object()
-        if job_object.is_automatic:
-            print "in here"
-            # Update the manual end time, and kick off the job
-            job_item = JobItem.objects.get(workflow=page.workflow, job=job)
-            result = Result.objects.get(job_item=job_item, user=request.user.get_profile(), page=page)
-            result.update_end_manual_time()
-
-            job_object.on_post(result.id, **job_object.parameters)
-            return redirect(project.get_absolute_url() + '?done=1')
-        else:
-            view_data = job.get_view()
-            data = {
-                'project': project,
-                'job': job,
-                'page': page,
-                'template': view_data[0],
-                'context': view_data[1]
-            }
-
-            return render(request, 'projects/task.html', data)
+    if project_id == 0:
+        # Choose a random project!
+        project = random.choice(Project.objects.all())
     else:
-        print "NOT IMPLEMENTED YET"
+        project = get_object_or_404(Project, pk=project_id)
+
+    job = get_object_or_404(Job, slug=job_slug)
+
+    # Don't allow users to view this for automatic jobs
+    if job.get_object().is_automatic:
         raise Http404
+
+    # Now, try to find a page in this project that has this job next
+    # (May have been started by the current user but never finished)
+    rodan_user = request.user.get_profile()
+    possible_pages = [page for page in project.page_set.all() if page.get_next_job(user=rodan_user) == job]
+    # No pages that need this job. Show a 404 for now.
+    if not possible_pages:
+        raise Http404
+    page = random.choice(possible_pages)
+
+    # Start the job, noting this user (create the result, with no end time)
+    # If the job has already been started by this user, do nothing
+    page.start_next_job(user=rodan_user)
+
+    job_object = job.get_object()
+    view_data = job.get_view()
+    data = {
+        'project': project,
+        'job': job,
+        'page': page,
+        'template': view_data[0],
+        'context': view_data[1]
+    }
+
+    return render(request, 'projects/task.html', data)
