@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 from rodan.models.projects import JobItem, RodanUser, Page
 from rodan.models.jobs import JobType
@@ -27,7 +28,9 @@ class Result(models.Model):
             param.save()
 
     def create_file(self, filename, result_type):
-        resfile = ResultFile(result=self, filename=filename, result_type=result_type)
+        # Strip the MEDIA_ROOT part from the filename
+        len_prefix = len(settings.MEDIA_ROOT)
+        resfile = ResultFile(result=self, filename=filename[len_prefix:], result_type=result_type)
         resfile.save()
 
     def update_end_manual_time(self):

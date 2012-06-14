@@ -42,14 +42,13 @@ def rodan_task(inputs=''):
 
             # Figure out the paths to the requested input files
             # For one input, pass in a string; for multiple, a tuple
-            input_paths = map(result.page.get_latest_file, input_types)
+            input_paths = map(result.page.get_latest_file_path, input_types)
 
             outputs = f(*input_paths, **kwargs)
 
             # Loop through all the outputs and write them to disk
             for output_type, output_content in outputs.iteritems():
-                job_filepath = result.page.get_filename_for_job(result.job_item.job)
-                output_path = "%s.%s" % (os.path.splitext(job_filepath)[0], output_type)
+                output_path = result.page.get_job_path(result.job_item.job, output_type)
 
                 create_dirs(output_path)
 
