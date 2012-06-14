@@ -12,4 +12,8 @@
 <div class="images">
     {% include "includes/page_image.html" %}
     <canvas id="image-preview" alt="Image preview"></canvas>
+	<div class="hidden">
+		<p id="width">{{ context.width }}</p>
+	</div>
+</div>
 <script src="{{ STATIC_URL }}js/despeckle.js"></script>
