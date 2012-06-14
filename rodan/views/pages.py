@@ -6,8 +6,27 @@ from rodan.models.results import Result
 
 def view(request, page_id):
     page = get_object_or_404(Page, pk=page_id)
+
+    steps = []
+
+    job_items = page.workflow.jobitem_set.all()
+    for job_item in job_items:
+        try:
+            result = Result.objects.get(page=page, job_item=job_item)
+            is_done = result.end_total_time is not None
+        except Result.DoesNotExist:
+            is_done = False
+
+        step = {
+            'job': job_item.job,
+            'thumbnail': page.get_thumb_url(job=job_item.job),
+            'is_done': is_done,
+        }
+        steps.append(step)
+
     data = {
         'page': page,
+        'steps': steps,
     }
 
     return render(request, 'pages/view.html', data)
