@@ -151,12 +151,13 @@ def create_polygon_outer_points_json_dict(poly_list):
     poly_json_list = []
 
     for poly in poly_list:
-        last_index = len(poly) - 1
-        point_list_one = [(vert.x, vert.y) for vert in poly[0].vertices]
-        point_list_last = [(vert.x, vert.y) for vert in poly[last_index].vertices]
-        point_list_last.reverse()
-        point_list_one.extend(point_list_last)
-        poly_json_list.append(point_list_one)
+        if len(poly):
+            last_index = len(poly) - 1
+            point_list_one = [(vert.x, vert.y) for vert in poly[0].vertices]
+            point_list_last = [(vert.x, vert.y) for vert in poly[last_index].vertices]
+            point_list_last.reverse()
+            point_list_one.extend(point_list_last)
+            poly_json_list.append(point_list_one)
 
     return poly_json_list
 
