@@ -121,7 +121,7 @@ def task(request, job_slug, project_id=0):
 
     # Start the job, noting this user (create the result, with no end time)
     # If the job has already been started by this user, do nothing
-    page.start_next_job(user=rodan_user)
+    page.start_next_job(rodan_user)
 
     job_object = job.get_object()
     view_data = job.get_view(page)

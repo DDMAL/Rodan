@@ -1,3 +1,4 @@
+from django.db.models.loading import get_model
 from celery.task import task
 from rodan.utils import remove_prefixes
 
@@ -38,6 +39,19 @@ class JobBase:
         not a celery task, override this
         """
         self.task.delay(result_id, **kwargs)
+
+
+class ManualJobBase(JobBase):
+    def on_post(self, result_id, **kwargs):
+        """
+        Start the next automatic job.
+
+        ManualJobBase should be used when there is no celery task required
+        (and so there is no need to delay anything).
+        """
+        Result = get_model('rodan', 'Result')
+        result = Result.objects.get(pk=result_id)
+        result.page.start_next_automatic_job(result.user)
 
 
 class JobType:
