@@ -98,7 +98,6 @@ def task(request, job_slug, project_id=0):
 
     if int(project_id) == 0:
         # Choose a random page!
-        print "what"
         all_pages = Page.objects.all()
     else:
         project = get_object_or_404(Project, pk=project_id)
