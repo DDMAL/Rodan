@@ -15,11 +15,11 @@
 <button onclick="removeRightEnd()">removeRightEnd</button>
 <div id="slider"></div>
 <div class="images">
-	<div class="hidden">
-		<p id="JSON">{{ context.json }}</p>
-		<p id="width">{{ context.width }}</p>
-    	{% include "includes/page_image.html" %}
-	</div>
+    <div class="hidden">
+        <p id="JSON">{{ context.json }}</p>
+        <p id="width">{{ context.width }}</p>
+        {% include "includes/page_image.html" with large_image=1 %}
+    </div>
     <div id="image-preview"></div>
 </div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>

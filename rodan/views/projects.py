@@ -1,10 +1,13 @@
+import random
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
+from django.conf import settings
+
 from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm
-import random
 
 
 @login_required
@@ -130,6 +133,8 @@ def task(request, job_slug, project_id=0):
         'project': project,
         'job': job,
         'page': page,
+        'large_thumbnail': page.get_latest_thumb_url(size=settings.LARGE_THUMBNAIL),
+        'medium_thumbnail': page.get_latest_thumb_url(size=settings.MEDIUM_THUMBNAIL),
         'template': view_data[0],
         'context': view_data[1]
     }

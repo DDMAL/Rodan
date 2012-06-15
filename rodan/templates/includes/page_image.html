@@ -1,1 +1,1 @@
-<img src="{{ page.get_latest_thumb_url }}" alt="Image" title="{{ page }}" id="image-original" />
+<img src="{% if large_image %}{{ large_thumbnail }}{% else %}{{ medium_thumbnail }}{% endif %}" alt="Image" title="{{ page }}" id="image-original" />
