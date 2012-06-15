@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
 from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
 
@@ -19,8 +21,9 @@ def view(request, page_id):
 
         step = {
             'job': job_item.job,
-            'thumbnail': page.get_thumb_url(job=job_item.job),
+            'thumbnail': page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL),
             'is_done': is_done,
+            'large_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL),
         }
         steps.append(step)
 
