@@ -197,7 +197,7 @@ class Page(models.Model):
                                     "%d" % self.id,
                                     self.filename)
 
-    def get_latest_thumb_url(self, size=400):
+    def get_latest_thumb_url(self, size=settings.SMALL_THUMBNAIL):
         latest_file_path = self._get_latest_file_path('tiff')
 
         if latest_file_path is not None:
@@ -208,11 +208,11 @@ class Page(models.Model):
         else:
             return self.get_thumb_url(size, None)
 
-    def get_thumb_url(self, size=100, job=None):
+    def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None):
         return os.path.join(settings.MEDIA_URL,
                             self._get_thumb_path(size, job))
 
-    def get_thumb_path(self, size=100, job=None):
+    def get_thumb_path(self, size=settings.SMALL_THUMBNAIL, job=None):
         """
         Get the absolute path to the thumbnail image.
 
