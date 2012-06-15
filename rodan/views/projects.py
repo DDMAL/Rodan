@@ -110,9 +110,11 @@ def task(request, job_slug, project_id=0):
     # Now, try to find a page in this project that has this job next
     # (May have been started by the current user but never finished)
     possible_pages = [page for page in all_pages if page.get_next_job(user=rodan_user) == job]
+
     # No pages that need this job. Show a 404 for now.
     if not possible_pages:
         raise Http404
+
     page = random.choice(possible_pages)
 
     # This is needed in case we're looking at all the projects
