@@ -1,7 +1,7 @@
 import json
 import gamera.core
 
-from PIL import Image, ImageDraw, ImageMath
+from PIL import Image, ImageDraw, ImageMath, ImageOps
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -16,15 +16,15 @@ def segment(image_filepath, **kwargs):
 
     # instantiate an ImageDraw object using the mask_img object
     mask_drawer = ImageDraw.Draw(mask_img)
-    print kwargs['JSON']
     # get the JSON data and load it as a string
     json_poly_data = json.loads(kwargs['JSON'])
     for polygon in json_poly_data:
         flattened_poly = [j for i in polygon for j in i]
         mask_drawer.polygon(flattened_poly, outline=1, fill=1)
     
-    #SOMETHING WRONG HERE
-    output_img = ImageMath.eval('convert(~(b - a), "1")', a=input_img, b=mask_img)
+    output_img = ImageMath.eval('b - a', a=input_img, b=mask_img)
+    output_img = ImageOps.invert(output_img.convert('RGB'))
+
     encoded = json.dumps(json_poly_data)
 
     return {
@@ -55,4 +55,3 @@ class Segmentation(JobBase):
             'width': image.size.width,
             'json': json_data
         }
-    
