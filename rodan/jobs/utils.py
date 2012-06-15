@@ -59,7 +59,7 @@ def rodan_task(inputs=''):
                     # Write it with gamera (it's an image)
                     if isinstance(output_content, gamera.core.Image) or isinstance(output_content, gamera.core.SubImage):
                         gamera.core.save_image(output_content, output_path)
-                    elif isinstance(output_content, PIL.ImageFile.ImageFile):
+                    elif isinstance(output_content, PIL.Image.Image):
                         output_content.save(output_path)
                     else:
                         print "The output_content was not recognized.\n"
