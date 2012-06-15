@@ -269,12 +269,22 @@ class Page(models.Model):
         next_job_item = self.get_next_job_item(user=user)
         return next_job_item.job if next_job_item is not None else None
 
-    def start_next_job(self, user=None):
+    def start_next_job(self, user):
         next_job_item = self.get_next_job_item(user=user)
         # Create a new result only if there are none
         if next_job_item is not None and next_job_item.result_set.filter(page=self).count() == 0:
             Result = models.loading.get_model('rodan', 'Result')
             result = Result.objects.create(job_item=next_job_item, user=user, page=self)
+            return result
+
+    def start_next_automatic_job(self, user):
+        next_job = self.get_next_job(user=user)
+        if next_job is not None:
+            next_job_obj = next_job.get_object()
+            if next_job_obj.is_automatic:
+                next_result = self.start_next_job()
+                next_result.update_end_manual_time()
+                next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
     def get_percent_done(self):
         Result = models.loading.get_model('rodan', 'Result')

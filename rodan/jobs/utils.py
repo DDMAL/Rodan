@@ -83,13 +83,7 @@ def rodan_task(inputs=''):
             result.save_parameters(**kwargs)
 
             # If the next job is automatic, start that too!
-            next_job = page.get_next_job()
-            next_job_obj = next_job.get_object()
-            if next_job_obj.is_automatic:
-                job_item = JobItem.objects.get(workflow=page.workflow, job=next_job)
-                next_result = Result.objects.create(job_item=job_item, page=page, user=result.user)
-                next_result.update_end_manual_time()
-                next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
+            page.start_next_automatic_job(result.user)
 
         return real_inner
 
