@@ -58,3 +58,4 @@ class StaffPolygonsFind(JobBase):
     }
     task = find_staves_polygons
     is_automatic = True
+    outputs_image = False

@@ -13,7 +13,7 @@
         {% for step in steps %}
             <h3>{{ step.job }}</h3>
             {% if step.is_done %}
-                <p><a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a></p>
+                <p>{% if step.job.get_object.outputs_image %}<a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a>{% else %}This step does not output an image.{% endif %}</p>
                 {% else %}
                 <p>THIS JOB IS INCOMPLETE</p>
             {% endif %}
