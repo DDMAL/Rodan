@@ -3,8 +3,7 @@
 <form method="post" action="{% url task_complete page.id job.slug %}" id="segment-form">
     {% csrf_token %}
     <fieldset class="submit">
-        <input type="hidden" name="JSON" value="0" id="JSON-input" />
-		<input type="hidden" name="imw" value="0" id="image-width" />
+        <input type="hidden" name="JSON" value="" id="JSON-input" />
         <input type="submit" name="submit" value="Segment" class="submit" />
     </fieldset>
 </form>
@@ -17,8 +16,10 @@
 <div id="slider"></div>
 <div class="images">
 	<div class="hidden">
-    {% include "includes/page_image.html" %}
-</div>
+		<p id="JSON">{{ context.json }}</p>
+		<p id="width">{{ context.width }}</p>
+    	{% include "includes/page_image.html" %}
+	</div>
     <div id="image-preview"></div>
 </div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>

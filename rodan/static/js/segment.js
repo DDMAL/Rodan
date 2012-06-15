@@ -4,10 +4,11 @@ defBoxW = 100;
 defBoxH = 50;
 defColour = "blue"
 defSelColour = "red"
-var jsonPath = "/static/json_in/imdata.json";
+
 var imageObj;
 var stage;
 var sPoints;
+var scaleVal = 1;
 
 //Setup
 $(document).ready(function() {
@@ -20,13 +21,12 @@ $(document).ready(function() {
     
     $('#segment-form').submit(function () {
         $('#JSON-input').val(logPolys());
-        $('#imw-input').val(imageObj.width);
     });
 });
 
 initImage = function() {
     stage = new Kinetic.Stage({
-        container: "container",
+        container: "image-preview",
         width: imageObj.width,
         height: imageObj.height
     });
@@ -45,18 +45,18 @@ initImage = function() {
     image.on("mousedown", function() {
         resetColours();
     });
-    $.get(jsonPath, function(data) {
-        sPoints = $(data);
-        var polys = new Array(sPoints.length);
-        for (var i = 0; i < sPoints.length; i++) {
-            polys[i] = new Array();
-            for (var j = 0; j < sPoints[i].length; j++) {
-                polys[i].push(sPoints[i][j][0]);
-                polys[i].push(sPoints[i][j][1]);
-            }
-            addPoly(polys[i], 0, 0);
+    var oWidth = $("#width").text();
+    scaleVal = imageObj.width / oWidth;
+    var sPoints = JSON.parse($("#JSON").text());
+    var polys = new Array(sPoints.length);
+    for (var i = 0; i < sPoints.length; i++) {
+        polys[i] = new Array();
+        for (var j = 0; j < sPoints[i].length; j++) {
+            polys[i].push(sPoints[i][j][0] * scaleVal);
+            polys[i].push(sPoints[i][j][1] * scaleVal);
         }
-    });
+        addPoly(polys[i], 0, 0);
+    }
 }
 
 addPoly = function(points, x, y, sel) {
@@ -364,11 +364,12 @@ logPolys = function() {
         var poly = group.get(".poly")[0];
         oCoords[i] = new Array(poly.attrs.points.length);
         for (var j in poly.attrs.points) {
-            oCoords[i][j] = new Array(2);
+            oCoords[i][j] = [];
             var point = poly.attrs.points[j];
-            oCoords[i][j][0] = Math.round((point.x + group.attrs.x));
-            oCoords[i][j][1] = Math.round((point.y + group.attrs.y));
+            oCoords[i][j][0] = Math.round((point.x + group.attrs.x) / scaleVal);
+            oCoords[i][j][1] = Math.round((point.y + group.attrs.y) / scaleVal);
         }
     }
+    console.log(JSON.stringify(oCoords));
     return JSON.stringify(oCoords);
 }
