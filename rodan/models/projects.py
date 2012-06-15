@@ -282,7 +282,7 @@ class Page(models.Model):
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
-                next_result = self.start_next_job()
+                next_result = self.start_next_job(user)
                 next_result.update_end_manual_time()
                 next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
