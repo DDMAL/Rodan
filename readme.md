@@ -51,7 +51,14 @@ You will also need these plugins for gamera, which have to be added manually as 
   To fix it, simply copy paste the "chord_length" function at the end of the file to the beginning of the file
   right after the preprocessor commands.
 
+* Border-Removal @ `https://github.com/DDMAL/document-preprocessing-toolkit`
+  ```
+  cd <document-preprocessing-toolkit location>/border-removal
+  python setup.py install
+  ```
+
 * libmei @ `https://github.com/gburlet/libmei/tree/solesmesbuild`
+  Note that if you are getting `pymei` import errors, it is because you are missing `libmei` and not `pymei`.
 
 * MUSIC21 is included in the pip requirements.txt, but it will not be installed correctly. You will need to:
 ```
@@ -72,7 +79,7 @@ Setup
 -----
 * Install rabbitmq if required
 
-Configure rabbitmq with 
+Configure rabbitmq with
 
     /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
     /usr/local/sbin/rabbitmqctl add_vhost DDMAL
