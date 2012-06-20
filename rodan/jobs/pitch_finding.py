@@ -1,3 +1,5 @@
+import json
+
 from gamera import gamera_xml
 
 import utils
@@ -5,8 +7,8 @@ from aomr_resources.AomrObject import AomrObject
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs=('tiff', 'xml'))
-def pitch_find(image_filepath, xml_filepath, **kwargs):
+@utils.rodan_task(inputs=('tiff', 'xml','json2'))
+def pitch_find(image_filepath, xml_filepath, json2_filepath, **kwargs):
     aomr_obj = AomrObject(image_filepath, \
         discard_size=kwargs['discard_size'],
         lines_per_staff=4,
@@ -14,7 +16,14 @@ def pitch_find(image_filepath, xml_filepath, **kwargs):
         staff_removal=0,
         binarization=0)
     glyphs = gamera_xml.glyphs_from_xml(xml_filepath)
-    recognized_glyphs = aomr_obj.run(glyphs)
+    
+    json_data = open(json2_filepath)
+
+    encoded_poly_list = json.load(json_data)
+
+    poly_list = utils.create_poly_list_from_json(encoded_poly_list)
+
+    recognized_glyphs = aomr_obj.run(glyphs, poly_list)
 
     return {
         'json': recognized_glyphs

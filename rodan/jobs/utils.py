@@ -5,6 +5,7 @@ import PIL.Image
 import PIL.ImageFile
 import gamera.core
 from gamera.gameracore import Point
+from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
 from celery.task import task
 from django.conf import settings
 
@@ -163,6 +164,38 @@ def create_polygon_outer_points_json_dict(poly_list):
             poly_json_list.append(point_list_one)
 
     return poly_json_list
+
+
+def create_json_from_poly_list(poly_list):
+    poly_json_list = []
+
+    for poly in poly_list:
+        staff_list = []
+        for staff in poly:
+            point_list = [(vert.x, vert.y) for vert in staff.vertices]
+            staff_list.append(point_list)
+        poly_json_list.append(staff_list)
+
+    return poly_json_list
+
+
+def create_poly_list_from_json(encoded_poly_list):
+    #print encoded_poly_list
+    poly_list = []
+    for poly in encoded_poly_list:
+        staff_list = []
+        for staff in poly:
+            staffLine = StafflinePolygon()
+            vertices = []
+            for vert in staff:
+                vertices.append(Point(vert[0], vert[1]))
+
+            staffLine.vertices = vertices
+            staff_list.append(staffLine)
+
+        poly_list.append(staff_list)
+
+    return poly_list
 
 
 def fix_poly_point_list(poly_list, staffspace_height):
