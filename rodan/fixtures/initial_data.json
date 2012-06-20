@@ -146,7 +146,7 @@
         "pk": 11, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.staff_polygons_find.StaffPolygonsFind", 
+            "job": "rodan.jobs.staff_finding.StaffFinding", 
             "sequence": 6, 
             "workflow": 2
         }
