@@ -3,7 +3,6 @@ Fabric==1.4.2
 PIL==1.1.7
 amqplib==1.0.2
 anyjson==0.3.1
-border-removal==2.2.0pre2
 celery==2.5.3
 distribute==0.6.19
 django-celery==2.5.5
@@ -20,5 +19,3 @@ readline==6.2.2
 solrpy==0.9.5
 ssh==1.7.14
 wsgiref==0.1.2
-wxPython==2.9.3.1
-wxPython-common==2.9.3.1
