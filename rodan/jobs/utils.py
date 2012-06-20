@@ -19,18 +19,21 @@ def create_dirs(full_path):
         pass
 
 
-def create_thumbnails(output_path, result):
+def create_thumbnail(image_path, thumb_path, thumbnail_size):
+    image = PIL.Image.open(image_path).convert('RGB')
+    width, height = image.size
+    dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
+    image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
+    image.save(thumb_path)
+
+
+def create_thumbnails(image_path, result):
     page = result.page
     job = result.job_item.job
-    image = PIL.Image.open(output_path).convert('RGB')
-    width, height = image.size
 
     for thumbnail_size in settings.THUMBNAIL_SIZES:
-        dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
-        image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
-        image.save(page.get_thumb_path(size=thumbnail_size, job=job))
-        # Have to open a new image for the next iteration of the loop
-        image = PIL.Image.open(output_path).convert('RGB')
+        thumb_path = page.get_thumb_path(size=thumbnail_size, job=job)
+        create_thumbnail(image_path, thumb_path, thumbnail_size)
 
 
 def rodan_task(inputs=''):
