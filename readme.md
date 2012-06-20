@@ -62,7 +62,7 @@ You will also need these plugins for gamera, which have to be added manually as 
 
 * MUSIC21 is included in the pip requirements.txt, but it will not be installed correctly. You will need to:
 ```
-cd rodan_env/build/music21
+cd <directory where you ran "pip install -r requirements.txt">/build/music21
 chmod u+x installer.command
 ./installer.command
 ```
