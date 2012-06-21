@@ -21,7 +21,7 @@ def segment(image_filepath, **kwargs):
     for polygon in json_poly_data:
         flattened_poly = [j for i in polygon for j in i]
         mask_drawer.polygon(flattened_poly, outline=1, fill=1)
-    
+
     output_img = ImageMath.eval('b - a', a=input_img, b=mask_img)
     output_img = ImageOps.invert(output_img.convert('RGB'))
 
@@ -44,7 +44,7 @@ class Segmentation(JobBase):
         'JSON': '',
     }
     task = segment
-    
+
     def get_context(self, page):
         latest_image_path = page.get_latest_file_path('tiff')
         image = gamera.core.load_image(latest_image_path)

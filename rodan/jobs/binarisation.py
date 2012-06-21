@@ -1,6 +1,5 @@
 import gamera.core
-from gamera.plugins.threshold import threshold
-from gamera.plugins.threshold import djvu_threshold
+import gamera.plugins.threshold
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -10,7 +9,7 @@ gamera.core.init_gamera()
 
 @utils.rodan_task(inputs='tiff')
 def simple_binarise(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, threshold)
+    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.threshold.threshold)
     output_image = input_image.threshold(kwargs['threshold'])
 
     return {
@@ -37,7 +36,7 @@ def djvu_binarise(image_filepath, **kwargs):
           For instance, a *block_factor* of 2 results in 4 children per
           parent.
     """
-    input_image = utils.load_image_for_job(image_filepath, djvu_threshold)
+    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.threshold.djvu_threshold)
     output_image = input_image.djvu_threshold( \
                         kwargs['smoothness'],
                         kwargs['max_block_size'],

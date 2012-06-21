@@ -1,5 +1,5 @@
 import gamera.core
-from gamera.toolkits.border_removal.plugins.border_removal import border_removal
+import gamera.toolkits.border_removal.plugins.border_removal
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -7,7 +7,7 @@ from rodan.models.jobs import JobType, JobBase
 
 @utils.rodan_task(inputs='tiff')
 def border_remover(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, border_removal)
+    input_image = utils.load_image_for_job(image_filepath, gamera.toolkits.border_removal.plugins.border_removal.border_removal)
     mask = input_image.border_removal()  # use defaults
     output_image = input_image.mask(mask)
 
@@ -21,7 +21,7 @@ def crop(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
 
     scale_val = input_image.ncols / kwargs['imw']
-    
+
     #added '- 1' to bottom right point coordinates because gamera goes 1 pixel over.
     output_image = input_image.subimage( \
         (kwargs['tlx'] * scale_val, kwargs['tly'] * scale_val),
@@ -42,7 +42,7 @@ class BorderRemoval(JobBase):
     parameters = {
 
     }
-    task = border_removal
+    task = border_remover
     is_automatic = True
 
 

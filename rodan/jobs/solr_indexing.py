@@ -1,7 +1,7 @@
 import gamera.core
 
 import utils
-from solr_resources.MEI2Solr import processMeiFile
+import solr_resources.MEI2Solr
 from rodan.models.jobs import JobType, JobBase
 
 gamera.core.init_gamera()
@@ -9,7 +9,7 @@ gamera.core.init_gamera()
 
 @utils.rodan_task(inputs='mei')
 def index_solr(mei_filepath, **kwargs):
-    processMeiFile(mei_filepath, kwargs['longest_gram'],\
+    solr_resources.MEI2Solr.processMeiFile(mei_filepath, kwargs['longest_gram'],\
         kwargs['shortest_gram'])
 
     return {
