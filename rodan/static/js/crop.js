@@ -5,6 +5,13 @@ defColour = "blue"
 var imageObj;
 var stage;
 
+//Fraction of image width to make the margin
+var marginWidth = 0.05;
+
+// Pixel margin size
+var margin = 0;
+
+
 //Setup
 $(document).ready(function() {
     imageObj = new Image();
@@ -25,18 +32,21 @@ $(document).ready(function() {
 });
 
 initImage = function() {
+    margin = imageObj.width * marginWidth;
     stage = new Kinetic.Stage({
         container: "image-preview",
-        width: imageObj.width,
-        height: imageObj.height
+        width: imageObj.width + (2 * margin),
+        height: imageObj.height + (2 * margin)
     });
     var layer = new Kinetic.Layer();
     var image = new Kinetic.Image({
-        x: 0,
-        y: 0,
+        x: margin,
+        y: margin,
         width: imageObj.width,
         height: imageObj.height,
-        image: imageObj
+        image: imageObj,
+        stroke: 'black',
+        strokewidth: 2
     });
     
     layer.add(image);
@@ -59,8 +69,8 @@ makeRect = function() {
     stage.add(layer);
     
     var rect = new Kinetic.Rect({
-        x: imageObj.width / 20.,
-        y: imageObj.height / 20.,
+        x: (imageObj.width / 20.) + margin,
+        y: (imageObj.height / 20.) + margin,
         width: 18. * (imageObj.width / 20.),
         height: 18. * (imageObj.height / 20.),
         fill: defColour,
@@ -69,12 +79,18 @@ makeRect = function() {
         alpha: .2,
         name: "rect"
     });
+    group.setDragBounds({
+        top: margin - rect.getY(),
+        left: margin - rect.getX(),
+        right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
+        bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+    })
     group.add(rect);
 
-    addAnchor(group, rect.attrs.x, rect.attrs.y, "topLeft");
-    addAnchor(group, rect.attrs.x + rect.attrs.width, rect.attrs.y, "topRight");
-    addAnchor(group, rect.attrs.x + rect.attrs.width, rect.attrs.y + rect.attrs.height, "bottomRight");
-    addAnchor(group, rect.attrs.x, rect.attrs.y + rect.attrs.height, "bottomLeft");
+    addAnchor(group, rect.getX(), rect.getY(), "topLeft");
+    addAnchor(group, rect.getX() + rect.getWidth(), rect.getY(), "topRight");
+    addAnchor(group, rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), "bottomRight");
+    addAnchor(group, rect.getX(), rect.getY() + rect.getHeight(), "bottomLeft");
     
     stage.draw();
 }
@@ -122,7 +138,13 @@ addAnchor = function(group, x, y, name) {
         strokeWidth: 1,
         radius: 3,
         name: name,
-        draggable: true
+        draggable: true,
+        dragBounds: {
+            top: margin,
+            left: margin,
+            right: margin + imageObj.width,
+            bottom: margin + imageObj.height
+        }
     });
     
     anchor.on("dragmove", function() {
@@ -134,6 +156,13 @@ addAnchor = function(group, x, y, name) {
         layer.draw();
     });
     anchor.on("dragend", function() {
+        var rect = group.get(".rect")[0];
+        group.setDragBounds({
+            top: margin - rect.getY(),
+            left: margin - rect.getX(),
+            right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
+            bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+        });
         group.draggable(true);
         layer.draw();
     })
@@ -157,10 +186,10 @@ logRect = function() {
     var group = stage.get(".box")[0];
     var topLeft = group.get(".topLeft")[0];
     var bottomRight = group.get(".bottomRight")[0];
-    var oCoords = new Array(4);
-    oCoords[0] = Math.round(topLeft.attrs.x + group.attrs.x);
-    oCoords[1] = Math.round(topLeft.attrs.y + group.attrs.y);
-    oCoords[2] = Math.round(bottomRight.attrs.x + group.attrs.x);
-    oCoords[3] = Math.round(bottomRight.attrs.y + group.attrs.y);
+    var oCoords = [];
+    oCoords[0] = Math.round(topLeft.getX() + group.getX() - margin);
+    oCoords[1] = Math.round(topLeft.getY() + group.getY() - margin);
+    oCoords[2] = Math.round(bottomRight.getX() + group.getX() - margin);
+    oCoords[3] = Math.round(bottomRight.getY() + group.getY() - margin);
     return oCoords;
 }

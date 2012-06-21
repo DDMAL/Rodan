@@ -268,8 +268,8 @@ $(document).ready(function() {
             group.setDragBounds({
                 top: margin - minY,
                 left: margin - minX,
-                right: margin + imageObj.width + minX - maxX,
-                bottom: margin + imageObj.height + minY - maxY
+                right: margin + imageObj.width - maxX,
+                bottom: margin + imageObj.height - maxY
             });
             poly.attrs.width = maxX - minX;
             poly.attrs.height = maxY - minY;
@@ -293,7 +293,7 @@ $(document).ready(function() {
     }
     
     var selectPoly = function(poly) {
-        if (selectedPoly != null) {
+        if (selectedPoly != null && selectedPoly != poly) {
             selectedPoly.attrs.fill = pDefColour;
             selectedPoly.getLayer().draw();
             selectedPoly = null;
