@@ -110,6 +110,7 @@ $(document).ready(function() {
             }
         });
         var sPoints = JSON.parse($("#JSON").text());
+        console.log(sPoints);
         var polys = [];
         for (var i = 0; i < sPoints.length; i++) {
             polys[i] = [];
@@ -177,8 +178,9 @@ $(document).ready(function() {
         });
 
         group.add(poly);
-        
-        for each (point in poly.getPoints()) {
+        console.log(poly);
+        for (p in poly.getPoints()) {
+            var point = poly.getPoints()[p];
             addAnchor(group, point.x, point.y);
         }
         group.on("dragstart", function() {
@@ -194,7 +196,7 @@ $(document).ready(function() {
         
         poly.on("mousedown", function() {
             deselectPoints();
-        })
+        });
         
         layer.draw();
         return poly;
@@ -259,7 +261,8 @@ $(document).ready(function() {
             var minY = poly.attrs.points[0].y;
             var maxX = 0;
             var maxY = 0;
-            for each (point in poly.attrs.points) {
+            for (p in poly.getPoints()) {
+                var point = poly.getPoints()[p]
                 minX = Math.min(minX, point.x);
                 minY = Math.min(minY, point.y);
                 maxX = Math.max(maxX, point.x);
@@ -309,7 +312,8 @@ $(document).ready(function() {
         var minDist = -1;
         var minPoint = null;
         var minNeighbour = null;
-        for each (group in stage.get(".group")) {
+        for (g in stage.get(".group")) {
+            var group = stage.get(".group")[g];
             var gPoint = $.extend({}, true, point);
             gPoint.x -= group.getX();
             gPoint.y -= group.getY();
@@ -371,8 +375,10 @@ $(document).ready(function() {
         
         var sPoints = [];
         
-        for each (group in stage.get(".group")) {
-            for each (anchor in group.attrs.anchors) {
+        for (g in stage.get(".group")) {
+            var group = stage.get(".group")[g];
+            for (a in group.attrs.anchors) {
+                var anchor = group.attrs.anchors[a];
                 if (anchor.getX() >= tLX && anchor.getY() >= tLY
                     && anchor.getX() <= bRX && anchor.getY() <= bRY) {
                     sPoints.push(anchor);
@@ -384,7 +390,8 @@ $(document).ready(function() {
     
     var flattenPoints = function(points) {
         var fPoints = [];
-        for each (point in points) {
+        for (p in points) {
+            var point = points[p];
             fPoints.push(point.x);
             fPoints.push(point.y);
         }
@@ -408,10 +415,12 @@ $(document).ready(function() {
     }
     
     var selectAnchors = function(anchors) {
-        for each (anchor in selectedPoints) {
+        for (a in selectedPoints) {
+            var anchor = selectedPoints[a];
             anchor.attrs.fill = '#ddd';
         }
-        for each (anchor in anchors) {
+        for (a in anchors) {
+            var anchor = anchors[a];
             anchor.attrs.fill = 'red';
             anchor.getLayer().draw();
         }
@@ -419,7 +428,8 @@ $(document).ready(function() {
     }
     
     var deselectPoints = function() {
-        for each (anchor in selectedPoints) {
+        for (a in selectedPoints) {
+            var anchor = selectedPoints[a];
             anchor.attrs.fill = '#ddd';
             anchor.getLayer().draw();
         }
@@ -428,7 +438,8 @@ $(document).ready(function() {
     
     var deletePoints = function() {
         var changedPolys = []
-        for each (sPoint in selectedPoints) {
+        for (s in selectedPoints) {
+            var sPoint = selectedPoints[s];
             var group = sPoint.getParent();
             var poly = group.get(".poly")[0];
             if (changedPolys.indexOf(poly) == -1)
@@ -437,7 +448,8 @@ $(document).ready(function() {
             group.attrs.anchors.splice(pI, 1);
             poly.attrs.points.splice(pI, 1);
         }
-        for each (poly in changedPolys) {
+        for (p in changedPolys) {
+            var poly = changedPolys[p];
             var group = poly.getParent();
             if (poly.getPoints().length > 1)
                 addPoly(poly.getPoints(), group.getX(), group.getY());
