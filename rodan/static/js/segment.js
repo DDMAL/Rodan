@@ -250,7 +250,7 @@ $(document).ready(function() {
         });
         anchor.on("mousedown touchstart", function() {
             group.draggable(false);
-            selectPoint(this);
+            selectAnchors([this]);
             layer.draw();
         });
         anchor.on("dragend", function() {
@@ -406,14 +406,6 @@ $(document).ready(function() {
         removePoly(poly);
         selectPoly(newPoly);
     }
-        
-    var selectPoint = function(point) {
-        for each (anchor in selectedPoints) {
-            anchor.attrs.fill = '#ddd';
-        }
-        point.attrs.fill = 'red';
-        selectedPoints = [point];
-    }
     
     var selectAnchors = function(anchors) {
         for each (anchor in selectedPoints) {
@@ -465,7 +457,7 @@ $(document).ready(function() {
     
     $('#segment-form').submit(function () {
         $('#JSON-input').val(function() {
-            var staves = stage.get(".staff");
+            var staves = stage.get(".group");
             var oCoords = [];
             for (var i = staves.length - 1; i >= 0; i--) {
                 var group = staves[i];
@@ -474,8 +466,8 @@ $(document).ready(function() {
                 for (var j in poly.attrs.points) {
                     oCoords[i][j] = [];
                     var point = poly.attrs.points[j];
-                    oCoords[i][j][0] = Math.round((point.x + group.attrs.x) / scaleVal);
-                    oCoords[i][j][1] = Math.round((point.y + group.attrs.y) / scaleVal);
+                    oCoords[i][j][0] = Math.round((point.x + group.getX() - margin) / scaleVal);
+                    oCoords[i][j][1] = Math.round((point.y + group.getY() - margin) / scaleVal);
                 }
             }
             return JSON.stringify(oCoords);
