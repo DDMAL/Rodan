@@ -135,10 +135,8 @@ class AomrObject(object):
                     contents.append(j_glyph)  
             data[s] = {'coord':stave, 'content':contents}
 
-        encoded = json.dumps(data)
-
         print "6. Returning the data. Done running for this pag."
-        return encoded
+        return data
         
     def find_staves(self, poly_list):
 

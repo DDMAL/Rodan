@@ -6,6 +6,7 @@ import PIL.ImageFile
 import gamera.core
 from gamera.gameracore import Point
 from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
+from pymei import XmlExport
 from celery.task import task
 from django.conf import settings
 
@@ -68,8 +69,7 @@ def rodan_task(inputs=''):
                     # Create thumbnails for the image as well
                     create_thumbnails(output_path, result)
                 elif output_type == 'mei':
-                    # This is a special case because an object is used
-                    pass
+                    XmlExport.meiDocumentToFile(output_content.md, output_path.encode('ascii', 'ignore'))
                 elif output_type == 'xml':
                     output_content.write_filename(output_path)
                 else:
