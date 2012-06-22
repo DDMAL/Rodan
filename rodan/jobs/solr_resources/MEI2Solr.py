@@ -42,7 +42,6 @@ logging.basicConfig(filename='errors.log', format='%(asctime)-6s: %(name)s - %(l
 lg = logging.getLogger('meisearch')
 lg.setLevel(logging.DEBUG)
 
-solrconn = solr.SolrConnection("http://localhost:8080/liber-search")  # needs to be changed
 
 import pdb
 
@@ -202,7 +201,9 @@ def storeText(lines, zones, textdb):
         textdb.save({'pagen': pagen, 'text': text, 'location': {"ulx": ulx ,"uly": uly, "height": abs(uly - lry), "width": abs(ulx - lrx)}})
     return 1
 
-def processMeiFile(ffile, longest_gram, shortest_gram):
+
+def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
+    solrconn = solr.SolrConnection("%s/liber-search" % solr_server)
     print '\nProcessing ' + str(ffile) + '...'
     try:
         meifile = XmlImport.documentFromFile(str(ffile))
