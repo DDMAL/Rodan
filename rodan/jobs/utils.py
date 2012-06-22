@@ -37,7 +37,7 @@ def create_thumbnails(output_path, result):
 
 def rodan_task(inputs=''):
     def inner_function(f):
-        @task
+        @task(max_retries=2)
         @wraps(f)
         def real_inner(result_id, **kwargs):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
