@@ -110,7 +110,6 @@ $(document).ready(function() {
             }
         });
         var sPoints = JSON.parse($("#JSON").text());
-        console.log(sPoints);
         var polys = [];
         for (var i = 0; i < sPoints.length; i++) {
             polys[i] = [];
@@ -178,7 +177,6 @@ $(document).ready(function() {
         });
 
         group.add(poly);
-        console.log(poly);
         for (p in poly.getPoints()) {
             var point = poly.getPoints()[p];
             addAnchor(group, point.x, point.y);
@@ -410,7 +408,11 @@ $(document).ready(function() {
         var highPos = Math.max(i0, i1);
         point.x -= group.getX();
         point.y -= group.getY();
-        poly.attrs.points.splice(highPos, 0, point);
+        if (Math.abs(i0 - i1) > 1) {
+            poly.attrs.points.push(point);
+        } else {
+            poly.attrs.points.splice(highPos, 0, point);
+        }
         var newPoly = addPoly(poly.getPoints(), group.getX(), group.getY());
         removePoly(poly);
         selectPoly(newPoly);
