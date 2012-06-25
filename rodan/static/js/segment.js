@@ -315,8 +315,8 @@ $(document).ready(function() {
         for (g in stage.get(".group")) {
             var group = stage.get(".group")[g];
             var gPoint = $.extend({}, true, point);
-            gPoint.x -= group.getX();
-            gPoint.y -= group.getY();
+            gPoint.x -= (group.getX() + 0);
+            gPoint.y -= (group.getY() + 0);
             var poly = group.get(".poly")[0];
             var nPoints = poly.getPoints().length;
             for (var i = 0; i < nPoints; i++) {
@@ -379,8 +379,10 @@ $(document).ready(function() {
             var group = stage.get(".group")[g];
             for (a in group.attrs.anchors) {
                 var anchor = group.attrs.anchors[a];
-                if (anchor.getX() >= tLX && anchor.getY() >= tLY
-                    && anchor.getX() <= bRX && anchor.getY() <= bRY) {
+                var adjX = anchor.getX() + group.getX() - margin;
+                var adjY = anchor.getY() + group.getY() - margin;
+                if (adjX >= tLX && adjY >= tLY
+                    && adjX <= bRX && adjY <= bRY) {
                     sPoints.push(anchor);
                 }
             }
