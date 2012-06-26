@@ -35,6 +35,8 @@ $(document).ready(function() {
     };
     
     imageThumb.onload = function() {
+        var scaleVal = imageThumb.width / imageObj.width;
+        
         stage = new Kinetic.Stage({
             container: "image-miniframe",
             width: imageThumb.width,
@@ -53,8 +55,6 @@ $(document).ready(function() {
 
         layer.add(image);
         stage.add(layer);
-        
-        var scaleVal = imageThumb.width / imageObj.width;
         
         var layerB = new Kinetic.Layer();
         
@@ -81,12 +81,35 @@ $(document).ready(function() {
         layerB.add(viewBox);
         stage.add(layerB);
         
-        viewBox.on("dragmove", function() {
+        var moveBox = function() {
             var canvas = document.getElementById("image-viewport");
             var context = canvas.getContext("2d");
             boxX = viewBox.getX() / scaleVal;
             boxY = viewBox.getY() / scaleVal;
             binarise(defThresh, boxX, boxY);
+        };
+        
+        viewBox.on("dragmove", moveBox);
+        
+        image.on("mousedown", function(e) {
+            var boxWidth = viewWidth * scaleVal;
+            var mousePos = stage.getUserPosition(e);
+            var boxPosX = mousePos.x - (boxWidth / 2);
+            var boxPosY = mousePos.y - (boxWidth / 2);
+            if (mousePos.x < (boxWidth / 2)) {
+                boxPosX = 0;
+            } else if ((mousePos.x + (boxWidth / 2)) > imageThumb.width) {
+                boxPosX = imageThumb.width - boxWidth;
+            }
+            if (mousePos.y < (boxWidth / 2)) {
+                boxPosY = 0;
+            } else if ((mousePos.y + (boxWidth / 2)) > imageThumb.height) {
+                boxPosY = imageThumb.height - boxWidth;
+            }
+            viewBox.setX(boxPosX);
+            viewBox.setY(boxPosY);
+            viewBox.getLayer().draw();
+            moveBox();
         });
     };
     
