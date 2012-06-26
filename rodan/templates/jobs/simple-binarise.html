@@ -1,5 +1,6 @@
 <p>This is a binarisation job!!! Look at my beautiful slider etc</p>
 <p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<p>{{ original_image }}</p>
 <form method="post" action="{% url task_complete page.id job.slug %}" id="binarise-form">
     {% csrf_token %}
     <fieldset class="submit">
@@ -10,6 +11,11 @@
 
 <div id="slider"></div>
 <div class="images">
-    {% include "includes/page_image.html" %}
-    <canvas id="image-preview" alt="Image preview"></canvas>
+	<div class="hidden">
+		<img id="image-full" src="{{ original_image }}"/>
+    	<img id="image-thumb" src="{{ small_thumbnail }}"/>
+	</div>
+    <canvas id="image-viewport" alt="Image preview"></canvas>
+	<div id="image-miniframe"></div>
+<script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>
 <script src="{{ STATIC_URL }}js/binarise.js"></script>

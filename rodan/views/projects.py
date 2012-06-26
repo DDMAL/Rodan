@@ -136,6 +136,7 @@ def task(request, job_slug, project_id=0):
         'original_image': page.get_latest_thumb_url(size=settings.ORIGINAL_SIZE),
         'large_thumbnail': page.get_latest_thumb_url(size=settings.LARGE_THUMBNAIL),
         'medium_thumbnail': page.get_latest_thumb_url(size=settings.MEDIUM_THUMBNAIL),
+        'small_thumbnail': page.get_latest_thumb_url(size=settings.SMALL_THUMBNAIL),
         'template': view_data[0],
         'context': view_data[1]
     }
