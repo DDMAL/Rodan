@@ -88,7 +88,7 @@ $(document).ready(function() {
             boxY = viewBox.getY() / scaleVal;
             binarise(defThresh, boxX, boxY);
         });
-    }
+    };
     
     imageObj.src = $("#image-full").attr("src");
     imageThumb.src = $("#image-thumb").attr("src");

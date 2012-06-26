@@ -10,10 +10,11 @@
 
 <div id="slider"></div>
 <div class="images">
-    {% include "includes/page_image.html" %}
-    <canvas id="image-preview" alt="Image preview"></canvas>
 	<div class="hidden">
-		<p id="width">{{ context.width }}</p>
+		<img id="image-full" src="{{ original_image }}"/>
+    	<img id="image-thumb" src="{{ small_thumbnail }}"/>
 	</div>
-</div>
+    <canvas id="image-viewport" alt="Image preview"></canvas>
+	<div id="image-miniframe"></div>
+<script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>
 <script src="{{ STATIC_URL }}js/despeckle.js"></script>
