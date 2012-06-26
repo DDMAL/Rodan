@@ -129,7 +129,7 @@ class Page(models.Model):
     @staticmethod
     def _get_thumb_filename(path, size):
         base_path, _ = os.path.splitext(path)
-        return "%s_%d.%s" % (base_path, size, settings.THUMBNAIL_EXT)
+        return "%s_%s.%s" % (base_path, size, settings.THUMBNAIL_EXT)
 
     def _get_thumb_path(self, size, job):
         return os.path.join("%d" % self.project.id,

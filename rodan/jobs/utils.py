@@ -23,8 +23,10 @@ def create_dirs(full_path):
 def create_thumbnail(image_path, thumb_path, thumbnail_size):
     image = PIL.Image.open(image_path).convert('RGB')
     width, height = image.size
-    dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
-    image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
+
+    if thumbnail_size != settings.ORIGINAL_SIZE:
+        dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
+        image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
     image.save(thumb_path)
 
 
