@@ -1,5 +1,6 @@
 Django==1.4
 Fabric==1.4.2
+PIL==1.1.7
 amqplib==1.0.2
 anyjson==0.3.1
 celery==2.5.3
@@ -10,9 +11,11 @@ django-picklefield==0.2.1
 flup==1.0.3.dev-20110405
 ipython==0.12.1
 kombu==2.1.8
+music21==1.0.0
 psycopg2==2.4.5
 pycrypto==2.6
 python-dateutil==1.5
 readline==6.2.2
+solrpy==0.9.5
 ssh==1.7.14
 wsgiref==0.1.2

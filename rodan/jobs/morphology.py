@@ -1,5 +1,4 @@
 import gamera.core
-from gamera.plugins.morphology import despeckle
 
 import utils
 from rodan.models.jobs import JobType, JobBase

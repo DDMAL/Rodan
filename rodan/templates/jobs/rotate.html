@@ -8,12 +8,15 @@
     </fieldset>
 </form>
 
-<input class="knob" id="dialctrl" data-cursor=true data-thickness=".3"></input>
+
 <input name="togleRuler" type="button" onclick="toggleRuler()" value="Toggle Ruler"></input>
 <input name="togleRuler" type="button" onclick="reorientRuler()" value="Reorient Ruler"></input>
 <div class="images">
-    <div id="image-preview"></div>
+	<div class="rotate-row">
+		<input class="knob" id="dialctrl" data-cursor=true data-thickness=".3"></input>
+		<div id="image-preview"></div>
 		{% include "includes/page_image.html" with hidden=1 %}
+	</div>
 </div>
 <script src="{{ STATIC_URL }}js/jquery.knob.js"></script>
 <script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>

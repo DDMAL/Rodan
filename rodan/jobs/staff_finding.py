@@ -1,7 +1,7 @@
 import json
 
 import gamera.core
-from gamera.toolkits import musicstaves
+import gamera.toolkits.musicstaves
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -28,7 +28,7 @@ def find_staves(image_filepath, **kwargs):
     """
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
-    staff_finder = musicstaves.StaffFinder_miyao(gamera.core.load_image(image_filepath), 0, 0)
+    staff_finder = gamera.toolkits.musicstaves.StaffFinder_miyao(gamera.core.load_image(image_filepath), 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
 

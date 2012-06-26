@@ -19,6 +19,7 @@ window.onload = function() {
     $(function() {
 		$(".knob").knob({
 		    'value':defAngle,
+		    'width': 100,
 			'min':0,
 			'max':360,
 			'displayPrevious':true,
@@ -39,7 +40,9 @@ initImage = function() {
     stage = new Kinetic.Stage({
         container: "image-preview",
         width: dist,
-        height: dist
+        height: dist,
+        stroke: 'black',
+        strokewidth: 2
     });
     var layer = new Kinetic.Layer();
     var image = new Kinetic.Image({

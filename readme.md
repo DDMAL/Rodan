@@ -10,6 +10,7 @@ Dependencies
 * Python 2.7 (also installed on Susato)
 * PostgreSQL (sqlite for local development)
 * Celery (installed on Susato)
+* Solr
 
 Development
 -----------
@@ -50,12 +51,35 @@ You will also need these plugins for gamera, which have to be added manually as 
   To fix it, simply copy paste the "chord_length" function at the end of the file to the beginning of the file
   right after the preprocessor commands.
 
+* Border-Removal @ `https://github.com/DDMAL/document-preprocessing-toolkit`
+  ```
+  cd <document-preprocessing-toolkit location>/border-removal
+  python setup.py install
+  ```
+
+* libmei @ `https://github.com/gburlet/libmei/tree/solesmesbuild`
+  Note that if you are getting `pymei` import errors, it is because you are missing `libmei` and not `pymei`.
+
+* MUSIC21 is included in the pip requirements.txt, but it will not be installed correctly. You will need to:
+```
+cd <directory where you ran "pip install -r requirements.txt">/build/music21
+chmod u+x installer.command
+./installer.command
+```
+  to get MUSIC21 installed and working properly. Information regarding the installation process using installer.command
+  can be found here `http://mit.edu/music21/doc/html/installMac.html#installmac`.
+  After you have installed MUSIC21, you can remove the rodan_env/build directory
+```
+cd rodan_env
+sudo rm -rf build
+```
+
 
 Setup
 -----
 * Install rabbitmq if required
 
-Configure rabbitmq with 
+Configure rabbitmq with
 
     /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
     /usr/local/sbin/rabbitmqctl add_vhost DDMAL

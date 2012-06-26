@@ -1,7 +1,7 @@
 import gamera.core
-from gamera import gamera_xml
-from gamera.classify import BoundingBoxGroupingFunction
-from gamera.knn import kNNNonInteractive
+import gamera.gamera_xml
+import gamera.classify
+import gamera.knn
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -10,9 +10,9 @@ from rodan.models.jobs import JobType, JobBase
 @utils.rodan_task(inputs='tiff')
 def classifier(image_filepath, **kwargs):
     #will be replaced by a new classifier that will be created soon
-    cknn = kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
+    cknn = gamera.knn.kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
 
-    func = BoundingBoxGroupingFunction(4)
+    func = gamera.classify.BoundingBoxGroupingFunction(4)
     # must be OneBit image
     input_image = gamera.core.load_image(image_filepath)
     ccs = input_image.cc_analysis()
@@ -23,7 +23,7 @@ def classifier(image_filepath, **kwargs):
                     max_graph_size=16)
 
     cknn.generate_features_on_glyphs(cs_image)
-    output_xml = gamera_xml.WriteXMLFile(glyphs=cs_image, with_features=True)
+    output_xml = gamera.gamera_xml.WriteXMLFile(glyphs=cs_image, with_features=True)
 
     return {
         'xml': output_xml
