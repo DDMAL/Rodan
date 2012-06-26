@@ -16,8 +16,13 @@ def segment(image_filepath, **kwargs):
 
     # instantiate an ImageDraw object using the mask_img object
     mask_drawer = ImageDraw.Draw(mask_img)
-    # get the JSON data and load it as a string
-    json_poly_data = json.loads(kwargs['JSON'])
+
+    try:
+        json_poly_data = json.loads(kwargs['JSON'])
+    except ValueError:
+        # There's a problem in the JSON - it may be malformed, or empty
+        json_poly_data = []
+
     for polygon in json_poly_data:
         flattened_poly = [j for i in polygon for j in i]
         mask_drawer.polygon(flattened_poly, outline=1, fill=1)
