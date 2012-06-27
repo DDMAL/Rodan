@@ -314,7 +314,7 @@ $(document).ready(function() {
         return Topt;
     };
 
-    $('#binarise-form').submit(function () {
+    $('#form').submit(function () {
         $('#threshold-input').val(defThresh);
     });
 });
