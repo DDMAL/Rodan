@@ -38,22 +38,13 @@ $(document).ready(function() {
 
     imageObj = new Image();
     imageThumb = new Image();
-    //Calculate initial threshold with the Brink formula and draw binarized image
-    imageObj.onload = function() {
-        //Adjust size of canvas to fit image
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        canvas.width = viewWidth;
-        canvas.height = viewWidth;
-        binarise(100);
-        $("#slider").width(viewWidth);
-    };
-
+    
     imageThumb.onload = function() {
         stage = new Kinetic.Stage({
             container: "image-miniframe",
             width: imageThumb.width,
             height: imageThumb.height,
+            scaleVal: imageThumb.width / imageObj.width
         });
         var layer = new Kinetic.Layer();
         var image = new Kinetic.Image({
@@ -97,8 +88,6 @@ $(document).ready(function() {
         stage.add(layerB);
 
         var moveBox = function() {
-            var canvas = document.getElementById("image-viewport");
-            var context = canvas.getContext("2d");
             boxX = viewBox.getX() / scaleVal;
             boxY = viewBox.getY() / scaleVal;
             despeckle(defSize, boxX, boxY);
@@ -127,9 +116,44 @@ $(document).ready(function() {
             moveBox();
         });
     };
+    
+    imageObj.onload = function() {
+        //Adjust size of canvas to fit image
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        canvas.width = viewWidth;
+        canvas.height = viewWidth;
+        binarise(100);
+        $("#slider").width(viewWidth);
+        imageThumb.src = $("#image-thumb").attr("src");
+        /*
+        var bodyDOM = document.getElementsByTagName("body")[0];
+        var mouseDown = false;
+        var initX = 0;
+        var initY = 0;
+        canvas.addEventListener("mousedown", function(e) {
+            mouseDown = true;
+            initX = e.clientX;
+            initY = e.clientY;
+        });
+        bodyDOM.addEventListener("mouseup", function(e) {
+            if (mouseDown) {
+                mouseDown = false;
+                var dX = (e.clientX - initX) * stage.attrs.scaleVal;
+                var dY = (e.clientY - initY) * stage.attrs.scaleVal;
+                
+                var viewBox = stage.get("viewBox")[0];
+                viewBox.setX(viewBox.getX() + (dX * scaleVal));
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                despeckle(defSize, boxX, boxY);
+            }
+        });*/
+    };
+
+    
 
     imageObj.src = $("#image-full").attr("src");
-    imageThumb.src = $("#image-thumb").attr("src");
 
     var despeckle = function(size, x, y) {
         defSize = size;
