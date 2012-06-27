@@ -99,6 +99,7 @@ class Workflow(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     jobs = models.ManyToManyField(Job, through='JobItem', null=True, blank=True)
+    has_started = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
