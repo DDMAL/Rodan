@@ -1,10 +1,8 @@
-<form method="post" action="{{ submit_url }}" id="binarise-form">
-    {% csrf_token %}
-    <fieldset class="submit">
-        <input type="hidden" name="threshold" value="0" id="threshold-input" />
-        <input type="submit" name="submit" value="Binarise" class="submit" />
-    </fieldset>
-</form>
+{% csrf_token %}
+<fieldset class="submit">
+    <input type="hidden" name="threshold" value="0" id="threshold-input" />
+    <input type="submit" name="submit" value="Binarise" class="submit" />
+</fieldset>
 
 <div id="slider"></div>
 <div class="images">
