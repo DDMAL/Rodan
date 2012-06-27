@@ -1,22 +1,32 @@
 //Setup
 $(document).ready(function() {
-    var imageObj;
-    var imageThumb;
+    //ImageData object storing full-sized image
+    var imageObj = new Image();
+    //ImageData object storing small thumbnail
+    var imageThumb = new Image();
+    //Constant for black rgb value
     var BLACK = 0;
+    //Consdtant for white rgb value
     var WHITE = 255;
+    //Scale values taken from Matlab, used as coefficients for greycsaling
     var rScale = 0.2989;
     var gScale = 0.5870;
     var bScale = 0.1140;
+    //Default speckle size
     var defSize = 0;
+    //Width (square) of viewport
     var viewWidth = 500;
+    //Current x and y coordinates of the frame of the viewport, relative to the full image
     var boxX = 0;
     var boxY = 0;
-
+    
+    //Wrapper for (x, y) coordinate pair
     function Point(x, y) {
         this.x = x;
         this.y = y;
     }
 
+    //Object for storing the image data for ease of access (ie. with coordinate pairs)
     function IData(data, canvas) {
         this.data = data;
         this.getPoint = function(x, y) {
@@ -35,11 +45,10 @@ $(document).ready(function() {
             return this.getPoint(x, y) === BLACK;
         };
     }
-
-    imageObj = new Image();
-    imageThumb = new Image();
     
+    //Thumbnail post-loading functions, which occur after the full image is loaded
     imageThumb.onload = function() {
+        //Instantiation of KinteticJS objects
         stage = new Kinetic.Stage({
             container: "image-miniframe",
             width: imageThumb.width,
@@ -73,7 +82,7 @@ $(document).ready(function() {
             stroke: 'black',
             strokeWidth: 2,
             alpha: .2,
-            draggable: true,
+            draggable: false,
             dragBounds: {
                 top: 0,
                 left: 0,
@@ -191,6 +200,7 @@ $(document).ready(function() {
             }
         });
     };
+    
     
     imageObj.onload = function() {
         //Adjust size of canvas to fit image

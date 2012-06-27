@@ -53,7 +53,7 @@ $(document).ready(function() {
             stroke: 'black',
             strokeWidth: 2,
             alpha: .2,
-            draggable: true,
+            draggable: false,
             dragBounds: {
                 top: 0,
                 left: 0,
