@@ -44,7 +44,6 @@ $(document).ready(function() {
             container: "image-miniframe",
             width: imageThumb.width,
             height: imageThumb.height,
-            scaleVal: imageThumb.width / imageObj.width
         });
         var layer = new Kinetic.Layer();
         var image = new Kinetic.Image({
@@ -114,6 +113,46 @@ $(document).ready(function() {
             viewBox.setY(boxPosY);
             viewBox.getLayer().draw();
             moveBox();
+        });
+        
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        var bodyDOM = document.getElementsByTagName("body")[0];
+        var mouseDown = false;
+        var initX = 0;
+        var initY = 0;
+        canvas.addEventListener("mousedown", function(e) {
+            mouseDown = true;
+            initX = e.clientX;
+            initY = e.clientY;
+        });
+        bodyDOM.addEventListener("mouseup", function(e) {
+            if (mouseDown) {
+                mouseDown = false;
+                var dX = e.clientX - initX;
+                var dY = e.clientY - initY;
+                
+                var boxWidth = viewWidth * scaleVal;
+                var newX = viewBox.getX() - (dX * scaleVal);
+                var newY = viewBox.getY() - (dY * scaleVal);
+                if (newX < 0) {
+                    newX = 0;
+                } else if ((newX + boxWidth) > imageThumb.width) {
+                    newX = imageThumb.width - boxWidth;
+                }
+                if (newY < 0) {
+                    newY = 0;
+                } else if ((newY + boxWidth) > imageThumb.height) {
+                    newY = imageThumb.height - boxWidth;
+                }
+                
+                viewBox.setX(newX);
+                viewBox.setY(newY);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                despeckle(defSize, boxX, boxY);
+            }
         });
     };
     
