@@ -1,0 +1,30 @@
+<h1>Add jobs to workflow {{ page.workflow }}</h1>
+<div class="left-float">
+    {% include "includes/page_image.html" %}
+</div>
+<div id="job-lists">
+    <h2>Workflow jobs</h2>
+    <ul id="workflow-jobs">
+    {% for job in workflow_jobs %}
+        {% include "includes/job_li.html" %}
+    {% endfor %}
+    </ul>
+    <br />
+    <h2>Available jobs</h2>
+    <ul id="available-jobs">
+    {% for job in available_jobs %}
+        {% include "includes/job_li.html" with add=1 %}
+    {% endfor %}
+    </ul>
+    <fieldset class="submit">
+        {% csrf_token %}
+        <input type="hidden" name="workflow_jobs" value="" id="ordered-jobs" />
+        <input type="hidden" name="job_to_edit" value="" id="job-to-edit" />
+        <input type="hidden" name="job_to_add" value="" id="job-to-add" />
+        <input type="hidden" name="job_to_remove" value="" id="job-to-remove" />
+        <input type="submit" name="done" value="I'm done, start the jobs" id="jobs-ready" />
+    </fieldset>
+</div>
+{% if template %}
+    {% include template %}
+{% endif %}

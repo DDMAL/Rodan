@@ -1,17 +1,20 @@
+from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
+from rodan.utils import rodan_view
+from rodan.forms.workflows import WorkflowForm
 
 
-def view(request, page_id):
-    page = get_object_or_404(Page, pk=page_id)
-
+@rodan_view(Page)
+def view(request, page):
     steps = []
 
-    job_items = page.workflow.jobitem_set.all()
+    job_items = page.workflow.jobitem_set.all() if page.workflow else []
     for job_item in job_items:
         try:
             result = Result.objects.get(page=page, job_item=job_item)
@@ -25,22 +28,22 @@ def view(request, page_id):
             'is_done': is_done,
             'large_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL),
         }
+
         steps.append(step)
 
     data = {
+        'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
         'page': page,
         'steps': steps,
     }
 
-    return render(request, 'pages/view.html', data)
+    return ('View', data)
 
 
 @login_required
+@rodan_view(Page, Job)
 # Called when submiting the form on the task page
-def process(request, page_id, job_slug):
-    page = get_object_or_404(Page, pk=page_id)
-    job = get_object_or_404(Job, slug=job_slug)
-
+def process(request, page, job):
     if request.method != 'POST':
         # Temp - should redirect to the task page
         return redirect('/')
@@ -64,3 +67,82 @@ def process(request, page_id, job_slug):
         job_object.on_post(result.id, **kwargs)
 
         return redirect(page.project.get_absolute_url() + '?done=1')
+
+
+def edit_parameters(request, page, job, workflow_jobs):
+    template, context = job.get_view(None)
+
+    data = {
+        'job': job,
+        'workflow_jobs': ' '.join([workflow_job.slug for workflow_job in workflow_jobs]),
+        'template': template,
+        'context': context,
+        'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
+        'large_thumbnail': page.get_thumb_url(size=settings.LARGE_THUMBNAIL),
+    }
+    return render(request, 'pages/edit_parameters.html', data)
+
+
+@rodan_view(Page)
+def workflow(request, page):
+    if not page.project.is_owned_by(request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        form = WorkflowForm(request.POST)
+        if form.is_valid():
+            new_workflow = form.save()
+            # Set this page's workflow to the newly-created one
+            page.workflow = new_workflow
+            page.save()
+            return redirect('add_jobs', page.id)
+    else:
+        form = WorkflowForm()
+
+    data = {
+        'page': page,
+        'form': form,
+    }
+    return ('New workflow', data)
+
+@login_required
+@rodan_view(Page)
+def add_jobs(request, page):
+    if not page.project.is_owned_by(request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        done = request.POST.get('done', '')
+        if done:
+            page.workflow.has_started = True
+            page.workflow.save()
+            return redirect('add_pages', workflow_id=page.workflow.id)
+
+        job_to_add_slug = request.POST.get('job_to_add', '')
+        remove_job = bool(request.POST.get('job_to_remove', ''))
+
+        if job_to_add_slug:
+            try:
+                job_to_add = Job.objects.get(pk=job_to_add_slug)
+                # Add validation later
+                sequence = page.workflow.jobs.count() + 1
+                job_item = JobItem.objects.create(workflow=page.workflow, job=job_to_add, sequence=sequence)
+            except Job.DoesNotExist:
+                print "Job does not exist!"
+
+        elif remove_job:
+            job_items = JobItem.objects.filter(workflow=page.workflow).order_by('-sequence')
+            if job_items.count():
+                job_items[0].delete()
+
+    workflow_jobs = [job_item.job for job_item in page.workflow.jobitem_set.all()]
+    available_jobs = [job for job in Job.objects.all() if job not in workflow_jobs]
+
+    data = {
+        'available_jobs': available_jobs,
+        'workflow_jobs': workflow_jobs,
+        'page': page,
+        'medium_thumbnail': page.get_thumb_url(settings.MEDIUM_THUMBNAIL),
+        'form': True,
+    }
+    return ('Add jobs', data)

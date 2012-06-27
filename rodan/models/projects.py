@@ -25,6 +25,7 @@ class Project(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(RodanUser)
+    pk_name = 'project_id'
 
     def __unicode__(self):
         return self.name
@@ -63,6 +64,7 @@ class Job(models.Model):
     name = models.CharField(max_length=50)
     slug = models.CharField(max_length=20, primary_key=True)
     module = models.CharField(max_length=100)
+    pk_name = 'job_slug'
 
     def __unicode__(self):
         return self.name
@@ -100,6 +102,7 @@ class Workflow(models.Model):
     description = models.TextField(blank=True, null=True)
     jobs = models.ManyToManyField(Job, through='JobItem', null=True, blank=True)
     has_started = models.BooleanField(default=False)
+    pk_name = 'workflow_id'
 
     def __unicode__(self):
         return self.name
@@ -118,10 +121,16 @@ class Page(models.Model):
     workflow = models.ForeignKey(Workflow, null=True, blank=True)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
+    # Used in conjunction with the @rodan_view decorator
+    pk_name = 'page_id'
 
     # If the tag is defined, it returns that; otherwise, returns the filename
     def __unicode__(self):
         return self.tag or self.filename
+
+    # Defines the hierarchy for generating breadcrumbs
+    def get_parent(self):
+        return self.project
 
     @models.permalink
     def get_absolute_url(self):
@@ -244,6 +253,9 @@ class Page(models.Model):
                             "%s.%s" % (basename, ext))
 
     def get_next_job_item(self, user=None):
+        if not self.workflow:
+            return None
+
         for job_item in self.workflow.jobitem_set.all():
             page_results = job_item.result_set.filter(page=self)
             no_result = page_results.count() == 0
@@ -290,8 +302,29 @@ class Page(models.Model):
     def get_percent_done(self):
         Result = models.loading.get_model('rodan', 'Result')
         num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
-        num_jobs = self.workflow.jobitem_set.count()
-        return (100 * num_complete) / num_jobs
+        try:
+            num_jobs = self.workflow.jobitem_set.count()
+            return (100 * num_complete) / num_jobs
+        except (AttributeError, ZeroDivisionError):
+            return 0
+
+    def handle_image_upload(self, file):
+        # Might need to fix the filename extension
+        basename, _ = os.path.splitext(self.filename)
+        self.filename = basename + '.tiff'
+        self.save()
+
+        image_path = self.get_latest_file_path('tiff')
+        rodan.jobs.utils.create_dirs(image_path)
+
+        with open(image_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        # Now generate thumbnails
+        for thumbnail_size in settings.THUMBNAIL_SIZES:
+            thumb_path = self.get_thumb_path(size=thumbnail_size)
+            rodan.jobs.utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
 
 
 class JobItem(models.Model):

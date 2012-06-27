@@ -1,0 +1,7 @@
+<h1>Manage workflows for {{ project }}</h1>
+
+<ul>
+{% for workflow in workflows %}
+    <li><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></li>
+{% endfor %}
+</ul>

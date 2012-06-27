@@ -18,9 +18,16 @@ appear if {{ form }} is truthy.
         <fieldset>
         {% if field.help_text %}<p>{{ field.help_text }}</p>{% endif %}
         <label for="{{ field.html_name }}">{{ field.label }}</label>
-        {{ field }}        </fieldset>
+        {{ field }}
+        </fieldset>
     {% endfor %}
     <fieldset class="submit">
-        <input type="submit" name="submit" value="Submit" />
+        {% if submits %}
+            {% for submit in submits %}
+                <input type="submit" name="action" value="{{ submit }}" />
+            {% endfor %}
+        {% else %}
+            <input type="submit" name="action" value="Submit" />
+        {% endif %}
     </fieldset>
 {% endautoescape %}

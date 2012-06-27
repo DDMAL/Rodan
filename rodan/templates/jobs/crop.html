@@ -1,23 +1,20 @@
-<p>This is a cropping job!!! Look at my beautiful canvas etc</p>
-<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
-<form method="post" action="{% url task_complete page.id job.slug %}" id="crop-form">
-    {% csrf_token %}
-    <fieldset class="submit">
-        <input type="hidden" name="tlx" value="0" id="tlx-input" />
-		<input type="hidden" name="tly" value="0" id="tly-input" />
-		<input type="hidden" name="brx" value="0" id="brx-input" />
-		<input type="hidden" name="bry" value="0" id="bry-input" />
-		<input type="hidden" name="imw" value="0" id="imw-input" />
-        <input type="submit" name="submit" value="Crop" class="submit" />
-    </fieldset>
-</form>
+{% csrf_token %}
+<fieldset class="submit">
+    <input type="hidden" name="tlx" value="0" id="tlx-input" />
+    <input type="hidden" name="tly" value="0" id="tly-input" />
+    <input type="hidden" name="brx" value="0" id="brx-input" />
+    <input type="hidden" name="bry" value="0" id="bry-input" />
+    <input type="hidden" name="imw" value="1.0" id="imw-input" />
+    <input type="submit" name="submit" value="Crop" class="submit" />
+</fieldset>
 
 <div id="slider"></div>
 <div class="images">
 	<div class="hidden">
-    {% include "includes/page_image.html" %}
-</div>
+        {% include "includes/page_image.html" %}
+    </div>
     <div id="image-preview"></div>
 </div>
+
 <script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>
 <script src="{{ STATIC_URL }}js/crop.js"></script>

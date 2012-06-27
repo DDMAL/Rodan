@@ -471,7 +471,7 @@ $(document).ready(function() {
     });
     
     
-    $('#segment-form').submit(function () {
+    $('#form').submit(function () {
         $('#JSON-input').val(function() {
             var staves = stage.get(".group");
             var oCoords = [];

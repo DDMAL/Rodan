@@ -3,9 +3,9 @@
 <p>For now it will be a list because, whatever.</p>
 {% if jobs %}
 <ul id="job-grid">
-    {% for job, available in jobs.iteritems %}
+    {% for job, available, project_id in jobs %}
     {% if not job.get_object.is_automatic %}
-    <li{% if available %} class="available"{% endif %}>{% if available %}<a href="{% url project_task project.id job.slug %}">{% endif %}{{ job }}{% if available %}</a>{% endif %}</li>
+    <li{% if available %} class="available"{% endif %}>{% if available %}<a href="{% url project_task project_id job.slug %}">{% endif %}{{ job }}{% if available %}</a>{% endif %}</li>
     {% endif %}
     {% endfor %}
 </ul>

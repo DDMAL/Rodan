@@ -333,6 +333,41 @@ h2 {
 
 }
 
+.left-float {
+    float: left;
+}
+
+#job-lists {
+    float: left;
+    position: relative;
+    left: 20px;
+    ul {
+        list-style-type: none;
+        min-height: 30px;
+        background: @lightGrey;
+        min-width: 300px;
+        li {
+            height: 60px;
+            background: @lightBlue;
+            line-height: 30px;
+            padding-left: 20px;
+            border-top: 1px solid @white;
+        }
+    }
+    #available-jobs {
+        .edit-parameters, span {
+            .hidden;
+        }
+    }
+    #workflow-jobs {
+        li:not(:last-child) {
+            span, .remove-job {
+                .hidden;
+            }
+        }
+    }
+}
+
 .job-lists {
     width: 65%;
     margin: 0 10px;
@@ -406,6 +441,7 @@ ul.grid {
     list-style-type: none;
     li {
         display: inline-block;
+        vertical-align: top;
     }
 }
 
@@ -426,4 +462,27 @@ ul.grid {
 .rotate-row > #image-preview{
     border: 1px solid;
     float:right;
+}
+
+#upload-images img:hover {
+    border-color: @imageButtonHoverFrame;
+}
+
+.image-buttons {
+    input {
+        .hidden;
+    }
+    img {
+        border: 5px solid @imageButtonFrame;
+        cursor: pointer;
+        &.selected {
+            border-color: @imageButtonHoverFrame;
+        }
+        &.current {
+            border-color: @imageButtonActFrame;
+        }
+        &.disabled {
+            opacity: 0.5;
+        }
+    }
 }

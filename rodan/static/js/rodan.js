@@ -259,25 +259,56 @@ $(document).ready(function () {
         }
     });
 
-    $("#jobs-list-all").sortable({
-        connectWith: '#jobs-list-workflow',
-        forcePlaceholderSize: true,
-        placeholder: 'ui-state-highlight',
-        cursor: 'grabbing',
-        items: '.job',
-        tolerance: 'pointer'
+    $('#job-lists').delegate('.edit-parameters', 'click', function (event) {
+        var jobSlug = $(this).parent().attr('data-id');
+        $('#job-to-edit').val(jobSlug);
+        $('#job-form').submit();
     });
 
-    $("#jobs-list-workflow").sortable({
-        items: '.job',
-        placeholder: 'ui-state-highlight',
-        forcePlaceholderSize: true,
-        tolerance: 'pointer',
-        connectWith: '#jobs-list-all'
+    $('#job-form').submit(function () {
+        var jobsList = [];
+        $('#workflow-jobs').children().each(function () {
+            jobsList.push($(this).attr('data-id'));
+        });
+
+        $('#ordered-jobs').val(jobsList.join(' '));
     });
 
-    $('.job i').click(function () {
-        $(this).parent().find('p').toggle();
+    var refreshAvailableJobs = function (outputType) {
+        $('#available-jobs li').each(function () {
+            var inputType = $(this).attr('data-input-type');
+
+            if (inputType === outputType) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    };
+
+    // Hide the ones not taking in an image if we're starting a new workflow
+    var lastWorkflowJob = $('#workflow-jobs li').last();
+    if (!lastWorkflowJob.length) {
+        refreshAvailableJobs('1');
+    } else {
+        refreshAvailableJobs(lastWorkflowJob.attr('data-output-type'));
+    }
+
+    $('#workflow-jobs').delegate('.remove-job', 'click', function (event) {
+        var jobNode = $(this).parent();
+        // The input type is the same as the previous job's output type
+        var jobID = jobNode.attr('data-id');
+
+        $('#job-to-remove').val(1);
+        $('#form').submit();
+    });
+
+    $('#available-jobs').delegate('.add-job', 'click', function (event) {
+        var jobNode = $(this).parent();
+        var jobID = jobNode.attr('data-id');
+
+        $('#job-to-add').val(jobID);
+        $('#form').submit();
     });
 
     // If the flash message exists, make it disappear after some time
@@ -290,4 +321,44 @@ $(document).ready(function () {
             }, 1000);
         }, 2000);
     }
+
+    // Handle selecting pages (the add pages view)
+    $('.select-pages').click(function () {
+        // Odd and even seem to be switched but it's just because it's 0-indexed
+        var filter = $(this).attr('data-filter');
+        $('.image-buttons img').filter(filter).each(function () {
+            $(this).addClass('selected');
+            $(this).next().prop('checked', true);
+        });
+
+        $('.image-buttons img').not(filter).each(function () {
+            $(this).removeClass('selected');
+            $(this).next().prop('checked', false);
+        });
+    });
+
+    var submitForm = $('#upload-images').length;
+    // If the .image-buttons class exists, handle clicking the images
+    if ($('.image-buttons').length) {
+        $('.image-buttons').delegate('img', 'click', function (event) {
+            // Check the radio button immediately following the image
+            var radioButton = $(this).next();
+            if (radioButton.attr('checked')) {
+                radioButton.prop('checked', false);
+            } else {
+                radioButton.prop('checked', true);
+            }
+
+            if (submitForm) {
+                $('#form').submit();
+            } else {
+                $(this).toggleClass('selected');
+            }
+        });
+    }
+
+    // "Automatic" file upload lol
+    $('input[type=file]').change(function () {
+        $('#form').trigger('submit');
+    });
 });

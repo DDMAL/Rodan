@@ -1,0 +1,7 @@
+<h1>Create a new workflow for {{ page }}</h1>
+{% if page.workflow %}
+<div class="errors">
+    <p>This page already has a workflow - {{ page.workflow }}. Only continue with this form if you want to create a new workflow for it. Otherwise, go back to the <a href="{% url upload page.project.id %}">image upload page</a> for this project or view more information about <a href="{{ page.get_absolute_url }}">{{ page }}</a>. Or, you can add more jobs to it here - <a href="{% url add_jobs page.id %}">Add jobs</a></p>
+</div>
+{% endif %}
+{% include "includes/form.html" %}

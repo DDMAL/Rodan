@@ -21,7 +21,7 @@ $(document).ready(function() {
     //Image path (TO BE REPLACED LATER)
     imageObj.src = $("#image-original").attr("src");
     
-    $('#crop-form').submit(function () {
+    $('#form').submit(function () {
         var points = logRect();
         $('#tlx-input').val(points[0]);
         $('#tly-input').val(points[1]);

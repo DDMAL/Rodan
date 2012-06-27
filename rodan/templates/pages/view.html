@@ -1,22 +1,13 @@
-{% extends "main.html" %}
-
-{% block content %}
-    <section>
-        <h1>{{ page }}</h1>
-        <p>What should go on this page?</p>
-        <p>Progress: % percent (so X jobs, figure out which the next one is, from there get how many are done)</p>
-        <p>Also: show some thumbs for every step</p>
-        <hr />
-        <p>Progress: {{ page.get_percent_done }}% done</p>
-        <p>Thumbnails for the steps:</p>
-        <p>This will have to be done later (after the methods are reorganised and stuff)</p>
-        {% for step in steps %}
-            <h3>{{ step.job }}</h3>
-            {% if step.is_done %}
-                <p>{% if step.job.get_object.outputs_image %}<a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a>{% else %}This step does not output an image.{% endif %}</p>
-                {% else %}
-                <p>THIS JOB IS INCOMPLETE</p>
-            {% endif %}
-        {% endfor %}
-    </section>
-{% endblock %}
+<h1>{{ page }}</h1>
+<p>Progress: {{ page.get_percent_done }}% done</p>
+<p>{% if page.workflow %}Workflow: {{ page.workflow }} :: <a href="">Edit workflow details</a>{% if not workflow.has_started %} :: <a href="{% url add_jobs page.id %}">Add jobs to workflow</a>{% endif %}{% else %}No workflow! <a href="{% url new_workflow page.id %}">Create one?</a> Or, use an existing one? (Later){% endif %}</p>
+{% include "includes/page_image.html" %}
+<hr />
+{% for step in steps %}
+    <h3>{{ step.job }}</h3>
+    {% if step.is_done %}
+        <p>{% if step.job.get_object.outputs_image %}<a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a>{% else %}This step does not output an image.{% endif %}</p>
+        {% else %}
+        <p>THIS JOB IS INCOMPLETE</p>
+    {% endif %}
+{% endfor %}

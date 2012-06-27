@@ -5,14 +5,23 @@ from django.contrib import admin
 admin.autodiscover()
 
 project_urls = patterns('rodan.views.projects',
-    url(r'^/?$', 'view'),
+    url(r'^/?$', 'view', name='view_project'),
     url(r'^/edit', 'edit', name='edit_project'),
-    url(r'^/add', 'add_pages', name='add_pages'),
+    url(r'^/upload', 'upload', name='upload'),
+    url(r'^/workflows', 'workflows', name='manage_workflows'),
     url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
+)
+
+workflow_urls = patterns('rodan.views.workflows',
+    url(r'^/?$', 'view'),
+    url(r'^/edit', 'edit', name='edit_workflow'),
+    url(r'^/add', 'add_pages', name='add_pages'),
 )
 
 page_urls = patterns('rodan.views.pages',
     url(r'^/?$', 'view', name='view_page'),
+    url(r'^/jobs', 'add_jobs', name='add_jobs'),
+    url(r'^/workflow', 'workflow', name='new_workflow'),
     url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
 )
 
@@ -34,7 +43,7 @@ urlpatterns += patterns('rodan.views.projects',
 )
 
 urlpatterns += patterns('rodan.views.workflows',
-    url(r'^workflows/(?P<workflow_id>\d+)', 'view'),
+    url(r'^workflows/(?P<workflow_id>\d+)', include(workflow_urls)),
 )
 
 urlpatterns += patterns('rodan.views.jobs',

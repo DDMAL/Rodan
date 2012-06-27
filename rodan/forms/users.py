@@ -17,11 +17,11 @@ class SignupLoginForm(forms.Form):
         password = cleaned_data.get('password', '')
 
         # If the email is set, we want to create a new user
-        if email:
+        if username and email:
             if User.objects.filter(username__iexact=username).count() > 0:
                 # This username already exists - show an error
                 raise forms.ValidationError("The specified username has already been taken.")
-        else:
+        elif username and password:
             # We want to log in an existing user (case insensitive)
             try:
                 username = User.objects.get(username__iexact=username)
@@ -34,5 +34,8 @@ class SignupLoginForm(forms.Form):
                 cleaned_data['username'] = username
             except User.DoesNotExist:
                 raise forms.ValidationError("The username/password combination is incorrect. Please try again.")
+        else:
+            # Will get caught by the other validation steps
+            pass
 
         return cleaned_data
