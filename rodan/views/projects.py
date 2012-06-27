@@ -164,6 +164,7 @@ def task(request, job, project_id=0):
         'original_image': page.get_latest_thumb_url(size=settings.ORIGINAL_SIZE),
         'large_thumbnail': page.get_latest_thumb_url(size=settings.LARGE_THUMBNAIL),
         'medium_thumbnail': page.get_latest_thumb_url(size=settings.MEDIUM_THUMBNAIL),
+        'small_thumbnail': page.get_latest_thumb_url(size=settings.SMALL_THUMBNAIL),
         'job_template': view_data[0],
         'context': view_data[1],
         'form_action': reverse('task_complete', args=[page.id, job.slug]),
