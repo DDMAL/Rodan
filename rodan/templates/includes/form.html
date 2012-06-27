@@ -1,10 +1,12 @@
 {% comment %}
 A reusable form snippet. Include it in any template file that has a {{ form }}
 instance (or use the `with` keyword).
+
+The start and end tags for the form are defined in main.html, and will only
+appear if {{ form }} is truthy.
 {% endcomment %}
 
 {% autoescape off %}
-    <form method="post" action="{{ form_action }}"{% if file_upload %} enctype="multipart/form-data"{% endif %}{% if form_id %} id="{{ form_id }}"{% endif %}>
     {% csrf_token %}
     {% if form.errors %}
     <div class="errors">
@@ -21,5 +23,4 @@ instance (or use the `with` keyword).
     <fieldset class="submit">
         <input type="submit" name="submit" value="Submit" />
     </fieldset>
-</form>
 {% endautoescape %}

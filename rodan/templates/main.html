@@ -5,6 +5,8 @@
         {% include "includes/sidebar.html" %}
     </div>
     <div id="content">
+        {% if form %}<form method="post" action="{{ form_action }}"{% if file_upload %} enctype="multipart/form-data"{% endif %}{% if form_id %} id="{{ form_id }}"{% else %} id="form"{% endif %}>{% endif %}
         {% block content %}{% endblock %}
+        {% if form %}</form>{% endif %}
     </div>
 {% endblock %}
