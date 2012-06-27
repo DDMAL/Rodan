@@ -96,6 +96,51 @@ $(document).ready(function() {
             viewBox.getLayer().draw();
             moveBox();
         });
+        
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        var bodyDOM = document.getElementsByTagName("body")[0];
+        var mouseDown = false;
+        var initX = 0;
+        var initY = 0;
+        canvas.addEventListener("mousedown", function(e) {
+            mouseDown = true;
+            initX = e.clientX;
+            initY = e.clientY;
+        });
+        bodyDOM.addEventListener("mousemove", function(e) {
+            if (mouseDown) {
+                var dX = e.clientX - initX;
+                var dY = e.clientY - initY;
+                
+                initX = e.clientX;
+                initY = e.clientY;
+                
+                var boxWidth = viewWidth * scaleVal;
+                var newX = viewBox.getX() - (dX * scaleVal);
+                var newY = viewBox.getY() - (dY * scaleVal);
+                if (newX < 0) {
+                    newX = 0;
+                } else if ((newX + boxWidth) > imageThumb.width) {
+                    newX = imageThumb.width - boxWidth;
+                }
+                if (newY < 0) {
+                    newY = 0;
+                } else if ((newY + boxWidth) > imageThumb.height) {
+                    newY = imageThumb.height - boxWidth;
+                }
+                
+                viewBox.setX(newX);
+                viewBox.setY(newY);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(defThresh, boxX, boxY);
+            }
+        });
+        bodyDOM.addEventListener("mouseup", function(e) {
+                mouseDown = false;
+        });
     };
 
     imageObj.onload = function() {
