@@ -85,14 +85,41 @@ $(document).ready(function() {
 
         layerB.add(viewBox);
         stage.add(layerB);
+        
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        var bodyDOM = document.getElementsByTagName("body")[0];
+        var pMouseDown = false;
+        var pInitX = 0;
+        var pInitY = 0;
 
-        var moveBox = function() {
+        var setBox = function() {
             boxX = viewBox.getX() / scaleVal;
             boxY = viewBox.getY() / scaleVal;
             despeckle(defSize, boxX, boxY);
         };
-
-        viewBox.on("dragend", moveBox);
+        
+        var pMoveBox = function(e, first) {
+            var pos = stage.getMousePosition(e);
+            if (pos != undefined) {
+                var boxWidth = viewWidth * scaleVal;
+                pos.x -= (boxWidth / 2);
+                pos.y -= (boxWidth / 2);
+                if (pos.x < 0) {
+                    pos.x = 0;
+                } else if ((pos.x + boxWidth) > imageThumb.width) {
+                    pos.x = imageThumb.width - boxWidth;
+                }
+                if (pos.y < 0) {
+                    pos.y = 0;
+                } else if ((pos.y + boxWidth) > imageThumb.height) {
+                    pos.y = imageThumb.height - boxWidth;
+                }
+                viewBox.setX(pos.x);
+                viewBox.setY(pos.y);
+                viewBox.getLayer().draw();
+            }
+        };
 
         image.on("mousedown", function(e) {
             var boxWidth = viewWidth * scaleVal;
@@ -112,25 +139,34 @@ $(document).ready(function() {
             viewBox.setX(boxPosX);
             viewBox.setY(boxPosY);
             viewBox.getLayer().draw();
-            moveBox();
+            pMouseDown = true;
+        });
+
+        viewBox.on("mousedown", function() {
+            pMouseDown = true;
         });
         
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        var bodyDOM = document.getElementsByTagName("body")[0];
-        var mouseDown = false;
-        var initX = 0;
-        var initY = 0;
+        var vMouseDown = false;
+        var vInitX = 0;
+        var vInitY = 0;
         canvas.addEventListener("mousedown", function(e) {
-            mouseDown = true;
-            initX = e.clientX;
-            initY = e.clientY;
+            vMouseDown = true;
+            vInitX = e.clientX;
+            vInitY = e.clientY;
+        });
+        bodyDOM.addEventListener("mousemove", function(e) {
+            if (pMouseDown) {
+                pMoveBox(e);
+            }
         });
         bodyDOM.addEventListener("mouseup", function(e) {
-            if (mouseDown) {
-                mouseDown = false;
-                var dX = e.clientX - initX;
-                var dY = e.clientY - initY;
+            if (pMouseDown) {
+                pMouseDown = false;
+                setBox();
+            } else if (vMouseDown) {
+                vMouseDown = false;
+                var dX = e.clientX - vInitX;
+                var dY = e.clientY - vInitY;
                 
                 var boxWidth = viewWidth * scaleVal;
                 var newX = viewBox.getX() - (dX * scaleVal);
@@ -165,29 +201,6 @@ $(document).ready(function() {
         binarise(100);
         $("#slider").width(viewWidth);
         imageThumb.src = $("#image-thumb").attr("src");
-        /*
-        var bodyDOM = document.getElementsByTagName("body")[0];
-        var mouseDown = false;
-        var initX = 0;
-        var initY = 0;
-        canvas.addEventListener("mousedown", function(e) {
-            mouseDown = true;
-            initX = e.clientX;
-            initY = e.clientY;
-        });
-        bodyDOM.addEventListener("mouseup", function(e) {
-            if (mouseDown) {
-                mouseDown = false;
-                var dX = (e.clientX - initX) * stage.attrs.scaleVal;
-                var dY = (e.clientY - initY) * stage.attrs.scaleVal;
-                
-                var viewBox = stage.get("viewBox")[0];
-                viewBox.setX(viewBox.getX() + (dX * scaleVal));
-                boxX = viewBox.getX() / scaleVal;
-                boxY = viewBox.getY() / scaleVal;
-                despeckle(defSize, boxX, boxY);
-            }
-        });*/
     };
 
     

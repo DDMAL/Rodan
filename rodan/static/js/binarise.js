@@ -65,56 +65,63 @@ $(document).ready(function() {
 
         layerB.add(viewBox);
         stage.add(layerB);
-
-        var moveBox = function() {
-            var canvas = document.getElementById("image-viewport");
-            var context = canvas.getContext("2d");
-            boxX = viewBox.getX() / scaleVal;
-            boxY = viewBox.getY() / scaleVal;
-            binarise(defThresh, boxX, boxY);
-        };
-
-        viewBox.on("dragmove", moveBox);
-
-        image.on("mousedown", function(e) {
-            var boxWidth = viewWidth * scaleVal;
-            var mousePos = stage.getUserPosition(e);
-            var boxPosX = mousePos.x - (boxWidth / 2);
-            var boxPosY = mousePos.y - (boxWidth / 2);
-            if (mousePos.x < (boxWidth / 2)) {
-                boxPosX = 0;
-            } else if ((mousePos.x + (boxWidth / 2)) > imageThumb.width) {
-                boxPosX = imageThumb.width - boxWidth;
-            }
-            if (mousePos.y < (boxWidth / 2)) {
-                boxPosY = 0;
-            } else if ((mousePos.y + (boxWidth / 2)) > imageThumb.height) {
-                boxPosY = imageThumb.height - boxWidth;
-            }
-            viewBox.setX(boxPosX);
-            viewBox.setY(boxPosY);
-            viewBox.getLayer().draw();
-            moveBox();
-        });
         
         var canvas = document.getElementById("image-viewport");
         var context = canvas.getContext("2d");
         var bodyDOM = document.getElementsByTagName("body")[0];
-        var mouseDown = false;
-        var initX = 0;
-        var initY = 0;
+        
+        var pMouseDown = false;
+        
+        var pMoveBox = function(e, first) {
+            var pos = stage.getMousePosition(e);
+            if (pos != undefined) {
+                var boxWidth = viewWidth * scaleVal;
+                pos.x -= (boxWidth / 2);
+                pos.y -= (boxWidth / 2);
+                if (pos.x < 0) {
+                    pos.x = 0;
+                } else if ((pos.x + boxWidth) > imageThumb.width) {
+                    pos.x = imageThumb.width - boxWidth;
+                }
+                if (pos.y < 0) {
+                    pos.y = 0;
+                } else if ((pos.y + boxWidth) > imageThumb.height) {
+                    pos.y = imageThumb.height - boxWidth;
+                }
+                viewBox.setX(pos.x);
+                viewBox.setY(pos.y);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(defThresh, boxX, boxY);
+            }
+        };
+        
+        var pClickDown = function(e) {
+            pMouseDown = true;
+            pMoveBox(e);
+        }
+
+        image.on("mousedown", pClickDown);
+        viewBox.on("mousedown", pClickDown);
+        
+        var vMouseDown = false;
+        var vInitX = 0;
+        var vInitY = 0;
         canvas.addEventListener("mousedown", function(e) {
-            mouseDown = true;
-            initX = e.clientX;
-            initY = e.clientY;
+            vMouseDown = true;
+            vInitX = e.clientX;
+            vInitY = e.clientY;
         });
         bodyDOM.addEventListener("mousemove", function(e) {
-            if (mouseDown) {
-                var dX = e.clientX - initX;
-                var dY = e.clientY - initY;
+            if (pMouseDown) {
+                pMoveBox(e);
+            } else if (vMouseDown) {
+                var dX = e.clientX - vInitX;
+                var dY = e.clientY - vInitY;
                 
-                initX = e.clientX;
-                initY = e.clientY;
+                vInitX = e.clientX;
+                vInitY = e.clientY;
                 
                 var boxWidth = viewWidth * scaleVal;
                 var newX = viewBox.getX() - (dX * scaleVal);
@@ -139,7 +146,8 @@ $(document).ready(function() {
             }
         });
         bodyDOM.addEventListener("mouseup", function(e) {
-                mouseDown = false;
+            pMouseDown = false;
+            vMouseDown = false;
         });
     };
 
