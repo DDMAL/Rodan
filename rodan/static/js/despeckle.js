@@ -68,6 +68,7 @@ $(document).ready(function() {
         layer.add(image);
         stage.add(layer);
 
+        //Ratio of thumbnail size to full image size
         var scaleVal = imageThumb.width / imageObj.width;
 
         var layerB = new Kinetic.Layer();
@@ -95,20 +96,22 @@ $(document).ready(function() {
         layerB.add(viewBox);
         stage.add(layerB);
         
+        //Assignment of mouse behaviours to canvases
         var canvas = document.getElementById("image-viewport");
         var context = canvas.getContext("2d");
         var bodyDOM = document.getElementsByTagName("body")[0];
+        //Bool for whether mousedown started in the thumbnail frame
         var pMouseDown = false;
-        var pInitX = 0;
-        var pInitY = 0;
 
+        //Move viewport and despeckle
         var setBox = function() {
             boxX = viewBox.getX() / scaleVal;
             boxY = viewBox.getY() / scaleVal;
             despeckle(defSize, boxX, boxY);
         };
         
-        var pMoveBox = function(e, first) {
+        //Move thumbnail box
+        var pMoveBox = function(e) {
             var pos = stage.getMousePosition(e);
             if (pos != undefined) {
                 var boxWidth = viewWidth * scaleVal;
@@ -127,27 +130,15 @@ $(document).ready(function() {
                 viewBox.setX(pos.x);
                 viewBox.setY(pos.y);
                 viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(100, boxX, boxY);
             }
         };
 
+        //
         image.on("mousedown", function(e) {
-            var boxWidth = viewWidth * scaleVal;
-            var mousePos = stage.getUserPosition(e);
-            var boxPosX = mousePos.x - (boxWidth / 2);
-            var boxPosY = mousePos.y - (boxWidth / 2);
-            if (mousePos.x < (boxWidth / 2)) {
-                boxPosX = 0;
-            } else if ((mousePos.x + (boxWidth / 2)) > imageThumb.width) {
-                boxPosX = imageThumb.width - boxWidth;
-            }
-            if (mousePos.y < (boxWidth / 2)) {
-                boxPosY = 0;
-            } else if ((mousePos.y + (boxWidth / 2)) > imageThumb.height) {
-                boxPosY = imageThumb.height - boxWidth;
-            }
-            viewBox.setX(boxPosX);
-            viewBox.setY(boxPosY);
-            viewBox.getLayer().draw();
+            pMoveBox(e);
             pMouseDown = true;
         });
 
@@ -155,7 +146,9 @@ $(document).ready(function() {
             pMouseDown = true;
         });
         
+        //Bool for whether mousedown started in the viewport
         var vMouseDown = false;
+        //Previous mouse coordinates
         var vInitX = 0;
         var vInitY = 0;
         canvas.addEventListener("mousedown", function(e) {
@@ -166,6 +159,33 @@ $(document).ready(function() {
         bodyDOM.addEventListener("mousemove", function(e) {
             if (pMouseDown) {
                 pMoveBox(e);
+            } else if (vMouseDown) {
+                var dX = e.clientX - vInitX;
+                var dY = e.clientY - vInitY;
+                
+                vInitX = e.clientX;
+                vInitY = e.clientY;
+                
+                var boxWidth = viewWidth * scaleVal;
+                var newX = viewBox.getX() - (dX * scaleVal);
+                var newY = viewBox.getY() - (dY * scaleVal);
+                if (newX < 0) {
+                    newX = 0;
+                } else if ((newX + boxWidth) > imageThumb.width) {
+                    newX = imageThumb.width - boxWidth;
+                }
+                if (newY < 0) {
+                    newY = 0;
+                } else if ((newY + boxWidth) > imageThumb.height) {
+                    newY = imageThumb.height - boxWidth;
+                }
+                
+                viewBox.setX(newX);
+                viewBox.setY(newY);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(100, boxX, boxY);
             }
         });
         bodyDOM.addEventListener("mouseup", function(e) {
