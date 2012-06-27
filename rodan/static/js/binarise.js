@@ -19,19 +19,6 @@ $(document).ready(function() {
     var stage;
     //Calculate initial threshold with the Brink formula and draw binarised image
 
-    imageObj.onload = function() {
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        canvas.width = viewWidth;
-        canvas.height = viewWidth;
-        var pmf = genPMF(imageObj);
-        defThresh = threshBrink(pmf);
-        binarise(defThresh);
-        //Manually set inital value for slider
-        $("#slider").slider("value", defThresh);
-        $("#slider").width(viewWidth);
-    };
-
     imageThumb.onload = function() {
         var scaleVal = imageThumb.width / imageObj.width;
 
@@ -111,8 +98,21 @@ $(document).ready(function() {
         });
     };
 
+    imageObj.onload = function() {
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        canvas.width = viewWidth;
+        canvas.height = viewWidth;
+        var pmf = genPMF(imageObj);
+        defThresh = threshBrink(pmf);
+        binarise(defThresh);
+        //Manually set inital value for slider
+        $("#slider").slider("value", defThresh);
+        $("#slider").width(viewWidth);
+        imageThumb.src = $("#image-thumb").attr("src");
+    };
+
     imageObj.src = $("#image-full").attr("src");
-    imageThumb.src = $("#image-thumb").attr("src");
 
     //binarises data, splitting foreground and background at a given brightness level
     var binarise = function(thresh, x, y) {
