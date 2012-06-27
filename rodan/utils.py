@@ -48,6 +48,10 @@ def rodan_view(*models):
                 context['template_file'] = template_file
                 context['breadcrumbs'] = reversed(breadcrumbs)
 
+                for model_instance in model_instances:
+                    model_name = model_instance.__class__.__name__.lower()
+                    context[model_name] = model_instance
+
                 return render(request, 'detail.html', context)
             except ValueError:
                 return output

@@ -46,7 +46,7 @@ def create(request):
             project = form.save(commit=False)
             project.creator = request.user.get_profile()
             project.save()
-            return redirect(project)
+            return redirect('upload', project_id=project.id)
     else:
         form = ProjectForm()
 

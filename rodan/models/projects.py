@@ -331,6 +331,7 @@ class JobItem(models.Model):
     class Meta:
         app_label = 'rodan'
         unique_together = ('workflow', 'sequence')
+        ordering = ['sequence']
 
     workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
