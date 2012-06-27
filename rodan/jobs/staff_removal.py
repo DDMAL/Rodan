@@ -20,7 +20,7 @@ def remove_staves(image_filepath, **kwargs):
 
 class StaffRemoval(JobBase):
     name = 'Staff removal'
-    slug = 'staff_removal'
+    slug = 'staff-remove'
     input_type = JobType.SEGMENTED_IMAGE
     output_type = JobType.NEUME_IMAGE
     description = 'Takes a segmented image and outputs an image with the the staves lines removed, for the classification process'

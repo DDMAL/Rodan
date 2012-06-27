@@ -48,7 +48,7 @@ def find_staves(image_filepath, **kwargs):
 
 
 class StaffFinding(JobBase):
-    name = 'Staff Finding'
+    name = 'Staff finding'
     slug = 'staff-finding'
     input_type = JobType.RANKED_IMAGE
     output_type = JobType.POLYGON_JSON
