@@ -41,3 +41,4 @@ class Classifier(JobBase):
     }
     task = classifier
     is_automatic = True
+    outputs_image = False
