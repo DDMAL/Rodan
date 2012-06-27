@@ -1,5 +1,3 @@
-
-
 //Setup
 $(document).ready(function() {
     var viewWidth = 500;
