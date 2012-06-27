@@ -11,7 +11,6 @@ from celery.task import task
 from django.conf import settings
 
 from rodan.models.results import Result
-from rodan.models.projects import JobItem
 
 
 def create_dirs(full_path):
