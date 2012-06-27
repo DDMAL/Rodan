@@ -12,9 +12,9 @@ class SignupLoginForm(forms.Form):
     # Otherwise, make sure that the username has not been taken already
     def clean(self):
         cleaned_data = super(SignupLoginForm, self).clean()
-        email = cleaned_data['email']
-        username = cleaned_data['username']
-        password = cleaned_data['password']
+        email = cleaned_data.get('email', '')
+        username = cleaned_data.get('username', '')
+        password = cleaned_data.get('password', '')
 
         # If the email is set, we want to create a new user
         if email:
