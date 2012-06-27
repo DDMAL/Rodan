@@ -85,7 +85,7 @@
         "pk": 1, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.preprocessing.BorderRemoval", 
+            "job": "border-remove",
             "sequence": 1, 
             "workflow": 1
         }
@@ -94,7 +94,7 @@
         "pk": 2, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.transformation.Rotate", 
+            "job": "rotate",
             "sequence": 2, 
             "workflow": 1
         }
@@ -103,7 +103,7 @@
         "pk": 3, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.preprocessing.Crop", 
+            "job": "crop",
             "sequence": 2,
             "workflow": 2
         }
@@ -112,7 +112,7 @@
         "pk": 4, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.transformation.Rotate", 
+            "job": "rotate",
             "sequence": 1,
             "workflow": 2
         }
@@ -121,7 +121,7 @@
         "pk": 5, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.binarisation.SimpleThresholdBinarise", 
+            "job": "simple-binarise",
             "sequence": 3, 
             "workflow": 2
         }
@@ -130,7 +130,7 @@
         "pk": 9, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.morphology.Despeckle", 
+            "job": "despeckle",
             "sequence": 4, 
             "workflow": 2
         }
@@ -139,7 +139,7 @@
         "pk": 10, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.filtering.RankFilter", 
+            "job": "rank-filter",
             "sequence": 5, 
             "workflow": 2
         }
@@ -148,7 +148,7 @@
         "pk": 11, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.staff_finding.StaffFinding", 
+            "job": "staff-finding",
             "sequence": 6, 
             "workflow": 2
         }
@@ -157,7 +157,7 @@
         "pk": 12, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.segmentation.Segmentation", 
+            "job": "segmentation",
             "sequence": 7, 
             "workflow": 2
         }
@@ -166,7 +166,7 @@
         "pk": 13, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rodan.jobs.staff_removal.StaffRemoval", 
+            "job": "staff-remove",
             "sequence": 8, 
             "workflow": 2
         }

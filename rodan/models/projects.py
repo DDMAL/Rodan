@@ -61,8 +61,8 @@ class Job(models.Model):
         app_label = 'rodan'
 
     name = models.CharField(max_length=50)
-    slug = models.CharField(max_length=20)
-    module = models.CharField(max_length=100, primary_key=True)
+    slug = models.CharField(max_length=20, primary_key=True)
+    module = models.CharField(max_length=100)
 
     def __unicode__(self):
         return self.name
