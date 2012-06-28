@@ -76,20 +76,20 @@ $(document).ready(function() {
             var pos = stage.getMousePosition(e);
             if (pos != undefined) {
                 var boxWidth = viewWidth * scaleVal;
-                pos.x -= (boxWidth / 2);
-                pos.y -= (boxWidth / 2);
-                if (pos.x < 0) {
-                    pos.x = 0;
-                } else if ((pos.x + boxWidth) > imageThumb.width) {
-                    pos.x = imageThumb.width - boxWidth;
+                var nX = pos.x - Math.round(boxWidth / 2);
+                var nY = pos.y - Math.round(boxWidth / 2);
+                if (nX < 0) {
+                    nX = 0;
+                } else if ((nX + boxWidth) > imageThumb.width) {
+                    nX = imageThumb.width - boxWidth;
                 }
-                if (pos.y < 0) {
-                    pos.y = 0;
-                } else if ((pos.y + boxWidth) > imageThumb.height) {
-                    pos.y = imageThumb.height - boxWidth;
+                if (nY < 0) {
+                    nY = 0;
+                } else if ((nY + boxWidth) > imageThumb.height) {
+                    nY = imageThumb.height - boxWidth;
                 }
-                viewBox.setX(pos.x);
-                viewBox.setY(pos.y);
+                viewBox.setX(nX);
+                viewBox.setY(nY);
                 viewBox.getLayer().draw();
                 boxX = viewBox.getX() / scaleVal;
                 boxY = viewBox.getY() / scaleVal;
