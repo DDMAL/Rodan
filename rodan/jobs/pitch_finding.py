@@ -34,7 +34,7 @@ class PitchFinding(JobBase):
     name = 'Pitch finding'
     slug = 'pitch-finding'
     input_type = JobType.CLASSIFY_XML
-    output_type = JobType.MEI_UNCORRECTED
+    output_type = JobType.MEI
     description = 'Finds the pitchs of a given image using the output of classification on that image. Returns a .json file containing all the information'
     show_during_wf_create = True
     parameters = {

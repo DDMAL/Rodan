@@ -69,6 +69,5 @@ class JobType:
     SEGMENTED_IMAGE = 5
     NEUME_IMAGE = 6
     RANKED_IMAGE = 7
-    MEI_UNCORRECTED = 8
-    MEI_CORRECTED = 9
-    SOLR = 10
+    MEI = 8
+    SOLR = 9

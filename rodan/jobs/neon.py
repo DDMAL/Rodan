@@ -18,8 +18,8 @@ def neon(image_filepath, **kwargs):
 class Neon(JobBase):
     name = 'Neon'
     slug = 'neon'
-    input_type = JobType.MEI_UNCORRECTED
-    output_type = JobType.MEI_CORRECTED
+    input_type = JobType.MEI
+    output_type = JobType.MEI
     description = 'Correct OMR errors.'
     show_during_wf_create = False
     parameters = {

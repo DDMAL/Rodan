@@ -19,7 +19,7 @@ def index_solr(mei_filepath, **kwargs):
 class SolrIndexing(JobBase):
     name = 'Solr indexing'
     slug = 'solr-indexing'
-    input_type = JobType.MEI_CORRECTED
+    input_type = JobType.MEI
     output_type = JobType.SOLR
     description = 'Indexes .mei data into SOLR'
     show_during_wf_create = True
