@@ -41,7 +41,7 @@ def dashboard(request):
         'percent_done': percent_done,
         'my_projects': my_projects,
         'jobs': jobs,
-        'my_workflows': my_workflows,
+        'workflows': my_workflows,
         'nojob': nojob,
     }
 
@@ -87,6 +87,7 @@ def view(request, project):
         jobs.append((job, job in available_jobs, project.id))
 
     data = {
+        'workflows': project.workflow_set.all(),
         'percent_done': project.get_percent_done(),
         'done': done,
         'nojob': nojob,

@@ -35,28 +35,6 @@
         <p>You have no projects. How sad. Create one! (See the button above)</p>
         {% endif %}
 
-        <h2>Your workflows</h2>
-        {% if my_workflows %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Workflow name</th>
-                    <th>Number of pages</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for workflow in my_workflows %}
-                <tr>
-                    <td><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></td>
-                    <td>{{ workflow.page_set.count }}</td>
-                    <td>{% progress_bar workflow.get_percent_done %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
-
         {% include "includes/job_grid.html" %}
         <hr />
         {% include "includes/job_status.html" %}
