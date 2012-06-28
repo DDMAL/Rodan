@@ -26,7 +26,7 @@ $(document).ready(function() {
         };
         this.getPixelRGB = function (x, y) {
             var convX = x * 4;
-            var convY = y * imageObj.with * 4;
+            var convY = y * imageObj.width * 4;
             var pos = convX + convY;
             return new PixelRGB(this.data[pos],
                                 this.data[pos + 1],
@@ -34,7 +34,7 @@ $(document).ready(function() {
         }
         this.getRGBA = function(x, y) {
             var convX = x * 4;
-            var convY = y * imageObj.with * 4;
+            var convY = y * imageObj.width * 4;
             var pos = convX + convY;
             var rgba = [];
             rgba[0] = this.data[pos];
@@ -53,7 +53,7 @@ $(document).ready(function() {
         };
         this.setPixelRGB = function(x, y, pRGB) {
             var convX = x * 4;
-            var convY = y * imageObj.with * 4;
+            var convY = y * imageObj.width * 4;
             var pos = convX + convY;
             this.data[pos] = pRGB.r;
             this.data[pos + 1] = pRGB.g;
@@ -61,7 +61,7 @@ $(document).ready(function() {
         }
         this.setRGBA = function(x, y, rgba) {
             var convX = x * 4;
-            var convY = y * imageObj.with * 4;
+            var convY = y * imageObj.width * 4;
             var pos = convX + convY;
             this.data[pos] = rgba[0];
             this.data[pos + 1] = rgba[1];
