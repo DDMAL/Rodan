@@ -7,8 +7,6 @@
         <input type="submit" name="submit" value="Segment" class="submit" />
     </fieldset>
 </form>
-<button id="addPoly">Add Poly</button>
-<button id="removePoly">Remove Poly</button>
 <div id="slider"></div>
 <div class="images">
     <div class="hidden">
@@ -16,6 +14,8 @@
         <p id="width">{{ context.width }}</p>
         {% include "includes/page_image.html" with large_image=1 %}
     </div>
+	<button type="button" id="addPoly">Add Poly</button>
+	<button type="button" id="removePoly">Remove Poly</button>
     <div id="image-preview"></div>
 </div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.9.7.min.js"></script>
