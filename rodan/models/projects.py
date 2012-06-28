@@ -102,6 +102,7 @@ class Workflow(models.Model):
     class Meta:
         app_label = 'rodan'
 
+    project = models.ForeignKey(Project)
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     jobs = models.ManyToManyField(Job, through='JobItem', null=True, blank=True)
