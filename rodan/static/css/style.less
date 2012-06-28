@@ -517,7 +517,7 @@ ul.grid {
     margin: 5px 0;
     #gradient(@progressBgStart, @progressBgEnd);
     .box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.1));
-    .border-radius(5px);
+    .border-radius(8px);
     overflow: hidden;
     .bar {
         line-height: 24px;
@@ -527,13 +527,12 @@ ul.grid {
         text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
         padding-right: 5px;
         &.none {
+            background: @lightGrey;
             color: @darkGrey;
             padding-left: 5px;
         }
         &.red {
             background: @red;
-            text-align: left;
-            padding-left: 5px;
         }
         &.orange {
             background: @orange;
