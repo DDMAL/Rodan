@@ -17,7 +17,7 @@ def view(request, workflow):
         'job_items': workflow.jobitem_set.all(),
         'page_sections': list(chunkify(pages, num_per_row)),
         'num_per_row': num_per_row,
-        'num_to_fill': len(pages) % num_per_row,
+        'num_to_fill': num_per_row - (len(pages) % num_per_row),
         'add_jobs_url': reverse('add_jobs', args=[pages[0].id])
     }
 
