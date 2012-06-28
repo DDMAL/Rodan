@@ -46,7 +46,18 @@
     </thead>
     <tbody>
         <tr>
-            <td></td>
+            <td><strong>Progress</strong></td>
+            {% for page in page_section %}
+                <td>{% progress_bar page.get_percent_done %}</td>
+            {% endfor %}
+            {% if forloop.last %}
+            {% for i in num_to_fill|get_range %}
+                <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Original image</td>
             {% for page in page_section %}
                 <td><a href="{{ page.get_absolute_url }}"><img src="{{ page.get_thumb_url }}" /></a></td>
             {% endfor %}

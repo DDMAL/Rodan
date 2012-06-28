@@ -9,11 +9,10 @@ from rodan.models.projects import Workflow, Project, Page
 @rodan_view(Workflow)
 def view(request, workflow):
     pages = workflow.page_set.all()
-    total_progress = sum(page.get_percent_done() for page in pages) / len(pages)
     num_per_row = 4
 
     data = {
-        'total_progress': total_progress,
+        'total_progress': workflow.get_percent_done(),
         'num_pages': len(pages),
         'job_items': workflow.jobitem_set.all(),
         'page_sections': list(chunkify(pages, num_per_row)),
