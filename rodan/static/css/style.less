@@ -125,17 +125,22 @@ p {
     }
 }
 
-#content {
-    position: absolute;
+.scrollable {
+    overflow-y: auto;
     height: 100%;
+}
+
+#content {
+    .scrollable;
+    position: absolute;
     left: @sidebarWidth;
     right: 0px;
     background: @contentBg;
-    section {
-        padding: 20px;
-    }
-    overflow-y: auto;
     overflow-x: hidden;
+}
+
+section {
+    padding: 20px;
 }
 
 a {

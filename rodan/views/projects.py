@@ -186,6 +186,7 @@ def task(request, job, project_id=0):
         'context': view_data[1],
         'form_action': reverse('task_complete', args=[page.id, job.slug]),
         'form': True,
+        'hide_sidebar': True,
     }
 
     return (job.name, data)
