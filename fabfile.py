@@ -12,10 +12,7 @@ def dump():
     local("python manage.py dumpdata rodan --indent=4")
 
 def celery():
-    local("python manage.py celeryd")
-
-def celery():
-    local("python manage.py shell")
+    local("python manage.py celeryd -E --autoreload")
 
 def test():
     local("python manage.py test rodan")
