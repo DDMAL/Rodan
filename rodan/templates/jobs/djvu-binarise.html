@@ -1,0 +1,14 @@
+<p>This is a djvu-binarisation job!!!</p>
+<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<form method="post" action="{% url task_complete page.id job.slug %}" id="binarise-form">
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="threshold" value="0" id="threshold-input" />
+        <input type="submit" name="submit" value="Binarise" class="submit" />
+    </fieldset>
+</form>
+
+<div class="images">
+    {% include "includes/page_image.html" %}
+    <canvas id="image-preview" alt="Image preview"></canvas>
+<script src="{{ STATIC_URL }}js/djvu-binarise.js"></script>
