@@ -18,3 +18,18 @@ def get_thumb_for_job(page, job=None, size=settings.SMALL_THUMBNAIL):
 @register.filter
 def is_job_complete(page, job_item):
     return page.is_job_complete(job_item)
+
+@register.simple_tag
+def progress_bar(percentage):
+    if percentage == 0:
+        colour = 'none'
+    elif percentage < 10:
+        colour = 'red'
+    elif percentage < 25:
+        colour = 'orange'
+    elif percentage < 45:
+        colour = 'yellow'
+    else:
+        colour = 'green'
+
+    return '<div class="progress"><div class="bar %s" style="width: %d%%;">%d%%</div></div>' % (colour, percentage, percentage)
