@@ -17,7 +17,7 @@ def index_solr(mei_filepath, **kwargs):
 
 
 class SolrIndexing(JobBase):
-    name = 'Solr Indexing'
+    name = 'Solr indexing'
     slug = 'solr-indexing'
     input_type = JobType.MEI_CORRECTED
     output_type = JobType.SOLR
