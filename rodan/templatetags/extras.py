@@ -21,13 +21,13 @@ def is_job_complete(page, job_item):
 
 @register.simple_tag
 def progress_bar(percentage):
-    if percentage == 0:
+    if percentage < 10:
         colour = 'none'
-    elif percentage < 10:
+    elif percentage < 20:
         colour = 'red'
-    elif percentage < 25:
+    elif percentage < 30:
         colour = 'orange'
-    elif percentage < 45:
+    elif percentage < 40:
         colour = 'yellow'
     else:
         colour = 'green'
