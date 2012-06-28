@@ -27,41 +27,46 @@ $(document).ready(function() {
         this.getPixelRGB = function (x, y) {
             var convX = x * 4;
             var convY = y * imageObj.with * 4;
-            return new PixelRGB(this.data[convX + convY],
-                                this.data[convX + convY + 1],
-                                this.data[convX + convY + 2]);
+            var pos = convX + convY;
+            return new PixelRGB(this.data[pos],
+                                this.data[pos + 1],
+                                this.data[pos + 2]);
         }
         this.getRGBA = function(x, y) {
             var convX = x * 4;
             var convY = y * imageObj.with * 4;
-            var rgba = []
-            rgba[0] = this.data[convX + convY];
-            rgba[1] = this.data[convX + convY + 1];
-            rgba[2] = this.data[convX + convY + 2];
-            rgba[3] = this.data[convX + convY + 3];
+            var pos = convX + convY;
+            var rgba = [];
+            rgba[0] = this.data[pos];
+            rgba[1] = this.data[pos + 1];
+            rgba[2] = this.data[pos + 2];
+            rgba[3] = this.data[pos + 3];
             return rgba;
         }
         this.setPoint = function(x, y, val) {
             var convX = x * 4;
             var convY = y * imageObj.width * 4;
-            this.data[convX + convY] = val;
-            this.data[convX + convY + 1] = val;
-            this.data[convX + convY + 2] = val;
+            var pos = convX + convY;
+            this.data[pos] = val;
+            this.data[pos + 1] = val;
+            this.data[pos + 2] = val;
         };
         this.setPixelRGB = function(x, y, pRGB) {
             var convX = x * 4;
             var convY = y * imageObj.with * 4;
-            this.data[convX + convY] = pRGB.r;
-            this.data[convX + convY + 1] = pRGB.g;
-            this.data[convX + convY + 2] = pRGB.b;
+            var pos = convX + convY;
+            this.data[pos] = pRGB.r;
+            this.data[pos + 1] = pRGB.g;
+            this.data[pos + 2] = pRGB.b;
         }
         this.setRGBA = function(x, y, rgba) {
             var convX = x * 4;
             var convY = y * imageObj.with * 4;
-            this.data[convX + convY] = rgba[0];
-            this.data[convX + convY + 1] = rgba[1];
-            this.data[convX + convY + 2] = rgba[2];
-            this.data[convX + convY + 3] = rgba[3];
+            var pos = convX + convY;
+            this.data[pos] = rgba[0];
+            this.data[pos + 1] = rgba[1];
+            this.data[pos + 2] = rgba[2];
+            this.data[pos + 3] = rgba[3];
         }
         this.isBlack = function(x, y) {
             return this.getPoint(x, y) === BLACK;
@@ -82,8 +87,10 @@ $(document).ready(function() {
             return new IData(nData, nWidth, nHeight, ulx + this.ulx, uly + this.uly);
         }
         this.overwriteImage = function(sData, ulx, uly) {
-            for (var y = 0; y < sData.height; y++) {
-                for (var x = 0; x < sData.width; x++) {
+            var h = sData.height;
+            var w = sData.width;
+            for (var y = 0; y < h; y++) {
+                for (var x = 0; x < w; x++) {
                     this.setRGBA(x + ulx, y + uly, sData.getRGBA(x, y));
                 }
             }
@@ -127,7 +134,8 @@ $(document).ready(function() {
     
     var createBlock = function(width, height) {
         var data = [];
-        for (var i = 0; i < (width * height * 4); i++)
+        var lim = width * height * 4;
+        for (var i = 0; i < lim; i++)
             data[i] = 0;
         return new IData(data, width, height);
     }
@@ -151,7 +159,8 @@ $(document).ready(function() {
         var bgConverged = false;
         var fgInitScaled = fgInit.scale(smoothness);
         var bgInitScaled = bgInit.scale(smoothness);
-        var hm = 0;
+        var h = data.height;
+        var w = data.width;
         do {
             lastFG = fg.clone();
             lastBG = bg.clone();
@@ -159,8 +168,9 @@ $(document).ready(function() {
             var bgAvg = new PixelRGB(0, 0, 0);
             var fgCount = 0;
             var bgCount = 0;
-            for (var y = 0; y < data.height; y++) {
-                for (var x = 0; x < data.width; x++) {
+            
+            for (var y = 0; y < h; y++) {
+                for (var x = 0; x < w; x++) {
                     var i = data.getPixelRGB(x, y);
                     var fgDist = djvu_distance(i, fg);
                     var bgDist = djvu_distance(i, bg);
@@ -185,19 +195,19 @@ $(document).ready(function() {
             } else {
                 bgConverged = true;
             }
-        } while (!(fgConverged && bgConverged) && (++hm) < 1);
+        } while (!(fgConverged && bgConverged));
         
-        if (blockSize < minBlockSize) {
-            fgData.setPixelRGB((data.ulx / minBlockSize), (data.uly / minBlockSize), fg);
-            bgData.setPixelRGB((data.ulx / minBlockSize), (data.uly / minBlockSize), bg);
-        } else {
-            for (var y = 0; y <= ((data.height - 1) / blockSize); y++) {
-                for (var x = 0; x <= ((data.width - 1) / blockSize); x++) {
+        if (blockSize >= minBlockSize) {
+            var yLim = ((h - 1) / blockSize);
+            var xLim = ((w - 1) / blockSize);
+            var hBlock = blockSize / 2;
+            for (var y = 0; y <= yLim; y++) {
+                for (var x = 0; x <= xLim; x++) {
                     var ulx = x * blockSize;
                     var uly = y * blockSize;
-                    var lrx = Math.min((x + 1) * blockSize, data.width);
-                    var lry = Math.min((y + 1) * blockSize, data.height);
-                    /*data.overwriteImage(ulx, uly,
+                    var lrx = Math.min((x + 1) * blockSize, w);
+                    var lry = Math.min((y + 1) * blockSize, h);
+                    data.overwriteImage(ulx, uly,
                                         djvu_threshold_recurse(data.subImage(ulx, uly, lrx, lry),
                                                                smoothness,
                                                                minBlockSize,
@@ -205,9 +215,12 @@ $(document).ready(function() {
                                                                bgData,
                                                                fg,
                                                                bg,
-                                                               blockSize / 2));*/
+                                                               hBlock));
                 }
             }
+        } else {
+            fgData.setPixelRGB((data.ulx / minBlockSize), (data.uly / minBlockSize), fg);
+            bgData.setPixelRGB((data.ulx / minBlockSize), (data.uly / minBlockSize), bg);
         }
     }
     
@@ -219,8 +232,10 @@ $(document).ready(function() {
         
         djvu_threshold_recurse(data, smoothness, minBlockSize, fgData, bgData, fgInit, bgInit, maxBlockSize);
         
-        for (var y = 0; y < data.height; y++) {
-            for (var x = 0; x < data.width; x++) {
+        var h = data.height;
+        var w = data.width;
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
                 var xFrac = x / minBlockSize;
                 var yFrac = y / minBlockSize;
                 var fg = fgData.getPixelRGB(xFrac, yFrac);
@@ -257,8 +272,10 @@ $(document).ready(function() {
         }
         var maxColour = new PixelRGB(0, 0, 0);
         var maxCount = 0;
-        for (var y = 0; y < canvas.height; y++) {
-            for (var x = 0; x < canvas.width; x++) {
+        var h = canvas.height;
+        var w = canvas.width;
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
                 var currentPixel = data.getPixelRGB(x, y);
                 var approxColour = (((currentPixel.r & 0xfc) << 10) |
                                     ((currentPixel.g & 0xfc) << 4)  |
