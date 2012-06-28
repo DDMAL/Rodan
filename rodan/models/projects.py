@@ -38,6 +38,10 @@ class Project(models.Model):
     def is_owned_by(self, user):
         return user.is_authenticated() and self.creator == user.get_profile()
 
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
+
 
 class Job(models.Model):
     """
@@ -110,6 +114,10 @@ class Workflow(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('rodan.views.workflows.view', str(self.id))
+
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
 
 
 class Page(models.Model):
@@ -218,6 +226,21 @@ class Page(models.Model):
         else:
             return self.get_thumb_url(size, None)
 
+    def get_pre_bin_image_url(self, size=settings.LARGE_THUMBNAIL):
+        """
+        Get the url to the latest pre-binarised image (i.e. the output of the
+        step right before binarisation, or the latest step if binarisation is
+        either not part of the workflow or has not yet been completed.
+        """
+        original = self.get_thumb_url(size=size)
+        if self.workflow.jobitem_set.count():
+            for jobitem in self.workflow.jobitem_set.order_by('-sequence'):
+                if jobitem.job.get_object().output_type == JobType.IMAGE:
+                    return self.get_thumb_url(size=size, job=jobitem.job)
+
+        # Otherwise, just return the original
+        return original
+
     def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None):
         return os.path.join(settings.MEDIA_URL,
                             self._get_thumb_path(size, job))
@@ -325,6 +348,13 @@ class Page(models.Model):
         for thumbnail_size in settings.THUMBNAIL_SIZES:
             thumb_path = self.get_thumb_path(size=thumbnail_size)
             rodan.jobs.utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
+
+    def is_job_complete(self, job_item):
+        Result = models.loading.get_model('rodan', 'Result')
+        return Result.objects.filter(job_item=job_item,
+                                     page=self,
+                                     end_total_time__isnull=False
+                                     ).count()
 
 
 class JobItem(models.Model):

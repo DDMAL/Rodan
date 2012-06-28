@@ -29,7 +29,7 @@ window.onload = function() {
 		});
 	});
 	
-	$('#rotate-form').submit(function () {
+	$('#form').submit(function () {
 	    var outAngle = (defAngle > 180) ? (defAngle - 360) : defAngle;
         $('#angle-input').val(outAngle);
     });

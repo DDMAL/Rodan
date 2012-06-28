@@ -32,9 +32,16 @@ def dashboard(request):
     for job in all_jobs:
         jobs.append((job, job.slug in available_jobs, available_jobs.get(job.slug, '')))
 
+    my_projects = request.user.get_profile().project_set.all()
+    my_workflows = Workflow.objects.filter(page__project__creator=request.user.get_profile()).distinct()
+    percent_done = sum(project.get_percent_done() for project in my_projects)
+    percent_done /= my_projects.count() if my_projects.count() > 0 else 1
+
     data = {
-        'my_projects': request.user.get_profile().project_set.all(),
+        'percent_done': percent_done,
+        'my_projects': my_projects,
         'jobs': jobs,
+        'my_workflows': my_workflows,
         'nojob': nojob,
     }
 
@@ -80,6 +87,7 @@ def view(request, project):
         jobs.append((job, job in available_jobs, project.id))
 
     data = {
+        'percent_done': project.get_percent_done(),
         'done': done,
         'nojob': nojob,
         'user_can_edit': project.is_owned_by(request.user),

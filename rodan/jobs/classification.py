@@ -40,3 +40,5 @@ class Classifier(JobBase):
     parameters = {
     }
     task = classifier
+    is_automatic = True
+    outputs_image = False

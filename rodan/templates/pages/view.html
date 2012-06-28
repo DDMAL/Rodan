@@ -1,7 +1,23 @@
 <h1>{{ page }}</h1>
-<p>Progress: {{ page.get_percent_done }}% done</p>
-<p>{% if page.workflow %}Workflow: {{ page.workflow }} :: <a href="">Edit workflow details</a>{% if not workflow.has_started %} :: <a href="{% url add_jobs page.id %}">Add jobs to workflow</a>{% endif %}{% else %}No workflow! <a href="{% url new_workflow page.id %}">Create one?</a> Or, use an existing one? (Later){% endif %}</p>
+{% load extras %}
+<table>
+    <tr>
+        <td>Progress</td>
+        <td>{% progress_bar page.get_percent_done %}</td>
+    </tr>
+    <tr>
+        <td>Workflow</td>
+        <td>
+            {% if page.workflow %}<a href="{{ page.workflow.get_absolute_url }}">{{ page.workflow }}</a>
+            :: <a href="">Edit workflow details</a>
+            {% if not page.workflow.has_started %} :: <a href="{% url add_jobs page.id %}">Add jobs to workflow</a>{% endif %}
+            {% else %}No workflow! <a href="{% url new_workflow page.id %}">Create one?</a> Or, use an existing one? (Later){% endif %}
+        </td>
+    </tr>
+</table>
+
 {% include "includes/page_image.html" %}
+
 <hr />
 {% for step in steps %}
     <h3>{{ step.job }}</h3>
