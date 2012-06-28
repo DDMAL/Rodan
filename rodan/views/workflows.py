@@ -9,16 +9,29 @@ from rodan.models.projects import Workflow, Project, Page
 @rodan_view(Workflow)
 def view(request, workflow):
     pages = workflow.page_set.all()
+    total_progress = sum(page.get_percent_done() for page in pages) / len(pages)
     num_per_row = 4
 
+    if total_progress == 0:
+        bar_colour = 'none'
+    elif total_progress < 10:
+        bar_colour = 'red'
+    elif total_progress < 25:
+        bar_colour = 'orange'
+    elif total_progress < 50:
+        bar_colour = 'yellow'
+    else:
+        bar_colour = 'green'
+
     data = {
-        'progress_percentage': sum(page.get_percent_done() for page in pages) / len(pages),
+        'total_progress': total_progress,
         'num_pages': len(pages),
         'job_items': workflow.jobitem_set.all(),
         'page_sections': list(chunkify(pages, num_per_row)),
         'num_per_row': num_per_row,
         'num_to_fill': num_per_row - (len(pages) % num_per_row),
-        'add_jobs_url': reverse('add_jobs', args=[pages[0].id])
+        'add_jobs_url': reverse('add_jobs', args=[pages[0].id]),
+        'bar_colour': bar_colour
     }
 
     return ('View workflow', data)

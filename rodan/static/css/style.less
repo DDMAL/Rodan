@@ -510,3 +510,35 @@ ul.grid {
     border-left: 0px;
     cursor: move;
 }
+
+// Based on the Twitter bootstrap but with customised colouring
+.progress {
+    height: 20px;
+    margin-bottom: 10px;
+    #gradient(@progressBgStart, @progressBgEnd);
+    .box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.1));
+    .border-radius(5px);
+    overflow: hidden;
+    .bar {
+        height: 20px;
+        color: @white;
+        text-align: center;
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+        &.none {
+            color: @black;
+        }
+        &.red {
+            background: @red;
+        }
+        &.orange {
+            background: @orange;
+        }
+        &.yellow {
+            background: @yellow;
+            color: @black;
+        }
+        &.green {
+            background: @green;
+        }
+    }
+}
