@@ -1,11 +1,19 @@
 {% extends "main.html" %}
 
+{% load extras %}
+
 {% block content %}
+
+    {% if nojob %}
+        <div class="flash-message">
+            <span>There are no available jobs of that type to run</span>
+        </div>
+    {% endif %}
     <section>
         <div class="right-float">
             <a class="button" href="{% url create_project %}">Create project</a>
         </div>
-        <h1>Your projects</h1>
+        <h2>Your projects</h2>
         {% if my_projects %}
         <table>
             <thead>
@@ -18,7 +26,7 @@
                 <tr>
                     <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
                     <td>{{ project.page_set.count }}</td>
-                    <td>Lol</td>
+                    <td>{% progress_bar project.get_percent_done %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -26,6 +34,29 @@
         {% else %}
         <p>You have no projects. How sad. Create one! (See the button above)</p>
         {% endif %}
+
+        <h2>Your workflows</h2>
+        {% if my_workflows %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Workflow name</th>
+                    <th>Number of pages</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for workflow in my_workflows %}
+                <tr>
+                    <td><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></td>
+                    <td>{{ workflow.page_set.count }}</td>
+                    <td>{% progress_bar workflow.get_percent_done %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
         {% include "includes/job_grid.html" %}
         <hr />
         {% include "includes/job_status.html" %}

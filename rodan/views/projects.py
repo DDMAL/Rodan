@@ -14,6 +14,8 @@ from rodan.utils import rodan_view
 
 @login_required
 def dashboard(request):
+    nojob = bool(request.GET.get('nojob', False))
+
     all_jobs = Job.objects.all()
     available_jobs = {}
     user = request.user.get_profile() if request.user.is_authenticated() else None
@@ -30,9 +32,17 @@ def dashboard(request):
     for job in all_jobs:
         jobs.append((job, job.slug in available_jobs, available_jobs.get(job.slug, '')))
 
+    my_projects = request.user.get_profile().project_set.all()
+    my_workflows = Workflow.objects.filter(page__project__creator=request.user.get_profile()).distinct()
+    percent_done = sum(project.get_percent_done() for project in my_projects)
+    percent_done /= my_projects.count() if my_projects.count() > 0 else 1
+
     data = {
-        'my_projects': request.user.get_profile().project_set.all(),
+        'percent_done': percent_done,
+        'my_projects': my_projects,
         'jobs': jobs,
+        'my_workflows': my_workflows,
+        'nojob': nojob,
     }
 
     return render(request, 'projects/dashboard.html', data)
@@ -60,6 +70,7 @@ def create(request):
 @rodan_view(Project)
 def view(request, project):
     done = bool(request.GET.get('done', False))
+    nojob = bool(request.GET.get('nojob', False))
 
     # This is a super hacky way of doing it. If you can improve this, please do
     all_jobs = Job.objects.all()
@@ -76,7 +87,9 @@ def view(request, project):
         jobs.append((job, job in available_jobs, project.id))
 
     data = {
+        'percent_done': project.get_percent_done(),
         'done': done,
+        'nojob': nojob,
         'user_can_edit': project.is_owned_by(request.user),
         'project': project,
         'num_pages': project.page_set.count(),
@@ -128,6 +141,7 @@ def task(request, job, project_id=0):
 
     if int(project_id) == 0:
         # Choose a random page!
+        project = None
         all_pages = Page.objects.all()
     else:
         project = get_object_or_404(Project, pk=project_id)
@@ -143,7 +157,10 @@ def task(request, job, project_id=0):
 
     # No pages that need this job. Show a 404 for now.
     if not possible_pages:
-        raise Http404
+        if project:
+            return redirect(project.get_absolute_url() + '?nojob=1')
+        else:
+            return redirect('/dashboard?nojob=1')
 
     page = random.choice(possible_pages)
 

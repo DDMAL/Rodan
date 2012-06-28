@@ -38,6 +38,10 @@ class Project(models.Model):
     def is_owned_by(self, user):
         return user.is_authenticated() and self.creator == user.get_profile()
 
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
+
 
 class Job(models.Model):
     """
@@ -98,6 +102,7 @@ class Workflow(models.Model):
     class Meta:
         app_label = 'rodan'
 
+    project = models.ForeignKey(Project)
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     jobs = models.ManyToManyField(Job, through='JobItem', null=True, blank=True)
@@ -110,6 +115,10 @@ class Workflow(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('rodan.views.workflows.view', str(self.id))
+
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
 
 
 class Page(models.Model):
@@ -340,6 +349,13 @@ class Page(models.Model):
         for thumbnail_size in settings.THUMBNAIL_SIZES:
             thumb_path = self.get_thumb_path(size=thumbnail_size)
             rodan.jobs.utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
+
+    def is_job_complete(self, job_item):
+        Result = models.loading.get_model('rodan', 'Result')
+        return Result.objects.filter(job_item=job_item,
+                                     page=self,
+                                     end_total_time__isnull=False
+                                     ).count()
 
 
 class JobItem(models.Model):

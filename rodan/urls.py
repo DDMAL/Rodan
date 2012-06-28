@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
 
+from rodan.jobs.neon import neon_urls
+
 admin.autodiscover()
 
 project_urls = patterns('rodan.views.projects',
@@ -51,6 +53,10 @@ urlpatterns += patterns('rodan.views.jobs',
 
 urlpatterns += patterns('rodan.views.pages',
     url(r'^pages/(?P<page_id>\d+)', include(page_urls)),
+)
+
+urlpatterns += patterns('',
+    url(r'^neon/', include(neon_urls)),
 )
 
 # For serving stuff under MEDIA_ROOT in debug mode only

@@ -47,15 +47,7 @@
         "pk": 1, 
         "model": "rodan.workflow", 
         "fields": {
-            "name": "Crop then rotate", 
-            "description": "Meh",
-            "has_started": true
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "rodan.workflow", 
-        "fields": {
+            "project": 1,
             "name": "Everything workflow",
             "description": "Meh",
             "has_started": true
@@ -68,7 +60,7 @@
             "project": 1, 
             "filename": "lol.tiff", 
             "tag": "Some random page", 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -78,24 +70,6 @@
             "project": 1, 
             "filename": "another.tiff", 
             "tag": "Whatever", 
-            "workflow": 2
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": "border-remove",
-            "sequence": 1, 
-            "workflow": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "rodan.jobitem", 
-        "fields": {
-            "job": "rotate",
-            "sequence": 2, 
             "workflow": 1
         }
     }, 
@@ -105,7 +79,7 @@
         "fields": {
             "job": "crop",
             "sequence": 2,
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -114,7 +88,7 @@
         "fields": {
             "job": "rotate",
             "sequence": 1,
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -123,7 +97,7 @@
         "fields": {
             "job": "simple-binarise",
             "sequence": 3, 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -132,7 +106,7 @@
         "fields": {
             "job": "despeckle",
             "sequence": 4, 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -141,7 +115,7 @@
         "fields": {
             "job": "rank-filter",
             "sequence": 5, 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -150,7 +124,7 @@
         "fields": {
             "job": "staff-finding",
             "sequence": 6, 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -159,7 +133,7 @@
         "fields": {
             "job": "segmentation",
             "sequence": 7, 
-            "workflow": 2
+            "workflow": 1
         }
     }, 
     {
@@ -168,7 +142,7 @@
         "fields": {
             "job": "staff-remove",
             "sequence": 8, 
-            "workflow": 2
+            "workflow": 1
         }
     },
     {

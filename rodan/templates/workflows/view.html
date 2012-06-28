@@ -1,2 +1,81 @@
-<h1>Workflow view</h1>
-<p>What should go here???</p>
+{% load extras %}
+
+<div class="right-float">
+    <a class="button" href="{{ add_jobs_url }}">Add jobs</a>
+</div>
+<h1>Status overview for {{ workflow }}</h1>
+<p>Description: <em>{{ workflow.description }}</em></p>
+
+<h2>Statistics</h2>
+
+<table>
+    <tbody>
+        <tr>
+            <td>Number of pages</td>
+            <td>{{ num_pages }}</td>
+        </tr>
+        <tr>
+            <td>Progress</td>
+            <td style="width: 70%;">{% progress_bar total_progress %}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Thumbnails</h2>
+
+{% for page_section in page_sections %}
+<table class="pretty">
+    <thead>
+        <tr>
+            <th></th>
+            {% for page in page_section %}
+            <th>{{ page }}</th>
+            {% endfor %}
+            {% if forloop.last %}
+            {% for i in num_to_fill|get_range %}
+                <th></th>
+            {% endfor %}
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Progress</strong></td>
+            {% for page in page_section %}
+                <td>{% progress_bar page.get_percent_done %}</td>
+            {% endfor %}
+            {% if forloop.last %}
+            {% for i in num_to_fill|get_range %}
+                <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Original image</td>
+            {% for page in page_section %}
+                <td><a href="{{ page.get_absolute_url }}"><img src="{{ page.get_thumb_url }}" /></a></td>
+            {% endfor %}
+            {% if forloop.last %}
+            {% for i in num_to_fill|get_range %}
+                <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% with outer_last=forloop.last %}
+        {% for job_item in job_items %}
+        <tr>
+            <td>{{ job_item.job }}</td>
+            {% for page in page_section %}
+                <td>{% if page|is_job_complete:job_item %}{% if job_item.job.get_object.outputs_image %}<img src="{% get_thumb_for_job page job_item.job %}" />{% else %}This job does not output an image.{% endif %}{% else %}This job is incomplete.{% endif %}</td>
+            {% endfor %}
+            {% if outer_last %}
+            {% for i in num_to_fill|get_range %}
+                <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% endfor %}
+        {% endwith %}
+    </tbody>
+</table>
+{% endfor %}

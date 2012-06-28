@@ -1,8 +1,13 @@
 import utils
 
 from django.conf import settings
+from django.conf.urls import patterns, url
 
 from rodan.models.jobs import JobType, JobBase
+
+neon_urls = patterns('rodan.views.neon',
+    url(r'^edit', 'edit'),
+)
 
 @utils.rodan_task(inputs=None)
 def neon(image_filepath, **kwargs):
