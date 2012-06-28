@@ -38,6 +38,10 @@ class Project(models.Model):
     def is_owned_by(self, user):
         return user.is_authenticated() and self.creator == user.get_profile()
 
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
+
 
 class Job(models.Model):
     """
@@ -110,6 +114,10 @@ class Workflow(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('rodan.views.workflows.view', str(self.id))
+
+    def get_percent_done(self):
+        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        return percent_done / self.page_set.count() if self.page_set.count() else 0
 
 
 class Page(models.Model):
