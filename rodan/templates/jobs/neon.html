@@ -1,1 +1,93 @@
-<img src="{{ context.image }}" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/neon.css" type="text/css" />
+
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span2">
+      <div class="row-fluid">
+        <div class="span12">
+          <ul class="nav nav-pills">
+            <li class="dropdown" id="file_menu">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">File <b class="caret"></b></a>
+            <ul id="nav_file_dropdown" class="dropdown-menu">
+            </ul>
+          </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+        <div id="neon-sidebar-nav" class="well sidebar-nav">
+          <ul id="gui-sidebar" class="nav nav-list">
+          <li class="nav-header">Mode</li>
+            <li>
+              <div class="btn-group" data-toggle="buttons-radio">
+                <button id="btn_insert" class="btn btn-primary"><i class="icon-plus icon-white"></i> Insert</button>
+                <button id="btn_edit" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</button>
+              </div>
+            </li>
+          </ul>
+        </div><!--/.well -->
+        </div><!--/span-->
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+          <div id="info" class="alert alert-block fade">
+            <button class="close" data-dismiss="alert">&times;</button>
+            <h4 class="alert-heading">Information</h4>
+            <p>message</p>
+          </div>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+          <div id="alert" class="alert alert-block alert-error fade">
+            <button class="close" data-dismiss="alert">&times;</button>
+            <h4 class="alert-heading">Oh snap! An error occured!</h4>
+            <p>message</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="span10">
+        <div class="row-fluid">
+            <div id="neon-wrapper"></div>
+      </div><!--/row-->
+    </div><!--/span-->
+  </div><!--/row-->
+</div><!--/.fluid-container-->
+
+<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script src="{{ STATIC_URL }}js/fabric_all.min.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}js/neon.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // derive background image name from mei
+    $('#neon-wrapper').neon({
+      autoLoad: true,
+      debug: {{debug}},
+      prefix: "",
+      filename: "",
+      width: 1000, // enforce width
+      backgroundImage: {{ context.image }},
+      backgroundImageOpacity: 0.0
+    });
+
+    // make side nav-bar scroll with the user
+    var $scrollingDiv = $("#neon-sidebar-nav");
+
+    $(window).scroll(function () {
+        $scrollingDiv
+        .stop()
+        .animate({ "marginTop": ($(window).scrollTop() + 5) + "px" }, "200");
+    });
+
+});
+
+</script>
+
+
