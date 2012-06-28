@@ -58,3 +58,8 @@ def rodan_view(*models):
 
         return inner_function
     return outer_function
+
+
+def chunkify(l, n):
+    for i in xrange(0, len(l), n):
+        yield l[i:i + n]

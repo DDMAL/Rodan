@@ -341,6 +341,13 @@ class Page(models.Model):
             thumb_path = self.get_thumb_path(size=thumbnail_size)
             rodan.jobs.utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
 
+    def is_job_complete(self, job_item):
+        Result = models.loading.get_model('rodan', 'Result')
+        return Result.objects.filter(job_item=job_item,
+                                     page=self,
+                                     end_total_time__isnull=False
+                                     ).count()
+
 
 class JobItem(models.Model):
     class Meta:
