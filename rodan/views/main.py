@@ -64,10 +64,6 @@ def signup(request):
     return render(request, 'main/signup.html', data)
 
 
-def settings(request):
-    pass
-
-
 def logout_view(request):
     if request.user.is_authenticated():
         logout(request)

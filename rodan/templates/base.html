@@ -18,7 +18,7 @@
             <li class="title"><a href="{% url home %}">Rodan</a></li>
             {% if user.is_authenticated %}
                 <li><a href="{% url dashboard %}">Dashboard</a></li>
-                <li><a href="{% url settings %}">Settings</a></li>
+                <li><a href="{% url create_project %}">Create project</a></li>
                 <li><a href="{% url logout %}">Log out ({{ user.username }})</a></li>
             {% else %}
                 <li><a href="{{ login_url }}">Login/register</a></li>

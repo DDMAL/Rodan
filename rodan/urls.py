@@ -33,7 +33,6 @@ urlpatterns += patterns('rodan.views.main',
     url(r'^$', 'home', name='home'),
     url(r'^signup', 'signup', name='signup'),
     url(r'^logout', 'logout_view', name='logout'),
-    url(r'^settings', 'settings', name='settings'),
 )
 
 urlpatterns += patterns('rodan.views.projects',

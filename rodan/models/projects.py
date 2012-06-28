@@ -218,6 +218,21 @@ class Page(models.Model):
         else:
             return self.get_thumb_url(size, None)
 
+    def get_pre_bin_image_url(self, size=settings.LARGE_THUMBNAIL):
+        """
+        Get the url to the latest pre-binarised image (i.e. the output of the
+        step right before binarisation, or the latest step if binarisation is
+        either not part of the workflow or has not yet been completed.
+        """
+        original = self.get_thumb_url(size=size)
+        if self.workflow.jobitem_set.count():
+            for jobitem in self.workflow.jobitem_set.order_by('-sequence'):
+                if jobitem.job.get_object().output_type == JobType.IMAGE:
+                    return self.get_thumb_url(size=size, job=jobitem.job)
+
+        # Otherwise, just return the original
+        return original
+
     def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None):
         return os.path.join(settings.MEDIA_URL,
                             self._get_thumb_path(size, job))
