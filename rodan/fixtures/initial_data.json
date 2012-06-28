@@ -146,6 +146,42 @@
         }
     },
     {
+        "pk": 14,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "classifier",
+            "sequence": 9,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 15,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "pitch-finding",
+            "sequence": 10,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 16,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "neon",
+            "sequence": 11,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 17,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "solr-indexing",
+            "sequence": 12,
+            "workflow": 1
+        }
+    },
+    {
         "pk": 1, 
         "model": "rodan.result", 
         "fields": {
