@@ -220,6 +220,36 @@ $(document).ready(function() {
         }
     }
     
+    var makeRect = function() {
+        for (var i = stage.get(".group").length - 1; i >= 0; i--) {
+            var group = stage.get(".group")[i];
+            var poly = group.get(".poly")[0];
+            if (poly.attrs.fill == pSelColour) {
+                var points = poly.attrs.points;
+                var nPoints = [];
+                nPoints[0] = points[0].x;
+                nPoints[1] = points[0].y;
+                for (var i = 2; i < 8; i++)
+                    nPoints[i] = 0;
+                for (var i = 1; i < points.length; i++) {
+                    nPoints[0] = Math.min(nPoints[0], points[i].x);
+                    nPoints[1] = Math.min(nPoints[1], points[i].y);
+                    nPoints[4] = Math.max(nPoints[4], points[i].x);
+                    nPoints[5] = Math.max(nPoints[5], points[i].y);
+                }
+                nPoints[2] = nPoints[4];
+                nPoints[3] = nPoints[1];
+                nPoints[6] = nPoints[0];
+                nPoints[7] = nPoints[5];
+                addPoly(nPoints, group.getX(), group.getY());
+                var layer = group.getLayer();
+                layer.remove(group);
+                stage.remove(layer);
+                break;
+            }
+        }
+    }
+    
     var addAnchor = function(group, x, y) {
         var layer = group.getLayer();
 
@@ -463,6 +493,7 @@ $(document).ready(function() {
     
     $("#addPoly").bind('click', function() {addPoly();});
     $("#removePoly").bind('click', function() {removePoly();});
+    $("#makeRect").bind('click', function() {makeRect();});
     $('body').keydown(function(e) {
         if (e.which == 8 || e.which == 46) {
             e.preventDefault();
