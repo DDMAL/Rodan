@@ -236,7 +236,7 @@ $(document).ready(function() {
             nPoints[5] = Math.max(nPoints[5], points[i + 1]);
         }
         nPoints[1] -= 10;
-        nPoints[5] += 10;
+        nPoints[5] += 10
         nPoints[2] = nPoints[4];
         nPoints[3] = nPoints[1];
         nPoints[6] = nPoints[0];
@@ -365,7 +365,7 @@ $(document).ready(function() {
                 var anchor = group.attrs.anchors[i];
                 var dX = anchor.getX() - gPoint.x;
                 var dY = anchor.getY() - gPoint.y;
-                var dist = Math.abs(dY);
+                var dist = Math.sqrt(dY * dY + dX * dX * 0.002);
                 if (minDist < 0 || dist < minDist) {
                     minDist = dist;
                     minPoint = anchor;
@@ -376,7 +376,7 @@ $(document).ready(function() {
                     }
                     var dNX = minNeighbour.getX() - gPoint.x;
                     var dNY = minNeighbour.getY() - gPoint.y;
-                    var nDist = Math.abs(dNY);
+                    var nDist = Math.sqrt(dNY * dNY + dNX * dNX * 0.002);
                     var minNeighbourB = null;
                     if (i == (nPoints - 1)) {
                         minNeighbourB = group.attrs.anchors[0];
@@ -385,7 +385,7 @@ $(document).ready(function() {
                     }
                     dNX = minNeighbourB.getX() - gPoint.x;
                     dNY = minNeighbourB.getY() - gPoint.y;
-                    var nDistB = Math.abs(dNY);
+                    var nDistB = Math.sqrt(dNY * dNY + dNX * dNX * 0.002);
                     if (nDistB < nDist) {
                         minNeighbour = minNeighbourB;
                     }
