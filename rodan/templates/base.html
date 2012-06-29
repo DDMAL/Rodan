@@ -11,6 +11,9 @@
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="{{ STATIC_URL }}js/rodan.js"></script>
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.0/themes/smoothness/jquery-ui.css" />
+    {% for stylesheet in extra_stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/{{ stylesheet }}.css" />
+    {% endfor %}
 </head>
 <body>
     <div id="navbar">

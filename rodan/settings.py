@@ -208,3 +208,4 @@ ORIGINAL_SIZE = 'original'
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
 
 SOLR_URL = 'http://localhost:8080/liber-search'
+IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'

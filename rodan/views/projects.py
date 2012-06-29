@@ -9,7 +9,9 @@ from django.core.urlresolvers import reverse
 from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm, UploadFileForm
-from rodan.utils import rodan_view
+from rodan.utils import rodan_view, render_to_json
+from rodan.jobs.diva_resources.divaserve import DivaServe
+from rodan.jobs.diva_resources.search import do_query, LiberSearchException
 
 
 @login_required
@@ -98,6 +100,7 @@ def view(request, project):
     }
 
     return ('View', data)
+
 
 @login_required
 @rodan_view(Project)
@@ -237,3 +240,47 @@ def workflows(request, project):
     }
 
     return ('Manage workflows', data)
+
+
+@rodan_view(Project)
+def diva(request, project):
+    if project.is_partially_complete():
+        divaserve_dir = project.get_divaserve_dir()
+        iip_url = settings.IIP_URL + '?FIF=' + divaserve_dir + '/'
+
+        data = {
+            'form': True,
+            'hide_sidebar': True,
+            'iip_url': iip_url,
+            'image_dir': divaserve_dir,
+            'extra_stylesheets': ['diva.min']
+        }
+        return ('Document viewer', data)
+    else:
+        # Should eventually redirect to the project page, with a flash message
+        raise Http404
+
+
+@render_to_json()
+def divaserve(request, project_id):
+    project = Project.objects.get(pk=project_id)
+    try:
+        d = DivaServe(project.get_divaserve_dir())
+    except OSError:
+        raise Http404
+    return d.get()
+
+
+@render_to_json()
+def query(request, project_id):
+    project = Project.objects.get(pk=project_id)
+    search_type = request.GET.get('type', 'pnames')
+    query = request.GET.get('query', 'ab')
+    zoom_level = request.GET.get('zoom', 2)
+
+    try:
+        boxes = do_query(search_type, query, zoom_level)
+    except LiberSearchException:
+        boxes = []
+
+    return boxes

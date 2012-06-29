@@ -11,6 +11,9 @@ project_urls = patterns('rodan.views.projects',
     url(r'^/edit', 'edit', name='edit_project'),
     url(r'^/upload', 'upload', name='upload'),
     url(r'^/workflows', 'workflows', name='manage_workflows'),
+    url(r'^/diva$', 'diva', name='diva'),
+    url(r'^/divaserve', 'divaserve'),
+    url(r'^/query', 'query'),
     url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
 )
 

@@ -71,3 +71,4 @@ class JobType:
     RANKED_IMAGE = 7
     MEI = 8
     SOLR = 9
+    END = 10

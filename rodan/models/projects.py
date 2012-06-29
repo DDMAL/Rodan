@@ -42,6 +42,14 @@ class Project(models.Model):
         percent_done = sum(page.get_percent_done() for page in self.page_set.all())
         return percent_done / self.page_set.count() if self.page_set.count() else 0
 
+    def get_divaserve_dir(self):
+        return os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.id,
+                            'final')
+
+    def is_partially_complete(self):
+        return self.get_percent_done() > 0
+
 
 class Job(models.Model):
     """
@@ -204,20 +212,27 @@ class Page(models.Model):
 
         If the file_type is tiff and no jobs have been completed on this page,
         the original image file is returned (and so None will never be
-        returned).
+        returned). It will also be returned if the file type is 'original'.
         """
 
-        latest_file_path = self._get_latest_file_path(file_type)
+        if file_type == 'prebin':
+            if self.workflow.jobitem_set.count():
+                for jobitem in self.workflow.jobitem_set.order_by('-sequence'):
+                    if jobitem.job.get_object().output_type == JobType.IMAGE:
+                        return self.get_job_path(jobitem.job, 'tiff')
 
-        if latest_file_path is not None:
-            return os.path.join(settings.MEDIA_ROOT,
-                                latest_file_path)
-        else:
-            if file_type == 'tiff':
+        if file_type != 'original':
+            latest_file_path = self._get_latest_file_path(file_type)
+
+            if latest_file_path is not None:
                 return os.path.join(settings.MEDIA_ROOT,
-                                    "%d" % self.project_id,
-                                    "%d" % self.id,
-                                    self.filename)
+                                latest_file_path)
+
+        if file_type == 'original' or file_type == 'prebin' or file_type == 'tiff':
+            return os.path.join(settings.MEDIA_ROOT,
+                                "%d" % self.project_id,
+                                "%d" % self.id,
+                                self.filename)
 
     def get_latest_thumb_url(self, size=settings.SMALL_THUMBNAIL):
         latest_file_path = self._get_latest_file_path('tiff')
@@ -278,6 +293,14 @@ class Page(models.Model):
                             "%d" % self.id,
                             "%s" % job.slug,
                             "%s.%s" % (basename, ext))
+
+    def get_pyramidal_tiff_path(self):
+        """
+        Because divaserve expects all the pyramidal tiff images for one
+        project to be stored in the same directory.
+        """
+        return os.path.join(self.project.get_divaserve_dir(),
+                            self.filename)
 
     def get_next_job_item(self, user=None):
         if not self.workflow:
