@@ -209,8 +209,9 @@ def upload(request, project):
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
                 file = request.FILES['file']
-                # Do stuff
-                new_page = Page.objects.create(project=project, filename=file.name)
+                # The "sequence" is the number of pages in this project already + 1
+                sequence = Page.objects.filter(project=project).count() + 1
+                new_page = Page.objects.create(project=project, filename=file.name, sequence=sequence)
                 new_page.handle_image_upload(file)
 
             # Figure out where to go next

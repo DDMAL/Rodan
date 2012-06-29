@@ -60,7 +60,8 @@
             "project": 1, 
             "filename": "lol.tiff", 
             "tag": "Some random page", 
-            "workflow": 1
+            "workflow": 1,
+            "sequence": 1
         }
     }, 
     {
@@ -70,7 +71,8 @@
             "project": 1, 
             "filename": "another.tiff", 
             "tag": "Whatever", 
-            "workflow": 1
+            "workflow": 1,
+            "sequence": 2
         }
     }, 
     {
