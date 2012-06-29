@@ -507,11 +507,15 @@ $(document).ready(function() {
     
     $("#addPoly").bind('click', function() {addPoly();});
     $("#removePoly").bind('click', function() {removePoly();});
-    $("#makeRect").bind('click', function() {makeRect();});
     $('body').keydown(function(e) {
         if (e.which == 8 || e.which == 46) {
             e.preventDefault();
-            deletePoints();
+            if (selectedPoints.length == 0) {
+                removePoly();
+            } else {
+                console.log(selectedPoints);
+                deletePoints();
+            }
         }
     });
     
