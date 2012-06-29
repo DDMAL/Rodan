@@ -169,7 +169,7 @@
         "pk": 16,
         "model": "rodan.jobitem",
         "fields": {
-            "job": "neon",
+            "job": "solr-indexing",
             "sequence": 11,
             "workflow": 1
         }
@@ -178,7 +178,7 @@
         "pk": 17,
         "model": "rodan.jobitem",
         "fields": {
-            "job": "solr-indexing",
+            "job": "diva-preprocess",
             "sequence": 12,
             "workflow": 1
         }
