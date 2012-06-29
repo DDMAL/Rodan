@@ -284,8 +284,9 @@ def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
         #         # save new document
                 mydocs.append({'id': str(uuid.uuid4()), 'pagen': int(pagen), 'pnames': pnames, 'neumes': neumes, 'contour': contour, 'semitones': str_semitones, 'intervals': intervals, 'location': str(location)})
         else:
-          print 'page ' + str(pagen) +  ' already processed\n'
-        # solrconn.add_many(mydocs)
+            print 'page ' + str(pagen) +  ' already processed\n'
+
+    solrconn.add_many(mydocs)
     solrconn.commit()
     systemcache.clear()
     idcache.clear()
