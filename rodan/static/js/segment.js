@@ -220,28 +220,37 @@ $(document).ready(function() {
         }
     }
     
+    var polyToRect = function(points) {
+        if (points[0] instanceof Object) {
+            points = flattenPoints(points);
+        }
+        var nPoints = [];
+        nPoints[0] = points[0];
+        nPoints[1] = points[1];
+        for (var i = 2; i < 8; i++)
+            nPoints[i] = 0;
+        for (var i = 2; (i + 1) < points.length; i += 2) {
+            nPoints[0] = Math.min(nPoints[0], points[i]);
+            nPoints[1] = Math.min(nPoints[1], points[i + 1]);
+            nPoints[4] = Math.max(nPoints[4], points[i]);
+            nPoints[5] = Math.max(nPoints[5], points[i + 1]);
+        }
+        nPoints[1] -= 10;
+        nPoints[5] += 10;
+        nPoints[2] = nPoints[4];
+        nPoints[3] = nPoints[1];
+        nPoints[6] = nPoints[0];
+        nPoints[7] = nPoints[5];
+        return nPoints;
+    }
+    
     var makeRect = function(points) {
         if (!points) {
             for (var i = stage.get(".group").length - 1; i >= 0; i--) {
                 var group = stage.get(".group")[i];
                 var poly = group.get(".poly")[0];
                 if (poly.attrs.fill == pSelColour) {
-                    var points = poly.attrs.points;
-                    var nPoints = [];
-                    nPoints[0] = points[0].x;
-                    nPoints[1] = points[0].y;
-                    for (var i = 2; i < 8; i++)
-                        nPoints[i] = 0;
-                    for (var i = 1; i < points.length; i++) {
-                        nPoints[0] = Math.min(nPoints[0], points[i].x);
-                        nPoints[1] = Math.min(nPoints[1], points[i].y);
-                        nPoints[4] = Math.max(nPoints[4], points[i].x);
-                        nPoints[5] = Math.max(nPoints[5], points[i].y);
-                    }
-                    nPoints[2] = nPoints[4];
-                    nPoints[3] = nPoints[1];
-                    nPoints[6] = nPoints[0];
-                    nPoints[7] = nPoints[5];
+                    var nPoints = polyToRect(poly.attrs.points);
                     addPoly(nPoints, group.getX(), group.getY());
                     var layer = group.getLayer();
                     layer.remove(group);
@@ -250,21 +259,7 @@ $(document).ready(function() {
                 }
             }
         } else {
-            var nPoints = [];
-            nPoints[0] = points[0];
-            nPoints[1] = points[1];
-            for (var i = 2; i < 8; i++)
-                nPoints[i] = 0;
-            for (var i = 2; (i + 1) < points.length; i += 2) {
-                nPoints[0] = Math.min(nPoints[0], points[i]);
-                nPoints[1] = Math.min(nPoints[1], points[i + 1]);
-                nPoints[4] = Math.max(nPoints[4], points[i]);
-                nPoints[5] = Math.max(nPoints[5], points[i + 1]);
-            }
-            nPoints[2] = nPoints[4];
-            nPoints[3] = nPoints[1];
-            nPoints[6] = nPoints[0];
-            nPoints[7] = nPoints[5];
+            var nPoints = polyToRect(points);
             addPoly(nPoints);
         }
     }
