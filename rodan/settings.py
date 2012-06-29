@@ -129,6 +129,7 @@ BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"
 #Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
