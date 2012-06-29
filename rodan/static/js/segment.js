@@ -117,7 +117,7 @@ $(document).ready(function() {
                 polys[i].push(sPoints[i][j][0] * scaleVal);
                 polys[i].push(sPoints[i][j][1] * scaleVal);
             }
-            addPoly(polys[i]);
+            makeRect(polys[i]);
         }
     }
     imageObj.src = $("#image-original").attr("src");
@@ -220,33 +220,52 @@ $(document).ready(function() {
         }
     }
     
-    var makeRect = function() {
-        for (var i = stage.get(".group").length - 1; i >= 0; i--) {
-            var group = stage.get(".group")[i];
-            var poly = group.get(".poly")[0];
-            if (poly.attrs.fill == pSelColour) {
-                var points = poly.attrs.points;
-                var nPoints = [];
-                nPoints[0] = points[0].x;
-                nPoints[1] = points[0].y;
-                for (var i = 2; i < 8; i++)
-                    nPoints[i] = 0;
-                for (var i = 1; i < points.length; i++) {
-                    nPoints[0] = Math.min(nPoints[0], points[i].x);
-                    nPoints[1] = Math.min(nPoints[1], points[i].y);
-                    nPoints[4] = Math.max(nPoints[4], points[i].x);
-                    nPoints[5] = Math.max(nPoints[5], points[i].y);
+    var makeRect = function(points) {
+        if (!points) {
+            for (var i = stage.get(".group").length - 1; i >= 0; i--) {
+                var group = stage.get(".group")[i];
+                var poly = group.get(".poly")[0];
+                if (poly.attrs.fill == pSelColour) {
+                    var points = poly.attrs.points;
+                    var nPoints = [];
+                    nPoints[0] = points[0].x;
+                    nPoints[1] = points[0].y;
+                    for (var i = 2; i < 8; i++)
+                        nPoints[i] = 0;
+                    for (var i = 1; i < points.length; i++) {
+                        nPoints[0] = Math.min(nPoints[0], points[i].x);
+                        nPoints[1] = Math.min(nPoints[1], points[i].y);
+                        nPoints[4] = Math.max(nPoints[4], points[i].x);
+                        nPoints[5] = Math.max(nPoints[5], points[i].y);
+                    }
+                    nPoints[2] = nPoints[4];
+                    nPoints[3] = nPoints[1];
+                    nPoints[6] = nPoints[0];
+                    nPoints[7] = nPoints[5];
+                    addPoly(nPoints, group.getX(), group.getY());
+                    var layer = group.getLayer();
+                    layer.remove(group);
+                    stage.remove(layer);
+                    break;
                 }
-                nPoints[2] = nPoints[4];
-                nPoints[3] = nPoints[1];
-                nPoints[6] = nPoints[0];
-                nPoints[7] = nPoints[5];
-                addPoly(nPoints, group.getX(), group.getY());
-                var layer = group.getLayer();
-                layer.remove(group);
-                stage.remove(layer);
-                break;
             }
+        } else {
+            var nPoints = [];
+            nPoints[0] = points[0];
+            nPoints[1] = points[1];
+            for (var i = 2; i < 8; i++)
+                nPoints[i] = 0;
+            for (var i = 2; (i + 1) < points.length; i += 2) {
+                nPoints[0] = Math.min(nPoints[0], points[i]);
+                nPoints[1] = Math.min(nPoints[1], points[i + 1]);
+                nPoints[4] = Math.max(nPoints[4], points[i]);
+                nPoints[5] = Math.max(nPoints[5], points[i + 1]);
+            }
+            nPoints[2] = nPoints[4];
+            nPoints[3] = nPoints[1];
+            nPoints[6] = nPoints[0];
+            nPoints[7] = nPoints[5];
+            addPoly(nPoints);
         }
     }
     
@@ -351,7 +370,7 @@ $(document).ready(function() {
                 var anchor = group.attrs.anchors[i];
                 var dX = anchor.getX() - gPoint.x;
                 var dY = anchor.getY() - gPoint.y;
-                var dist = Math.sqrt((dX * dX) + (dY * dY));
+                var dist = Math.abs(dY);
                 if (minDist < 0 || dist < minDist) {
                     minDist = dist;
                     minPoint = anchor;
@@ -362,7 +381,7 @@ $(document).ready(function() {
                     }
                     var dNX = minNeighbour.getX() - gPoint.x;
                     var dNY = minNeighbour.getY() - gPoint.y;
-                    var nDist = Math.sqrt((dNX * dNX) + (dNY * dNY));
+                    var nDist = Math.abs(dNY);
                     var minNeighbourB = null;
                     if (i == (nPoints - 1)) {
                         minNeighbourB = group.attrs.anchors[0];
@@ -371,7 +390,7 @@ $(document).ready(function() {
                     }
                     dNX = minNeighbourB.getX() - gPoint.x;
                     dNY = minNeighbourB.getY() - gPoint.y;
-                    var nDistB = Math.sqrt((dNX * dNX) + (dNY * dNY));
+                    var nDistB = Math.abs(dNY);
                     if (nDistB < nDist) {
                         minNeighbour = minNeighbourB;
                     }
