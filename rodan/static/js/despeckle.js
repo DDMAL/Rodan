@@ -271,7 +271,7 @@ $(document).ready(function() {
                             var y2 = (center.y > 0) ? (center.y - 1) : 0;
                             var y2Lim = Math.min(center.y + 2, h)
                             var x2 = (center.x > 0) ? (center.x - 1) : 0;
-                            var x2Lim = Math.min(center.x + 2, w));
+                            var x2Lim = Math.min(center.x + 2, w);
                             for (y2; y2 < y2Lim; ++y2) {
                                 for (x2; x2 < x2Lim; ++x2) {
                                     if (dataT[x2][y2] == 0 && dataO.isBlack(x2, y2)) {
