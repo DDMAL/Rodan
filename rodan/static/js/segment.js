@@ -7,7 +7,10 @@ $(document).ready(function() {
     
     //Fraction of image width to make the margin
     var marginWidth = 0.05;
-    
+
+    // Vertical padding for the polygons
+    var polyPadding = 2;
+
     // Pixel margin size
     var margin = 0;
     
@@ -235,8 +238,8 @@ $(document).ready(function() {
             nPoints[4] = Math.max(nPoints[4], points[i]);
             nPoints[5] = Math.max(nPoints[5], points[i + 1]);
         }
-        nPoints[1] -= 10;
-        nPoints[5] += 10
+        nPoints[1] -= polyPadding;
+        nPoints[5] += polyPadding;
         nPoints[2] = nPoints[4];
         nPoints[3] = nPoints[1];
         nPoints[6] = nPoints[0];
