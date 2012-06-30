@@ -76,7 +76,7 @@ cd rodan_env
 sudo rm -rf build
 ```
 
-You'll install need to install VIPS (along with the Python bindings) for the diva module to work. The installation guide is probably somewhere on the [wiki](http://www.vips.ecs.soton.ac.uk/). If you don't want to install it, create a directory called `vipsCC` in the project root, containing an `__init__.py` file as well as a file called `VImage.py`. In `VImage.py`, write something like `VImage = ''`. That should be enough if you just need to get the system up and running and don't care if diva works or not. Just don't test the diva preprocessing job.
+You'll also need to install VIPS (along with the Python bindings) for the diva module to work. The installation guide is probably somewhere on the [wiki](http://www.vips.ecs.soton.ac.uk/). If you don't want to install it, create a directory called `vipsCC` in the project root, containing an `__init__.py` file as well as a file called `VImage.py`. In `VImage.py`, write something like `VImage = ''`. That should be enough if you just need to get the system up and running and don't care if diva works or not. Just don't test the diva preprocessing job.
 
 Setup
 -----
