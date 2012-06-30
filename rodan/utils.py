@@ -85,11 +85,8 @@ def render_to_json(**jsonargs):
         def inner_json(request, *args, **kwargs):
             result = f(request, *args, **kwargs)
             r = HttpResponse(mimetype='application/json')
-            if result:
-                indent = jsonargs.pop('indent', 4)
-                r.write(json.dumps(result, indent=indent, **jsonargs))
-            else:
-                r.write("{}")
+            indent = jsonargs.pop('indent', 4)
+            r.write(json.dumps(result, indent=indent, **jsonargs))
             return r
         return inner_json
     return outer

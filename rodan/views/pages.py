@@ -91,7 +91,9 @@ def workflow(request, page):
     if request.method == 'POST':
         form = WorkflowForm(request.POST)
         if form.is_valid():
-            new_workflow = form.save()
+            new_workflow = form.save(commit=False)
+            new_workflow.project = page.project
+            new_workflow.save()
             # Set this page's workflow to the newly-created one
             page.workflow = new_workflow
             page.save()

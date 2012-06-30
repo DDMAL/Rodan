@@ -9,7 +9,9 @@ from django.core.urlresolvers import reverse
 from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm, UploadFileForm
-from rodan.utils import rodan_view
+from rodan.utils import rodan_view, render_to_json
+from rodan.jobs.diva_resources.divaserve import DivaServe
+from rodan.jobs.diva_resources.search import do_query, LiberSearchException
 
 
 @login_required
@@ -33,7 +35,7 @@ def dashboard(request):
         jobs.append((job, job.slug in available_jobs, available_jobs.get(job.slug, '')))
 
     my_projects = request.user.get_profile().project_set.all()
-    my_workflows = Workflow.objects.filter(page__project__creator=request.user.get_profile()).distinct()
+    my_workflows = Workflow.objects.filter(project__creator=request.user.get_profile()).distinct()
     percent_done = sum(project.get_percent_done() for project in my_projects)
     percent_done /= my_projects.count() if my_projects.count() > 0 else 1
 
@@ -41,7 +43,7 @@ def dashboard(request):
         'percent_done': percent_done,
         'my_projects': my_projects,
         'jobs': jobs,
-        'my_workflows': my_workflows,
+        'workflows': my_workflows,
         'nojob': nojob,
     }
 
@@ -87,6 +89,7 @@ def view(request, project):
         jobs.append((job, job in available_jobs, project.id))
 
     data = {
+        'workflows': project.workflow_set.all(),
         'percent_done': project.get_percent_done(),
         'done': done,
         'nojob': nojob,
@@ -97,6 +100,7 @@ def view(request, project):
     }
 
     return ('View', data)
+
 
 @login_required
 @rodan_view(Project)
@@ -186,6 +190,7 @@ def task(request, job, project_id=0):
         'context': view_data[1],
         'form_action': reverse('task_complete', args=[page.id, job.slug]),
         'form': True,
+        'hide_sidebar': True,
     }
 
     return (job.name, data)
@@ -207,8 +212,9 @@ def upload(request, project):
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
                 file = request.FILES['file']
-                # Do stuff
-                new_page = Page.objects.create(project=project, filename=file.name)
+                # The "sequence" is the number of pages in this project already + 1
+                sequence = Page.objects.filter(project=project).count() + 1
+                new_page = Page.objects.create(project=project, filename=file.name, sequence=sequence)
                 new_page.handle_image_upload(file)
 
             # Figure out where to go next
@@ -234,3 +240,47 @@ def workflows(request, project):
     }
 
     return ('Manage workflows', data)
+
+
+@rodan_view(Project)
+def diva(request, project):
+    if project.is_partially_complete():
+        divaserve_dir = project.get_divaserve_dir()
+        iip_url = settings.IIP_URL + '?FIF=' + divaserve_dir + '/'
+
+        data = {
+            'form': True,
+            'hide_sidebar': True,
+            'iip_url': iip_url,
+            'image_dir': divaserve_dir,
+            'extra_stylesheets': ['diva.min']
+        }
+        return ('Document viewer', data)
+    else:
+        # Should eventually redirect to the project page, with a flash message
+        raise Http404
+
+
+@render_to_json()
+def divaserve(request, project_id):
+    project = Project.objects.get(pk=project_id)
+    try:
+        d = DivaServe(project.get_divaserve_dir())
+    except OSError:
+        raise Http404
+    return d.get()
+
+
+@render_to_json()
+def query(request, project_id):
+    project = Project.objects.get(pk=project_id)
+    search_type = request.GET.get('type', 'pnames')
+    query = request.GET.get('query', 'ab')
+    zoom_level = request.GET.get('zoom', 2)
+
+    try:
+        boxes = do_query(search_type, query, zoom_level)
+    except LiberSearchException:
+        boxes = []
+
+    return boxes

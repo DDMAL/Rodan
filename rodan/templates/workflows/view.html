@@ -1,7 +1,8 @@
 {% load extras %}
 
 <div class="right-float">
-    <a class="button" href="{{ add_jobs_url }}">Add jobs</a>
+    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Add jobs</a>{% endif %}
+    <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
 <h1>Status overview for {{ workflow }}</h1>
 <p>Description: <em>{{ workflow.description }}</em></p>
@@ -12,7 +13,7 @@
     <tbody>
         <tr>
             <td>Number of pages</td>
-            <td>{{ num_pages }}</td>
+            <td>{{ pages.count }}</td>
         </tr>
         <tr>
             <td>Progress</td>

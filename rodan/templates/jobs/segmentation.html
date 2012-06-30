@@ -1,5 +1,6 @@
-<p>This is a segmentation job!!! Look at my beautiful canvas etc</p>
+<p>This is a segmentation job!!!</p>
 <p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<p>To use: Shift-click on the canvas to add a point to a polygon. Click on a point, or click on the score and drag, to select points. Hit "delete" with points selected to delete points.</p>
 <form method="post" action="{% url task_complete page.id job.slug %}" id="segment-form">
     {% csrf_token %}
     <fieldset class="submit">

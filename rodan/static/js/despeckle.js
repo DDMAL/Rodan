@@ -245,18 +245,21 @@ $(document).ready(function() {
         if (size > 0) {
             var imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
             var dataO = new IData(imageDataO.data, canvas);
-
+            
+            var w = canvas.width;
+            var h = canvas.height;
+            
             var dataT = [];
-            for (var i = 0; i < canvas.width; i++) {
+            for (var i = 0; i < w; i++) {
                 dataT[i] = [];
-                for (var j = 0; j < canvas.height; j++) {
+                for (var j = 0; j < h; j++) {
                     dataT[i][j] = 0;
                 }
             }
 
             var pixelQueue = [];
-            for (var y = 0; y < canvas.height; ++y) {
-                for (var x = 0; x < canvas.width; ++x) {
+            for (var y = 0; y < h; ++y) {
+                for (var x = 0; x < w; ++x) {
                     if (dataT[x][y] == 0 && dataO.isBlack(x, y)) {
                         pixelQueue = [];
                         pixelQueue.push(new Point(x, y));
@@ -264,8 +267,13 @@ $(document).ready(function() {
                         dataT[x][y] = 1;
                         for (var i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); ++i) {
                             var center = pixelQueue[i];
-                            for (var y2 = ((center.y > 0) ? center.y - 1 : 0); (y2 < Math.min(center.y + 2, canvas.height)); ++y2) {
-                                for (var x2 = ((center.x > 0) ? center.x - 1 : 0); (x2 < Math.min(center.x + 2, canvas.width)); ++x2) {
+                            
+                            var y2 = (center.y > 0) ? (center.y - 1) : 0;
+                            var y2Lim = Math.min(center.y + 2, h)
+                            var x2 = (center.x > 0) ? (center.x - 1) : 0;
+                            var x2Lim = Math.min(center.x + 2, w);
+                            for (y2; y2 < y2Lim; ++y2) {
+                                for (x2; x2 < x2Lim; ++x2) {
                                     if (dataT[x2][y2] == 0 && dataO.isBlack(x2, y2)) {
                                         dataT[x2][y2] = 1;
                                         pixelQueue.push(new Point(x2, y2));
@@ -312,7 +320,8 @@ $(document).ready(function() {
         context.drawImage(imageObj, -x, -y);
         var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         var data = imageData.data;
-        for (var i = 0; i < data.length; i +=4) {
+        var dLen = data.length;
+        for (var i = 0; i < dLen; i +=4) {
             //Brightness is the greyscale value for the given pixel
             var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
 

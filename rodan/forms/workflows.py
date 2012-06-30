@@ -4,5 +4,5 @@ from rodan.models.projects import Workflow
 
 class WorkflowForm(forms.ModelForm):
     class Meta:
-        exclude = ('jobs', 'has_started')
+        exclude = ('jobs', 'has_started', 'project')
         model = Workflow

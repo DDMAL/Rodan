@@ -129,6 +129,7 @@ BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL"
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"
 #Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
@@ -205,3 +206,6 @@ MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1000
 ORIGINAL_SIZE = 'original'
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
+
+SOLR_URL = 'http://localhost:8080/liber-search'
+IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'

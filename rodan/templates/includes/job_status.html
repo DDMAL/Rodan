@@ -1,3 +1,26 @@
-<h2>Status of jobs</h2>
 {% load extras %}
-{% progress_bar percent_done %}
+
+<h2>Status of jobs</h2>
+
+{% if workflows.count %}
+<table>
+    <tr>
+        <th>Workflow</th>
+        <th>Status</th>
+    </tr>
+    {% if workflows.count > 1 %}
+    <tr>
+        <td>Total</td>
+        <td width="70%">{% progress_bar percent_done %}</td>
+    </tr>
+    {% endif %}
+    {% for workflow in workflows %}
+    <tr>
+        <td><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></td>
+        <td>{% progress_bar workflow.get_percent_done %}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+    <p>You have no workflows! Create one by uploading images and following the instructions.</p>
+{% endif %}

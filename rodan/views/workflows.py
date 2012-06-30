@@ -12,13 +12,12 @@ def view(request, workflow):
     num_per_row = 4
 
     data = {
+        'pages': pages,
         'total_progress': workflow.get_percent_done(),
-        'num_pages': len(pages),
         'job_items': workflow.jobitem_set.all(),
         'page_sections': list(chunkify(pages, num_per_row)),
         'num_per_row': num_per_row,
         'num_to_fill': num_per_row - (len(pages) % num_per_row),
-        'add_jobs_url': reverse('add_jobs', args=[pages[0].id]),
     }
 
     return ('View workflow', data)

@@ -60,7 +60,8 @@
             "project": 1, 
             "filename": "lol.tiff", 
             "tag": "Some random page", 
-            "workflow": 1
+            "workflow": 1,
+            "sequence": 1
         }
     }, 
     {
@@ -70,7 +71,8 @@
             "project": 1, 
             "filename": "another.tiff", 
             "tag": "Whatever", 
-            "workflow": 1
+            "workflow": 1,
+            "sequence": 2
         }
     }, 
     {
@@ -142,6 +144,51 @@
         "fields": {
             "job": "staff-remove",
             "sequence": 8, 
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 14,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "classifier",
+            "sequence": 9,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 15,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "pitch-finding",
+            "sequence": 10,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 16,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "solr-indexing",
+            "sequence": 12,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 17,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "diva-preprocess",
+            "sequence": 13,
+            "workflow": 1
+        }
+    },
+    {
+        "pk": 18,
+        "model": "rodan.jobitem",
+        "fields": {
+            "job": "neon",
+            "sequence": 11,
             "workflow": 1
         }
     },

@@ -4,6 +4,7 @@ from functools import wraps
 import PIL.Image
 import PIL.ImageFile
 import gamera.core
+from vipsCC.VImage import VImage
 from gamera.gameracore import Point
 from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
 from pymei import XmlExport
@@ -72,6 +73,18 @@ def rodan_task(inputs=''):
 
                     # Create thumbnails for the image as well
                     create_thumbnails(output_path, result)
+                elif output_type == 'vips':
+                    image_filepath, compression, tile_size = output_content
+                    # All pyramidal tiff images must be saved in the same dir
+                    vips_output = page.get_pyramidal_tiff_path()
+
+                    # Used for debugging only (should really be done after project creation)
+                    print "creating directories"
+                    create_dirs(vips_output)
+
+                    # Needs to be converted to a string (can't handle unicode)
+                    image = VImage(str(image_filepath))
+                    image.vips2tiff("{0}:{1},tile:{2}x{2},pyramid".format(vips_output, compression, tile_size))
                 elif output_type == 'mei':
                     XmlExport.meiDocumentToFile(output_content.md, output_path.encode('ascii', 'ignore'))
                 elif output_type == 'xml':
