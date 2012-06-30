@@ -235,6 +235,20 @@ class Page(models.Model):
                                 self.filename)
 
     def get_latest_thumb_url(self, size=settings.SMALL_THUMBNAIL):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         latest_file_path = self._get_latest_file_path('tiff')
 
         if latest_file_path is not None:

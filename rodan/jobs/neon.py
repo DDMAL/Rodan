@@ -1,4 +1,5 @@
 import utils
+import gamera.core
 
 from django.conf import settings
 from django.conf.urls import patterns, url
@@ -45,9 +46,12 @@ class Neon(JobBase):
     outputs_image = False
 
     def get_context(self, page):
+        latest_image_path = page.get_latest_file_path('tiff')
+        image = gamera.core.load_image(latest_image_path)
         return {
-            'image': page.get_pre_bin_image_url(),
+            'bgimgpath': page.get_pre_bin_image_url(),
+            'orig_width': image.size.width,
             'page_id': page.id,
-            'mei_path': page.get_latest_file_path('mei')
+            'mei_path': page.get_mei_url()
         }
 
