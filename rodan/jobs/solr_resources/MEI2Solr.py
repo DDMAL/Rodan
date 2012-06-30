@@ -202,7 +202,7 @@ def storeText(lines, zones, textdb):
     return 1
 
 
-def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number):
+def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number, project_id):
     solrconn = solr.SolrConnection(solr_server)
     print '\nProcessing ' + str(ffile) + '...'
     try:
@@ -282,7 +282,7 @@ def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number)
         #         # get contour - encode with Parsons code for musical contour
                 contour = getContour(semitones)
         #         # save new document
-                mydocs.append({'id': str(uuid.uuid4()), 'pagen': int(pagen), 'pnames': pnames, 'neumes': neumes, 'contour': contour, 'semitones': str_semitones, 'intervals': intervals, 'location': str(location)})
+                mydocs.append({'id': str(uuid.uuid4()), 'pagen': int(pagen), 'project': int(project_id), 'pnames': pnames, 'neumes': neumes, 'contour': contour, 'semitones': str_semitones, 'intervals': intervals, 'location': str(location)})
         else:
             print 'page ' + str(pagen) +  ' already processed\n'
 

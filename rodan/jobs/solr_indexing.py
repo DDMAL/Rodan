@@ -8,11 +8,11 @@ from rodan.models.jobs import JobType, JobBase
 gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs=('mei', 'page_number'))
-def index_solr(mei_filepath, page_number, **kwargs):
+@utils.rodan_task(inputs=('mei', 'page_number', 'project_id'))
+def index_solr(mei_filepath, page_number, project_id, **kwargs):
     print page_number
     solr_resources.MEI2Solr.processMeiFile(mei_filepath, settings.SOLR_URL,\
-        kwargs['shortest_gram'], kwargs['longest_gram'], page_number)
+        kwargs['shortest_gram'], kwargs['longest_gram'], page_number, project_id)
 
     return {
     }
