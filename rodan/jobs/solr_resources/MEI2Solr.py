@@ -203,7 +203,7 @@ def storeText(lines, zones, textdb):
 
 
 def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number):
-    solrconn = solr.SolrConnection("%s/liber-search" % solr_server)
+    solrconn = solr.SolrConnection(solr_server)
     print '\nProcessing ' + str(ffile) + '...'
     try:
         meifile = XmlImport.documentFromFile(str(ffile))
