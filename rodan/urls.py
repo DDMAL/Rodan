@@ -30,9 +30,12 @@ page_urls = patterns('rodan.views.pages',
     url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
 )
 
-urlpatterns = patterns('',
-    url(r'^admin/', include(admin.site.urls)),
-)
+urlpatterns = []
+# Only add admin if it's enabled
+if 'django.contrib.admin' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        url(r'^admin/', include(admin.site.urls)),
+    )
 
 urlpatterns += patterns('rodan.views.main',
     url(r'^$', 'home', name='home'),
