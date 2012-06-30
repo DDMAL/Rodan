@@ -308,7 +308,7 @@ class Page(models.Model):
         project to be stored in the same directory.
         """
         return os.path.join(self.project.get_divaserve_dir(),
-                            self.filename)
+                            "%d.tiff" % self.sequence)
 
     def get_next_job_item(self, user=None):
         if not self.workflow:
