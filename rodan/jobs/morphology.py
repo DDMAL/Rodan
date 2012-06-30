@@ -34,7 +34,7 @@ def despeckle(image_filepath, **kwargs):
 
 class PostStaffRemovalDespeckle(JobBase):
     name = 'Despeckle after staff removal'
-    slug = 'despeckle_staff'
+    slug = 'despeckle-staff'
     input_type = JobType.NEUME_IMAGE
     output_type = JobType.NEUME_IMAGE
     description = "Despeckle an image that's had its stafflines removed"
