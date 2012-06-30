@@ -268,12 +268,12 @@ $(document).ready(function() {
                         for (var i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); ++i) {
                             var center = pixelQueue[i];
                             
-                            var y2 = (center.y > 0) ? (center.y - 1) : 0;
-                            var y2Lim = Math.min(center.y + 2, h)
-                            var x2 = (center.x > 0) ? (center.x - 1) : 0;
+                            var y2i = (center.y > 0) ? (center.y - 1) : 0;
+                            var y2Lim = Math.min(center.y + 2, h);
+                            var x2i = (center.x > 0) ? (center.x - 1) : 0;
                             var x2Lim = Math.min(center.x + 2, w);
-                            for (y2; y2 < y2Lim; ++y2) {
-                                for (x2; x2 < x2Lim; ++x2) {
+                            for (var y2 = y2i; y2 < y2Lim; ++y2) {
+                                for (var x2 = x2i; x2 < x2Lim; ++x2) {
                                     if (dataT[x2][y2] == 0 && dataO.isBlack(x2, y2)) {
                                         dataT[x2][y2] = 1;
                                         pixelQueue.push(new Point(x2, y2));
