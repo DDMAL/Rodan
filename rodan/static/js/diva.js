@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('#diva-wrapper').diva({
-        adaptivePadding: 0,
+        adaptivePadding: 0.07,
         fixedHeightGrid: false,
         tileFadeSpeed: 0,
         iipServerURL: $('#iipServerURL').val(),
