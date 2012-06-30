@@ -202,6 +202,9 @@ class Page(models.Model):
         except IndexError:
             return None
 
+    def get_mei_url(self):
+        return settings.MEDIA_URL + self._get_latest_file_path('mei')
+
     def get_latest_file_path(self, file_type):
         """
         Returns the absolute filepath to the latest result file creatd
