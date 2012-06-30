@@ -1,9 +1,10 @@
 from rodan.utils import render_to_json
+from rodan.models.projects import Page
 from rodan.jobs.modifymei import ModifyDocument
 import json
 
 @render_to_json()
-def insert_neume(request):
+def insert_neume(request, page_id):
     if request.method == 'POST':
         before_id = str(request.POST['beforeid'])
         pname = str(request.POST['pname'])
@@ -18,7 +19,8 @@ def insert_neume(request):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
         
         md = ModifyDocument(fname)
         result = md.insert_punctum(before_id, pname, oct, dot_form, ulx, uly, lrx, lry)
@@ -27,7 +29,7 @@ def insert_neume(request):
         return result
 
 @render_to_json()
-def move_neume(request):
+def move_neume(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
 
@@ -51,7 +53,7 @@ def move_neume(request):
         md.write_doc()
 
 @render_to_json()
-def delete_neume(request):
+def delete_neume(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
 
@@ -62,7 +64,7 @@ def delete_neume(request):
         md.write_doc()
 
 @render_to_json()
-def neumify(request):
+def neumify(request, page_id):
     if request.method == 'POST':
         nids = str(request.POST['nids'])
         neume_name = str(request.POST['name'])
@@ -84,7 +86,7 @@ def neumify(request):
         return result
 
 @render_to_json()
-def ungroup(request):
+def ungroup(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
 
@@ -100,7 +102,7 @@ def ungroup(request):
         return result
 
 @render_to_json()
-def insert_division(request):
+def insert_division(request, page_id):
     if request.method == 'POST':
         div_type = str(request.POST['type'])
         before_id = str(request.POST['beforeid'])
@@ -122,7 +124,7 @@ def insert_division(request):
         return result
 
 @render_to_json()
-def move_division(request):
+def move_division(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
         before_id = str(request.POST['beforeid'])
@@ -142,7 +144,7 @@ def move_division(request):
         md.write_doc()
 
 @render_to_json()
-def delete_division(request):
+def delete_division(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
 
@@ -153,7 +155,7 @@ def delete_division(request):
         md.write_doc()
 
 @render_to_json()
-def insert_dot(request):
+def insert_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
         dot_form = str(request.POST['dotform'])
@@ -172,7 +174,7 @@ def insert_dot(request):
         md.write_doc()
 
 @render_to_json()
-def delete_dot(request):
+def delete_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
 
@@ -191,7 +193,7 @@ def delete_dot(request):
         md.write_doc()
 
 @render_to_json()
-def insert_clef(request):
+def insert_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
         shape = str(data["shape"]).upper()
@@ -215,7 +217,7 @@ def insert_clef(request):
         return result
 
 @render_to_json()
-def move_clef(request):
+def move_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
         clef_id = str(data["id"])
@@ -237,7 +239,7 @@ def move_clef(request):
         md.write_doc()
 
 @render_to_json()
-def update_clef_shape(request):
+def update_clef_shape(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
         clef_id = str(data["id"])
@@ -259,7 +261,7 @@ def update_clef_shape(request):
         md.write_doc()
 
 @render_to_json()
-def delete_clef(request):
+def delete_clef(request, page_id):
     if request.method == 'POST':
         clefs_to_delete = json.loads(request.POST['data'])
 
@@ -270,7 +272,7 @@ def delete_clef(request):
         md.write_doc()
 
 @render_to_json()
-def insert_custos(request):
+def insert_custos(request, page_id):
     if request.method == 'POST':
         pname = str(request.POST['pname'])
         oct = str(request.POST['oct'])
@@ -293,7 +295,7 @@ def insert_custos(request):
         return result
 
 @render_to_json()
-def move_custos(request):
+def move_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
         pname = str(request.POST['pname'])
@@ -314,7 +316,7 @@ def move_custos(request):
         md.write_doc()
 
 @render_to_json()
-def delete_custos(request):
+def delete_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
 

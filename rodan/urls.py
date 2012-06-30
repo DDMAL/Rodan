@@ -59,7 +59,7 @@ urlpatterns += patterns('rodan.views.pages',
 )
 
 urlpatterns += patterns('',
-    url(r'^neon/', include(neon_urls)),
+    url(r'^neon/edit/(?P<page_id>\d+)/', include(neon_urls)),
 )
 
 # For serving stuff under MEDIA_ROOT in debug mode only

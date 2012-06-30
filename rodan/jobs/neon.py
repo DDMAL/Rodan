@@ -6,23 +6,23 @@ from django.conf.urls import patterns, url
 from rodan.models.jobs import JobType, JobBase
 
 neon_urls = patterns('rodan.views.neon',
-    url(r'^edit/insert/neume', 'insert_neume'),
-    url(r'^edit/move/neume', 'move_neume'),
-    url(r'^edit/delete/neume', 'delete_neume'),
-    url(r'^edit/neumify', 'neumify'),
-    url(r'^edit/ungroup', 'ungroup'),
-    url(r'^edit/insert/division', 'insert_division'),
-    url(r'^edit/move/division', 'move_division'),
-    url(r'^edit/delete/division', 'delete_division'),
-    url(r'^edit/insert/dot', 'insert_dot'),
-    url(r'^edit/delete/dot', 'delete_dot'),
-    url(r'^edit/insert/clef', 'insert_clef'),
-    url(r'^edit/move/clef', 'move_clef'),
-    url(r'^edit/update/clef/shape', 'update_clef_shape'),
-    url(r'^edit/delete/clef', 'delete_clef'),
-    url(r'^edit/insert/custos', 'insert_custos'),
-    url(r'^edit/move/custos', 'move_custos'),
-    url(r'^edit/delete/custos', 'delete_custos')
+    url(r'^insert/neume', 'insert_neume'),
+    url(r'^move/neume', 'move_neume'),
+    url(r'^delete/neume', 'delete_neume'),
+    url(r'^neumify', 'neumify'),
+    url(r'^ungroup', 'ungroup'),
+    url(r'^insert/division', 'insert_division'),
+    url(r'^move/division', 'move_division'),
+    url(r'^delete/division', 'delete_division'),
+    url(r'^insert/dot', 'insert_dot'),
+    url(r'^delete/dot', 'delete_dot'),
+    url(r'^insert/clef', 'insert_clef'),
+    url(r'^move/clef', 'move_clef'),
+    url(r'^update/clef/shape', 'update_clef_shape'),
+    url(r'^delete/clef', 'delete_clef'),
+    url(r'^insert/custos', 'insert_custos'),
+    url(r'^move/custos', 'move_custos'),
+    url(r'^delete/custos', 'delete_custos')
 )
 
 @utils.rodan_task(inputs=None)
@@ -47,4 +47,7 @@ class Neon(JobBase):
     def get_context(self, page):
         return {
             'image': page.get_pre_bin_image_url(),
+            'page_id': page.id,
+            'mei_path': page.get_latest_file_path('mei')
         }
+
