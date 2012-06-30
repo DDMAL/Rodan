@@ -95,7 +95,7 @@
        replication is in use, this should match the replication
        configuration.
     -->
-  <dataDir>/var/db/solr/liber</dataDir>
+  <dataDir>/var/db/solr/rodan</dataDir>
 
 
   <!-- The DirectoryFactory to use for indexes.
