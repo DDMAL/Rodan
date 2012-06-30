@@ -202,7 +202,7 @@ def storeText(lines, zones, textdb):
     return 1
 
 
-def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
+def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number):
     solrconn = solr.SolrConnection("%s/liber-search" % solr_server)
     print '\nProcessing ' + str(ffile) + '...'
     try:
@@ -213,7 +213,7 @@ def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
         print "Whoops!"
 
     page = meifile.getElementsByName('page')
-    pagen = int(page[0].getAttribute('n').value)
+    pagen = page_number
 
     notes = meifile.getElementsByName('note')
     zones = meifile.getElementsByName('zone')

@@ -215,6 +215,10 @@ class Page(models.Model):
         returned). It will also be returned if the file type is 'original'.
         """
 
+        if file_type == 'page_number':
+            # Needed for solr indexing. Really hacky, will fix eventually
+            return self.sequence
+
         if file_type == 'prebin':
             if self.workflow.jobitem_set.count():
                 for jobitem in self.workflow.jobitem_set.order_by('-sequence'):
