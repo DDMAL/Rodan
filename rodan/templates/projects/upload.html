@@ -1,5 +1,5 @@
 <h1>Upload images for '{{ project }}'</h1>
-<p>Click on an image to select it for workflow creation.</p>
+<p>Click on an image to use it as a sample image to create a workflow</p>
 <ul class="grid image-buttons" id="upload-images">
 {% for page in project.page_set.all %}
     <li><img src="{{ page.get_thumb_url }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>

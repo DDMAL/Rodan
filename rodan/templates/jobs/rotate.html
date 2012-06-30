@@ -1,5 +1,5 @@
-<p>This is a rotation job!!! Look at my beautiful dial etc</p>
-<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<p>Adjust the page rotation until the page is square. Use the ruler to
+line up objects on the page.</p>
 <form method="post" action="{% url task_complete page.id job.slug %}" id="rotate-form">
     {% csrf_token %}
     <fieldset class="submit">
