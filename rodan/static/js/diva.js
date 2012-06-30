@@ -31,6 +31,7 @@ $(document).ready(function () {
                 console.log("AHHHHHHH");
             },
             success: function (data) {
+                var realType = $('option[value=' + type + ']').text().toLowerCase();
                 console.log(data);
                 var numResults = data.length;
                 console.log("omg");
@@ -39,7 +40,7 @@ $(document).ready(function () {
                 resultText.find('.current').text(1);
                 resultText.find('.total').text(numResults);
                 resultText.find('.query').text(query);
-                resultText.find('.type').text(type);
+                resultText.find('.type').text(realType);
                 $('#result-text').show();
             }
         });
