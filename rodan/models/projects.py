@@ -48,7 +48,7 @@ class Project(models.Model):
                             'final')
 
     def is_partially_complete(self):
-        return self.get_percent_done() > 0
+        return os.path.isdir(self.get_divaserve_dir())
 
 
 class Job(models.Model):
