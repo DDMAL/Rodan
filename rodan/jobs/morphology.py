@@ -32,6 +32,24 @@ def despeckle(image_filepath, **kwargs):
         'tiff': input_image
     }
 
+class PostStaffRemovalDespeckle(JobBase):
+    name = 'Despeckle after staff removal'
+    slug = 'despeckle_staff'
+    input_type = JobType.NEUME_IMAGE
+    output_type = JobType.NEUME_IMAGE
+    description = "Despeckle an image that's had its stafflines removed"
+    show_during_wf_create = True
+    parameters = {
+        'despeckle_value': 100
+    }
+    task = despeckle
+
+    def get_context(self, page):
+        latest_image_path = page.get_latest_file_path('tiff')
+        image = gamera.core.load_image(latest_image_path)
+        return {
+            'width': image.size.width,
+        }
 
 class Despeckle(JobBase):
     name = 'Despeckle'
