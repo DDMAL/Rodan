@@ -50,7 +50,9 @@ class Neon(JobBase):
         image = gamera.core.load_image(latest_image_path)
         return {
             'bgimgpath': page.get_pre_bin_image_url(),
+            'scaled_width': settings.LARGE_THUMBNAIL,
             'orig_width': image.size.width,
+            'orig_height': image.size.height,
             'page_id': page.id,
             'mei_path': page.get_mei_url()
         }
