@@ -171,14 +171,19 @@ h1 {
     }
 }
 
-.errors {
-    background: @errorBg;
+.alert {
     padding: 20px;
     ul {
         margin-left: 20px;
     }
     margin-bottom: 20px;
     .border-radius(5px);
+    &.errors {
+        background: @errorBg;
+    }
+    &.ok {
+        background: @lightGreen;
+    }
 }
 
 .center-align {

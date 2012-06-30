@@ -9,7 +9,7 @@ appear if {{ form }} is truthy.
 {% autoescape off %}
     {% csrf_token %}
     {% if form.errors %}
-    <div class="errors">
+    <div class="alert errors">
         <p>There were errors with the submission!</p>
         {{ form.errors }}
     </div>

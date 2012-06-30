@@ -5,6 +5,7 @@
     <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
 <h1>Status overview for {{ workflow }}</h1>
+<p>Project: <a href="{{ workflow.project.get_absolute_url }}">{{ workflow.project }}</a></p>
 <p>Description: <em>{{ workflow.description }}</em></p>
 
 <h2>Statistics</h2>

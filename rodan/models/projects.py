@@ -48,7 +48,7 @@ class Project(models.Model):
                             'final')
 
     def is_partially_complete(self):
-        return self.get_percent_done() > 0
+        return os.path.isdir(self.get_divaserve_dir())
 
 
 class Job(models.Model):
@@ -202,6 +202,9 @@ class Page(models.Model):
         except IndexError:
             return None
 
+    def get_mei_url(self):
+        return settings.MEDIA_URL + self._get_latest_file_path('mei')
+
     def get_latest_file_path(self, file_type):
         """
         Returns the absolute filepath to the latest result file creatd
@@ -214,6 +217,14 @@ class Page(models.Model):
         the original image file is returned (and so None will never be
         returned). It will also be returned if the file type is 'original'.
         """
+
+        if file_type == 'page_number':
+            # Needed for solr indexing. Really hacky, will fix eventually
+            return self.sequence
+
+        if file_type == 'project_id':
+            # Same as above. Sorry.
+            return self.project.id
 
         if file_type == 'prebin':
             if self.workflow.jobitem_set.count():
@@ -314,7 +325,7 @@ class Page(models.Model):
         project to be stored in the same directory.
         """
         return os.path.join(self.project.get_divaserve_dir(),
-                            self.filename)
+                            "%d.tiff" % self.sequence)
 
     def get_next_job_item(self, user=None):
         if not self.workflow:

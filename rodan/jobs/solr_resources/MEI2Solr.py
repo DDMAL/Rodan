@@ -202,8 +202,8 @@ def storeText(lines, zones, textdb):
     return 1
 
 
-def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
-    solrconn = solr.SolrConnection("%s/liber-search" % solr_server)
+def processMeiFile(ffile, solr_server, shortest_gram, longest_gram, page_number, project_id):
+    solrconn = solr.SolrConnection(solr_server)
     print '\nProcessing ' + str(ffile) + '...'
     try:
         meifile = XmlImport.documentFromFile(str(ffile))
@@ -213,7 +213,7 @@ def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
         print "Whoops!"
 
     page = meifile.getElementsByName('page')
-    pagen = int(page[0].getAttribute('n').value)
+    pagen = page_number
 
     notes = meifile.getElementsByName('note')
     zones = meifile.getElementsByName('zone')
@@ -282,7 +282,7 @@ def processMeiFile(ffile, solr_server, longest_gram, shortest_gram):
         #         # get contour - encode with Parsons code for musical contour
                 contour = getContour(semitones)
         #         # save new document
-                mydocs.append({'id': str(uuid.uuid4()), 'pagen': int(pagen), 'pnames': pnames, 'neumes': neumes, 'contour': contour, 'semitones': str_semitones, 'intervals': intervals, 'location': str(location)})
+                mydocs.append({'id': str(uuid.uuid4()), 'pagen': int(pagen), 'project': int(project_id), 'pnames': pnames, 'neumes': neumes, 'contour': contour, 'semitones': str_semitones, 'intervals': intervals, 'location': str(location)})
         else:
             print 'page ' + str(pagen) +  ' already processed\n'
 

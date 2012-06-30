@@ -1,5 +1,4 @@
-<p>This is a despeckling job!!! Look at my beautiful slider etc</p>
-<p>The page I want to do stuff to is: {{ page }} (randomly selected)</p>
+<p>Adjust the slider until most speckles are removed</p>
 <form method="post" action="{% url task_complete page.id job.slug %}" id="despeckle-form">
     {% csrf_token %}
     <fieldset class="submit">

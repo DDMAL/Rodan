@@ -19,6 +19,11 @@
 <p><strong>Description:</strong> {% if project.description %}{{ project.description }}{% else %}<em>No description</em>{% endif %}</p>
 <p><strong>Owner</strong>: {{ project.creator }}</p>
 <p><strong>Number of pages</strong>: {{ num_pages }}{% if num_pages == 0 %} (Add pages by clicking the "Add pages" button above.){% endif %}</p>
+{% if project.is_partially_complete %}
+<div class="alert ok">
+    <p>This project is partially complete! <a href="{% url diva project.id %}">View the document in all its glory &raquo;</a></p>
+</div>
+{% endif %}
 <hr />
 {% include "includes/job_grid.html" %}
 <hr />

@@ -50,7 +50,7 @@ MEDIA_ROOT = '/mnt/images/'
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '/images/'
+MEDIA_URL = "/images/"
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -115,10 +115,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'rodan',
     'djcelery',
     'rodan.jobs',
@@ -131,6 +127,7 @@ BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
 BROKER_VHOST = "DDMAL-production"
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"
 CELERY_RESULT_DBURI = "postgresql://rodan@localhost/rodan"
@@ -184,5 +181,9 @@ LOGIN_URL = '/signup'
 THUMBNAIL_EXT = 'jpg'
 SMALL_THUMBNAIL = 150
 MEDIUM_THUMBNAIL = 400
-LARGE_THUMBNAIL = 800
-THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
+LARGE_THUMBNAIL = 1000
+ORIGINAL_SIZE = 'original'
+THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
+
+SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
+IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
