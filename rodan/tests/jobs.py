@@ -18,6 +18,11 @@ class TestTyping(unittest.TestCase):
 
 class TestDiva(unittest.TestCase):
     def test_stuff(self):
+        """
+        If this test fails it's because you don't have the file
+        rodan/uploads/1/2/crop/another.tiff on your file system. Copy another.tiff
+        from 2/ into a new subdirectory called crop and then it should work.
+        """
         job = Job.objects.get(pk='diva-preprocess')
         job_item = JobItem.objects.get(workflow=Workflow.objects.get(pk=1), job=job)
         page = Page.objects.get(pk=2)

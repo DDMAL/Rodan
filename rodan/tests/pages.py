@@ -23,10 +23,7 @@ class TestPageMethods(unittest.TestCase):
 
     def test_get_latest_file_path(self):
         self.assertEqual(self.page_1.get_latest_file_path('json'), None)
-        self.assertEqual(self.page_1.get_latest_file_path('tiff'), None)
-
-    def test_get_latest_image_path(self):
-        self.assertTrue(self.page_1.get_latest_image_path().endswith('lol.tiff'))
+        self.assertTrue(self.page_1.get_latest_file_path('tiff').endswith('lol.tiff'))
 
     def test_get_latest_thumb_url(self):
         self.assertEqual(self.page_1.get_latest_thumb_url(size=200), '/images/1/1/lol_200.jpg')
@@ -47,17 +44,15 @@ class GetNextJob(unittest.TestCase):
     def runTest(self):
         """Just the fixtures, no changes
         """
-        self.assertEqual(self.page_1.get_next_job(), self.crop)
+        self.assertEqual(self.page_1.get_next_job(), self.rotate)
 
-        self.assertEqual(self.page_2.get_next_job(), None)
+        self.assertEqual(self.page_2.get_next_job(), self.rotate)
 
-        # When you pass in the RodanUser with ID 1, should return Binarise
-        user = RodanUser.objects.get(pk=1)
-        self.assertEqual(self.page_2.get_next_job(user=user), self.binarise)
-
-        # Now let's make that first result done, we should get rotation
+        # Now let's make that first result done, we should get crop
         self.result_1.update_end_manual_time()
         self.result_1.update_end_total_time()
+
+        user = RodanUser.objects.get(pk=1)
 
         self.assertEqual(self.page_2.get_next_job(user=user), self.rotate)
         self.assertEqual(self.page_2.get_next_job(), self.rotate)
@@ -71,7 +66,7 @@ class GetNextJob(unittest.TestCase):
         # When we finish the job ...
         new_result.update_end_manual_time()
         new_result.update_end_total_time()
-        self.assertEqual(self.page_2.get_next_job(), self.crop)
+        self.assertEqual(self.page_2.get_next_job(), self.binarise)
 
     def tearDown(self):
         # Clear the end_total_time thing for the result
@@ -91,33 +86,22 @@ class GetLatestImagePath(unittest.TestCase):
         self.page_2 = Page.objects.get(pk=2)
         self.user = RodanUser.objects.get(pk=1)
 
-        # A result for the rotate job
-        self.result_2 = Result.objects.create(job_item = JobItem.objects.get(pk=4), \
-                                user=self.user, page=self.page_2, end_total_time=timezone.now())
-
     def runTest(self):
-        self.assertTrue(self.page_2.get_latest_image_path().endswith("another.tiff"))
+        self.assertTrue(self.page_2.get_latest_file_path('tiff').endswith("another.tiff"))
         self.result_file_1 = ResultFile.objects.create(result=self.result_1, \
                                 result_type='tiff', filename='binarised.tiff')
 
         # Should return the original filename
-        self.assertTrue(self.page_1.get_latest_image_path().endswith('lol.tiff'))
+        self.assertTrue(self.page_1.get_latest_file_path('tiff').endswith('lol.tiff'))
         self.assertEqual(self.page_1.get_latest_file_path('mei'), None)
-        self.assertTrue(self.page_2.get_latest_image_path().endswith("binarised.tiff"))
-
-        self.result_file_2 = ResultFile.objects.create(result=self.result_2, \
-                                result_type='tiff', filename='recent.tiff')
-
-        self.assertTrue(self.page_2.get_latest_image_path().endswith('recent.tiff'))
+        self.assertTrue(self.page_2.get_latest_file_path('tiff').endswith("binarised.tiff"))
 
     def tearDown(self):
         self.result_1.end_total_time = None
         self.result_1.save()
 
-        self.result_2.delete()
         self.result_file_1.delete()
-        self.result_file_2.delete()
-        
+
 class GetThumbnailsToImage(unittest.TestCase):
     def setUp(self):
         self.result = Result.objects.get(pk=1)

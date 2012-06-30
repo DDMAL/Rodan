@@ -30,8 +30,7 @@ class Result(models.Model):
     def create_file(self, filename, result_type):
         # Strip the MEDIA_ROOT part from the filename
         len_prefix = len(settings.MEDIA_ROOT)
-        resfile = ResultFile(result=self, filename=filename[len_prefix:], result_type=result_type)
-        resfile.save()
+        ResultFile.objects.create(result=self, filename=filename[len_prefix:], result_type=result_type)
 
     def update_end_manual_time(self):
         self.end_manual_time = timezone.now()
