@@ -368,15 +368,19 @@ h2 {
     left: 20px;
     ul {
         list-style-type: none;
-        min-height: 30px;
         background: @lightGrey;
-        min-width: 300px;
         li {
-            height: 60px;
+            max-width: 400px;
             background: @lightBlue;
-            line-height: 30px;
-            padding-left: 20px;
+            padding: 10px;
             border-top: 1px solid @white;
+            &.full-height {
+                line-height: 60px;
+            }
+            p {
+                // Otherwise it cuts off oddly
+                margin-bottom: 0;
+            }
         }
     }
     #available-jobs {

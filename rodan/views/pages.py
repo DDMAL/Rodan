@@ -138,7 +138,9 @@ def add_jobs(request, page):
                 job_items[0].delete()
 
     workflow_jobs = [job_item.job for job_item in page.workflow.jobitem_set.all()]
-    available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs]
+    if workflow_jobs:
+        last_job = workflow_jobs[-1]
+        available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs and last_job.is_compatible(job)]
 
     data = {
         'available_jobs': available_jobs,

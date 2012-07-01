@@ -14,6 +14,8 @@
     <ul id="available-jobs">
     {% for job in available_jobs %}
         {% include "includes/job_li.html" with add=1 %}
+    {% empty %}
+    <li class="full-height">There are no more available jobs.</li>
     {% endfor %}
     </ul>
     <fieldset class="submit">

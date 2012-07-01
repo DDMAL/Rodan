@@ -274,26 +274,6 @@ $(document).ready(function () {
         $('#ordered-jobs').val(jobsList.join(' '));
     });
 
-    var refreshAvailableJobs = function (outputType) {
-        $('#available-jobs li').each(function () {
-            var inputType = $(this).attr('data-input-type');
-
-            if (inputType === outputType) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    };
-
-    // Hide the ones not taking in an image if we're starting a new workflow
-    var lastWorkflowJob = $('#workflow-jobs li').last();
-    if (!lastWorkflowJob.length) {
-        refreshAvailableJobs('1');
-    } else {
-        refreshAvailableJobs(lastWorkflowJob.attr('data-output-type'));
-    }
-
     $('#workflow-jobs').delegate('.remove-job', 'click', function (event) {
         var jobNode = $(this).parent();
         // The input type is the same as the previous job's output type
