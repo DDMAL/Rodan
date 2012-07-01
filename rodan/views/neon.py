@@ -21,7 +21,7 @@ def insert_neume(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
         
         md = ModifyDocument(fname)
         result = md.insert_punctum(before_id, pname, oct, dot_form, ulx, uly, lrx, lry)
@@ -47,7 +47,7 @@ def move_neume(request, page_id):
         pitch_info = data["pitchInfo"]
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.move_neume(id, before_id, pitch_info, ulx, uly, lrx, lry)
@@ -58,7 +58,7 @@ def delete_neume(request, page_id):
         ids = str(request.POST['ids'])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.delete_neume(ids.split(","))
@@ -78,7 +78,7 @@ def update_neume_head_shape(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.update_neume_head_shape(id, head_shape, ulx, uly, lrx, lry)
@@ -101,7 +101,7 @@ def neumify(request, page_id):
             ulx = uly = lrx = lry = None
         
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         result = md.neumify(nids, type_id, head_shapes, ulx, uly, lrx, lry)
@@ -118,7 +118,7 @@ def ungroup(request, page_id):
         bboxes = data["bbs"]
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         result = md.ungroup(nids.split(','), bboxes)
@@ -141,7 +141,7 @@ def insert_division(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         result = md.insert_division(before_id, div_type, ulx, uly, lrx, lry)
@@ -163,7 +163,7 @@ def move_division(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.move_division(id, before_id, ulx, uly, lrx, lry)
@@ -174,7 +174,7 @@ def delete_division(request, page_id):
         ids = str(request.POST['ids'])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.delete_division(ids.split(","))
@@ -194,7 +194,7 @@ def insert_dot(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.add_dot(id, dot_form, ulx, uly, lrx, lry)
@@ -213,7 +213,7 @@ def delete_dot(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.delete_dot(id, ulx, uly, lrx, lry)
@@ -236,7 +236,7 @@ def insert_clef(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         result = md.insert_clef(line, shape, data["pitchInfo"], before_id, ulx, uly, lrx, lry)
@@ -260,7 +260,7 @@ def move_clef(request, page_id):
         line = str(data["line"])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.move_clef(clef_id, line, data["pitchInfo"], ulx, uly, lrx, lry)
@@ -282,7 +282,7 @@ def update_clef_shape(request, page_id):
         shape = str(data["shape"])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
         
         md = ModifyDocument(fname)
         md.update_clef_shape(clef_id, shape, data["pitchInfo"], ulx, uly, lrx, lry)
@@ -293,7 +293,7 @@ def delete_clef(request, page_id):
         clefs_to_delete = json.loads(request.POST['data'])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.delete_clef(clefs_to_delete)
@@ -316,7 +316,7 @@ def insert_custos(request, page_id):
 
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         result = md.insert_custos(pname, oct, before_id, ulx, uly, lrx, lry)
@@ -339,7 +339,7 @@ def move_custos(request, page_id):
             ulx = uly = lrx = lry = None
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.move_custos(custos_id, pname, oct, ulx, uly, lrx, lry)
@@ -350,7 +350,7 @@ def delete_custos(request, page_id):
         custos_id = str(request.POST['id'])
 
         p = get_object_or_404(Page, pk=page_id)
-        fname = p.get_latest_file_path(self, 'mei')
+        fname = p.get_latest_file_path('mei')
 
         md = ModifyDocument(fname)
         md.delete_custos(custos_id)
