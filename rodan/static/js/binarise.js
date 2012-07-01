@@ -1,6 +1,6 @@
 //Setup
 $(document).ready(function() {
-    var viewWidth = 500;
+    var viewWidth = 700;
     //Default threshold before user input
     var defThresh = 127;
     //Maximum value for greyness
