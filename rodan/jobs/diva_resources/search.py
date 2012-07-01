@@ -17,7 +17,7 @@ class LiberSearchException(Exception):
         return repr(self.message)
 
 
-def do_query(qtype, query, zoom_level, project_id, max_zoom=4):
+def do_query(qtype, query, zoom_level, project_id, max_zoom=5):
     query = query.lower()
 
     if qtype == "neumes":
