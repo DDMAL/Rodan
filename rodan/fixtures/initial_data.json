@@ -117,8 +117,7 @@
         "fields": {
             "job": "rank-filter",
             "sequence": 5, 
-            "workflow": 1,
-            "enabled": false
+            "workflow": 1
         }
     }, 
     {
