@@ -187,3 +187,5 @@ THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_
 
 SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
 IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
+
+CLASSIFIER_XML = 'salzinnes_demo_classifier.xml'

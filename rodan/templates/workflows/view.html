@@ -1,7 +1,7 @@
 {% load extras %}
 
 <div class="right-float">
-    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Add jobs</a>{% endif %}
+    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Manage jobs</a>{% endif %}
     <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
 <h1>Status overview for {{ workflow }}</h1>

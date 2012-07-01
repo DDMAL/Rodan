@@ -45,6 +45,7 @@ def dashboard(request):
         'jobs': jobs,
         'workflows': my_workflows,
         'nojob': nojob,
+        'title': 'Dashboard',
     }
 
     return render(request, 'projects/dashboard.html', data)
@@ -64,6 +65,7 @@ def create(request):
 
     data = {
         'form': form,
+        'title': 'Create a project',
     }
 
     return render(request, 'projects/create.html', data)
@@ -99,7 +101,7 @@ def view(request, project):
         'jobs': jobs,
     }
 
-    return ('View', data)
+    return ('View project', data)
 
 
 @login_required
@@ -140,7 +142,7 @@ def edit(request, project):
 # If project_id == 0, then use all projects
 @login_required
 @rodan_view(Job)
-def task(request, job, project_id=0):
+def task(request, job, project_id=0, page_id=0):
     rodan_user = request.user.get_profile()
 
     if int(project_id) == 0:
@@ -166,7 +168,12 @@ def task(request, job, project_id=0):
         else:
             return redirect('/dashboard?nojob=1')
 
-    page = random.choice(possible_pages)
+    if page_id:
+        page = get_object_or_404(Page, pk=page_id)
+        if page.get_next_job(user=request.user.get_profile()) != job:
+            raise Http404
+    else:
+        page = random.choice(possible_pages)
 
     # This is needed in case we're looking at all the projects
     project = page.project
