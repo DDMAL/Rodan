@@ -9,6 +9,7 @@ from rodan.models.results import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
 from rodan.models.jobs import JobType
+from rodan.views.projects import task as task_view
 
 
 @rodan_view(Page)
@@ -32,7 +33,10 @@ def view(request, page):
 
         steps.append(step)
 
+    user = request.user.get_profile() if request.user.is_authenticated() else None
+
     data = {
+        'next_available_job': page.get_next_job(user=user),
         'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
         'page': page,
         'steps': steps,
@@ -46,8 +50,7 @@ def view(request, page):
 # Called when submiting the form on the task page
 def process(request, page, job):
     if request.method != 'POST':
-        # Temp - should redirect to the task page
-        return redirect('/')
+        return task_view(request, job_slug=job.slug, page_id=page.id)
     else:
         job_object = job.get_object()
         kwargs = {}
