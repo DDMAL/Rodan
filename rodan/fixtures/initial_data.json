@@ -115,8 +115,8 @@
         "pk": 10, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "rank-filter",
-            "sequence": 5, 
+            "job": "despeckle-staff"
+            "sequence": 9,
             "workflow": 1
         }
     }, 
@@ -152,7 +152,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "classifier",
-            "sequence": 9,
+            "sequence": 10,
             "workflow": 1
         }
     },
@@ -161,7 +161,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "pitch-finding",
-            "sequence": 10,
+            "sequence": 11,
             "workflow": 1
         }
     },

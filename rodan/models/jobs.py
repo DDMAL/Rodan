@@ -15,6 +15,7 @@ class JobBase:
     parameters = {}
     """The celery task to execute"""
     task = None
+    enabled = True
 
     def get_name(self):
         return self.name or remove_prefixes(self.__class__.__name__)
