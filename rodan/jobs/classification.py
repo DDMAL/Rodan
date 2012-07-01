@@ -2,6 +2,7 @@ import gamera.core
 import gamera.gamera_xml
 import gamera.classify
 import gamera.knn
+from django.conf import settings
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -10,7 +11,7 @@ from rodan.models.jobs import JobType, JobBase
 @utils.rodan_task(inputs='tiff')
 def classifier(image_filepath, **kwargs):
     #will be replaced by a new classifier that will be created soon
-    cknn = gamera.knn.kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
+    cknn = gamera.knn.kNNNonInteractive(settings.CLASSIFIER_XML, 'all', True, 1)
 
     func = gamera.classify.BoundingBoxGroupingFunction(2)
     # must be OneBit image
