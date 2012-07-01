@@ -32,7 +32,7 @@ class Project(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('rodan.views.projects.view', str(self.id))
+        return ('rodan.views.projects.view', [str(self.id)])
 
     # Takes in a User (not a RodanUser), returns true if the user created it
     def is_owned_by(self, user):
@@ -83,7 +83,7 @@ class Job(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('rodan.views.jobs.view', self.slug)
+        return ('rodan.views.jobs.view', [self.slug])
 
     def get_view(self, page):
         """
@@ -122,7 +122,7 @@ class Workflow(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('rodan.views.workflows.view', str(self.id))
+        return ('rodan.views.workflows.view', [str(self.id)])
 
     def get_percent_done(self):
         percent_done = sum(page.get_percent_done() for page in self.page_set.all())
@@ -154,7 +154,7 @@ class Page(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('rodan.views.pages.view', str(self.id))
+        return ('rodan.views.pages.view', [str(self.id)])
 
     @staticmethod
     def _get_thumb_filename(path, size):
