@@ -11,7 +11,17 @@ from pymei import XmlExport
 from celery.task import task
 from django.conf import settings
 
+from rodan.models.projects import Job
 from rodan.models.results import Result
+
+
+segmented_job = Job.objects.get(pk='segmentation')
+
+other_input_mapping = {
+    'segmented_image': lambda page: page.get_job_path(segmented_job, 'tiff'),
+    'page_sequence': lambda page: page.sequence,
+    'project_id': lambda page: page.project.id,
+}
 
 
 def create_dirs(full_path):
@@ -40,7 +50,7 @@ def create_thumbnails(image_path, result):
         create_thumbnail(image_path, thumb_path, thumbnail_size)
 
 
-def rodan_task(inputs=''):
+def rodan_task(inputs, others=[]):
     def inner_function(f):
         @task(max_retries=2)
         @wraps(f)
@@ -53,7 +63,11 @@ def rodan_task(inputs=''):
             # For one input, pass in a string; for multiple, a tuple
             input_paths = map(page.get_latest_file_path, input_types)
 
-            outputs = f(*input_paths, **kwargs)
+            other_inputs = [other_input_mapping[other](page) for other in others]
+
+            args = input_paths + other_inputs
+
+            outputs = f(*args, **kwargs)
 
             # Loop through all the outputs and write them to disk
             for output_type, output_content in outputs.iteritems():
