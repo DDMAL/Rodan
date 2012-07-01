@@ -128,8 +128,7 @@ BROKER_HOST = "localhost"
 BROKER_PORT = 5672
 BROKER_USER = "rodanuser"
 BROKER_PASSWORD = "DDMALrodan"
-#BROKER_VHOST = "DDMAL"
-BROKER_VHOST = "alastair"
+BROKER_VHOST = "DDMAL"
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"
@@ -208,7 +207,8 @@ LARGE_THUMBNAIL = 1000
 ORIGINAL_SIZE = 'original'
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
 
-SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search'
+# Change this if you have solr running locally
+SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
 IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
 
 CLASSIFIER_XML = 'salzinnes_demo_classifier.xml'

@@ -116,7 +116,7 @@
         "model": "rodan.jobitem", 
         "fields": {
             "job": "despeckle-staff",
-            "sequence": 5,
+            "sequence": 8,
             "workflow": 1
         }
     }, 
@@ -125,7 +125,7 @@
         "model": "rodan.jobitem", 
         "fields": {
             "job": "staff-finding",
-            "sequence": 6, 
+            "sequence": 5,
             "workflow": 1
         }
     }, 
@@ -134,7 +134,7 @@
         "model": "rodan.jobitem", 
         "fields": {
             "job": "segmentation",
-            "sequence": 7, 
+            "sequence": 6,
             "workflow": 1
         }
     }, 
@@ -143,7 +143,7 @@
         "model": "rodan.jobitem", 
         "fields": {
             "job": "staff-remove",
-            "sequence": 8, 
+            "sequence": 7,
             "workflow": 1
         }
     },

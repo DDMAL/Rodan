@@ -45,6 +45,7 @@ def dashboard(request):
         'jobs': jobs,
         'workflows': my_workflows,
         'nojob': nojob,
+        'title': 'Dashboard',
     }
 
     return render(request, 'projects/dashboard.html', data)
@@ -64,6 +65,7 @@ def create(request):
 
     data = {
         'form': form,
+        'title': 'Create a project',
     }
 
     return render(request, 'projects/create.html', data)
@@ -99,7 +101,7 @@ def view(request, project):
         'jobs': jobs,
     }
 
-    return ('View', data)
+    return ('View project', data)
 
 
 @login_required

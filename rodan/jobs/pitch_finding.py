@@ -43,3 +43,4 @@ class PitchFinding(JobBase):
     task = pitch_find
     is_automatic = True
     outputs_image = False
+    enabled = False
