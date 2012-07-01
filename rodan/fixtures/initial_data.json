@@ -115,7 +115,7 @@
         "pk": 10, 
         "model": "rodan.jobitem", 
         "fields": {
-            "job": "despeckle-staff"
+            "job": "despeckle-staff",
             "sequence": 9,
             "workflow": 1
         }
@@ -170,7 +170,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "solr-indexing",
-            "sequence": 12,
+            "sequence": 13,
             "workflow": 1
         }
     },
@@ -179,7 +179,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "diva-preprocess",
-            "sequence": 13,
+            "sequence": 14,
             "workflow": 1
         }
     },
@@ -188,7 +188,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "neon",
-            "sequence": 11,
+            "sequence": 12,
             "workflow": 1
         }
     },
