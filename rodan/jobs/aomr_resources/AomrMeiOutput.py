@@ -228,7 +228,7 @@ class AomrMeiOutput(object):
                 # except Exception:
                     # lg.debug("Cannot add clef element {0}. Skipping.".format(self.glyph))
             elif c['type'] == 'division':
-                self.layer.add_child(self._create_division_element())
+                self.layer.addChild(self._create_division_element())
                 if "final" in c['form']:
                     self.staff_num += 1
                     new_staff = self._create_staff_element()
@@ -241,9 +241,9 @@ class AomrMeiOutput(object):
                     self.layer = new_layer
                     self.staffel = new_staff
                     self.staffdef = new_staffdef
-                    self.staffgrp.add_child(self.staffdef)
-                    self.staffel.add_child(self.layer)
-                    self.section.add_child(self.staffel)
+                    self.staffgrp.addChild(self.staffdef)
+                    self.staffel.addChild(self.layer)
+                    self.section.addChild(self.staffel)
                 
             elif c['type'] == 'custos':
                 # try:
@@ -252,7 +252,7 @@ class AomrMeiOutput(object):
                 #     lg.debug("Cannot add custos element {0}. Skipping".format(self.glyph))
                     
             elif c['type'] == "alteration":
-                # staffel.add_child(self._create_alteration_element()) #GVM_OLD
+                # staffel.addChild(self._create_alteration_element()) #GVM_OLD
                 pass
                 
         return sysbrk
@@ -497,7 +497,7 @@ class AomrMeiOutput(object):
         if full_width_episema is True:
             epi = self._create_episema_element()
             epi.attributes = {"form": "horizontal"}
-            self.layer.add_child(epi)
+            self.layer.addChild(epi)
         
         qidxs = []
         if has_quilisma:
@@ -536,21 +536,21 @@ class AomrMeiOutput(object):
             if has_dot:
                 if n in dotidxs:
                     d = self._create_dot_element()
-                    nt.add_child(d)
+                    nt.addChild(d)
             
             if has_vertical_episema:
                 if n in veidxs:
                     ep = self._create_episema_element()
                     ep.addAttribute("form", "vertical")
                     ep.addAttribute("startid", str(nt.id))
-                    self.layer.add_child(ep)
+                    self.layer.addChild(ep)
             
             if has_horizontal_episema:
                 if n in heidxs:
                     local_horizontal_episema = self._create_episema_element()
                     local_horizontal_episema.addAttribute("form", "horizontal")
                     local_horizontal_episema.addAttribute("startid", str(nt.id))
-                    self.layer.add_child(local_horizontal_episema)
+                    self.layer.addChild(local_horizontal_episema)
                     
             
             if n == num_notes - 1 and local_horizontal_episema:
@@ -558,7 +558,7 @@ class AomrMeiOutput(object):
                 local_horizontal_episema.addAttribute("endid", str(nt.id))
                 
             nc.append(nt)
-        # neumecomponent.add_children(nc)                           #CHECK
+        # neumecomponent.addChildren(nc)                           #CHECK
         for c in nc: 
             neumecomponent.addChild(c)
         # neumecomponent.addChild(nc)
