@@ -279,7 +279,7 @@ def query(request, project_id):
     zoom_level = request.GET.get('zoom', 2)
 
     try:
-        boxes = do_query(search_type, query, zoom_level)
+        boxes = do_query(search_type, query, zoom_level, project.id)
     except LiberSearchException:
         boxes = []
 
