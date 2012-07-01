@@ -25,6 +25,6 @@
     {% if step.is_done %}
         <p>{% if step.job.get_object.outputs_image %}<a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a>{% else %}This step does not output an image.{% endif %}</p>
         {% else %}
-        <p>THIS JOB IS INCOMPLETE</p>
+        <p><strong>This job is incomplete.</strong>{% if step.job == next_available_job %} <a href="{% url task_complete page.id step.job.slug %}">Start this task &raquo;</a>{% endif %}</p>
     {% endif %}
 {% endfor %}

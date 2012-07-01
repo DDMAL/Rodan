@@ -275,7 +275,7 @@ $(document).ready(function () {
     });
 
     $('#workflow-jobs').delegate('.remove-job', 'click', function (event) {
-        var jobNode = $(this).parent();
+        var jobNode = $(this).parent().parent();
         // The input type is the same as the previous job's output type
         var jobID = jobNode.attr('data-id');
 
