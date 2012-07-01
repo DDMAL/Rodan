@@ -30,8 +30,8 @@
         "model": "rodan.project", 
         "fields": {
             "creator": 1, 
-            "name": "This is my project", 
-            "description": "It's an awesome project"
+            "name": "Demo project",
+            "description": "It's an awesome project."
         }
     },
     {
@@ -39,8 +39,8 @@
         "model": "rodan.project", 
         "fields": {
             "creator": 1, 
-            "name": "This is my other project",
-            "description": "It's even better than my first one"
+            "name": "Salzinnes Antiphonal",
+            "description": "Digitising the Salzinnes Antiphonal. Exciting stuff."
         }
     },
     {

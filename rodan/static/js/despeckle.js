@@ -15,7 +15,7 @@ $(document).ready(function() {
     //Default speckle size
     var defSize = 0;
     //Width (square) of viewport
-    var viewWidth = 500;
+    var viewWidth = 700;
     //Current x and y coordinates of the frame of the viewport, relative to the full image
     var boxX = 0;
     var boxY = 0;
