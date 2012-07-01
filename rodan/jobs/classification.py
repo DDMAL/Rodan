@@ -33,7 +33,7 @@ def classifier(image_filepath, **kwargs):
 class Classifier(JobBase):
     name = 'Gamera classifier'
     slug = 'classifier'
-    input_type = JobType.NEUME_IMAGE
+    input_type = JobType.NEUME_DESPECKLE_IMAGE
     output_type = JobType.CLASSIFY_XML
     description = 'Performs classification on a binarized staff-less image and outputs an xml file'
     show_during_wf_create = True

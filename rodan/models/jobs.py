@@ -68,6 +68,7 @@ class JobType:
     CLASSIFY_XML = 4
     SEGMENTED_IMAGE = 5
     NEUME_IMAGE = 6
+    NEUME_DESPECKLE_IMAGE = 11
     RANKED_IMAGE = 7
     MEI = 8
     SOLR = 9

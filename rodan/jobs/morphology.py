@@ -36,9 +36,10 @@ class PostStaffRemovalDespeckle(JobBase):
     name = 'Despeckle after staff removal'
     slug = 'despeckle-staff'
     input_type = JobType.NEUME_IMAGE
-    output_type = JobType.NEUME_IMAGE
+    output_type = JobType.NEUME_DESPECKLE_IMAGE
     description = "Despeckle an image that's had its stafflines removed"
     show_during_wf_create = True
+    is_automatic = True
     parameters = {
         'despeckle_value': 100
     }
