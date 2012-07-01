@@ -8,6 +8,7 @@ from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
+from rodan.models.jobs import JobType
 
 
 @rodan_view(Page)
@@ -141,6 +142,9 @@ def add_jobs(request, page):
     if workflow_jobs:
         last_job = workflow_jobs[-1]
         available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs and last_job.is_compatible(job)]
+    else:
+        # No jobs in the workflow, show all image input jobs
+        available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
 
     data = {
         'available_jobs': available_jobs,
