@@ -160,7 +160,7 @@ class AomrMeiOutput(object):
         self.staffel.addChild(self.layer)
         
         
-        
+        print type(self._recognition_results)
         for sysnum,syst in self._recognition_results.iteritems(): 
             lg.debug("\nsysnum:{0}, syst:{1}")           
             self.system = syst
@@ -201,7 +201,8 @@ class AomrMeiOutput(object):
     def _parse_system(self, sysnum, syst):
         sysbrk = self._create_sb_element()
         # sysbrk.attributes = {"n": sysnum + 1}
-        sysbrk.addAttribute("n", str(sysnum+1))
+        sysnum = int(sysnum)
+        sysbrk.addAttribute("n", "%d" % (sysnum+1))
         self.layer.addChild(sysbrk)
         # staffel = self._create_staff_element()
         # staffel.addAttribute("n", stfnum)
@@ -411,7 +412,7 @@ class AomrMeiOutput(object):
             neumecomponent.addAttribute("inclinatum", "true")
             
         # neume.attributes = {'name': self.glyph['form'][0]}
-        neume.addAttribute("name", self.glyph['form'][0])
+        neume.addAttribute("name", str(self.glyph['form'][0]))
 
         if 'compound' in self.glyph['form']:
             # do something and create a new set of pitch contours
@@ -431,7 +432,7 @@ class AomrMeiOutput(object):
                 
                 ## THIS SHOULD BE CHANGED. Otherwise we may end up with two attributes with the
                 # same name.
-                neume.addAttribute("variant", f)
+                neume.addAttribute("variant", str(f))
             
             num_notes = num_notes + len(check_additional)
             
@@ -524,9 +525,9 @@ class AomrMeiOutput(object):
             nt.addAttribute("oct", str(o))
             # lg.debug("nt.pitchname:{0}".format(nt.pname))
             if n == 0 and full_width_episema is True:
-                epi.addAttribute("startid", nt.id)
+                epi.addAttribute("startid", str(nt.id))
             elif n == num_notes and full_width_episema is True:
-                epi.addAttribute("endid", nt.id)
+                epi.addAttribute("endid", str(nt.id))
             
             if has_quilisma:
                 if n in qidxs:
@@ -541,20 +542,20 @@ class AomrMeiOutput(object):
                 if n in veidxs:
                     ep = self._create_episema_element()
                     ep.addAttribute("form", "vertical")
-                    ep.addAttribute("startid", nt.id)
+                    ep.addAttribute("startid", str(nt.id))
                     self.layer.add_child(ep)
             
             if has_horizontal_episema:
                 if n in heidxs:
                     local_horizontal_episema = self._create_episema_element()
                     local_horizontal_episema.addAttribute("form", "horizontal")
-                    local_horizontal_episema.addAtribute("startid", nt.id)
+                    local_horizontal_episema.addAttribute("startid", str(nt.id))
                     self.layer.add_child(local_horizontal_episema)
                     
             
             if n == num_notes - 1 and local_horizontal_episema:
                 # we've reached the end, and we have an HE we need to close up.
-                local_horizontal_episema.addAttribute("endid", nt.id)
+                local_horizontal_episema.addAttribute("endid", str(nt.id))
                 
             nc.append(nt)
         # neumecomponent.add_children(nc)                           #CHECK
@@ -568,7 +569,7 @@ class AomrMeiOutput(object):
         # note = mod.note_()
         note = MeiElement("note")
         # note.id = self._idgen()
-        note.addAttribute("pname", pname)
+        note.addAttribute("pname", str(pname))
         return note
     
     def _create_dot_element(self):
@@ -584,9 +585,9 @@ class AomrMeiOutput(object):
         # custos.id = self._idgen()
         zone = self._create_zone_element()
         custos.facs = zone.id
-        custos.addAttribute("pname", self.glyph['strt_pitch'])
+        custos.addAttribute("pname", str(self.glyph['strt_pitch']))
         custos.addAttribute("oct", str(self.glyph['octv']))
-        custos.addAttribute("facs", custos.facs)
+        custos.addAttribute("facs", str(custos.facs))
         return custos
     
     def _create_clef_element(self):
@@ -595,7 +596,7 @@ class AomrMeiOutput(object):
         # clef.id = self._idgen()
         zone = self._create_zone_element()
         clef.facs = zone.id
-        clef.addAttribute("facs", clef.facs)
+        clef.addAttribute("facs", str(clef.facs))
 
         
         # clef.attributes = {"line": self.glyph['strt_pos'], 'shape': self.glyph['form'][0].upper() }

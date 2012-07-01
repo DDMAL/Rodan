@@ -284,7 +284,7 @@ $(document).ready(function () {
     });
 
     $('#available-jobs').delegate('.add-job', 'click', function (event) {
-        var jobNode = $(this).parent();
+        var jobNode = $(this).parent().parent();
         var jobID = jobNode.attr('data-id');
 
         $('#job-to-add').val(jobID);

@@ -1,4 +1,4 @@
-from pymei import MeiElement, XmlImport, XmlExport
+from pymei import MeiElement, MeiAttribute, XmlImport, XmlExport
 
 class ModifyDocument:
     
@@ -116,46 +116,126 @@ class ModifyDocument:
             # remove the element
             element.getParent().removeChild(element)
 
-    def neumify(self, ids, name, ulx, uly, lrx, lry):
+    def update_neume_head_shape(self, id, shape, ulx, uly, lrx, lry):
+        """
+        Update the head shape of the given punctum.
+        Update bounding box, if it has changed.
+        Update neume name, if the new head shape changes the name.
+        """
+
+        neume = self.mei.getElementById(id)
+        
+        nc = neume.getChildrenByName("nc")[0]
+
+        if shape == "punctum":
+            neume_name = "punctum"
+            nc.setAttributes([])
+        elif shape == "punctum_inclinatum":
+            neume_name = "punctum"
+            attrs = [MeiAttribute("inclinatum", "true")]
+            nc.setAttributes(attrs)
+        elif shape == "punctum_inclinatum_parvum":
+            neume_name = "punctum"
+            attrs = [MeiAttribute("inclinatum", "true"), MeiAttribute("deminutus", "true")];
+            nc.setAttributes(attrs)
+        elif shape == "quilisma":
+            neume_name = "punctum"
+            attrs = [MeiAttribute("quilisma", "true")]
+            nc.setAttributes(attrs)
+        elif shape == "virga":
+            neume_name = "virga"
+            nc.setAttributes([])
+        elif shape == "cavum":
+            neume_name = "cavum"
+            nc.setAttributes([])
+
+        neume.addAttribute("name", neume_name)
+
+        self.update_or_add_zone(neume, ulx, uly, lrx, lry)
+        
+    def neumify(self, ids, type_id, head_shapes, ulx, uly, lrx, lry):
         '''
         Neumify a group of neumes (with provided ids)
         and give it the given neume name. Also update
         bounding box information.
         '''
         
-        # create the new neume from the provided notes
+        # get neume name and variant from type id
+        type_split = type_id.split(".")
+        if type_split[-1].isdigit():
+            type_split.pop()
+        if len(type_split) == 1:
+            attrs = [MeiAttribute("name", type_split[0])]
+        else:
+            variant = " ".join(type_split[1:])
+            attrs = [MeiAttribute("name", type_split[0]), MeiAttribute("variant", variant)]
+
         new_neume = MeiElement("neume")
-        new_neume.addAttribute("name", name)
-        nc = MeiElement("nc")
-        
+        new_neume.setAttributes(attrs)
+        ncs = []
+        cur_nc = None
+
+        iNote = 0
         for id in ids:
-            ref_neume = self.mei.getElementById(id)
+            ref_neume = self.mei.getElementById(str(id))
             if ref_neume:
                 # get underlying notes
                 notes = ref_neume.getDescendantsByName("note")
                 for n in notes:
-                    nc.addChild(n)
+                    head = str(head_shapes[iNote])
+                    # check if a new nc must be opened
+                    if head == 'punctum' and cur_nc != 'punctum':
+                        ncs.append(MeiElement("nc"))
+                        cur_nc = head
+                    elif head == 'punctum_inclinatum' and cur_nc != 'punctum_inclinatum':
+                        new_nc = MeiElement("nc")
+                        new_nc.addAttribute("inclinatum", "true")
+                        ncs.append(new_nc)
+                        cur_nc = head
+                    elif head == 'punctum_inclinatum_parvum' and cur_nc != 'punctum_inclinatum_parvum':
+                        new_nc = MeiElement("nc")
+                        new_nc.addAttribute("inclinatum", "true")
+                        new_nc.addAttribute("deminutus", "true")
+                        ncs.append(new_nc)
+                        cur_nc = head 
+                    elif head == 'quilisma' and cur_nc != 'quilisma':
+                        new_nc = MeiElement("nc")
+                        new_nc.addAttribute("quilisma", "true")
+                        ncs.append(new_nc)
+                        cur_nc = head
+                    elif cur_nc is None:
+                        ncs.append(MeiElement("nc"))
+                        cur_nc = 'punctum'
 
-        new_neume.addChild(nc)
+                    ncs[-1].addChild(n)
+                    iNote += 1
 
-        # insert the neume
+        new_neume.setChildren(ncs)
+
+        # insert the new neume
         before = self.mei.getElementById(ids[0])
         parent = before.getParent()
 
         if before and parent:
             parent.addChildBefore(before, new_neume)
 
-        # delete the old neumes
+        # remove the old neumes from the mei document
         for id in ids:
-            old_neume = self.mei.getElementById(id)
-            if old_neume:
-                # remove bounding box information
-                self.remove_zone(old_neume)
-                
-                # now remove the neume
-                old_neume.getParent().removeChild(old_neume)
+            neume = self.mei.getElementById(str(id))
+            if neume:
+                # remove facs data
+                facs = neume.getAttribute("facs")
+                if facs:
+                    facsid = facs.value
+                    # Remove the zone if it exists
+                    zone = self.mei.getElementById(str(facsid))
+                    if zone and zone.name == "zone":
+                        zone.parent.removeChild(zone)
 
-        # add the bounding box information for the new neume
+                # now remove the neume
+                neume.parent.removeChild(neume)
+
+        # update bounding box data
         self.update_or_add_zone(new_neume, ulx, uly, lrx, lry)
 
         result = {"id": new_neume.getId()}
