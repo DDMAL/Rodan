@@ -15,10 +15,10 @@ from django.db import models
 from rodan.models.results import Result
 
 
-segmented_job = models.get_model('rodan', 'job')
+Job = models.get_model('rodan', 'job')
 
 other_input_mapping = {
-    'segmented_image': lambda page: page.get_job_path(segmented_job, 'tiff'),
+    'segmented_image': lambda page: page.get_job_path(Job.objects.get(pk='segmentation'), 'tiff'),
     'page_sequence': lambda page: page.sequence,
     'project_id': lambda page: page.project.id,
 }
