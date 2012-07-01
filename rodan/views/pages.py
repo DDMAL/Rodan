@@ -138,7 +138,7 @@ def add_jobs(request, page):
                 job_items[0].delete()
 
     workflow_jobs = [job_item.job for job_item in page.workflow.jobitem_set.all()]
-    available_jobs = [job for job in Job.objects.all() if job not in workflow_jobs]
+    available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs]
 
     data = {
         'available_jobs': available_jobs,

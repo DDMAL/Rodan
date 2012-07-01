@@ -43,3 +43,4 @@ class RankFilter(JobBase):
     }
     task = rank_filter
     is_automatic = True
+    enabled = False
