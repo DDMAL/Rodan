@@ -9,7 +9,8 @@ def reset():
     local("python manage.py syncdb --noinput")
 
 def dump():
-    local("python manage.py dumpdata rodan --indent=4")
+    with hide('running', 'status'):
+        local("python manage.py dumpdata rodan --indent=4")
 
 def celery():
     local("python manage.py celeryd -E --autoreload --loglevel=DEBUG")
