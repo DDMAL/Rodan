@@ -17,7 +17,7 @@ class LiberSearchException(Exception):
         return repr(self.message)
 
 
-def do_query(qtype, query, zoom_level, max_zoom=4):
+def do_query(qtype, query, zoom_level, project_id, max_zoom=4):
     query = query.lower()
 
     if qtype == "neumes":
@@ -26,9 +26,6 @@ def do_query(qtype, query, zoom_level, max_zoom=4):
         if not search_utils.valid_pitch_sequence(query):
             raise LiberSearchException("The query you provided is not a valid pitch sequence")
         real_query = query if qtype == 'pnames' else ' OR '.join(search_utils.get_transpositions(query))
-
-        print real_query
-
         query_stmt = 'pnames:{0}'.format(real_query)
     elif qtype == "contour":
         query_stmt = 'contour:{0}'.format(query)
@@ -40,6 +37,8 @@ def do_query(qtype, query, zoom_level, max_zoom=4):
         query_stmt = "incipit:{0}*".format(query)
     else:
         raise LiberSearchException("Invalid query type provided")
+
+    query_stmt = '(%s) AND (project:%d)' % (query_stmt, project_id)
 
     if qtype == "pnames-invariant":
         response = solrconn.query(query_stmt, score=False, sort="pagen asc", q_op="OR", rows=1000000)
