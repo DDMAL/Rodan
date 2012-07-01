@@ -29,6 +29,7 @@ def insert_neume(request, page_id):
 
         return result
 
+@render_to_json()
 def move_neume(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -53,6 +54,9 @@ def move_neume(request, page_id):
         md.move_neume(id, before_id, pitch_info, ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def delete_neume(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
@@ -64,6 +68,9 @@ def delete_neume(request, page_id):
         md.delete_neume(ids.split(","))
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def update_neume_head_shape(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -83,6 +90,8 @@ def update_neume_head_shape(request, page_id):
         md = ModifyDocument(fname)
         md.update_neume_head_shape(id, head_shape, ulx, uly, lrx, lry)
         md.write_doc()
+
+        return {}
 
 @render_to_json()
 def neumify(request, page_id):
@@ -149,6 +158,7 @@ def insert_division(request, page_id):
 
         return result
 
+@render_to_json()
 def move_division(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -169,6 +179,9 @@ def move_division(request, page_id):
         md.move_division(id, before_id, ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def delete_division(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
@@ -180,6 +193,9 @@ def delete_division(request, page_id):
         md.delete_division(ids.split(","))
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def insert_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -200,6 +216,9 @@ def insert_dot(request, page_id):
         md.add_dot(id, dot_form, ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def delete_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -218,6 +237,8 @@ def delete_dot(request, page_id):
         md = ModifyDocument(fname)
         md.delete_dot(id, ulx, uly, lrx, lry)
         md.write_doc()
+
+        return {}
 
 @render_to_json()
 def insert_clef(request, page_id):
@@ -244,6 +265,7 @@ def insert_clef(request, page_id):
 
         return result
 
+@render_to_json()
 def move_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -266,6 +288,9 @@ def move_clef(request, page_id):
         md.move_clef(clef_id, line, data["pitchInfo"], ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def update_clef_shape(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -288,6 +313,9 @@ def update_clef_shape(request, page_id):
         md.update_clef_shape(clef_id, shape, data["pitchInfo"], ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def delete_clef(request, page_id):
     if request.method == 'POST':
         clefs_to_delete = json.loads(request.POST['data'])
@@ -298,6 +326,8 @@ def delete_clef(request, page_id):
         md = ModifyDocument(fname)
         md.delete_clef(clefs_to_delete)
         md.write_doc()
+
+        return {}
 
 @render_to_json()
 def insert_custos(request, page_id):
@@ -324,6 +354,7 @@ def insert_custos(request, page_id):
 
         return result
 
+@render_to_json()
 def move_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
@@ -345,6 +376,9 @@ def move_custos(request, page_id):
         md.move_custos(custos_id, pname, oct, ulx, uly, lrx, lry)
         md.write_doc()
 
+        return {}
+
+@render_to_json()
 def delete_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
@@ -355,3 +389,5 @@ def delete_custos(request, page_id):
         md = ModifyDocument(fname)
         md.delete_custos(custos_id)
         md.write_doc()
+
+        return {}
