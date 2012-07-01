@@ -26,9 +26,14 @@ def find_staves(image_filepath, **kwargs):
         from staffline_height. When negative, this value is set to
         *max([2, staffline_height / 4])*.
     """
+
+    # Perform a Rank filter to make the stafflines thicker
+    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.misc_filters.rank)
+    rank_image = input_image.rank(9, 9, 0)
+    
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
-    staff_finder = gamera.toolkits.musicstaves.StaffFinder_miyao(gamera.core.load_image(image_filepath), 0, 0)
+    staff_finder = gamera.toolkits.musicstaves.StaffFinder_miyao(rank_image, 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
 
@@ -50,7 +55,7 @@ def find_staves(image_filepath, **kwargs):
 class StaffFinding(JobBase):
     name = 'Staff finding'
     slug = 'staff-finding'
-    input_type = JobType.RANKED_IMAGE
+    input_type = JobType.BINARISED_IMAGE
     output_type = JobType.POLYGON_JSON
     description = 'Retrieves and outputs polygon point coordinates information contouring staves in json format.'
     show_during_wf_create = True
