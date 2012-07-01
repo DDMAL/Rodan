@@ -160,7 +160,6 @@ class AomrMeiOutput(object):
         self.staffel.addChild(self.layer)
         
         
-        print type(self._recognition_results)
         for sysnum,syst in self._recognition_results.iteritems(): 
             lg.debug("\nsysnum:{0}, syst:{1}")           
             self.system = syst
@@ -610,10 +609,13 @@ class AomrMeiOutput(object):
         # division = mod.division_()
         # division.id = self._idgen()
         zone = self._create_zone_element()
-        division.facs = zone.id
+        division.addAttribute("facs", str(zone.id))
         
         if self.glyph['form']:
-            division.attributes = {'form': self.glyph['form'][0]}
+            div = str(self.glyph['form'][0])
+        else:
+            div = "minor"
+        division.addAttribute("form", div)
         
         return division
     
