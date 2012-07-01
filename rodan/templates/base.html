@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Rodan</title>
+    <title>Rodan{% if title %} :: {{ title }}{% endif %}</title>
     <link rel="stylesheet/less" href="{{ STATIC_URL }}css/style.less" />
     <script src="{{ STATIC_URL }}js/less.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
