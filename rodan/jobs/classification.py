@@ -12,7 +12,7 @@ def classifier(image_filepath, **kwargs):
     #will be replaced by a new classifier that will be created soon
     cknn = gamera.knn.kNNNonInteractive("optimized_classifier_31Jan.xml", 'all', True, 1)
 
-    func = gamera.classify.BoundingBoxGroupingFunction(4)
+    func = gamera.classify.BoundingBoxGroupingFunction(2)
     # must be OneBit image
     input_image = gamera.core.load_image(image_filepath)
     ccs = input_image.cc_analysis()
