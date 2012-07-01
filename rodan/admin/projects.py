@@ -1,5 +1,5 @@
 from django.contrib import admin
-from rodan.models.projects import Project, Page, Workflow, JobItem
+from rodan.models.projects import Project, Page, Workflow, JobItem, Job
 
 class JobItemInline(admin.StackedInline):
     model = JobItem
@@ -11,3 +11,4 @@ class WorkflowAdmin(admin.ModelAdmin):
 admin.site.register(Project)
 admin.site.register(Page)
 admin.site.register(Workflow, WorkflowAdmin)
+admin.site.register(Job)

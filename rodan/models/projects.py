@@ -76,6 +76,7 @@ class Job(models.Model):
     name = models.CharField(max_length=50)
     slug = models.CharField(max_length=20, primary_key=True)
     module = models.CharField(max_length=100)
+    enabled = models.BooleanField(default=True)
     pk_name = 'job_slug'
 
     def __unicode__(self):
