@@ -116,7 +116,7 @@
         "model": "rodan.jobitem", 
         "fields": {
             "job": "despeckle-staff",
-            "sequence": 9,
+            "sequence": 5,
             "workflow": 1
         }
     }, 
@@ -152,7 +152,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "classifier",
-            "sequence": 10,
+            "sequence": 9,
             "workflow": 1
         }
     },
@@ -161,7 +161,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "pitch-finding",
-            "sequence": 11,
+            "sequence": 10,
             "workflow": 1
         }
     },
@@ -170,7 +170,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "solr-indexing",
-            "sequence": 13,
+            "sequence": 11,
             "workflow": 1
         }
     },
@@ -179,7 +179,7 @@
         "model": "rodan.jobitem",
         "fields": {
             "job": "diva-preprocess",
-            "sequence": 14,
+            "sequence": 12,
             "workflow": 1
         }
     },
