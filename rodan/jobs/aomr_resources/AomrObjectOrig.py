@@ -56,7 +56,11 @@ class AomrObject(object):
         # a global to keep track of the number of stafflines.
         self.num_stafflines = None
         # cache this once so we don't have to constantly load it
-        self.image = load_image(self.filename)
+        # If it's a string, open the file, otherwise it's the image object
+        if isinstance(self.filename, basestring):
+            self.image = load_image(self.filename)
+        else:
+            self.image = self.filename
         self.image_resolution = self.image.resolution
         
         if self.image.data.pixel_type != ONEBIT:
