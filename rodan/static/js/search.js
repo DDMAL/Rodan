@@ -119,5 +119,7 @@ $(document).ready(function () {
     var clearResults = function () {
         // Reset some things
         $('.search-box').remove();
+        settings.pages = {};
+        settings.boxes = [];
     };
 });
