@@ -10,12 +10,12 @@ from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
 from pymei import XmlExport
 from celery.task import task
 from django.conf import settings
+from django.db import models
 
-from rodan.models.projects import Job
 from rodan.models.results import Result
 
 
-segmented_job = Job.objects.get(pk='segmentation')
+segmented_job = models.get_model('rodan', 'job')
 
 other_input_mapping = {
     'segmented_image': lambda page: page.get_job_path(segmented_job, 'tiff'),
