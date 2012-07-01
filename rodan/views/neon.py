@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rodan.utils import render_to_json
 from rodan.models.projects import Page
 from rodan.jobs.modifymei import ModifyDocument
@@ -28,7 +29,6 @@ def insert_neume(request, page_id):
 
         return result
 
-@render_to_json()
 def move_neume(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -46,29 +46,29 @@ def move_neume(request, page_id):
 
         pitch_info = data["pitchInfo"]
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.move_neume(id, before_id, pitch_info, ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def delete_neume(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.delete_neume(ids.split(","))
         md.write_doc()
 
-@render_to_json()
-def neumify(request, page_id):
+def update_neume_head_shape(request, page_id):
     if request.method == 'POST':
-        nids = str(request.POST['nids'])
-        neume_name = str(request.POST['name'])
-
+        id = str(request.POST['id'])
+        head_shape = str(request.post['shape'])
+        
         try:
             ulx = str(request.POST['ulx'])
             uly = str(request.POST['uly'])
@@ -77,10 +77,34 @@ def neumify(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
-        result = md.neumify(nids.split(','), neume_name, ulx, uly, lrx, lry)
+        md.update_neume_head_shape(id, head_shape, ulx, uly, lrx, lry)
+        md.write_doc()
+
+@render_to_json()
+def neumify(request, page_id):
+    if request.method == 'POST':
+        data = json.loads(request.POST['data'])
+        nids = str(data["nids"]).split(",")
+        type_id = str(data["typeid"])
+        head_shapes = data["headShapes"]
+
+        try:
+            lrx = str(data["lrx"])
+            lry = str(data["lry"])
+            ulx = str(data["ulx"])
+            uly = str(data["uly"])
+        except KeyError:
+            ulx = uly = lrx = lry = None
+        
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
+
+        md = ModifyDocument(fname)
+        result = md.neumify(nids, type_id, head_shapes, ulx, uly, lrx, lry)
         md.write_doc()
 
         return result
@@ -93,7 +117,8 @@ def ungroup(request, page_id):
         nids = str(data["nids"])
         bboxes = data["bbs"]
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         result = md.ungroup(nids.split(','), bboxes)
@@ -115,7 +140,8 @@ def insert_division(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         result = md.insert_division(before_id, div_type, ulx, uly, lrx, lry)
@@ -123,7 +149,6 @@ def insert_division(request, page_id):
 
         return result
 
-@render_to_json()
 def move_division(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -137,24 +162,24 @@ def move_division(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.move_division(id, before_id, ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def delete_division(request, page_id):
     if request.method == 'POST':
         ids = str(request.POST['ids'])
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.delete_division(ids.split(","))
         md.write_doc()
 
-@render_to_json()
 def insert_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -168,12 +193,13 @@ def insert_dot(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
+
         md = ModifyDocument(fname)
         md.add_dot(id, dot_form, ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def delete_dot(request, page_id):
     if request.method == 'POST':
         id = str(request.POST['id'])
@@ -186,7 +212,8 @@ def delete_dot(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.delete_dot(id, ulx, uly, lrx, lry)
@@ -208,7 +235,8 @@ def insert_clef(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         result = md.insert_clef(line, shape, data["pitchInfo"], before_id, ulx, uly, lrx, lry)
@@ -216,7 +244,6 @@ def insert_clef(request, page_id):
 
         return result
 
-@render_to_json()
 def move_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -232,13 +259,13 @@ def move_clef(request, page_id):
 
         line = str(data["line"])
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.move_clef(clef_id, line, data["pitchInfo"], ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def update_clef_shape(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -254,18 +281,19 @@ def update_clef_shape(request, page_id):
 
         shape = str(data["shape"])
 
-        fname = ''
-
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
+        
         md = ModifyDocument(fname)
         md.update_clef_shape(clef_id, shape, data["pitchInfo"], ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def delete_clef(request, page_id):
     if request.method == 'POST':
         clefs_to_delete = json.loads(request.POST['data'])
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.delete_clef(clefs_to_delete)
@@ -286,7 +314,9 @@ def insert_custos(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         result = md.insert_custos(pname, oct, before_id, ulx, uly, lrx, lry)
@@ -294,7 +324,6 @@ def insert_custos(request, page_id):
 
         return result
 
-@render_to_json()
 def move_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
@@ -309,18 +338,19 @@ def move_custos(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.move_custos(custos_id, pname, oct, ulx, uly, lrx, lry)
         md.write_doc()
 
-@render_to_json()
 def delete_custos(request, page_id):
     if request.method == 'POST':
         custos_id = str(request.POST['id'])
 
-        fname = ''
+        p = get_object_or_404(Page, pk=page_id)
+        fname = p.get_latest_file_path(self, 'mei')
 
         md = ModifyDocument(fname)
         md.delete_custos(custos_id)
