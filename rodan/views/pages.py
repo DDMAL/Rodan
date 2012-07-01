@@ -157,3 +157,18 @@ def add_jobs(request, page):
         'form': True,
     }
     return ('Add jobs', data)
+
+
+@login_required
+@rodan_view(Page, Job)
+def restart(request, page, job):
+    try:
+        this_sequence = page.workflow.jobitem_set.get(job=job).sequence
+        # Delete all the results whose jobitems have sequence >= this one
+        results_to_delete = page.result_set.filter(job_item__sequence__gte=this_sequence)
+        results_to_delete.delete()
+        # Should show a flash message eventually
+    except Page.DoesNotExist:
+        print "page does not exist for some reason"
+
+    return redirect(page.get_absolute_url())

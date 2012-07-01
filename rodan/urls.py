@@ -27,6 +27,7 @@ page_urls = patterns('rodan.views.pages',
     url(r'^/?$', 'view', name='view_page'),
     url(r'^/jobs', 'add_jobs', name='add_jobs'),
     url(r'^/workflow', 'workflow', name='new_workflow'),
+    url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
     url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
 )
 
