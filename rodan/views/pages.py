@@ -24,11 +24,17 @@ def view(request, page):
             has_started = True
             is_done = result.end_total_time is not None
             manual_is_done = result.end_manual_time is not None
+            start_end_time = result.end_manual_time if manual_is_done else timezone.now()
+            seconds_since_start = int((start_end_time - result.start_time).total_seconds())
+            queue_end_time = result.end_total_time if is_done else timezone.now()
+            seconds_in_queue = int((queue_end_time - result.end_manual_time).total_seconds())
         except Result.DoesNotExist:
             has_started = False
             is_done = False
             manual_is_done = False
             result = None
+            seconds_since_start = None
+            seconds_in_queue = None
 
         step = {
             'job': job_item.job,
