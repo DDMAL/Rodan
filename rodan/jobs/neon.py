@@ -27,10 +27,9 @@ neon_urls = patterns('rodan.views.neon',
     url(r'^delete/custos', 'delete_custos')
 )
 
-@utils.rodan_task(inputs=None)
-def neon(image_filepath, **kwargs):
+@utils.rodan_task(inputs=[])
+def neon(**kwargs):
     return {
-        'mei': ''
     }
 
 class Neon(JobBase):
@@ -38,7 +37,7 @@ class Neon(JobBase):
     slug = 'neon'
     input_type = JobType.MEI
     output_type = JobType.MEI
-    description = 'Correct OMR errors.'
+    description = 'Correct recognition errors.'
     show_during_wf_create = False
     parameters = {
         'data': ''

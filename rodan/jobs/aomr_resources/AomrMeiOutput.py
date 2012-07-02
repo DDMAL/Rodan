@@ -160,8 +160,9 @@ class AomrMeiOutput(object):
         self.staffel.addChild(self.layer)
         
         
-        for sysnum,syst in self._recognition_results.iteritems(): 
-            lg.debug("\nsysnum:{0}, syst:{1}")           
+        for sysnum in sorted(self._recognition_results.keys()):
+            syst = self._recognition_results[sysnum]
+            lg.debug("sysnum:{0}".format(sysnum))           
             self.system = syst
             self.systembreak = self._parse_system(sysnum, syst)
             # z = mod.zone_()

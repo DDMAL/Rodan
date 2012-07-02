@@ -36,7 +36,7 @@ class Classifier(JobBase):
     slug = 'classifier'
     input_type = JobType.NEUME_DESPECKLE_IMAGE
     output_type = JobType.CLASSIFY_XML
-    description = 'Performs classification on a binarized staff-less image and outputs an xml file'
+    description = 'Guess neume symbols on a page.'
     show_during_wf_create = True
     parameters = {
     }

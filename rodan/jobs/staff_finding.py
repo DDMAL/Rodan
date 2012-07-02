@@ -57,7 +57,7 @@ class StaffFinding(JobBase):
     slug = 'staff-finding'
     input_type = JobType.BINARISED_IMAGE
     output_type = JobType.POLYGON_JSON
-    description = 'Retrieves and outputs polygon point coordinates information contouring staves in json format.'
+    description = 'Find stafflines in an image.'
     show_during_wf_create = True
     parameters = {
         'num_lines': 0,

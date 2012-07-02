@@ -23,7 +23,7 @@ class SolrIndexing(JobBase):
     slug = 'solr-indexing'
     input_type = JobType.MEI
     output_type = JobType.SOLR
-    description = 'Indexes .mei data into SOLR'
+    description = 'Index an MEI file into the search database.'
     show_during_wf_create = True
     parameters = {
         'shortest_gram': 2,
