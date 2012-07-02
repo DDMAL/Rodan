@@ -27,10 +27,9 @@ neon_urls = patterns('rodan.views.neon',
     url(r'^delete/custos', 'delete_custos')
 )
 
-@utils.rodan_task(inputs=None)
-def neon(image_filepath, **kwargs):
+@utils.rodan_task(inputs=[])
+def neon(**kwargs):
     return {
-        'mei': ''
     }
 
 class Neon(JobBase):

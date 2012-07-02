@@ -5,6 +5,8 @@ from django.conf import settings
 from rodan.models.projects import JobItem, RodanUser, Page
 from rodan.models.jobs import JobType
 
+from djcelery.models import TaskState
+
 
 class Result(models.Model):
     class Meta:
@@ -63,3 +65,10 @@ class ResultFile(models.Model):
 
     def __unicode__(self):
         return 'File %s. %s' % (self.filename, self.result)
+
+class ResultTask(models.Model):
+    class Meta:
+        app_label = 'rodan'
+    result = models.ForeignKey(Result)
+    task = models.ForeignKey(TaskState)
+
