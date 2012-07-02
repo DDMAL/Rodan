@@ -9,10 +9,10 @@ def home(request):
     workers = [
         # Format: Job: number of things in queue
         ('Cropping', 1),
-        ('Rotation', 3),
-        ('Binarisation', 4),
+        ('Rotation', 2),
+        ('Binarisation', 0),
         ('Despeckling', 2),
-        ('Staff finding', 2),
+        ('Staff finding', 1),
         ('Segmentation', 1),
         ('Classification', 0),
         ('MEI correction', 0),
