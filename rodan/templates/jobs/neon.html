@@ -70,10 +70,8 @@ $(document).ready(function() {
       pageid: "{{ context.page_id }}",
       meipath: "{{ context.mei_path }}",
       bgimgpath: "{{ context.bgimgpath }}",
-      orig_width: 3167,
-      orig_height: 5440,
-      //orig_width: {{ context.orig_width }},
-      //orig_height: {{ context.orig_height }},
+      orig_width: {{ context.orig_width }},
+      orig_height: {{ context.orig_height }},
       glyphpath: "{{ STATIC_URL }}img/neumes_concat.svg",
       csrf_token: "{{ csrf_token }}",
       width: {{ context.scaled_width }}, // enforce width
