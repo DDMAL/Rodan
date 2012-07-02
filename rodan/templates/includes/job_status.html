@@ -24,3 +24,24 @@
 {% else %}
     <p>You have no workflows! Create one by uploading images and following the instructions.</p>
 {% endif %}
+
+<h2>Running tasks</h2>
+
+{% if current_jobs %}
+<table>
+    <tr>
+        <th>Job</th>
+        <th>Page</th>
+        <th>Time in queue</th>
+    </tr>
+    {% for current_job in current_jobs %}
+    <tr>
+        <td>{{ current_job.job_item.job }}</td>
+        <td><a href="{{ current_job.page.get_absolute_url }}">{{ current_job.page }}</a></td>
+        <td><span class="tick">{{ current_job.get_time_in_queue }}</span> seconds</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No jobs are currently running.</p>
+{% endif %}

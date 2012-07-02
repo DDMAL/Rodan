@@ -89,6 +89,7 @@ class Job(models.Model):
     slug = models.CharField(max_length=20, primary_key=True)
     module = models.CharField(max_length=100)
     enabled = models.BooleanField(default=True)
+    is_automatic = models.BooleanField()
     pk_name = 'job_slug'
 
     def __unicode__(self):

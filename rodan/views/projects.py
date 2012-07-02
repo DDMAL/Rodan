@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
@@ -39,7 +40,11 @@ def dashboard(request):
     percent_done = sum(project.get_percent_done() for project in my_projects)
     percent_done /= my_projects.count() if my_projects.count() > 0 else 1
 
+    current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True)).filter(end_total_time__isnull=True)
+    print current_jobs
+
     data = {
+        'current_jobs': current_jobs,
         'percent_done': percent_done,
         'my_projects': my_projects,
         'jobs': jobs,

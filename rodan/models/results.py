@@ -24,6 +24,9 @@ class Result(models.Model):
         status = 'Incomplete' if self.end_total_time is None else 'Complete'
         return 'Result of %s on workflow %s - %s' % (self.job_item.job, self.page, status)
 
+    def get_time_in_queue(self):
+        return timezone.now() - (self.end_manual_time or self.start_time)
+
     def save_parameters(self, **params):
         for key, value in params.iteritems():
             param = Parameter(result=self, key=key, value=value)
