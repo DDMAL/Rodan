@@ -52,7 +52,15 @@ class Project(models.Model):
         return os.path.isdir(self.get_divaserve_dir())
 
     def get_fake_progress(self):
-        return (hash(self.name) % 1000) / 10
+        """
+        Returns the real progress if the project has a description (in order
+        to ensure that the newly-created Salzinnes project doesn't have a weird
+        fake progress bar).
+        """
+        if self.description:
+            return self.get_percent_done()
+        else:
+            return (hash(self.name) % 1000) / 10
 
 
 class Job(models.Model):
