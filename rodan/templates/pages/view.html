@@ -10,7 +10,7 @@
         <td>
             {% if page.workflow %}<a href="{{ page.workflow.get_absolute_url }}">{{ page.workflow }}</a>
             {% if not page.workflow.has_started %} :: <a href="{% url add_jobs page.id %}">Manage workflow jobs</a>{% endif %}
-            {% else %}No workflow! <a href="{% url new_workflow page.id %}">Create one?</a> Or, use an existing one? (Later){% endif %}
+            {% else %}No workflow! <a href="{% url new_workflow page.id %}">Create one?</a>{% endif %}
         </td>
     </tr>
 </table>
