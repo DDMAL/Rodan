@@ -1,5 +1,6 @@
-from rodan.models.projects import Project
 from django.core.urlresolvers import reverse
+
+from rodan.models.projects import Project
 
 def list_projects(request):
     return {

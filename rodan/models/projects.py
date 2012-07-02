@@ -50,6 +50,9 @@ class Project(models.Model):
     def is_partially_complete(self):
         return os.path.isdir(self.get_divaserve_dir())
 
+    def get_fake_progress(self):
+        return (hash(self.name) % 1000) / 10
+
 
 class Job(models.Model):
     """

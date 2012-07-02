@@ -66,6 +66,7 @@ p {
     &:empty {
         display: none;
     }
+    .box-shadow(-1px 0px 10px @mediumGrey);
     position: absolute;
     overflow-y: auto;
     left: 0px;
@@ -113,7 +114,7 @@ p {
         li a {
             display: block;
             height: @sidebarItemHeight;
-            line-height: @sidebarItemHeight;
+            line-height: @sidebarItemHeight / 2;
             padding-left: 10px;
             text-decoration: none;
             color: @sidebarItemText;
@@ -132,9 +133,7 @@ p {
 
 #content {
     .scrollable;
-    position: absolute;
-    left: @sidebarWidth;
-    right: 0px;
+    padding-left: @sidebarWidth;
     background: @contentBg;
     overflow-x: hidden;
 }
@@ -514,6 +513,13 @@ ul.grid {
             opacity: 0.5;
         }
     }
+    .fake-img {
+        border: 5px solid @imageButtonFrame;
+        background: url('../img/loading.gif') no-repeat;
+        background-position: 67px 100px;
+        width: 150px;
+        height: 235px;
+    }
 }
 
 #image-viewport {
@@ -530,19 +536,19 @@ ul.grid {
 
 // Based on the Twitter bootstrap but with customised colouring
 .progress {
-    height: 24px;
+    height: 20px;
     margin: 5px 0;
+    margin-right: 10px;
     #gradient(@progressBgStart, @progressBgEnd);
     .box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.1));
     .border-radius(8px);
     overflow: hidden;
     .bar {
-        line-height: 24px;
-        height: 24px;
+        line-height: 20px;
+        height: 20px;
         color: @white;
         text-align: right;
         text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-        padding-right: 5px;
         &.none {
             background: @lightGrey;
             color: @darkGrey;
