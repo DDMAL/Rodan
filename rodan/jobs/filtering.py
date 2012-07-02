@@ -34,7 +34,7 @@ class RankFilter(JobBase):
     slug = 'rank-filter'
     input_type = JobType.BINARISED_IMAGE
     output_type = JobType.RANKED_IMAGE
-    description = 'Applies rank filter on image'
+    description = 'Apply a rank filter to an image.'
     show_during_wf_create = True
     parameters = {
         'rank_val': 9,

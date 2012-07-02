@@ -23,7 +23,7 @@ class StaffRemoval(JobBase):
     slug = 'staff-remove'
     input_type = JobType.SEGMENTED_IMAGE
     output_type = JobType.NEUME_IMAGE
-    description = 'Takes a segmented image and outputs an image with the the staves lines removed, for the classification process'
+    description = 'Remove stafflines from an image.'
     show_during_wf_create = True
     parameters = {
     }
