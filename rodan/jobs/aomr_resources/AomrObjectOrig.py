@@ -141,7 +141,7 @@ class AomrObject(object):
 
         encoded = json.dumps(data)
 
-        print "6. Returning the data. Done running for this pag."
+        print "6. Returning the data. Done running for this page."
         return encoded
         
     def find_staves(self):
