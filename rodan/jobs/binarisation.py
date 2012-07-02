@@ -53,7 +53,7 @@ class SimpleThresholdBinarise(JobBase):
     slug = 'simple-binarise'
     input_type = JobType.IMAGE
     output_type = JobType.BINARISED_IMAGE
-    description = 'Convert a greyscale image to black and white.'
+    description = 'Convert an image to black and white (simple threshold).'
     show_during_wf_create = True
     parameters = {
         'threshold': 0
@@ -66,7 +66,7 @@ class DJVUBinarise(JobBase):
     slug = 'djvu-binarise'
     input_type = JobType.IMAGE
     output_type = JobType.BINARISED_IMAGE
-    description = 'Convert a RGB image to black and white.'
+    description = 'Convert an image to black and white (DJVU algorithm).'
     show_during_wf_create = True
     parameters = {
         'smoothness': 0.2,

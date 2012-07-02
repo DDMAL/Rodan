@@ -342,4 +342,18 @@ $(document).ready(function () {
         $('#upload-images').append('<li class="fake-img"></li>');
         $('#form').trigger('submit');
     });
+
+    var updateTime = function (element) {
+        setInterval(function () {
+            var oldText = element.innerText;
+            var newText = parseInt(oldText, 10) + 1;
+            element.innerText = newText;
+        }, 1000);
+    };
+
+    if ($('.tick').length) {
+        $('.tick').each(function (index, element) {
+            updateTime(element);
+        });
+    }
 });

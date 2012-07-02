@@ -6,6 +6,7 @@ from django.conf import settings
 
 import rodan.jobs
 from rodan.models.jobs import JobType
+from rodan.utils import get_size_in_mb
 
 class RodanUser(models.Model):
     class Meta:
@@ -160,6 +161,16 @@ class Page(models.Model):
     def get_absolute_url(self):
         return ('rodan.views.pages.view', [str(self.id)])
 
+    def get_original_image_size(self):
+        """
+        Gets the size of the TIFF image that was originally uploaded.
+        """
+        return get_size_in_mb(os.path.getsize(self.get_latest_file_path('original')))
+
+    def get_original_image_dimensions(self):
+        # Hardcoding fake dimensions for now because it's easier and cheaper
+        return {'width': 4414, 'height': 6993}
+
     @staticmethod
     def _get_thumb_filename(path, size):
         base_path, _ = os.path.splitext(path)
@@ -250,20 +261,6 @@ class Page(models.Model):
                                 self.filename)
 
     def get_latest_thumb_url(self, size=settings.SMALL_THUMBNAIL):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         latest_file_path = self._get_latest_file_path('tiff')
 
         if latest_file_path is not None:

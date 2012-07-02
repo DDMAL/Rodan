@@ -23,7 +23,7 @@ class Diva(JobBase):
     slug = 'diva-preprocess'
     input_type = JobType.SOLR
     output_type = JobType.END
-    description = 'Do the tiling and whatever for diva.'
+    description = 'Prepare an image to be shown in the image viewer.'
     show_during_wf_create = False
     parameters = {
         'quality': 75,

@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rodan.utils import render_to_json
-from rodan.models.projects import Page
-from rodan.jobs.modifymei import ModifyDocument
-from rodan.models.projects import Job
+from rodan.models.projects import Page, Job
+from rodan.jobs.neon_resources.modifymei import ModifyDocument
+
 import json
 
 j = Job.objects.get(pk='neon')

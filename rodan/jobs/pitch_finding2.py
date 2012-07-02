@@ -43,7 +43,7 @@ class PitchFindingFull(JobBase):
     slug = 'pitch-finding-full'
     input_type = JobType.CLASSIFY_XML
     output_type = JobType.MEI
-    description = 'Generate an MEI file containing the notes on the page'
+    description = 'Find the pitches of neumes on an image.'
     show_during_wf_create = True
     parameters = {
         'discard_size': 12

@@ -24,7 +24,7 @@ class Rotate(JobBase):
     slug = 'rotate'
     input_type = JobType.IMAGE
     output_type = JobType.IMAGE
-    description = 'Rotates an image'
+    description = 'Rotate an image.'
     show_during_wf_create = True
     parameters = {
         'angle': 0

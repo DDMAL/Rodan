@@ -37,7 +37,7 @@ class BorderRemoval(JobBase):
     slug = 'border-remove'
     input_type = JobType.BINARISED_IMAGE
     output_type = JobType.BINARISED_IMAGE
-    description = 'Removes the borders of a greyscale image.'
+    description = 'Remove the borders of a greyscale image.'
     show_during_wf_create = True
     parameters = {
 

@@ -40,7 +40,7 @@ class Neon(JobBase):
     slug = 'neon'
     input_type = JobType.MEI
     output_type = JobType.MEI
-    description = 'Correct OMR errors.'
+    description = 'Correct recognition errors.'
     show_during_wf_create = False
     parameters = {
         'data': ''

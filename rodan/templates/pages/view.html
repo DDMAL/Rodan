@@ -16,14 +16,39 @@
 </table>
 <br />
 
-{% include "includes/page_image.html" %}
-
-<hr />
-{% for step in steps %}
-    <h3>{{ step.job }}{% if step.is_done %} <small>(<a href="{% url restart_job page.id step.job.slug %}">Restart job</a>)</small>{% endif %}</h3>
-    {% if step.is_done %}
-        <p>{% if step.job.get_object.outputs_image %}<a href="{{ step.large_thumbnail }}"><img src="{{ step.thumbnail }}" alt="Thumbnail whatever" /></a>{% else %}This step does not output an image.{% endif %}</p>
-        {% else %}
-        <p><strong>This job is incomplete.</strong>{% if step.job == next_available_job %} <a href="{% url task_complete page.id step.job.slug %}">Start this task &raquo;</a>{% endif %}</p>
-    {% endif %}
-{% endfor %}
+<table class="pretty centered-text">
+    <tr>
+        <th>Step</th>
+        <th>Image thumbnail</th>
+        <th>Information</th>
+        <th>Options</th>
+    </tr>
+    <tr>
+        <td>Original image</td>
+        <td><img src="{{ page.get_thumb_url }}"></td>
+        <td><dl>
+            <dt>Image size:</dt>
+            <dd>{{ page.get_original_image_size }}</dd>
+            <dt>Image dimensions:</dt>
+            <dd>{% with dimensions=page.get_original_image_dimensions %}{{ dimensions.width }} &times; {{ dimensions.height }}{% endwith %}</dd>
+        </dl></td>
+        <td>View sizes: <a href="{{ small_thumbnail }}">Small</a> :: <a href="{{ medium_thumbnail }}">Medium</a> :: <a href="{{ large_thumbnail }}">Large</a> :: <a href="{{ original_image }}">Original</a></td>
+    </tr>
+    {% for step in steps %}
+    <tr>
+        <td>{{ step.job }}</td>
+        <td>{% if step.is_done and step.outputs_image %}<img src="{{ step.small_thumbnail }}" alt="Thumbnail" />{% else %}<span class="error">{% if step.has_started %}This job has begun, but is not yet complete. {% else %}This job has not yet begun.{% endif %}</span>{% if step.job == next_available_job %} <a href="{% url task_complete page.id step.job.slug %}">Work on this job &raquo;{% endif %}</a>{% endif %}</td>
+        <td><dl>
+            {% if step.has_started %}
+            <dt>Time since start of job:</dt>
+            <dd><span class="{% if not step.manual_is_done %}tick{% endif %}">{{ step.seconds_since_start }}</span> seconds</dd>
+            {% endif %}
+            {% if step.manual_is_done %}
+            <dt>Time in queue</dt>
+            <dd><span class="{% if not step.is_done %}tick{% endif %}">{{ step.seconds_in_queue }}</span> seconds</dd>
+            {% endif %}
+        </dl></td>
+        <td><p>{% if step.is_done and step.outputs_image %}View sizes: <a href="{{ step.small_thumbnail }}">Small</a> :: <a href="{{ step.medium_thumbnail }}">Medium</a> :: <a href="{{ step.large_thumbnail }}">Large</a> :: <a href="{{ step.original_image }}">Original</a>{% endif %}</p>{% if step.is_done %}<p><a href="{% url restart_job page.id step.job.slug %}">Restart job</a></p>{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>

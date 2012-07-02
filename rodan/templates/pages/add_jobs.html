@@ -7,6 +7,8 @@
     <ul id="workflow-jobs">
     {% for job in workflow_jobs %}
         {% include "includes/job_li.html" %}
+    {% empty %}
+    <li class="full-height">This workflow currently has no jobs.</li>
     {% endfor %}
     </ul>
     <br />

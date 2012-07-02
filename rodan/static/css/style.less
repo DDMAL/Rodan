@@ -312,6 +312,11 @@ table {
         }
         margin-bottom: 20px;
     }
+    &.centered-text {
+        th, td {
+            .center-align;
+        }
+    }
 }
 
 a.button {
@@ -579,4 +584,14 @@ ul.grid {
     background: @brightBlue;
     opacity: 0.5;
     z-index: 500;
+}
+
+dl {
+    dt {
+        font-weight: bold;
+    }
+}
+
+span.error {
+    color: @red;
 }
