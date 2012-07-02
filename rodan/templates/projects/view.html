@@ -21,7 +21,7 @@
 <p><strong>Number of pages</strong>: {{ num_pages }}{% if num_pages == 0 %} (Add pages by clicking the "Upload images" button above.){% endif %}</p>
 {% if project.is_partially_complete %}
 <div class="alert ok">
-    <p>This project is partially complete! <a href="{% url diva project.id %}">View the document in all its glory &raquo;</a></p>
+    <p>This project is partially complete! <a href="{% url diva project.id %}">View the document in a searchable interface &raquo;</a></p>
 </div>
 {% endif %}
 <hr />
