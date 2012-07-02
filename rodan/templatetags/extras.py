@@ -32,4 +32,4 @@ def progress_bar(percentage):
     else:
         colour = 'green'
 
-    return '<div class="progress"><div class="bar %s" style="width: %d%%;">%d%%</div></div>' % (colour, percentage, percentage)
+    return '<div class="progress"><div class="bar %s" style="width: %d%%;">%d%%&nbsp;</div></div>' % (colour, percentage, percentage)
