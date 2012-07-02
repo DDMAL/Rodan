@@ -7,10 +7,10 @@ import json
 @render_to_json()
 def insert_neume(request, page_id):
     if request.method == 'POST':
-        before_id = str(request.POST['beforeid'])
-        pname = str(request.POST['pname'])
-        oct = str(request.POST['oct'])
-        dot_form = str(request.POST['dotform'])
+        before_id = str(request.POST.get('beforeid'))
+        pname = str(request.POST.get('pname'))
+        oct = str(request.POST.get('oct'))
+        dot_form = request.POST.get('dotform')
 
         try:
             ulx = str(request.POST['ulx'])
@@ -34,8 +34,8 @@ def move_neume(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
 
-        id = str(data["id"])
-        before_id = str(data["beforeid"])
+        id = str(data.get("id"))
+        before_id = str(data.get("beforeid"))
         
         try:
             ulx = str(data["ulx"])
@@ -45,7 +45,7 @@ def move_neume(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        pitch_info = data["pitchInfo"]
+        pitch_info = data.get("pitchInfo")
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -59,7 +59,7 @@ def move_neume(request, page_id):
 @render_to_json()
 def delete_neume(request, page_id):
     if request.method == 'POST':
-        ids = str(request.POST['ids'])
+        ids = str(request.POST.get('ids'))
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -73,8 +73,8 @@ def delete_neume(request, page_id):
 @render_to_json()
 def update_neume_head_shape(request, page_id):
     if request.method == 'POST':
-        id = str(request.POST['id'])
-        head_shape = str(request.post['shape'])
+        id = str(request.POST.get('id'))
+        head_shape = str(request.POST.get('shape'))
         
         try:
             ulx = str(request.POST['ulx'])
@@ -97,9 +97,9 @@ def update_neume_head_shape(request, page_id):
 def neumify(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
-        nids = str(data["nids"]).split(",")
-        type_id = str(data["typeid"])
-        head_shapes = data["headShapes"]
+        nids = str(data.get("nids")).split(",")
+        type_id = str(data.get("typeid"))
+        head_shapes = data.get("headShapes")
 
         try:
             lrx = str(data["lrx"])
@@ -123,8 +123,8 @@ def ungroup(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
 
-        nids = str(data["nids"])
-        bboxes = data["bbs"]
+        nids = str(data.get("nids"))
+        bboxes = data.get("bbs")
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -138,8 +138,8 @@ def ungroup(request, page_id):
 @render_to_json()
 def insert_division(request, page_id):
     if request.method == 'POST':
-        div_type = str(request.POST['type'])
-        before_id = str(request.POST['beforeid'])
+        div_type = str(request.POST.get('type'))
+        before_id = str(request.POST.get('beforeid'))
 
         try:
             ulx = str(data["ulx"])
@@ -161,8 +161,8 @@ def insert_division(request, page_id):
 @render_to_json()
 def move_division(request, page_id):
     if request.method == 'POST':
-        id = str(request.POST['id'])
-        before_id = str(request.POST['beforeid'])
+        id = str(request.POST.get('id'))
+        before_id = str(request.POST.get('beforeid'))
 
         try:
             ulx = str(data["ulx"])
@@ -184,7 +184,7 @@ def move_division(request, page_id):
 @render_to_json()
 def delete_division(request, page_id):
     if request.method == 'POST':
-        ids = str(request.POST['ids'])
+        ids = str(request.POST.get('ids'))
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -198,8 +198,8 @@ def delete_division(request, page_id):
 @render_to_json()
 def insert_dot(request, page_id):
     if request.method == 'POST':
-        id = str(request.POST['id'])
-        dot_form = str(request.POST['dotform'])
+        id = str(request.POST.get('id'))
+        dot_form = str(request.POST.get('dotform'))
 
         try:
             ulx = str(request.POST['ulx'])
@@ -221,7 +221,7 @@ def insert_dot(request, page_id):
 @render_to_json()
 def delete_dot(request, page_id):
     if request.method == 'POST':
-        id = str(request.POST['id'])
+        id = str(request.POST.get('id'))
 
         try:
             ulx = str(request.POST['ulx'])
@@ -244,9 +244,9 @@ def delete_dot(request, page_id):
 def insert_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
-        shape = str(data["shape"]).upper()
-        line = str(data["line"])
-        before_id = str(data["beforeid"])
+        shape = str(data.get("shape")).upper()
+        line = str(data.get("line"))
+        before_id = str(data.get("beforeid"))
 
         try:
             ulx = str(data["ulx"])
@@ -269,7 +269,7 @@ def insert_clef(request, page_id):
 def move_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
-        clef_id = str(data["id"])
+        clef_id = str(data.get("id"))
         
         try:
             ulx = str(data["ulx"])
@@ -279,7 +279,7 @@ def move_clef(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        line = str(data["line"])
+        line = str(data.get("line"))
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -294,7 +294,7 @@ def move_clef(request, page_id):
 def update_clef_shape(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
-        clef_id = str(data["id"])
+        clef_id = str(data.get("id"))
 
         try:
             ulx = str(data["ulx"])
@@ -304,7 +304,7 @@ def update_clef_shape(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-        shape = str(data["shape"])
+        shape = str(data.get("shape"))
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
@@ -332,9 +332,9 @@ def delete_clef(request, page_id):
 @render_to_json()
 def insert_custos(request, page_id):
     if request.method == 'POST':
-        pname = str(request.POST['pname'])
-        oct = str(request.POST['oct'])
-        before_id = str(request.POST['beforeid'])
+        pname = str(request.POST.get('pname'))
+        oct = str(request.POST.get('oct'))
+        before_id = str(request.POST.get('beforeid'))
 
         try:
             ulx = str(request.POST['ulx'])
@@ -357,9 +357,9 @@ def insert_custos(request, page_id):
 @render_to_json()
 def move_custos(request, page_id):
     if request.method == 'POST':
-        custos_id = str(request.POST['id'])
-        pname = str(request.POST['pname'])
-        oct = str(request.POST['oct'])
+        custos_id = str(request.POST.get('id'))
+        pname = str(request.POST.get('pname'))
+        oct = str(request.POST.get('oct'))
 
         try:
             ulx = str(request.POST['ulx'])
@@ -381,7 +381,7 @@ def move_custos(request, page_id):
 @render_to_json()
 def delete_custos(request, page_id):
     if request.method == 'POST':
-        custos_id = str(request.POST['id'])
+        custos_id = str(request.POST.get('id'))
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_latest_file_path('mei')
