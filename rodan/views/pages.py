@@ -27,7 +27,7 @@ def view(request, page):
             start_end_time = result.end_manual_time if manual_is_done else timezone.now()
             seconds_since_start = int((start_end_time - result.start_time).total_seconds())
             queue_end_time = result.end_total_time if is_done else timezone.now()
-            seconds_in_queue = int((queue_end_time - result.end_manual_time).total_seconds())
+            seconds_in_queue = int((queue_end_time - (result.end_manual_time or timezone.now())).total_seconds())
         except Result.DoesNotExist:
             has_started = False
             is_done = False
