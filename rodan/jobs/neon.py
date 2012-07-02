@@ -1,10 +1,13 @@
 import utils
 import gamera.core
 
+import os
+
 from django.conf import settings
 from django.conf.urls import patterns, url
 
 from rodan.models.jobs import JobType, JobBase
+from rodan.models.projects import Job
 
 neon_urls = patterns('rodan.views.neon',
     url(r'^insert/neume', 'insert_neume'),
@@ -47,13 +50,22 @@ class Neon(JobBase):
 
     def get_context(self, page):
         latest_image_path = page.get_latest_file_path('tiff')
+        input_mei_path = page.get_latest_file_path('mei')
+        
+        j = Job.objects.get(pk=self.slug)
+        output_path = page.get_job_path(j, 'mei')
+        utils.create_dirs(output_path)
+        if not os.path.exists(output_path):
+            open(output_path, 'w').write(open(input_mei_path).read())
+
         image = gamera.core.load_image(latest_image_path)
+        mei_url = settings.MEDIA_URL + page._get_job_path(j, 'mei')
         return {
             'bgimgpath': page.get_pre_bin_image_url(),
             'scaled_width': settings.LARGE_THUMBNAIL,
             'orig_width': image.size.width,
             'orig_height': image.size.height,
             'page_id': page.id,
-            'mei_path': page.get_mei_url()
+            'mei_path': mei_url
         }
 

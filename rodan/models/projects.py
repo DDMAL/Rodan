@@ -312,6 +312,18 @@ class Page(models.Model):
         return os.path.join(settings.MEDIA_ROOT,
                             self._get_thumb_path(size=size, job=job))
 
+    def _get_job_path(self, job, ext):
+        """
+        Returns the relative path to the file for the specified
+        job and extension. 
+        """
+        basename, _ = os.path.splitext(self.filename)
+
+        return os.path.join("%d" % self.project.id,
+                            "%d" % self.id,
+                            "%s" % job.slug,
+                            "%s.%s" % (basename, ext))
+
     def get_job_path(self, job, ext):
         """
         Returns the absolute path to the file for the specified
@@ -343,7 +355,6 @@ class Page(models.Model):
         for job_item in self.workflow.jobitem_set.all():
             page_results = job_item.result_set.filter(page=self)
             no_result = page_results.count() == 0
-
             if no_result:
                 return job_item
             else:
