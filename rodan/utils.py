@@ -95,3 +95,7 @@ def render_to_json(**jsonargs):
 def chunkify(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i + n]
+
+
+def get_size_in_mb(num_bytes):
+    return "%.2fMB" % (num_bytes / 1000000.0)

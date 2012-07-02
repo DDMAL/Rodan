@@ -3,6 +3,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from rodan.models.projects import Page, Job, JobItem
 from rodan.models.results import Result
@@ -20,15 +21,27 @@ def view(request, page):
     for job_item in job_items:
         try:
             result = Result.objects.get(page=page, job_item=job_item)
+            has_started = True
             is_done = result.end_total_time is not None
+            manual_is_done = result.end_manual_time is not None
         except Result.DoesNotExist:
+            has_started = False
             is_done = False
+            manual_is_done = False
+            result = None
 
         step = {
             'job': job_item.job,
-            'thumbnail': page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL),
             'is_done': is_done,
+            'manual_is_done': manual_is_done,
+            'has_started': has_started,
+            'small_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL),
+            'medium_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL),
             'large_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL),
+            'original_image': page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE),
+            'outputs_image': job_item.job.get_object().outputs_image,
+            'seconds_since_start': int((timezone.now() - result.start_time).total_seconds()) if result else None,
+            'seconds_in_queue': int((timezone.now() - result.end_manual_time).total_seconds())  if manual_is_done else None
         }
 
         steps.append(step)
@@ -37,7 +50,10 @@ def view(request, page):
 
     data = {
         'next_available_job': page.get_next_job(user=user),
+        'small_thumbnail': page.get_thumb_url(size=settings.SMALL_THUMBNAIL),
         'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
+        'large_thumbnail': page.get_thumb_url(size=settings.LARGE_THUMBNAIL),
+        'original_image': page.get_thumb_url(size=settings.ORIGINAL_SIZE),
         'page': page,
         'steps': steps,
     }
