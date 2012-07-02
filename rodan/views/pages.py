@@ -27,7 +27,8 @@ def view(request, page):
             start_end_time = result.end_manual_time if manual_is_done else timezone.now()
             seconds_since_start = int((start_end_time - result.start_time).total_seconds())
             queue_end_time = result.end_total_time if is_done else timezone.now()
-            seconds_in_queue = int((queue_end_time - (result.end_manual_time or timezone.now())).total_seconds())
+            queue_start_time = result.end_manual_time if manual_is_done else result.start_time
+            seconds_in_queue = int((queue_end_time - queue_start_time).total_seconds())
         except Result.DoesNotExist:
             has_started = False
             is_done = False
@@ -46,8 +47,8 @@ def view(request, page):
             'large_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL),
             'original_image': page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE),
             'outputs_image': job_item.job.get_object().outputs_image,
-            'seconds_since_start': int((timezone.now() - result.start_time).total_seconds()) if result else None,
-            'seconds_in_queue': int((timezone.now() - result.end_manual_time).total_seconds())  if manual_is_done else None
+            'seconds_since_start': seconds_since_start,
+            'seconds_in_queue': seconds_in_queue,
         }
 
         steps.append(step)
