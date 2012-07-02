@@ -37,10 +37,29 @@
     {% for step in steps %}
     <tr>
         <td>{{ step.job }}</td>
-        <td>{% if step.is_done and step.outputs_image %}<img src="{{ step.small_thumbnail }}" alt="Thumbnail" />{% else %}<span class="error">{% if step.has_started %}This job has begun, but is not yet complete. {% else %}This job has not yet begun.{% endif %}</span>{% if step.job == next_available_job %} <a href="{% url task_complete page.id step.job.slug %}">Work on this job &raquo;{% endif %}</a>{% endif %}</td>
-        <td><dl>
+        <td>
+        {% if step.is_done %}
+            {% if step.outputs_image %}
+                <img src="{{ step.small_thumbnail }}" />
+            {% else %}
+                This job is complete but does not output an image.
+            {% endif %}
+        {% else %}
+            <span class="error">
             {% if step.has_started %}
-            <dt>Time since start of job:</dt>
+                This job has begun, but it is not yet complete.
+            {% else %}
+                This job has not yet begun.
+            {% endif %}
+            </span>
+            {% if step.job == next_available_job %}
+            <a href="{% url task_complete page.id step.job.slug %}">Work on this job &raquo;</a>
+            {% endif %}
+        {% endif %}
+        </td>
+        <td><dl>
+            {% if step.has_started and not step.job.get_object.is_automatic %}
+            <dt>Time in manual step:</dt>
             <dd><span class="{% if not step.manual_is_done %}tick{% endif %}">{{ step.seconds_since_start }}</span> seconds</dd>
             {% endif %}
             {% if step.manual_is_done %}
