@@ -6,16 +6,19 @@ from django.core.urlresolvers import reverse
 
 # The statistics and everything
 def home(request):
-    workers = {
+    workers = [
         # Format: Job: number of things in queue
-        'Binarisation': 4,
-        'Recognition': 5,
-        'Segmentation': 1,
-        'Cropping': 0,
-        'Whatever': 1,
-        'Fake worker': 3,
-        'Another fake': 1,
-    }
+        ('Cropping', 1),
+        ('Rotation', 3),
+        ('Binarisation', 4),
+        ('Despeckling', 2),
+        ('Staff finding', 2),
+        ('Segmentation', 1),
+        ('Classification', 0),
+        ('MEI correction', 0),
+        ('Solr indexing', 1),
+        ('Diva preprocessing', 0),
+    ]
 
     data = {
         'num_projects': 100,
