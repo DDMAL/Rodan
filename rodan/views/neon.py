@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rodan.utils import render_to_json
 from rodan.models.projects import Page
-from rodan.jobs.modifymei import ModifyDocument
+from rodan.jobs.modifymei.neon_resources import ModifyDocument
 import json
 
 @render_to_json()
