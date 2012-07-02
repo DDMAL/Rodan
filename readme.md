@@ -97,6 +97,7 @@ Instructions
 * `python manage.py syncdb` should do all the database stuff for you. Don't say yes when asked
    to create a superuser and a fixture will be created
 * `python manage.py celeryd --loglevel=info` to start the celery broker
+* `python manage.py celeryev --camera=rodan.monitor.Rodaonitor`
 * `python manage.py runserver`. Access the site at http://localhost:8000
 * If you're running it on susato and want to be able to access it remotely, pick a port
   (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`.
@@ -105,8 +106,6 @@ Instructions
 
 Project layout
 -------------
-
-Each of the 5 components (correction, display, processing, projects, recognition) exists as a separate app. The `rodan` directory just contains project-specific settings and URLs as well as some basic views (the main view, which either redirects the user to the dashboard or asks the user to sign up or login).
 
 * `db.sqlite` - for development only. not tracked by git. created upon running `python manage.py syncdb`
 * `__init__.py`
