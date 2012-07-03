@@ -61,7 +61,7 @@ class Despeckle(JobBase):
     show_during_wf_create = True
     is_automatic = True
     parameters = {
-        'despeckle_value': 100
+        'despeckle_value': 0
     }
     task = despeckle
 
