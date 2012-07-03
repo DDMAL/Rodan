@@ -191,7 +191,6 @@ $(document).ready(function () {
             $(this).addClass('active');
             // Show all the project lis
             $('#project-list').find('a').each(function () {
-                console.log("lol");
                 $(this).show();
             });
         }
