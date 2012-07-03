@@ -1,6 +1,10 @@
+import celery
 from collections import OrderedDict
 from celery.execute import send_task
 from djcelery.snapshot import Camera
+
+from datetime import timedelta
+from django.conf import settings
 
 import json
 
@@ -8,11 +12,24 @@ from djcelery.models import TaskState
 from rodan.models.results import Result, ResultTask
 
 
+EXPIRE_SUCCESS = getattr(settings, "CELERYCAM_EXPIRE_SUCCESS",
+                         timedelta(days=30))
+EXPIRE_ERROR = getattr(settings, "CELERYCAM_EXPIRE_ERROR",
+                       None)
+EXPIRE_PENDING = getattr(settings, "CELERYCAM_EXPIRE_PENDING",
+                         None)
+
+
 class RodanMonitor(Camera):
 
     def __init__(self, *args, **kwargs):
         Camera.__init__(self, *args, **kwargs)
         self.states = OrderedDict()
+        self.expire_states = {
+                celery.states.SUCCESS: EXPIRE_SUCCESS,
+                celery.states.EXCEPTION_STATES: EXPIRE_ERROR,
+                celery.states.UNREADY_STATES: EXPIRE_PENDING,
+        }
 
     def restart(self, task):
         print "req"
