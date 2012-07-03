@@ -355,44 +355,64 @@ $(document).ready(function() {
         
     var findNearestPoints = function(point) {
         var minDist = -1;
+        var minGroup = null;
         var minPoint = null;
         var minNeighbour = null;
         for (g in stage.get(".group")) {
             var group = stage.get(".group")[g];
             var gPoint = $.extend({}, true, point);
-            gPoint.x -= (group.getX() + 0);
-            gPoint.y -= (group.getY() + 0);
+            gPoint.x -= group.getX();
+            gPoint.y -= group.getY();
             var poly = group.get(".poly")[0];
             var nPoints = poly.getPoints().length;
             for (var i = 0; i < nPoints; i++) {
                 var anchor = group.attrs.anchors[i];
-                var dX = anchor.getX() - gPoint.x;
                 var dY = anchor.getY() - gPoint.y;
-                var dist = Math.sqrt(dY * dY + dX * dX * 0.002);
+                var dist = Math.abs(dY);
                 if (minDist < 0 || dist < minDist) {
                     minDist = dist;
-                    minPoint = anchor;
-                    if (i == 0) {
-                        minNeighbour = group.attrs.anchors[nPoints - 1];
-                    } else {
-                        minNeighbour = group.attrs.anchors[i - 1];
-                    }
-                    var dNX = minNeighbour.getX() - gPoint.x;
-                    var dNY = minNeighbour.getY() - gPoint.y;
-                    var nDist = Math.sqrt(dNY * dNY + dNX * dNX * 0.002);
-                    var minNeighbourB = null;
-                    if (i == (nPoints - 1)) {
-                        minNeighbourB = group.attrs.anchors[0];
-                    } else {
-                        minNeighbourB = group.attrs.anchors[i + 1];
-                    }
-                    dNX = minNeighbourB.getX() - gPoint.x;
-                    dNY = minNeighbourB.getY() - gPoint.y;
-                    var nDistB = Math.sqrt(dNY * dNY + dNX * dNX * 0.002);
-                    if (nDistB < nDist) {
-                        minNeighbour = minNeighbourB;
-                    }
+                    minGroup = group;
                 }
+            }
+        }
+        minDist = -1;
+        var gPoint = $.extend({}, true, point);
+        gPoint.x -= minGroup.getX();
+        gPoint.y -= minGroup.getY();
+        var poly = minGroup.get(".poly")[0];
+        var nPoints = poly.getPoints().length;
+        for (var i = 0; i < nPoints; i++) {
+            var A = minGroup.attrs.anchors[i];
+            var B = null;
+            if (i == (nPoints - 1)) {
+                B = minGroup.attrs.anchors[0];
+            } else {
+                B = minGroup.attrs.anchors[i + 1];
+            }
+            var APx = gPoint.x - A.getX();
+            var APy = gPoint.y - A.getY();
+            
+            var ABx = B.getX() - A.getX();
+            var ABy = B.getY() - A.getY();
+            
+            var AB2 = (ABx * ABx) + (ABy * ABy);
+            var ABAP = (APx * ABx) + (APy * ABy);
+            var t = ABAP / AB2;
+            if (t < 0) {
+                t = 0;
+            } else if (t > 1) {
+                t = 1;
+            }
+            var Cx = A.getX() + (ABx * t);
+            var Cy = A.getY() + (ABy * t);
+            console.log(Cx, Cy, gPoint.x, gPoint.y, i);
+            var Dx = Cx - gPoint.x;
+            var Dy = Cy - gPoint.y;
+            var dist = Math.sqrt((Dx * Dx) + (Dy * Dy));
+            if (minDist < 0 || dist < minDist) {
+                minDist = dist;
+                minPoint = A;
+                minNeighbour = B;
             }
         }
         return [minPoint, minNeighbour];
@@ -516,7 +536,6 @@ $(document).ready(function() {
             if (selectedPoints.length == 0) {
                 removePoly();
             } else {
-                console.log(selectedPoints);
                 deletePoints();
             }
         }
