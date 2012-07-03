@@ -49,7 +49,9 @@ class Project(models.Model):
                             'final')
 
     def is_partially_complete(self):
-        return os.path.isdir(self.get_divaserve_dir())
+        Job = models.loading.get_model('rodan', 'Job')
+        diva_job = Job.objects.get(pk='diva-preprocess')
+        return any(page.get_percent_done() == 100 and page.workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all())
 
     def get_fake_progress(self):
         """
