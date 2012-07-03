@@ -233,9 +233,6 @@ $(document).ready(function () {
     if ($('.flash-message').length) {
         setTimeout(function () {
             $('.flash-message').fadeOut('slow');
-            setTimeout(function () {
-                window.location.search = '';
-            }, 1000);
         }, 2000);
     }
 
