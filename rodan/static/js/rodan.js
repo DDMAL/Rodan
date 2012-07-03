@@ -277,17 +277,50 @@ $(document).ready(function () {
         $('#form').trigger('submit');
     });
 
-    var updateTime = function (element) {
-        setInterval(function () {
-            var oldText = element.innerText;
-            var newText = parseInt(oldText, 10) + 1;
-            element.innerText = newText;
+    var tickables = {};
+
+    var updateTickables = function () {
+        var tickInterval = setInterval(function () {
+            var element, oldText, newText;
+            for (resultID in tickables) {
+                element = tickables[resultID];
+                oldText = element.innerText;
+                newText = parseInt(oldText, 10) + 1;
+                element.innerText = newText;
+            }
+
+            $.ajax({
+                cache: false,
+                url: '/status/task',
+                data: {
+                    result_ids: _.keys(tickables)
+                },
+                success: function (statuses) {
+                    for (resultID in statuses) {
+                        var taskStatus = statuses[resultID];
+                        if (taskStatus) {
+                            // Add a "done" thing
+                            $(element).parent().append(' - DONE (will autorefresh shortly)');
+                            // Pause the ticking
+                            delete tickables[resultID];
+
+                            // Then refresh the page (temp solution)
+                            setTimeout(function () {
+                                location.search = '';
+                            }, 2000);
+                        }
+                    }
+                }
+            });
         }, 1000);
     };
 
     if ($('.tick').length) {
         $('.tick').each(function (index, element) {
-            updateTime(element);
+            var resultID = $(element).attr('data-result-id');
+            tickables[resultID] = element;
         });
+
+        updateTickables();
     }
 });
