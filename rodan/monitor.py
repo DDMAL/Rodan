@@ -12,24 +12,18 @@ from djcelery.models import TaskState
 from rodan.models.results import Result, ResultTask
 
 
-EXPIRE_SUCCESS = getattr(settings, "CELERYCAM_EXPIRE_SUCCESS",
-                         timedelta(days=30))
-EXPIRE_ERROR = getattr(settings, "CELERYCAM_EXPIRE_ERROR",
-                       None)
-EXPIRE_PENDING = getattr(settings, "CELERYCAM_EXPIRE_PENDING",
-                         None)
-
-
 class RodanMonitor(Camera):
 
     def __init__(self, *args, **kwargs):
         Camera.__init__(self, *args, **kwargs)
         self.states = OrderedDict()
         self.expire_states = {
-                celery.states.SUCCESS: EXPIRE_SUCCESS,
-                celery.states.EXCEPTION_STATES: EXPIRE_ERROR,
-                celery.states.UNREADY_STATES: EXPIRE_PENDING,
+                celery.states.SUCCESS: settings.CELERYCAM_EXPIRE_SUCCESS,
+                celery.states.EXCEPTION_STATES: settings.CELERYCAM_EXPIRE_ERROR,
+                celery.states.UNREADY_STATES: settings.CELERYCAM_EXPIRE_PENDING,
         }
+
+        print self.expire_states
 
     def restart(self, task):
         print "req"
@@ -58,6 +52,7 @@ class RodanMonitor(Camera):
         x = args[1:-1]
         parts = x.split(",")
         result_id = int(parts[0])
+        print "RESID::%s\n" % result_id
         result = Result.objects.get(pk=result_id)
 
         rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
