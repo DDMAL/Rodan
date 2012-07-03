@@ -209,9 +209,7 @@ $(document).ready(function () {
         }
     };
 
-    setTimeout(function () {
-        updateWorkers(queueSizes);
-    }, 100);
+    updateWorkers(queueSizes);
 
     setInterval(function() {
         var fakeSizes = [];
@@ -221,7 +219,7 @@ $(document).ready(function () {
         }
 
         updateWorkers(fakeSizes);
-    }, 4000);
+    }, 40000);
 
 
     // The search box
