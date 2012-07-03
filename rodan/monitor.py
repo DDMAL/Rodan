@@ -1,10 +1,12 @@
 from collections import OrderedDict
 from celery.execute import send_task
-from celery.events.snapshot import Polaroid
 from djcelery.snapshot import Camera
+
+import json
 
 from djcelery.models import TaskState
 from rodan.models.results import Result, ResultTask
+
 
 class RodanMonitor(Camera):
 
@@ -15,11 +17,21 @@ class RodanMonitor(Camera):
     def restart(self, task):
         print "req"
         tname = task.name
-        a = task.args
-        kw = task.kwargs
-        print "restarting task",tname
-        print a,kw
-        send_task(tname, *a, **kw)
+
+        # HACK - args is a string, but we know it looks like a tuple
+        # with the result ID as the first (only) param - (4,)
+        a = task.args[1:-1]
+        parts = a.split(",")
+
+        orig_kw = json.loads(task.kwargs.replace("'", "\""))
+
+        # need to remake (immutable strings in python right?) the kw to avoid unicode in the keys (after the first restart, unicode 'u's will appear in the incoming kwargs string)
+        kw = dict((k.encode('ascii'), v) for (k, v) in orig_kw.items())
+
+        print "restarting task", tname
+        print a, kw
+
+        send_task(tname, [int(parts[0])], kw)
 
     def log(self, task_id, task):
         t = TaskState.objects.get(task_id=task_id)
@@ -42,12 +54,11 @@ class RodanMonitor(Camera):
             print taskid
             self.log(taskid, task)
 
-"""
             if taskid in self.states:
                 oldstate = self.states[taskid]
                 if task.state != oldstate:
                     print "  state changed"
-                    print "    to",task.state
+                    print "    to", task.state
                     self.states[taskid] = task.state
                     if task.state == "FAILURE":
                         print "Task failed!!"
@@ -55,4 +66,3 @@ class RodanMonitor(Camera):
             else:
                 print "  new task"
                 self.states[taskid] = task.state
-"""
