@@ -189,7 +189,7 @@ def add_jobs(request, page):
 @rodan_view(Page, Job)
 def restart(request, page, job):
     try:
-        page.restart_job(job)
+        page.reset_to_job(job)
         # If the next job is automatic, make it start too
         page.start_next_automatic_job(user=request.user.get_profile())
     except Page.DoesNotExist:
