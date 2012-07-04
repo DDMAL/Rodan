@@ -186,14 +186,9 @@ def add_jobs(request, page):
 @rodan_view(Page, Job)
 def restart(request, page, job):
     try:
-        this_sequence = page.workflow.jobitem_set.get(job=job).sequence
-        # Delete all the results whose jobitems have sequence >= this one
-        results_to_delete = page.result_set.filter(job_item__sequence__gte=this_sequence)
-        results_to_delete.delete()
-
+        page.restart_job(job)
         # If the next job is automatic, make it start too
         page.start_next_automatic_job(user=request.user.get_profile())
-        # Should show a flash message eventually
     except Page.DoesNotExist:
         print "page does not exist for some reason"
 
