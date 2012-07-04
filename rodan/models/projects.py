@@ -422,7 +422,7 @@ class Page(models.Model):
         # Now generate thumbnails
         for thumbnail_size in settings.THUMBNAIL_SIZES:
             thumb_path = self.get_thumb_path(size=thumbnail_size)
-            rodan.jobs.utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
+            rodan.jobs.misc_tasks.create_thumbnails_task.delay(image_path, thumb_path, thumbnail_size)
 
     def is_job_complete(self, job_item):
         Result = models.loading.get_model('rodan', 'Result')
