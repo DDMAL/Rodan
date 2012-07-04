@@ -349,15 +349,16 @@ $(document).ready(function() {
                             var x2Lim = Math.min(cX + 2, w);
                             for (var y2 = y2i; y2 < y2Lim; ++y2) {
                                 for (var x2 = x2i; x2 < x2Lim; ++x2) {
+                                    if (dataT[x2][y2] == 2) {
+                                        bail = true;
+                                        break;
+                                    }
                                     var convX2 = x2 * 4;
                                     var convY2 = y2 * w * 4;
                                     var p2 = convX2 + convY2;
                                     if (dataT[x2][y2] == 0 && dataO[p2] == BLACK) {
                                         dataT[x2][y2] = 1;
                                         pixelQueue.push(p2);
-                                    } else if (dataT[x2][y2] == 2) {
-                                        bail = true;
-                                        break;
                                     }
                                 }
                                 if (bail)
@@ -378,7 +379,6 @@ $(document).ready(function() {
                                 var pointT = pixelQueue.pop();
                                 var pX =  (pointT % (w * 4)) / 4;
                                 var pY = (pointT - (pX * 4)) / (w * 4);
-                                //console.log(pX, pY, dataT.length, dataT[0].length);
                                 dataT[pX][pY] = 2;
                             }
                         }
@@ -433,7 +433,6 @@ $(document).ready(function() {
                         range: false,
                         slide: function(event, ui) {despeckle(ui.value, boxX, boxY)},
                         });
-    window.setInterval()
     $('#despeckle-form').submit(function () {
         $('#size-input').val(defSize);
     });
