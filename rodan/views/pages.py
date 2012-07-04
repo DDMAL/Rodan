@@ -21,6 +21,7 @@ def view(request, page):
     for job_item in job_items:
         try:
             result = Result.objects.get(page=page, job_item=job_item)
+            result_id = result.id
             has_started = True
             is_done = result.end_total_time is not None
             manual_is_done = result.end_manual_time is not None
@@ -36,8 +37,10 @@ def view(request, page):
             result = None
             seconds_since_start = None
             seconds_in_queue = None
+            result_id = None
 
         step = {
+            'result_id': result_id,
             'job': job_item.job,
             'is_done': is_done,
             'manual_is_done': manual_is_done,
