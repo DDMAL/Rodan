@@ -66,7 +66,7 @@ def rodan_task(inputs, others=[]):
             other_inputs = [other_input_mapping[other](page) for other in others]
 
             args = input_paths + other_inputs
-            
+
             outputs = f(*args, **kwargs)
 
             # Loop through all the outputs and write them to disk
