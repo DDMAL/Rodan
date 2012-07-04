@@ -60,11 +60,11 @@
         <td><dl>
             {% if step.has_started and not step.job.get_object.is_automatic %}
             <dt>Time in manual step:</dt>
-            <dd><span class="{% if not step.manual_is_done %}tick{% endif %}">{{ step.seconds_since_start }}</span> seconds</dd>
+            <dd>{% if not step.manual_is_done %}<span class="tick" data-result-id="{{ step.result_id }}">{% endif %}{{ step.seconds_since_start }}{% if not step.manual_is_done %}</span>{% endif %} seconds</dd>
             {% endif %}
             {% if step.manual_is_done %}
             <dt>Time in queue</dt>
-            <dd><span class="{% if not step.is_done %}tick{% endif %}">{{ step.seconds_in_queue }}</span> seconds</dd>
+            <dd>{% if not step.is_done %}<span class="tick" data-result-id="{{ step.result_id }}">{% endif %}{{ step.seconds_in_queue }}{% if not step.is_done %}</span>{% endif %} seconds</dd>
             {% endif %}
         </dl></td>
         <td><p>{% if step.is_done and step.outputs_image %}View sizes: <a href="{{ step.small_thumbnail }}">Small</a> :: <a href="{{ step.medium_thumbnail }}">Medium</a> :: <a href="{{ step.large_thumbnail }}">Large</a> :: <a href="{{ step.original_image }}">Original</a>{% endif %}</p>{% if step.is_done %}<p><a href="{% url restart_job page.id step.job.slug %}">Restart job</a></p>{% endif %}</td>
