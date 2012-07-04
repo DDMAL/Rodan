@@ -349,6 +349,9 @@ class AomrObject(object):
             Returns the coordinates for each one of the staves
         """
         st_coords = []
+        if self.staves is None or len(self.staves) == 0:
+            raise AomrUnableToFindStavesError("No staff lines were found. Make sure you binarized the image correctly before getting to this step.")
+
         for i, staff in enumerate(self.staves):
             st_coords.append(self.page_result['staves'][i]['coords'])
         

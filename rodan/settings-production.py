@@ -1,3 +1,5 @@
+import djcelery
+
 # Django settings for rodan project.
 
 DEBUG = False
@@ -107,6 +109,9 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
+CELERYCAM_EXPIRE_SUCCESS = None
+CELERYCAM_EXPIRE_ERROR = None
+CELERYCAM_EXPIRE_PENDING = None
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -120,7 +125,6 @@ INSTALLED_APPS = (
     'rodan.jobs',
 )
 
-import djcelery
 djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672

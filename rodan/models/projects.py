@@ -431,6 +431,12 @@ class Page(models.Model):
                                      end_total_time__isnull=False
                                      ).count()
 
+    def reset_to_job(self, job):
+        this_sequence = self.workflow.jobitem_set.get(job=job).sequence
+        # Delete all the results whose jobitems have sequence >= this one
+        results_to_delete = self.result_set.filter(job_item__sequence__gte=this_sequence)
+        results_to_delete.delete()
+
 
 class JobItem(models.Model):
     class Meta:
