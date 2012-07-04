@@ -66,6 +66,10 @@ urlpatterns += patterns('',
     url(r'^neon/edit/(?P<page_id>\d+)/', include(neon_urls)),
 )
 
+urlpatterns += patterns('rodan.views.status',
+    url(r'^status/task', 'task'),
+)
+
 # For serving stuff under MEDIA_ROOT in debug mode only
 if settings.DEBUG:
     urlpatterns += static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

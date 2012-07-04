@@ -119,66 +119,6 @@ $(document).ready(function () {
         });
     }
 
-/*
-    (function ($) {
-        Project = Backbone.Model.extend({
-            name: null,
-            desc: null
-        });
-
-        Projects = Backbone.Collection.extend({
-            initialize: function (models, options) {
-                this.bind("add", options.view.addProjectLi);
-            }
-        });
-
-        CreateView = Backbone.View.extend({
-            el: $('body'),
-            initialize: function () {
-                this.projects = new Projects(Project, { view: ProjectView });
-            },
-            events: {
-                'click #create-project-button': 'showForm',
-                'submit #create-form': 'createProject',
-            },
-            showForm: function () {
-                console.log("creating");
-                $('#create-form').show();
-            },
-            createProject: function () {
-                var projectName = $('#create-form-name').val();
-                var projectDesc = $('#create-form-desc').val();
-                var newProject = new Project({
-                    name: projectName,
-                    desc: projectDesc,
-                });
-                this.projects.add(newProject);
-                // Reset is a DOM function not a jQuery one
-                $('#create-form').hide()[0].reset();
-            },
-            addProjectLi: function (model) {
-                console.log("calling it");
-                $('#project-list').append('<li title="' + model.get('desc') + '">' + model.get('name') + '</li>');
-            }
-        });
-
-        ProjectView = Backbone.View.extend({
-            el: $('body'),
-            initialize: function () {
-                console.log("setting up project view");
-            },
-            events: {
-                'click #project-list li': 'showProject'
-            },
-            showProject: function () {
-                console.log("this project");
-            }
-        });
-
-        var createView = new CreateView;
-        var projectView = new ProjectView;
-    })(jQuery);
-*/
     var workers = $('#workers').children();
     var queueSizes = _.map(workers, function (worker) { return parseInt($(worker).attr('data-queue'), 10); });
 
@@ -251,7 +191,6 @@ $(document).ready(function () {
             $(this).addClass('active');
             // Show all the project lis
             $('#project-list').find('a').each(function () {
-                console.log("lol");
                 $(this).show();
             });
         }
@@ -294,9 +233,6 @@ $(document).ready(function () {
     if ($('.flash-message').length) {
         setTimeout(function () {
             $('.flash-message').fadeOut('slow');
-            setTimeout(function () {
-                window.location.search = '';
-            }, 1000);
         }, 2000);
     }
 
@@ -341,17 +277,50 @@ $(document).ready(function () {
         $('#form').trigger('submit');
     });
 
-    var updateTime = function (element) {
-        setInterval(function () {
-            var oldText = element.innerText;
-            var newText = parseInt(oldText, 10) + 1;
-            element.innerText = newText;
+    var tickables = {};
+
+    var updateTickables = function () {
+        var tickInterval = setInterval(function () {
+            var element, oldText, newText;
+            for (resultID in tickables) {
+                element = tickables[resultID];
+                oldText = element.innerText;
+                newText = parseInt(oldText, 10) + 1;
+                element.innerText = newText;
+            }
+
+            $.ajax({
+                cache: false,
+                url: '/status/task',
+                data: {
+                    result_ids: _.keys(tickables)
+                },
+                success: function (statuses) {
+                    for (resultID in statuses) {
+                        var taskStatus = statuses[resultID];
+                        if (taskStatus) {
+                            // Add a "done" thing
+                            $(element).parent().append(' - DONE (will autorefresh shortly)');
+                            // Pause the ticking
+                            delete tickables[resultID];
+
+                            // Then refresh the page (temp solution)
+                            setTimeout(function () {
+                                location.search = '';
+                            }, 2000);
+                        }
+                    }
+                }
+            });
         }, 1000);
     };
 
     if ($('.tick').length) {
         $('.tick').each(function (index, element) {
-            updateTime(element);
+            var resultID = $(element).attr('data-result-id');
+            tickables[resultID] = element;
         });
+
+        updateTickables();
     }
 });

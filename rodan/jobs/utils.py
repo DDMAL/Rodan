@@ -52,7 +52,7 @@ def create_thumbnails(image_path, result):
 
 def rodan_task(inputs, others=[]):
     def inner_function(f):
-        @task(max_retries=2)
+        @task
         @wraps(f)
         def real_inner(result_id, **kwargs):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
@@ -66,7 +66,7 @@ def rodan_task(inputs, others=[]):
             other_inputs = [other_input_mapping[other](page) for other in others]
 
             args = input_paths + other_inputs
-
+            
             outputs = f(*args, **kwargs)
 
             # Loop through all the outputs and write them to disk

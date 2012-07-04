@@ -32,13 +32,13 @@
     <tr>
         <th>Job</th>
         <th>Page</th>
-        <th>Time in queue</th>
+        <th style="width: 50%;">Time in queue</th>
     </tr>
     {% for current_job in current_jobs %}
     <tr>
         <td>{{ current_job.job_item.job }}</td>
         <td><a href="{{ current_job.page.get_absolute_url }}">{{ current_job.page }}</a></td>
-        <td><span class="tick">{{ current_job.get_time_in_queue }}</span> seconds</td>
+        <td><span class="tick" data-result-id="{{ current_job.id }}">{{ current_job.get_time_in_queue }}</span> seconds</td>
     </tr>
     {% endfor %}
 </table>

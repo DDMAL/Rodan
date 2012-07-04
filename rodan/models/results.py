@@ -25,7 +25,7 @@ class Result(models.Model):
         return 'Result of %s on workflow %s - %s' % (self.job_item.job, self.page, status)
 
     def get_time_in_queue(self):
-        return (timezone.now() - (self.end_manual_time or self.start_time)).total_seconds()
+        return int((timezone.now() - (self.end_manual_time or self.start_time)).total_seconds())
 
     def save_parameters(self, **params):
         for key, value in params.iteritems():

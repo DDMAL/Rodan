@@ -1,4 +1,8 @@
 import os
+from datetime import timedelta
+
+import djcelery
+
 PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = True
@@ -109,6 +113,11 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+# CELERYCAM_EXPIRE_SUCCESS = timedelta(days=30)
+CELERYCAM_EXPIRE_SUCCESS = None
+CELERYCAM_EXPIRE_ERROR = None
+CELERYCAM_EXPIRE_PENDING = None
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.admin',
@@ -122,7 +131,6 @@ INSTALLED_APPS = (
     'rodan.jobs',
 )
 
-import djcelery
 djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672

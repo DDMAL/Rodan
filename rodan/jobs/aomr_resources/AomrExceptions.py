@@ -8,6 +8,7 @@ class AomrError(Exception):
 
 class AomrFilePathNotSetError(AomrError): pass
 class AomrStaffFinderNotFoundError(AomrError): pass
+class AomrUnableToFindStavesError(AomrError): pass
 
 # AOMR MEI errors
 class AomrMeiFormNotFoundError(AomrError): pass
