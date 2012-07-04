@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.conf import settings
 
 import json
+import re
 
 from djcelery.models import TaskState
 from rodan.models.results import Result, ResultTask
@@ -22,8 +23,7 @@ class RodanMonitor(Camera):
                 celery.states.EXCEPTION_STATES: settings.CELERYCAM_EXPIRE_ERROR,
                 celery.states.UNREADY_STATES: settings.CELERYCAM_EXPIRE_PENDING,
         }
-
-        print self.expire_states
+        self.rodan_regex = re.compile('\(\d+,\)')
 
     def restart(self, task):
         print "req"
@@ -47,15 +47,16 @@ class RodanMonitor(Camera):
     def log(self, task_id, task):
         t = TaskState.objects.get(task_id=task_id)
         args = task.args
-        # HACK - args is a string, but we know it looks like a tuple
-        # with the result ID as the first (only) param - (4,)
-        x = args[1:-1]
-        parts = x.split(",")
-        result_id = int(parts[0])
-        print "RESID::%s\n" % result_id
-        result = Result.objects.get(pk=result_id)
+        if self.rodan_regex.match(args) is not None:
+            # HACK - args is a string, but we know it looks like a tuple
+            # with the result ID as the first (only) param - (4,)
+            x = args[1:-1]
+            parts = x.split(",")
+            result_id = int(parts[0])
+            print "RESID::%s\n" % result_id
+            result = Result.objects.get(pk=result_id)
 
-        rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
+            rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
 
     def on_shutter(self, state):
         Camera.on_shutter(self, state)
