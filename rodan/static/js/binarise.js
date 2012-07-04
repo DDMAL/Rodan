@@ -181,13 +181,12 @@ $(document).ready(function() {
         $("#thresh_disp").text(thresh);
         defThresh = thresh;
         //Have to redraw image and then scrape data
-        context.drawImage(imageObj, -x, -y);
+        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
         var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         var data = imageData.data;
         for (var i = 0; i < data.length; i +=4) {
             //Brightness is the greyscale value for the given pixel
             var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-
             // binarise image (set to black or white)
             if (brightness > thresh) {
                 data[i] = G;

@@ -236,7 +236,7 @@ $(document).ready(function() {
     
 
     imageObj.src = $("#image-full").attr("src");
-
+    /*
     var despeckle = function(size, x, y) {
         defSize = size;
         var canvas = document.getElementById("image-viewport");
@@ -305,7 +305,89 @@ $(document).ready(function() {
             context.putImageData(imageDataO, 0, 0);
         }
     }
+    */
+    var despeckle = function(size, x, y) {
+        defSize = size;
+        var canvas = document.getElementById("image-viewport");
+        var context = canvas.getContext("2d");
+        binarise(100, x, y);
+        if (size > 0) {
+            var imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
+            var dataO = imageDataO.data;
+            
+            var w = canvas.width;
+            var h = canvas.height;
+            
+            var dataT = [];
+            for (var i = 0; i < w; i++) {
+                dataT[i] = [];
+                for (var j = 0; j < h; j++) {
+                    dataT[i][j] = 0;
+                }
+            }
 
+            var pixelQueue = [];
+            for (var y = 0; y < h; ++y) {
+                for (var x = 0; x < w; ++x) {
+                    var convX = x * 4;
+                    var convY = y * w * 4;
+                    var p = convX + convY;
+                    if (dataT[x][y] == 0 && dataO[p] == BLACK) {
+                        pixelQueue = [];
+                        pixelQueue.push(p);
+                        var bail = false;
+                        dataT[x][y] = 1;
+                        for (var i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); ++i) {
+                            var center = pixelQueue[i];
+                            
+                            var cX =  (center % (w * 4)) / 4;
+                            var cY = (center - (cX * 4)) / (w * 4);
+                            var x2i = (cX > 0) ? (cX - 1) : 0;
+                            var y2i = (cY > 0) ? (cY - 1) : 0;
+                            
+                            var y2Lim = Math.min(cY + 2, h);
+                            var x2Lim = Math.min(cX + 2, w);
+                            for (var y2 = y2i; y2 < y2Lim; ++y2) {
+                                for (var x2 = x2i; x2 < x2Lim; ++x2) {
+                                    var convX2 = x2 * 4;
+                                    var convY2 = y2 * w * 4;
+                                    var p2 = convX2 + convY2;
+                                    if (dataT[x2][y2] == 0 && dataO[p2] == BLACK) {
+                                        dataT[x2][y2] = 1;
+                                        pixelQueue.push(p2);
+                                    } else if (dataT[x2][y2] == 2) {
+                                        bail = true;
+                                        break;
+                                    }
+                                }
+                                if (bail)
+                                    break;
+                            }
+                            if (bail)
+                                break;
+                        }
+                        if ((!bail) && (pixelQueue.length < size)) {
+                            while(pixelQueue.length > 0) {
+                                var pointO = pixelQueue.pop();
+                                dataO[pointO] = WHITE;
+                                dataO[pointO + 1] = WHITE;
+                                dataO[pointO + 2] = WHITE;
+                            }
+                        } else {
+                            while (pixelQueue.length > 0) {
+                                var pointT = pixelQueue.pop();
+                                var pX =  (pointT % (w * 4)) / 4;
+                                var pY = (pointT - (pX * 4)) / (w * 4);
+                                //console.log(pX, pY, dataT.length, dataT[0].length);
+                                dataT[pX][pY] = 2;
+                            }
+                        }
+                    }
+                }
+            }
+            context.putImageData(imageDataO, 0, 0);
+        }
+    }
     //binarises data, splitting foreground and background at a given brightness level
     var binarise = function(thresh, x, y) {
         if (!x) {
@@ -317,7 +399,7 @@ $(document).ready(function() {
         var canvas = document.getElementById("image-viewport");
         var context = canvas.getContext("2d");
         //Have to redraw image and then scrape data
-        context.drawImage(imageObj, -x, -y);
+        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
         var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         var data = imageData.data;
         var dLen = data.length;
@@ -351,7 +433,7 @@ $(document).ready(function() {
                         range: false,
                         slide: function(event, ui) {despeckle(ui.value, boxX, boxY)},
                         });
-
+    window.setInterval()
     $('#despeckle-form').submit(function () {
         $('#size-input').val(defSize);
     });
