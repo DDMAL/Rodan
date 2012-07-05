@@ -160,6 +160,7 @@ class Page(models.Model):
     # Used in conjunction with the @rodan_view decorator
     pk_name = 'page_id'
     sequence = models.IntegerField()
+    is_ready = models.BooleanField(default=False)
 
     # If the tag is defined, it returns that; otherwise, returns the filename
     def __unicode__(self):
