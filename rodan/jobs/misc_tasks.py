@@ -12,4 +12,3 @@ def create_thumbnails_task(page_id, image_path, thumbnail_sizes):
         thumb_path = page.get_thumb_path(size=thumbnail_size)
         utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
     page.is_ready = True
-    page.save()
