@@ -1,61 +1,167 @@
 //Setup
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+    var imageObj, imageThumb, BLACK, WHITE, rScale, gScale, bScale, defSize, viewWidth, boxX, boxY;
     //ImageData object storing full-sized image
-    var imageObj = new Image();
-    //ImageData object storing small thumbnail
-    var imageThumb = new Image();
+    imageObj = new Image();
+    imageThumb = new Image();
     //Constant for black rgb value
-    var BLACK = 0;
-    //Consdtant for white rgb value
-    var WHITE = 255;
+    BLACK = 0;
+    WHITE = 255;
     //Scale values taken from Matlab, used as coefficients for greycsaling
-    var rScale = 0.2989;
-    var gScale = 0.5870;
-    var bScale = 0.1140;
+    rScale = 0.2989;
+    gScale = 0.5870;
+    bScale = 0.1140;
     //Default speckle size
-    var defSize = 0;
+    defSize = 0;
     //Width (square) of viewport
-    var viewWidth = 700;
+    viewWidth = 700;
     //Current x and y coordinates of the frame of the viewport, relative to the full image
-    var boxX = 0;
-    var boxY = 0;
-    
-    //Wrapper for (x, y) coordinate pair
-    function Point(x, y) {
-        this.x = x;
-        this.y = y;
+    boxX = 0;
+    boxY = 0;
+
+    //binarises data, splitting foreground and background at a given brightness level
+    function binarise(thresh, x, y) {
+        if (x === undefined) {
+            x = 0;
+        }
+        if (y === undefined) {
+            y = 0;
+        }
+        var canvas, context, imageData, data, dLen, i, brightness;
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        //Have to redraw image and then scrape data
+        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        data = imageData.data;
+        dLen = data.length;
+        for (i = 0; i < dLen; i += 4) {
+            //Brightness is the greyscale value for the given pixel
+            brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+
+            // binarise image (set to black or white)
+            if (brightness > thresh) {
+                data[i] = 255;
+                data[i + 1] = 255;
+                data[i + 2] = 255;
+            } else {
+                data[i] = 0;
+                data[i + 1] = 0;
+                data[i + 2] = 0;
+            }
+        }
+        //Draw binarised image
+        context.putImageData(imageData, 0, 0);
     }
 
-    //Object for storing the image data for ease of access (ie. with coordinate pairs)
-    function IData(data, canvas) {
-        this.data = data;
-        this.getPoint = function(x, y) {
-            var convX = x * 4;
-            var convY = y * canvas.width * 4;
-            return this.data[convX + convY];
-        };
-        this.setPoint = function(x, y, val) {
-            var convX = x * 4;
-            var convY = y * canvas.width * 4;
-            this.data[convX + convY] = val;
-            this.data[convX + convY + 1] = val;
-            this.data[convX + convY + 2] = val;
-        };
-        this.isBlack = function(x, y) {
-            return this.getPoint(x, y) === BLACK;
-        };
+    //Despeckling function
+    function despeckle(size, dx, dy) {
+        if (dx === undefined) {
+            dx = 0;
+        }
+        if (dy === undefined) {
+            dy = 0;
+        }
+        var canvas, context, imageDataO, dataO, w, h, dataT, i, j, x, y, pixelQueue, convX, convY, p, bail,
+            center, cX, cY, x2i, y2i, x2Lim, y2Lim, y2, x2, convX2, convY2, p2,
+            pointO, pointT, pX, pY;
+        defSize = size;
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        binarise(100, dx, dy);
+        if (size > 0) {
+            imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
+            dataO = imageDataO.data;
+
+            w = canvas.width;
+            h = canvas.height;
+
+            dataT = [];
+            for (i = 0; i < w; i++) {
+                dataT[i] = [];
+                for (j = 0; j < h; j++) {
+                    dataT[i][j] = 0;
+                }
+            }
+
+            pixelQueue = [];
+            for (y = 0; y < h; y++) {
+                for (x = 0; x < w; x++) {
+                    convX = x * 4;
+                    convY = y * w * 4;
+                    p = convX + convY;
+                    if (dataT[x][y] === 0 && dataO[p] === BLACK) {
+                        pixelQueue = [];
+                        pixelQueue.push(p);
+                        bail = false;
+                        dataT[x][y] = 1;
+                        for (i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); i++) {
+                            center = pixelQueue[i];
+
+                            cX = (center % (w * 4)) / 4;
+                            cY = (center - (cX * 4)) / (w * 4);
+                            x2i = (cX > 0) ? (cX - 1) : 0;
+                            y2i = (cY > 0) ? (cY - 1) : 0;
+
+                            x2Lim = Math.min(cX + 2, w);
+                            y2Lim = Math.min(cY + 2, h);
+                            for (y2 = y2i; y2 < y2Lim; y2++) {
+                                for (x2 = x2i; x2 < x2Lim; x2++) {
+                                    if (dataT[x2][y2] === 2) {
+                                        bail = true;
+                                        break;
+                                    }
+                                    convX2 = x2 * 4;
+                                    convY2 = y2 * w * 4;
+                                    p2 = convX2 + convY2;
+                                    if (dataT[x2][y2] === 0 && dataO[p2] === BLACK) {
+                                        dataT[x2][y2] = 1;
+                                        pixelQueue.push(p2);
+                                    }
+                                }
+                                if (bail) {
+                                    break;
+                                }
+                            }
+                            if (bail) {
+                                break;
+                            }
+                        }
+                        if ((!bail) && (pixelQueue.length < size)) {
+                            while (pixelQueue.length > 0) {
+                                pointO = pixelQueue.pop();
+                                dataO[pointO] = WHITE;
+                                dataO[pointO + 1] = WHITE;
+                                dataO[pointO + 2] = WHITE;
+                            }
+                        } else {
+                            while (pixelQueue.length > 0) {
+                                pointT = pixelQueue.pop();
+                                pX = (pointT % (w * 4)) / 4;
+                                pY = (pointT - (pX * 4)) / (w * 4);
+                                dataT[pX][pY] = 2;
+                            }
+                        }
+                    }
+                }
+            }
+            context.putImageData(imageDataO, 0, 0);
+        }
     }
-    
+
     //Thumbnail post-loading functions, which occur after the full image is loaded
-    imageThumb.onload = function() {
+    imageThumb.onload = function () {
+        var stage, layer, image, scaleVal, layerB, boxWidth, viewBox, canvas, context, bodyDOM,
+            pMouseDown, vMouseDown, vInitX, vInitY;
         //Instantiation of KinteticJS objects
         stage = new Kinetic.Stage({
             container: "image-miniframe",
             width: imageThumb.width,
-            height: imageThumb.height,
+            height: imageThumb.height
         });
-        var layer = new Kinetic.Layer();
-        var image = new Kinetic.Image({
+        layer = new Kinetic.Layer();
+        image = new Kinetic.Image({
             x: 0,
             y: 0,
             width: imageThumb.width,
@@ -69,12 +175,12 @@ $(document).ready(function() {
         stage.add(layer);
 
         //Ratio of thumbnail size to full image size
-        var scaleVal = imageThumb.width / imageObj.width;
+        scaleVal = imageThumb.width / imageObj.width;
 
-        var layerB = new Kinetic.Layer();
+        layerB = new Kinetic.Layer();
 
-        var boxWidth = viewWidth * scaleVal;
-        var viewBox = new Kinetic.Rect({
+        boxWidth = viewWidth * scaleVal;
+        viewBox = new Kinetic.Rect({
             x: 0,
             y: 0,
             width: boxWidth,
@@ -82,41 +188,42 @@ $(document).ready(function() {
             fill: 'blue',
             stroke: 'black',
             strokeWidth: 2,
-            alpha: .2,
+            alpha: 0.2,
             draggable: false,
             dragBounds: {
                 top: 0,
                 left: 0,
                 right: imageThumb.width - boxWidth,
-                bottom: imageThumb.height - boxWidth,
+                bottom: imageThumb.height - boxWidth
             },
-            name:'viewBox'
+            name: 'viewBox'
         });
 
         layerB.add(viewBox);
         stage.add(layerB);
-        
+
         //Assignment of mouse behaviours to canvases
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        var bodyDOM = document.getElementsByTagName("body")[0];
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        bodyDOM = document.getElementsByTagName("body")[0];
         //Bool for whether mousedown started in the thumbnail frame
-        var pMouseDown = false;
+        pMouseDown = false;
 
         //Move viewport and despeckle
-        var setBox = function() {
+        function setBox() {
             boxX = viewBox.getX() / scaleVal;
             boxY = viewBox.getY() / scaleVal;
             despeckle(defSize, boxX, boxY);
-        };
-        
+        }
+
         //Move thumbnail box
-        var pMoveBox = function(e) {
-            var pos = stage.getMousePosition(e);
-            if (pos != undefined) {
-                var boxWidth = viewWidth * scaleVal;
-                var nX = pos.x - Math.round(boxWidth / 2);
-                var nY = pos.y - Math.round(boxWidth / 2);
+        function pMoveBox(e) {
+            var pos, boxWidth, nX, nY;
+            pos = stage.getMousePosition(e);
+            if (pos !== undefined) {
+                boxWidth = viewWidth * scaleVal;
+                nX = pos.x - Math.round(boxWidth / 2);
+                nY = pos.y - Math.round(boxWidth / 2);
                 if (nX < 0) {
                     nX = 0;
                 } else if ((nX + boxWidth) > imageThumb.width) {
@@ -134,41 +241,42 @@ $(document).ready(function() {
                 boxY = viewBox.getY() / scaleVal;
                 binarise(100, boxX, boxY);
             }
-        };
+        }
 
         //
-        image.on("mousedown", function(e) {
+        image.on("mousedown", function (e) {
             pMoveBox(e);
             pMouseDown = true;
         });
 
-        viewBox.on("mousedown", function() {
+        viewBox.on("mousedown", function () {
             pMouseDown = true;
         });
-        
+
         //Bool for whether mousedown started in the viewport
-        var vMouseDown = false;
+        vMouseDown = false;
         //Previous mouse coordinates
-        var vInitX = 0;
-        var vInitY = 0;
-        canvas.addEventListener("mousedown", function(e) {
+        vInitX = 0;
+        vInitY = 0;
+        canvas.addEventListener("mousedown", function (e) {
             vMouseDown = true;
             vInitX = e.clientX;
             vInitY = e.clientY;
         });
-        bodyDOM.addEventListener("mousemove", function(e) {
+        bodyDOM.addEventListener("mousemove", function (e) {
             if (pMouseDown) {
                 pMoveBox(e);
             } else if (vMouseDown) {
-                var dX = e.clientX - vInitX;
-                var dY = e.clientY - vInitY;
-                
+                var dX, dY, boxWidth, newX, newY;
+                dX = e.clientX - vInitX;
+                dY = e.clientY - vInitY;
+
                 vInitX = e.clientX;
                 vInitY = e.clientY;
-                
-                var boxWidth = viewWidth * scaleVal;
-                var newX = viewBox.getX() - (dX * scaleVal);
-                var newY = viewBox.getY() - (dY * scaleVal);
+
+                boxWidth = viewWidth * scaleVal;
+                newX = viewBox.getX() - (dX * scaleVal);
+                newY = viewBox.getY() - (dY * scaleVal);
                 if (newX < 0) {
                     newX = 0;
                 } else if ((newX + boxWidth) > imageThumb.width) {
@@ -179,7 +287,7 @@ $(document).ready(function() {
                 } else if ((newY + boxWidth) > imageThumb.height) {
                     newY = imageThumb.height - boxWidth;
                 }
-                
+
                 viewBox.setX(newX);
                 viewBox.setY(newY);
                 viewBox.getLayer().draw();
@@ -188,18 +296,19 @@ $(document).ready(function() {
                 binarise(100, boxX, boxY);
             }
         });
-        bodyDOM.addEventListener("mouseup", function(e) {
+        bodyDOM.addEventListener("mouseup", function (e) {
             if (pMouseDown) {
                 pMouseDown = false;
                 setBox();
             } else if (vMouseDown) {
+                var dX, dY, boxWidth, newX, newY;
                 vMouseDown = false;
-                var dX = e.clientX - vInitX;
-                var dY = e.clientY - vInitY;
-                
-                var boxWidth = viewWidth * scaleVal;
-                var newX = viewBox.getX() - (dX * scaleVal);
-                var newY = viewBox.getY() - (dY * scaleVal);
+                dX = e.clientX - vInitX;
+                dY = e.clientY - vInitY;
+
+                boxWidth = viewWidth * scaleVal;
+                newX = viewBox.getX() - (dX * scaleVal);
+                newY = viewBox.getY() - (dY * scaleVal);
                 if (newX < 0) {
                     newX = 0;
                 } else if ((newX + boxWidth) > imageThumb.width) {
@@ -210,7 +319,7 @@ $(document).ready(function() {
                 } else if ((newY + boxWidth) > imageThumb.height) {
                     newY = imageThumb.height - boxWidth;
                 }
-                
+
                 viewBox.setX(newX);
                 viewBox.setY(newY);
                 viewBox.getLayer().draw();
@@ -220,12 +329,13 @@ $(document).ready(function() {
             }
         });
     };
-    
-    
-    imageObj.onload = function() {
+
+
+    imageObj.onload = function () {
+        var canvas, context;
         //Adjust size of canvas to fit image
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
         canvas.width = viewWidth;
         canvas.height = viewWidth;
         binarise(100);
@@ -233,137 +343,21 @@ $(document).ready(function() {
         imageThumb.src = $("#image-thumb").attr("src");
     };
 
-    
-
     imageObj.src = $("#image-full").attr("src");
-    
-    var despeckle = function(size, x, y) {
-        defSize = size;
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        binarise(100, x, y);
-        if (size > 0) {
-            var imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
-            var dataO = imageDataO.data;
-            
-            var w = canvas.width;
-            var h = canvas.height;
-            
-            var dataT = [];
-            for (var i = 0; i < w; i++) {
-                dataT[i] = [];
-                for (var j = 0; j < h; j++) {
-                    dataT[i][j] = 0;
-                }
-            }
-
-            var pixelQueue = [];
-            for (var y = 0; y < h; ++y) {
-                for (var x = 0; x < w; ++x) {
-                    var convX = x * 4;
-                    var convY = y * w * 4;
-                    var p = convX + convY;
-                    if (dataT[x][y] == 0 && dataO[p] == BLACK) {
-                        pixelQueue = [];
-                        pixelQueue.push(p);
-                        var bail = false;
-                        dataT[x][y] = 1;
-                        for (var i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); ++i) {
-                            var center = pixelQueue[i];
-                            
-                            var cX =  (center % (w * 4)) / 4;
-                            var cY = (center - (cX * 4)) / (w * 4);
-                            var x2i = (cX > 0) ? (cX - 1) : 0;
-                            var y2i = (cY > 0) ? (cY - 1) : 0;
-                            
-                            var y2Lim = Math.min(cY + 2, h);
-                            var x2Lim = Math.min(cX + 2, w);
-                            for (var y2 = y2i; y2 < y2Lim; ++y2) {
-                                for (var x2 = x2i; x2 < x2Lim; ++x2) {
-                                    if (dataT[x2][y2] == 2) {
-                                        bail = true;
-                                        break;
-                                    }
-                                    var convX2 = x2 * 4;
-                                    var convY2 = y2 * w * 4;
-                                    var p2 = convX2 + convY2;
-                                    if (dataT[x2][y2] == 0 && dataO[p2] == BLACK) {
-                                        dataT[x2][y2] = 1;
-                                        pixelQueue.push(p2);
-                                    }
-                                }
-                                if (bail)
-                                    break;
-                            }
-                            if (bail)
-                                break;
-                        }
-                        if ((!bail) && (pixelQueue.length < size)) {
-                            while(pixelQueue.length > 0) {
-                                var pointO = pixelQueue.pop();
-                                dataO[pointO] = WHITE;
-                                dataO[pointO + 1] = WHITE;
-                                dataO[pointO + 2] = WHITE;
-                            }
-                        } else {
-                            while (pixelQueue.length > 0) {
-                                var pointT = pixelQueue.pop();
-                                var pX =  (pointT % (w * 4)) / 4;
-                                var pY = (pointT - (pX * 4)) / (w * 4);
-                                dataT[pX][pY] = 2;
-                            }
-                        }
-                    }
-                }
-            }
-            context.putImageData(imageDataO, 0, 0);
-        }
-    }
-    //binarises data, splitting foreground and background at a given brightness level
-    var binarise = function(thresh, x, y) {
-        if (!x) {
-            x = 0;
-        }
-        if (!y) {
-            y = 0;
-        }
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        //Have to redraw image and then scrape data
-        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        var data = imageData.data;
-        var dLen = data.length;
-        for (var i = 0; i < dLen; i +=4) {
-            //Brightness is the greyscale value for the given pixel
-            var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-
-            // binarise image (set to black or white)
-            if (brightness > thresh) {
-                data[i] = 255;
-                data[i + 1] = 255;
-                data[i + 2] = 255;
-            } else {
-                data[i] = 0;
-                data[i + 1] = 0;
-                data[i + 2] = 0;
-            }
-        }
-        //Draw binarised image
-        context.putImageData(imageData, 0, 0);
-    };
 
     //jQuery slider definition for threshold controller
     $("#slider").slider({
-                        animate: true,
-                        min: 0,
-                        max: 100,
-                        orientation: "horizontal",
-                        step: 1,
-                        value: 0,
-                        range: false,
-                        slide: function(event, ui) {despeckle(ui.value, boxX, boxY)},
-                        });
+        animate: true,
+        min: 0,
+        max: 100,
+        orientation: "horizontal",
+        step: 1,
+        value: 0,
+        range: false,
+        slide: function (event, ui) {
+            despeckle(ui.value, boxX, boxY);
+        }
+    });
     $('#despeckle-form').submit(function () {
         $('#size-input').val(defSize);
     });
