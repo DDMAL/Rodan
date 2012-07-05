@@ -236,76 +236,7 @@ $(document).ready(function() {
     
 
     imageObj.src = $("#image-full").attr("src");
-    /*
-    var despeckle = function(size, x, y) {
-        defSize = size;
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        binarise(100, x, y);
-        if (size > 0) {
-            var imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
-            var dataO = new IData(imageDataO.data, canvas);
-            
-            var w = canvas.width;
-            var h = canvas.height;
-            
-            var dataT = [];
-            for (var i = 0; i < w; i++) {
-                dataT[i] = [];
-                for (var j = 0; j < h; j++) {
-                    dataT[i][j] = 0;
-                }
-            }
-
-            var pixelQueue = [];
-            for (var y = 0; y < h; ++y) {
-                for (var x = 0; x < w; ++x) {
-                    if (dataT[x][y] == 0 && dataO.isBlack(x, y)) {
-                        pixelQueue = [];
-                        pixelQueue.push(new Point(x, y));
-                        var bail = false;
-                        dataT[x][y] = 1;
-                        for (var i = 0; (i < pixelQueue.length) && (pixelQueue.length < size); ++i) {
-                            var center = pixelQueue[i];
-                            
-                            var y2i = (center.y > 0) ? (center.y - 1) : 0;
-                            var y2Lim = Math.min(center.y + 2, h);
-                            var x2i = (center.x > 0) ? (center.x - 1) : 0;
-                            var x2Lim = Math.min(center.x + 2, w);
-                            for (var y2 = y2i; y2 < y2Lim; ++y2) {
-                                for (var x2 = x2i; x2 < x2Lim; ++x2) {
-                                    if (dataT[x2][y2] == 0 && dataO.isBlack(x2, y2)) {
-                                        dataT[x2][y2] = 1;
-                                        pixelQueue.push(new Point(x2, y2));
-                                    } else if (dataT[x2][y2] == 2) {
-                                        bail = true;
-                                        break;
-                                    }
-                                }
-                                if (bail)
-                                    break;
-                            }
-                            if (bail)
-                                break;
-                        }
-                        if ((!bail) && (pixelQueue.length < size)) {
-                            while(pixelQueue.length > 0) {
-                                var pointO = pixelQueue.pop();
-                                dataO.setPoint(pointO.x, pointO.y, WHITE);
-                            }
-                        } else {
-                            while (pixelQueue.length > 0) {
-                                var pointT = pixelQueue.pop();
-                                dataT[pointT.x][pointT.y] = 2;
-                            }
-                        }
-                    }
-                }
-            }
-            context.putImageData(imageDataO, 0, 0);
-        }
-    }
-    */
+    
     var despeckle = function(size, x, y) {
         defSize = size;
         var canvas = document.getElementById("image-viewport");
