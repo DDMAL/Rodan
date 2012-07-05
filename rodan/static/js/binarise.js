@@ -1,295 +1,98 @@
 //Setup
-$(document).ready(function() {
-    var viewWidth = 700;
+$(document).ready(function () {
+    "use strict";
+    var viewWidth, defThresh, G, rScale, gScale, bScale, globalThresh, boxX, boxY, imageObj, imageThumb, stage;
+    viewWidth = 700;
     //Default threshold before user input
-    var defThresh = 127;
+    defThresh = 127;
     //Maximum value for greyness
-    var G = 255;
+    G = 255;
     //Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
-    var rScale = 0.2989;
-    var gScale = 0.5870;
-    var bScale = 0.1140;
-    var imageObj;
-    var globalThresh = 0;
-    var boxX = 0;
-    var boxY = 0;
+    rScale = 0.2989;
+    gScale = 0.5870;
+    bScale = 0.1140;
+    globalThresh = 0;
+    boxX = 0;
+    boxY = 0;
 
-    var imageObj = new Image();
-    var imageThumb = new Image();
-    var stage;
-    //Calculate initial threshold with the Brink formula and draw binarised image
-
-    imageThumb.onload = function() {
-        var scaleVal = imageThumb.width / imageObj.width;
-
-        stage = new Kinetic.Stage({
-            container: "image-miniframe",
-            width: imageThumb.width,
-            height: imageThumb.height,
-        });
-        var layer = new Kinetic.Layer();
-        var image = new Kinetic.Image({
-            x: 0,
-            y: 0,
-            width: imageThumb.width,
-            height: imageThumb.height,
-            image: imageThumb,
-            stroke: 'black',
-            strokewidth: 2
-        });
-
-        layer.add(image);
-        stage.add(layer);
-
-        var layerB = new Kinetic.Layer();
-
-        var boxWidth = viewWidth * scaleVal;
-        var viewBox = new Kinetic.Rect({
-            x: 0,
-            y: 0,
-            width: boxWidth,
-            height: boxWidth,
-            fill: 'blue',
-            stroke: 'black',
-            strokeWidth: 2,
-            alpha: .2,
-            draggable: false,
-            dragBounds: {
-                top: 0,
-                left: 0,
-                right: imageThumb.width - boxWidth,
-                bottom: imageThumb.height - boxWidth,
-            },
-            name:'viewBox'
-        });
-
-        layerB.add(viewBox);
-        stage.add(layerB);
-        
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        var bodyDOM = document.getElementsByTagName("body")[0];
-        
-        var pMouseDown = false;
-        
-        var pMoveBox = function(e, first) {
-            var pos = stage.getMousePosition(e);
-            if (pos != undefined) {
-                var boxWidth = viewWidth * scaleVal;
-                var nX = pos.x - Math.round(boxWidth / 2);
-                var nY = pos.y - Math.round(boxWidth / 2);
-                if (nX < 0) {
-                    nX = 0;
-                } else if ((nX + boxWidth) > imageThumb.width) {
-                    nX = imageThumb.width - boxWidth;
-                }
-                if (nY < 0) {
-                    nY = 0;
-                } else if ((nY + boxWidth) > imageThumb.height) {
-                    nY = imageThumb.height - boxWidth;
-                }
-                viewBox.setX(nX);
-                viewBox.setY(nY);
-                viewBox.getLayer().draw();
-                boxX = viewBox.getX() / scaleVal;
-                boxY = viewBox.getY() / scaleVal;
-                binarise(defThresh, boxX, boxY);
-            }
-        };
-        
-        var pClickDown = function(e) {
-            pMouseDown = true;
-            pMoveBox(e);
-        }
-
-        image.on("mousedown", pClickDown);
-        viewBox.on("mousedown", pClickDown);
-        
-        var vMouseDown = false;
-        var vInitX = 0;
-        var vInitY = 0;
-        canvas.addEventListener("mousedown", function(e) {
-            vMouseDown = true;
-            vInitX = e.clientX;
-            vInitY = e.clientY;
-        });
-        bodyDOM.addEventListener("mousemove", function(e) {
-            if (pMouseDown) {
-                pMoveBox(e);
-            } else if (vMouseDown) {
-                var dX = e.clientX - vInitX;
-                var dY = e.clientY - vInitY;
-                
-                vInitX = e.clientX;
-                vInitY = e.clientY;
-                
-                var boxWidth = viewWidth * scaleVal;
-                var newX = viewBox.getX() - (dX * scaleVal);
-                var newY = viewBox.getY() - (dY * scaleVal);
-                if (newX < 0) {
-                    newX = 0;
-                } else if ((newX + boxWidth) > imageThumb.width) {
-                    newX = imageThumb.width - boxWidth;
-                }
-                if (newY < 0) {
-                    newY = 0;
-                } else if ((newY + boxWidth) > imageThumb.height) {
-                    newY = imageThumb.height - boxWidth;
-                }
-                
-                viewBox.setX(newX);
-                viewBox.setY(newY);
-                viewBox.getLayer().draw();
-                boxX = viewBox.getX() / scaleVal;
-                boxY = viewBox.getY() / scaleVal;
-                binarise(defThresh, boxX, boxY);
-            }
-        });
-        bodyDOM.addEventListener("mouseup", function(e) {
-            pMouseDown = false;
-            vMouseDown = false;
-        });
-    };
-
-    imageObj.onload = function() {
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        canvas.width = viewWidth;
-        canvas.height = viewWidth;
-        var pmf = genPMF(imageObj);
-        defThresh = threshBrink(pmf);
-        binarise(defThresh);
-        //Manually set inital value for slider
-        $("#slider").slider("value", defThresh);
-        $("#slider").width(viewWidth);
-        imageThumb.src = $("#image-thumb").attr("src");
-    };
-
-    imageObj.src = $("#image-full").attr("src");
-
-    //binarises data, splitting foreground and background at a given brightness level
-    var binarise = function(thresh, x, y) {
-        if (!x) {
-            x = 0;
-        }
-        if (!y) {
-            y = 0;
-        }
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        $("#thresh_value").attr("value", thresh);
-        $("#thresh_disp").text(thresh);
-        defThresh = thresh;
-        //Have to redraw image and then scrape data
-        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        var data = imageData.data;
-        for (var i = 0; i < data.length; i +=4) {
-            //Brightness is the greyscale value for the given pixel
-            var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-            // binarise image (set to black or white)
-            if (brightness > thresh) {
-                data[i] = G;
-                data[i + 1] = G;
-                data[i + 2] = G;
-            } else {
-                data[i] = 0;
-                data[i + 1] = 0;
-                data[i + 2] = 0;
-            }
-        }
-        //Draw binarised image
-        context.putImageData(imageData, 0, 0);
-    };
+    imageObj = new Image();
+    imageThumb = new Image();
 
     // Generates a PMF (Probability Mass Function) for the given image
-    var genPMF = function(imageObj) {
+    function genPMF(imageObj) {
+        var canvas, context, i, imageData, data, pmf, brightness;
         // var canvas = document;  <- Canvas is overridden below?
-        var canvas = document.getElementById("image-viewport");
-        var context = canvas.getContext("2d");
-        var i = 0;
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        i = 0;
 
         //Have to redraw image and then scrape data
         context.drawImage(imageObj, 0, 0);
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        var data = imageData.data;
-        var pmf = [];
-        for (i = 0; i <= G; i++)
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        data = imageData.data;
+        pmf = [];
+        for (i = 0; i <= G; i++) {
             pmf[i] = 0;
-
-        for (i = 0; i < data.length; i +=4) {
+        }
+        for (i = 0; i < data.length; i += 4) {
             //Brightness is the greyscale value for the given pixel
-            var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+            brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
             pmf[Math.round(brightness)]++;
         }
 
         // Normalize PMF values to total 1
-        for (i = 0; i < pmf.length; i++)
+        for (i = 0; i < pmf.length; i++) {
             pmf[i] /= (data.length / 4);
-        return pmf;
-    };
-
-    //jQuery slider definition for threshold controller
-    $("#slider").slider({
-        animate: true,
-        min: 0,
-        max: G,
-        orientation: "horizontal",
-        step: 1,
-        value: defThresh,
-        range: false,
-        slide: function(event, ui) {
-            defThresh = ui.value;
-            binarise(defThresh, boxX, boxY);
         }
-    });
+        return pmf;
+    }
 
     //Johanna's Brink Thresholding function
-    var threshBrink = function(pmf) {
-        var Topt = 0;       // threshold value
-        var locMin;         // local minimum
-        var isMinInit = 0;  // flat for minimum initialization
+    function threshBrink(pmf) {
+        var Topt, locMin, isMinInit, mF, mB, tmpVec1, tmpVec2, tmpVec3, tmp1, tmp2, tmp3, tmp4, tmpMat1, tmpMat2, i, j;
+        Topt = 0;       // threshold value
+        isMinInit = 0;  // flat for minimum initialization
 
-        var mF = new Array(256);        // first foreground moment
-        var mB = new Array(256);        // first background moment
+        mF = [];        // first foreground moment
+        mB = [];        // first background moment
 
-        var tmpVec1 = new Array(256);   // temporary vector 1
-        var tmpVec2 = new Array(256);   // temporary vector 2
-        var tmpVec3 = new Array(256);   // temporary vector 3
+        tmpVec1 = [];   // temporary vector 1
+        tmpVec2 = [];   // temporary vector 2
+        tmpVec3 = [];   // temporary vector 3
 
-        var tmp1 = new Array(256);      // temporary matrix 1
-        var tmp2 = new Array(256);      // temporary matrix 2
-        var tmp3 = new Array(256);      // temporary matrix 3
-        var tmp4 = new Array(256);      // temporary matrix 4
+        tmp1 = [];      // temporary matrix 1
+        tmp2 = [];      // temporary matrix 2
+        tmp3 = [];      // temporary matrix 3
+        tmp4 = [];      // temporary matrix 4
 
-        var tmpMat1 = new Array(256);   // local temporary matrix 1
-        var tmpMat2 = new Array(256);   // local temporary matrix 2
+        tmpMat1 = [];   // local temporary matrix 1
+        tmpMat2 = [];   // local temporary matrix 2
 
-        var i = 0;
-        var j = 0;
+        i = 0;
+        j = 0;
 
         //2-dimensionalize matrices
         for (i = 0; i < 256; i++) {
-            tmp1[i] = new Array(256);
-            tmp2[i] = new Array(256);
-            tmp3[i] = new Array(256);
-            tmp4[i] = new Array(256);
+            tmp1[i] = [];
+            tmp2[i] = [];
+            tmp3[i] = [];
+            tmp4[i] = [];
 
-            tmpMat1[i] = new Array(256);
-            tmpMat2[i] = new Array(256);
+            tmpMat1[i] = [];
+            tmpMat2[i] = [];
         }
 
         // compute foreground moment
         mF[0] = 0.0;
-        for (i = 1; i < 256; i++)
+        for (i = 1; i < 256; i++) {
             mF[i] = i * pmf[i] + mF[i - 1];
-
+        }
         // compute background moment
         mB = mF.slice(0);
 
-        for (i = 0; i < 256; i++)
+        for (i = 0; i < 256; i++) {
             mB[i] = mF[255] - mB[i];
-
+        }
         // compute brink entropy binarisation
         for (i = 0; i < 256; i++) {
             for (j = 0; j < 256; j++) {
@@ -313,9 +116,9 @@ $(document).ready(function() {
                 tmpMat1[i][j] = tmpMat1[i - 1][j] + tmp4[i][j];
             }
         }
-        for (i = 0; i < 256; i++)       // set to diagonal
+        for (i = 0; i < 256; i++) {         // set to diagonal
             tmpVec1[i] = tmpMat1[i][i];     // tmpVec1 is now the diagonal of the cumulative sum of tmp4
-
+        }
 
         // same operation but for background moment, NOTE: tmp1 through tmp4 get overwritten
         for (i = 0; i < 256; i++) {
@@ -334,23 +137,27 @@ $(document).ready(function() {
 
         // sum columns, subtract diagonal of cumulative sum of tmp4
         tmpVec2 = tmp4[0].slice(0);         // copies first row of tmp4 to the first row of tmpMat2
-        for (i = 0; i < 256; i++)
-            for (j = 0; j < 256; j++)
+        for (i = 0; i < 256; i++) {
+            for (j = 0; j < 256; j++) {
                 tmpVec2[j] += tmp4[i][j];   // sums of columns of tmp4 and store result in tmpVec2
-
+            }
+        }
         // compute the diagonal of the cumulative sum of tmp4 and store result in tmpVec1
         tmpMat2[0] = tmp4[0].slice(0);      // copies first row of tmp4 to the first row of tmpMat2
-        for (i = 1; i < 256; i++)       // get cumulative sum
-            for (j = 0; j < 256; j++)
+        for (i = 1; i < 256; i++) {        // get cumulative sum
+            for (j = 0; j < 256; j++) {
                 tmpMat2[i][j] = tmpMat2[i - 1][j] + tmp4[i][j];
-        for (i = 0; i < 256; i++)       // set to diagonal
+            }
+        }
+        for (i = 0; i < 256; i++) {         // set to diagonal
             tmpVec3[i] = tmpMat2[i][i];     // tmpVec3 is now the diagonal of the cumulative sum of tmpMat2
-
-        for (i = 0; i < 256; i++)
+        }
+        for (i = 0; i < 256; i++) {
             tmpVec2[i] -= tmpVec3[i];
-        for (i = 0; i < 256; i++)
+        }
+        for (i = 0; i < 256; i++) {
             tmpVec1[i] += tmpVec2[i];
-
+        }
         // calculate the threshold value
         for (i = 0; i < 256; i++) {
             if (mF[i] !== 0 && mB[i] !== 0) {
@@ -364,7 +171,210 @@ $(document).ready(function() {
 
         // return optimal threshold
         return Topt;
+    }
+
+    //binarises data, splitting foreground and background at a given brightness level
+    function binarise(thresh, x, y) {
+        var canvas, context, imageData, data, i, brightness;
+        if (!x) {
+            x = 0;
+        }
+        if (!y) {
+            y = 0;
+        }
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        defThresh = thresh;
+        //Have to redraw image and then scrape data
+        context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        data = imageData.data;
+        for (i = 0; i < data.length; i += 4) {
+            //Brightness is the greyscale value for the given pixel
+            brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+            // binarise image (set to black or white)
+            if (brightness > thresh) {
+                data[i] = G;
+                data[i + 1] = G;
+                data[i + 2] = G;
+            } else {
+                data[i] = 0;
+                data[i + 1] = 0;
+                data[i + 2] = 0;
+            }
+        }
+        //Draw binarised image
+        context.putImageData(imageData, 0, 0);
+    }
+
+    //Calculate initial threshold with the Brink formula and draw binarised image
+    imageThumb.onload = function () {
+        var scaleVal, layer, image, layerB, boxWidth, viewBox, canvas, context, bodyDOM,
+            pMouseDown, vMouseDown, vInitX, vInitY;
+        scaleVal = imageThumb.width / imageObj.width;
+
+        stage = new Kinetic.Stage({
+            container: "image-miniframe",
+            width: imageThumb.width,
+            height: imageThumb.height
+        });
+        layer = new Kinetic.Layer();
+        image = new Kinetic.Image({
+            x: 0,
+            y: 0,
+            width: imageThumb.width,
+            height: imageThumb.height,
+            image: imageThumb,
+            stroke: 'black',
+            strokewidth: 2
+        });
+
+        layer.add(image);
+        stage.add(layer);
+
+        layerB = new Kinetic.Layer();
+
+        boxWidth = viewWidth * scaleVal;
+        viewBox = new Kinetic.Rect({
+            x: 0,
+            y: 0,
+            width: boxWidth,
+            height: boxWidth,
+            fill: 'blue',
+            stroke: 'black',
+            strokeWidth: 2,
+            alpha: 0.2,
+            draggable: false,
+            dragBounds: {
+                top: 0,
+                left: 0,
+                right: imageThumb.width - boxWidth,
+                bottom: imageThumb.height - boxWidth
+            },
+            name: 'viewBox'
+        });
+
+        layerB.add(viewBox);
+        stage.add(layerB);
+
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        bodyDOM = document.getElementsByTagName("body")[0];
+
+        pMouseDown = false;
+
+        function pMoveBox(e) {
+            var pos, boxWidth, nX, nY;
+            pos = stage.getMousePosition(e);
+            if (pos !== undefined) {
+                boxWidth = viewWidth * scaleVal;
+                nX = pos.x - Math.round(boxWidth / 2);
+                nY = pos.y - Math.round(boxWidth / 2);
+                if (nX < 0) {
+                    nX = 0;
+                } else if ((nX + boxWidth) > imageThumb.width) {
+                    nX = imageThumb.width - boxWidth;
+                }
+                if (nY < 0) {
+                    nY = 0;
+                } else if ((nY + boxWidth) > imageThumb.height) {
+                    nY = imageThumb.height - boxWidth;
+                }
+                viewBox.setX(nX);
+                viewBox.setY(nY);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(defThresh, boxX, boxY);
+            }
+        }
+
+        function pClickDown(e) {
+            pMouseDown = true;
+            pMoveBox(e);
+        }
+
+        image.on("mousedown", pClickDown);
+        viewBox.on("mousedown", pClickDown);
+
+        vMouseDown = false;
+        vInitX = 0;
+        vInitY = 0;
+        canvas.addEventListener("mousedown", function (e) {
+            vMouseDown = true;
+            vInitX = e.clientX;
+            vInitY = e.clientY;
+        });
+        bodyDOM.addEventListener("mousemove", function (e) {
+            if (pMouseDown) {
+                pMoveBox(e);
+            } else if (vMouseDown) {
+                var dX, dY, boxWidth, newX, newY;
+                dX = e.clientX - vInitX;
+                dY = e.clientY - vInitY;
+
+                vInitX = e.clientX;
+                vInitY = e.clientY;
+
+                boxWidth = viewWidth * scaleVal;
+                newX = viewBox.getX() - (dX * scaleVal);
+                newY = viewBox.getY() - (dY * scaleVal);
+                if (newX < 0) {
+                    newX = 0;
+                } else if ((newX + boxWidth) > imageThumb.width) {
+                    newX = imageThumb.width - boxWidth;
+                }
+                if (newY < 0) {
+                    newY = 0;
+                } else if ((newY + boxWidth) > imageThumb.height) {
+                    newY = imageThumb.height - boxWidth;
+                }
+
+                viewBox.setX(newX);
+                viewBox.setY(newY);
+                viewBox.getLayer().draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(defThresh, boxX, boxY);
+            }
+        });
+        bodyDOM.addEventListener("mouseup", function (e) {
+            pMouseDown = false;
+            vMouseDown = false;
+        });
     };
+
+    imageObj.onload = function () {
+        var canvas, context, pmf;
+        canvas = document.getElementById("image-viewport");
+        context = canvas.getContext("2d");
+        canvas.width = viewWidth;
+        canvas.height = viewWidth;
+        pmf = genPMF(imageObj);
+        defThresh = threshBrink(pmf);
+        binarise(defThresh);
+        //Manually set inital value for slider
+        $("#slider").slider("value", defThresh);
+        $("#slider").width(viewWidth);
+        imageThumb.src = $("#image-thumb").attr("src");
+    };
+
+    imageObj.src = $("#image-full").attr("src");
+
+    //jQuery slider definition for threshold controller
+    $("#slider").slider({
+        animate: true,
+        min: 0,
+        max: G,
+        orientation: "horizontal",
+        step: 1,
+        value: defThresh,
+        range: false,
+        slide: function (event, ui) {
+            defThresh = ui.value;
+            binarise(defThresh, boxX, boxY);
+        }
+    });
 
     $('#form').submit(function () {
         $('#threshold-input').val(defThresh);
