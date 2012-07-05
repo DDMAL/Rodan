@@ -6,9 +6,11 @@ from djcelery.snapshot import Camera
 from django.conf import settings
 
 import json
+import string
 
 from djcelery.models import TaskState
 from rodan.models.results import Result, ResultTask
+from rodan.models.projects import Page
 
 
 class RodanMonitor(Camera):
@@ -55,6 +57,18 @@ class RodanMonitor(Camera):
 
             rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
 
+    def success(self, task):
+        args = task.args
+        if "misc_tasks" in task.name:
+            if "create_thumbnails_task" in task.name:
+                mt_id = args[1:string.find(args, ",")]
+                page_id = int(mt_id)
+                page = Page.objects.get(pk=page_id)
+                print "Page is_ready(before): %s" % page.is_ready
+                page.is_ready = True
+                page.save()
+                print "Page is_ready(after): %s" % page.is_ready
+
     def on_shutter(self, state):
         Camera.on_shutter(self, state)
         if not state.event_count:
@@ -70,8 +84,9 @@ class RodanMonitor(Camera):
                     print "  state changed"
                     print "    to", task.state
                     self.states[taskid] = task.state
+                    if task.state == "SUCCESS":
+                        self.success(task)
                     if task.state == "FAILURE":
-                        print "Task failed!!"
                         self.restart(task)
             else:
                 print "  new task"
