@@ -639,7 +639,8 @@ class AomrObject(object):
                 line_or_space = 0
                 return line_or_space, i+1
             else:
-                pass
+                line_or_space = 0
+                return line_or_space, i
                 
     def glyph_classification(self):
         """ Glyph classification.
