@@ -8,6 +8,7 @@ import rodan.jobs
 from rodan.models.jobs import JobType
 from rodan.utils import get_size_in_mb
 
+
 class RodanUser(models.Model):
     class Meta:
         app_label = 'rodan'
@@ -318,7 +319,7 @@ class Page(models.Model):
     def _get_job_path(self, job, ext):
         """
         Returns the relative path to the file for the specified
-        job and extension. 
+        job and extension.
         """
         basename, _ = os.path.splitext(self.filename)
 
@@ -420,9 +421,7 @@ class Page(models.Model):
                 destination.write(chunk)
 
         # Now generate thumbnails
-        for thumbnail_size in settings.THUMBNAIL_SIZES:
-            thumb_path = self.get_thumb_path(size=thumbnail_size)
-            rodan.jobs.misc_tasks.create_thumbnails_task.delay(image_path, thumb_path, thumbnail_size)
+        rodan.jobs.misc_tasks.create_thumbnails_task.delay(self, image_path, settings.THUMBNAIL_SIZES)
 
     def is_job_complete(self, job_item):
         Result = models.loading.get_model('rodan', 'Result')
