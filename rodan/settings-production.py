@@ -2,6 +2,8 @@ import djcelery
 
 # Django settings for rodan project.
 
+from settings import *
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
