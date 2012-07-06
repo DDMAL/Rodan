@@ -56,7 +56,11 @@ class AomrObject(object):
         # a global to keep track of the number of stafflines.
         self.num_stafflines = None
         # cache this once so we don't have to constantly load it
-        self.image = load_image(self.filename)
+        # If it's a string, open the file, otherwise it's the image object
+        if isinstance(self.filename, basestring):
+            self.image = load_image(self.filename)
+        else:
+            self.image = self.filename
         self.image_resolution = self.image.resolution
         
         if self.image.data.pixel_type != ONEBIT:
@@ -97,11 +101,11 @@ class AomrObject(object):
             'dimensions': self.image_size
         }
         
-    def run(self, page_glyphs, poly_list, pitch_staff_technique=0):
+    def run(self, page_glyphs, pitch_staff_technique=0,staff_point_list=None):
         lg.debug("Running the finding code.")
         
         print "1. Finding staves."
-        self.find_staves(poly_list)
+        self.find_staves(staff_point_list)
         
         print "2. Finding staff coordinates"
         self.staff_coords()
@@ -135,19 +139,100 @@ class AomrObject(object):
                     contents.append(j_glyph)  
             data[s] = {'coord':stave, 'content':contents}
 
-        print "6. Returning the data. Done running for this pag."
-        return data
-        
-    def find_staves(self, poly_list):
+        encoded = json.dumps(data)
 
-        self.staves = poly_list
-        # the following object instansitation and value injection is to be able to compute s.get_average()
-        # in order to bypass populating s.linelist with the staff_find() function inside the class
-        s = musicstaves.StaffFinder_miyao(self.image)
-        s.linelist = poly_list
-        av_lines = s.get_average()
+        print "6. Returning the data. Done running for this page."
+        return encoded
+        
+    def find_staves(self, staff_point_list):
+        """
+        """
+
+        def __fix_staff_point_list_list(staff_point_list, staffspace_height):
+            """
+            """
+            # print "POLY_LIST:{0}".format(poly_list)
+            for poly in staff_point_list:#loop over polygons
+                #following condition checks if there are the same amount of points on all 4 staff lines
+                if len(poly[0].vertices) == len(poly[1].vertices) and \
+                len(poly[0].vertices) == len(poly[2].vertices) and \
+                len(poly[0].vertices) == len(poly[3].vertices):
+                    continue
+                else:
+                    for j in xrange(0,len(poly)):#loop over all 4 staff lines
+                        for k in xrange(0,len(poly[j].vertices)):#loop over points of staff
+                            for l in xrange(0,len(poly)):#loop over all 4 staff lines
+                                if l == j:# optimization to not loop through the same staff line as outer loop
+                                    continue
+                                if(k < len(poly[l].vertices)): #before doing the difference make sure index k is within indexable range of poly[l]
+                                    y_pix_diff = poly[j].vertices[k].x - poly[l].vertices[k].x
+                                else:
+                                    #if it's not in range, we are missing a point since, the insertion grows the list as we go through the points
+                                    y_pix_diff = -10000 #arbitrary value to evaluate next condition to false and force an insert
+
+                                if(y_pix_diff < 3 and y_pix_diff > -3): #if the y coordinate pixel difference within acceptable deviation
+                                    continue
+                                else:
+                                    #missing a point on that staff
+                                    staffspace_multiplier = (l - j) #represents the number of staff lines apart from one another
+                                    poly[l].vertices.insert(k, Point(poly[j].vertices[k].x, poly[j].vertices[k].y + (staffspace_multiplier * staffspace_height)))
+            return staff_point_list
+
+        if staff_point_list is None:
+            if self.sfnd_algorithm is 0:
+                s = musicstaves.StaffFinder_miyao(self.image)
+                self.stspace_height = s.staffspace_height
+                # print self.stspace_height
+            elif self.sfnd_algorithm is 1:
+                s = musicstaves.StaffFinder_dalitz(self.image)
+            elif self.sfnd_algorithm is 2:
+                s = musicstaves.StaffFinder_projections(self.image)
+            else:
+                raise AomrStaffFinderNotFoundError("The staff finding algorithm was not found.")
+
+            scanlines = 20
+            blackness = 0.8
+            tolerance = -1
+
+            # there is no one right value for these things. We'll give it the old college try
+            # until we find something that works.
+            while not self.staves:
+                if blackness <= 0.3:
+                    # we want to return if we've reached a limit and still can't
+                    # find staves.
+                    return None
+
+                s.find_staves(self.lines_per_staff, scanlines, blackness, tolerance)
+                av_lines = s.get_average()
+                if len(self._flatten(s.linelist)) == 0:
+                    # no lines were found
+                    return None
+
+                # get a polygon object. This stores a set of vertices for x,y values along the staffline.
+                self.staves = s.get_polygon()
+
+                if not self.staves:
+                    lg.debug("No staves found. Decreasing blackness.")
+                    blackness -= 0.1
+
+            __fix_staff_point_list_list(self.staves, self.stspace_height)
+
+        else:
+            self.staves = staff_point_list
+            # the following object instansitation and value injection is to be able to compute s.get_average()
+            # in order to bypass populating s.linelist with the staff_find() function inside the class
+            s = musicstaves.StaffFinder_miyao(self.image)
+            s.linelist = staff_point_list
+            av_lines = s.get_average()
+
+        # if len(self.staves) < self.lines_per_staff:
+        #     # the number of lines found was less than expected.
+        #     return None
 
         all_line_positions = []
+        # stave_fix = self.__fix_poly_point_list(self.staves)
+        # print "STAVES_FIXED:{0}".format(stave_fix)
+
         for i, staff in enumerate(self.staves):
             yv = []
             xv = []
@@ -273,6 +358,9 @@ class AomrObject(object):
             Returns the coordinates for each one of the staves
         """
         st_coords = []
+        if self.staves is None or len(self.staves) == 0:
+            raise AomrUnableToFindStavesError("No staff lines were found. Make sure you binarized the image correctly before getting to this step.")
+
         for i, staff in enumerate(self.staves):
             st_coords.append(self.page_result['staves'][i]['coords'])
         
@@ -560,7 +648,8 @@ class AomrObject(object):
                 line_or_space = 0
                 return line_or_space, i+1
             else:
-                pass
+                line_or_space = 0
+                return line_or_space, i
                 
     def glyph_classification(self):
         """ Glyph classification.
