@@ -51,7 +51,7 @@
             var minPoint = null;
             var minNeighbour = null;
             var g;
-            for (g in stage.get(".group")) {
+            for (var g in stage.get(".group")) {
                 var group = stage.get(".group")[g];
                 var gPoint = $.extend({}, true, point);
                 gPoint.x -= group.getX();
@@ -189,8 +189,8 @@
                             if (!selectionBox.isVisible()) {
                                 selectionBox.attrs.visible = true;
                             }
-                            dX = point.x - selectionBox.getX();
-                            dY = point.y - selectionBox.getY();
+                            var dX = point.x - selectionBox.getX();
+                            var dY = point.y - selectionBox.getY();
                             selectionBox.setAttrs({
                                 width: dX,
                                 height: dY
@@ -280,9 +280,8 @@
                 alpha: .2,
                 name: "poly"
             });
-
             group.add(poly);
-            for (p in poly.getPoints()) {
+            for (var p in poly.getPoints()) {
                 var point = poly.getPoints()[p];
                 addAnchor(group, point.x, point.y);
             }
@@ -398,7 +397,7 @@
                 layer.draw();
             });
             anchor.on("mousedown touchstart", function() {
-                group.draggable(false);
+                group.setDraggable(false);
                 selectAnchors([this]);
                 layer.draw();
             });
@@ -408,7 +407,7 @@
                 var minY = poly.attrs.points[0].y;
                 var maxX = 0;
                 var maxY = 0;
-                for (p in poly.getPoints()) {
+                for (var p in poly.getPoints()) {
                     var point = poly.getPoints()[p]
                     minX = Math.min(minX, point.x);
                     minY = Math.min(minY, point.y);
@@ -423,7 +422,7 @@
                 });
                 poly.attrs.width = maxX - minX;
                 poly.attrs.height = maxY - minY;
-                group.draggable(true);
+                group.setDraggable(true);
                 layer.draw();
             })
             anchor.on("mouseover", function() {
@@ -464,9 +463,9 @@
         
             var sPoints = [];
         
-            for (g in stage.get(".group")) {
+            for (var g in stage.get(".group")) {
                 var group = stage.get(".group")[g];
-                for (a in group.attrs.anchors) {
+                for (var a in group.attrs.anchors) {
                     var anchor = group.attrs.anchors[a];
                     var adjX = anchor.getX() + group.getX() - margin;
                     var adjY = anchor.getY() + group.getY() - margin;
@@ -481,7 +480,7 @@
     
         var flattenPoints = function(points) {
             var fPoints = [];
-            for (p in points) {
+            for (var p in points) {
                 var point = points[p];
                 fPoints.push(point.x);
                 fPoints.push(point.y);
@@ -490,11 +489,11 @@
         }
     
         var selectAnchors = function(anchors) {
-            for (a in selectedPoints) {
+            for (var a in selectedPoints) {
                 var anchor = selectedPoints[a];
                 anchor.attrs.fill = '#ddd';
             }
-            for (a in anchors) {
+            for (var a in anchors) {
                 var anchor = anchors[a];
                 anchor.attrs.fill = 'red';
                 anchor.getLayer().draw();
@@ -503,7 +502,7 @@
         }
     
         var deselectPoints = function() {
-            for (a in selectedPoints) {
+            for (var a in selectedPoints) {
                 var anchor = selectedPoints[a];
                 anchor.attrs.fill = '#ddd';
                 anchor.getLayer().draw();
@@ -513,7 +512,7 @@
     
         var deletePoints = function() {
             var changedPolys = []
-            for (s in selectedPoints) {
+            for (var s in selectedPoints) {
                 var sPoint = selectedPoints[s];
                 var group = sPoint.getParent();
                 var poly = group.get(".poly")[0];
@@ -523,7 +522,7 @@
                 group.attrs.anchors.splice(pI, 1);
                 poly.attrs.points.splice(pI, 1);
             }
-            for (p in changedPolys) {
+            for (var p in changedPolys) {
                 var poly = changedPolys[p];
                 var group = poly.getParent();
                 if (poly.getPoints().length > 1)

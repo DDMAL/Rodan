@@ -153,7 +153,7 @@
             layer.draw();
         });
         anchor.on("mousedown touchstart", function() {
-            group.draggable(false);
+            group.setDraggable(false);
             layer.draw();
         });
         anchor.on("dragend", function() {
@@ -164,7 +164,7 @@
                 right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
                 bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
             });
-            group.draggable(true);
+            group.setDraggable(true);
             layer.draw();
         })
         anchor.on("mouseover", function() {

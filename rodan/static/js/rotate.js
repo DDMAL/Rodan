@@ -51,7 +51,7 @@
             y: dist / 2,
             width: imageObj.width,
             height: imageObj.height,
-            centerOffset: [imageObj.width / 2, imageObj.height / 2],
+            offset: [imageObj.width / 2, imageObj.height / 2],
             image: imageObj,
             name: "image"
         });
