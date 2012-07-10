@@ -10,7 +10,7 @@ def create_thumbnails_task(page_id, image_path, thumbnail_sizes):
     """
     Celery task for creating thumbnails immediately after uploading an image.
     """
-    page = Page.objects.get(pk=page_id)
+    page = Page.objects.select_for_update().get(pk=page_id)
     for thumbnail_size in thumbnail_sizes:
         thumb_path = page.get_thumb_path(size=thumbnail_size)
         width, height = utils.create_thumbnail(image_path, thumb_path, thumbnail_size)
