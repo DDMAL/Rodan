@@ -276,6 +276,9 @@ $(document).ready(function () {
         if ($('#page-placeholder').length) {
             $('#page-placeholder').remove();
         }
+
+        // Show a modal dialog until the uploading is complete
+        $('#modal').show();
         $('#upload-images').append('<li class="fake-img"></li>');
         $('#form').trigger('submit');
     });

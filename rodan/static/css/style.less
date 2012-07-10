@@ -56,9 +56,6 @@ p {
 }
 
 #wrap {
-    position: absolute;
-    top: @navbarHeight;
-    bottom: 0px;
     width: 100%;
 }
 
@@ -70,8 +67,8 @@ p {
     position: absolute;
     overflow-y: auto;
     left: 0px;
-    top: 0px;
-    height: 100%;
+    top: @navbarHeight;
+    bottom: 0px;
     width: @sidebarWidth;
     background: @sidebarBg;
     #search {
@@ -596,4 +593,29 @@ dl {
 
 span.error {
     color: @red;
+}
+
+#modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    div {
+        .border-radius(5px);
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-top: -(@modalHeight / 2);
+        margin-left: -(@modalWidth / 2);
+        width: @modalWidth;
+        height: @modalHeight;
+        #gradient(@white, @lightGrey);
+        p {
+            text-align: center;
+            padding: 20px 0;
+        }
+    }
 }
