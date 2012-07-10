@@ -8,7 +8,7 @@
 {% if projects %}
     <ul id="project-list">
         {% for project in projects %}
-            <li><a href="{{ project.get_absolute_url }}" title="{{ project.description }}">{{ project.name }}<br />{% progress_bar project.get_fake_progress %}</a></li>
+            <li><a href="{{ project.get_absolute_url }}" title="{{ project.description }}">{{ project.name }}<br />{% progress_bar project.get_percent_done %}</a></li>
         {% endfor %}
     </ul>
 {% endif %}

@@ -54,17 +54,6 @@ class Project(models.Model):
         diva_job = Job.objects.get(pk='diva-preprocess')
         return any(page.get_percent_done() == 100 and page.workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all())
 
-    def get_fake_progress(self):
-        """
-        Returns the real progress if the project has a description (in order
-        to ensure that the newly-created Salzinnes project doesn't have a weird
-        fake progress bar).
-        """
-        if self.description:
-            return self.get_percent_done()
-        else:
-            return (hash(self.name) % 1000) / 10
-
 
 class Job(models.Model):
     """
