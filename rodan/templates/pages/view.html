@@ -30,7 +30,7 @@
             <dt>Image size:</dt>
             <dd>{{ page.get_original_image_size }}</dd>
             <dt>Image dimensions:</dt>
-            <dd>{% with dimensions=page.get_original_image_dimensions %}{{ dimensions.width }} &times; {{ dimensions.height }}{% endwith %}</dd>
+            <dd>{{ page.original_width }} &times; {{ page.original_height }}</dd>
         </dl></td>
         <td>View sizes: <a href="{{ small_thumbnail }}">Small</a> :: <a href="{{ medium_thumbnail }}">Medium</a> :: <a href="{{ large_thumbnail }}">Large</a> :: <a href="{{ original_image }}">Original</a></td>
     </tr>

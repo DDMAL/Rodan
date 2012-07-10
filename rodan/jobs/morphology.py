@@ -46,10 +46,8 @@ class PostStaffRemovalDespeckle(JobBase):
     task = despeckle
 
     def get_context(self, page):
-        latest_image_path = page.get_latest_file_path('tiff')
-        image = gamera.core.load_image(latest_image_path)
         return {
-            'width': image.size.width,
+            'width': page.latest_width,
         }
 
 class Despeckle(JobBase):
@@ -66,8 +64,6 @@ class Despeckle(JobBase):
     task = despeckle
 
     def get_context(self, page):
-        latest_image_path = page.get_latest_file_path('tiff')
-        image = gamera.core.load_image(latest_image_path)
         return {
-            'width': image.size.width,
+            'width': page.latest_width,
         }

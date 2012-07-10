@@ -51,12 +51,10 @@ class Segmentation(JobBase):
     task = segment
 
     def get_context(self, page):
-        latest_image_path = page.get_latest_file_path('tiff')
-        image = gamera.core.load_image(latest_image_path)
         latest_json_path = page.get_latest_file_path('json')
         data = open(latest_json_path)
         json_data = json.load(data)
         return {
-            'width': image.size.width,
+            'width': page.latest_width,
             'json': json_data
         }

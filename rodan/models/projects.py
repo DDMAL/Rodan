@@ -150,6 +150,10 @@ class Page(models.Model):
     pk_name = 'page_id'
     sequence = models.IntegerField()
     is_ready = models.BooleanField(default=False)
+    original_width = models.IntegerField(null=True)
+    original_height = models.IntegerField(null=True)
+    latest_width = models.IntegerField(null=True)
+    latest_height = models.IntegerField(null=True)
 
     # If the tag is defined, it returns that; otherwise, returns the filename
     def __unicode__(self):
@@ -168,10 +172,6 @@ class Page(models.Model):
         Gets the size of the TIFF image that was originally uploaded.
         """
         return get_size_in_mb(os.path.getsize(self.get_latest_file_path('original')))
-
-    def get_original_image_dimensions(self):
-        # Hardcoding fake dimensions for now because it's easier and cheaper
-        return {'width': 4414, 'height': 6993}
 
     @staticmethod
     def _get_thumb_filename(path, size):

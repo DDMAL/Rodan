@@ -38,7 +38,11 @@ def create_thumbnail(image_path, thumb_path, thumbnail_size):
     if thumbnail_size != settings.ORIGINAL_SIZE:
         dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
         image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
+
     image.save(thumb_path)
+
+    # Return the image dimensions so they can be used later
+    return width, height
 
 
 def create_thumbnails(image_path, result):
@@ -47,7 +51,11 @@ def create_thumbnails(image_path, result):
 
     for thumbnail_size in settings.THUMBNAIL_SIZES:
         thumb_path = page.get_thumb_path(size=thumbnail_size, job=job)
-        create_thumbnail(image_path, thumb_path, thumbnail_size)
+        width, height = create_thumbnail(image_path, thumb_path, thumbnail_size)
+
+    page.latest_width = width
+    page.latest_heigth = height
+    page.save()
 
 
 def rodan_task(inputs, others=[]):

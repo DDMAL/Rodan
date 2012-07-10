@@ -63,8 +63,8 @@ class Neon(JobBase):
         return {
             'bgimgpath': page.get_pre_bin_image_url(),
             'scaled_width': settings.LARGE_THUMBNAIL,
-            'orig_width': image.size.width,
-            'orig_height': image.size.height,
+            'orig_width': page.latest_width,
+            'orig_height': page.latest_height,
             'page_id': page.id,
             'mei_path': mei_url
         }
