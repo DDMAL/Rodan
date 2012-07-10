@@ -3,6 +3,8 @@
 <ul class="grid image-buttons" id="upload-images">
 {% for page in project.page_set.all %}
     <li><img src="{{ page.get_thumb_url }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
+{% empty %}
+    <li id="page-placeholder">Upload a new file below.</li>
 {% endfor %}
 </ul>
 <br />

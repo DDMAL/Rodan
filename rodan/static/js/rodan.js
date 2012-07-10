@@ -273,6 +273,9 @@ $(document).ready(function () {
 
     // "Automatic" file upload lol
     $('input[type=file]').change(function () {
+        if ($('#page-placeholder').length) {
+            $('#page-placeholder').remove();
+        }
         $('#upload-images').append('<li class="fake-img"></li>');
         $('#form').trigger('submit');
     });
