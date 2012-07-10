@@ -1,5 +1,8 @@
+from django.shortcuts import get_object_or_404
+
 from rodan.utils import render_to_json
 from rodan.models.results import Result
+from rodan.models.projects import Page
 
 
 @render_to_json()
@@ -16,3 +19,8 @@ def task(request):
             pass
 
     return result_statuses
+
+
+@render_to_json()
+def page(request, page_id):
+    return get_object_or_404(Page, pk=page_id).is_ready

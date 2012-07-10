@@ -68,6 +68,7 @@ urlpatterns += patterns('',
 
 urlpatterns += patterns('rodan.views.status',
     url(r'^status/task', 'task'),
+    url(r'^status/page/(?P<page_id>\d+)', 'page'),
 )
 
 # For serving stuff under MEDIA_ROOT in debug mode only

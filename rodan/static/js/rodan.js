@@ -280,8 +280,32 @@ $(document).ready(function () {
         // Show a modal dialog until the uploading is complete
         $('#modal').show();
         $('#upload-images').append('<li class="fake-img"></li>');
+
         $('#form').trigger('submit');
     });
+
+    // Does not trigger if a fake-img is added dynamically (intended behaviour)
+    if ($('.fake-img').length) {
+        var imageInterval = setInterval(function () {
+            if (!$('.fake-img').length) {
+                clearInterval(imageInterval);
+            } else {
+                var pageID = $('.fake-img').attr('data-page');
+                $.ajax({
+                    cache: false,
+                    url: '/status/page/' + pageID,
+                    context: $('.fake-img'),
+                    success: function (pageStatus) {
+                        if (pageStatus) {
+                            this.removeClass('fake-img');
+                            var image = this.find('img');
+                            $(image).attr('src', $(image).attr('data-src'));
+                        }
+                    },
+                });
+            }
+        }, 1000);
+    }
 
     var tickables = {};
 
