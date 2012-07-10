@@ -218,6 +218,7 @@ $(document).ready(function () {
 
         $('#job-to-remove').val(1);
         $('#form').submit();
+        return false;
     });
 
     $('#available-jobs').delegate('.add-job', 'click', function (event) {
@@ -226,6 +227,7 @@ $(document).ready(function () {
 
         $('#job-to-add').val(jobID);
         $('#form').submit();
+        return false;
     });
 
     // If the flash message exists, make it disappear after some time
