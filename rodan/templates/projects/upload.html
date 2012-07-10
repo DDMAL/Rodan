@@ -2,7 +2,11 @@
 <p>Click on an image to use it as a sample image to create a workflow</p>
 <ul class="grid image-buttons" id="upload-images">
 {% for page in project.page_set.all %}
+    {% if page.is_ready %}
     <li><img src="{{ page.get_thumb_url }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
+    {% else %}
+    <li class="fake-img"></li>
+    {% endif %}
 {% empty %}
     <li id="page-placeholder">Upload a new file below.</li>
 {% endfor %}
