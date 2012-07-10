@@ -16,6 +16,7 @@ class Result(models.Model):
     job_item = models.ForeignKey(JobItem)
     user = models.ForeignKey(RodanUser)
     page = models.ForeignKey(Page)
+    task_state = models.OneToOneField(TaskState, null=True, related_name='res_task_state')
     start_time = models.DateTimeField(auto_now_add=True)
     end_manual_time = models.DateTimeField(null=True)
     end_total_time = models.DateTimeField(null=True)
@@ -68,10 +69,3 @@ class ResultFile(models.Model):
 
     def __unicode__(self):
         return 'File %s. %s' % (self.filename, self.result)
-
-class ResultTask(models.Model):
-    class Meta:
-        app_label = 'rodan'
-    result = models.ForeignKey(Result)
-    task = models.ForeignKey(TaskState)
-
