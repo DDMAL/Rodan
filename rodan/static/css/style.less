@@ -14,7 +14,8 @@ html, body {
 body {
     font-family: "Helvetica Neue", Helvetica, sans-serif;
     font-size: 13px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #navbar {
@@ -68,7 +69,6 @@ p {
     overflow-y: auto;
     left: 0px;
     top: @navbarHeight;
-    bottom: 0px;
     width: @sidebarWidth;
     background: @sidebarBg;
     #search {
@@ -129,7 +129,7 @@ p {
 }
 
 #content {
-    .scrollable;
+    //.scrollable;
     padding-left: @sidebarWidth;
     background: @contentBg;
     overflow-x: hidden;
