@@ -33,7 +33,11 @@
 {% if num_pages > 0 %}
 <ul class="grid">
 {% for page in project.page_set.all %}
+    {% if page.is_ready %}
     <li><a href="{{ page.get_absolute_url }}"><img src="{{ page.get_thumb_url }}" /></a></li>
+    {% else %}
+    <li class="image-border page-loading"></li>
+    {% endif %}
 {% endfor %}
 </ul>
 {% endif %}

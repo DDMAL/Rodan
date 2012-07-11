@@ -498,10 +498,20 @@ ul.grid {
     border-color: @imageButtonHoverFrame;
 }
 
+.page-loading {
+    background: url('../img/loading.gif') no-repeat;
+    background-position: 67px 100px;
+}
+
+.image-border {
+    border: 5px solid @imageButtonFrame;
+    width: 150px;
+    height: 235px;
+}
+
 .image-buttons {
     li {
-        background: url('../img/loading.gif') no-repeat;
-        background-position: 67px 100px;
+        .page-loading;
     }
     input {
         .hidden;
@@ -520,9 +530,7 @@ ul.grid {
         }
     }
     .fake-img {
-        border: 5px solid @imageButtonFrame;
-        width: 150px;
-        height: 235px;
+        .image-border;
         img, input {
             display: none;
         }

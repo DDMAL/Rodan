@@ -1,5 +1,7 @@
 <h1>{{ page }}</h1>
 {% load extras %}
+
+{% if page.is_ready %}
 <table>
     <tr>
         <td>Progress</td>
@@ -74,3 +76,6 @@
     </tr>
     {% endfor %}
 </table>
+{% else %}
+<p>This page has not yet completed the upload/preprocessing step. Please check back soon.</p>
+{% endif %}
