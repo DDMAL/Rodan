@@ -1,6 +1,6 @@
 var parts = window.location.search.substr(1).split("=");
-if (parts.length == 2) {
-    if (parts[0] == "debug" && parts[1] == "true") {
+if (parts.length === 2) {
+    if (parts[0] === "debug" && parts[1] === "true") {
         var stats = new Stats();
         stats.setMode(0); // 0: fps, 1: ms
         document.body.appendChild( stats.domElement );
