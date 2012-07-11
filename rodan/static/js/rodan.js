@@ -314,9 +314,9 @@ $(document).ready(function () {
             var element, oldText, newText;
             for (resultID in tickables) {
                 element = tickables[resultID];
-                oldText = element.innerText;
+                oldText = element.textContent;
                 newText = parseInt(oldText, 10) + 1;
-                element.innerText = newText;
+                element.textContent = newText;
             }
 
             $.ajax({
