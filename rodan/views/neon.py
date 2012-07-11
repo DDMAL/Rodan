@@ -360,7 +360,7 @@ def insert_custos(request, page_id):
 @render_to_json()
 def move_custos(request, page_id):
     if request.method == 'POST':
-        custos_id = str(request.POST.get('id'))
+        custos_ids = str(request.POST.get('ids')).split(",")
         pname = str(request.POST.get('pname'))
         oct = str(request.POST.get('oct'))
 
@@ -376,7 +376,7 @@ def move_custos(request, page_id):
         fname = p.get_job_path(j, 'mei')
 
         md = ModifyDocument(fname)
-        md.move_custos(custos_id, pname, oct, ulx, uly, lrx, lry)
+        md.move_custos(custos_ids, pname, oct, ulx, uly, lrx, lry)
         md.write_doc()
 
         return {}
