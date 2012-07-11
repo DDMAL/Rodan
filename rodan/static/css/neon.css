@@ -1,18 +1,13 @@
-#gui {
-    margin-bottom: 15px;
+.sidebar-nav-fixed {
+    position: fixed;
+    left: 20px;
+    width: 300px;
 }
 
-#toolbar {
-    padding: 15px 4px;
-    background: #4B4A48;
-    border-color: black;
+.sidebar-inner {
+    padding-bottom: 5px;
 }
 
-.sidebar-nav {
-    padding: 9px 0;
-}
-
-body {
-    padding-top: 60px;
-    padding-bottom: 40px;
+.row-fluid > .span-fixed-sidebar {
+    margin-left: 300px;
 }
