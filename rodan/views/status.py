@@ -14,20 +14,17 @@ def task(request):
         0 to a task that hasn't finished executing
     '''
     result_ids = request.GET.getlist('result_ids[]')
+    results = Result.objects.filter(pk__in=result_ids)
     result_statuses = {}
 
-    for result_id in result_ids:
-        try:
-            result = Result.objects.get(pk=result_id)
-            result_taskstate = result.task_state
-            if result_taskstate is not None and result_taskstate.state == "FAILURE":
-                result_statuses[result_id] = -1
-            elif result.end_total_time is not None:
-                result_statuses[result_id] = 1
-            else:
-                result_statuses[result_id] = 0
-        except Result.DoesNotExist:
-            pass
+    for result in results:
+        result_taskstate = result.task_state
+        if result_taskstate is not None and result_taskstate.state == "FAILURE":
+            result_statuses[result.id] = -1
+        elif result.end_total_time is not None:
+            result_statuses[result.id] = 1
+        else:
+            result_statuses[result.id] = 0
 
     return result_statuses
 
