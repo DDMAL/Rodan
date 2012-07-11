@@ -655,17 +655,18 @@ class ModifyDocument:
 
         self.update_or_add_zone(custos, ulx, uly, lrx, lry)
 
-    def delete_custos(self, id):
+    def delete_custos(self, ids):
         '''
-        Delete a given custos from the document.
+        Delete given custos' from the document.
         Also remove the element's bounding box information.
         '''
 
-        custos = self.mei.getElementById(id)
-        # remove the bounding box data
-        self.remove_zone(custos)
-        # remove the custos from the document
-        custos.getParent().removeChild(custos)
+        for id in ids:
+            custos = self.mei.getElementById(id)
+            # remove the bounding box data
+            self.remove_zone(custos)
+            # remove the custos from the document
+            custos.getParent().removeChild(custos)
 
     # HELPER FUNCTIONS
     def update_or_add_zone(self, element, ulx, uly, lrx, lry):

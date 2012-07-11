@@ -30,10 +30,12 @@ neon_urls = patterns('rodan.views.neon',
     url(r'^delete/custos', 'delete_custos')
 )
 
+
 @utils.rodan_task(inputs=[])
 def neon(**kwargs):
     return {
     }
+
 
 class Neon(JobBase):
     name = 'Neon'
@@ -51,7 +53,7 @@ class Neon(JobBase):
     def get_context(self, page):
         latest_image_path = page.get_latest_file_path('tiff')
         input_mei_path = page.get_latest_file_path('mei')
-        
+
         j = Job.objects.get(pk=self.slug)
         output_path = page.get_job_path(j, 'mei')
         utils.create_dirs(output_path)
@@ -63,8 +65,8 @@ class Neon(JobBase):
         return {
             'bgimgpath': page.get_pre_bin_image_url(),
             'scaled_width': settings.LARGE_THUMBNAIL,
-            'orig_width': page.latest_width,
-            'orig_height': page.latest_height,
+            'orig_width': image.width,
+            'orig_height': image.height,
             'page_id': page.id,
             'mei_path': mei_url
         }
