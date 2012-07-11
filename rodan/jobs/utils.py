@@ -54,7 +54,7 @@ def create_thumbnails(image_path, result):
         width, height = create_thumbnail(image_path, thumb_path, thumbnail_size)
 
     page.latest_width = width
-    page.latest_heigth = height
+    page.latest_height = height
     page.save()
 
 

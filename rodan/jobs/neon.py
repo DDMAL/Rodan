@@ -51,7 +51,6 @@ class Neon(JobBase):
     outputs_image = False
 
     def get_context(self, page):
-        latest_image_path = page.get_latest_file_path('tiff')
         input_mei_path = page.get_latest_file_path('mei')
 
         j = Job.objects.get(pk=self.slug)
@@ -60,13 +59,12 @@ class Neon(JobBase):
         if not os.path.exists(output_path):
             open(output_path, 'w').write(open(input_mei_path).read())
 
-        image = gamera.core.load_image(latest_image_path)
         mei_url = settings.MEDIA_URL + page._get_job_path(j, 'mei')
         return {
             'bgimgpath': page.get_pre_bin_image_url(),
             'scaled_width': settings.LARGE_THUMBNAIL,
-            'orig_width': image.width,
-            'orig_height': image.height,
+            'orig_width': page.latest_width,
+            'orig_height': page.latest_height,
             'page_id': page.id,
             'mei_path': mei_url
         }
