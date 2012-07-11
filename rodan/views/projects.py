@@ -40,7 +40,11 @@ def dashboard(request):
     percent_done = sum(project.get_percent_done() for project in my_projects)
     percent_done /= my_projects.count() if my_projects.count() > 0 else 1
 
-    current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True)).filter(end_total_time__isnull=True)
+    current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
+        .filter(end_total_time__isnull=True)\
+        .exclude(task_state__state="FAILURE")
+
+    print current_jobs
 
     data = {
         'current_jobs': current_jobs,
@@ -89,7 +93,9 @@ def view(request, project):
             page_job = page.get_next_job(user=user)
             available_jobs.add(page_job)
 
-    current_jobs = Result.objects.filter(page__project=project).filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True)).filter(end_total_time__isnull=True)
+    current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
+        .filter(end_total_time__isnull=True)\
+        .exclude(task_state__state="FAILURE")
 
     # Create a dict: key = job, value = availability for this project
     jobs = []

@@ -10,8 +10,14 @@
     <div class="hidden">
         <img id="image-full" src="{{ original_image }}"/>
         <img id="image-thumb" src="{{ small_thumbnail }}"/>
+		<img id="image-mid" src="{{ original_image }}"/>
     </div>
-    <canvas id="image-viewport" alt="Image preview"></canvas>
-    <div id="image-miniframe"></div>
+    <canvas id="image-viewport" alt="Image viewport"></canvas>
+	<div id="image-rightside">
+    	<div id="image-miniframe"></div>
+		<canvas id="image-preview" alt="Image preview"></canvas>
+	</div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.10.2.min.js"></script>
+<script src="{{ STATIC_URL }}js/Stats.js"></script>
+<script src="{{ STATIC_URL }}js/show_stats.js"></script>
 <script src="{{ STATIC_URL }}js/binarise.js"></script>

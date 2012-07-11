@@ -8,7 +8,7 @@ from django.conf import settings
 import json
 
 from djcelery.models import TaskState
-from rodan.models.results import Result, ResultTask
+from rodan.models.results import Result
 
 
 class RodanMonitor(Camera):
@@ -51,9 +51,9 @@ class RodanMonitor(Camera):
             parts = x.split(",")
             result_id = int(parts[0])
             print "RESID::%s\n" % result_id
-            result = Result.objects.get(pk=result_id)
-
-            rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
+            result = Result.objects.select_for_update().get(pk=result_id)
+            result.task_state = t
+            result.save()
 
     def on_shutter(self, state):
         Camera.on_shutter(self, state)
@@ -63,15 +63,3 @@ class RodanMonitor(Camera):
         for taskid, task in state.tasks.iteritems():
             print taskid
             self.log(taskid, task)
-
-            if taskid in self.states:
-                oldstate = self.states[taskid]
-                if task.state != oldstate:
-                    print "  state changed"
-                    print "    to", task.state
-                    self.states[taskid] = task.state
-                    if task.state == "FAILURE":
-                        self.restart(task)
-            else:
-                print "  new task"
-                self.states[taskid] = task.state

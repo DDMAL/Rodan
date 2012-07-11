@@ -23,11 +23,19 @@ def view(request, page):
             result = Result.objects.get(page=page, job_item=job_item)
             result_id = result.id
             has_started = True
-            is_done = result.end_total_time is not None
+
+            result_taskstate = result.task_state
+            if result_taskstate is not None and result_taskstate.state == "FAILURE":
+                is_done = -1
+            elif result.end_total_time is not None:
+                is_done = 1
+            else:
+                is_done = 0
+
             manual_is_done = result.end_manual_time is not None
             start_end_time = result.end_manual_time if manual_is_done else timezone.now()
             seconds_since_start = int((start_end_time - result.start_time).total_seconds())
-            queue_end_time = result.end_total_time if is_done else timezone.now()
+            queue_end_time = result.end_total_time if is_done == 1 else timezone.now()
             queue_start_time = result.end_manual_time if manual_is_done else result.start_time
             seconds_in_queue = int((queue_end_time - queue_start_time).total_seconds())
         except Result.DoesNotExist:
@@ -45,14 +53,17 @@ def view(request, page):
             'is_done': is_done,
             'manual_is_done': manual_is_done,
             'has_started': has_started,
-            'small_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL),
-            'medium_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL),
-            'large_thumbnail': page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL),
-            'original_image': page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE),
-            'outputs_image': job_item.job.get_object().outputs_image,
             'seconds_since_start': seconds_since_start,
             'seconds_in_queue': seconds_in_queue,
         }
+
+        # to avoid extra lookups
+        if is_done != -1:
+            step['outputs_image'] = job_item.job.get_object().outputs_image
+            step['small_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL)
+            step['medium_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL)
+            step['large_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL)
+            step['original_image'] = page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE)
 
         steps.append(step)
 

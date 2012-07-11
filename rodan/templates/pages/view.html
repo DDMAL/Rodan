@@ -39,11 +39,13 @@
         <td>{{ step.job }}</td>
         <td>
         {% if step.is_done %}
-            {% if step.outputs_image %}
+            {% if step.is_done == -1 %}
+                An error occured for this job. No image outputted.
+            {% else %}{% if step.outputs_image %}
                 <img src="{{ step.small_thumbnail }}" />
             {% else %}
                 This job is complete but does not output an image.
-            {% endif %}
+            {% endif %}{% endif %}
         {% else %}
             <span class="error">
             {% if step.has_started %}
@@ -62,12 +64,13 @@
             <dt>Time in manual step:</dt>
             <dd>{% if not step.manual_is_done %}<span class="tick" data-result-id="{{ step.result_id }}">{% endif %}{{ step.seconds_since_start }}{% if not step.manual_is_done %}</span>{% endif %} seconds</dd>
             {% endif %}
-            {% if step.manual_is_done %}
+            {% if step.manual_is_done and step.is_done != -1 %}
             <dt>Time in queue</dt>
             <dd>{% if not step.is_done %}<span class="tick" data-result-id="{{ step.result_id }}">{% endif %}{{ step.seconds_in_queue }}{% if not step.is_done %}</span>{% endif %} seconds</dd>
             {% endif %}
         </dl></td>
-        <td><p>{% if step.is_done and step.outputs_image %}View sizes: <a href="{{ step.small_thumbnail }}">Small</a> :: <a href="{{ step.medium_thumbnail }}">Medium</a> :: <a href="{{ step.large_thumbnail }}">Large</a> :: <a href="{{ step.original_image }}">Original</a>{% endif %}</p>{% if step.is_done %}<p><a href="{% url restart_job page.id step.job.slug %}">Restart job</a></p>{% endif %}</td>
+        <td><p>{% if step.is_done == 1 and step.outputs_image %}View sizes: <a href="{{ step.small_thumbnail }}">Small</a> :: <a href="{{ step.medium_thumbnail }}">Medium</a> :: <a href="{{ step.large_thumbnail }}">Large</a> :: <a href="{{ step.original_image }}">Original</a>
+        {% else %}{% if step.is_done == -1 %} An error occured at this job. Please restart this job or a previous job.{% endif %}{% endif %}</p>{% if step.is_done %}<p><a href="{% url restart_job page.id step.job.slug %}">Restart job</a></p>{% endif %}</td>
     </tr>
     {% endfor %}
 </table>

@@ -1,8 +1,9 @@
 (function ($) {
+    "use strict";
     //Default threshold before user input
     //Maximum value for greyness
     //Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
-    defColour = "blue"
+    var defColour = "blue";
     var imageObj;
     var stage;
 
@@ -11,91 +12,7 @@
 
     // Pixel margin size
     var margin = 0;
-
-
-    //Setup
-    $(document).ready(function() {
-        imageObj = new Image();
-        //Calculate initial threshold with the Brink formula and draw binarized image
-        imageObj.onload = initImage;
     
-        //Image path (TO BE REPLACED LATER)
-        imageObj.src = $("#image-original").attr("src");
-    
-        $('#form').submit(function () {
-            var points = logRect();
-            $('#tlx-input').val(points[0]);
-            $('#tly-input').val(points[1]);
-            $('#brx-input').val(points[2]);
-            $('#bry-input').val(points[3]);
-            $('#imw-input').val(imageObj.width);
-        });
-    });
-
-    initImage = function() {
-        margin = imageObj.width * marginWidth;
-        stage = new Kinetic.Stage({
-            container: "image-preview",
-            width: imageObj.width + (2 * margin),
-            height: imageObj.height + (2 * margin)
-        });
-        var layer = new Kinetic.Layer();
-        var image = new Kinetic.Image({
-            x: margin,
-            y: margin,
-            width: imageObj.width,
-            height: imageObj.height,
-            image: imageObj,
-            stroke: 'black',
-            strokewidth: 2
-        });
-    
-        layer.add(image);
-        stage.add(layer);
-    
-        makeRect();
-    }
-
-    makeRect = function() {
-        var group = new Kinetic.Group({
-            x: 0,
-            y: 0,
-            draggable: true,
-            name: "box"
-        });
-    
-        var layer = new Kinetic.Layer();
-    
-        layer.add(group);
-        stage.add(layer);
-    
-        var rect = new Kinetic.Rect({
-            x: (imageObj.width / 20.) + margin,
-            y: (imageObj.height / 20.) + margin,
-            width: 18. * (imageObj.width / 20.),
-            height: 18. * (imageObj.height / 20.),
-            fill: defColour,
-            stroke: 'black',
-            strokeWidth: 2,
-            alpha: .2,
-            name: "rect"
-        });
-        group.setDragBounds({
-            top: margin - rect.getY(),
-            left: margin - rect.getX(),
-            right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
-            bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
-        })
-        group.add(rect);
-
-        addAnchor(group, rect.getX(), rect.getY(), "topLeft");
-        addAnchor(group, rect.getX() + rect.getWidth(), rect.getY(), "topRight");
-        addAnchor(group, rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), "bottomRight");
-        addAnchor(group, rect.getX(), rect.getY() + rect.getHeight(), "bottomLeft");
-    
-        stage.draw();
-    }
-
     function update(group, activeAnchor) {
         var topLeft = group.get(".topLeft")[0];
         var topRight = group.get(".topRight")[0];
@@ -127,7 +44,7 @@
         rect.setSize(topRight.attrs.x - topLeft.attrs.x, bottomLeft.attrs.y - topLeft.attrs.y);
     }
 
-    addAnchor = function(group, x, y, name) {
+    function addAnchor(group, x, y, name) {
         var stage = group.getStage();
         var layer = group.getLayer();
     
@@ -166,7 +83,7 @@
             });
             group.setDraggable(true);
             layer.draw();
-        })
+        });
         anchor.on("mouseover", function() {
             var layer = this.getLayer();
             document.body.style.cursor = "pointer";
@@ -183,7 +100,47 @@
         group.add(anchor);
     }
 
-    logRect = function() {
+    function makeRect() {
+        var group = new Kinetic.Group({
+            x: 0,
+            y: 0,
+            draggable: true,
+            name: "box"
+        });
+    
+        var layer = new Kinetic.Layer();
+    
+        layer.add(group);
+        stage.add(layer);
+    
+        var rect = new Kinetic.Rect({
+            x: (imageObj.width / 20.0) + margin,
+            y: (imageObj.height / 20.0) + margin,
+            width: 18.0 * (imageObj.width / 20.0),
+            height: 18.0 * (imageObj.height / 20.0),
+            fill: defColour,
+            stroke: 'black',
+            strokeWidth: 2,
+            alpha: 0.2,
+            name: "rect"
+        });
+        group.setDragBounds({
+            top: margin - rect.getY(),
+            left: margin - rect.getX(),
+            right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
+            bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+        });
+        group.add(rect);
+
+        addAnchor(group, rect.getX(), rect.getY(), "topLeft");
+        addAnchor(group, rect.getX() + rect.getWidth(), rect.getY(), "topRight");
+        addAnchor(group, rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), "bottomRight");
+        addAnchor(group, rect.getX(), rect.getY() + rect.getHeight(), "bottomLeft");
+    
+        stage.draw();
+    }
+    
+    function logRect() {
         var group = stage.get(".box")[0];
         var topLeft = group.get(".topLeft")[0];
         var bottomRight = group.get(".bottomRight")[0];
@@ -194,4 +151,45 @@
         oCoords[3] = Math.round(bottomRight.getY() + group.getY() - margin);
         return oCoords;
     }
+
+    //Setup
+    $(document).ready(function() {
+        imageObj = new Image();
+        //Calculate initial threshold with the Brink formula and draw binarized image
+        imageObj.onload = function () {
+            margin = imageObj.width * marginWidth;
+            stage = new Kinetic.Stage({
+                container: "image-preview",
+                width: imageObj.width + (2 * margin),
+                height: imageObj.height + (2 * margin)
+            });
+            var layer = new Kinetic.Layer();
+            var image = new Kinetic.Image({
+                x: margin,
+                y: margin,
+                width: imageObj.width,
+                height: imageObj.height,
+                image: imageObj,
+                stroke: 'black',
+                strokewidth: 2
+            });
+
+            layer.add(image);
+            stage.add(layer);
+
+            makeRect();
+        };
+    
+        //Image path (TO BE REPLACED LATER)
+        imageObj.src = $("#image-original").attr("src");
+    
+        $('#form').submit(function () {
+            var points = logRect();
+            $('#tlx-input').val(points[0]);
+            $('#tly-input').val(points[1]);
+            $('#brx-input').val(points[2]);
+            $('#bry-input').val(points[3]);
+            $('#imw-input').val(imageObj.width);
+        });
+    });
 })(jQuery)

@@ -2,7 +2,7 @@
     //Setup
     $(document).ready(function () {
         "use strict";
-        var viewWidth, defThresh, G, rScale, gScale, bScale, globalThresh, boxX, boxY, imageObj, imageThumb, stage;
+        var viewWidth, defThresh, G, rScale, gScale, bScale, globalThresh, boxX, boxY, imageObj, imagePrev, imageThumb, stage, t1;
         viewWidth = 700;
         //Default threshold before user input
         defThresh = 127;
@@ -17,18 +17,18 @@
         boxY = 0;
 
         imageObj = new Image();
+        imagePrev = new Image();
         imageThumb = new Image();
-
+        
         // Generates a PMF (Probability Mass Function) for the given image
-        function genPMF(imageObj) {
+        function genPMF(imageO, canvas) {
             var canvas, context, i, imageData, data, pmf, brightness;
             // var canvas = document;  <- Canvas is overridden below?
-            canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             i = 0;
 
             //Have to redraw image and then scrape data
-            context.drawImage(imageObj, 0, 0);
+            context.drawImage(imageO, 0, 0);
             imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             data = imageData.data;
             pmf = [];
@@ -169,25 +169,23 @@
                     }
                 }
             }
-
             // return optimal threshold
             return Topt;
         }
 
         //binarises data, splitting foreground and background at a given brightness level
-        function binarise(thresh, x, y) {
-            var canvas, context, imageData, data, i, brightness;
+        function binarise(imageO, canvas, thresh, x, y) {
+            var context, imageData, data, i, brightness;
             if (!x) {
                 x = 0;
             }
             if (!y) {
                 y = 0;
             }
-            canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             defThresh = thresh;
             //Have to redraw image and then scrape data
-            context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            context.drawImage(imageO, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
             imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             data = imageData.data;
             for (i = 0; i < data.length; i += 4) {
@@ -286,7 +284,7 @@
                     viewBox.getLayer().draw();
                     boxX = viewBox.getX() / scaleVal;
                     boxY = viewBox.getY() / scaleVal;
-                    binarise(defThresh, boxX, boxY);
+                    binarise(imageObj, canvas, defThresh, boxX, boxY);
                 }
             }
 
@@ -336,7 +334,7 @@
                     viewBox.getLayer().draw();
                     boxX = viewBox.getX() / scaleVal;
                     boxY = viewBox.getY() / scaleVal;
-                    binarise(defThresh, boxX, boxY);
+                    binarise(imageObj, canvas, defThresh, boxX, boxY);
                 }
             });
             bodyDOM.addEventListener("mouseup", function (e) {
@@ -348,19 +346,27 @@
         imageObj.onload = function () {
             var canvas, context, pmf;
             canvas = document.getElementById("image-viewport");
-            context = canvas.getContext("2d");
             canvas.width = viewWidth;
             canvas.height = viewWidth;
-            pmf = genPMF(imageObj);
-            defThresh = threshBrink(pmf);
-            binarise(defThresh);
+            binarise(imageObj, canvas, defThresh);
             //Manually set inital value for slider
-            $("#slider").slider("value", defThresh);
             $("#slider").width(viewWidth);
             imageThumb.src = $("#image-thumb").attr("src");
         };
-
-        imageObj.src = $("#image-full").attr("src");
+        
+        imagePrev.onload = function () {
+            var canvas, context, pmf;
+            canvas = document.getElementById("image-preview");
+            context = canvas.getContext("2d");
+            canvas.width = imagePrev.width;
+            canvas.height = imagePrev.height;
+            pmf = genPMF(imagePrev, canvas);
+            defThresh = threshBrink(pmf);
+            $("#slider").slider("value", defThresh);
+            canvas.parentNode.removeChild(canvas);
+            imageObj.src = $("#image-full").attr("src");
+        }
+        imagePrev.src = $("#image-mid").attr("src");
 
         //jQuery slider definition for threshold controller
         $("#slider").slider({
@@ -373,7 +379,7 @@
             range: false,
             slide: function (event, ui) {
                 defThresh = ui.value;
-                binarise(defThresh, boxX, boxY);
+                binarise(imageObj, document.getElementById("image-viewport"), defThresh, boxX, boxY);
             }
         });
 

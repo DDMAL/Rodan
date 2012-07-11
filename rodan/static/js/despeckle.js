@@ -1,7 +1,7 @@
 (function ($) {
+    "use strict";
     //Setup
     $(document).ready(function () {
-        "use strict";
         var imageObj, imageThumb, BLACK, WHITE, rScale, gScale, bScale, defSize, viewWidth, boxX, boxY;
         //ImageData object storing full-sized image
         imageObj = new Image();

@@ -316,9 +316,9 @@ $(document).ready(function () {
             var element, oldText, newText;
             for (resultID in tickables) {
                 element = tickables[resultID];
-                oldText = element.innerText;
+                oldText = element.textContent;
                 newText = parseInt(oldText, 10) + 1;
-                element.innerText = newText;
+                element.textContent = newText;
             }
 
             $.ajax({
@@ -330,7 +330,18 @@ $(document).ready(function () {
                 success: function (statuses) {
                     for (resultID in statuses) {
                         var taskStatus = statuses[resultID];
-                        if (taskStatus) {
+                        if (taskStatus == -1) {
+                            // Add a "done" thing
+                            $(element).parent().append(' - FAILED! You probably have to redo the binarisation process.');
+                            // Pause the ticking
+                            delete tickables[resultID];
+
+                            // Then refresh the page (temp solution)
+                            setTimeout(function () {
+                                location.search = '';
+                            }, 2000);
+                        }
+                        else if (taskStatus == 1) {
                             // Add a "done" thing
                             $(element).parent().append(' - DONE (will autorefresh shortly)');
                             // Pause the ticking
