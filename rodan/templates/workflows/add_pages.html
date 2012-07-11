@@ -15,7 +15,7 @@
 
 <ul class="grid image-buttons">
 {% for page in project.page_set.all %}
-    <li><img src="{{ page.get_thumb_url }}" {% if page.workflow %}class="{% if page.workflow == workflow %}current{% else %}disabled{% endif %}" {% endif %}/><input type="checkbox" name="page" value="{{ page.id }}" /></li>
+    <li{% if page.workflow != workflow %} class="disabled"{% endif %}><img src="{{ page.get_thumb_url }}" {% if page.workflow %}class="{% if page.workflow == workflow %}current{% else %}disabled{% endif %}" {% endif %}/><input type="checkbox" name="page" value="{{ page.id }}" /></li>
 {% endfor %}
 </ul>
 
