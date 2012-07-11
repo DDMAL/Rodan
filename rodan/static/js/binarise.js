@@ -19,7 +19,7 @@
         imageObj = new Image();
         imagePrev = new Image();
         imageThumb = new Image();
-
+        
         // Generates a PMF (Probability Mass Function) for the given image
         function genPMF(imageO, canvas) {
             var canvas, context, i, imageData, data, pmf, brightness;
@@ -169,7 +169,6 @@
                     }
                 }
             }
-
             // return optimal threshold
             return Topt;
         }
@@ -381,7 +380,6 @@
             slide: function (event, ui) {
                 defThresh = ui.value;
                 binarise(imageObj, document.getElementById("image-viewport"), defThresh, boxX, boxY);
-                //binarise(imagePrev, document.getElementById("image-preview"), defThresh);
             }
         });
 
