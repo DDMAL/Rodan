@@ -56,13 +56,10 @@ class Project(models.Model):
 
     def clone_workflow_for_pages(self, workflow, pages):
         Workflow = models.loading.get_model('rodan', 'Workflow')
-        new_wf = Workflow(project=self, name=workflow.name, description=workflow.description)
-        new_wf.save()
+        new_wf = Workflow.objects.create(project=self, name=workflow.name, description=workflow.description)
 
-        JobItem = models.loading.get_model('rodan', 'JobItem')
         for jobitem in workflow.jobitem_set.all():
-            ji = JobItem(workflow=new_wf, sequence=jobitem.sequence, job=jobitem.job)
-            ji.save()
+            new_wf.jobitem_set.create(sequence=jobitem.sequence, job=jobitem.job)
 
         for page in pages:
             page.workflow = new_wf
