@@ -4,4 +4,21 @@
     <p>This page already has a workflow - {{ page.workflow }}. Only continue with this form if you want to create a new workflow for it. Otherwise, go back to the <a href="{% url upload page.project.id %}">image upload page</a> for this project or view more information about <a href="{{ page.get_absolute_url }}">{{ page }}</a>. Or, you can add more jobs to it here - <a href="{% url add_jobs page.id %}">Add jobs</a></p>
 </div>
 {% endif %}
+
+{% if not form.errors %}
+    {% if other_workflows or project_workflows %}
+    <div class="alert neutral">
+        {% if project_workflows %}
+        <p>Want to use an existing workflow in this project? <a href="{% url set_workflow page.id %}">Set workflow &raquo;</a></p>
+        {% endif %}
+        {% if other_workflows %}
+        <p>Want to use a workflow from a different project? <a href="{% url clone_workflow page.id %}">Clone workflow &raquo;</a></p>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endif %}
+{% comment %}
+The two if statements have to be separate because Django's templating language doesn't allow `and` and `or` in the same if tag.
+{% endcomment %}
+
 {% include "includes/form.html" %}

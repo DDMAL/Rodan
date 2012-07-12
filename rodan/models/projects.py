@@ -54,16 +54,18 @@ class Project(models.Model):
         diva_job = Job.objects.get(pk='diva-preprocess')
         return any(page.get_percent_done() == 100 and page.workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all())
 
-    def clone_workflow_for_pages(self, workflow, pages):
+    def clone_workflow_for_page(self, workflow, page, user):
         Workflow = models.loading.get_model('rodan', 'Workflow')
-        new_wf = Workflow.objects.create(project=self, name=workflow.name, description=workflow.description)
+        new_wf = Workflow.objects.create(project=self, name=workflow.name, description=workflow.description, has_started=True)
 
         for jobitem in workflow.jobitem_set.all():
             new_wf.jobitem_set.create(sequence=jobitem.sequence, job=jobitem.job)
 
-        for page in pages:
-            page.workflow = new_wf
-            page.save()
+        page.workflow = new_wf
+        page.save()
+        page.start_next_automatic_job(user)
+
+        return new_wf
 
 
 class Job(models.Model):

@@ -1,0 +1,32 @@
+{% csrf_token %}
+
+<h1>Set a new workflow for {{ page }}</h1>
+
+{% if workflows %}
+    <table class="pretty">
+        <thead>
+            <tr>
+                <th>Workflow name</th>
+                <th style="width: 50%;">Description</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for workflow in workflows %}
+                <tr>
+                    <td><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></td>
+                    <td>{{ workflow.description }}</td>
+                    <td><button name="set" value="{{ workflow.id }}">Set workflow</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+<p>This project does not have any workflows!
+    {% if show_clone_link %}
+        If you want to clone a workflow from another project, <a href="{% url clone_workflow page.id %}">click here &raquo;</a>
+    {% else %}
+        If you want to create a new workflow for this page, <a href="{% url new_workflow page.id %}">click here &raquo;</a>
+    {% endif %}
+</p>
+{% endif %}

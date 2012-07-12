@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
-from rodan.models.projects import Page, Job, JobItem
+from rodan.models.projects import Page, Job, JobItem, Workflow, Project
 from rodan.models.results import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
@@ -145,6 +145,8 @@ def workflow(request, page):
     data = {
         'page': page,
         'form': form,
+        'project_workflows': page.project.workflow_set.all(),
+        'other_workflows': Workflow.objects.exclude(project=page.project),
     }
     return ('New workflow', data)
 
@@ -207,3 +209,49 @@ def restart(request, page, job):
         print "page does not exist for some reason"
 
     return redirect(page.get_absolute_url())
+
+@login_required
+@rodan_view(Page)
+def set_workflow(request, page):
+    if not page.project.is_owned_by(request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        workflow_id = request.POST.get('set', 0)
+        workflow = get_object_or_404(Workflow, pk=workflow_id)
+        page.workflow = workflow
+        page.save()
+        page.start_next_automatic_job(request.user.get_profile())
+
+        # Redirect to the workflow overview page
+        return redirect(workflow)
+
+    data = {
+        'form': True,
+        'workflows': page.project.workflow_set.all(),
+        'show_clone_link': Workflow.objects.exclude(project=page.project).count() > 0,
+    }
+
+    return ('Set a new workflow', data)
+
+@login_required
+@rodan_view(Page)
+def clone_workflow(request, page):
+    if not page.project.is_owned_by(request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        workflow_id = request.POST.get('clone', 0)
+        workflow = get_object_or_404(Workflow, pk=workflow_id)
+        new_workflow = page.project.clone_workflow_for_page(workflow, page, request.user.get_profile())
+
+        # Redirect to the image upload page
+        return redirect('add_pages', workflow_id=new_workflow.id)
+
+    data = {
+        'workflows': Workflow.objects.exclude(project=page.project),
+        'other_projects': Project.objects.filter(workflow__isnull=False).distinct(),
+        'form': True,
+    }
+
+    return ('Clone a workflow', data)
