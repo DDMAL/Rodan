@@ -284,6 +284,17 @@ class Page(models.Model):
         else:
             return self.get_thumb_url(size, None)
 
+    def get_latest_thumb_path(self, size=settings.SMALL_THUMBNAIL):
+        latest_file_path = self._get_latest_file_path('tiff')
+
+        if latest_file_path is not None:
+            file_path = self._get_thumb_filename(latest_file_path, size)
+            # This is not actually a filepath but there are / issues otherwise
+            return os.path.join(settings.MEDIA_ROOT,
+                                file_path)
+        else:
+            return self.get_thumb_path(size, None)
+
     def get_pre_bin_image_url(self, size=settings.LARGE_THUMBNAIL):
         """
         Get the url to the latest pre-binarised image (i.e. the output of the
