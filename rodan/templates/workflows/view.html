@@ -1,9 +1,12 @@
 {% load extras %}
 
+{% if user_can_edit %}
 <div class="right-float">
     {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Manage jobs</a>{% endif %}
     <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
+{% endif %}
+
 <h1>Status overview for {{ workflow }}</h1>
 <p>Project: <a href="{{ workflow.project.get_absolute_url }}">{{ workflow.project }}</a></p>
 <p>Description: <em>{{ workflow.description }}</em></p>

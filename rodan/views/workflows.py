@@ -12,6 +12,7 @@ def view(request, workflow):
     num_per_row = 4
 
     data = {
+        'user_can_edit': workflow.project.is_owned_by(request.user),
         'pages': pages,
         'total_progress': workflow.get_percent_done(),
         'job_items': workflow.jobitem_set.all(),
