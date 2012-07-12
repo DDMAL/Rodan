@@ -1,5 +1,3 @@
-from time import sleep
-
 import gamera.core
 
 import utils
@@ -14,7 +12,6 @@ def rotate(image_filepath, **kwargs):
         input_image = gamera.core.load_image(image_filepath)
         output_image = input_image.rotate(angle)
     else:
-        sleep(1)  # 2 fast 2 furious for refresh system, temp fix
         output_image = "copy"
 
     return {
