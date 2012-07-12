@@ -273,17 +273,21 @@ $(document).ready(function () {
         });
     }
 
-    // "Automatic" file upload lol
-    $('input[type=file]').change(function () {
-        if ($('#page-placeholder').length) {
-            $('#page-placeholder').remove();
-        }
+    // If file uploading is present, hide the submit button submit automatically
+    if ($('input[type=file]').length) {
+        $('.submit').hide();
 
-        // Show a modal dialog until the uploading is complete
-        $('#modal').show();
+        $('input[type=file]').change(function () {
+            if ($('#page-placeholder').length) {
+                $('#page-placeholder').remove();
+            }
 
-        $('#form').trigger('submit');
-    });
+            // Show a modal dialog until the uploading is complete
+            $('#modal').show();
+
+            $('#form').trigger('submit');
+        });
+    }
 
     // Does not trigger if a fake-img is added dynamically (intended behaviour)
     if ($('.fake-img').length) {
