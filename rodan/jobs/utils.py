@@ -60,16 +60,6 @@ def create_thumbnails(image_path, result):
     page.save()
 
 
-def copy_thumbnails_from_previous_job(image_path, result):
-    page = result.page
-    job = result.job_item.job
-
-    for thumbnail_size in settings.THUMBNAIL_SIZES:
-        latest_thumb_path = page.get_latest_thumb_path(size=thumbnail_size)
-        thumb_path = page.get_thumb_path(size=thumbnail_size, job=job)
-        copyfile(latest_thumb_path, thumb_path)
-
-
 def rodan_task(inputs, others=[]):
     def inner_function(f):
         @task(base=RTask)
@@ -98,18 +88,15 @@ def rodan_task(inputs, others=[]):
                 # Change the extension
                 if output_type == 'tiff':
                     # Write it with gamera (it's an image)
-                    if output_content == "copy":
-                        copy_thumbnails_from_previous_job(output_path, result)
+                    if isinstance(output_content, gamera.core.Image) or isinstance(output_content, gamera.core.SubImage):
+                        gamera.core.save_image(output_content, output_path)
+                    elif isinstance(output_content, PIL.Image.Image):
+                        output_content.save(output_path)
                     else:
-                        if isinstance(output_content, gamera.core.Image) or isinstance(output_content, gamera.core.SubImage):
-                            gamera.core.save_image(output_content, output_path)
-                        elif isinstance(output_content, PIL.Image.Image):
-                            output_content.save(output_path)
-                        else:
-                            print "The output_content was not recognized.\n"
+                        print "The output_content was not recognized.\n"
 
-                        # Create thumbnails for the image as well
-                        create_thumbnails(output_path, result)
+                    # Create thumbnails for the image as well
+                    create_thumbnails(output_path, result)
                 elif output_type == 'vips':
                     image_filepath, compression, tile_size = output_content
                     # All pyramidal tiff images must be saved in the same dir
