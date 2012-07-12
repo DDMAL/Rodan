@@ -25,8 +25,22 @@ def view(request, workflow):
 
 @rodan_view(Workflow)
 def edit(request, workflow):
-    data = {}
-    return ('View workflow', data)
+    if not workflow.project.is_owned_by(request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        form = WorkflowForm(request.POST, instance=workflow)
+
+        if form.is_valid():
+            workflow = form.save()
+            return redirect(workflow)
+    else:
+        form = WorkflowForm(instance=workflow)
+
+    data = {
+        'form': form
+    }
+    return ('Edit workflow', data)
 
 @login_required
 @rodan_view(Workflow)
