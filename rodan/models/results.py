@@ -4,7 +4,7 @@ from django.conf import settings
 
 from rodan.models.projects import JobItem, RodanUser, Page
 
-from djcelery.models import TaskState
+from djcelery.models import TaskMeta
 
 
 class Result(models.Model):
@@ -74,4 +74,4 @@ class ResultTask(models.Model):
     class Meta:
         app_label = 'rodan'
     result = models.ForeignKey(Result)
-    task = models.ForeignKey(TaskState)
+    task = models.ForeignKey(TaskMeta)

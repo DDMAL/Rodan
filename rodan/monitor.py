@@ -4,7 +4,7 @@ from djcelery.snapshot import Camera
 
 from django.conf import settings
 
-from djcelery.models import TaskState
+from djcelery.models import TaskMeta
 from rodan.models.results import Result, ResultTask
 
 
@@ -20,17 +20,18 @@ class RodanMonitor(Camera):
         }
 
     def log(self, task_id, task):
-        t = TaskState.objects.get(task_id=task_id)
-        args = task.args
         if "misc_tasks" not in task.name:
+            t = TaskMeta.objects.get(task_id=task_id)
+            args = task.args
             # HACK - args is a string, but we know it looks like a tuple
             # with the result ID as the first (only) param - (4,)
             x = args[1:-1]
             parts = x.split(",")
             result_id = int(parts[0])
+
             print "RESID::%s\n" % result_id
             result = Result.objects.select_for_update().get(pk=result_id)
-            result.task_state = t.state
+            result.task_state = t.status
             result.save()
             rtask, created = ResultTask.objects.get_or_create(result=result, task=t)
 
@@ -41,4 +42,8 @@ class RodanMonitor(Camera):
 
         for taskid, task in state.tasks.iteritems():
             print taskid
-            self.log(taskid, task)
+            print task
+
+            # only logs tasks that fail by crash (i.e WorkerLostError)
+            if task.state == 'FAILURE' and "WorkerLostError" in task.exception:
+                self.log(taskid, task)
