@@ -351,8 +351,7 @@ $(document).ready(function () {
                             setTimeout(function () {
                                 location.search = '';
                             }, 2000);
-                        }
-                        else if (taskStatus == 1) {
+                        } else if (taskStatus == 1) {
                             // Add a "done" thing
                             $(element).parent().append(' - DONE (will autorefresh shortly)');
                             // Pause the ticking
