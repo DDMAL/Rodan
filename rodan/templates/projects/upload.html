@@ -1,14 +1,18 @@
 <h1>Upload images for '{{ project }}'</h1>
-<p>Click on an image to use it as a sample image to create a workflow</p>
+<p>Create a new page in this project by uploading a TIFF file below. To create a workflow for a page or assign an existng workflow to it, click on its thumbnail.</p>
+
+<br />
+
+{% include "includes/form.html" %}
+
 <ul class="grid image-buttons" id="upload-images">
 {% for page in project.page_set.all %}
-    <li{% if not page.is_ready %} class="fake-img" data-page="{{ page.id }}"{% endif %}><img {% if not page.is_ready %}data-{% endif %}src="{{ page.get_thumb_url }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
+    <li{% if not page.is_ready %} class="fake-img" data-page="{{ page.id }}"{% endif %}><img {% if not page.is_ready %}data-{% endif %}src="{{ page.get_thumb_url }}" title="{{ page }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
 {% empty %}
-    <li id="page-placeholder">Upload a new file below.</li>
+    <li id="page-placeholder">This project has no pages! Create one by uploading a TIFF file using the file upload control above.</li>
 {% endfor %}
 </ul>
 <br />
-{% include "includes/form.html" %}
 
 <div id="modal">
     <div>
