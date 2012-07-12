@@ -42,7 +42,7 @@ def dashboard(request):
 
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True)\
-        .exclude(task_state__state="FAILURE")
+        .exclude(task_state="FAILURE")
 
     print current_jobs
 
@@ -95,7 +95,7 @@ def view(request, project):
 
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True)\
-        .exclude(task_state__state="FAILURE")
+        .exclude(task_state="FAILURE")
 
     # Create a dict: key = job, value = availability for this project
     jobs = []

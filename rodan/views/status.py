@@ -19,7 +19,7 @@ def task(request):
 
     for result in results:
         result_taskstate = result.task_state
-        if result_taskstate is not None and result_taskstate.state == "FAILURE":
+        if result_taskstate is not None and result_taskstate == "FAILURE":
             result_statuses[result.id] = -1
         elif result.end_total_time is not None:
             result_statuses[result.id] = 1

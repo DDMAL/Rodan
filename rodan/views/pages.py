@@ -25,7 +25,7 @@ def view(request, page):
             has_started = True
 
             result_taskstate = result.task_state
-            if result_taskstate is not None and result_taskstate.state == "FAILURE":
+            if result_taskstate is not None and result_taskstate == "FAILURE":
                 is_done = -1
             elif result.end_total_time is not None:
                 is_done = 1
