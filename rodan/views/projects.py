@@ -246,6 +246,8 @@ def upload(request, project):
         'project': project,
         'form': form,
         'file_upload': True,
+        'pages': project.page_set.all(),
+        'num_processing': project.page_set.filter(is_ready=False).count(),
     }
 
     return ('Upload images', data)

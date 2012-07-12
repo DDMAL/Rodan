@@ -300,7 +300,14 @@ $(document).ready(function () {
                         if (pageStatus) {
                             this.removeClass('fake-img');
                             var image = this.find('img');
+
+                            // Must be after image is ready, to prevent caching
                             $(image).attr('src', $(image).attr('data-src'));
+
+                            // Change the "X pages still processing" text
+                            // Assumes only one page is processing ... fix later
+                            // Also results in awkward pluralisation for "page"
+                            $('#num-processing').text('no');
                         }
                     },
                 });

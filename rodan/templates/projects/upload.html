@@ -5,8 +5,12 @@
 
 {% include "includes/form.html" %}
 
+<p>This project has {{ pages.count }} page{{ pages.count|pluralize }}, with <span id="num-processing">{% if num_processing %}{{ num_processing }}{% else %}no{% endif %}</span> page{{ num_processing|pluralize }} still processing.</p>
+
+<br />
+
 <ul class="grid image-buttons" id="upload-images">
-{% for page in project.page_set.all %}
+{% for page in pages %}
     <li{% if not page.is_ready %} class="fake-img" data-page="{{ page.id }}"{% endif %}><img {% if not page.is_ready %}data-{% endif %}src="{{ page.get_thumb_url }}" title="{{ page }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
 {% empty %}
     <li id="page-placeholder">This project has no pages! Create one by uploading a TIFF file using the file upload control above.</li>
