@@ -95,7 +95,8 @@ def view(request, project):
 
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True, page__project=project) \
-        .exclude(task_state="FAILURE")
+        .exclude(task_state="FAILURE") \
+        .order_by('end_manual_time', 'start_time')
 
     # Create a dict: key = job, value = availability for this project
     jobs = []
