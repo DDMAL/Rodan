@@ -47,8 +47,6 @@ class BorderRemoval(JobBase):
 
 
 class Crop(JobBase):
-    name = 'Crop Image'
-    slug = 'crop-image'
     input_type = JobType.IMAGE
     output_type = input_type
     description = 'Crop an image.'
