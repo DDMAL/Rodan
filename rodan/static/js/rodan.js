@@ -281,7 +281,6 @@ $(document).ready(function () {
 
         // Show a modal dialog until the uploading is complete
         $('#modal').show();
-        $('#upload-images').append('<li class="fake-img"></li>');
 
         $('#form').trigger('submit');
     });
