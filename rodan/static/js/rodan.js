@@ -340,6 +340,7 @@ $(document).ready(function () {
                 success: function (statuses) {
                     for (resultID in statuses) {
                         var taskStatus = statuses[resultID];
+                        var element = tickables[resultID];
                         if (taskStatus == -1) {
                             // Add a "done" thing
                             $(element).parent().append(' - FAILED! You probably have to redo the binarisation process.');
