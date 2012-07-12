@@ -14,6 +14,7 @@ from django.conf import settings
 from django.db import models
 
 from rodan.models.results import Result
+from rtask import RTask
 
 
 Job = models.get_model('rodan', 'job')
@@ -71,7 +72,7 @@ def copy_thumbnails_from_previous_job(image_path, result):
 
 def rodan_task(inputs, others=[]):
     def inner_function(f):
-        @task
+        @task(base=RTask)
         @wraps(f)
         def real_inner(result_id, **kwargs):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
