@@ -1,3 +1,5 @@
+import random
+
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -5,6 +7,8 @@ from django.shortcuts import redirect
 
 from rodan.utils import rodan_view, chunkify
 from rodan.models.projects import Workflow, Project, Page
+from rodan.forms.workflows import WorkflowForm
+
 
 @rodan_view(Workflow)
 def view(request, workflow):
@@ -66,5 +70,17 @@ def add_pages(request, workflow):
             'form': True
         }
         return ('Add pages to workflow', data)
+    else:
+        raise Http404
+
+
+def manage_jobs(request, workflow_id):
+    # Choose a sample page at random for now
+    workflow = Workflow.objects.get(pk=workflow_id)
+    pages = workflow.project.page_set.all()
+
+    if pages.count():
+        random_page = random.choice(pages)
+        return redirect('add_jobs', page_id=random_page.id)
     else:
         raise Http404

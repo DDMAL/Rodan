@@ -21,6 +21,7 @@ workflow_urls = patterns('rodan.views.workflows',
     url(r'^/?$', 'view'),
     url(r'^/edit', 'edit', name='edit_workflow'),
     url(r'^/add', 'add_pages', name='add_pages'),
+    url(r'^/jobs', 'manage_jobs', name='workflow_jobs'),
 )
 
 page_urls = patterns('rodan.views.pages',
