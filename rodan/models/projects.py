@@ -471,6 +471,7 @@ class ActionParam(models.Model):
     """
     class Meta:
         app_label = 'rodan'
+        unique_together = ('job_item', 'key')
 
     job_item = models.ForeignKey(JobItem)
     key = models.CharField(max_length=50)
