@@ -1,12 +1,10 @@
 <p>Adjust the page rotation until the page is square. Use the ruler to
 line up objects on the page.</p>
-<form method="post" action="{% url task_complete page.id job.slug %}" id="rotate-form">
     {% csrf_token %}
     <fieldset class="submit">
         <input type="hidden" name="angle" value="0" id="angle-input" />
         <input type="submit" name="submit" value="Rotate" class="submit" />
     </fieldset>
-</form>
 
 
 <input name="togleRuler" type="button" onclick="toggleRuler()" value="Toggle Ruler"></input>
