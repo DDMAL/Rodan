@@ -478,7 +478,7 @@ class ActionParam(models.Model):
     value = models.CharField(max_length=50)
 
     def __unicode__(self):
-        return "%s: %s, for %s" % (job_item, key, value)
+        return "%s: %s, for %s" % (self.key, self.value, self.job_item)
 
 
 # Defines a post_save hook to ensure that a RodanUser is created for each User
