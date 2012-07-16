@@ -6,7 +6,11 @@
     <h2>Workflow jobs</h2>
     <ul id="workflow-jobs">
     {% for job in workflow_jobs %}
-        {% include "includes/job_li.html" %}
+        {% if job in removable_jobs or forloop.last %}
+            {% include "includes/job_li.html" with remove=1 %}
+        {% else %}
+            {% include "includes/job_li.html" %}
+        {% endif %}
     {% empty %}
     <li class="full-height">This workflow currently has no jobs.</li>
     {% endfor %}
