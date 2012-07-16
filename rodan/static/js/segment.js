@@ -275,6 +275,7 @@
         }
         
         function addPoly(points, x, y, sel) {
+            
             //Default poly
             if (!points) {
                 points = [0,                   0,
@@ -289,6 +290,10 @@
             }
             if (!y) {
                 y = margin;
+                var canvas = document.getElementById("image-preview");
+                if (($(window).scrollTop() - 40) > canvas.offsetTop) {
+                    y += ($(window).scrollTop() - 40) - canvas.offsetTop;
+                }
             }
             //Find maxima and minima
             var minX = points[0];

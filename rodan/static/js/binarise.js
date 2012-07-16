@@ -211,7 +211,6 @@
             var scaleVal, layer, image, layerB, boxWidth, viewBox, canvas, context, bodyDOM,
                 pMouseDown, vMouseDown, vInitX, vInitY;
             scaleVal = imageThumb.width / imageObj.width;
-
             stage = new Kinetic.Stage({
                 container: "image-miniframe",
                 width: imageThumb.width,
@@ -259,7 +258,27 @@
             canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             bodyDOM = document.getElementsByTagName("body")[0];
-
+            
+            window.onresize = function() {
+                viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
+                canvas.width = viewWidth;
+                canvas.height = viewWidth;
+                $("#slider").width(viewWidth);
+                boxWidth = viewWidth * scaleVal;
+                viewBox.setWidth(boxWidth);
+                viewBox.setHeight(boxWidth);
+                viewBox.setDragBounds({
+                    top: 0,
+                    left: 0,
+                    right: imageThumb.width - boxWidth,
+                    bottom: imageThumb.height - boxWidth
+                });
+                layerB.draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(imageObj, canvas, defThresh, boxX, boxY);
+            }
+            
             pMouseDown = false;
 
             function pMoveBox(e) {
@@ -346,6 +365,7 @@
         imageObj.onload = function () {
             var canvas, context, pmf;
             canvas = document.getElementById("image-viewport");
+            viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
             canvas.width = viewWidth;
             canvas.height = viewWidth;
             binarise(imageObj, canvas, defThresh);

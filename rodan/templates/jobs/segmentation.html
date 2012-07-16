@@ -14,9 +14,13 @@ To remove a point from the polygon, select it and press <b>delete</b>.</p>
         <p id="width">{{ context.width }}</p>
         {% include "includes/page_image.html" with large_image=1 %}
     </div>
-	<button type="button" id="addPoly">Add Poly</button>
-	<button type="button" id="removePoly">Remove Poly</button>
-    <div id="image-preview"></div>
+	<div class="seg-view">
+		<div class="fixed-bar">
+			<button type="button" id="addPoly">Add Poly</button>
+			<button type="button" id="removePoly">Remove Poly</button>
+		</div>
+    	<div id="image-preview"></div>
+	</div>
 </div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.10.2.min.js"></script>
 <script src="{{ STATIC_URL }}js/Stats.js"></script>
