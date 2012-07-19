@@ -229,6 +229,50 @@ def upload(request, project):
             # Return the workflow edit page
             return redirect('new_workflow', sample_image)
         else:
+            page_id = request.POST.get('page-id', '')
+            page_sequence_new = request.POST.get('page-sequence-new', '')
+
+            if page_id != '' and page_sequence_new != '':
+                pages = Page.objects.filter(project=project).all()
+                page = pages.get(pk=page_id)
+                page_sequence_new = int(page_sequence_new)
+                page_sequence_old = page.sequence
+
+                print "page: %s" % page
+                print "page.id: %s" % page.id
+                print "page_sequence_old : %s" % page_sequence_old
+                print "page_sequence_new: %s" % page_sequence_new
+
+                # null out the sequence to avoid uniqueness constraints when shifting
+                page.sequence = None
+                page.save()
+
+                # if the page was dragged to the right (i.e increase sequence)
+                if page_sequence_old < page_sequence_new:
+                    for p in pages[page_sequence_old:page_sequence_new]:
+                        p.sequence = p.sequence - 1
+                        p.save()
+                else:
+                    # if the page was dragged to the left (i.e decrease sequence)
+                    # the reason for having a temp_list is because of the ordering
+                    # of pages by sequence in the Page model - we need to process
+                    # the pages in the range below in reverse order to prevent
+                    # uniqueness constraints, but when you reverse the pages QuerySet
+                    # the target page that is Null'd out will appear in the list as the first
+                    # record to process, which throws a database error.
+                    temp_list = []
+                    for p in pages[page_sequence_new:page_sequence_old]:
+                        temp_list.append(p)
+
+                    temp_list.reverse()
+                    for p in temp_list:
+                        p.sequence = p.sequence + 1
+                        p.save()
+
+                # change the targer page to its new target sequence value
+                page.sequence = page_sequence_new
+                page.save()
+
             # If there's an image specified, create a new workflow for that page
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
@@ -251,7 +295,7 @@ def upload(request, project):
         'num_processing': project.page_set.filter(is_ready=False).count(),
     }
 
-    return ('Upload images', data)
+    return ('Manage images', data)
 
 
 @rodan_view(Project)

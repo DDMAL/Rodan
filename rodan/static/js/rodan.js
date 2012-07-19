@@ -196,6 +196,21 @@ $(document).ready(function () {
         }
     });
 
+    $(function() {
+        $( "#upload-images" ).sortable({
+            update: function (event, ui) {
+                var currentIndex = ui.item.index();
+                var pageID = ui.item.attr("data-page");
+                var inputPageID= $("<input>").attr("type", "hidden").attr("name", "page-id").val(pageID);
+                var inputPageSeq = $("<input>").attr("type", "hidden").attr("name", "page-sequence-new").val(currentIndex + 1);
+                $("form").append($(inputPageID));
+                $("form").append($(inputPageSeq));
+                $("form").submit();
+            }
+        });
+        $( "#upload-images" ).disableSelection();
+    });
+
     $('#job-lists').delegate('.edit-parameters', 'click', function (event) {
         var jobSlug = $(this).parent().attr('data-id');
         $('#job-to-edit').val(jobSlug);
