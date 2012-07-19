@@ -1,4 +1,4 @@
-from celery.task import task
+from djcelery_transactions import task
 
 import utils
 

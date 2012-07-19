@@ -1,5 +1,4 @@
 import os
-from shutil import copyfile
 from functools import wraps
 
 import PIL.Image
@@ -9,7 +8,7 @@ from vipsCC.VImage import VImage
 from gamera.gameracore import Point
 from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
 from pymei import XmlExport
-from celery.task import task
+from djcelery_transactions import task
 from django.conf import settings
 from django.db import models
 

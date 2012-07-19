@@ -1,10 +1,10 @@
-import celery
+import djcelery_transactions
 
 from djcelery.models import TaskMeta
 from rodan.models.results import Result, ResultTask
 
 
-class RTask(celery.task.Task):
+class RTask(djcelery_transactions.Task):
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo=None):
         '''

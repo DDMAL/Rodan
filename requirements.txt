@@ -6,6 +6,7 @@ anyjson==0.3.1
 celery==2.5.3
 distribute==0.6.19
 django-celery==2.5.5
+django-celery-transactions==0.1.2
 django-picklefield==0.2.1
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
