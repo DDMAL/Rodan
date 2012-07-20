@@ -6,7 +6,7 @@
         viewWidth = 700;
         //Default threshold before user input
         defThresh = 127;
-        //Maximum value for greyness
+        //Maximum value for greyness (white)
         G = 255;
         //Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
         rScale = 0.2989;
@@ -15,12 +15,15 @@
         globalThresh = 0;
         boxX = 0;
         boxY = 0;
-
+        
+        //Image drawn to viewport
         imageObj = new Image();
+        //Image used for brink thresholding
         imagePrev = new Image();
+        //Image used for viewport controller
         imageThumb = new Image();
         
-        // Generates a PMF (Probability Mass Function) for the given image
+        // Generates a PMF (Probability Mass Function) for the given image (required for Brink)
         function genPMF(imageO, canvas) {
             var canvas, context, i, imageData, data, pmf, brightness;
             // var canvas = document;  <- Canvas is overridden below?
@@ -173,7 +176,7 @@
             return Topt;
         }
 
-        //binarises data, splitting foreground and background at a given brightness level
+        //Binarises data, splitting foreground and background at a given brightness level
         function binarise(imageO, canvas, thresh, x, y) {
             var context, imageData, data, i, brightness;
             if (!x) {

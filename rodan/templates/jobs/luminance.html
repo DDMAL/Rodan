@@ -1,0 +1,21 @@
+<p>Adjust the slider to change the brightness and contrast of the image.</p>
+{% csrf_token %}
+<fieldset class="submit">
+    <input type="hidden" name="brightness" value="1" id="brightness-input" />
+	<input type="hidden" name="contrast" value="1" id="contrast-input" />
+    <input type="submit" name="submit" value="Binarise" class="submit" />
+</fieldset>
+<p>Brightness</p>
+<div id="bslider"></div>
+<p>Contrast</p>
+<div id="cslider"></div>
+<div class="images">
+    <div class="hidden">
+        <img id="image-thumb" src="{{ medium-thumbnail }}"/>
+    </div>
+    <div id="image-view"></div>
+	<canvas id="image-preview" alt="Image preview"></canvas>
+<script src="{{ STATIC_URL }}js/kinetic-v3.10.2.min.js"></script>
+<script src="{{ STATIC_URL }}js/Stats.js"></script>
+<script src="{{ STATIC_URL }}js/show_stats.js"></script>
+<script src="{{ STATIC_URL }}js/luminance.js"></script>
