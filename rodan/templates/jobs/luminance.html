@@ -5,6 +5,14 @@
 	<input type="hidden" name="contrast" value="1" id="contrast-input" />
     <input type="submit" name="submit" value="Binarise" class="submit" />
 </fieldset>
+<select id="ordering">
+	<option value="0">Brightness->Contrast->Colour</option>
+	<option value="1">Brightness->Colour->Contrast</option>
+	<option value="2">Contrast->Brightness->Colour</option>
+	<option value="3">Contrast->Colour->Brightness</option>
+	<option value="4">Colour->Brightness->Contrast</option>
+	<option value="5">Colour->Contrast->Brightness</option>
+</select>
 <p>Brightness</p>
 <div id="brightness-slider"></div>
 <p>Contrast</p>
