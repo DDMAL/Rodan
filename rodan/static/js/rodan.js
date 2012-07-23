@@ -196,6 +196,21 @@ $(document).ready(function () {
         }
     });
 
+    $(function() {
+        $( "#upload-images" ).sortable({
+            update: function (event, ui) {
+                var currentIndex = ui.item.index();
+                var pageID = ui.item.attr("data-page");
+                var inputPageID= $("<input>").attr("type", "hidden").attr("name", "page-id").val(pageID);
+                var inputPageSeq = $("<input>").attr("type", "hidden").attr("name", "page-sequence-new").val(currentIndex + 1);
+                $("form").append($(inputPageID));
+                $("form").append($(inputPageSeq));
+                $("form").submit();
+            }
+        });
+        $( "#upload-images" ).disableSelection();
+    });
+
     $('#job-lists').delegate('.edit-parameters', 'click', function (event) {
         var jobSlug = $(this).parent().attr('data-id');
         $('#job-to-edit').val(jobSlug);
@@ -214,9 +229,9 @@ $(document).ready(function () {
     $('#workflow-jobs').delegate('.remove-job', 'click', function (event) {
         var jobNode = $(this).parent().parent();
         // The input type is the same as the previous job's output type
-        var jobID = jobNode.attr('data-id');
+        var jobSeqIndex = jobNode.attr('sequence-index');
 
-        $('#job-to-remove').val(1);
+        $('#job-to-remove').val(jobSeqIndex);
         $('#form').submit();
         return false;
     });

@@ -11,14 +11,14 @@
 {% if user_can_edit %}
 <div class="right-float">
     <a href="{% url edit_project project.id %}" class="button">Edit project</a>
-    <a href="{% url upload project.id %}" class="button">Upload images</a>
+    <a href="{% url upload project.id %}" class="button">Manage images</a>
     <a href="{% url manage_workflows project.id %}" class="button">Manage workflows</a>
 </div>
 {% endif %}
 <h1>{{ project.name }}</h1>
 <p><strong>Description:</strong> {% if project.description %}{{ project.description }}{% else %}<em>No description</em>{% endif %}</p>
 <p><strong>Owner</strong>: {{ project.creator }}</p>
-<p><strong>Number of pages</strong>: {{ num_pages }}{% if num_pages == 0 %} (Add pages by clicking the "Upload images" button above.){% endif %}</p>
+<p><strong>Number of pages</strong>: {{ num_pages }}{% if num_pages == 0 %} (Add pages by clicking the "Manage Images" button above.){% endif %}</p>
 {% if project.is_partially_complete %}
 <div class="alert ok">
     <p>This project is partially complete! <a href="{% url diva project.id %}">View the document in a searchable interface &raquo;</a></p>

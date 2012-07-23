@@ -161,7 +161,7 @@ class Page(models.Model):
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
     # Used in conjunction with the @rodan_view decorator
     pk_name = 'page_id'
-    sequence = models.IntegerField()
+    sequence = models.IntegerField(null=True)
     is_ready = models.BooleanField(default=False)
     original_width = models.IntegerField(null=True)
     original_height = models.IntegerField(null=True)

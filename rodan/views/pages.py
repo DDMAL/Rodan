@@ -164,7 +164,7 @@ def add_jobs(request, page):
             return redirect('add_pages', workflow_id=page.workflow.id)
 
         job_to_add_slug = request.POST.get('job_to_add', '')
-        remove_job = bool(request.POST.get('job_to_remove', ''))
+        remove_job = request.POST.get('job_to_remove', '')
 
         if job_to_add_slug:
             try:
@@ -176,14 +176,22 @@ def add_jobs(request, page):
                 print "Job does not exist!"
 
         elif remove_job:
-            job_items = JobItem.objects.filter(workflow=page.workflow).order_by('-sequence')
+            remove_job_index = int(remove_job)
+            job_items = JobItem.objects.filter(workflow=page.workflow).order_by('sequence')
             if job_items.count():
-                job_items[0].delete()
+                job_items[remove_job_index].delete()
+
+            # update sequence values for jobs that follow the deleted job
+            for job_item in job_items[remove_job_index:]:
+                job_item.sequence = job_item.sequence - 1
+                job_item.save()
 
     workflow_jobs = [job_item.job for job_item in page.workflow.jobitem_set.all()]
+    removable_jobs = []
     if workflow_jobs:
         last_job = workflow_jobs[-1]
         available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs and last_job.is_compatible(job)]
+        removable_jobs = [job for job in workflow_jobs if job.get_object().input_type == job.get_object().output_type]
     else:
         # No jobs in the workflow, show all image input jobs
         available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
@@ -191,6 +199,7 @@ def add_jobs(request, page):
     data = {
         'available_jobs': available_jobs,
         'workflow_jobs': workflow_jobs,
+        'removable_jobs': removable_jobs,
         'page': page,
         'medium_thumbnail': page.get_thumb_url(settings.MEDIUM_THUMBNAIL),
         'form': True,

@@ -392,13 +392,6 @@ h2 {
             .hidden;
         }
     }
-    #workflow-jobs {
-        li:not(:last-child) {
-            span, .remove-job {
-                .hidden;
-            }
-        }
-    }
 }
 
 .job-lists {
@@ -554,6 +547,15 @@ ul.grid {
     border-left: 0px;
     cursor: move;
 }
+
+.fixed-bar{
+    position:fixed;
+}
+
+div.seg-view>#image-preview {
+    margin-left: 130px;
+}
+
 
 // Based on the Twitter bootstrap but with customised colouring
 .progress {
