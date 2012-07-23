@@ -241,5 +241,12 @@
                                 bcProcess();
                             }
         });
+        
+        $('#form').submit(function () {
+            $('#brightness-input').val(gBrightness);
+            $('#contrast-input').val(gContrast);
+            $('#colour-input').val(gColour);
+            $('#ordering-input').val(ordering);
+        });
     });
 })(jQuery)
