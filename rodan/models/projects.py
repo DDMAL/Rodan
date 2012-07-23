@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -312,9 +313,14 @@ class Page(models.Model):
         # Otherwise, just return the original
         return original
 
-    def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None):
-        return os.path.join(settings.MEDIA_URL,
+    def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None, cache=True):
+        url = os.path.join(settings.MEDIA_URL,
                             self._get_thumb_path(size, job))
+
+        if cache:
+            return url
+        else:
+            return url + '?_=' + str(uuid.uuid4())[:8]
 
     def get_thumb_path(self, size=settings.SMALL_THUMBNAIL, job=None):
         """

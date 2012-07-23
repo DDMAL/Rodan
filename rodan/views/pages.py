@@ -60,10 +60,10 @@ def view(request, page):
         # to avoid extra lookups
         if is_done != -1:
             step['outputs_image'] = job_item.job.get_object().outputs_image
-            step['small_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL)
-            step['medium_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL)
-            step['large_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL)
-            step['original_image'] = page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE)
+            step['small_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL, cache=False)
+            step['medium_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL, cache=False)
+            step['large_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL, cache=False)
+            step['original_image'] = page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE, cache=False)
 
         steps.append(step)
 
