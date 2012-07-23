@@ -230,22 +230,22 @@ def upload(request, project):
             return redirect('new_workflow', sample_image)
         else:
             # If there's an image specified, create a new workflow for that page
-            form = UploadFileForm(request.POST, request.FILES)
-            if form.is_valid():
-                file = request.FILES['file']
+            files = request.FILES.getlist('files[]')
+
+            sequence = Page.objects.filter(project=project).count()
+
+            for file in files:
                 # The "sequence" is the number of pages in this project already + 1
-                sequence = Page.objects.filter(project=project).count() + 1
+                sequence += 1
                 new_page = Page.objects.create(project=project, filename=file.name, sequence=sequence)
                 new_page.handle_image_upload(file)
 
             # Figure out where to go next
             # Stay on the same page
 
-    form = UploadFileForm()
-
     data = {
         'project': project,
-        'form': form,
+        'form': True,
         'file_upload': True,
         'pages': project.page_set.all(),
         'num_processing': project.page_set.filter(is_ready=False).count(),
