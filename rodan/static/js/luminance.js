@@ -2,8 +2,9 @@
     "use strict";
     //Setup
     $(document).ready(function() {
-        var gB = 1;
-        var gC = 1;
+        var gBrightness = 1;
+        var gContrast = 1;
+        var gColour = 1;
         //Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
         var rScale = 0.2989;
         var gScale = 0.5870;
@@ -24,15 +25,71 @@
             contextV.drawImage(imageObj, 0, 0, canvasV.width, canvasV.height, 0, 0, canvasV.width, canvasV.height);
             contextO.drawImage(imageObj, 0, 0, canvasO.width, canvasO.height, 0, 0, canvasO.width, canvasO.height);
         
-            $("#bslider").slider("value", gB);
-            $("#cslider").slider("value", gC);
-            $("#bslider").width(imageObj.width * 2);
-            $("#cslider").width(imageObj.width * 2);
+            $("#brightness-slider").slider("value", gBrightness);
+            $("#contrast-slider").slider("value", gContrast);
+            $("#colour-slider").slider("value", gColour);
+            $("#brightness-slider").width(imageObj.width * 2);
+            $("#contrast-slider").width(imageObj.width * 2);
+            $("#colour-slider").width(imageObj.width * 2);
         };
     
         imageObj.src = $("#image-thumb").attr("src");
+        
+        function greyscale(data) {
+            var gData = [];
+            var i, brightness;
+            for (i = 0; i < data.length; i += 4) {
+                brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+                gData[i] = brightness;
+                gData[i+1] = brightness;
+                gData[i+2] = brightness;
+                gData[i+3] = 255;
+            }
+            return gData;
+        }
+        
+        function blendImage(data1, data2, factor) {
+            if (data1.length != data2.length) {
+                return;
+            }
+            var i;
+            if (factor <= 0) {
+                for (i = 0; i < data1.length; i += 4) {
+                    data1[i] = data2[i];
+                    data1[i+1] = data2[i+1];
+                    data1[i+2] = data2[i+2];
+                }
+            } else if (factor < 1) {
+                for (i = 0; i < data1.length; i += 4) {
+                    data1[i] = data2[i] + factor * (data1[i] - data2[i]);
+                    data1[i+1] = data2[i+1] + factor * (data1[i+1] - data2[i+1]);
+                    data1[i+2] = data2[i+2] + factor * (data1[i+2] - data2[i+2]);
+                }
+            } else if (factor > 1) {
+                for (i = 0; i < data1.length; i += 4) {
+                    data1[i] = data2[i] + factor * (data1[i] - data2[i]);
+                    data1[i+1] = data2[i+1] + factor * (data1[i+1] - data2[i+1]);
+                    data1[i+2] = data2[i+2] + factor * (data1[i+2] - data2[i+2]);
+                    if (data1[i] > 255) {
+                        data1[i] = 255;
+                    } else if (data1[i] < 0) {
+                        data1[i] = 0;
+                    }
+                    if (data1[i+1] > 255) {
+                        data1[i+1] = 255;
+                    } else if (data1[i+1] < 0) {
+                        data1[i+1] = 0
+                    }
+                    if (data1[i+1] > 255) {
+                        data1[i+1] = 255;
+                    } else if (data1[i+2]< 0) {
+                        data1[i+2] = 0;
+                    }
+                }
+            }
+        }
     
-        function blend(data, colour, factor) {
+        function blendColour(data, colour, factor) {
             var i;
             if (factor <= 0) {
                 for (i = 0; i < data.length; i += 4) {
@@ -97,35 +154,50 @@
         
             var imageData = contextO.getImageData(0, 0, canvasV.width, canvasV.height);
             var data = imageData.data;
-            blend(data, 0, gB);
-            blend(data, averageShade(data), gC);
+            blendColour(data, 0, gBrightness);
+            blendColour(data, averageShade(data), gContrast);
+            blendImage(data, greyscale(data), gColour);
             contextV.putImageData(imageData, 0, 0);
         }
     
-        $("#bslider").slider({
+        $("#brightness-slider").slider({
                             animate: true,
                             min: 0,
                             max: 5,
                             orientation: "horizontal",
                             step: 0.025,
-                            value: gB,
+                            value: gBrightness,
                             range: false,
                             slide: function(event, ui) {
-                                gB = ui.value;
+                                gBrightness = ui.value;
                                 bcProcess();
                             }
         });
 
-        $("#cslider").slider({
+        $("#contrast-slider").slider({
                             animate: true,
                             min: 0,
                             max: 5,
                             orientation: "horizontal",
                             step: 0.025,
-                            value: gC,
+                            value: gContrast,
                             range: false,
                             slide: function(event, ui) {
-                                gC = ui.value;
+                                gContrast = ui.value;
+                                bcProcess();
+                            }
+        });
+        
+        $("#colour-slider").slider({
+                            animate: true,
+                            min: 0,
+                            max: 5,
+                            orientation: "horizontal",
+                            step: 0.025,
+                            value: gColour,
+                            range: false,
+                            slide: function(event, ui) {
+                                gColour = ui.value;
                                 bcProcess();
                             }
         });
