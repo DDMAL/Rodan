@@ -14,6 +14,40 @@
             
         var averageColour, gImage;
         
+        function greyscale(data) {
+            var dLen = data.length;
+            var gData = [];
+            var i, brightness;
+            for (i = 0; i < dLen; i += 4) {
+                brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+                gData[i] = brightness;
+                gData[i+1] = brightness;
+                gData[i+2] = brightness;
+                gData[i+3] = 255;
+            }
+            return gData;
+        }
+        
+        function averageShade(data) {
+            var dLen = data.length;
+            var histo = [];
+            var i;
+            for (i = 0; i < 256; i++) {
+                histo[i] = 0;
+            }
+            for (i = 0; i < dLen; i += 4) {
+                var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
+                histo[Math.round(brightness)]++;
+            }
+            var pSum = 0;
+            var hSum = 0;
+            for (i = 0; i < 256; i++) {
+                hSum += histo[i];
+                pSum += (i * histo[i]);
+            }
+            return pSum / hSum;
+        }
+        
         imageObj.onload = function() {
             //Adjust size of canvas to fit image
             var canvasV = document.getElementById("image-preview");
@@ -43,20 +77,6 @@
         };
     
         imageObj.src = $("#image-thumb").attr("src");
-        
-        function greyscale(data) {
-            var dLen = data.length;
-            var gData = [];
-            var i, brightness;
-            for (i = 0; i < dLen; i += 4) {
-                brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-                gData[i] = brightness;
-                gData[i+1] = brightness;
-                gData[i+2] = brightness;
-                gData[i+3] = 255;
-            }
-            return gData;
-        }
 
         function blendColour(data, colour, factor) {
             var dLen = data.length;
@@ -86,7 +106,7 @@
                     if (data[i+1] > 255) {
                         data[i+1] = 255;
                     } else if (data[i+1] < 0) {
-                        data[i+1] = 0
+                        data[i+1] = 0;
                     }
                     if (data[i+1] > 255) {
                         data[i+1] = 255;
@@ -99,7 +119,7 @@
 
         function blendImage(data1, data2, factor) {
             var dLen = data1.length;
-            if (dLen != data2.length) {
+            if (dLen !== data2.length) {
                 return;
             }
             var i;
@@ -128,7 +148,7 @@
                     if (data1[i+1] > 255) {
                         data1[i+1] = 255;
                     } else if (data1[i+1] < 0) {
-                        data1[i+1] = 0
+                        data1[i+1] = 0;
                     }
                     if (data1[i+1] > 255) {
                         data1[i+1] = 255;
@@ -137,26 +157,6 @@
                     }
                 }
             }
-        }
-
-        function averageShade(data) {
-            var dLen = data.length;
-            var histo = [];
-            var i;
-            for (i = 0; i < 256; i++) {
-                histo[i] = 0;
-            }
-            for (i = 0; i < dLen; i += 4) {
-                var brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-                histo[Math.round(brightness)]++;
-            }
-            var pSum = 0;
-            var hSum = 0;
-            for (i = 0; i < 256; i++) {
-                hSum += histo[i];
-                pSum += (i * histo[i]);
-            }
-            return pSum / hSum;
         }
     
         function bcProcess() {
@@ -167,23 +167,23 @@
         
             var imageData = contextO.getImageData(0, 0, canvasV.width, canvasV.height);
             var data = imageData.data;
-            if (ordering == 0) {
+            if (ordering === 0) {
                 blendColour(data, 0, gBrightness);
                 blendColour(data, averageShade(data), gContrast);
                 blendImage(data, greyscale(data), gColour);
-            } else if (ordering == 1) {
+            } else if (ordering === 1) {
                 blendColour(data, 0, gBrightness);
                 blendImage(data, greyscale(data), gColour);
                 blendColour(data, averageShade(data), gContrast);
-            } else if (ordering == 2) {
+            } else if (ordering === 2) {
                 blendColour(data, averageColour, gContrast);
                 blendColour(data, 0, gBrightness);
                 blendImage(data, greyscale(data), gColour);
-            } else if (ordering == 3) {
+            } else if (ordering === 3) {
                 blendColour(data, averageColour, gContrast);
                 blendImage(data, greyscale(data), gColour);
                 blendColour(data, 0, gBrightness);
-            } else if (ordering == 4) {
+            } else if (ordering === 4) {
                 blendImage(data, gImage, gColour);
                 blendColour(data, 0, gBrightness);
                 blendColour(data, averageShade(data), gContrast);
