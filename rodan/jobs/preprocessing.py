@@ -1,5 +1,6 @@
 import gamera.core
 import gamera.toolkits.border_removal.plugins.border_removal
+from PIL import Image, ImageEnhance
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -31,6 +32,36 @@ def crop(image_filepath, **kwargs):
         "tiff": output_image
     }
 
+@utils.rodan_task(inputs='tiff')
+def luminance(image_filepath, **kwargs):
+    input_image = Image.open(image_filepath)
+    if kwargs['order'] == 0:
+        output_image = ImageEnhance.Brightness(input_image).enhance(kwargs['brightness'])
+        output_image = ImageEnhance.Contrast(output_image).enhance(kwargs['contrast'])
+        output_image = ImageEnhance.Color(output_image).enhance(kwargs['colour'])
+    elif kwargs['order'] == 1:
+        output_image = ImageEnhance.Brightness(input_image).enhance(kwargs['brightness'])
+        output_image = ImageEnhance.Color(output_image).enhance(kwargs['colour'])
+        output_image = ImageEnhance.Contrast(output_image).enhance(kwargs['contrast'])
+    elif kwargs['order'] == 2:
+        output_image = ImageEnhance.Contrast(input_image).enhance(kwargs['contrast'])
+        output_image = ImageEnhance.Brightness(output_image).enhance(kwargs['brightness'])
+        output_image = ImageEnhance.Color(output_image).enhance(kwargs['colour'])
+    elif kwargs['order'] == 3:
+        output_image = ImageEnhance.Contrast(input_image).enhance(kwargs['contrast'])
+        output_image = ImageEnhance.Color(output_image).enhance(kwargs['colour'])
+        output_image = ImageEnhance.Brightness(output).enhance(kwargs['brightness'])
+    elif kwargs['order'] == 4:
+        output_image = ImageEnhance.Color(input_image).enhance(kwargs['colour'])
+        output_image = ImageEnhance.Brightness(output_image).enhance(kwargs['brightness'])
+        output_image = ImageEnhance.Contrast(output_image).enhance(kwargs['contrast'])
+    else:
+        output_image = ImageEnhance.Color(input_image).enhance(kwargs['colour'])
+        output_image = ImageEnhance.Contrast(output_image).enhance(kwargs['contrast'])
+        output_image = ImageEnhance.Brightness(output_image).enhance(kwargs['brightness'])
+    return {
+        "tiff": output_image
+    }
 
 class BorderRemoval(JobBase):
     name = 'Border removal'
@@ -59,3 +90,16 @@ class Crop(JobBase):
         'imw': 1.0
     }
     task = crop
+
+class Luminance(JobBase):
+    input_type = JobType.IMAGE
+    output_type = input_type
+    description = 'Adjust the brightness, contrast, and colour enhancement of an RGB image.'
+    show_during_wf_create = True
+    parameters = {
+        'brightness': 1.0,
+        'contrast': 1.0,
+        'colour': 1.0,
+        'order': 0
+    }
+    task = luminance

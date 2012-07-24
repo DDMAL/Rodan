@@ -1,11 +1,11 @@
-<p>Adjust the slider to change the brightness and contrast of the image.</p>
+<p>Adjust the sliders to change the brightness, contrast, and degree of colour enhancement of the image. Use the dropdown menu to select the order of operations.</p>
 {% csrf_token %}
 <fieldset class="submit">
     <input type="hidden" name="brightness" value="1" id="brightness-input" />
 	<input type="hidden" name="contrast" value="1" id="contrast-input" />
 	<input type="hidden" name="colour" value="1" id="colour-input" />
 	<input type="hidden" name="ordering" value="1" id="ordering-input" />
-    <input type="submit" name="submit" value="Binarise" class="submit" />
+    <input type="submit" name="submit" value="Submit" class="submit" />
 </fieldset>
 <select id="ordering">
 	<option value="0">Brightness->Contrast->Colour</option>
@@ -23,10 +23,12 @@
 <div id="colour-slider"></div>
 <div class="images">
     <div class="hidden">
-        <img id="image-thumb" src="{{ medium-thumbnail }}"/>
+        <img id="image-thumb" src="{{ medium_thumbnail }}"/>
     </div>
-    <div id="image-preview"></div>
-	<canvas id="image-original" alt="Image preview"></canvas>
+	<div class="luminance-view">
+    	<canvas id="image-preview" alt="Image preview"></canvas>
+		<canvas id="image-original" alt="Image original"></canvas>
+	</div>
 <script src="{{ STATIC_URL }}js/kinetic-v3.10.2.min.js"></script>
 <script src="{{ STATIC_URL }}js/Stats.js"></script>
 <script src="{{ STATIC_URL }}js/show_stats.js"></script>
