@@ -1,5 +1,6 @@
 import os
 import uuid
+import shutil
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -454,6 +455,13 @@ class Page(models.Model):
         this_sequence = self.workflow.jobitem_set.get(job=job).sequence
         # Delete all the results whose jobitems have sequence >= this one
         results_to_delete = self.result_set.filter(job_item__sequence__gte=this_sequence)
+        for result in results_to_delete:
+            path_to_job_file_results = os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.project.id,
+                            "%d" % self.id,
+                            "%s" % result.job_item.job.slug)
+            if os.path.exists(path_to_job_file_results):
+                shutil.rmtree(path_to_job_file_results)
         results_to_delete.delete()
 
 
