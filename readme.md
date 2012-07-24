@@ -98,8 +98,8 @@ Instructions
 * `source rodan_env/bin/activate` to setup the virtualenv
 * `python manage.py syncdb` should do all the database stuff for you. Don't say yes when asked
    to create a superuser and a fixture will be created
-* `python manage.py celeryd --loglevel=info` to start the celery broker
-* `python manage.py celeryev --camera=rodan.monitor.Rodaonitor`
+* `python manage.py celeryd --loglevel=info -E` to start the celery broker
+* `python manage.py celeryev --camera=rodan.monitor.RodanMonitor`
 * `python manage.py runserver`. Access the site at http://localhost:8000
 * If you're running it on susato and want to be able to access it remotely, pick a port
   (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`.
