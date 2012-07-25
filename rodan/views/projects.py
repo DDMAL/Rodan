@@ -10,7 +10,7 @@ from django.db.models import Q
 from rodan.models.projects import Project, Workflow, Job, JobItem, Page
 from rodan.models.results import Result
 from rodan.forms.projects import ProjectForm, UploadFileForm
-from rodan.utils import rodan_view, render_to_json
+from rodan.utils import rodan_view, headers, render_to_json
 from rodan.jobs.diva_resources.divaserve import DivaServe
 from rodan.jobs.diva_resources.search import do_query, LiberSearchException
 
@@ -155,6 +155,7 @@ def edit(request, project):
 # Will show you a random page from this project, with this slug
 # If project_id == 0, then use all projects
 @login_required
+@headers(Cache_Control='no-cache, no-store, max-age=0, must-revalidate')
 @rodan_view(Job)
 def task(request, job, project_id=0, page_id=0):
     rodan_user = request.user.get_profile()

@@ -16,6 +16,30 @@ def remove_prefixes(s):
     return s[s.rfind('.') + 1:]
 
 
+def headers(**h):
+    """Decorator adding arbitrary HTTP headers to the response.
+
+    This decorator adds HTTP headers specified in the argument (map), to the
+    HTTPResponse returned by the function being decorated. If the header that
+    you are inserting contains a '-' character, replace it with underscores when
+    applying the decorator (i.e Cache-Control should be written as Cache_Control).
+
+    Example:
+
+    @headers(Cache_Control='no-cache, no-store, max-age=0, must-revalidate', Expires='Fri, 01 Jan 2010 00:00:00 GMT')
+    def index(request):
+        ....
+    """
+    def headers_wrapper(f):
+        def wrapped_function(*args, **kwargs):
+            response = f(*args, **kwargs)
+            for k, v in h.iteritems():
+                response[k.replace('_', '-')] = v
+            return response
+        return wrapped_function
+    return headers_wrapper
+
+
 def rodan_view(*models):
     def outer_function(f):
         def inner_function(request, **kwargs):
