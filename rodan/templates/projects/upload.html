@@ -4,6 +4,8 @@
 <br />
 
 {% csrf_token %}
+<!--Note that the accept="image/tiff" only works in Chrome at the moment. Firefox supports "images/*" and will support
+	"image/<extension>" in FF16 (see https://bugzilla.mozilla.org/show_bug.cgi?id=565274 for full bug report)-->
 <input type="file" name="files[]" multiple accept="image/tiff"/>
 
 <p>This project has {{ pages.count }} page{{ pages.count|pluralize }}, with <span id="num-processing">{% if num_processing %}{{ num_processing }}{% else %}no{% endif %}</span> page{{ num_processing|pluralize }} still processing.</p>
