@@ -11,16 +11,20 @@
             <th>Options</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="workflows">
         {% for workflow in workflows %}
-        <tr>
+        <tr workflow-id="{{ workflow.id }}">
             <td><a href="{{ workflow.get_absolute_url }}">{{ workflow }}</a></td>
             <td>{{ workflow.page_set.count }}</td>
             <td>{% progress_bar workflow.get_percent_done %}</td>
-            <td><a href="{% url edit_workflow workflow.id %}">Edit workflow</a> :: <a href="{% url workflow_jobs workflow.id %}">Manage jobs</a> :: <a href="{% url add_pages workflow.id %}">Add pages</a></td>
+            <td><a href="{% url edit_workflow workflow.id %}">Edit workflow</a> :: <a href="#" class="remove-workflow">Remove workflow</a> :: <a href="{% url workflow_jobs workflow.id %}">Manage jobs</a> :: <a href="{% url add_pages workflow.id %}">Add pages</a></td>
         </tr>
         {% endfor %}
     </tbody>
+    <form method="post" action="" id="form">
+    {% csrf_token %}
+        <input type="hidden" name="workflow_to_remove" value="" id="workflow-to-remove"/>
+    </form>
 </table>
 {% else %}
 <p>This project has no workflows! Create one by uploading an image for selecting an existing image to add a workflow to <a href="{% url upload project.id %}">here</a>.</p>

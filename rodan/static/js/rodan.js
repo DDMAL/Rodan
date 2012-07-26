@@ -226,6 +226,16 @@ $(document).ready(function () {
         $('#ordered-jobs').val(jobsList.join(' '));
     });
 
+    $('#workflows').delegate('.remove-workflow', 'click', function (event) {
+        var jobNode = $(this).parent().parent();
+        // The input type is the same as the previous job's output type
+        var workflow_id = jobNode.attr('workflow-id');
+
+        $('#workflow-to-remove').val(workflow_id);
+        $('#form').submit();
+        return false;
+    });
+
     $('#workflow-jobs').delegate('.remove-job', 'click', function (event) {
         var jobNode = $(this).parent().parent();
         // The input type is the same as the previous job's output type

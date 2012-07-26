@@ -301,6 +301,12 @@ def upload(request, project):
 
 @rodan_view(Project)
 def workflows(request, project):
+    if request.method == 'POST':
+        wf_id = request.POST.get("workflow_to_remove", 0)
+        if wf_id != 0:
+            workflow = Workflow.objects.get(pk=wf_id)
+            workflow.delete()
+
     workflows = Workflow.objects.filter(page__project=project).distinct()
     data = {
         'project': project,

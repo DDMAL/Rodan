@@ -158,7 +158,7 @@ class Page(models.Model):
 
     project = models.ForeignKey(Project)
     # Will only begin processing once a workflow has been specified
-    workflow = models.ForeignKey(Workflow, null=True, blank=True)
+    workflow = models.ForeignKey(Workflow, null=True, blank=True, on_delete=models.SET_NULL)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
     # Used in conjunction with the @rodan_view decorator
