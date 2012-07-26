@@ -4,7 +4,7 @@
 <br />
 
 {% csrf_token %}
-<input type="file" name="files[]" multiple />
+<input type="file" name="files[]" multiple accept="image/tiff"/>
 
 <p>This project has {{ pages.count }} page{{ pages.count|pluralize }}, with <span id="num-processing">{% if num_processing %}{{ num_processing }}{% else %}no{% endif %}</span> page{{ num_processing|pluralize }} still processing.</p>
 
