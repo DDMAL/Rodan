@@ -4,6 +4,7 @@
         <input type="text" name="search" id="search-query" placeholder="Search for a project..." />
     </fieldset>
 </form>
+<script src="{{ STATIC_URL }}js/toggle-sidebar.js"></script>
 <span id="title-tab" class="active">All projects</span><span id="results-tab"></span>
 {% if projects %}
     <ul id="project-list">
