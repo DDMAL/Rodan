@@ -14,7 +14,11 @@
 
 <ul class="grid image-buttons" id="upload-images">
 {% for page in pages %}
-    <li data-page="{{ page.id }}" {% if not page.is_ready %} class="fake-img"{% endif %}><img {% if not page.is_ready %}data-{% endif %}src="{{ page.get_thumb_url }}" title="{{ page }}" /><input type="radio" name="sample" value="{{ page.id }}" /></li>
+    <li data-page="{{ page.id }}" {% if not page.is_ready %} class="fake-img"{% endif %}>
+        <img {% if not page.is_ready %}data-{% endif %}src="{{ page.get_thumb_url }}" title="{{ page }}" />
+        <input type="radio" name="sample" value="{{ page.id }}" />
+        <button type="submit" name="delete" value="{{ page.id }}" class="delete-button">✕</button>
+    </li>
 {% empty %}
     <li id="page-placeholder">This project has no pages! Create one by uploading a TIFF file using the file upload control above.</li>
 {% endfor %}

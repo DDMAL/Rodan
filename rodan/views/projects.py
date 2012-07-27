@@ -227,7 +227,15 @@ def upload(request, project):
 
     if request.method == 'POST':
         sample_image = request.POST.get('sample', 0)
-        if Page.objects.filter(pk=sample_image).count() == 1:
+        delete_id = request.POST.get('delete', 0)
+
+        if delete_id > 0:
+            try:
+                page_to_delete = Page.objects.get(pk=delete_id)
+                page_to_delete.delete()
+            except Page.DoesNotExist:
+                pass
+        elif sample_image > 0 and Page.objects.filter(pk=sample_image).count() == 1:
             # Return the workflow edit page
             return redirect('new_workflow', sample_image)
         else:

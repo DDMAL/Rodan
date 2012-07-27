@@ -495,8 +495,36 @@ ul.grid {
     margin: -3px;
 }
 
-#upload-images img:hover {
-    border-color: @imageButtonHoverFrame;
+#upload-images li:hover {
+    img {
+        border-color: @imageButtonHoverFrame;
+    }
+    .delete-button {
+        display: block !important;
+    }
+}
+
+#upload-images {
+    li {
+        position: relative;
+        .delete-button {
+            border: 0;
+            cursor: pointer;
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: @white;
+            font-size: 15px;
+            &:hover {
+                background: @black;
+            }
+            text-shadow: 1px 2px @black;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 6px;
+            .border-radius(15px);
+        }
+    }
 }
 
 .page-loading {

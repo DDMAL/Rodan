@@ -501,3 +501,19 @@ def create_rodan_user(sender, instance, created, **kwargs):
         RodanUser.objects.create(user=instance)
 
 models.signals.post_save.connect(create_rodan_user, sender=User)
+
+
+# Defines a post-delete hook on Page to ensure that the image files are deleted
+def delete_page_files(sender, instance, **kwargs):
+    # Delete the entire directory
+    directory = os.path.dirname(instance.get_latest_file_path('tiff'))
+    shutil.rmtree(directory)
+
+    # If the project directory is empty, delete that as well
+    parent_dir = os.path.dirname(directory)
+    try:
+        os.rmdir(parent_dir)
+    except OSError:
+        pass
+
+models.signals.post_delete.connect(delete_page_files, sender=Page)
