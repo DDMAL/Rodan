@@ -1,5 +1,6 @@
 import gamera.core
 import gamera.plugins.threshold
+from gamera.plugins.binarization import brink_threshold
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -47,6 +48,14 @@ def djvu_binarise(image_filepath, **kwargs):
         'tiff': output_image
     }
 
+@utils.rodan_task(inputs='tiff')
+def brink_binarise(image_filepath, **kwargs):
+    input_image = utils.load_image_for_job(image_filepath, brink_threshold)
+    output_image = input_image.brink_threshold()
+
+    return {
+        'tiff': output_image
+    }
 
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
@@ -75,3 +84,13 @@ class DJVUBinarise(JobBase):
         'block_factor': 2
     }
     task = djvu_binarise
+
+class BrinkBinarise(JobBase):
+    name = 'Binarise (Brink)'
+    slug = 'brink-binarise'
+    input_type = JobType.IMAGE
+    output_type = JobType.BINARISED_IMAGE
+    description = 'Convert an image to black and white (Brink algorithm).'
+    show_during_wf_create = True
+    is_automatic = True
+    task = brink_binarise
