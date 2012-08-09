@@ -38,6 +38,7 @@ class Classifier(JobBase):
     output_type = JobType.CLASSIFY_XML
     description = 'Guess neume symbols on a page.'
     show_during_wf_create = True
+    enabled = False
     parameters = {
     }
     task = classifier

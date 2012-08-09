@@ -25,6 +25,7 @@ class Diva(JobBase):
     output_type = JobType.END
     description = 'Prepare an image to be shown in the image viewer.'
     show_during_wf_create = False
+    enabled = False
     parameters = {
         'quality': 75,
         'tile_size': 256,

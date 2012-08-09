@@ -44,6 +44,7 @@ class Neon(JobBase):
     output_type = JobType.MEI
     description = 'Correct recognition errors.'
     show_during_wf_create = False
+    enabled = False
     parameters = {
         'data': ''
     }

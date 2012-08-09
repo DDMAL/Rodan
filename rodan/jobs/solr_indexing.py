@@ -25,6 +25,7 @@ class SolrIndexing(JobBase):
     output_type = JobType.SOLR
     description = 'Index an MEI file into the search database.'
     show_during_wf_create = True
+    enabled = False
     parameters = {
         'shortest_gram': 2,
         'longest_gram': 9,
