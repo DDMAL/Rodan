@@ -5,3 +5,5 @@ db.sqlite
 *.tiff
 gamera
 errors.log
+
+.DS_Store
