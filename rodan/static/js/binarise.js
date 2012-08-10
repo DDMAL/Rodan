@@ -2,7 +2,7 @@
     //Setup
     $(document).ready(function () {
         "use strict";
-        var viewWidth, defThresh, G, rScale, gScale, bScale, globalThresh, boxX, boxY, imageObj, imagePrev, imageThumb, stage, t1;
+        var viewWidth, defThresh, G, rScale, gScale, bScale, boxX, boxY, imageObj, imagePrev, imageThumb, stage, t1;
         viewWidth = 700;
         //Default threshold before user input
         defThresh = 127;
@@ -12,7 +12,6 @@
         rScale = 0.2989;
         gScale = 0.5870;
         bScale = 0.1140;
-        globalThresh = 0;
         boxX = 0;
         boxY = 0;
         
@@ -50,7 +49,7 @@
             }
             return pmf;
         }
-
+        
         //Johanna's Brink Thresholding function
         function threshBrink(pmf) {
             var Topt, locMin, isMinInit, mF, mB, tmpVec1, tmpVec2, tmpVec3, tmp1, tmp2, tmp3, tmp4, tmpMat1, tmpMat2, i, j;
@@ -175,7 +174,7 @@
             // return optimal threshold
             return Topt;
         }
-
+        
         //Binarises data, splitting foreground and background at a given brightness level
         function binarise(imageO, canvas, thresh, x, y) {
             var context, imageData, data, i, brightness;
@@ -208,8 +207,8 @@
             //Draw binarised image
             context.putImageData(imageData, 0, 0);
         }
-
-        //Calculate initial threshold with the Brink formula and draw binarised image
+        
+        //Thumbnail image loaded last and set up to control the viewport
         imageThumb.onload = function () {
             var scaleVal, layer, image, layerB, boxWidth, viewBox, canvas, context, bodyDOM,
                 pMouseDown, vMouseDown, vInitX, vInitY;
@@ -229,12 +228,12 @@
                 stroke: 'black',
                 strokewidth: 2
             });
-
+            
             layer.add(image);
             stage.add(layer);
-
+            
             layerB = new Kinetic.Layer();
-
+            
             boxWidth = viewWidth * scaleVal;
             viewBox = new Kinetic.Rect({
                 x: 0,
@@ -254,14 +253,15 @@
                 },
                 name: 'viewBox'
             });
-
+            
             layerB.add(viewBox);
             stage.add(layerB);
-
+            
             canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             bodyDOM = document.getElementsByTagName("body")[0];
             
+            //Resize viewport and selection box when window is resized
             window.onresize = function() {
                 viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
                 canvas.width = viewWidth;
@@ -283,7 +283,7 @@
             }
             
             pMouseDown = false;
-
+            
             function pMoveBox(e) {
                 var pos, boxWidth, nX, nY;
                 pos = stage.getMousePosition(e);
@@ -309,15 +309,15 @@
                     binarise(imageObj, canvas, defThresh, boxX, boxY);
                 }
             }
-
+            
             function pClickDown(e) {
                 pMouseDown = true;
                 pMoveBox(e);
             }
-
+            
             image.on("mousedown", pClickDown);
             viewBox.on("mousedown", pClickDown);
-
+            
             vMouseDown = false;
             vInitX = 0;
             vInitY = 0;
@@ -333,10 +333,10 @@
                     var dX, dY, boxWidth, newX, newY;
                     dX = e.clientX - vInitX;
                     dY = e.clientY - vInitY;
-
+                    
                     vInitX = e.clientX;
                     vInitY = e.clientY;
-
+                    
                     boxWidth = viewWidth * scaleVal;
                     newX = viewBox.getX() - (dX * scaleVal);
                     newY = viewBox.getY() - (dY * scaleVal);
@@ -350,7 +350,7 @@
                     } else if ((newY + boxWidth) > imageThumb.height) {
                         newY = imageThumb.height - boxWidth;
                     }
-
+                    
                     viewBox.setX(newX);
                     viewBox.setY(newY);
                     viewBox.getLayer().draw();
@@ -364,7 +364,8 @@
                 vMouseDown = false;
             });
         };
-
+        
+        //Viewport image loaded second, and frame is resized appropriately
         imageObj.onload = function () {
             var canvas, context, pmf;
             canvas = document.getElementById("image-viewport");
@@ -377,6 +378,7 @@
             imageThumb.src = $("#image-thumb").attr("src");
         };
         
+        // Full image loaded first, on which Brink is run
         imagePrev.onload = function () {
             var canvas, context, pmf;
             canvas = document.getElementById("image-preview");
@@ -386,11 +388,12 @@
             pmf = genPMF(imagePrev, canvas);
             defThresh = threshBrink(pmf);
             $("#slider").slider("value", defThresh);
+            //canvas removes itself when done
             canvas.parentNode.removeChild(canvas);
             imageObj.src = $("#image-full").attr("src");
         }
         imagePrev.src = $("#image-mid").attr("src");
-
+        
         //jQuery slider definition for threshold controller
         $("#slider").slider({
             animate: true,
@@ -405,7 +408,7 @@
                 binarise(imageObj, document.getElementById("image-viewport"), defThresh, boxX, boxY);
             }
         });
-
+        
         $('#form').submit(function () {
             $('#threshold-input').val(defThresh);
         });

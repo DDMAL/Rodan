@@ -81,6 +81,7 @@
                 br.attrs.x = currStaff.getWidth();
             }
             
+            // Correct line dimensions
             var lines = group.get(".line");
             for (i = 0; i < lines.length; i++) {
                 lines[i].setY(topLeft.attrs.y);
@@ -95,6 +96,7 @@
                     width = topRight.attrs.x - topLeft.attrs.x;
                 }
             }
+            //Adjust position and dimensions of multistaff
             staff.setPosition(topLeft.attrs.x + 5, topLeft.attrs.y + 5);
             iBox.setPosition(topLeft.attrs.x - 5, topLeft.attrs.y - 5);
             if(width && height) {
@@ -102,8 +104,10 @@
                 iBox.setSize(width + 10, height + 10);
             }
         }
-    
+        
+        //Corner drag update function for a substaff
         function updateSubStaff(group, activeAnchor) {
+            //Multistaff group for the substaff
             var superGroup = group.getParent();
             var first = group.get(".firststaff");
             var last = group.get(".laststaff");
@@ -111,7 +115,7 @@
             var isLast = false;
         
             var staff = null;
-        
+            //TODO
             if (first.length === 1) {
                 isFirst = true;
                 staff = first[0];
@@ -153,10 +157,10 @@
                     topLeft.attrs.x = activeAnchor.attrs.x;
                     break;
             }
-        
+            
             var width = topRight.attrs.x - topLeft.attrs.x;
             var height = bottomLeft.attrs.y - topLeft.attrs.y;
-        
+            
             //group.setPosition(topLeft.attrs.x, topLeft.attrs.y);
             staff.setPosition(topLeft.attrs.x, topLeft.attrs.y);
             iBox.setPosition(topLeft.attrs.x - 5, topLeft.attrs.y - 5);
@@ -165,7 +169,8 @@
                 iBox.setSize(width + 10, height + 10);
             }
         }
-    
+        
+        //Corner drag update function for a single staff object
         function updateStaff(group, activeAnchor) {
             var topLeft = group.get(".1")[0];
             var topRight = group.get(".2")[0];
@@ -177,7 +182,7 @@
             topRight.attrs.visible = true;
             bottomRight.attrs.visible = true;
             bottomLeft.attrs.visible = true;
-            // update anchor positions
+            // Update anchor positions
             switch (activeAnchor.getName()) {
                 case "1":
                     topRight.attrs.y = activeAnchor.attrs.y;
@@ -222,7 +227,8 @@
                 iBox.setSize(width + 10, height + 10);
             }
         }
-    
+        
+        //Choose update function based on group type
         function update(group, activeAnchor) {
             if (group.getName() === "multistaffgroup") {
                 updateMultiStaffGroup(group, activeAnchor);
@@ -232,7 +238,8 @@
                 updateStaff(group, activeAnchor);
             }
         }
-    
+        
+        //Add corner anchor to staff
         function addAnchor(group, iBox, x, y, name) {
             var stage = group.getStage();
             var layer = group.getLayer();
@@ -240,7 +247,7 @@
             if (group.getName() === "substaff") {
                 superGroup = group.getParent();
             }
-
+            //Invisble by default, becomes visible when iBox is moused over
             var anchor = new Kinetic.Circle({
                 x: x,
                 y: y,
@@ -252,7 +259,7 @@
                 draggable: true,
                 visible: false
             });
-
+            //Movement behaviours
             anchor.on("dragmove", function() {
                 update(group, this);
                 layer.draw();
@@ -299,7 +306,8 @@
             });
             group.add(anchor);
         }
-    
+        
+        //Adds a line to a staff (only implemented for single staves atm)
         function addLine(stage, group, x, y, height) {
             var line = new Kinetic.Rect({
                 x: x - group.getX() - 0.5,
@@ -339,6 +347,7 @@
             group.add(line);
         }
         
+        //Adds a single staff object
         function addStaff(stage, tl, br, lines) {
             if (lines === undefined) {
                 lines = [];
