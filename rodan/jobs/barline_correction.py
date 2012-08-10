@@ -18,7 +18,7 @@ class BarlineCorrection(JobBase):
     input_type = JobType.MEI
     output_type = input_type
     description = 'Correct barline detection errors.'
-    show_during_wf_create = False
+    show_during_wf_create = True
     parameters = {
         'data': ''
     }
