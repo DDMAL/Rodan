@@ -10,6 +10,8 @@ import rodan.jobs
 from rodan.models.jobs import JobType
 from rodan.utils import get_size_in_mb
 
+from PIL import Image
+from cStringIO import StringIO
 
 class RodanUser(models.Model):
     class Meta:
@@ -430,16 +432,25 @@ class Page(models.Model):
 
     def handle_image_upload(self, file):
         # Might need to fix the filename extension
-        basename, _ = os.path.splitext(self.filename)
+        basename, extension = os.path.splitext(self.filename)
         self.filename = basename + '.tiff'
         self.save()
 
         image_path = self.get_latest_file_path('tiff')
         rodan.jobs.utils.create_dirs(image_path)
 
-        with open(image_path, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+        # perform image conversion, if necessary
+        output_file = open(image_path, 'wb+')
+        if extension != '.tiff':
+            uploaded_buffer = StringIO(file.read())
+            uploaded_image = Image.open(uploaded_buffer)
+            uploaded_image.save(output_file, 'TIFF')
+            uploaded_buffer.close()
+            output_file.close()
+        else:
+            with output_file as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
 
         # Now generate thumbnails
         rodan.jobs.misc_tasks.create_thumbnails_task.delay(self.id, image_path, settings.THUMBNAIL_SIZES)

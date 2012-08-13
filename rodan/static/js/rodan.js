@@ -304,27 +304,15 @@ $(document).ready(function () {
 
         $('input[type=file]').change(function (e) {
             var files = e.target.files;
-            var files_valid = true;
-            for (var i = 0, file; file = files[i]; i++){
-                if (!file.type.match('image.tiff')){
-                    files_valid = false;
-                    break;
-                }
+            
+            if ($('#page-placeholder').length) {
+                $('#page-placeholder').remove();
             }
 
-            if (files_valid){
-                if ($('#page-placeholder').length) {
-                    $('#page-placeholder').remove();
-                }
+            // Show a modal dialog until the uploading is complete
+            $('#modal').show();
 
-                // Show a modal dialog until the uploading is complete
-                $('#modal').show();
-
-                $('#form').trigger('submit');
-            }
-            else{
-                alert("One of the files you are attempting to upload is not of TIFF format. Please make sure all files are of TIFF format.");
-            }
+            $('#form').trigger('submit');
         });
     }
 
