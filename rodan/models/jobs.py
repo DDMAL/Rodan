@@ -16,6 +16,9 @@ class JobBase:
     """The celery task to execute"""
     task = None
     enabled = True
+    """ True if this job requires all of the pages to be at this step
+    before it is run """
+    all_pages = False
 
     def get_name(self):
         return self.name or remove_prefixes(self.__class__.__name__)
