@@ -77,3 +77,8 @@ class JobType:
     MEI = 8
     SOLR = 9
     END = 10
+    BORDER_REMOVE_IMAGE = 13
+    STAFFGROUP_INPUT = 17
+    ROTATED_IMAGE = 19
+    CORRECTED_MEI = 23
+    DESPECKLE_IMAGE = 29

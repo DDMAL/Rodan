@@ -23,8 +23,8 @@ def rotate(image_filepath, **kwargs):
 class Rotate(JobBase):
     name = 'Rotate'
     slug = 'rotate'
-    input_type = JobType.IMAGE
-    output_type = JobType.IMAGE
+    input_type = JobType.DESPECKLE_IMAGE
+    output_type = JobType.ROTATED_IMAGE
     description = 'Rotate an image.'
     show_during_wf_create = True
     parameters = {
@@ -44,8 +44,8 @@ def auto_rotate(image_filepath, **kwargs):
 class AutoRotate(JobBase):
     name = 'Automatic Rotation'
     slug = 'auto-rotate'
-    input_type = JobType.IMAGE
-    output_type = JobType.IMAGE
+    input_type = JobType.DESPECKLE_IMAGE
+    output_type = JobType.ROTATED_IMAGE
     description = 'Automatically rotate an image.'
     show_during_wf_create = True
     is_automatic = True

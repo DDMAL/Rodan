@@ -54,7 +54,7 @@ class Despeckle(JobBase):
     name = 'Despeckle'
     slug = 'despeckle'
     input_type = JobType.BINARISED_IMAGE
-    output_type = JobType.BINARISED_IMAGE
+    output_type = JobType.DESPECKLE_IMAGE
     description = 'Despeckle a binarised image.'
     show_during_wf_create = True
     is_automatic = False
