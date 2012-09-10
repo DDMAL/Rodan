@@ -1,8 +1,8 @@
 from django.db.models.loading import get_model
-from celery.task import task
 from rodan.utils import remove_prefixes
 
 # These are not actual Django models
+
 
 class JobBase:
     is_automatic = False
