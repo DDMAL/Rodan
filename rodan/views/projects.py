@@ -170,9 +170,11 @@ def task(request, job, project_id=0, page_id=0):
         project = get_object_or_404(Project, pk=project_id)
         all_pages = project.page_set.all()
 
-    # Don't allow users to view this for automatic jobs
+    # If this is an automatic job then start it immediately
     if job.get_object().is_automatic:
-        raise Http404
+        page = get_object_or_404(Page, pk=page_id)
+        page.start_next_automatic_job(rodan_user)
+        return redirect(page.get_absolute_url())
 
     # Now, try to find a page in this project that has this job next
     # (May have been started by the current user but never finished)
