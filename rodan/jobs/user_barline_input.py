@@ -1,21 +1,18 @@
 import utils
 import gamera
+import json
 
 from rodan.models.jobs import JobType, JobBase
 
 @utils.rodan_task(inputs='tiff')
 def barline_input(image_filepath, **kwargs):
-    input_image = gamera.core.load_image(image_filepath)
+    print kwargs
 
-    scale_val = input_image.ncols / kwargs['imw']
+    data = {'system_data': kwargs['sequence']}
 
-    #added '- 1' to bottom right point coordinates because gamera goes 1 pixel over.
-    output_image = input_image.subimage( \
-        (kwargs['tlx'] * scale_val, kwargs['tly'] * scale_val),
-        (kwargs['brx'] * scale_val - 1, kwargs['bry'] * scale_val - 1))
-
+    json_content = json.dumps(data)
     return {
-        "tiff": output_image
+        'json': json_content
     }
 
 class BarlineInput(JobBase):
@@ -25,5 +22,6 @@ class BarlineInput(JobBase):
     name = 'Barline Input'
     show_during_wf_create = True
     parameters = {
+        'sequence': ''
     }
     task = barline_input
