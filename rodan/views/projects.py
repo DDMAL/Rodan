@@ -23,8 +23,7 @@ def dashboard(request):
     all_jobs = Job.objects.all()
     available_jobs = {}
     user = request.user.get_profile() if request.user.is_authenticated() else None
-    pages = list(Page.objects.all())
-    random.shuffle(pages)
+    pages = list(Page.objects.order_by('sequence').all())
 
     for page in pages:
         if page.workflow and page.workflow.has_started:
