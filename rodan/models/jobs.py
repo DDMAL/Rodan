@@ -27,7 +27,7 @@ class JobBase:
         """If the child class defines a slug, use that; otherwise, take the
         class name and just convert it to lowercase.
         """
-        return self.slug or self.get_name().lower()
+        return self.slug or self.get_name().lower().replace(" ", "-")
 
     def get_context(self, page):
         """
