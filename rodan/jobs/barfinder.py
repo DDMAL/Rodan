@@ -23,6 +23,7 @@ class BarFinder(JobBase):
     output_type = JobType.MEI
     description = 'Find the bars in an image'
     name = 'Bar Finder'
+    is_automatic = True
     show_during_wf_create = True
     parameters = {
     }
