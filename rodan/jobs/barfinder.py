@@ -7,15 +7,10 @@ from rodan.models.jobs import JobType, JobBase
 def barfinder(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
 
-    scale_val = input_image.ncols / kwargs['imw']
-
-    #added '- 1' to bottom right point coordinates because gamera goes 1 pixel over.
-    output_image = input_image.subimage( \
-        (kwargs['tlx'] * scale_val, kwargs['tly'] * scale_val),
-        (kwargs['brx'] * scale_val - 1, kwargs['bry'] * scale_val - 1))
+    # Todo: do barfinder and output mei
 
     return {
-        "tiff": output_image
+        "tiff": input_image
     }
 
 class BarFinder(JobBase):

@@ -1,13 +1,15 @@
 import utils
 from rodan.models.jobs import JobType, JobBase
 
-@utils.rodan_task(inputs='tiff')
-def combine_mei(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, correct_rotation)
-    output_image = input_image
+@utils.rodan_task(inputs='mei')
+def combine_mei(mei_path, **kwargs):
+    # Todo: This should take all of the MEI - one from each page in the
+    # project - and combine it. We need to work out how to give a job
+    # input from >1 page
+    all_mei = ""
     
     return {
-        'tiff': output_image
+        'mei': all_mei
     }
 
 class CombineMei(JobBase):
