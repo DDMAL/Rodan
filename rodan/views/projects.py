@@ -20,7 +20,7 @@ from rodan.jobs.diva_resources.search import do_query, LiberSearchException
 def dashboard(request):
     nojob = bool(request.GET.get('nojob', False))
 
-    all_jobs = Job.objects.all()
+    all_jobs = Job.objects.filter(enabled=True)
     available_jobs = {}
     user = request.user.get_profile() if request.user.is_authenticated() else None
     pages = list(Page.objects.order_by('sequence').all())
@@ -84,8 +84,10 @@ def view(request, project):
     done = bool(request.GET.get('done', False))
     nojob = bool(request.GET.get('nojob', False))
 
-    # This is a super hacky way of doing it. If you can improve this, please do
-    all_jobs = Job.objects.all()
+    # All jobs that are part of this project's workflows
+    all_jobs = Job.objects.filter(jobitem__workflow__page__project=project)
+
+    # Jobs that can be performed the logged in user
     available_jobs = set([])
     user = request.user.get_profile() if request.user.is_authenticated() else None
     for page in project.page_set.all():
@@ -98,7 +100,7 @@ def view(request, project):
         .exclude(task_state="FAILURE") \
         .order_by('end_manual_time', 'start_time')
 
-    # Create a dict: key = job, value = availability for this project
+    # Create a tuple: (job, if this job can be run now, project it's part of)
     jobs = []
     for job in all_jobs:
         jobs.append((job, job in available_jobs, project.id))
