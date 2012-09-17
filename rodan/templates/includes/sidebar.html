@@ -12,4 +12,8 @@
             <li><a href="{{ project.get_absolute_url }}" title="{{ project.description }}">{{ project.name }}<br />{% progress_bar project.get_percent_done %}</a></li>
         {% endfor %}
     </ul>
+{% else %}
+    <div class="project-entry">
+        <p>There are no projects created.</p>
+    </div>
 {% endif %}
