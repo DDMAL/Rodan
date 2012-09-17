@@ -328,35 +328,6 @@ $(document).ready(function () {
         });
     }
 
-    // Does not trigger if a fake-img is added dynamically (intended behaviour)
-    if ($('.fake-img').length) {
-        var imageInterval = setInterval(function () {
-            if (!$('.fake-img').length) {
-                clearInterval(imageInterval);
-            } else {
-                var pageID = $('.fake-img').attr('data-page');
-                $.ajax({
-                    cache: false,
-                    url: '/status/page/' + pageID,
-                    context: $('.fake-img'),
-                    success: function (pageStatus) {
-                        if (pageStatus) {
-                            this.removeClass('fake-img');
-                            var image = this.find('img');
-
-                            // Must be after image is ready, to prevent caching
-                            $(image).attr('src', $(image).attr('data-src'));
-
-                            // Change the "X pages still processing" text
-                            // Assumes only one page is processing ... fix later
-                            // Also results in awkward pluralisation for "page"
-                            $('#num-processing').text('no');
-                        }
-                    },
-                });
-            }
-        }, 1000);
-    }
 
     var tickables = {};
 
