@@ -340,18 +340,18 @@ $(document).ready(function () {
                     url: '/status/page/' + pageID,
                     context: $('.fake-img'),
                     success: function (pageStatus) {
-                        console.log(pageID);
                         if (pageStatus) {
-                            this.removeClass('fake-img');
+                            this.attr('class', 'page-loading-done');
                             var image = this.find('img');
- 
-                            // Must be after image is ready, to prevent caching
-                           $(image).attr('src', $(image).attr('data-src'));
-                            
-                            // Change the "X pages still processing" text
-                            // Assumes only one page is processing ... fix later
-                            // Also results in awkward pluralisation for "page"
-                            $('#num-processing').text('no');
+                            $.each(image, function(index, element){
+                                // Must be after image is ready, to prevent caching
+                               $(element).attr('src', $(element).attr('data-src'));
+                                
+                                // Change the "X pages still processing" text
+                                // Assumes only one page is processing ... fix later
+                                // Also results in awkward pluralisation for "page"
+                                $('#num-processing').text('no');
+                            });
                         }
                     },
                 });
