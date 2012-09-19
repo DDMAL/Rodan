@@ -328,7 +328,7 @@ $(document).ready(function () {
         });
     }
 
-    // Does not trigger if a fake-img is added dynamically (intended behaviour)
+ // Does not trigger if a fake-img is added dynamically (intended behaviour)
     if ($('.fake-img').length) {
         var imageInterval = setInterval(function () {
             if (!$('.fake-img').length) {
@@ -341,16 +341,17 @@ $(document).ready(function () {
                     context: $('.fake-img'),
                     success: function (pageStatus) {
                         if (pageStatus) {
-                            this.removeClass('fake-img');
+                            this.attr('class', 'page-loading-done');
                             var image = this.find('img');
-
-                            // Must be after image is ready, to prevent caching
-                            $(image).attr('src', $(image).attr('data-src'));
-
-                            // Change the "X pages still processing" text
-                            // Assumes only one page is processing ... fix later
-                            // Also results in awkward pluralisation for "page"
-                            $('#num-processing').text('no');
+                            $.each(image, function(index, element){
+                                // Must be after image is ready, to prevent caching
+                               $(element).attr('src', $(element).attr('data-src'));
+                                
+                                // Change the "X pages still processing" text
+                                // Assumes only one page is processing ... fix later
+                                // Also results in awkward pluralisation for "page"
+                                $('#num-processing').text('no');
+                            });
                         }
                     },
                 });
