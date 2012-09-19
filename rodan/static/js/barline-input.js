@@ -1,11 +1,18 @@
 (function ($) {
     "use strict";
+    /*
+    TODO:
+    Fix Div membership code. Remove show/hide for the moment. Reintegrate show/hide when div structure is appropriate.
+    CSS backgrounds for questionnaire div, each complex system div, and each subgroup div
+    Save complex system structure in cSystems array
     
+    */
     var divId = 0;
     var currentDiv = 0;
     var fields = [];
     var nStaves = 1;
     var nCSystems = 0;
+    var cSystems = [];
     var q1 = "How many staves are there on the page?";
     var q2 = "How many multi-staff systems are there on the page? Enter 0 if there are none.";
     var q3 = "What is the number of the first staff in the system?";
@@ -25,18 +32,18 @@
         }
     }
     
-    function submitNumberField(id1, id2, callback, zeroCallback) {
+    function submitNumberField(pDiv, id1, id2, callback, zeroCallback) {
         var sectVal = $("#" + id1).val();
         var intRegex = /^\d+$/;
         if (intRegex.test(sectVal)) {
            if (sectVal > 0) {
-               callback(sectVal);
+               callback(pDiv, sectVal);
                showNextField();
                $("#" + id1).attr("disabled", true);
                $("#" + id2).detach();
            } else if (zeroCallback != null) {
                if (sectVal == 0) {
-                   zeroCallback();
+                   zeroCallback(pDiv);
                    showNextField();
                    $("#" + id1).attr("disabled", true);
                    $("#" + id2).detach();
@@ -54,10 +61,10 @@
         }
     }
     
-    function submitBooleanField(idYes, idNo, callback) {
+    function submitBooleanField(pDiv, idYes, idNo, callback) {
         $("#" + idYes).detach();
         $("#" + idNo).detach();
-        callback();
+        callback(pDiv);
         showNextField();
     }
     
@@ -83,11 +90,11 @@
         $("#" + id1).keypress(function(e) {
             if (e.keyCode == 13) {
                 e.preventDefault();
-                submitNumberField(id1, id2, callback, zeroCallback)
+                submitNumberField(nDiv, id1, id2, callback, zeroCallback)
             }
         });
         $("#" + id2).click(function(e) {
-            submitNumberField(id1, id2, callback, zeroCallback);
+            submitNumberField(nDiv, id1, id2, callback, zeroCallback);
         });
     }
     
@@ -111,47 +118,55 @@
         divId++;
         
         $("#" + idYes).click(function(e) {
-            submitBooleanField(idYes, idNo, callbackYes);
+            submitBooleanField(nDiv, idYes, idNo, callbackYes);
         });
         $("#" + idNo).click(function(e) {
-            submitBooleanField(idYes, idNo, callbackNo);
+            submitBooleanField(nDiv, idYes, idNo, callbackNo);
         });
     }
     
-    function addSelectField() {
-        
+    function addSelectField(div, question, id1, id2, firstDiv, callback) {
+        div.append("<div id=\"" + divId + "\"></div>");
+        var nDiv = $("#" + divId);
+        nDiv.append("<p>" + question + "</p>");
+        nDiv.append("<select id=\"sel" + divId + "\"></select>");
+        var selElement = $("#sel" + divId);
+        var i;
+        for (i = 0; i < nCSystems; i++) {
+            selElement.append("<option value=\"" + (i + 1) + "\">" + (i + 1) + "</option>");
+        }
     }
     
-    var yesPrev = function() {
-        addSelectField();
+    var yesPrev = function(pDiv, val) {
+        addSelectField(pDiv, q5, "wsystem" + divId, "wsystemsubmit" + divId, false, function(){});
     }
     
-    var noPrev = function() {
-        
+    var noPrev = function(pDiv, val) {
+        addNumberField(pDiv, q6, "nstaves" + divId, "nstavessubmit" + divId, false, function(){}, null);
     }
     
     function addCSystemQuestions(q, index) {
-        q.append("<div id=\"sectionquestions\"></div>");
-        var qDiv = $("#sectionquestions");
+        q.append("<div id=\"systemquestions\"></div>");
+        var qDiv = $("#systemquestions");
         qDiv.append("<p>Complex System " + (index + 1) + ":</p>");
         addNumberField(qDiv, q3, "system" + divId, "systemsubmit" + divId, false, function(){}, null);
         if (index > 0) {
-            addBooleanField(qDiv, q4, "prev" + divId, "prevsubmit" + divId, false, yesPrev, noPrev)
+            addBooleanField(qDiv, q4, "prev" + divId, "prevsubmit" + divId, false, yesPrev, noPrev);
         } else {
-            noPrev();
+            noPrev(qDiv);
         }
     }
     
     $(document).ready(function() {
         var q = $("#questionnaire");
-        var staffCallback = function(val) {
+        var staffCallback = function(pDiv, val) {
             nStaves = val;
         }
-        var mStaffCallback = function(val) {
+        var mStaffCallback = function(pDiv, val) {
             nCSystems = val;
             var i;
             for (i = 0; i < nCSystems; i++) {
-                addCSystemQuestions(q, i);
+                addCSystemQuestions(pDiv, i);
             }
         }
         var noMStaffCallback = function() {
