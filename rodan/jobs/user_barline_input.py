@@ -7,12 +7,8 @@ from rodan.models.jobs import JobType, JobBase
 @utils.rodan_task(inputs='tiff')
 def barline_input(image_filepath, **kwargs):
     print kwargs
-
-    data = {'system_data': kwargs['sequence']}
-
-    json_content = json.dumps(data)
     return {
-        'json': json_content
+        'txt': kwargs['sequence']
     }
 
 class BarlineInput(JobBase):
