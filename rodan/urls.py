@@ -26,12 +26,14 @@ workflow_urls = patterns('rodan.views.workflows',
 
 page_urls = patterns('rodan.views.pages',
     url(r'^/?$', 'view', name='view_page'),
-    url(r'^/jobs', 'add_jobs', name='add_jobs'),
+    # url(r'^/jobs', 'add_jobs', name='add_jobs'),
+    url(r'^/workflow/(?P<workflow_id>[^/]+)', include(patterns('rodan.views.pages',
+        url(r'^/jobs', 'add_jobs', name='add_jobs'),
+        url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete')))),
     url(r'^/workflow', 'workflow', name='new_workflow'),
     url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
     url(r'^/set', 'set_workflow', name='set_workflow'),
     url(r'^/clone', 'clone_workflow', name='clone_workflow'),
-    url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
 )
 
 urlpatterns = []

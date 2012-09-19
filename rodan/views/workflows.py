@@ -49,7 +49,7 @@ def edit(request, workflow):
 @login_required
 @rodan_view(Workflow)
 def add_pages(request, workflow):
-    project = Project.objects.filter(page__workflow=workflow).distinct()[0]
+    project = Project.objects.filter(page__workflows=workflow).distinct()[0]
 
     if project.is_owned_by(request.user):
         if request.method == 'POST':
@@ -59,7 +59,7 @@ def add_pages(request, workflow):
                     page = Page.objects.get(pk=page_id)
                     page.workflow = workflow
                     page.save()
-                    page.start_next_automatic_job(request.user.get_profile())
+                    page.start_next_automatic_job(workflow, request.user.get_profile())
                 return redirect('view_project', project_id=project.id)
             except Page.DoesNotExist:
                 print "Specified an invalid page ID oh no!!!"

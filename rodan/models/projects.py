@@ -54,7 +54,8 @@ class Project(models.Model):
     def is_partially_complete(self):
         Job = models.loading.get_model('rodan', 'Job')
         diva_job = Job.objects.get(pk='diva-preprocess')
-        return any(page.get_percent_done() == 100 and page.workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all())
+        #not sure if this still makes sense
+        return any(page.get_percent_done() == 100 and workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all() for workflow in page.workflows.all())
 
     def clone_workflow_for_page(self, workflow, page, user):
         Workflow = models.loading.get_model('rodan', 'Workflow')
@@ -158,7 +159,7 @@ class Page(models.Model):
 
     project = models.ForeignKey(Project)
     # Will only begin processing once a workflow has been specified
-    workflow = models.ForeignKey(Workflow, null=True, blank=True, on_delete=models.SET_NULL)
+    workflows = models.ManyToManyField(Workflow, null=True, blank=True)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
     # Used in conjunction with the @rodan_view decorator
@@ -182,24 +183,25 @@ class Page(models.Model):
     def get_absolute_url(self):
         return ('rodan.views.pages.view', [str(self.id)])
 
-    def get_original_image_size(self):
+    def get_original_image_size(self, workflow=None):
         """
         Gets the size of the TIFF image that was originally uploaded.
         """
-        return get_size_in_mb(os.path.getsize(self.get_latest_file_path('original')))
+        return get_size_in_mb(os.path.getsize(self.get_latest_file_path(workflow, 'original')))
 
     @staticmethod
     def _get_thumb_filename(path, size):
         base_path, _ = os.path.splitext(path)
         return "%s_%s.%s" % (base_path, size, settings.THUMBNAIL_EXT)
 
-    def _get_thumb_path(self, size, job):
+    def _get_thumb_path(self, size, workflow, job):
         return os.path.join("%d" % self.project.id,
                             "%d" % self.id,
+                            "%d" % workflow.id if workflow is not None else '',
                             "%s" % job.slug if job is not None else '',
                             self._get_thumb_filename(self.filename, size))
 
-    def _get_latest_file_path(self, file_type):
+    def _get_latest_file_path(self, workflow, file_type):
         """
         Helper method used by both get_file_url and get_file_path.
         Does not include the MEDIA_ROOT or MEDIA_URL.
@@ -223,7 +225,7 @@ class Page(models.Model):
         This is so that we get the latest file of the type we want.
         """
         files = file_manager.filter(result__page=self,
-                                    result__job_item__workflow=self.workflow,
+                                    result__job_item__workflow=workflow,
                                     result__end_total_time__isnull=False,
                                     result_type=file_type) \
                                     .order_by('-result__job_item__sequence') \
@@ -234,10 +236,10 @@ class Page(models.Model):
         except IndexError:
             return None
 
-    def get_mei_url(self):
-        return settings.MEDIA_URL + self._get_latest_file_path('mei')
+    def get_mei_url(self, workflow):
+        return settings.MEDIA_URL + self._get_latest_file_path(workflow, 'mei')
 
-    def get_latest_file_path(self, file_type):
+    def get_latest_file_path(self, workflow, file_type):
         """
         Returns the absolute filepath to the latest result file creatd
         of the specified type. The `file_type` keyword argument is a string
@@ -265,7 +267,7 @@ class Page(models.Model):
                         return self.get_job_path(jobitem.job, 'tiff')
 
         if file_type != 'original':
-            latest_file_path = self._get_latest_file_path(file_type)
+            latest_file_path = self._get_latest_file_path(workflow, file_type)
 
             if latest_file_path is not None:
                 return os.path.join(settings.MEDIA_ROOT,
@@ -277,8 +279,8 @@ class Page(models.Model):
                                 "%d" % self.id,
                                 self.filename)
 
-    def get_latest_thumb_url(self, size=settings.SMALL_THUMBNAIL):
-        latest_file_path = self._get_latest_file_path('tiff')
+    def get_latest_thumb_url(self, workflow, size=settings.SMALL_THUMBNAIL):
+        latest_file_path = self._get_latest_file_path(workflow, 'tiff')
 
         if latest_file_path is not None:
             file_path = self._get_thumb_filename(latest_file_path, size)
@@ -288,8 +290,8 @@ class Page(models.Model):
         else:
             return self.get_thumb_url(size, None)
 
-    def get_latest_thumb_path(self, size=settings.SMALL_THUMBNAIL):
-        latest_file_path = self._get_latest_file_path('tiff')
+    def get_latest_thumb_path(self, workflow, size=settings.SMALL_THUMBNAIL):
+        latest_file_path = self._get_latest_file_path(workflow, 'tiff')
 
         if latest_file_path is not None:
             file_path = self._get_thumb_filename(latest_file_path, size)
@@ -299,31 +301,31 @@ class Page(models.Model):
         else:
             return self.get_thumb_path(size, None)
 
-    def get_pre_bin_image_url(self, size=settings.LARGE_THUMBNAIL):
+    def get_pre_bin_image_url(self, workflow, size=settings.LARGE_THUMBNAIL):
         """
         Get the url to the latest pre-binarised image (i.e. the output of the
         step right before binarisation, or the latest step if binarisation is
         either not part of the workflow or has not yet been completed.
         """
         original = self.get_thumb_url(size=size)
-        if self.workflow.jobitem_set.count():
-            for jobitem in self.workflow.jobitem_set.order_by('-sequence'):
+        if workflow.jobitem_set.count():
+            for jobitem in workflow.jobitem_set.order_by('-sequence'):
                 if jobitem.job.get_object().output_type == JobType.IMAGE:
                     return self.get_thumb_url(size=size, job=jobitem.job)
 
         # Otherwise, just return the original
         return original
 
-    def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, job=None, cache=True):
+    def get_thumb_url(self, size=settings.SMALL_THUMBNAIL, workflow=None, job=None, cache=True):
         url = os.path.join(settings.MEDIA_URL,
-                            self._get_thumb_path(size, job))
+                            self._get_thumb_path(size, workflow, job))
 
         if cache:
             return url
         else:
             return url + '?_=' + str(uuid.uuid4())[:8]
 
-    def get_thumb_path(self, size=settings.SMALL_THUMBNAIL, job=None):
+    def get_thumb_path(self, size=settings.SMALL_THUMBNAIL, workflow=None, job=None):
         """
         Get the absolute path to the thumbnail image.
 
@@ -335,9 +337,9 @@ class Page(models.Model):
         argument.
         """
         return os.path.join(settings.MEDIA_ROOT,
-                            self._get_thumb_path(size=size, job=job))
+                            self._get_thumb_path(size, workflow, job))
 
-    def _get_job_path(self, job, ext):
+    def _get_job_path(self, job, workflow, ext):
         """
         Returns the relative path to the file for the specified
         job and extension.
@@ -346,10 +348,11 @@ class Page(models.Model):
 
         return os.path.join("%d" % self.project.id,
                             "%d" % self.id,
+                            "%d" % workflow.id,
                             "%s" % job.slug,
                             "%s.%s" % (basename, ext))
 
-    def get_job_path(self, job, ext):
+    def get_job_path(self, job, workflow, ext):
         """
         Returns the absolute path to the file for the specified
         job and extension. Used when saving files (only).
@@ -362,6 +365,7 @@ class Page(models.Model):
         return os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
                             "%d" % self.id,
+                            "%d" % workflow.id,
                             "%s" % job.slug,
                             "%s.%s" % (basename, ext))
 
@@ -373,11 +377,11 @@ class Page(models.Model):
         return os.path.join(self.project.get_divaserve_dir(),
                             "%d.tiff" % self.sequence)
 
-    def get_next_job_item(self, user=None):
-        if not self.workflow:
+    def get_next_job_item(self, workflow=None, user=None):
+        if not workflow:
             return None
 
-        for job_item in self.workflow.jobitem_set.all():
+        for job_item in workflow.jobitem_set.all():
             page_results = job_item.result_set.filter(page=self)
             no_result = page_results.count() == 0
             if no_result:
@@ -392,26 +396,26 @@ class Page(models.Model):
                     # This job is still processing - return None
                     return None
 
-    def get_next_job(self, user=None):
+    def get_next_job(self, workflow=None, user=None):
         """
         If user is None, it returns the next available job that has not yet
         been started. If the user is specified, it returns the next
         available job that has either not been started or that has been
         started by the specified user.
         """
-        next_job_item = self.get_next_job_item(user=user)
+        next_job_item = self.get_next_job_item(workflow=workflow, user=user)
         return next_job_item.job if next_job_item is not None else None
 
-    def start_next_job(self, user):
-        next_job_item = self.get_next_job_item(user=user)
+    def start_next_job(self, workflow, user):
+        next_job_item = self.get_next_job_item(workflow=workflow, user=user)
         # Create a new result only if there are none
         if next_job_item is not None and next_job_item.result_set.filter(page=self).count() == 0:
             Result = models.loading.get_model('rodan', 'Result')
             result = Result.objects.create(job_item=next_job_item, user=user, page=self)
             return result
 
-    def start_next_automatic_job(self, user):
-        next_job = self.get_next_job(user=user)
+    def start_next_automatic_job(self, workflow, user):
+        next_job = self.get_next_job(workflow=workflow, user=user)
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
@@ -423,18 +427,20 @@ class Page(models.Model):
         Result = models.loading.get_model('rodan', 'Result')
         num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
         try:
-            num_jobs = self.workflow.jobitem_set.count()
+            num_jobs = 0
+            for workflow in self.workflows.all():
+                num_jobs += workflow.jobitem_set.count()
             return (100 * num_complete) / num_jobs
         except (AttributeError, ZeroDivisionError):
             return 0
 
-    def handle_image_upload(self, file):
+    def handle_image_upload(self, file, workflow=None):
         # Might need to fix the filename extension
         basename, _ = os.path.splitext(self.filename)
         self.filename = basename + '.tiff'
         self.save()
 
-        image_path = self.get_latest_file_path('tiff')
+        image_path = self.get_latest_file_path(workflow, 'tiff')
         rodan.jobs.utils.create_dirs(image_path)
 
         with open(image_path, 'wb+') as destination:
@@ -451,8 +457,8 @@ class Page(models.Model):
                                      end_total_time__isnull=False
                                      ).count()
 
-    def reset_to_job(self, job):
-        this_sequence = self.workflow.jobitem_set.get(job=job).sequence
+    def reset_to_job(self, workflow, job):
+        this_sequence = workflow.jobitem_set.get(job=job).sequence
         # Delete all the results whose jobitems have sequence >= this one
         results_to_delete = self.result_set.filter(job_item__sequence__gte=this_sequence)
         for result in results_to_delete:
