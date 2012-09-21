@@ -179,6 +179,9 @@ class Page(models.Model):
     # Defines the hierarchy for generating breadcrumbs
     def get_parent(self):
         return self.project
+    
+    def get_previous_page(self):
+        return sorted(self.project.page_set.all(), key=lambda page: page.sequence)[self.sequence - 2] if self.sequence > 1 else None
 
     @models.permalink
     def get_absolute_url(self):
