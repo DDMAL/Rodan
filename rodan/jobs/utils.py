@@ -13,6 +13,7 @@ from django.conf import settings
 from django.db import models
 
 from rodan.models.results import Result
+from rodan.models import Page
 from rtask import RTask
 
 
@@ -57,6 +58,65 @@ def create_thumbnails(image_path, result):
     page.latest_width = width
     page.latest_height = height
     page.save()
+
+
+def rodan_multi_task(inputs, others=[]):
+    def inner_function(f):
+        @task(base=RTask)
+        @wraps(f)
+        def real_inner(result_id, **kwargs):
+            input_types = (inputs,) if isinstance(inputs, str) else inputs
+            result = Result.objects.get(pk=result_id)
+            page = result.page
+
+            # Figure out the paths to the requested input files
+            # For one input, pass in a string; for multiple, a tuple
+            input_paths = map(page.get_latest_file_path, input_types)
+
+            other_inputs = [other_input_mapping[other](page) for other in others]
+
+            args = input_paths + other_inputs
+
+            outputs = f(*args, **kwargs)
+
+            associated_page_ids = []
+            # Loop through all the outputs and write them to disk
+            for output_type, output_content in outputs.iteritems():
+                output_path = page.get_job_path(result.job_item.job, output_type)
+
+                create_dirs(output_path)
+
+                # Change the extension
+                if output_type == 'mei':
+                    XmlExport.meiDocumentToFile(output_content, output_path.encode('ascii', 'ignore'))
+                elif output_type == 'page_ids':
+                    associated_page_ids = output_content
+                else:
+                    fp = open(output_path, 'w')
+                    fp.write(output_content)
+                    fp.close()
+
+                result.create_file(output_path, output_type)
+
+            # Mark the job as finished, and save the parameters
+            result.update_end_total_time()
+            result.save_parameters(**kwargs)
+
+            if associated_page_ids:
+                for page_id in associated_page_ids:
+                    page = Page.objects.get(pk=page_id)
+                    job_item = page.get_next_job_item()
+                    # mega  hax
+                    page_result = Result.objects.create(job_item=job_item, page=page, user=result.user, task_state=result.task_state, \
+                        start_time=result.start_time, end_manual_time=result.end_manual_time, end_total_time=result.end_total_time)
+                    page_result.save()
+
+            # If the next job is automatic, start that too!
+            page.start_next_automatic_job(result.user)
+
+        return real_inner
+
+    return inner_function
 
 
 def rodan_task(inputs, others=[]):

@@ -239,6 +239,9 @@ class Page(models.Model):
     def get_mei_url(self):
         return settings.MEDIA_URL + self._get_latest_file_path('mei')
 
+    def get_mei_path(self):
+        return settings.MEDIA_ROOT + self._get_latest_file_path('mei')
+
     def get_latest_file_path(self, file_type):
         """
         Returns the absolute filepath to the latest result file creatd
@@ -417,9 +420,27 @@ class Page(models.Model):
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
-                next_result = self.start_next_job(user)
-                next_result.update_end_manual_time()
-                next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
+                if next_job.slug == 'combine-mei':
+                    #code for merging pages goes here
+                    project_pages_merge_readiness = True
+                    project_pages = self.project.page_set.all()
+                    for page in project_pages:
+                        if not page.get_next_job(user=user).slug == 'combine-mei':
+                            project_pages_merge_readiness = False
+
+                    if project_pages_merge_readiness:
+                        #create a set/list of all the paths to the mei's of each page
+                        #also a list of page ids perhaps
+                        target_page_ids = [pg.id for pg in project_pages if pg.id != self.id]
+
+                        next_result = self.start_next_job(user)
+                        next_result.update_end_manual_time()
+                        next_job_obj.on_post(next_result.id, **{"target_page_ids": target_page_ids})
+
+                else:
+                    next_result = self.start_next_job(user)
+                    next_result.update_end_manual_time()
+                    next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
     def get_percent_done(self):
         Result = models.loading.get_model('rodan', 'Result')

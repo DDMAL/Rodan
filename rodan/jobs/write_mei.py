@@ -1,16 +1,33 @@
 import utils
 from rodan.models.jobs import JobType, JobBase
+from rodan.models import Page
+from pymei import XmlImport
 
-@utils.rodan_task(inputs='mei')
+
+@utils.rodan_multi_task(inputs='mei')
 def combine_mei(mei_path, **kwargs):
-    # Todo: This should take all of the MEI - one from each page in the
-    # project - and combine it. We need to work out how to give a job
-    # input from >1 page
-    all_mei = ""
-    
+    target_page_ids = kwargs['target_page_ids']
+
+    mei_docs = []
+
+    # get the mei of the current page
+    mei_docs.append(XmlImport.documentFromFile(str(mei_path)))
+
+    # get the meis of all other pages
+    for page_id in target_page_ids:
+        page = Page.objects.get(pk=page_id)
+        page_mei_path = page.get_mei_path()
+        mei_docs.append(XmlImport.documentFromFile(str(page_mei_path)))
+
+    #use mei_docs to merge into one... the first elem of the list is the page thats sending the job
+    # and the rest of the list are all other pages waiting to get merged
+    all_mei = mei_docs[0]
+
     return {
-        'mei': all_mei
+        'mei': all_mei,
+        'page_ids': target_page_ids
     }
+
 
 class CombineMei(JobBase):
     name = 'Combine all MEI files'
