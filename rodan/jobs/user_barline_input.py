@@ -21,3 +21,16 @@ class BarlineInput(JobBase):
         'sequence': ''
     }
     task = barline_input
+    
+    def get_context(self, page):
+        prev_page = page.get_previous_page()
+        if prev_page != None:
+            prev_txt_path = prev_page.get_latest_file_path('txt')
+            if prev_txt_path != None:
+                structure = open(prev_txt_path)
+                return {
+                    'previous_structure': structure.read()
+                }
+        return {
+            'previous_structure': None
+        }
