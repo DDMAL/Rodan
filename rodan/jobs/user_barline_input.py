@@ -23,14 +23,13 @@ class BarlineInput(JobBase):
     task = barline_input
     
     def get_context(self, page):
+        prev_structure = None
         prev_page = page.get_previous_page()
         if prev_page:
             prev_txt_path = prev_page.get_latest_file_path('txt')
             if prev_txt_path:
                 structure = open(prev_txt_path)
-                return {
-                    'previous_structure': structure.read()
-                }
+                prev_structure = structure.read()
         return {
-                    'previous_structure': None
+                    'previous_structure': prev_structure
         }
