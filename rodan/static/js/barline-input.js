@@ -1,12 +1,6 @@
 (function ($) {
-    "use strict";
     /*
-    TODO:
-    Fix Div membership code. Remove show/hide for the moment. Reintegrate show/hide when div structure is appropriate.
-    CSS backgrounds for questionnaire div, each complex system div, and each subgroup div
-    Save complex system structure in cSystems array
-    
-    */
+    "use strict";
     var divId = 0;
     var currentDiv = 0;
     var fields = [];
@@ -179,6 +173,26 @@
         $('#form').submit(function () {
             
         });
-    });
+    });*/
+    "use strict";
     
+    $(document).ready(function() {
+        var previous_structure = $("#previous_structure").text();
+        if (previous_structure == "None") {
+            $("#prev_questions").detach();
+        } else {
+            $("#non_prev_questions").detach();
+        }
+        $("form input[type=submit]").click(function() {
+            $("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
+            $(this).attr("clicked", "true");
+        });
+        $("#form").submit(function(e) {
+            var submit_name = $("input[type=submit][clicked=true]").attr("name");
+            if (submit_name == "sameasprev") {
+                $("#staff-sequence").val(previous_structure);
+            }
+        });
+       
+    });
 })(jQuery);
