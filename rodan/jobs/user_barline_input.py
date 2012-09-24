@@ -17,6 +17,8 @@ class BarlineInput(JobBase):
     description = 'Describe the staff groups of a page'
     name = 'Barline Input'
     show_during_wf_create = True
+    is_automatic = False
+    outputs_image = False
     parameters = {
         'sequence': ''
     }
@@ -31,5 +33,5 @@ class BarlineInput(JobBase):
                 structure = open(prev_txt_path)
                 prev_structure = structure.read()
         return {
-                    'previous_structure': prev_structure
+            'previous_structure': prev_structure
         }
