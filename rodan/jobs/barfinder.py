@@ -8,14 +8,17 @@ from barfinder_resources.meicreate import BarlineDataConverter
 @utils.rodan_task(inputs='tiff')
 def barfinder(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
+    image_width = input_image.width
+    image_height = input_image.height
 
+    # get the staff group hint inputted by the user
     sg_hint = '(2|)x2 (4(2|))'
 
     bar_finder = BarlineFinder()
     staff_bb, bar_bb = bar_finder.process_file(input_image, sg_hint)
     
     bar_converter = BarlineDataConverter(staff_bb, bar_bb)
-    bar_converter.bardata_to_mei(sg_hint)
+    bar_converter.bardata_to_mei(sg_hint, image_filepath, image_width, image_height)
     mei_file = bar_converter.get_wrapped_mei()
 
     return {
@@ -31,6 +34,7 @@ class BarFinder(JobBase):
     is_automatic = True
     show_during_wf_create = True
     parameters = {
+        'sg_hint_path': ''
     }
     task = barfinder
     outputs_image = False

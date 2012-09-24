@@ -33,6 +33,7 @@ from pyparsing import nestedExpr
 import os
 import re
 import sys
+import datetime
 
 from pymei import MeiDocument, MeiElement, XmlExport
 
@@ -50,7 +51,7 @@ class BarlineDataConverter:
         self.staff_bb = staff_bb
         self.bar_bb = bar_bb
 
-    def bardata_to_mei(self, sg_hint):
+    def bardata_to_mei(self, sg_hint, image_path, image_width, image_height):
         '''
         Perform the data conversion to mei
         '''
@@ -62,7 +63,7 @@ class BarlineDataConverter:
         ###########################
         #         MetaData        #
         ###########################
-        mei_head = MeiElement('meiHead')
+        mei_head = self._create_header()
         mei.addChild(mei_head)
 
         ###########################
@@ -78,6 +79,8 @@ class BarlineDataConverter:
         # physical location data
         facsimile = MeiElement('facsimile')
         surface = MeiElement('surface')
+        graphic = self._create_graphic(image_path, image_width, image_height)
+        surface.addChild(graphic)
 
         # parse staff group hint to generate staff group
         sg_hint = sg_hint.split(" ")
@@ -195,6 +198,83 @@ class BarlineDataConverter:
                 sb = MeiElement('sb')
                 section.addChild(sb)
 
+    def _create_header(self, rodan_version='0.1'):
+        '''
+        Create a meiHead element
+        '''
+
+        mei_head = MeiElement('meiHead')
+        today = datetime.date.today().isoformat()
+
+        app_name = 'RODAN/barlineFinder'
+
+        # file description
+        file_desc = MeiElement('fileDesc')
+
+        title_stmt = MeiElement('titleStmt')
+        title = MeiElement('title')
+        resp_stmt = MeiElement('respStmt')
+        corp_name = MeiElement('corpName')
+        corp_name.setValue('Distributed Digital Music Archives and Libraries Lab (DDMAL)')
+        title_stmt.addChild(title)
+        title_stmt.addChild(resp_stmt)
+        resp_stmt.addChild(corp_name)
+        
+        pub_stmt = MeiElement('pubStmt')
+        resp_stmt = MeiElement('respStmt')
+        corp_name = MeiElement('corpName')
+        corp_name.setValue('Distributed Digital Music Archives and Libraries Lab (DDMAL)')
+        pub_stmt.addChild(resp_stmt)
+        resp_stmt.addChild(corp_name)
+
+        mei_head.addChild(file_desc)
+        file_desc.addChild(title_stmt)
+        file_desc.addChild(pub_stmt)
+
+        # encoding description
+        encoding_desc = MeiElement('encodingDesc')
+        app_info = MeiElement('appInfo')
+        application = MeiElement('application')
+        application.addAttribute('version', rodan_version)
+        name = MeiElement('name')
+        name.setValue(app_name)
+        ptr = MeiElement('ptr')
+        ptr.addAttribute('target', 'https://github.com/DDMAL/barlineFinder')
+
+        mei_head.addChild(encoding_desc)
+        encoding_desc.addChild(app_info)
+        app_info.addChild(application)
+        application.addChild(name)
+        application.addChild(ptr)
+
+        # revision description
+        revision_desc = MeiElement('revisionDesc')
+        change = MeiElement('change')
+        change.addAttribute('n', '1')
+        resp_stmt = MeiElement('respStmt')
+        corp_name = MeiElement('corpName')
+        corp_name.setValue('Distributed Digital Music Archives and Libraries Lab (DDMAL)')
+        change_desc = MeiElement('changeDesc')
+        ref = MeiElement('ref')
+        ref.addAttribute('target', '#'+application.getId())
+        ref.setValue(app_name)
+        ref.setTail('.')
+        p = MeiElement('p')
+        p.addChild(ref)
+        p.setValue('Encoded using ')
+        date = MeiElement('date')
+        date.setValue(today)
+        
+        mei_head.addChild(revision_desc)
+        revision_desc.addChild(change)
+        change.addChild(resp_stmt)
+        resp_stmt.addChild(corp_name)
+        change.addChild(change_desc)
+        change_desc.addChild(p)
+        change.addChild(date)
+
+        return mei_head
+
     def _calc_staff_num(self, num_staves, staff_grps):
         '''
         In the case where there are hidden staves,
@@ -252,6 +332,19 @@ class BarlineDataConverter:
             m.addAttribute('facs', m_zone.getId())
             surface = self.meidoc.getElementsByName('surface')[0]
             surface.addChild(m_zone)
+
+    def _create_graphic(self, image_path, image_width, image_height):
+        '''
+        Create a graphic element.
+        '''
+
+        graphic = MeiElement('graphic')
+        graphic.addAttribute('width', str(image_width))
+        graphic.addAttribute('height', str(image_height))
+        graphic.addAttribute('target', str(image_path))
+        graphic.addAttribute('unit', 'px')
+
+        return graphic
 
     def _create_staff_group(self, sg_list, staff_grp, n):
         '''
