@@ -5,28 +5,29 @@ from pymei import XmlImport
 
 from mei_resources.meicombine import MeiCombiner
 
-@utils.rodan_multi_task(inputs='mei')
-def combine_mei(mei_path, **kwargs):
+@utils.rodan_multi_task(inputs='mei', others=['page_sequence'])
+def combine_mei(mei_path, page_sequence, **kwargs):
     target_page_ids = kwargs['target_page_ids']
 
-    # the first element of the list is the page that's sending the job
-    # and the rest of the list are all other pages waiting to get merged
-    mei_paths = [str(mei_path)]
+    # dictionary of page sequences to mei paths
+    pages = {page_sequence: str(mei_path)}
 
     # get the meis of all other pages
     for page_id in target_page_ids:
         page = Page.objects.get(pk=page_id)
         page_mei_path = page.get_mei_path()
-        mei_paths.append(str(page_mei_path))
+        pages[page.sequence] = str(page_mei_path)
 
-    # the list of paths going into the combiner should be an ordered
-    # sequence corresponding to the sequence of uploaded pages
-    mc = MeiCombiner(mei_paths)
+    # ordered_mei is a list of the mei files generated for each page
+    # that is in the order of uploaded files
+    ordered_mei = [pages[seq] for seq in sorted(pages.iterkeys())]
+    mc = MeiCombiner(ordered_mei)
     mc.combine()
     combined_mei = mc.get_mei()
 
     return {
-        'mei': combined_mei
+        'mei': combined_mei,
+        'page_ids': target_page_ids
     }
 
 class CombineMei(JobBase):
