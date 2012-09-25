@@ -2,9 +2,9 @@
     "use strict";
     //Setup
     $(document).ready(function() {
-        var gBrightness = 1;
-        var gContrast = 1;
-        var gColour = 1;
+        var gBrightness = 1.0;
+        var gContrast = 1.0;
+        var gColour = 1.0;
         var ordering = 0;
         //Scale values for grayscaling RGB (taken from http://www.mathworks.com/help/toolbox/images/ref/rgb2gray.html )
         var rScale = 0.2989;
@@ -243,9 +243,9 @@
         });
         
         $('#form').submit(function () {
-            $('#brightness-input').val(gBrightness);
-            $('#contrast-input').val(gContrast);
-            $('#colour-input').val(gColour);
+            $('#brightness-input').val(gBrightness.toFixed(3));
+            $('#contrast-input').val(gContrast.toFixed(3));
+            $('#colour-input').val(gColour.toFixed(3));
             $('#ordering-input').val(ordering);
         });
     });

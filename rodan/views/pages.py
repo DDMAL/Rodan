@@ -91,13 +91,27 @@ def process(request, page, job):
     else:
         job_object = job.get_object()
         kwargs = {}
-        parameters = job_object.parameters
+        binSize = 0
 
-        for parameter, default in parameters.iteritems():
-            param_type = type(default)
-            # The `type` method returns a typecasting function
-            # For example, type(1) returns int; int('1') -> 1 (of type int)
-            kwargs[parameter] = param_type(request.POST.get(parameter, default))
+        #Gets the paramaters from request.POST in relatd HTML for the job, then gets the type of the parameter
+        for parameter in request.POST:
+            if parameter != 'submit' and parameter != "csrfmiddlewaretoken" :
+                binSize=binSize+1
+                value = request.POST[parameter]
+                kwargs[parameter]=get_type(value, parameter)            
+                print parameter
+                print kwargs[parameter]
+                print type(kwargs[parameter])
+
+        #If there are no parameters other than csrftoken and submit in related .html, get them from .py (ie. for Diva)
+        if (binSize==0):
+            print "In orignial Param"
+            parameters = job_object.parameters
+            for parameter, default in parameters.iteritems():
+                # The `type` method returns a typecasting function
+                # For example, type(1) returns int; int('1') -> 1 (of type int)
+                param_type = type(default)
+                kwargs[parameter] = param_type(request.POST.get(parameter, default))
 
         # First create a result ...
         job_item = JobItem.objects.get(workflow=page.workflow, job=job)
@@ -109,6 +123,19 @@ def process(request, page, job):
 
         return redirect(page.project.get_absolute_url() + '?done=1')
 
+def get_type(x, parameter):
+    if type(x)==unicode or type(x)==str:
+        if x.isnumeric():
+            return int(x)
+        elif '.' in x:
+            try:
+                return float(x)
+            except ValueError:
+                pass
+        else:
+            return str(x)
+    else:
+        return type(x)
 
 def edit_parameters(request, page, job, workflow_jobs):
     template, context = job.get_view(None)

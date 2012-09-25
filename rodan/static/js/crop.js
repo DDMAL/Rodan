@@ -189,7 +189,7 @@
             $('#tly-input').val(points[1]);
             $('#brx-input').val(points[2]);
             $('#bry-input').val(points[3]);
-            $('#imw-input').val(imageObj.width);
+            $('#imw-input').val(imageObj.width.toFixed(3));
         });
     });
 })(jQuery)
