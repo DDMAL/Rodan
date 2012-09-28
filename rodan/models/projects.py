@@ -423,23 +423,22 @@ class Page(models.Model):
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
-                if next_job.slug == 'combine-mei':
-                    #code for merging pages goes here
-                    project_pages_merge_readiness = True
+                if next_job.get_object().all_pages:
                     project_pages = self.project.page_set.all()
+                    project_pages_readiness = True
                     for page in project_pages:
-                        if not page.get_next_job(user=user).slug == 'combine-mei':
-                            project_pages_merge_readiness = False
+                        if page.get_next_job(user=user).slug != next_job.slug:
+                            project_pages_readiness = False
+                            break
 
-                    if project_pages_merge_readiness:
-                        #create a set/list of all the paths to the mei's of each page
-                        #also a list of page ids perhaps
-                        target_page_ids = [pg.id for pg in project_pages if pg.id != self.id]
+                    if project_pages_readiness:
+                        result_ids = []
+                        for pg in project_pages:
+                            res = pg.start_next_job(user)
+                            res.update_end_manual_time()
+                            result_ids.append(res.id)
 
-                        next_result = self.start_next_job(user)
-                        next_result.update_end_manual_time()
-                        next_job_obj.on_post(next_result.id, **{"target_page_ids": target_page_ids})
-
+                        next_job_obj.on_post(result_ids, **next_job_obj.parameters)
                 else:
                     next_result = self.start_next_job(user)
                     next_result.update_end_manual_time()

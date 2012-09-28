@@ -14,7 +14,7 @@ from django.db import models
 
 from rodan.models.results import Result
 from rodan.models import Page
-from rtask import RTask
+from rtask import RTask, RTaskMultiPage
 
 
 Job = models.get_model('rodan', 'job')
@@ -60,59 +60,56 @@ def create_thumbnails(image_path, result):
     page.save()
 
 
-def rodan_multi_task(inputs, others=[]):
+def rodan_multi_page_task(inputs, others=[]):
     def inner_function(f):
-        @task(base=RTask)
+        @task(base=RTaskMultiPage)
         @wraps(f)
-        def real_inner(result_id, **kwargs):
+        def real_inner(result_ids, **kwargs):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
-            result = Result.objects.get(pk=result_id)
-            page = result.page
 
-            # Figure out the paths to the requested input files
-            # For one input, pass in a string; for multiple, a tuple
-            input_paths = map(page.get_latest_file_path, input_types)
+            #storing as tuples to avoid extra db lookups
+            results_pages = [(Result.objects.get(pk=result_id), Page.objects.get(result=result_id)) for result_id in result_ids]
 
-            other_inputs = [other_input_mapping[other](page) for other in others]
+            # storing pages in seperate ds for sorting independently of the order in results_pages
+            target_pages = [result_page[1] for result_page in results_pages]
 
-            args = input_paths + other_inputs
+            # always sort pages based on sequence no matter the input
+            target_pages.sort(key=lambda page: page.sequence)
+
+            input_paths_matrix = map(lambda input_type: [str(page.get_latest_file_path(input_type)) for page in target_pages], input_types)
+            other_inputs_matrix = map(lambda other_type: [other_input_mapping[other_type](page) for page in target_pages], others)
+
+            args = input_paths_matrix + other_inputs_matrix
 
             outputs = f(*args, **kwargs)
 
-            associated_page_ids = []
             # Loop through all the outputs and write them to disk
             for output_type, output_content in outputs.iteritems():
-                output_path = page.get_job_path(result.job_item.job, output_type)
+                for result_page in results_pages:
+                    result = result_page[0]
+                    page = result_page[1]
 
-                create_dirs(output_path)
+                    output_path = page.get_job_path(result.job_item.job, output_type)
 
-                # Change the extension
-                if output_type == 'mei':
-                    XmlExport.meiDocumentToFile(output_content, output_path.encode('ascii', 'ignore'))
-                elif output_type == 'page_ids':
-                    associated_page_ids = output_content
-                else:
-                    fp = open(output_path, 'w')
-                    fp.write(output_content)
-                    fp.close()
+                    create_dirs(output_path)
 
-                result.create_file(output_path, output_type)
+                    # Change the extension
+                    if output_type == 'mei':
+                        XmlExport.meiDocumentToFile(output_content, output_path.encode('ascii', 'ignore'))
+                    else:
+                        fp = open(output_path, 'w')
+                        fp.write(output_content)
+                        fp.close()
 
-            # Mark the job as finished, and save the parameters
-            result.update_end_total_time()
-            result.save_parameters(**kwargs)
+                    result.create_file(output_path, output_type)
 
-            if associated_page_ids:
-                for page_id in associated_page_ids:
-                    page = Page.objects.get(pk=page_id)
-                    job_item = page.get_next_job_item()
-                    # mega  hax
-                    page_result = Result.objects.create(job_item=job_item, page=page, user=result.user, task_state=result.task_state, \
-                        start_time=result.start_time, end_manual_time=result.end_manual_time, end_total_time=result.end_total_time)
-                    page_result.save()
-
-            # If the next job is automatic, start that too!
-            page.start_next_automatic_job(result.user)
+            #update parameters and end times of all results and start next auto jobs
+            for result_page in results_pages:
+                result = result_page[0]
+                page = result_page[1]
+                result.update_end_total_time()
+                result.save_parameters(**kwargs)
+                page.start_next_automatic_job(result.user)
 
         return real_inner
 

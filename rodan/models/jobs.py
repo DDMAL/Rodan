@@ -59,6 +59,17 @@ class ManualJobBase(JobBase):
         result.page.start_next_automatic_job(result.user)
 
 
+class MultiPageJobBase(JobBase):
+    all_pages = True
+
+    def on_post(self, result_ids, **kwargs):
+        """
+        If you want to perform a custom action after submit that is
+        not a celery task, override this
+        """
+        self.task.delay(result_ids, **kwargs)
+
+
 class JobType:
     """
     I will put in a nice descriptive docstring very very soon
