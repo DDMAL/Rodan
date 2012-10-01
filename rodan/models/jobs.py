@@ -6,6 +6,7 @@ from rodan.utils import remove_prefixes
 
 class JobBase:
     is_automatic = False
+    is_required = False
     outputs_image = True
     name = ''
     slug = ''
@@ -45,7 +46,7 @@ class JobBase:
         """
         self.task.delay(result_id, **kwargs)
 
-    def set_unknownParamType(self, unknown_value):
+    def set_unknown_param_type(self, unknown_value):
         """
         This is used if you want to get an unknown_value, returning it with a new type,
         either a float if it is a number or a string if it is not. This is used because
@@ -60,17 +61,17 @@ class JobBase:
         """
         Populates the kwargs with job_object parameters. If there exists a parameter
         that has no default type/value in the job definition then it gets a type from 
-        the input value using set_unknownParamType. Also if there is a default value
+        the input value using set_unknown_param_type. Also if there is a default value
         not in request.POST that is in the job definition then it adds that to kwargs
         with the default
         """
 
-        default_inputs={'csrfmiddlewaretoken', 'submit'}
+        default_inputs = {'csrfmiddlewaretoken', 'submit'}
         default_parameters = job_object.parameters
 
         for parameter in input_values:
 
-            if parameter not in default_inputs :
+            if parameter not in default_inputs:
                 value = input_values[parameter]
 
                 if parameter in default_parameters:
@@ -78,14 +79,13 @@ class JobBase:
                     kwargs[parameter]=param_type(value)
                     
                 else:
-                    kwargs[parameter]=self.set_unknownParamType(value)
+                    kwargs[parameter]=self.set_unknown_param_type(value)
 
         for parameter, default in default_parameters.iterItems():
-            if parameter not in input_values
-            kwargs[parameter]=default
+            if parameter not in input_values:
+                kwargs[parameter]=default
         
         return kwargs
-
 
 class ManualJobBase(JobBase):
     def on_post(self, result_id, **kwargs):

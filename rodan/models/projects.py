@@ -98,6 +98,7 @@ class Job(models.Model):
     enabled = models.BooleanField(default=True)
     is_automatic = models.BooleanField()
     pk_name = 'job_slug'
+    is_required = models.BooleanField()
 
     def __unicode__(self):
         return self.name
@@ -149,6 +150,32 @@ class Workflow(models.Model):
         percent_done = sum(page.get_percent_done() for page in self.page_set.all())
         return percent_done / self.page_set.count() if self.page_set.count() else 0
 
+    def get_workflow_jobs(self):
+        return [job_item.job for job_item in self.jobitem_set.all()]
+
+    def get_required_jobs(self):
+        last_job = self.get_workflow_jobs()[-1]
+        return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
+
+    def check_required_compatibility(self, job):
+        if all(job.is_compatible(req_job) for req_job in self.get_required_jobs()) :
+            return True
+        else:
+            return False
+
+    def get_available_jobs(self):
+        available_jobs = []
+        if(self.get_workflow_jobs()):
+            last_job = self.get_workflow_jobs()[-1]
+            available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
+            if (self.get_required_jobs()):
+                available_jobs = self.get_required_jobs() + [job for job in available_jobs if job not in self.get_required_jobs() and self.check_required_compatibility(job)]
+        else:
+             available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
+        return available_jobs
+
+    def get_removable_jobs(self):
+        return [job for job in self.get_workflow_jobs() if job.get_object().input_type == job.get_object().output_type]
 
 class Page(models.Model):
     class Meta:
