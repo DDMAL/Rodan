@@ -3,6 +3,7 @@ import datetime
 import os
 
 from pymei import XmlImport, XmlExport, MeiElement
+import pymei
 
 class MeiCombiner:
     '''
@@ -18,7 +19,7 @@ class MeiCombiner:
 
         self._input_mei_paths = input_mei_paths
         if len(self._input_mei_paths):
-            self._meidoc = XmlImport.documentFromFile(self._input_mei_paths[0])
+            self._meidoc = pymei.read(self._input_mei_paths[0])
         else:
             self._meidoc = None
 
@@ -27,7 +28,7 @@ class MeiCombiner:
             base_facsimile = self._meidoc.getElementsByName('facsimile')[0]
             base_section = self._meidoc.getElementsByName('section')[0]
             for f in self._input_mei_paths[1:]:
-                mei = XmlImport.documentFromFile(f)
+                mei = pymei.read(f)
 
                 # combine surface
                 surface = mei.getElementsByName('surface')
@@ -100,7 +101,7 @@ class MeiCombiner:
 
     def write_mei(self, output_path):
         if self._meidoc:
-            XmlExport.meiDocumentToFile(self._meidoc, output_path)
+            pymei.write(self._meidoc, output_path)
 
     def get_mei(self):
         return self._meidoc
