@@ -85,7 +85,7 @@ def view(request, project):
     nojob = bool(request.GET.get('nojob', False))
 
     # All jobs that are part of this project's workflows
-    all_jobs = Job.objects.filter(jobitem__workflow__page__project=project)
+    all_jobs = Job.objects.filter(jobitem__workflow__page__project=project).distinct()
 
     # Jobs that can be performed the logged in user
     available_jobs = set([])
