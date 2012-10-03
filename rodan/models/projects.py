@@ -158,7 +158,7 @@ class Workflow(models.Model):
         return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
 
     def check_required_compatibility(self, job):
-        if all(job.is_compatible(req_job) for req_job in self.get_required_jobs()) :
+        if all(job.is_compatible(req_job) for req_job in self.get_required_jobs()):
             return True
         else:
             return False
@@ -176,6 +176,12 @@ class Workflow(models.Model):
 
     def get_removable_jobs(self):
         return [job for job in self.get_workflow_jobs() if job.get_object().input_type == job.get_object().output_type]
+
+    def get_jobs_same_type(self):
+        return [job for job in self.get_available_jobs() if job.get_object().input_type == job.get_object().output_type]
+
+    def get_jobs_dif_type(self):
+        return [job for job in self.get_available_jobs() if job.get_object().input_type != job.get_object().output_type]
 
 class Page(models.Model):
     class Meta:

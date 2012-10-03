@@ -185,9 +185,13 @@ def add_jobs(request, page):
     workflow_jobs = page.workflow.get_workflow_jobs()
     removable_jobs = page.workflow.get_removable_jobs()
     available_jobs = page.workflow.get_available_jobs()     
+    jobs_same_type = page.workflow.get_jobs_same_type()
+    jobs_dif_type = page.workflow.get_jobs_dif_type()
 
     data = {
         'available_jobs': available_jobs,
+        'jobs_same_type' : jobs_same_type,
+        'jobs_dif_type' : jobs_dif_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,
