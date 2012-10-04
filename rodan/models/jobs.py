@@ -1,9 +1,8 @@
 from django.db.models.loading import get_model
-from celery.task import task
 from rodan.utils import remove_prefixes
 
-# These are not actual Django models
 
+# These are not actual Django models
 class JobBase:
     is_automatic = False
     outputs_image = True
@@ -17,7 +16,7 @@ class JobBase:
     task = None
     enabled = True
     """ True if this job requires all of the pages to be at this step
-    before it is run """
+    before it is run (i.e. multi-page jobs) """
     all_pages = False
 
     def get_name(self):
@@ -41,7 +40,9 @@ class JobBase:
     def on_post(self, result_id, **kwargs):
         """
         If you want to perform a custom action after submit that is
-        not a celery task, override this
+        not a celery task, override this.
+        In the case of a multi-page job, a list of result_ids will be passed
+        into the result_id parameter.
         """
         self.task.delay(result_id, **kwargs)
 
@@ -57,17 +58,6 @@ class ManualJobBase(JobBase):
         Result = get_model('rodan', 'Result')
         result = Result.objects.get(pk=result_id)
         result.page.start_next_automatic_job(result.user)
-
-
-class MultiPageJobBase(JobBase):
-    all_pages = True
-
-    def on_post(self, result_ids, **kwargs):
-        """
-        If you want to perform a custom action after submit that is
-        not a celery task, override this
-        """
-        self.task.delay(result_ids, **kwargs)
 
 
 class JobType:

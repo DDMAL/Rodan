@@ -1,5 +1,5 @@
 import utils
-from rodan.models.jobs import JobType, MultiPageJobBase
+from rodan.models.jobs import JobType, JobBase
 
 from mei_resources.meicombine import MeiCombiner
 
@@ -15,7 +15,7 @@ def combine_mei(mei_paths, **kwargs):
     }
 
 
-class CombineMei(MultiPageJobBase):
+class CombineMei(JobBase):
     name = 'Combine all MEI files'
     slug = 'combine-mei'
     input_type = JobType.CORRECTED_MEI
@@ -25,3 +25,4 @@ class CombineMei(MultiPageJobBase):
     is_automatic = True
     outputs_image = False
     task = combine_mei
+    all_pages = True
