@@ -391,7 +391,7 @@ class Page(models.Model):
             if no_result:
                 return job_item
             else:
-                first_result = page_results.all()[0]
+                first_result = page_results.all()[0]  # this bombs sometimes
                 manual_not_done = first_result.end_manual_time is None
                 automatic_not_done = first_result.end_total_time is None
                 if manual_not_done and first_result.user == user:
@@ -424,16 +424,26 @@ class Page(models.Model):
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
                 if next_job.get_object().all_pages:
-                    project_pages = self.project.page_set.all()
+                    # the following statement gets all the pages that have not completed the multi-page job
+                    # and that are part of the same workflow (i.e. if there is a page that uses the same wf
+                    # as this page but has completed the given multi-page job, it will be ignored)
+                    target_workflow_pages = [page for page in self.workflow.page_set.all() \
+                                                if not page.is_job_complete(next_job.jobitem_set.filter(workflow=page.workflow))]
+                    # print target_workflow_pages
+
+                    # for page in target_workflow_pages:
+                    #     if page.is_job_complete(next_job.jobitem_set.all()):
+                    #         page.reset_to_job(next_job)
+
                     project_pages_readiness = True
-                    for page in project_pages:
+                    for page in target_workflow_pages:
                         if page.get_next_job(user=user).slug != next_job.slug:
                             project_pages_readiness = False
                             break
 
                     if project_pages_readiness:
                         result_ids = []
-                        for pg in project_pages:
+                        for pg in target_workflow_pages:
                             res = pg.start_next_job(user)
                             res.update_end_manual_time()
                             result_ids.append(res.id)

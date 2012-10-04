@@ -211,13 +211,20 @@ def add_jobs(request, page):
 @rodan_view(Page, Job)
 def restart(request, page, job):
     try:
-        page.reset_to_job(job)
+        if job.get_object().all_pages:
+            project_pages = page.project.page_set.all()
+            for page in project_pages:
+                if page.workflow.contains_job(job):
+                    page.reset_to_job(job)
+        else:
+            page.reset_to_job(job)
         # If the next job is automatic, make it start too
         page.start_next_automatic_job(user=request.user.get_profile())
     except Page.DoesNotExist:
         print "page does not exist for some reason"
 
     return redirect(page.get_absolute_url())
+
 
 @login_required
 @rodan_view(Page)
