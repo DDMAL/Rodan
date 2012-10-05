@@ -67,7 +67,6 @@ class Project(models.Model):
 
         page.workflow = new_wf
         page.save()
-        page.start_next_automatic_job(user)
 
         return new_wf
 

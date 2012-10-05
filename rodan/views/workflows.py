@@ -59,7 +59,10 @@ def add_pages(request, workflow):
                     page = Page.objects.get(pk=page_id)
                     page.workflow = workflow
                     page.save()
+
+                for page in workflow.page_set.all():
                     page.start_next_automatic_job(request.user.get_profile())
+
                 return redirect('view_project', project_id=project.id)
             except Page.DoesNotExist:
                 print "Specified an invalid page ID oh no!!!"
