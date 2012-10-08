@@ -212,10 +212,9 @@ def add_jobs(request, page):
 def restart(request, page, job):
     try:
         if job.get_object().all_pages:
-            project_pages = page.project.page_set.all()
-            for page in project_pages:
-                if page.workflow.contains_job(job):
-                    page.reset_to_job(job)
+            workflow_pages = page.workflow.page_set.all()
+            for page in workflow_pages:
+                page.reset_to_job(job)
         else:
             page.reset_to_job(job)
         # If the next job is automatic, make it start too
