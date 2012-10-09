@@ -168,6 +168,7 @@ def add_jobs(request, page):
                 # Add validation later
                 sequence = page.workflow.jobs.count() + 1
                 job_item = JobItem.objects.create(workflow=page.workflow, job=job_to_add, sequence=sequence)
+                # page.start_next_automatic_job(user=request.user.get_profile())
             except Job.DoesNotExist:
                 print "Job does not exist!"
 
@@ -184,14 +185,12 @@ def add_jobs(request, page):
 
     workflow_jobs = page.workflow.get_workflow_jobs()
     removable_jobs = page.workflow.get_removable_jobs()
-    available_jobs = page.workflow.get_available_jobs()     
-    jobs_same_type = page.workflow.get_jobs_same_type()
-    jobs_dif_type = page.workflow.get_jobs_dif_type()
+    jobs_same_io_type = page.workflow.get_jobs_same_io_type()
+    jobs_diff_io_type = page.workflow.get_jobs_diff_io_type()
 
     data = {
-        'available_jobs': available_jobs,
-        'jobs_same_type' : jobs_same_type,
-        'jobs_dif_type' : jobs_dif_type,
+        'jobs_same_io_type' : jobs_same_io_type,
+        'jobs_diff_io_type' : jobs_diff_io_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,

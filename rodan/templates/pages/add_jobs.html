@@ -18,16 +18,16 @@
     <br />
     <h2>Available jobs</h2>
     <ul id="available-jobs">
-    {% if jobs_same_type and jobs_dif_type %}<h3> Current Step </h3>
-    {% elif jobs_same_type %} <h3> Next Step </h3> {% endif %}
-    {% for job in jobs_same_type %}
+    {% if jobs_same_io_type and jobs_diff_io_type %}<h3> Current Step </h3>
+    {% elif jobs_same_io_type %} <h3> Next Step </h3> {% endif %}
+    {% for job in jobs_same_io_type %}
             {% include "includes/job_li.html" with add=1 %}
     {% endfor %}
-    {% if jobs_dif_type %} <h3> Next Step </h3> {% endif %}
-    {% for job in jobs_dif_type %}
+    {% if jobs_diff_io_type %} <h3> Next Step </h3> {% endif %}
+    {% for job in jobs_diff_io_type %}
             {% include "includes/job_li.html" with add=1 %}
     {% endfor %}
-    {% if not available_jobs %}
+    {% if not jobs_same_io_type and not jobs_diff_io_type %}
     <li class="full-height">There are no more available jobs.</li>
     {% endif %}
     </ul>

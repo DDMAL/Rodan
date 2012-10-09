@@ -81,10 +81,10 @@ class JobBase:
                 else:
                     kwargs[parameter]=self.set_unknown_param_type(value)
 
-        for parameter in default_parameters:
+        for parameter, default in default_parameters.iteritems():
             if parameter not in input_values:
-                kwargs[parameter]=default_parameters[parameter]
-        
+                kwargs[parameter]=default
+                
         return kwargs
 
 class ManualJobBase(JobBase):
