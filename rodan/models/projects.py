@@ -159,11 +159,12 @@ class Workflow(models.Model):
         Return a list of all the jobs with a required flag that are compatible with the last added job
         that can be added (i.e. are not already chosen).
         """
-        try:
+        workflow_jobs=self.get_workflow_jobs()
+        if len(workflow_jobs):
             last_job = self.get_workflow_jobs()[-1]
             return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
-        except:
-            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs()]
+        else:
+            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and job.get_object().input_type==JobType.IMAGE]
 
     def has_required_compatibility(self, job):
         """
@@ -180,13 +181,20 @@ class Workflow(models.Model):
         available_jobs = []
         workflow_jobs = self.get_workflow_jobs()
         required_jobs = self.get_required_jobs()
-        if workflow_jobs:
+        if len(workflow_jobs):
             last_job = workflow_jobs[-1]
-            available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs and last_job.is_compatible(job)]
+            #First finds enabled jobs that aren't required
+            available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job not in workflow_jobs and last_job.is_compatible(job)]
+            #If there are required jobs, filters out those jobs not compatible with required jobs, else returns available jobs
             if required_jobs:
-                available_jobs = required_jobs + [job for job in available_jobs if job not in required_jobs and self.has_required_compatibility(job)]
+                available_jobs = required_jobs + [job for job in available_jobs and self.has_required_compatibility(job)]
         else:
-             available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
+            #If there aren't any workflow jobs, finds all enabled jobs that aren't required            
+            available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job.get_object().input_type == JobType.IMAGE]
+            #If there are required jobs, filters out all jobs that aren't compatible with the required jobs
+            if required_jobs:
+                available_jobs = required_jobs + [job for job in available_jobs if self.has_required_compatibility(job)]
+
         return available_jobs
 
     def get_removable_jobs(self):
