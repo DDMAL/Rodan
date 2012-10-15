@@ -160,18 +160,18 @@ class Workflow(models.Model):
         Return a list of all the jobs with a required flag that are compatible with the last added job
         that can be added (i.e. are not already chosen).
         """
-        workflow_jobs=self.get_workflow_jobs()
+        workflow_jobs = self.get_workflow_jobs()
         if len(workflow_jobs):
             last_job = self.get_workflow_jobs()[-1]
             return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
         else:
-            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and job.get_object().input_type==JobType.IMAGE]
+            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and job.get_object().input_type == JobType.IMAGE]
 
     def has_required_compatibility(self, job):
         """
-        Check that the arguement job is compatible with all required jobs in this step. 
+        Check that the arguement job is compatible with all required jobs in this step.
         i.e., has the same output type as all the input types of the required jobs at the current step.
-        """ 
+        """
         return all(job.is_compatible(req_job) for req_job in self.get_required_jobs())
 
     def get_available_jobs(self):
@@ -190,7 +190,7 @@ class Workflow(models.Model):
             if required_jobs:
                 available_jobs = required_jobs + [job for job in available_jobs and self.has_required_compatibility(job)]
         else:
-            #If there aren't any workflow jobs, finds all enabled jobs that aren't required            
+            #If there aren't any workflow jobs, finds all enabled jobs that aren't required
             available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job.get_object().input_type == JobType.IMAGE]
             #If there are required jobs, filters out all jobs that aren't compatible with the required jobs
             if required_jobs:
@@ -212,6 +212,7 @@ class Workflow(models.Model):
 
     def get_jobs_diff_io_type(self):
         return [job for job in self.get_available_jobs() if job.get_object().input_type != job.get_object().output_type]
+
 
 class Page(models.Model):
     class Meta:
