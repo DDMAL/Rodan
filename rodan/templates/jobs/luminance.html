@@ -1,10 +1,10 @@
 <p>Adjust the sliders to change the brightness, contrast, and degree of colour enhancement of the image. Use the dropdown menu to select the order of operations.</p>
 {% csrf_token %}
 <fieldset class="submit">
-    <input type="hidden" name="brightness" value="1" id="brightness-input" />
-	<input type="hidden" name="contrast" value="1" id="contrast-input" />
-	<input type="hidden" name="colour" value="1" id="colour-input" />
-	<input type="hidden" name="ordering" value="1" id="ordering-input" />
+    <input type="hidden" name="brightness" value="1.0" id="brightness-input" />
+	<input type="hidden" name="contrast" value="1.0" id="contrast-input" />
+	<input type="hidden" name="colour" value="1.0" id="colour-input" />
+	<input type="hidden" name="order" value="1" id="ordering-input" />
     <input type="submit" name="submit" value="Submit" class="submit" />
 </fieldset>
 <select id="ordering">

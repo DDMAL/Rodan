@@ -58,6 +58,7 @@ class Despeckle(JobBase):
     description = 'Despeckle a binarised image.'
     show_during_wf_create = True
     is_automatic = False
+    is_required = True 
     parameters = {
         'despeckle_value': 0
     }

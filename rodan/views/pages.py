@@ -90,13 +90,9 @@ def process(request, page, workflow, job):
     else:
         job_object = job.get_object()
         kwargs = {}
-        parameters = job_object.parameters
 
-        for parameter, default in parameters.iteritems():
-            param_type = type(default)
-            # The `type` method returns a typecasting function
-            # For example, type(1) returns int; int('1') -> 1 (of type int)
-            kwargs[parameter] = param_type(request.POST.get(parameter, default))
+        #Get the on_Post parameters
+        kwargs = job_object.get_parameters(job_object, request.POST, **kwargs)
 
         # First create a result ...
         # could change this just to workflow=workflow??
@@ -201,7 +197,8 @@ def add_jobs(request, page, workflow):
         available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
 
     data = {
-        'available_jobs': available_jobs,
+        'jobs_same_io_type' : jobs_same_io_type,
+        'jobs_diff_io_type' : jobs_diff_io_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,

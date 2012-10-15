@@ -64,6 +64,7 @@ class SimpleThresholdBinarise(JobBase):
     output_type = JobType.BINARISED_IMAGE
     description = 'Convert an image to black and white (simple threshold).'
     show_during_wf_create = True
+    is_required = True
     parameters = {
         'threshold': 0
     }
@@ -77,6 +78,7 @@ class DJVUBinarise(JobBase):
     output_type = JobType.BINARISED_IMAGE
     description = 'Convert an image to black and white (DJVU algorithm).'
     show_during_wf_create = True
+    is_required = True
     parameters = {
         'smoothness': 0.2,
         'max_block_size': 512,
@@ -92,5 +94,6 @@ class BrinkBinarise(JobBase):
     output_type = JobType.BINARISED_IMAGE
     description = 'Convert an image to black and white (Brink algorithm).'
     show_during_wf_create = True
+    is_required = True
     is_automatic = True
     task = brink_binarise
