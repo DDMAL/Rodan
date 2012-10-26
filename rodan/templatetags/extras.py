@@ -12,8 +12,8 @@ def get_range(end, start=1):
     return range(start, end + 1)
 
 @register.simple_tag
-def get_thumb_for_job(page, job=None, size=settings.SMALL_THUMBNAIL):
-    return page.get_thumb_url(job=job, size=size)
+def get_thumb_for_job(page, workflow=None, job=None, size=settings.SMALL_THUMBNAIL):
+    return page.get_thumb_url(workflow=workflow, job=job, size=size)
 
 @register.filter
 def is_job_complete(page, job_item):

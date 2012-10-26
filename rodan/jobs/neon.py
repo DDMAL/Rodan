@@ -50,7 +50,7 @@ class Neon(JobBase):
     task = neon
     outputs_image = False
 
-    def get_context(self, page):
+    def get_context(self, page, workflow):
         input_mei_path = page.get_latest_file_path('mei')
 
         j = Job.objects.get(pk=self.slug)

@@ -45,8 +45,6 @@ def dashboard(request):
         .filter(end_total_time__isnull=True)\
         .exclude(task_state="FAILURE")
 
-    print current_jobs
-
     data = {
         'current_jobs': current_jobs,
         'percent_done': percent_done,
@@ -100,8 +98,6 @@ def view(request, project):
         .exclude(task_state="FAILURE") \
         .order_by('end_manual_time', 'start_time')
 
-    print available_jobs
-    print current_jobs
 
     # Create a dict: key = job, value = availability for this project
     jobs = []
@@ -209,7 +205,7 @@ def task(request, job, project_id=0, page_id=0):
     print "TUPLE"
     print page_workflow_tuple
     job_object = job.get_object()
-    view_data = job.get_view(page_workflow_tuple[0])
+    view_data = job.get_view(page_workflow_tuple[0], page_workflow_tuple[1])
     data = {
         'disable_breadcrumbs': True,
         'project': project,

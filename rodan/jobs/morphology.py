@@ -45,7 +45,7 @@ class PostStaffRemovalDespeckle(JobBase):
     }
     task = despeckle
 
-    def get_context(self, page):
+    def get_context(self, page, workflow):
         return {
             'width': page.latest_width,
         }
@@ -58,13 +58,13 @@ class Despeckle(JobBase):
     description = 'Despeckle a binarised image.'
     show_during_wf_create = True
     is_automatic = False
-    is_required = True 
+    is_required = True
     parameters = {
         'despeckle_value': 0
     }
     task = despeckle
 
-    def get_context(self, page):
+    def get_context(self, page, workflow):
         return {
             'width': page.latest_width,
         }

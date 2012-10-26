@@ -3,7 +3,7 @@
 {% if user_can_edit %}
 <div class="right-float">
     <a class="button" href="{% url edit_workflow workflow.id %}">Edit workflow</a>
-    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Manage jobs</a>{% endif %}
+    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id workflow.id %}">Manage jobs</a>{% endif %}
     <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
 {% endif %}
@@ -72,7 +72,7 @@
         <tr>
             <td>{{ job_item.job }}</td>
             {% for page in page_section %}
-                <td>{% if page|is_job_complete:job_item %}{% if job_item.job.get_object.outputs_image %}<img src="{% get_thumb_for_job page job_item.job %}" />{% else %}This job does not output an image.{% endif %}{% else %}This job is incomplete.{% endif %}</td>
+                <td>{% if page|is_job_complete:job_item %}{% if job_item.job.get_object.outputs_image %}<img src="{% get_thumb_for_job page workflow job_item.job %}" />{% else %}This job does not output an image.{% endif %}{% else %}This job is incomplete.{% endif %}</td>
             {% endfor %}
             {% if outer_last %}
             {% for i in num_to_fill|get_range %}

@@ -8,15 +8,26 @@ from rodan.models.projects import Page, Job, JobItem, Workflow, Project
 from rodan.models.results import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
-from rodan.models.jobs import JobType
 from rodan.views.projects import task as task_view
 
 
 @rodan_view(Page)
 def view(request, page):
+
+    data = {
+        'project': page.project,
+        'page_workflows': page.workflows.all(),
+    }
+
+    return ('View', data)
+
+
+@rodan_view(Page, Workflow)
+def view_page_workflow(request, page, workflow):
     steps = []
 
-    job_items = page.workflow.jobitem_set.all() if page.workflow else []
+    job_items = workflow.jobitem_set.all() if workflow else []
+
     for job_item in job_items:
         try:
             result = Result.objects.get(page=page, job_item=job_item)
@@ -59,10 +70,10 @@ def view(request, page):
         # to avoid extra lookups
         if is_done != -1:
             step['outputs_image'] = job_item.job.get_object().outputs_image
-            step['small_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL, cache=False)
-            step['medium_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL, cache=False)
-            step['large_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL, cache=False)
-            step['original_image'] = page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE, cache=False)
+            step['small_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.SMALL_THUMBNAIL, cache=False)
+            step['medium_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.MEDIUM_THUMBNAIL, cache=False)
+            step['large_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.LARGE_THUMBNAIL, cache=False)
+            step['original_image'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.ORIGINAL_SIZE, cache=False)
 
         steps.append(step)
 
@@ -74,7 +85,6 @@ def view(request, page):
         'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
         'large_thumbnail': page.get_thumb_url(size=settings.LARGE_THUMBNAIL),
         'original_image': page.get_thumb_url(size=settings.ORIGINAL_SIZE),
-        'page': page,
         'steps': steps,
     }
 
@@ -186,19 +196,14 @@ def add_jobs(request, page, workflow):
                 job_item.sequence = job_item.sequence - 1
                 job_item.save()
 
-    workflow_jobs = [job_item.job for job_item in current_workflow.jobitem_set.all()]
-    removable_jobs = []
-    if workflow_jobs:
-        last_job = workflow_jobs[-1]
-        available_jobs = [job for job in Job.objects.filter(enabled=True) if job not in workflow_jobs and last_job.is_compatible(job)]
-        removable_jobs = [job for job in workflow_jobs if job.get_object().input_type == job.get_object().output_type]
-    else:
-        # No jobs in the workflow, show all image input jobs
-        available_jobs = [job for job in Job.objects.filter(enabled=True) if job.get_object().input_type == JobType.IMAGE]
+    workflow_jobs = current_workflow.get_workflow_jobs()
+    removable_jobs = current_workflow.get_removable_jobs()
+    jobs_same_io_type = current_workflow.get_jobs_same_io_type()
+    jobs_diff_io_type = current_workflow.get_jobs_diff_io_type()
 
     data = {
-        'jobs_same_io_type' : jobs_same_io_type,
-        'jobs_diff_io_type' : jobs_diff_io_type,
+        'jobs_same_io_type': jobs_same_io_type,
+        'jobs_diff_io_type': jobs_diff_io_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,
@@ -209,16 +214,17 @@ def add_jobs(request, page, workflow):
 
 
 @login_required
-@rodan_view(Page, Job)
-def restart(request, page, job):
+@rodan_view(Page, Workflow, Job)
+def restart(request, page, workflow, job):
     try:
-        page.reset_to_job(job)
+        page.reset_to_job(workflow, job)
         # If the next job is automatic, make it start too
-        page.start_next_automatic_job(user=request.user.get_profile())
+        page.start_next_automatic_job(workflow, user=request.user.get_profile())
     except Page.DoesNotExist:
         print "page does not exist for some reason"
 
     return redirect(page.get_absolute_url())
+
 
 @login_required
 @rodan_view(Page)
@@ -231,7 +237,7 @@ def set_workflow(request, page):
         workflow = get_object_or_404(Workflow, pk=workflow_id)
         page.workflow = workflow
         page.save()
-        page.start_next_automatic_job(request.user.get_profile())
+        page.start_next_automatic_job(workflow, request.user.get_profile())
 
         # Redirect to the workflow overview page
         return redirect(workflow)
@@ -243,6 +249,7 @@ def set_workflow(request, page):
     }
 
     return ('Set a new workflow', data)
+
 
 @login_required
 @rodan_view(Page)

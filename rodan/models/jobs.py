@@ -30,7 +30,7 @@ class JobBase:
         """
         return self.slug or self.get_name().lower().replace(" ", "-")
 
-    def get_context(self, page):
+    def get_context(self, page, workflow):
         """
         Override this if you want to pass custom variables to the template.
         Will be accessible in the template as "context" (so if you return

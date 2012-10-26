@@ -108,11 +108,11 @@ class Job(models.Model):
     def get_absolute_url(self):
         return ('rodan.views.jobs.view', [self.slug])
 
-    def get_view(self, page):
+    def get_view(self, page, workflow):
         """
         Returns a tuple of the template to use and a context dictionary
         """
-        return ('jobs/%s.html' % self.slug, self.get_object().get_context(page))
+        return ('jobs/%s.html' % self.slug, self.get_object().get_context(page, workflow))
 
     def get_object(self):
         return rodan.jobs.jobs[self.module]
@@ -188,7 +188,7 @@ class Workflow(models.Model):
             available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job not in workflow_jobs and last_job.is_compatible(job)]
             #If there are required jobs, filters out those jobs not compatible with required jobs, else returns available jobs
             if required_jobs:
-                available_jobs = required_jobs + [job for job in available_jobs and self.has_required_compatibility(job)]
+                available_jobs = required_jobs + [job for job in available_jobs if self.has_required_compatibility(job)]
         else:
             #If there aren't any workflow jobs, finds all enabled jobs that aren't required
             available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job.get_object().input_type == JobType.IMAGE]
@@ -496,7 +496,7 @@ class Page(models.Model):
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
-                next_result = self.start_next_job(user)
+                next_result = self.start_next_job(workflow, user)
                 next_result.update_end_manual_time()
                 next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
