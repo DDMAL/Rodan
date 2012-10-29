@@ -10,7 +10,7 @@
         <td>Workflows</td>
         <td>
             {% if page_workflows %}<a href="{% url manage_workflows project.id %}">Manage workflows</a>
-        </br><a href="{% url new_workflow page.id %}">Create another one?</a>
+        <br /><a href="{% url new_workflow page.id %}">Create another one?</a>
             {% else %}No workflows! <a href="{% url new_workflow page.id %}">Create one?</a>{% endif %}
         </td>
     </tr>
