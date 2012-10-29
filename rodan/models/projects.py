@@ -148,7 +148,7 @@ class Workflow(models.Model):
         return ('rodan.views.workflows.view', [str(self.id)])
 
     def get_percent_done(self):
-        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
+        percent_done = sum(page.get_percent_done(self) for page in self.page_set.all())
         return percent_done / self.page_set.count() if self.page_set.count() else 0
 
     def get_workflow_jobs(self):
@@ -500,13 +500,17 @@ class Page(models.Model):
                 next_result.update_end_manual_time()
                 next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
-    def get_percent_done(self):
+    def get_percent_done(self, workflow=None):
         Result = models.loading.get_model('rodan', 'Result')
-        num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
         try:
             num_jobs = 0
-            for workflow in self.workflows.all():
-                num_jobs += workflow.jobitem_set.count()
+            if workflow is not None:
+                num_complete = Result.objects.filter(page=self, job_item__in=workflow.jobitem_set.all(), end_total_time__isnull=False).count()
+                num_jobs = workflow.jobitem_set.count()
+            else:
+                num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
+                for workflow in self.workflows.all():
+                    num_jobs += workflow.jobitem_set.count()
             return (100 * num_complete) / num_jobs
         except (AttributeError, ZeroDivisionError):
             return 0
