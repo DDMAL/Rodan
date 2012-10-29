@@ -541,7 +541,7 @@ class Page(models.Model):
     def reset_to_job(self, workflow, job):
         this_sequence = workflow.jobitem_set.get(job=job).sequence
         # Delete all the results whose jobitems have sequence >= this one
-        results_to_delete = self.result_set.filter(job_item__sequence__gte=this_sequence)
+        results_to_delete = self.result_set.filter(job_item__sequence__gte=this_sequence, job_item__in=workflow.jobitem_set.all())
         for result in results_to_delete:
             path_to_job_file_results = os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
