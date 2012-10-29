@@ -10,6 +10,11 @@ def barfinder(image_filepath, sg_hint_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
     image_width = input_image.width
     image_height = input_image.height
+    if input_image.resolution != 0:
+        image_dpi = input_image.resolution
+    else:
+        # set a default image dpi of 72
+        image_dpi = 72
 
     # get the staff group hint inputted by the user
     with open(sg_hint_filepath, 'r') as sg_file:
@@ -19,7 +24,7 @@ def barfinder(image_filepath, sg_hint_filepath, **kwargs):
     staff_bb, bar_bb = bar_finder.process_file(input_image, sg_hint)
     
     bar_converter = BarlineDataConverter(staff_bb, bar_bb)
-    bar_converter.bardata_to_mei(sg_hint, image_filepath, image_width, image_height)
+    bar_converter.bardata_to_mei(sg_hint, image_filepath, image_width, image_height, image_dpi)
     mei_file = bar_converter.get_wrapped_mei()
 
     return {

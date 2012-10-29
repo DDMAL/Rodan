@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Sample usage:
 python meicreate.py -b C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_bar_position_2.txt -s C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_staff_vertices.txt -f detmoldbars.mei -g '(2|)x2 (4(2|))' -v    
 """
-
+from __future__ import division
 import argparse
 from pyparsing import nestedExpr
 import os
@@ -37,21 +37,30 @@ import datetime
 
 from pymei import MeiDocument, MeiElement, XmlExport
 
+# set up command line argument structure
+parser = argparse.ArgumentParser(description='Convert text file of OMR barline data to mei.')
+parser.add_argument('-b', '--barfilein', help='barline data input file')
+parser.add_argument('-s', '--stafffilein', help='staff data input file')
+parser.add_argument('-g', '--staffgroups', help='staffgroups')
+parser.add_argument('-f', '--fileout', help='output file')
+parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
+
 class BarlineDataConverter:
     '''
     Convert the output of the barline detection algorithm
     to MEI.
     '''
 
-    def __init__(self, staff_bb, bar_bb):
+    def __init__(self, staff_bb, bar_bb, verbose=False):
         '''
         Initialize the converter
         '''
 
         self.staff_bb = staff_bb
         self.bar_bb = bar_bb
+        self.verbose = verbose
 
-    def bardata_to_mei(self, sg_hint, image_path, image_width, image_height):
+    def bardata_to_mei(self, sg_hint, image_path, image_width, image_height, image_dpi=72):
         '''
         Perform the data conversion to mei
         '''
@@ -79,6 +88,7 @@ class BarlineDataConverter:
         # physical location data
         facsimile = MeiElement('facsimile')
         surface = MeiElement('surface')
+
         graphic = self._create_graphic(image_path, image_width, image_height)
         surface.addChild(graphic)
 
@@ -99,6 +109,9 @@ class BarlineDataConverter:
             
             for i in range(num_sb):
                 systems.append(staff_grp)
+
+            if self.verbose:
+                print "number of staves in system: %d x %d system(s)" % (n, num_sb)
 
         # there may be hidden staves in a system
         # make the encoded staff group the largest number of staves in a system
@@ -135,6 +148,7 @@ class BarlineDataConverter:
 
         staff_offset = 0
         n_measure = 1
+        b1_thresh = 1.5
         # for each system
         for s_ind, s in enumerate(systems):
             # measures in a system
@@ -152,20 +166,25 @@ class BarlineDataConverter:
 
                 # for each barline on this staff
                 staff_bars = barlines[staff_num]
+                # check the first barline candidate
+                # If it is sufficiently close to the beginning of the staff then ignore it.
+                b1_x = staff_bars[0]
+                if abs(b1_x/image_dpi - s_ulx/image_dpi) < b1_thresh:
+                    del staff_bars[0]
+
                 for n, b in enumerate(staff_bars):
                     # calculate bounding box of the measure
+                    m_uly = s_uly
+                    m_lry = s_lry
+
+                    m_lrx = b
+                    if n == len(staff_bars)-1 and m_lrx > s_lrx:
+                        m_lrx = s_lrx
+
                     if n == 0:
                         m_ulx = s_ulx
                     else:
                         m_ulx = staff_bars[n-1]
-
-                    m_uly = s_uly
-                    m_lry = s_lry
-
-                    if n == len(staff_bars)-1:
-                        m_lrx = s_lrx
-                    else:
-                        m_lrx = b
 
                     # create staff element
                     zone = self._create_zone(m_ulx, m_uly, m_lrx, m_lry)
@@ -197,6 +216,65 @@ class BarlineDataConverter:
             if s_ind+1 < len(systems):
                 sb = MeiElement('sb')
                 section.addChild(sb)
+
+    def _calc_staff_num(self, num_staves, staff_grps):
+        '''
+        In the case where there are hidden staves,
+        search for the correct staff number within the staff
+        group definition.
+        '''
+
+        if len(staff_grps) == 0:
+            # termination condition (or no match found)
+            return 0
+        else:
+            sg_staves = staff_grps[0].getChildrenByName('staffDef')
+            sgs = staff_grps[0].getChildrenByName('staffGrp')
+            if num_staves == len(sg_staves):
+                # no need to look at subsequent staff groups
+                n = int(sg_staves[0].getAttribute('n').value)
+            else:
+                n = self._calc_staff_num(num_staves, sgs)
+
+            return n + self._calc_staff_num(num_staves, staff_grps[1:])
+        
+    def _calc_measure_zone(self, measures):
+        '''
+        Calculate the bounding box of the provided measures
+        by calculating the min and max of the bounding boxes
+        of the staves which compose the measure.
+        '''
+
+        # for each measure
+        for m in measures:
+            staff_measure_zones = []
+            min_ulx = sys.maxint
+            min_uly = sys.maxint
+            max_lrx = -sys.maxint - 1
+            max_lry = -sys.maxint - 1
+            for s in m.getChildrenByName('staff'):
+                # have to skip # at the beginning of the id ref since using URIs
+                s_zone = self.meidoc.getElementById(s.getAttribute('facs').value[1:])
+                ulx = int(s_zone.getAttribute('ulx').value)
+                if ulx < min_ulx:
+                    min_ulx = ulx
+
+                uly = int(s_zone.getAttribute('uly').value)
+                if uly < min_uly:
+                    min_uly = uly
+
+                lrx = int(s_zone.getAttribute('lrx').value)
+                if lrx > max_lrx:
+                    max_lrx = lrx
+
+                lry = int(s_zone.getAttribute('lry').value)
+                if lry > max_lry:
+                    max_lry = lry
+
+            m_zone = self._create_zone(min_ulx, min_uly, max_lrx, max_lry)
+            m.addAttribute('facs', '#'+m_zone.getId())
+            surface = self.meidoc.getElementsByName('surface')[0]
+            surface.addChild(m_zone)
 
     def _create_header(self, rodan_version='0.1'):
         '''
@@ -275,72 +353,14 @@ class BarlineDataConverter:
 
         return mei_head
 
-    def _calc_staff_num(self, num_staves, staff_grps):
-        '''
-        In the case where there are hidden staves,
-        search for the correct staff number within the staff
-        group definition.
-        '''
-
-        if len(staff_grps) == 0:
-            # termination condition (or no match found)
-            return 0
-        else:
-            sg_staves = staff_grps[0].getChildrenByName('staffDef')
-            sgs = staff_grps[0].getChildrenByName('staffGrp')
-            if num_staves == len(sg_staves):
-                # no need to look at subsequent staff groups
-                n = int(sg_staves[0].getAttribute('n').value)
-            else:
-                n = self._calc_staff_num(num_staves, sgs)
-
-            return n + self._calc_staff_num(num_staves, staff_grps[1:])
-        
-    def _calc_measure_zone(self, measures):
-        '''
-        Calculate the bounding box of the provided measures
-        by calculating the min and max of the bounding boxes
-        of the staves which compose the measure.
-        '''
-
-        # for each measure
-        for m in measures:
-            staff_measure_zones = []
-            min_ulx = sys.maxint
-            min_uly = sys.maxint
-            max_lrx = -sys.maxint - 1
-            max_lry = -sys.maxint - 1
-            for s in m.getChildrenByName('staff'):
-                s_zone = self.meidoc.getElementById(s.getAttribute('facs').value)
-                ulx = int(s_zone.getAttribute('ulx').value)
-                if ulx < min_ulx:
-                    min_ulx = ulx
-
-                uly = int(s_zone.getAttribute('uly').value)
-                if uly < min_uly:
-                    min_uly = uly
-
-                lrx = int(s_zone.getAttribute('lrx').value)
-                if lrx > max_lrx:
-                    max_lrx = lrx
-
-                lry = int(s_zone.getAttribute('lry').value)
-                if lry > max_lry:
-                    max_lry = lry
-
-            m_zone = self._create_zone(min_ulx, min_uly, max_lrx, max_lry)
-            m.addAttribute('facs', m_zone.getId())
-            surface = self.meidoc.getElementsByName('surface')[0]
-            surface.addChild(m_zone)
-
     def _create_graphic(self, image_path, image_width, image_height):
         '''
         Create a graphic element.
         '''
 
         graphic = MeiElement('graphic')
-        graphic.addAttribute('width', str(image_width))
         graphic.addAttribute('height', str(image_height))
+        graphic.addAttribute('width', str(image_width))
         graphic.addAttribute('target', str(image_path))
         graphic.addAttribute('unit', 'px')
 
@@ -370,6 +390,7 @@ class BarlineDataConverter:
                 for i in range(n_staff_defs):
                     staff_def = MeiElement('staffDef')
                     staff_def.addAttribute('n', str(n+i+1))
+                    staff_def.addAttribute('lines', '5')
                     staff_grp.addChild(staff_def)
                 n += n_staff_defs
 
@@ -382,7 +403,7 @@ class BarlineDataConverter:
 
         staff = MeiElement('staff')
         staff.addAttribute('n', str(n))
-        staff.addAttribute('facs', zone.getId())
+        staff.addAttribute('facs', '#'+zone.getId())
 
         return staff
 
@@ -398,7 +419,7 @@ class BarlineDataConverter:
         measure.addAttribute('n', str(n))
 
         if zone is not None:
-            measure.addAttribute('facs', zone.getId())
+            measure.addAttribute('facs', '#'+zone.getId())
 
         return measure
 
