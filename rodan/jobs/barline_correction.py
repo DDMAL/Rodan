@@ -27,7 +27,6 @@ class BarlineCorrection(JobBase):
 
     def get_context(self, page):
         input_mei_path = page.get_latest_file_path('mei')
-
         j = Job.objects.get(pk=self.slug)
         output_path = page.get_job_path(j, 'mei')
         utils.create_dirs(output_path)
@@ -36,7 +35,7 @@ class BarlineCorrection(JobBase):
 
         mei_url = settings.MEDIA_URL + page._get_job_path(j, 'mei')
         return {
-            'bgimgpath': page.get_pre_bin_image_url(),
+            'bgimgpath': page.get_latest_thumb_url(settings.LARGE_THUMBNAIL),
             'scaled_width': settings.LARGE_THUMBNAIL,
             'orig_width': page.latest_width,
             'orig_height': page.latest_height,
