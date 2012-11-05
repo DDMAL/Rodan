@@ -148,7 +148,8 @@ class BarlineDataConverter:
 
         staff_offset = 0
         n_measure = 1
-        b1_thresh = 1.5
+        b1_thresh = 1.25
+        bn_thresh = 1.25
         # for each system
         for s_ind, s in enumerate(systems):
             # measures in a system
@@ -165,12 +166,23 @@ class BarlineDataConverter:
                 s_lry = s_bb[3]
 
                 # for each barline on this staff
-                staff_bars = barlines[staff_num]
+                try:
+                    staff_bars = barlines[staff_num]
+                except IndexError:
+                    # a staff was found, but no bar candidates have been found on the staff
+                    continue
+
                 # check the first barline candidate
                 # If it is sufficiently close to the beginning of the staff then ignore it.
                 b1_x = staff_bars[0]
                 if abs(b1_x/image_dpi - s_ulx/image_dpi) < b1_thresh:
                     del staff_bars[0]
+
+                # check the last barline candidate
+                # if there is no candidate near the end of the interior of the staff, add one
+                bn_x = staff_bars[-1]
+                if bn_x < s_lrx and abs(bn_x/image_dpi - s_lrx/image_dpi) > bn_thresh:
+                    staff_bars.append(s_lrx)
 
                 for n, b in enumerate(staff_bars):
                     # calculate bounding box of the measure
@@ -178,7 +190,7 @@ class BarlineDataConverter:
                     m_lry = s_lry
 
                     m_lrx = b
-                    if n == len(staff_bars)-1 and m_lrx > s_lrx:
+                    if n == len(staff_bars)-1:
                         m_lrx = s_lrx
 
                     if n == 0:
