@@ -20,7 +20,7 @@ project_urls = patterns('rodan.views.projects',
 workflow_urls = patterns('rodan.views.workflows',
     url(r'^/?$', 'view'),
     url(r'^/edit', 'edit', name='edit_workflow'),
-    url(r'^/add', 'add_pages', name='add_pages'),
+    url(r'^/pages', 'manage_pages', name='manage_pages'),
     url(r'^/jobs', 'manage_jobs', name='workflow_jobs'),
 )
 

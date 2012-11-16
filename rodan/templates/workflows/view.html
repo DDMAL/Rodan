@@ -4,7 +4,7 @@
 <div class="right-float">
     <a class="button" href="{% url edit_workflow workflow.id %}">Edit workflow</a>
     {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id workflow.id %}">Manage jobs</a>{% endif %}
-    <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
+    <a class="button" href="{% url manage_pages workflow.id %}">Manage pages</a>
 </div>
 {% endif %}
 

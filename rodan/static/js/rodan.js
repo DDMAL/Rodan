@@ -286,14 +286,25 @@ $(document).ready(function () {
             var radioButton = $(this).next();
             if (radioButton.attr('checked')) {
                 radioButton.prop('checked', false);
+                $(this).toggleClass('selected');
             } else {
-                radioButton.prop('checked', true);
+                //check if the current image is selected and the user is deselecting it
+                if ($(this).attr('class') == 'selected' && $(this).parent().attr('class') != "disabled"){
+                    //if so warn the user that he is about to remove all the data associated with the page he is about to
+                    //deselect.
+                    if(confirm("If you deassociate a Page and submit, all contents associated with that page with the current workflow will be deleted.")){
+                        radioButton.prop('checked', true);
+                        $(this).toggleClass('selected');
+                    }
+                }
+                else{
+                    radioButton.prop('checked', true);
+                    $(this).toggleClass('selected');
+                }
             }
 
             if (submitForm) {
                 $('#form').submit();
-            } else {
-                $(this).toggleClass('selected');
             }
         });
     }
