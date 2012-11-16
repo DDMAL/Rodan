@@ -43,8 +43,9 @@ class Project(models.Model):
         return user.is_authenticated() and self.creator == user.get_profile()
 
     def get_percent_done(self):
-        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
-        return percent_done / self.page_set.count() if self.page_set.count() else 0
+        target_pages = self.page_set.exclude(workflows=None).all()
+        percent_done = sum(page.get_percent_done() for page in target_pages)
+        return percent_done / target_pages.count() if target_pages.count() else 0
 
     def get_divaserve_dir(self):
         return os.path.join(settings.MEDIA_ROOT,
@@ -64,7 +65,7 @@ class Project(models.Model):
         for jobitem in workflow.jobitem_set.all():
             new_wf.jobitem_set.create(sequence=jobitem.sequence, job=jobitem.job)
 
-        page.workflow = new_wf
+        page.workflows.add(new_wf)
         page.save()
         page.start_next_automatic_job(user)
 
@@ -212,6 +213,26 @@ class Workflow(models.Model):
 
     def get_jobs_diff_io_type(self):
         return [job for job in self.get_available_jobs() if job.get_object().input_type != job.get_object().output_type]
+
+    def disassociate_page(self, page):
+        """
+        Removes relation from current workflow and incoming page. Removes all the page contents associated with this page+workflow combination
+        """
+        wf_job_items = self.jobitem_set.all()
+        # Delete all the results whose jobitems have sequence >= this one
+        results_to_delete = page.result_set.filter(job_item__in=wf_job_items)
+        for result in results_to_delete:
+            path_to_job_file_results = os.path.join(settings.MEDIA_ROOT,
+                            "%d" % self.project.id,
+                            "%d" % page.id,
+                            "%d" % self.id,
+                            "%s" % result.job_item.job.slug)
+            if os.path.exists(path_to_job_file_results):
+                shutil.rmtree(path_to_job_file_results)
+        results_to_delete.delete()
+
+        self.page_set.remove(page)
+        self.save()
 
 
 class Page(models.Model):
@@ -546,6 +567,7 @@ class Page(models.Model):
             path_to_job_file_results = os.path.join(settings.MEDIA_ROOT,
                             "%d" % self.project.id,
                             "%d" % self.id,
+                            "%d" % workflow.id,
                             "%s" % result.job_item.job.slug)
             if os.path.exists(path_to_job_file_results):
                 shutil.rmtree(path_to_job_file_results)

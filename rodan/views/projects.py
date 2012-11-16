@@ -27,10 +27,11 @@ def dashboard(request):
     random.shuffle(pages)
 
     for page in pages:
-        if page.workflow and page.workflow.has_started:
-            page_job = page.get_next_job(user=user)
-            if page_job:
-                available_jobs[page_job.slug] = page.project.id
+        for workflow in page.workflows.all():
+            if workflow and workflow.has_started:
+                page_job = page.get_next_job(user=user, workflow=workflow)
+                if page_job:
+                    available_jobs[page_job.slug] = page.project.id
 
     jobs = []
     for job in all_jobs:
@@ -91,13 +92,13 @@ def view(request, project):
         for workflow in page.workflows.all():
             if workflow and workflow.has_started:
                 page_job = page.get_next_job(user=user, workflow=workflow)
-                available_jobs.add(page_job)
+                if page_job:
+                    available_jobs.add(page_job)
 
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True, page__project=project) \
         .exclude(task_state="FAILURE") \
         .order_by('end_manual_time', 'start_time')
-
 
     # Create a dict: key = job, value = availability for this project
     jobs = []

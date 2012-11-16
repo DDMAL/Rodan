@@ -235,7 +235,7 @@ def set_workflow(request, page):
     if request.method == 'POST':
         workflow_id = request.POST.get('set', 0)
         workflow = get_object_or_404(Workflow, pk=workflow_id)
-        page.workflow = workflow
+        page.workflows.add(workflow)
         page.save()
         page.start_next_automatic_job(workflow, request.user.get_profile())
 
