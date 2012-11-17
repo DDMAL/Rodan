@@ -1,26 +1,8 @@
 {% extends "main.html" %}
 
 {% block content %}
-    <div id="masthead">
-        <h1>Rodan <img src="{{ STATIC_URL }}img/rodan2.png" /></h1>
-        <p>A remote, online document analysis network for musical image processing.</p>
-    </div>
-    <br />
-    <div class="row">
-        <div class="blue-block one-third">
-            <section>
-                <span class="large">{{ projects|length }} projects with 103 pages - 324 GB total.</span>
-            </section>
-        </div>
-        <div class="blue-block one-third">
-            <section>
-                <span class="large">105424 notes recognised. 7049 notes corrected.</span>
-            </section>
-        </div>
-        <div class="blue-block one-third">
-            <section>
-                <span class="large">Want to help out? <a href="">Find out how.</a></span>
-            </section>
-        </div>
-    </div>
+<div class="hero-unit">
+    <h1>Rodan <img src="{{ STATIC_URL }}img/rodan2.png" /></h1>
+    <p>A remote, online document analysis network for musical image processing.</p>
+</div>
 {% endblock %}

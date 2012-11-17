@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block wrap %}
-    <div id="dialog">
-        <form method="post">
-        <h1>Login/register</h1>
-        {% include "includes/form.html" %}
-        </form>
+<div class="hero-unit">
+    <h1>Rodan <img src="{{ STATIC_URL }}img/rodan2.png" /></h1>
+    <p>A remote, online document analysis network for musical image processing.</p>
+</div>
+<div class="login-form">
+    <form method="post">
+    <h1>Login/register</h1>
+    {% include "includes/form.html" %}
+    </form>
+</div>
 {% endblock %}
