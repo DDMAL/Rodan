@@ -2,13 +2,13 @@ import gamera.core
 import gamera.toolkits.border_removal.plugins.border_removal
 from PIL import Image, ImageEnhance
 
-import utils
+from rodan.jobs.utils import rodan_task, load_image_for_job
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def border_remover(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, gamera.toolkits.border_removal.plugins.border_removal.border_removal)
+    input_image = load_image_for_job(image_filepath, gamera.toolkits.border_removal.plugins.border_removal.border_removal)
     mask = input_image.border_removal()  # use defaults
     output_image = input_image.mask(mask)
 
@@ -17,7 +17,7 @@ def border_remover(image_filepath, **kwargs):
     }
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def crop(image_filepath, **kwargs):
     input_image = gamera.core.load_image(image_filepath)
 
@@ -32,7 +32,8 @@ def crop(image_filepath, **kwargs):
         "tiff": output_image
     }
 
-@utils.rodan_task(inputs='tiff')
+
+@rodan_task(inputs='tiff')
 def luminance(image_filepath, **kwargs):
     input_image = Image.open(image_filepath)
     if kwargs['order'] == 0:
@@ -50,7 +51,7 @@ def luminance(image_filepath, **kwargs):
     elif kwargs['order'] == 3:
         output_image = ImageEnhance.Contrast(input_image).enhance(kwargs['contrast'])
         output_image = ImageEnhance.Color(output_image).enhance(kwargs['colour'])
-        output_image = ImageEnhance.Brightness(output).enhance(kwargs['brightness'])
+        output_image = ImageEnhance.Brightness(output_image).enhance(kwargs['brightness'])
     elif kwargs['order'] == 4:
         output_image = ImageEnhance.Color(input_image).enhance(kwargs['colour'])
         output_image = ImageEnhance.Brightness(output_image).enhance(kwargs['brightness'])
@@ -62,6 +63,7 @@ def luminance(image_filepath, **kwargs):
     return {
         "tiff": output_image
     }
+
 
 class BorderRemoval(JobBase):
     name = 'Border removal'
@@ -90,6 +92,7 @@ class Crop(JobBase):
         'imw': 1.0
     }
     task = crop
+
 
 class Luminance(JobBase):
     input_type = JobType.IMAGE
