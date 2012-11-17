@@ -1,15 +1,12 @@
 {% load extras %}
-<form id="search" method="get" action="">
-    <fieldset>
-        <input type="text" name="search" id="search-query" placeholder="Search for a project..." />
-    </fieldset>
-</form>
-<script src="{{ STATIC_URL }}js/toggle-sidebar.js"></script>
-<span id="title-tab" class="active">All projects</span><span id="results-tab"></span>
-{% if projects %}
-    <ul id="project-list">
-        {% for project in projects %}
-            <li><a href="{{ project.get_absolute_url }}" title="{{ project.description }}">{{ project.name }}<br />{% progress_bar project.get_percent_done %}</a></li>
+
+{% if project_list %}
+    <ul id="project-list" class="nav nav-list">
+        <li class="nav-header">All Projects</li>
+        {% for p in project_list %}
+            <li {% if p.id == project.id %}class="active"{% endif %}>
+                <a href="{{ p.get_absolute_url }}" title="{{ p.description }}">{{ p.name }}</a>
+            </li>
         {% endfor %}
     </ul>
 {% else %}

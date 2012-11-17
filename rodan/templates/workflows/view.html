@@ -2,9 +2,9 @@
 
 {% if user_can_edit %}
 <div class="right-float">
-    <a class="button" href="{% url edit_workflow workflow.id %}">Edit workflow</a>
-    {% if pages.count %}<a class="button" href="{% url add_jobs pages.0.id %}">Manage jobs</a>{% endif %}
-    <a class="button" href="{% url add_pages workflow.id %}">Add pages</a>
+    <a class="btn" href="{% url edit_workflow workflow.id %}">Edit workflow</a>
+    {% if pages.count %}<a class="btn" href="{% url add_jobs pages.0.id %}">Manage jobs</a>{% endif %}
+    <a class="btn" href="{% url add_pages workflow.id %}">Add pages</a>
 </div>
 {% endif %}
 

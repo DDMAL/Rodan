@@ -12,115 +12,49 @@ html, body {
 }
 
 body {
-    font-family: "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 13px;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1em;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-#navbar {
-    height: @navbarHeight;
-    width: 100%;
-    #gradient(@navbarBgStart, @navbarBgEnd);
-    ul {
-        height: 100%;
-        list-style-type: none;
+.navbar {
+    .navbar-inner {
+        #gradient(@navbarBgStart, @navbarBgEnd);
+    }
+    .nav {
         li {
-            line-height: 40px;
-            display: inline-block;
-            &.title {
-                background-image: url('../img/rodan.png');
-                background-position: 10px 2px;
-                background-repeat: no-repeat;
-                padding-left: 80px;
-                padding-right: 20px;
-                font-size: 1.5em;
-                text-shadow: @navbarTitleShadow 0 1px 0;
-                position: relative;
-                top: 2px;
-            }
-            padding: 0 10px;
-            text-shadow: @navbarTextShadow 0 1px 0;
             a {
-                color: @white;
-                text-decoration: none;
+                color: #fff;
+                text-shadow: none;
                 &:hover {
-                    color: @navbarTextHover;
+                    color: #ddd;
                 }
             }
         }
     }
+    a.brand {
+        color: #fff;
+        background-image: url('../img/rodan.png');
+        background-position: 10px 2px;
+        background-repeat: no-repeat;
+        padding-left: 80px;
+        padding-right: 20px;
+        top: 2px;
+        text-shadow: none;
+    }
 }
 
-p {
-    margin: 10px 0;
+.sidebar {
+    position: absolute;
+    overflow-y: auto;
+    left: 0px;
+    background-color: @sidebarBg;
+    width: @sidebarWidth;
 }
 
 #wrap {
     width: 100%;
-}
-
-#sidebar {
-    &:empty {
-        display: none;
-    }
-    .box-shadow(-1px 0px 10px @mediumGrey);
-    position: absolute;
-    overflow-y: auto;
-    left: 0px;
-    top: @navbarHeight;
-    width: @sidebarWidth;
-    background: @sidebarBg;
-    #search {
-        text-align: center;
-        padding: 20px 0;
-        input {
-            padding-right: 30px;
-            background-image: url('../img/search.png');
-            background-repeat: no-repeat;
-            background-position: @searchIconX @searchIconY;
-        }
-    }
-    .tab {
-        padding: 10px;
-        color: @sidebarTitle;
-        border-bottom: 1px solid @sidebarTabFrame;
-        background: @sidebarTabBg;
-        display: inline-block;
-        cursor: pointer;
-    }
-    #title-tab {
-        .tab;
-        text-transform: uppercase;
-    }
-    #results-tab {
-        .tab;
-        .hidden;
-    }
-    .active {
-        color: @brightBlue !important;
-        border: 1px solid @sidebarTabFrame;
-        border-bottom-color: @sidebarTabBg !important;
-    }
-    ul, div.project-entry {
-        margin-top: -1px;
-        list-style-type: none;
-        width: 100%;
-        background: @sidebarResultsBg;
-        border-top: 1px solid @sidebarTabFrame;
-        li a, p {
-            display: block;
-            height: @sidebarItemHeight;
-            line-height: @sidebarItemHeight / 2;
-            padding-left: 10px;
-            text-decoration: none;
-            color: @sidebarItemText;
-            &:hover {
-                background: @sidebarItemHoverBg;
-            }
-            border-bottom: 1px solid @sidebarTabFrame;
-        }
-    }
 }
 
 .scrollable {
@@ -130,13 +64,8 @@ p {
 
 #content {
     //.scrollable;
-    padding-left: @sidebarWidth;
-    background: @contentBg;
+    margin-left: @sidebarWidth;
     overflow-x: hidden;
-}
-
-section {
-    padding: 20px;
 }
 
 a {
@@ -319,22 +248,22 @@ table {
     }
 }
 
-a.button {
-    #gradient(@buttonBgStart, @buttonBgEnd);
-    color: @buttonText;
-    .border-radius(5px);
-    padding: 10px;
-    font-weight: bold;
-    box-shadow: 0px 0px 2px @buttonShadow;
-    &:hover {
-        #gradient(@buttonHoverBgStart, @buttonHoverBgEnd);
-        color: @buttonHoverText;
-        text-decoration: none;
-    }
-    & + a.button {
-        margin-left: 5px;
-    }
-}
+// a.button {
+//     #gradient(@buttonBgStart, @buttonBgEnd);
+//     color: @buttonText;
+//     .border-radius(5px);
+//     padding: 10px;
+//     font-weight: bold;
+//     box-shadow: 0px 0px 2px @buttonShadow;
+//     &:hover {
+//         #gradient(@buttonHoverBgStart, @buttonHoverBgEnd);
+//         color: @buttonHoverText;
+//         text-decoration: none;
+//     }
+//     & + a.button {
+//         margin-left: 5px;
+//     }
+// }
 
 .right-float {
     float: right;

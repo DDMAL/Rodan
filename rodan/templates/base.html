@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <title>Rodan{% if title %} :: {{ title }}{% endif %}</title>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css" />
     <link rel="stylesheet/less" href="{{ STATIC_URL }}css/style.less" />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
     <script src="{{ STATIC_URL }}js/less.min.js"></script>
+
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
     <script src="{{ STATIC_URL }}js/underscore.min.js"></script>
     <script src="{{ STATIC_URL }}js/backbone.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
@@ -16,19 +20,21 @@
     {% endfor %}
 </head>
 <body>
-    <div id="navbar">
-        <ul>
-            <li class="title"><a href="{% url home %}">Rodan</a></li>
-            {% if user.is_authenticated %}
-                <li><a href="{% url dashboard %}">Dashboard</a></li>
-                <li><a href="{% url create_project %}">Create project</a></li>
-                <li><a href="{% url logout %}">Log out ({{ user.username }})</a></li>
-            {% else %}
-                <li><a href="{{ login_url }}">Login/register</a></li>
-            {% endif %}
-        </ul>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="{% url home %}">Rodan</a>
+            <ul class="nav">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url dashboard %}">Dashboard</a></li>
+                    <li><a href="{% url create_project %}">Create project</a></li>
+                    <li><a href="{% url logout %}">Log out ({{ user.username }})</a></li>
+                {% else %}
+                    <li><a href="{{ login_url }}">Login/register</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-    <div id="wrap">
+    <div id="wrap" class="container-fluid">
         {% block wrap %}
         {% endblock %}
     </div>

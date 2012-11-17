@@ -10,9 +10,9 @@
 {% endif %}
 {% if user_can_edit %}
 <div class="right-float">
-    <a href="{% url edit_project project.id %}" class="button">Edit project</a>
-    <a href="{% url upload project.id %}" class="button">Manage images</a>
-    <a href="{% url manage_workflows project.id %}" class="button">Manage workflows</a>
+    <a href="{% url edit_project project.id %}" class="btn">Edit project</a>
+    <a href="{% url upload project.id %}" class="btn">Manage images</a>
+    <a href="{% url manage_workflows project.id %}" class="btn">Manage workflows</a>
 </div>
 {% endif %}
 <h1>{{ project.name }}</h1>

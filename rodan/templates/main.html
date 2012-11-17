@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
 {% block wrap %}
-    {% if not hide_sidebar %}
-    <div id="sidebar">
+<div class="row-fluid">
+    <div class="sidebar span2">
         {% include "includes/sidebar.html" %}
     </div>
-    <div id="content">
-    {% else %}
-    <div class="scrollable">
-    {% endif %}
-        {% if form %}<form method="post" action="{{ form_action }}"{% if file_upload %} enctype="multipart/form-data"{% endif %}{% if form_id %} id="{{ form_id }}"{% else %} id="form"{% endif %}>{% endif %}
-        {% block content %}{% endblock %}
-        {% if form %}</form>{% endif %}
+    <div id="content" class="span10">
+
+        <div class="scrollable">
+            {% if form %}<form method="post" action="{{ form_action }}"{% if file_upload %} enctype="multipart/form-data"{% endif %}{% if form_id %} id="{{ form_id }}"{% else %} id="form"{% endif %}>{% endif %}
+            {% block content %}{% endblock %}
+            {% if form %}</form>{% endif %}
+        </div>
     </div>
+</div>
 {% endblock %}

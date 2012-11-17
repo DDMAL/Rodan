@@ -10,14 +10,16 @@
     {% endif %}
     <section>
         <div class="right-float">
-            <a class="button" href="{% url create_project %}">Create project</a>
+            <a class="btn" href="{% url create_project %}">Create project</a>
         </div>
         <h2>Your projects</h2>
         {% if my_projects %}
         <table>
             <thead>
                 <tr>
-                    <th>Project name</th><th>Number of pages</th><th>Status</th>
+                    <th>Project name</th>
+                    <th>Number of pages</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>

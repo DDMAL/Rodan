@@ -6,11 +6,11 @@
 
 <fieldset>
     {% csrf_token %}
-    <input type="button" class="select-pages" data-filter="*" value="Select all" />
-    <input type="button" class="select-pages" data-filter=":not(.disabled)" value="Select only pages with no workflow" />
-    <input type="button" class="select-pages" data-filter=":even" value="Select only odd pages" />
-    <input type="button" class="select-pages" data-filter=":odd" value="Select only even pages" />
-    <input type="button" class="select-pages" data-filter="" value="Unselect all" />
+    <input type="button" class="btn select-pages" data-filter="*" value="Select all" />
+    <input type="button" class="btn select-pages" data-filter=":not(.disabled)" value="Select only pages with no workflow" />
+    <input type="button" class="btn select-pages" data-filter=":even" value="Select only odd pages" />
+    <input type="button" class="btn select-pages" data-filter=":odd" value="Select only even pages" />
+    <input type="button" class="btn select-pages" data-filter="" value="Unselect all" />
 </fieldset>
 
 <ul class="grid image-buttons">
@@ -20,5 +20,5 @@
 </ul>
 
 <fieldset class="submit">
-    <input type="submit" name="done" value="Add these jobs and return to project page" />
+    <input type="submit" class="btn" name="done" value="Add these jobs and return to project page" />
 </fieldset>

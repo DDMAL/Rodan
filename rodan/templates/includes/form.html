@@ -14,20 +14,22 @@ appear if {{ form }} is truthy.
         {{ form.errors }}
     </div>
     {% endif %}
-    {% for field in form %}
-        <fieldset>
-        {% if field.help_text %}<p>{{ field.help_text }}</p>{% endif %}
-        <label for="{{ field.html_name }}">{{ field.label }}</label>
-        {{ field }}
-        </fieldset>
-    {% endfor %}
+    <fieldset>
+        {% for field in form %}
+            {% if field.help_text %}
+                <p>{{ field.help_text }}</p>
+            {% endif %}
+            <label for="{{ field.html_name }}">{{ field.label }}</label>
+            {{ field }}
+        {% endfor %}
+    </fieldset>
     <fieldset class="submit">
         {% if submits %}
             {% for submit in submits %}
-                <input type="submit" name="action" value="{{ submit }}" />
+                <input type="submit" name="action" class="btn" value="{{ submit }}" />
             {% endfor %}
         {% else %}
-            <input type="submit" name="action" value="Submit" />
+            <input type="submit" class="btn" name="action" value="Submit" />
         {% endif %}
     </fieldset>
 {% endautoescape %}
