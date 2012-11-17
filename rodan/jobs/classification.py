@@ -1,14 +1,15 @@
+from django.conf import settings
+from rodan.jobs.utils import rodan_task
+from rodan.models.jobs import JobType, JobBase
+
 import gamera.core
 import gamera.gamera_xml
 import gamera.classify
 import gamera.knn
-from django.conf import settings
-
-import utils
-from rodan.models.jobs import JobType, JobBase
+gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def classifier(image_filepath, **kwargs):
     #will be replaced by a new classifier that will be created soon
     cknn = gamera.knn.kNNNonInteractive(settings.CLASSIFIER_XML, 'all', True, 1)
