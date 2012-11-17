@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, models
+from django.contrib.auth.decorators import login_required
 from rodan.forms.users import SignupLoginForm
 from django.core.urlresolvers import reverse
 
 
 # The statistics and everything
+@login_required
 def home(request):
     data = {
     }
@@ -13,39 +15,29 @@ def home(request):
 
 # View to allow unauthenticated users to log in or create accounts
 def signup(request):
-    path = request.GET.get('next', '') or reverse('dashboard')
+    # path = request.GET.get('next', '') or reverse('dashboard')
 
     if request.user.is_authenticated():
-        return redirect(path)
+        return redirect('dashboard')
 
-    if request.POST:
+    if not request.POST:
+        form = SignupLoginForm()
+        data = {
+            'form': form,
+            'form_action': request.get_full_path()
+        }
+        return render(request, 'main/signup.html', data)
+    else:
         form = SignupLoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
+        if not form.is_valid():
+            return 0  # raise an error.
+        else:
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
 
-            # If the email is defined, try to create a new user
-            if email:
-                # Everything is fine, go ahead and create
-                models.User.objects.create_user(username, email, password)
-                new_user = authenticate(username=username, password=password)
-                login(request, new_user)
-                return redirect(path)
-            else:
-                # Trying to log in an existing user
-                user = authenticate(username=username, password=password)
-                login(request, user)
-                return redirect(path)
-    else:
-        form = SignupLoginForm()
-
-    data = {
-        'form': form,
-        'form_action': request.get_full_path(),
-    }
-
-    return render(request, 'main/signup.html', data)
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('dashboard')
 
 
 def logout_view(request):
