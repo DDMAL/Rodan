@@ -561,7 +561,7 @@ class Page(models.Model):
                     destination.write(chunk)
 
         # Now generate thumbnails
-        rodan.jobs.misc_tasks.create_thumbnails_task.delay(self.id, image_path, settings.THUMBNAIL_SIZES)
+        rodan.jobs.thumbnail.create_thumbnails.delay(self.id, image_path, settings.THUMBNAIL_SIZES)
 
     def is_job_complete(self, job_item):
         Result = models.loading.get_model('rodan', 'Result')
