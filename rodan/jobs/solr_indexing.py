@@ -1,21 +1,15 @@
-import gamera.core
 from django.conf import settings
-
-import utils
-import solr_resources.MEI2Solr
+from rodan.jobs.utils import rodan_task
+from rodan.jobs.solr_resources import MEI2Solr
 from rodan.models.jobs import JobType, JobBase
 
-gamera.core.init_gamera()
 
-
-@utils.rodan_task(inputs=('mei'), others=['page_sequence', 'project_id'])
+@rodan_task(inputs=('mei'), others=['page_sequence', 'project_id'])
 def index_solr(mei_filepath, page_number, project_id, **kwargs):
     print page_number
     solr_resources.MEI2Solr.processMeiFile(mei_filepath, settings.SOLR_URL,\
         kwargs['shortest_gram'], kwargs['longest_gram'], page_number, project_id)
-
-    return {
-    }
+    return {}
 
 
 class SolrIndexing(JobBase):
