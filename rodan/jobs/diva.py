@@ -1,10 +1,8 @@
-import utils
-
-from django.conf import settings
-
+from rodan.jobs.utils import rodan_task
 from rodan.models.jobs import JobType, JobBase
 
-@utils.rodan_task(inputs='prebin')
+
+@rodan_task(inputs='prebin')
 def diva(image_filepath, **kwargs):
     compression = kwargs['compression']
     quality = kwargs['quality']
@@ -17,6 +15,7 @@ def diva(image_filepath, **kwargs):
     return {
         'vips': (image_filepath, compression, tile_size)
     }
+
 
 class Diva(JobBase):
     name = 'Diva preprocessing'
