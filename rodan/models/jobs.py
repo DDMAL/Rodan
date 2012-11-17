@@ -1,5 +1,4 @@
 from django.db.models.loading import get_model
-from celery.task import task
 from rodan.utils import remove_prefixes
 
 
@@ -62,32 +61,29 @@ class JobBase:
     def get_parameters(self, job_object, input_values, **kwargs):
         """
         Populates the kwargs with job_object parameters. If there exists a parameter
-        that has no default type/value in the job definition then it gets a type from 
+        that has no default type/value in the job definition then it gets a type from
         the input value using set_unknown_param_type. Also if there is a default value
         not in request.POST that is in the job definition then it adds that to kwargs
         with the default
         """
 
-        default_inputs = {'csrfmiddlewaretoken', 'submit'}
+        default_inputs = ['csrfmiddlewaretoken', 'submit']
         default_parameters = job_object.parameters
 
         for parameter in input_values:
-
             if parameter not in default_inputs:
                 value = input_values[parameter]
 
                 if parameter in default_parameters:
                     param_type = type(default_parameters[parameter])
-                    kwargs[parameter]=param_type(value)
-                    
+                    kwargs[parameter] = param_type(value)
                 else:
-                    kwargs[parameter]=self.set_unknown_param_type(value)
-
+                    kwargs[parameter] = self.set_unknown_param_type(value)
         for parameter, default in default_parameters.iteritems():
             if parameter not in input_values:
-                kwargs[parameter]=default
-                
+                kwargs[parameter] = default
         return kwargs
+
 
 class ManualJobBase(JobBase):
     def on_post(self, result_id, **kwargs):
