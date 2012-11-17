@@ -68,3 +68,4 @@ class StaffFinding(JobBase):
     task = find_staves
     is_automatic = True
     outputs_image = False
+    enabled = False

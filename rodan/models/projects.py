@@ -10,6 +10,8 @@ import rodan.jobs
 from rodan.models.jobs import JobType
 from rodan.utils import get_size_in_mb
 
+from PIL import Image
+from cStringIO import StringIO
 
 class RodanUser(models.Model):
     class Meta:
@@ -65,7 +67,6 @@ class Project(models.Model):
 
         page.workflow = new_wf
         page.save()
-        page.start_next_automatic_job(user)
 
         return new_wf
 
@@ -239,6 +240,9 @@ class Page(models.Model):
     # Defines the hierarchy for generating breadcrumbs
     def get_parent(self):
         return self.project
+    
+    def get_previous_page(self):
+        return sorted(self.project.page_set.all(), key=lambda page: page.sequence)[self.sequence - 2] if self.sequence > 1 else None
 
     @models.permalink
     def get_absolute_url(self):
@@ -298,6 +302,9 @@ class Page(models.Model):
 
     def get_mei_url(self):
         return settings.MEDIA_URL + self._get_latest_file_path('mei')
+
+    def get_mei_path(self):
+        return settings.MEDIA_ROOT + self._get_latest_file_path('mei')
 
     def get_latest_file_path(self, file_type):
         """
@@ -459,7 +466,7 @@ class Page(models.Model):
             if no_result:
                 return job_item
             else:
-                first_result = page_results.all()[0]
+                first_result = page_results.all()[0]  # this bombs sometimes
                 manual_not_done = first_result.end_manual_time is None
                 automatic_not_done = first_result.end_total_time is None
                 if manual_not_done and first_result.user == user:
@@ -491,9 +498,36 @@ class Page(models.Model):
         if next_job is not None:
             next_job_obj = next_job.get_object()
             if next_job_obj.is_automatic:
-                next_result = self.start_next_job(user)
-                next_result.update_end_manual_time()
-                next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
+                if next_job.get_object().all_pages:
+                    # the following statement gets all the pages that have not completed the multi-page job
+                    # and that are part of the same workflow (i.e. if there is a page that uses the same wf
+                    # as this page but has completed the given multi-page job, it will be ignored)
+                    target_workflow_pages = [page for page in self.workflow.page_set.all() \
+                                                if not page.is_job_complete(next_job.jobitem_set.filter(workflow=page.workflow))]
+                    # print target_workflow_pages
+
+                    # for page in target_workflow_pages:
+                    #     if page.is_job_complete(next_job.jobitem_set.all()):
+                    #         page.reset_to_job(next_job)
+
+                    project_pages_readiness = True
+                    for page in target_workflow_pages:
+                        if page.get_next_job(user=user).slug != next_job.slug:
+                            project_pages_readiness = False
+                            break
+
+                    if project_pages_readiness:
+                        result_ids = []
+                        for pg in target_workflow_pages:
+                            res = pg.start_next_job(user)
+                            res.update_end_manual_time()
+                            result_ids.append(res.id)
+
+                        next_job_obj.on_post(result_ids, **next_job_obj.parameters)
+                else:
+                    next_result = self.start_next_job(user)
+                    next_result.update_end_manual_time()
+                    next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
     def get_percent_done(self):
         Result = models.loading.get_model('rodan', 'Result')
@@ -506,16 +540,25 @@ class Page(models.Model):
 
     def handle_image_upload(self, file):
         # Might need to fix the filename extension
-        basename, _ = os.path.splitext(self.filename)
+        basename, extension = os.path.splitext(self.filename)
         self.filename = basename + '.tiff'
         self.save()
 
         image_path = self.get_latest_file_path('tiff')
         rodan.jobs.utils.create_dirs(image_path)
 
-        with open(image_path, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+        # perform image conversion, if necessary
+        output_file = open(image_path, 'wb+')
+        if extension != '.tiff':
+            uploaded_buffer = StringIO(file.read())
+            uploaded_image = Image.open(uploaded_buffer)
+            uploaded_image.save(output_file, 'TIFF')
+            uploaded_buffer.close()
+            output_file.close()
+        else:
+            with output_file as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
 
         # Now generate thumbnails
         rodan.jobs.misc_tasks.create_thumbnails_task.delay(self.id, image_path, settings.THUMBNAIL_SIZES)

@@ -53,6 +53,7 @@ class PitchFindingFull(JobBase):
     output_type = JobType.MEI
     description = 'Find the pitches of neumes on an image.'
     show_during_wf_create = True
+    enabled = False
     parameters = {
         'discard_size': 12
     }

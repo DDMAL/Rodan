@@ -45,6 +45,7 @@ class Segmentation(JobBase):
     output_type = JobType.SEGMENTED_IMAGE
     description = 'Separate music from other material on a page (e.g., lyrics).'
     show_during_wf_create = False
+    enabled = False
     parameters = {
         'JSON': '',
     }

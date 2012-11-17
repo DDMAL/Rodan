@@ -67,7 +67,7 @@ class BorderRemoval(JobBase):
     name = 'Border removal'
     slug = 'border-remove'
     input_type = JobType.IMAGE
-    output_type = JobType.IMAGE
+    output_type = JobType.BORDER_REMOVE_IMAGE
     description = 'Remove the borders of a greyscale image.'
     show_during_wf_create = True
     parameters = {
@@ -79,7 +79,7 @@ class BorderRemoval(JobBase):
 
 class Crop(JobBase):
     input_type = JobType.IMAGE
-    output_type = input_type
+    output_type = JobType.BORDER_REMOVE_IMAGE
     description = 'Crop an image.'
     show_during_wf_create = True
     parameters = {
@@ -103,3 +103,4 @@ class Luminance(JobBase):
         'order': 0
     }
     task = luminance
+    enabled = False

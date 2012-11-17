@@ -4,16 +4,17 @@ from functools import wraps
 import PIL.Image
 import PIL.ImageFile
 import gamera.core
+import pymei
 from vipsCC.VImage import VImage
 from gamera.gameracore import Point
 from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
-from pymei import XmlExport
 from djcelery_transactions import task
 from django.conf import settings
 from django.db import models
 
 from rodan.models.results import Result
-from rtask import RTask
+from rodan.models import Page
+from rtask import RTask, RTaskMultiPage
 
 
 Job = models.get_model('rodan', 'job')
@@ -57,6 +58,62 @@ def create_thumbnails(image_path, result):
     page.latest_width = width
     page.latest_height = height
     page.save()
+
+
+def rodan_multi_page_task(inputs, others=[]):
+    def inner_function(f):
+        @task(base=RTaskMultiPage)
+        @wraps(f)
+        def real_inner(result_ids, **kwargs):
+            input_types = (inputs,) if isinstance(inputs, str) else inputs
+
+            #storing as tuples to avoid extra db lookups
+            results_pages = [(Result.objects.get(pk=result_id), Page.objects.get(result=result_id)) for result_id in result_ids]
+
+            # storing pages in seperate ds for sorting independently of the order in results_pages
+            target_pages = [result_page[1] for result_page in results_pages]
+
+            # always sort pages based on sequence no matter the input
+            target_pages.sort(key=lambda page: page.sequence)
+
+            input_paths_matrix = map(lambda input_type: [page.get_latest_file_path(input_type) for page in target_pages], input_types)
+            other_inputs_matrix = map(lambda other_type: [other_input_mapping[other_type](page) for page in target_pages], others)
+
+            args = input_paths_matrix + other_inputs_matrix
+
+            outputs = f(*args, **kwargs)
+
+            # Loop through all the outputs and write them to disk
+            for output_type, output_content in outputs.iteritems():
+                for result_page in results_pages:
+                    result = result_page[0]
+                    page = result_page[1]
+
+                    output_path = page.get_job_path(result.job_item.job, output_type)
+
+                    create_dirs(output_path)
+
+                    # Change the extension
+                    if output_type == 'mei':
+                        pymei.write(output_content, output_path)
+                    else:
+                        fp = open(output_path, 'w')
+                        fp.write(output_content)
+                        fp.close()
+
+                    result.create_file(output_path, output_type)
+
+            #update parameters and end times of all results and start next auto jobs
+            for result_page in results_pages:
+                result = result_page[0]
+                page = result_page[1]
+                result.update_end_total_time()
+                result.save_parameters(**kwargs)
+                page.start_next_automatic_job(result.user)
+
+        return real_inner
+
+    return inner_function
 
 
 def rodan_task(inputs, others=[]):
@@ -109,7 +166,7 @@ def rodan_task(inputs, others=[]):
                     image = VImage(str(image_filepath))
                     image.vips2tiff("{0}:{1},tile:{2}x{2},pyramid".format(vips_output, compression, tile_size))
                 elif output_type == 'mei':
-                    XmlExport.meiDocumentToFile(output_content.md, output_path.encode('ascii', 'ignore'))
+                    pymei.write(output_content.md, output_path)
                 elif output_type == 'xml':
                     output_content.write_filename(output_path)
                 else:

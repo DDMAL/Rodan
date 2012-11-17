@@ -1,4 +1,5 @@
 import gamera.core
+from gamera.toolkits.lyric_extraction.plugins.border_lyric import correct_rotation
 
 import utils
 from rodan.models.jobs import JobType, JobBase
@@ -22,11 +23,30 @@ def rotate(image_filepath, **kwargs):
 class Rotate(JobBase):
     name = 'Rotate'
     slug = 'rotate'
-    input_type = JobType.IMAGE
-    output_type = JobType.IMAGE
+    input_type = JobType.DESPECKLE_IMAGE
+    output_type = JobType.ROTATED_IMAGE
     description = 'Rotate an image.'
     show_during_wf_create = True
     parameters = {
         'angle': 0
     }
     task = rotate
+
+@utils.rodan_task(inputs='tiff')
+def auto_rotate(image_filepath, **kwargs):
+    input_image = utils.load_image_for_job(image_filepath, correct_rotation)
+    output_image = input_image.correct_rotation(0)
+    
+    return {
+        'tiff': output_image
+    }
+
+class AutoRotate(JobBase):
+    name = 'Automatic Rotation'
+    slug = 'auto-rotate'
+    input_type = JobType.DESPECKLE_IMAGE
+    output_type = JobType.ROTATED_IMAGE
+    description = 'Automatically rotate an image.'
+    show_during_wf_create = True
+    is_automatic = True
+    task = auto_rotate
