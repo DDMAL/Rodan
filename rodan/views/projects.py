@@ -9,9 +9,9 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db import transaction
 
-from rodan.models.projects import Project, Workflow, Job, JobItem, Page
+from rodan.models.projects import Project, Workflow, Job, Page
 from rodan.models.results import Result
-from rodan.forms.projects import ProjectForm, UploadFileForm
+from rodan.forms.projects import ProjectForm
 from rodan.utils import rodan_view, headers, render_to_json
 from rodan.jobs.diva_resources.divaserve import DivaServe
 from rodan.jobs.diva_resources.search import do_query, LiberSearchException
