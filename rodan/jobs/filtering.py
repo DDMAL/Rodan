@@ -1,10 +1,10 @@
 import gamera.plugins.misc_filters
 
-import utils
+from rodan.jobs.utils import rodan_task, load_image_for_job
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def rank_filter(image_filepath, **kwargs):
     """
       *rank_val* (1, 2, ..., *k* * *k*)
@@ -18,7 +18,7 @@ def rank_filter(image_filepath, **kwargs):
         When 0 ('padwhite'), window pixels outside the image are set to white.
         When 1 ('reflect'), reflecting boundary conditions are used.
     """
-    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.misc_filters.rank)
+    input_image = load_image_for_job(image_filepath, gamera.plugins.misc_filters.rank)
     output_image = input_image.rank( \
         kwargs['rank_val'],
         kwargs['k'],
