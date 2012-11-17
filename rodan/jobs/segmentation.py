@@ -1,13 +1,10 @@
 import json
-import gamera.core
-
 from PIL import Image, ImageDraw, ImageMath, ImageOps
-
-import utils
+from rodan.jobs.utils import rodan_task
 from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def segment(image_filepath, **kwargs):
     input_img = Image.open(image_filepath)
 
