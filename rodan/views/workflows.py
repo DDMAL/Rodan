@@ -27,6 +27,7 @@ def view(request, workflow):
 
     return ('View workflow', data)
 
+
 @rodan_view(Workflow)
 def edit(request, workflow):
     if not workflow.project.is_owned_by(request.user):
@@ -45,6 +46,7 @@ def edit(request, workflow):
         'form': form
     }
     return ('Edit workflow', data)
+
 
 @login_required
 @rodan_view(Workflow)
