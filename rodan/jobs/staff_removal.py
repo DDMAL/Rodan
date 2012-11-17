@@ -1,11 +1,12 @@
-import gamera.core
-import gamera.toolkits.musicstaves
-
-import utils
+from rodan.jobs.utils import rodan_task
 from rodan.models.jobs import JobType, JobBase
 
+import gamera.core
+import gamera.toolkits.musicstaves
+gamera.core.init_gamera()
 
-@utils.rodan_task(inputs='tiff')
+
+@rodan_task(inputs='tiff')
 def remove_staves(image_filepath, **kwargs):
     #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
     music_staves = gamera.toolkits.musicstaves.MusicStaves_rl_roach_tatem(gamera.core.load_image(image_filepath), 0, 0)
