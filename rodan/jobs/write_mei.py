@@ -1,10 +1,9 @@
-import utils
+from rodan.jobs.utils import rodan_multi_page_task
 from rodan.models.jobs import JobType, JobBase
-
 from mei_resources.meicombine import MeiCombiner
 
 
-@utils.rodan_multi_page_task(inputs='mei')
+@rodan_multi_page_task(inputs='mei')
 def combine_mei(mei_paths, **kwargs):
     mc = MeiCombiner(mei_paths)
     mc.combine()
