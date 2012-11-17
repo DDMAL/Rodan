@@ -25,25 +25,16 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Sample usage:
-python meicreate.py -b C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_bar_position_2.txt -s C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_staff_vertices.txt -f detmoldbars.mei -g '(2|)x2 (4(2|))' -v    
+python meicreate.py -b C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_bar_position_2.txt -s C_07a_ED-Kl_1_A-Wn_SHWeber90_S_009_staff_vertices.txt -f detmoldbars.mei -g '(2|)x2 (4(2|))' -v
 """
 from __future__ import division
 import argparse
 from pyparsing import nestedExpr
-import os
 import re
 import sys
 import datetime
-
 from pymei import MeiDocument, MeiElement, XmlExport
 
-# set up command line argument structure
-parser = argparse.ArgumentParser(description='Convert text file of OMR barline data to mei.')
-parser.add_argument('-b', '--barfilein', help='barline data input file')
-parser.add_argument('-s', '--stafffilein', help='staff data input file')
-parser.add_argument('-g', '--staffgroups', help='staffgroups')
-parser.add_argument('-f', '--fileout', help='output file')
-parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
 
 class BarlineDataConverter:
     '''
@@ -106,7 +97,7 @@ class BarlineDataConverter:
             if match is not None:
                 # there are multiple systems of this staff grouping
                 num_sb = int(match.group(0))
-            
+
             for i in range(num_sb):
                 systems.append(staff_grp)
 
@@ -120,7 +111,7 @@ class BarlineDataConverter:
         mei.addChild(music)
         music.addChild(facsimile)
         facsimile.addChild(surface)
-        
+
         # list of staff bounding boxes within a system
         staves = []
         for staff_bb in self.staff_bb:
@@ -128,7 +119,7 @@ class BarlineDataConverter:
             # parse bounding box integers
             #staff_bb = [int(x) for x in staff_bb]
             staves.append(staff_bb[1:])
-        
+
         music.addChild(body)
         body.addChild(mdiv)
         mdiv.addChild(score)
@@ -142,7 +133,7 @@ class BarlineDataConverter:
             staff_num = int(bar[0])
             ulx = bar[1]
             try:
-                barlines[staff_num-1].append(ulx)
+                barlines[staff_num - 1].append(ulx)
             except IndexError:
                 barlines.append([ulx])
 
@@ -175,13 +166,13 @@ class BarlineDataConverter:
                 # check the first barline candidate
                 # If it is sufficiently close to the beginning of the staff then ignore it.
                 b1_x = staff_bars[0]
-                if abs(b1_x/image_dpi - s_ulx/image_dpi) < b1_thresh:
+                if abs(b1_x / image_dpi - s_ulx / image_dpi) < b1_thresh:
                     del staff_bars[0]
 
                 # check the last barline candidate
                 # if there is no candidate near the end of the interior of the staff, add one
                 bn_x = staff_bars[-1]
-                if bn_x < s_lrx and abs(bn_x/image_dpi - s_lrx/image_dpi) > bn_thresh:
+                if bn_x < s_lrx and abs(bn_x / image_dpi - s_lrx / image_dpi) > bn_thresh:
                     staff_bars.append(s_lrx)
 
                 for n, b in enumerate(staff_bars):
@@ -190,23 +181,23 @@ class BarlineDataConverter:
                     m_lry = s_lry
 
                     m_lrx = b
-                    if n == len(staff_bars)-1:
+                    if n == len(staff_bars) - 1:
                         m_lrx = s_lrx
 
                     if n == 0:
                         m_ulx = s_ulx
                     else:
-                        m_ulx = staff_bars[n-1]
+                        m_ulx = staff_bars[n - 1]
 
                     # create staff element
                     zone = self._create_zone(m_ulx, m_uly, m_lrx, m_lry)
                     surface.addChild(zone)
                     if len(sg_hint) == 1 or len(staff_defs) == len(final_staff_grp.getDescendantsByName('staffDef')):
-                        staff_n = str(i+1)    
+                        staff_n = str(i + 1)
                     else:
                         # take into consideration hidden staves
                         staff_n = i + self._calc_staff_num(len(staff_defs), [final_staff_grp])
-                    
+
                     staff = self._create_staff(staff_n, zone)
 
                     try:
@@ -225,7 +216,7 @@ class BarlineDataConverter:
             staff_offset += len(staff_defs)
 
             # add a system break, if necessary
-            if s_ind+1 < len(systems):
+            if s_ind + 1 < len(systems):
                 sb = MeiElement('sb')
                 section.addChild(sb)
 
@@ -249,7 +240,7 @@ class BarlineDataConverter:
                 n = self._calc_staff_num(num_staves, sgs)
 
             return n + self._calc_staff_num(num_staves, staff_grps[1:])
-        
+
     def _calc_measure_zone(self, measures):
         '''
         Calculate the bounding box of the provided measures
@@ -259,7 +250,6 @@ class BarlineDataConverter:
 
         # for each measure
         for m in measures:
-            staff_measure_zones = []
             min_ulx = sys.maxint
             min_uly = sys.maxint
             max_lrx = -sys.maxint - 1
@@ -284,7 +274,7 @@ class BarlineDataConverter:
                     max_lry = lry
 
             m_zone = self._create_zone(min_ulx, min_uly, max_lrx, max_lry)
-            m.addAttribute('facs', '#'+m_zone.getId())
+            m.addAttribute('facs', '#' + m_zone.getId())
             surface = self.meidoc.getElementsByName('surface')[0]
             surface.addChild(m_zone)
 
@@ -309,7 +299,7 @@ class BarlineDataConverter:
         title_stmt.addChild(title)
         title_stmt.addChild(resp_stmt)
         resp_stmt.addChild(corp_name)
-        
+
         pub_stmt = MeiElement('pubStmt')
         resp_stmt = MeiElement('respStmt')
         corp_name = MeiElement('corpName')
@@ -346,7 +336,7 @@ class BarlineDataConverter:
         corp_name.setValue('Distributed Digital Music Archives and Libraries Lab (DDMAL)')
         change_desc = MeiElement('changeDesc')
         ref = MeiElement('ref')
-        ref.addAttribute('target', '#'+application.getId())
+        ref.addAttribute('target', '#' + application.getId())
         ref.setValue(app_name)
         ref.setTail('.')
         p = MeiElement('p')
@@ -354,7 +344,7 @@ class BarlineDataConverter:
         p.setValue('Encoded using ')
         date = MeiElement('date')
         date.setValue(today)
-        
+
         mei_head.addChild(revision_desc)
         revision_desc.addChild(change)
         change.addChild(resp_stmt)
@@ -401,7 +391,7 @@ class BarlineDataConverter:
                 # get current staffDef number
                 for i in range(n_staff_defs):
                     staff_def = MeiElement('staffDef')
-                    staff_def.addAttribute('n', str(n+i+1))
+                    staff_def.addAttribute('n', str(n + i + 1))
                     staff_def.addAttribute('lines', '5')
                     staff_grp.addChild(staff_def)
                 n += n_staff_defs
@@ -415,11 +405,11 @@ class BarlineDataConverter:
 
         staff = MeiElement('staff')
         staff.addAttribute('n', str(n))
-        staff.addAttribute('facs', '#'+zone.getId())
+        staff.addAttribute('facs', '#' + zone.getId())
 
         return staff
 
-    def _create_measure(self, n, zone = None):
+    def _create_measure(self, n, zone=None):
         '''
         Create a measure element and attach a zone reference to it.
         The zone element is optional, since the zone of the measure is
@@ -431,7 +421,7 @@ class BarlineDataConverter:
         measure.addAttribute('n', str(n))
 
         if zone is not None:
-            measure.addAttribute('facs', '#'+zone.getId())
+            measure.addAttribute('facs', '#' + zone.getId())
 
         return measure
 
@@ -465,6 +455,17 @@ class BarlineDataConverter:
 
         return mw
 
+
 class MeiWrapper:
     def __init__(self, meidoc):
         self.md = meidoc
+
+
+if __name__ == "__main__":
+    # set up command line argument structure
+    parser = argparse.ArgumentParser(description='Convert text file of OMR barline data to mei.')
+    parser.add_argument('-b', '--barfilein', help='barline data input file')
+    parser.add_argument('-s', '--stafffilein', help='staff data input file')
+    parser.add_argument('-g', '--staffgroups', help='staffgroups')
+    parser.add_argument('-f', '--fileout', help='output file')
+    parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')

@@ -1,18 +1,13 @@
 from gamera.core import *
-from gamera.toolkits import musicstaves, lyric_extraction, border_removal
-from gamera.classify import BoundingBoxGroupingFunction, ShapedGroupingFunction
-from gamera import classify
+from gamera.toolkits import musicstaves
+from gamera.classify import BoundingBoxGroupingFunction
 from gamera import knn
-import PIL, os
-import argparse
 
-from meicreate import BarlineDataConverter
 from pymei import MeiElement
 import re
 from pyparsing import nestedExpr
-import sys
-import collections
-import sets
+gamera.core.init_gamera()
+
 
 class BarlineFinder:
 
@@ -40,19 +35,19 @@ class BarlineFinder:
         """
         """
         filtered_image = image.image_copy()
-        filtered_image.filter_short_runs(mfr + 2, 'black') # most frequent run plus 1 pixel
+        filtered_image.filter_short_runs(mfr + 2, 'black')  # most frequent run plus 1 pixel
         filtered_image.despeckle(100)
         return filtered_image
 
     def _ccs(self, proc_image):
         """
-        Performs connected component analysis and filters 
+        Performs connected component analysis and filters
         using a certain set of features.
         """
         ccs = proc_image.cc_analysis()
         ccs_bars = []
         for c in ccs:
-                if c.aspect_ratio()[0] <= 0.20 and c.ncols <= 15: # try other features and/or values
+                if c.aspect_ratio()[0] <= 0.20 and c.ncols <= 15:  # try other features and/or values
                     ccs_bars.append(c)
         # lg.debug(ccs_bars)
         return ccs_bars
@@ -63,16 +58,15 @@ class BarlineFinder:
         sub-staves according to their position in the score, trying
         to glue related staves.
 
-        Returns a vector with the vertices for each staff with the form 
+        Returns a vector with the vertices for each staff with the form
         [(staff_number, x1, y1, x2, y2)], starting from number 1
         """
 
         stf_instance = musicstaves.StaffFinder_miyao(image, 0, 0)
-        stf_instance.find_staves(5, 20, 0.8, -1) # 5 lines
+        stf_instance.find_staves(5, 20, 0.8, -1)  # 5 lines
         polygon = stf_instance.get_polygon()
-        sc_position = [] # staff candidate
+        sc_position = []  # staff candidate
         stf_position = []
-
 
         for i, p in enumerate(polygon):
             ul = p[0].vertices[0]
@@ -98,8 +92,8 @@ class BarlineFinder:
 
             # Checks if a staff candidate lies in the same y-range that the previous one
             if y2 > mid_y > y1:
-                # If the bounding box of the staff candidate upper left x-value is larger than 
-                # the previous bounding box, and also if this value is larger than the previous 
+                # If the bounding box of the staff candidate upper left x-value is larger than
+                # the previous bounding box, and also if this value is larger than the previous
                 # difference:
                 if sc[1] >= x1 and sc[1] - x1 >= x2 - x1:
                     stf_position.pop()
@@ -122,7 +116,7 @@ class BarlineFinder:
         """
         Returns the position of the systems
         """
-        system_bb = [] # system_staff_position
+        system_bb = []  # system_staff_position
         system_bb.append(stf_position[0])
         for sp in stf_position[1:]:
             if sp[5] == system_bb[-1][5]:
@@ -142,8 +136,8 @@ class BarlineFinder:
         """
         Several methods to discard and/or validate bar candidates:
 
-        1) Checks if the candidate bars lie within the upper and lower 
-        boundaries of each staff. 
+        1) Checks if the candidate bars lie within the upper and lower
+        boundaries of each staff.
 
         2) Checks if bar candidate upper o lower position lies within a stf_position
 
@@ -152,14 +146,6 @@ class BarlineFinder:
 
         Returns a vector in the form: [[gameracore.Image, staff_no]]
         """
-
-        checked_bars = []
-        stf_height = sum([i[4]-i[2] for i in stf_position])/len(stf_position)
-
-
-        system_bb = self._system_position_parser(stf_position)    
-
-        no_sys =  len(system_bb) 
 
         def __within_bb_check(bc, bb):
             """
@@ -180,10 +166,16 @@ class BarlineFinder:
                 bar.classify_heuristic('_group._part.bc')
             cknn = knn.kNNInteractive()
             cknn.set_glyphs(ungrouped_bars)
-            grouped_bars = cknn.group_and_update_list_automatic(ungrouped_bars, \
-                        max_parts_per_group = 10, \
-                        grouping_function = BoundingBoxGroupingFunction(5000)) # Threshold distance in pixels between bounding boxes 
+            grouped_bars = cknn.group_and_update_list_automatic(ungrouped_bars,
+                        max_parts_per_group=10,
+                        grouping_function=BoundingBoxGroupingFunction(5000))  # Threshold distance in pixels between bounding boxes
             return grouped_bars
+
+        checked_bars = []
+        stf_height = sum([i[4] - i[2] for i in stf_position]) / len(stf_position)
+
+        system_bb = self._system_position_parser(stf_position)
+        no_sys = len(system_bb)
 
         # 2. Discard bar_candidates outside of all system_bb
         filt_bar_candidates = []
@@ -194,46 +186,46 @@ class BarlineFinder:
                 bb = __within_bb_check(bc, s)
                 if bb:
                     filt_bar_candidates.append([bc, bb[5]])
-                    
                     break
-        bc_av_width = bc_av_width/len(bar_candidates) # Bar candidate average width
+        bc_av_width = bc_av_width / len(bar_candidates)  # Bar candidate average width
 
         sys_bars = []
         for i in xrange(no_sys):
-            sys_bars.append([x for x in filt_bar_candidates if x[1] == i+1])
+            sys_bars.append([x for x in filt_bar_candidates if x[1] == i + 1])
 
         for sys_bar_idx, sys_bar in enumerate(sys_bars):
             bars = []
-            system_height = system_bb[sys_bar_idx][4]-system_bb[sys_bar_idx][2]
+            system_height = system_bb[sys_bar_idx][4] - system_bb[sys_bar_idx][2]
 
-            factor = 4 # vertical tolerance for finding vertical candidates
+            factor = 4  # vertical tolerance for finding vertical candidates
             brok_cand_list = []
-            for s_ind, s in enumerate(sys_bar): #each bar candidate within the same system
+            for s_ind, s in enumerate(sys_bar):  # each bar candidate within the same system
 
                 brok_cand = [x[0] for x in sys_bar if \
-                        (s[0].offset_x > (x[0].offset_x - factor * bc_av_width) and \
-                         s[0].offset_x < (x[0].offset_x + factor * bc_av_width))] # This should be dependant the number of staves per system
+                        (s[0].offset_x > (x[0].offset_x - factor * bc_av_width) and
+                         s[0].offset_x < (x[0].offset_x + factor * bc_av_width))]  # This should be dependant the number of staves per system
 
-                if not brok_cand in brok_cand_list: # if it is not already in the list of broken bar candidates
+                if not brok_cand in brok_cand_list:  # if it is not already in the list of broken bar candidates
                     brok_cand_list.append(brok_cand)
                     # print system_height, brok_cand
-                    if len(brok_cand) > 1:   
+                    if len(brok_cand) > 1:
 
                         grouped_bars = __bar_candidate_grouping(brok_cand)
                         while len(grouped_bars) > 1:
-                            grouped_bars = __bar_candidate_grouping(grouped_bars) # until all candidates have been glued
-                        if system_height > 0.9 * grouped_bars[0].nrows: # if system height is taller than grouped BC -10%
+                            grouped_bars = __bar_candidate_grouping(grouped_bars)  # until all candidates have been glued
+
+                        if system_height > 0.9 * grouped_bars[0].nrows:  # if system height is taller than grouped BC -10%
                             bars.append(grouped_bars[0])
-                        else: 
+                        else:
                             continue
 
-                    elif len(brok_cand) == 1 and system_height * 0.75 > brok_cand[0].nrows or brok_cand[0].ncols > 1.5 * bc_av_width: # if there is only one BC and system height is taller, discard it
+                    elif len(brok_cand) == 1 and system_height * 0.75 > brok_cand[0].nrows or brok_cand[0].ncols > 1.5 * bc_av_width:  # if there is only one BC and system height is taller, discard it
                         continue
                     else:
                         bars.append(s[0])
             for bc in bars:
-                checked_bars.append((bc, sys_bar_idx+1))
-        return checked_bars 
+                checked_bars.append((bc, sys_bar_idx + 1))
+        return checked_bars
 
     def _staff_number_assign(self, bars_bb, staff_bb):
         """
@@ -253,6 +245,7 @@ class BarlineFinder:
             for y in xrange(y_bar_range[0], y_bar_range[1]+1):
                 if y_staff_range[0] < y < y_staff_range[1]:
                     return True
+        return False
 
         numbered_bars = []
         for bar in bars_bb:
@@ -268,7 +261,7 @@ class BarlineFinder:
         Sorts a set of bars according to their staff number and x-position. Input vector should be:
         [staff_no, ux, uy, lx, ly]
         """
-        checked_bars = sorted(bar_vector, key = lambda element: (element[0], element[1]))
+        checked_bars = sorted(bar_vector, key=lambda element: (element[0], element[1]))
         # lg.debug(checked_bars)
         return checked_bars
 
@@ -280,9 +273,9 @@ class BarlineFinder:
         output = []
         for i, s in enumerate(system):
             for j in range(int(s)):
-                output.append(i+1)
+                output.append(i + 1)
         return output
-    
+
     def _parse_staff_hint(self, sg_hint):
         # parse staff group hint to generate staff group
         sg_hint = sg_hint.split(" ")
@@ -298,7 +291,7 @@ class BarlineFinder:
             if match is not None:
                 # there are multiple systems of this staff grouping
                 num_sb = int(match.group(0))
-            
+
             for i in range(num_sb):
                 systems.append(staff_grp)
 
@@ -327,7 +320,7 @@ class BarlineFinder:
                 # get current staffDef number
                 for i in range(n_staff_defs):
                     staff_def = MeiElement('staffDef')
-                    staff_def.addAttribute('n', str(n+i+1))
+                    staff_def.addAttribute('n', str(n + i + 1))
                     staff_grp.addChild(staff_def)
                 n += n_staff_defs
 
@@ -342,7 +335,7 @@ class BarlineFinder:
 
         # Returns the vertices for each staff and its number
         stf_position = self._staff_line_position(image, image_dpi)
-        
+
         if len(stf_position) != len(system):
             print 'Number of recognized staves is different to the one entered by the user'
 
@@ -366,11 +359,11 @@ class BarlineFinder:
         # cc's and highlighs no staff and shrot runs filtered image and writes txt file with candidate bars
         ccs_bars = self._ccs(filtered_image)
         checked_bars = self._bar_candidate_check(ccs_bars, stf_position, system)
-        
+
         bar_list = []
         # print "CHECKED_BARS: {0}\n\n".format(checked_bars) #GVM
         for c in checked_bars:
-            bar_list.append([c[1], c[0].offset_x, c[0].offset_y, c[0].offset_x+c[0].ncols-1, c[0].offset_y+c[0].nrows-1])
+            bar_list.append([c[1], c[0].offset_x, c[0].offset_y, c[0].offset_x + c[0].ncols - 1, c[0].offset_y + c[0].nrows - 1])
 
         sorted_bars = self._bar_sorting(bar_list)
 
