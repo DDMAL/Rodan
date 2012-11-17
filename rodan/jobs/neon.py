@@ -1,11 +1,9 @@
-import utils
-import gamera.core
-
 import os
 
 from django.conf import settings
 from django.conf.urls import patterns, url
 
+from rodan.jobs.utils import rodan_task, create_dirs
 from rodan.models.jobs import JobType, JobBase
 from rodan.models.projects import Job
 
@@ -31,7 +29,7 @@ neon_urls = patterns('rodan.views.neon',
 )
 
 
-@utils.rodan_task(inputs=[])
+@rodan_task(inputs=[])
 def neon(**kwargs):
     return {
     }
@@ -56,9 +54,11 @@ class Neon(JobBase):
 
         j = Job.objects.get(pk=self.slug)
         output_path = page.get_job_path(j, 'mei')
-        utils.create_dirs(output_path)
+        create_dirs(output_path)
         if not os.path.exists(output_path):
-            open(output_path, 'w').write(open(input_mei_path).read())
+            f = open(output_path, 'w')
+            f.write(open(input_mei_path).read())
+            f.close()
 
         mei_url = settings.MEDIA_URL + page._get_job_path(j, 'mei')
         return {
@@ -69,4 +69,3 @@ class Neon(JobBase):
             'page_id': page.id,
             'mei_path': mei_url
         }
-
