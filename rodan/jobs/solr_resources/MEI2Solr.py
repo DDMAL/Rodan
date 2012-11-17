@@ -23,14 +23,9 @@
 # Last modified June 2011
 #
 # ================================================================
-import pymei
-import sys
-import os
 import solr
 import uuid
-import copy
 from math import *
-from music21.pitch import convertStepToPs
 from music21.interval import convertSemitoneToSpecifierGeneric
 #import time
 # from pymei.Import import convert
@@ -42,13 +37,37 @@ logging.basicConfig(filename='errors.log', format='%(asctime)-6s: %(name)s - %(l
 lg = logging.getLogger('meisearch')
 lg.setLevel(logging.DEBUG)
 
-
-import pdb
-
 systemcache = {}
 idcache = {}
 
 #*****************************FUNCTIONS*******************************
+
+
+def convertStepToPs(step, oct):
+    '''
+    REMOVED FROM MUSIC21, so added here. -- AH
+
+    Utility conversion; does not process internals.
+    Takes in a note name string, octave number, and optional
+    Accidental object.
+
+    Returns a pitch space value as a floating point MIDI note number.
+
+    >>> from music21 import *
+    >>> pitch.convertStepToPs('c', 4, pitch.Accidental('sharp'))
+    61.0
+    >>> pitch.convertStepToPs('d', 2, pitch.Accidental(-2))
+    36.0
+    >>> pitch.convertStepToPs('b', 3, pitch.Accidental(3))
+    62.0
+    >>> pitch.convertStepToPs('c', 4, pitch.Accidental('half-flat'))
+    59.5
+    '''
+    step = step.strip().upper()
+    ps = float(((oct + 1) * 12) + STEPREF[step])
+    return ps
+
+
 def findbyID(llist, mid, meifile):
     """ Returns the object in llist that has the given id. Used for finding zone.
         pymei function get_by_facs can be used instead, but this one is faster.
