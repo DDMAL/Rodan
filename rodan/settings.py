@@ -1,7 +1,5 @@
 import os
-from datetime import timedelta
-
-import djcelery
+from settings_production import *
 
 PROJECT_DIR = os.path.dirname(__file__)
 
@@ -13,17 +11,6 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',   # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'db.sqlite',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -131,19 +118,6 @@ INSTALLED_APPS = (
     'rodan.jobs',
 )
 
-djcelery.setup_loader()
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "rodanuser"
-BROKER_PASSWORD = "DDMALrodan"
-BROKER_VHOST = "DDMAL"
-TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
-
-CELERY_RESULT_BACKEND = "database"
-#Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
-#this is because SQLite doesnt allow concurrent writes.
-CELERY_RESULT_DBURI = "sqlite:///db.sqlite"
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -214,9 +188,3 @@ MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1000
 ORIGINAL_SIZE = 'original'
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
-
-# Change this if you have solr running locally
-SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
-IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
-
-CLASSIFIER_XML = 'salzinnes_demo_classifier.xml'
