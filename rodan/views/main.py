@@ -6,27 +6,8 @@ from django.core.urlresolvers import reverse
 
 # The statistics and everything
 def home(request):
-    workers = [
-        # Format: Job: number of things in queue
-        ('Cropping', 1),
-        ('Rotation', 2),
-        ('Binarisation', 0),
-        ('Despeckling', 2),
-        ('Staff finding', 1),
-        ('Segmentation', 1),
-        ('Classification', 0),
-        ('MEI correction', 0),
-        ('Solr indexing', 1),
-        ('Diva preprocessing', 0),
-    ]
-
     data = {
-        'num_projects': 100,
-        'num_pages': 1000,
-        'total_size': '5421 GB',
-        'workers': workers,
     }
-
     return render(request, 'main/home.html', data)
 
 

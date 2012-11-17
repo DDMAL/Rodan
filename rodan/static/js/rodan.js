@@ -1,47 +1,4 @@
 $(document).ready(function () {
-    var workers = $('#workers').children();
-    var queueSizes = _.map(workers, function (worker) { return parseInt($(worker).attr('data-queue'), 10); });
-
-    // The fake worker queue stuff
-    var updateWorkers = function (queueSizes) {
-        // Max queue size at least 10
-        var maxQueueSize = Math.max(_.max(queueSizes), 10);
-        var i, worker, queueSize, colour;
-        for (i = 0; i < workers.length; i++) {
-            worker = $(workers[i]).find('div');
-            queueSize = Math.max(queueSizes[i], 0);
-            worker.removeClass();
-            if (queueSize === 0) {
-                colour = 'green';
-            } else if (queueSize < 3) {
-                colour = 'yellow';
-            } else if (queueSize < 7) {
-                colour = 'orange';
-            } else {
-                colour = 'red';
-            }
-            worker.addClass(colour);
-            worker.find('span').text(queueSize);
-
-            worker.animate({
-                height: queueSize / maxQueueSize * 90 + 40 + 'px'
-            });
-        }
-    };
-
-    updateWorkers(queueSizes);
-
-    setInterval(function() {
-        var fakeSizes = [];
-
-        for (var i = 0; i < queueSizes.length; i++) {
-            fakeSizes.push(queueSizes[i] + Math.round(Math.random() * 3) - 2);
-        }
-
-        updateWorkers(fakeSizes);
-    }, 40000);
-
-
     // The search box
     $('#search').submit(function () {
         var query = $('#search-query').val().toLowerCase();
