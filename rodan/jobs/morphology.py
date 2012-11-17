@@ -1,12 +1,10 @@
 import gamera.core
-
-import utils
+from rodan.jobs.utils import rodan_task
 from rodan.models.jobs import JobType, JobBase
-
 gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def despeckle(image_filepath, **kwargs):
     """
       Removes connected components that are smaller than the given size.
@@ -32,6 +30,7 @@ def despeckle(image_filepath, **kwargs):
         'tiff': input_image
     }
 
+
 class PostStaffRemovalDespeckle(JobBase):
     name = 'Despeckle after staff removal'
     slug = 'despeckle-staff'
@@ -50,6 +49,7 @@ class PostStaffRemovalDespeckle(JobBase):
             'width': page.latest_width,
         }
 
+
 class Despeckle(JobBase):
     name = 'Despeckle'
     slug = 'despeckle'
@@ -58,7 +58,7 @@ class Despeckle(JobBase):
     description = 'Despeckle a binarised image.'
     show_during_wf_create = True
     is_automatic = False
-    is_required = True 
+    is_required = True
     parameters = {
         'despeckle_value': 0
     }
