@@ -1,2 +1,2 @@
-from projects import *
-from results import *
+from rodan.models.projects import *
+from rodan.models.results import *
