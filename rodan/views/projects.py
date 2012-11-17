@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db import transaction
 
@@ -127,9 +128,9 @@ def edit(request, project):
         'Save and continue to image upload': ('upload', [project.id],),
     }
 
-    # If the user isn't the projects owner, show a 404
+    # If the user isn't the projects owner, show a 403 (forbidden)
     if not project.is_owned_by(request.user):
-        raise Http404
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
