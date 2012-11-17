@@ -7,7 +7,7 @@ from rodan.models.jobs import JobType, JobBase
 @rodan_task(inputs=('mei'), others=['page_sequence', 'project_id'])
 def index_solr(mei_filepath, page_number, project_id, **kwargs):
     print page_number
-    solr_resources.MEI2Solr.processMeiFile(mei_filepath, settings.SOLR_URL,\
+    MEI2Solr.processMeiFile(mei_filepath, settings.SOLR_URL,\
         kwargs['shortest_gram'], kwargs['longest_gram'], page_number, project_id)
     return {}
 
