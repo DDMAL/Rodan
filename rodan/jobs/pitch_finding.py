@@ -1,21 +1,21 @@
 import json
+from rodan.jobs.utils import rodan_task, load_image_for_job
+from rodan.models.jobs import JobType, JobBase
 
 import gamera.gamera_xml
 import gamera.core
-
-import utils
+gamera.core.init_gamera()
 from aomr_resources.AomrObject import AomrObject
 from aomr_resources.AomrMeiOutput import AomrMeiOutput
 from aomr_resources.AomrExceptions import AomrUnableToFindStavesError
-from rodan.models.jobs import JobType, JobBase
 
 
-@utils.rodan_task(inputs=('xml'), others=['segmented_image', 'page_sequence'])
+@rodan_task(inputs=('xml'), others=['segmented_image', 'page_sequence'])
 def pitch_find(xml_filepath, segmented,  page_sequence, **kwargs):
     # Run a rank filter on the image to make the staves bigger
     #  for pitch detection
     print "loading image... performing rank filter"
-    input_image = utils.load_image_for_job(segmented, gamera.plugins.misc_filters.rank)
+    input_image = load_image_for_job(segmented, gamera.plugins.misc_filters.rank)
     # XXX: Parameters to change?
     rank_image = input_image.rank(9, 9, 0)
 
