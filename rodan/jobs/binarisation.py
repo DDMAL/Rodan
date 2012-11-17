@@ -2,15 +2,14 @@ import gamera.core
 import gamera.plugins.threshold
 from gamera.plugins.binarization import brink_threshold
 
-import utils
+from rodan.jobs.utils import rodan_task, load_image_for_job
 from rodan.models.jobs import JobType, JobBase
-
 gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def simple_binarise(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.threshold.threshold)
+    input_image = load_image_for_job(image_filepath, gamera.plugins.threshold.threshold)
     output_image = input_image.threshold(kwargs['threshold'])
 
     return {
@@ -18,7 +17,7 @@ def simple_binarise(image_filepath, **kwargs):
     }
 
 
-@utils.rodan_task(inputs="tiff")
+@rodan_task(inputs="tiff")
 def djvu_binarise(image_filepath, **kwargs):
     """
         *smoothness*
@@ -37,7 +36,7 @@ def djvu_binarise(image_filepath, **kwargs):
           For instance, a *block_factor* of 2 results in 4 children per
           parent.
     """
-    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.threshold.djvu_threshold)
+    input_image = load_image_for_job(image_filepath, gamera.plugins.threshold.djvu_threshold)
     output_image = input_image.djvu_threshold( \
                         kwargs['smoothness'],
                         kwargs['max_block_size'],
@@ -48,14 +47,16 @@ def djvu_binarise(image_filepath, **kwargs):
         'tiff': output_image
     }
 
-@utils.rodan_task(inputs='tiff')
+
+@rodan_task(inputs='tiff')
 def brink_binarise(image_filepath, **kwargs):
-    input_image = utils.load_image_for_job(image_filepath, brink_threshold)
+    input_image = load_image_for_job(image_filepath, brink_threshold)
     output_image = input_image.brink_threshold()
 
     return {
         'tiff': output_image
     }
+
 
 class SimpleThresholdBinarise(JobBase):
     name = 'Binarise (simple threshold)'
@@ -86,6 +87,7 @@ class DJVUBinarise(JobBase):
         'block_factor': 2
     }
     task = djvu_binarise
+
 
 class BrinkBinarise(JobBase):
     name = 'Binarise (Brink)'
