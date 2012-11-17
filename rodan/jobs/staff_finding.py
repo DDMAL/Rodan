@@ -1,13 +1,14 @@
 import json
 
+from rodan.jobs.utils import rodan_task, load_image_for_job
+from rodan.jobs.utils import fix_poly_point_list, create_polygon_outer_points_json_dict, create_json_from_poly_list
+from rodan.models.jobs import JobType, JobBase
 import gamera.core
 import gamera.toolkits.musicstaves
-
-import utils
-from rodan.models.jobs import JobType, JobBase
+gamera.core.init_gamera()
 
 
-@utils.rodan_task(inputs='tiff')
+@rodan_task(inputs='tiff')
 def find_staves(image_filepath, **kwargs):
     """
       *num_lines*:
@@ -28,20 +29,20 @@ def find_staves(image_filepath, **kwargs):
     """
 
     # Perform a Rank filter to make the stafflines thicker
-    input_image = utils.load_image_for_job(image_filepath, gamera.plugins.misc_filters.rank)
+    input_image = load_image_for_job(image_filepath, gamera.plugins.misc_filters.rank)
     rank_image = input_image.rank(9, 9, 0)
-    
+
     #both 0's can be parameterized, first one is staffline_height and second is staffspace_height, both default 0
     #the constructor converts to onebit if its not ONEBIT. Note that it will simply convert, no binarisation process
     staff_finder = gamera.toolkits.musicstaves.StaffFinder_miyao(rank_image, 0, 0)
     staff_finder.find_staves(kwargs['num_lines'], kwargs['scanlines'], kwargs['blackness'], kwargs['tolerance'])
     poly_list = staff_finder.get_polygon()
 
-    poly_list = utils.fix_poly_point_list(poly_list, staff_finder.staffspace_height)
+    poly_list = fix_poly_point_list(poly_list, staff_finder.staffspace_height)
 
-    poly_json_list = utils.create_polygon_outer_points_json_dict(poly_list)
+    poly_json_list = create_polygon_outer_points_json_dict(poly_list)
 
-    stafffind_json_list = utils.create_json_from_poly_list(poly_list)
+    stafffind_json_list = create_json_from_poly_list(poly_list)
 
     encoded1 = json.dumps(poly_json_list)
     encoded2 = json.dumps(stafffind_json_list)
