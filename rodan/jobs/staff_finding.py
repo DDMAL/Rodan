@@ -1,7 +1,7 @@
 import json
 
 from rodan.jobs.utils import rodan_task, load_image_for_job
-from rodan.jobs.utils import fix_poly_point_list, create_polygon_outer_points_json_dict, create_json_from_poly_list
+from rodan.jobs.stafffinding_resources.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict, create_json_from_poly_list
 from rodan.celery_models.jobtype import JobType
 from rodan.celery_models.jobbase import JobBase
 import gamera.core
