@@ -2,6 +2,16 @@ from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
 
+from tastypie.api import Api
+from rodan.api.workflow import WorkflowResource
+from rodan.api.project import ProjectResource
+from rodan.api.job import JobResource
+
+v1_api = Api(api_name="v1")
+v1_api.register(WorkflowResource())
+v1_api.register(ProjectResource())
+v1_api.register(JobResource())
+
 from rodan.jobs.neon import neon_urls
 
 admin.autodiscover()
@@ -35,6 +45,13 @@ page_urls = patterns('rodan.views.pages',
 )
 
 urlpatterns = []
+
+# This handles the API calls
+urlpatterns += patterns('',
+    (r'api/', include(v1_api.urls))
+)
+
+
 # Only add admin if it's enabled
 if 'django.contrib.admin' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
