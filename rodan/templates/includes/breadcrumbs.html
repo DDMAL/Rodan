@@ -1,10 +1,10 @@
 <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
         {% if forloop.last %}
-        <li class="active"><a href="{{ breadcrumb.get_absolute_url }}">{{ breadcrumb }}</a></li>
+        <li class="active">{{ breadcrumb }}<span class="divider">/</span></li>
         {% else %}
         <li>
-            <a href="{{ breadcrumb.get_absolute_url }}">{{ breadcrumb }}</a> <span class="divider"></span>
+            <a href="{{ breadcrumb.get_absolute_url }}">{{ breadcrumb }}</a> <span class="divider">/</span>
         </li>
         {% endif %}
     {% endfor %}
