@@ -3,7 +3,8 @@ import gamera.plugins.threshold
 from gamera.plugins.binarization import brink_threshold
 
 from rodan.jobs.utils import rodan_task, load_image_for_job
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 gamera.core.init_gamera()
 
 

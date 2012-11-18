@@ -4,8 +4,9 @@ from django.conf import settings
 from django.conf.urls import patterns, url
 
 from rodan.jobs.utils import rodan_task, create_dirs
-from rodan.models.jobs import JobType, JobBase
 from rodan.models.projects import Job
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 
 neon_urls = patterns('rodan.views.neon',
     url(r'^insert/neume', 'insert_neume'),

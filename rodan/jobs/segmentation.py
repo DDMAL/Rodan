@@ -1,7 +1,8 @@
 import json
 from PIL import Image, ImageDraw, ImageMath, ImageOps
 from rodan.jobs.utils import rodan_task
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 
 
 @rodan_task(inputs='tiff')

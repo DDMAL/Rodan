@@ -1,5 +1,6 @@
 from rodan.jobs.utils import rodan_task
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 
 from barfinder_resources.barfinder import BarlineFinder
 from barfinder_resources.meicreate import BarlineDataConverter

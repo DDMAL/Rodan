@@ -1,8 +1,11 @@
 import os
 from django.conf import settings
-from rodan.jobs.utils import rodan_task, create_dirs
-from rodan.models.jobs import JobType, JobBase
-from rodan.models.projects import Job
+from rodan.helpers.filesystem import create_dirs
+
+from rodan.jobs.utils import rodan_task
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
+from rodan.models.job import Job
 
 
 @rodan_task(inputs=[])

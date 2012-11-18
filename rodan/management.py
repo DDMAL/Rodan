@@ -1,10 +1,11 @@
 from django.db.models.signals import post_syncdb
-from rodan.models.projects import Job
+from rodan.models.job import Job
 from rodan.jobs import jobs
 
 """A post-syncdb hook to ensure that a row for every job defined under
 rodan/jobs is present in the jobs table.
 """
+
 
 def create_jobs(sender, **kwargs):
     for module, job in jobs.iteritems():

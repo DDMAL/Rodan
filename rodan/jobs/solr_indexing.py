@@ -1,7 +1,8 @@
 from django.conf import settings
 from rodan.jobs.utils import rodan_task
 from rodan.jobs.solr_resources import MEI2Solr
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 
 
 @rodan_task(inputs=('mei'), others=['page_sequence', 'project_id'])

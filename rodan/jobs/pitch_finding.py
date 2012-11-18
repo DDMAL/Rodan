@@ -1,6 +1,8 @@
 import json
 from rodan.jobs.utils import rodan_task, load_image_for_job
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
+
 
 import gamera.gamera_xml
 import gamera.core

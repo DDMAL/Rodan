@@ -3,7 +3,8 @@ import gamera.toolkits.border_removal.plugins.border_removal
 from PIL import Image, ImageEnhance
 
 from rodan.jobs.utils import rodan_task, load_image_for_job
-from rodan.models.jobs import JobType, JobBase
+from rodan.celery_models.jobtype import JobType
+from rodan.celery_models.jobbase import JobBase
 
 
 @rodan_task(inputs='tiff')

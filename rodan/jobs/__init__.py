@@ -1,6 +1,6 @@
 import os
 import inspect
-from rodan.models.jobs import JobBase
+from rodan.celery_models.jobbase import JobBase
 
 """
 To automatically import all the subclasses of JobBase defined in files in
