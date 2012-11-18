@@ -51,6 +51,12 @@ body {
     left: 0px;
     background-color: @sidebarBg;
     width: @sidebarWidth;
+    min-height: 100%;
+    .border-radius(6px);
+    padding-bottom: 10px;
+    .nav-header {
+        font-size: 0.9em;
+    }
 }
 
 #wrap {
@@ -63,7 +69,6 @@ body {
 }
 
 #content {
-    //.scrollable;
     margin-left: @sidebarWidth;
     overflow-x: hidden;
 }
@@ -77,23 +82,27 @@ a {
     }
 }
 
-h1 {
-    margin-bottom: 20px;
-    font-size: 2.5em;
-}
-
-#dialog {
+.login-form {
     position: relative;
     width: @dialogWidth;
     margin: 50px auto;
     border: 2px solid @dialogFrameBg;
-    .border-radius(5px);
+    .border-radius(6px);
     background: @dialogBg;
     padding: 20px;
     form {
         width: 420px;
         margin: 0 auto;
     }
+}
+
+
+// Job and workflow items
+.job-item {
+    border: 2px solid @dialogFrameBg;
+    .border-radius(6px);
+    padding: 5px;
+    .box-shadow(0 1px 2px 2px #ccc);
 }
 
 .alert {
@@ -166,10 +175,6 @@ h1 {
     margin-bottom: 40px;
 }
 
-.row {
-    clear: both;
-}
-
 #main-line-graph {
     .column(12);
 }
@@ -215,38 +220,38 @@ h1 {
     }
 }
 
-table {
-    width: 100%;
-    border: 1px solid @lightGrey;
-    border-left: 0;
-    border-spacing: 0;
-    th, td {
-        padding: 8px;
-        line-height: 18px;
-        text-align: left;
-        border-left: 1px solid @lightGrey;
-    }
-    th {
-        border-bottom: 1px solid @lightGrey;
-    }
-    &.pretty {
-        th {
-            background: @brightBlue;
-            color: @white;
-            width: 20%;
-            border: 0;
-        }
-        td {
-            border-top: 1px solid @lightGrey;
-        }
-        margin-bottom: 20px;
-    }
-    &.centered-text {
-        th, td {
-            .center-align;
-        }
-    }
-}
+// table {
+//     width: 100%;
+//     border: 1px solid @lightGrey;
+//     border-left: 0;
+//     border-spacing: 0;
+//     th, td {
+//         padding: 8px;
+//         line-height: 18px;
+//         text-align: left;
+//         border-left: 1px solid @lightGrey;
+//     }
+//     th {
+//         border-bottom: 1px solid @lightGrey;
+//     }
+//     &.pretty {
+//         th {
+//             background: @brightBlue;
+//             color: @white;
+//             width: 20%;
+//             border: 0;
+//         }
+//         td {
+//             border-top: 1px solid @lightGrey;
+//         }
+//         margin-bottom: 20px;
+//     }
+//     &.centered-text {
+//         th, td {
+//             .center-align;
+//         }
+//     }
+// }
 
 // a.button {
 //     #gradient(@buttonBgStart, @buttonBgEnd);
@@ -270,123 +275,116 @@ table {
     margin-top: 10px;
 }
 
-h2 {
-    margin: 15px 0px;
-}
+// .breadcrumbs {
+//     list-style-type: none;
+//     .border-radius(5px);
+//     #gradient(@offWhite, @lighterGrey);
+//     border: 1px solid @lightGrey;
+//     padding: 7px 14px;
+//     li {
+//         display: inline-block;
+//     }
+//     li:not(:last-child):after {
+//         // Add a » between the elements
+//         content: "\00a0\00a0\00a0\00BB\00a0\00a0";
+//     }
+//     margin-bottom: 20px;
 
-.breadcrumbs {
-    list-style-type: none;
-    .border-radius(5px);
-    #gradient(@offWhite, @lighterGrey);
-    border: 1px solid @lightGrey;
-    padding: 7px 14px;
-    li {
-        display: inline-block;
-    }
-    li:not(:last-child):after {
-        // Add a » between the elements
-        content: "\00a0\00a0\00a0\00BB\00a0\00a0";
-    }
-    margin-bottom: 20px;
-
-}
+// }
 
 .left-float {
     float: left;
 }
 
-#job-lists {
-    float: left;
-    position: relative;
-    left: 20px;
-    ul {
-        list-style-type: none;
-        background: @lightGrey;
-        li {
-            max-width: 400px;
-            background: @lightBlue;
-            padding: 10px;
-            border-top: 1px solid @white;
-            &.full-height {
-                line-height: 60px;
-            }
-            p {
-                // Otherwise it cuts off oddly
-                margin-bottom: 0;
-            }
-        }
-    }
-    #available-jobs {
-        .edit-parameters, span {
-            .hidden;
-        }
-    }
-}
+// #job-lists {
+//     float: left;
+//     position: relative;
+//     left: 20px;
+//     ul {
+//         list-style-type: none;
+//         background: @lightGrey;
+//         li {
+//             max-width: 400px;
+//             background: @lightBlue;
+//             padding: 10px;
+//             border-top: 1px solid @white;
+//             &.full-height {
+//                 line-height: 60px;
+//             }
+//             p {
+//                 // Otherwise it cuts off oddly
+//                 margin-bottom: 0;
+//             }
+//         }
+//     }
+//     #available-jobs {
+//         .edit-parameters, span {
+//             .hidden;
+//         }
+//     }
+// }
 
-.job-lists {
-    width: 65%;
-    margin: 0 10px;
-    display: inline-block;
-    th {
-        width: 50%;
-    }
-    td {
-        vertical-align: top;
-        .message {
-            text-align: center;
-            margin: 10px 0;
-        }
-        .job {
-            cursor: pointer;
-            margin: 0 3px 3px 3px;
-            padding: 5px;
-            padding-left: 25px;
-            span {
-                position: absolute;
-                margin-left: -20px;
-            }
-            i {
-                font-style: normal;
-            }
-        }
-    }
-}
+// .job-lists {
+//     width: 65%;
+//     margin: 0 10px;
+//     display: inline-block;
+//     th {
+//         width: 50%;
+//     }
+//     td {
+//         vertical-align: top;
+//         .message {
+//             text-align: center;
+//             margin: 10px 0;
+//         }
+//         .job {
+//             cursor: pointer;
+//             margin: 0 3px 3px 3px;
+//             padding: 5px;
+//             padding-left: 25px;
+//             span {
+//                 position: absolute;
+//                 margin-left: -20px;
+//             }
+//             i {
+//                 font-style: normal;
+//             }
+//         }
+//     }
+// }
 
-#job-grid {
-    li {
-        position: relative;
-        display: inline-block;
-        min-width: 200px;
-        height: 50px;
-        margin-top: 10px;
-        text-align: center;
-        background: @lightGrey;
-        line-height: 50px;
-        &.available {
-            background: @brightBlue;
-            &:hover {
-                background: @brighterBlue;
-            }
-        }
-        a {
-            display: block;
-            min-width: 160px;
-            padding: 0 20px;
-            height: 100%;
-            color: @white;
-            &:hover {
-                text-decoration: none;
-            }
-        }
-        &:hover {
-            background: @lighterGrey;
-        }
-    }
-}
+// #job-grid {
+//     li {
+//         position: relative;
+//         display: inline-block;
+//         min-width: 200px;
+//         height: 50px;
+//         margin-top: 10px;
+//         text-align: center;
+//         background: @lightGrey;
+//         line-height: 50px;
+//         &.available {
+//             background: @brightBlue;
+//             &:hover {
+//                 background: @brighterBlue;
+//             }
+//         }
+//         a {
+//             display: block;
+//             min-width: 160px;
+//             padding: 0 20px;
+//             height: 100%;
+//             color: @white;
+//             &:hover {
+//                 text-decoration: none;
+//             }
+//         }
+//         &:hover {
+//             background: @lighterGrey;
+//         }
+//     }
+// }
 
-hr {
-    margin: 10px 0;
-}
 
 .images {
     margin: 10px 0;
@@ -569,39 +567,8 @@ div.seg-view>#image-preview {
     z-index: 500;
 }
 
-dl {
-    dt {
-        font-weight: bold;
-    }
-}
-
 span.error {
     color: @red;
-}
-
-#modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    div {
-        .border-radius(5px);
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-top: -(@modalHeight / 2);
-        margin-left: -(@modalWidth / 2);
-        width: @modalWidth;
-        height: @modalHeight;
-        #gradient(@white, @lightGrey);
-        p {
-            text-align: center;
-            padding: 20px 0;
-        }
-    }
 }
 
 #previous_structure {
