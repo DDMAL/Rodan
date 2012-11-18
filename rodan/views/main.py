@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout, models
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from rodan.forms.users import SignupLoginForm
-from django.core.urlresolvers import reverse
 
 
-# The statistics and everything
 @login_required
 def home(request):
     data = {
