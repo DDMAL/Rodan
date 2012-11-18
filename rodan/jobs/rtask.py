@@ -1,7 +1,8 @@
 import djcelery_transactions
 
 from djcelery.models import TaskMeta
-from rodan.models.results import Result, ResultTask
+from rodan.models.result import Result
+from rodan.models.resulttask import ResultTask
 
 
 class RTask(djcelery_transactions.Task):

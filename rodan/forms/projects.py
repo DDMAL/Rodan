@@ -1,5 +1,5 @@
 from django import forms
-from rodan.models.projects import Project
+from rodan.models.project import Project
 
 
 class ProjectForm(forms.ModelForm):

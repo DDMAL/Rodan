@@ -8,6 +8,8 @@ from rodan.models.projects import Job
 from rodan.celery_models.jobtype import JobType
 from rodan.celery_models.jobbase import JobBase
 
+from rodan.models.job import Job
+
 neon_urls = patterns('rodan.views.neon',
     url(r'^insert/neume', 'insert_neume'),
     url(r'^move/neume', 'move_neume'),
