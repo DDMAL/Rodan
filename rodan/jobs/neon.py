@@ -2,9 +2,9 @@ import os
 
 from django.conf import settings
 from django.conf.urls import patterns, url
+from rodan.helpers.filesystem import create_dirs
 
-from rodan.jobs.utils import rodan_task, create_dirs
-from rodan.models.projects import Job
+from rodan.jobs.utils import rodan_task
 from rodan.celery_models.jobtype import JobType
 from rodan.celery_models.jobbase import JobBase
 

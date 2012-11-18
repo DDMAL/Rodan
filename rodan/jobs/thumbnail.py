@@ -1,6 +1,6 @@
 from djcelery_transactions import task
-from rodan.jobs.utils import create_thumbnail
-from rodan.models.projects import Page
+from rodan.helpers.thumbnails import create_thumbnail
+from django.db import models
 
 
 @task

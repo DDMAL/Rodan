@@ -1,4 +1,3 @@
-import os
 from functools import wraps
 
 import PIL.Image
@@ -6,58 +5,28 @@ import PIL.ImageFile
 import gamera.core
 import pymei
 from vipsCC.VImage import VImage
-from gamera.gameracore import Point
-from gamera.toolkits.musicstaves.stafffinder import StafflinePolygon
 from djcelery_transactions import task
-from django.conf import settings
+
+from rodan.helpers.filesystem import create_dirs
+from rodan.helpers.thumbnails import create_thumbnails
 from django.db import models
+# from rodan.models.page import Page
+# from rodan.models.job import Job
+# from rodan.models.result import Result
+# from rodan.models.rtask import RTask, RTaskMultiPage
 
-from rodan.models.results import Result
-from rodan.models import Page
-from rtask import RTask, RTaskMultiPage
+Page = models.loading.get_model('rodan', 'Page')
+Job = models.loading.get_model('rodan', 'Job')
+Result = models.loading.get_model('rodan', 'Result')
+RTask = models.loading.get_model('rodan', 'RTask')
+RTaskMultiPage = models.loading.get_model('rodan', 'RTaskMultiPage')
 
-
-Job = models.get_model('rodan', 'job')
 
 other_input_mapping = {
     'segmented_image': lambda page: page.get_job_path(Job.objects.get(pk='segmentation'), 'tiff'),
     'page_sequence': lambda page: page.sequence,
     'project_id': lambda page: page.project.id,
 }
-
-
-def create_dirs(full_path):
-    try:
-        os.makedirs(os.path.dirname(full_path))
-    except OSError:
-        pass
-
-
-def create_thumbnail(image_path, thumb_path, thumbnail_size):
-    image = PIL.Image.open(image_path).convert('RGB')
-    width, height = image.size
-
-    if thumbnail_size != settings.ORIGINAL_SIZE:
-        dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
-        image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
-
-    image.save(thumb_path)
-
-    # Return the image dimensions so they can be used later
-    return width, height
-
-
-def create_thumbnails(image_path, result):
-    page = result.page
-    job = result.job_item.job
-
-    for thumbnail_size in settings.THUMBNAIL_SIZES:
-        thumb_path = page.get_thumb_path(size=thumbnail_size, job=job)
-        width, height = create_thumbnail(image_path, thumb_path, thumbnail_size)
-
-    page.latest_width = width
-    page.latest_height = height
-    page.save()
 
 
 def rodan_multi_page_task(inputs, others=[]):
@@ -236,95 +205,3 @@ def __convert_image_for_job(image, job_input_types):
         return image
 
     return converted_img
-
-
-def create_polygon_outer_points_json_dict(poly_list):
-    '''
-        The following function is used to retrieve polygon points data of the first
-        and last staff lines of a particular polygon that is drawn over a staff.
-        Note that we iterate through the points of the last staff line in reverse (i.e starting
-        from the last point on the last staff line going to the first) - We do this to simplify
-        recreating the polygon on the front-end
-    '''
-    poly_json_list = []
-
-    for poly in poly_list:
-        if len(poly):
-            last_index = len(poly) - 1
-            point_list_one = [(vert.x, vert.y) for vert in poly[0].vertices]
-            point_list_last = [(vert.x, vert.y) for vert in poly[last_index].vertices]
-            point_list_last.reverse()
-            point_list_one.extend(point_list_last)
-            poly_json_list.append(point_list_one)
-
-    return poly_json_list
-
-
-def create_json_from_poly_list(poly_list):
-    poly_json_list = []
-
-    for poly in poly_list:
-        staff_list = []
-        for staff in poly:
-            point_list = [(vert.x, vert.y) for vert in staff.vertices]
-            staff_list.append(point_list)
-        poly_json_list.append(staff_list)
-
-    return poly_json_list
-
-
-def create_poly_list_from_json(encoded_poly_list):
-    #print encoded_poly_list
-    poly_list = []
-    for poly in encoded_poly_list:
-        staff_list = []
-        for staff in poly:
-            staffLine = StafflinePolygon()
-            vertices = []
-            for vert in staff:
-                vertices.append(Point(vert[0], vert[1]))
-
-            staffLine.vertices = vertices
-            staff_list.append(staffLine)
-
-        poly_list.append(staff_list)
-
-    return poly_list
-
-
-def fix_poly_point_list(poly_list, staffspace_height):
-    for poly in poly_list:
-        # Check if there are the same number of points on all staff lines
-        lengths = [len(line.vertices) for line in poly]
-        if len(set(lengths)) == 1:
-            continue
-        else:
-            # Loop over all the staff lines
-            for j, line in enumerate(poly):
-                # Loop over all the points of the staff
-                for k, vert in enumerate(line.vertices):
-                    # Loop over all the staff lines again
-                    for l, innerline in enumerate(poly):
-                        if l == j:
-                            # Prevent looping through the same line as outer
-                            continue
-
-                        if k < len(innerline.vertices):
-                            # Make sure k is in range first
-                            y_pix_diff = vert.x - innerline.vertices[k].x
-                        else:
-                            # It's not in range - we're missing a point
-                            # Set this to an arbitrary value to force an insert
-                            y_pix_diff = -10000
-
-                        if -3 < y_pix_diff < 3:
-                            # If the y-coordinate pixel difference is small enough
-                            continue
-                        else:
-                            # Missing a point on that staff
-                            # The multiplier represents the # of lines apart
-                            staffspace_multiplier = l - j
-                            new_y = vert.y + (staffspace_multiplier * staffspace_height)
-                            innerline.vertices.insert(k, Point(vert.x, new_y))
-
-    return poly_list
