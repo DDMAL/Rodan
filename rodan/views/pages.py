@@ -2,14 +2,16 @@ from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils import timezone
 
-from rodan.models.projects import Page, Job, JobItem, Workflow, Project
-from rodan.models.results import Result
+from rodan.models.project import Project
+from rodan.models.page import Page
+from rodan.models.job import Job
+from rodan.models.jobitem import JobItem
+from rodan.models.workflow import Workflow
+from rodan.models.result import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
-from rodan.models.jobs import JobType
 from rodan.views.projects import task as task_view
 
 
@@ -146,6 +148,7 @@ def workflow(request, page):
     }
     return ('New workflow', data)
 
+
 @login_required
 @rodan_view(Page)
 def add_jobs(request, page):
@@ -189,8 +192,8 @@ def add_jobs(request, page):
     jobs_diff_io_type = page.workflow.get_jobs_diff_io_type()
 
     data = {
-        'jobs_same_io_type' : jobs_same_io_type,
-        'jobs_diff_io_type' : jobs_diff_io_type,
+        'jobs_same_io_type': jobs_same_io_type,
+        'jobs_diff_io_type': jobs_diff_io_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,
@@ -241,6 +244,7 @@ def set_workflow(request, page):
     }
 
     return ('Set a new workflow', data)
+
 
 @login_required
 @rodan_view(Page)

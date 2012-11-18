@@ -9,8 +9,12 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db import transaction
 
-from rodan.models.projects import Project, Workflow, Job, Page
-from rodan.models.results import Result
+from rodan.models.project import Project
+from rodan.models.workflow import Workflow
+from rodan.models.job import Job
+from rodan.models.page import Page
+from rodan.models.result import Result
+
 from rodan.forms.projects import ProjectForm
 from rodan.utils import rodan_view, headers, render_to_json
 from rodan.jobs.diva_resources.divaserve import DivaServe

@@ -2,11 +2,12 @@ import random
 
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 
 from rodan.utils import rodan_view, chunkify
-from rodan.models.projects import Workflow, Project, Page
+from rodan.models.project import Project
+from rodan.models.workflow import Workflow
+from rodan.models.page import Page
 from rodan.forms.workflows import WorkflowForm
 
 

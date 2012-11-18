@@ -5,7 +5,8 @@ from djcelery.snapshot import Camera
 from django.conf import settings
 
 from djcelery.models import TaskMeta
-from rodan.models.results import Result, ResultTask
+from rodan.models.result import Result
+from rodan.models.resulttask import ResultTask
 
 
 class RodanMonitor(Camera):

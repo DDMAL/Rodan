@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rodan.utils import render_to_json
-from rodan.models.projects import Page, Job
+from rodan.models.page import Page
+from rodan.models.job import Job
 from rodan.jobs.neon_resources.modifymei import ModifyDocument
 
 import json
 
 j = Job.objects.get(pk='neon')
+
 
 @render_to_json()
 def insert_neume(request, page_id):
@@ -25,12 +27,13 @@ def insert_neume(request, page_id):
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_job_path(j, 'mei')
-        
+
         md = ModifyDocument(fname)
         result = md.insert_punctum(before_id, pname, oct, dot_form, ulx, uly, lrx, lry)
         md.write_doc()
 
         return result
+
 
 @render_to_json()
 def move_neume(request, page_id):
@@ -39,7 +42,7 @@ def move_neume(request, page_id):
 
         id = str(data.get("id"))
         before_id = str(data.get("beforeid"))
-        
+
         try:
             ulx = str(data["ulx"])
             uly = str(data["uly"])
@@ -59,6 +62,7 @@ def move_neume(request, page_id):
 
         return {}
 
+
 @render_to_json()
 def delete_neume(request, page_id):
     if request.method == 'POST':
@@ -72,6 +76,7 @@ def delete_neume(request, page_id):
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def update_neume_head_shape(request, page_id):
@@ -96,6 +101,7 @@ def update_neume_head_shape(request, page_id):
 
         return {}
 
+
 @render_to_json()
 def neumify(request, page_id):
     if request.method == 'POST':
@@ -111,7 +117,7 @@ def neumify(request, page_id):
             uly = str(data["uly"])
         except KeyError:
             ulx = uly = lrx = lry = None
-        
+
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_job_path(j, 'mei')
 
@@ -120,6 +126,7 @@ def neumify(request, page_id):
         md.write_doc()
 
         return result
+
 
 @render_to_json()
 def ungroup(request, page_id):
@@ -137,6 +144,7 @@ def ungroup(request, page_id):
         md.write_doc()
 
         return result
+
 
 @render_to_json()
 def insert_division(request, page_id):
@@ -184,6 +192,7 @@ def move_division(request, page_id):
 
         return {}
 
+
 @render_to_json()
 def delete_division(request, page_id):
     if request.method == 'POST':
@@ -197,6 +206,7 @@ def delete_division(request, page_id):
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def insert_dot(request, page_id):
@@ -221,6 +231,7 @@ def insert_dot(request, page_id):
 
         return {}
 
+
 @render_to_json()
 def delete_dot(request, page_id):
     if request.method == 'POST':
@@ -242,6 +253,7 @@ def delete_dot(request, page_id):
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def insert_clef(request, page_id):
@@ -268,12 +280,13 @@ def insert_clef(request, page_id):
 
         return result
 
+
 @render_to_json()
 def move_clef(request, page_id):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
         clef_id = str(data.get("id"))
-        
+
         try:
             ulx = str(data["ulx"])
             uly = str(data["uly"])
@@ -293,6 +306,7 @@ def move_clef(request, page_id):
 
         return {}
 
+
 @render_to_json()
 def update_clef_shape(request, page_id):
     if request.method == 'POST':
@@ -311,12 +325,13 @@ def update_clef_shape(request, page_id):
 
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_job_path(j, 'mei')
-        
+
         md = ModifyDocument(fname)
         md.update_clef_shape(clef_id, shape, data["pitchInfo"], ulx, uly, lrx, lry)
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def delete_clef(request, page_id):
@@ -331,6 +346,7 @@ def delete_clef(request, page_id):
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def insert_custos(request, page_id):
@@ -347,7 +363,6 @@ def insert_custos(request, page_id):
         except KeyError:
             ulx = uly = lrx = lry = None
 
-
         p = get_object_or_404(Page, pk=page_id)
         fname = p.get_job_path(j, 'mei')
 
@@ -356,6 +371,7 @@ def insert_custos(request, page_id):
         md.write_doc()
 
         return result
+
 
 @render_to_json()
 def move_custos(request, page_id):
@@ -380,6 +396,7 @@ def move_custos(request, page_id):
         md.write_doc()
 
         return {}
+
 
 @render_to_json()
 def delete_custos(request, page_id):

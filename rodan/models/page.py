@@ -1,218 +1,21 @@
 import os
 import uuid
 import shutil
-
 from django.db import models
-from django.contrib.auth.models import User
 from django.conf import settings
 
-import rodan.jobs
-from rodan.models.jobs import JobType
+from rodan.celery_models.jobtype import JobType
 from rodan.utils import get_size_in_mb
+from rodan.helpers.filesystem import create_dirs
+from rodan.jobs.thumbnail import create_thumbnails
+
 from PIL import Image
 from cStringIO import StringIO
 
-
-class RodanUser(models.Model):
-    class Meta:
-        app_label = 'rodan'
-
-    user = models.OneToOneField(User)
-    affiliation = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.user.username
-
-
-class Project(models.Model):
-    class Meta:
-        app_label = 'rodan'
-
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey(RodanUser)
-    pk_name = 'project_id'
-
-    def __unicode__(self):
-        return self.name
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('rodan.views.projects.view', [str(self.id)])
-
-    # Takes in a User (not a RodanUser), returns true if the user created it
-    def is_owned_by(self, user):
-        return user.is_authenticated() and self.creator == user.get_profile()
-
-    def get_percent_done(self):
-        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
-        return percent_done / self.page_set.count() if self.page_set.count() else 0
-
-    def get_divaserve_dir(self):
-        return os.path.join(settings.MEDIA_ROOT,
-                            "%d" % self.id,
-                            'final')
-
-    def is_partially_complete(self):
-        Job = models.loading.get_model('rodan', 'Job')
-        diva_job = Job.objects.get(pk='diva-preprocess')
-        return any(page.get_percent_done() == 100 and page.workflow.jobitem_set.filter(job=diva_job).count() for page in self.page_set.all())
-
-    def clone_workflow_for_page(self, workflow, page, user):
-        Workflow = models.loading.get_model('rodan', 'Workflow')
-        new_wf = Workflow.objects.create(project=self, name=workflow.name, description=workflow.description, has_started=True)
-
-        for jobitem in workflow.jobitem_set.all():
-            new_wf.jobitem_set.create(sequence=jobitem.sequence, job=jobitem.job)
-
-        page.workflow = new_wf
-        page.save()
-
-        return new_wf
-
-
-class Job(models.Model):
-    """
-    The slug is automatically generated from the class definition, but
-    can be overridden by setting the 'slug' attribute. This is used for URL
-    routing purposes.
-
-    The name is also automatically generated from the class definition, but,
-    again, can be overridden, this time by setting the 'name' attribute. This
-    is used for display purposes.
-
-    The module is in the form 'rodan.jobs.binarisation.Binarise', where
-    'binarisation.py' is a file under rodan/jobs, and Binarise is a class
-    defined in that file.
-
-    All instances of this model (i.e. rows in the database) are created after
-    syncing the database (if they have not already been created), using the
-    post_sync hook. They should not be added manually, via fixtures or
-    otherwise.
-    """
-    class Meta:
-        app_label = 'rodan'
-
-    name = models.CharField(max_length=50)
-    slug = models.CharField(max_length=20, primary_key=True)
-    module = models.CharField(max_length=100)
-    enabled = models.BooleanField(default=True)
-    is_automatic = models.BooleanField()
-    pk_name = 'job_slug'
-    is_required = models.BooleanField()
-
-    def __unicode__(self):
-        return self.name
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('rodan.views.jobs.view', [self.slug])
-
-    def get_view(self, page):
-        """
-        Returns a tuple of the template to use and a context dictionary
-        """
-        return ('jobs/%s.html' % self.slug, self.get_object().get_context(page))
-
-    def get_object(self):
-        return rodan.jobs.jobs[self.module]
-
-    def is_compatible(self, other_job):
-        """
-        Given another job, checks if it's compatible as the next job
-        (based on input/output types)
-        """
-        return self.get_object().output_type == other_job.get_object().input_type
-
-    def get_compatible_jobs(self):
-        compatible_function = self.is_compatible
-        return filter(compatible_function, Job.objects.all())
-
-
-class Workflow(models.Model):
-    class Meta:
-        app_label = 'rodan'
-
-    project = models.ForeignKey(Project)
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
-    jobs = models.ManyToManyField(Job, through='JobItem', null=True, blank=True)
-    has_started = models.BooleanField(default=False)
-    pk_name = 'workflow_id'
-
-    def __unicode__(self):
-        return self.name
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('rodan.views.workflows.view', [str(self.id)])
-
-    def get_percent_done(self):
-        percent_done = sum(page.get_percent_done() for page in self.page_set.all())
-        return percent_done / self.page_set.count() if self.page_set.count() else 0
-
-    def get_workflow_jobs(self):
-        """Get all the the job items in a workflow."""
-        return [job_item.job for job_item in self.jobitem_set.all()]
-
-    def get_required_jobs(self):
-        """
-        Return a list of all the jobs with a required flag that are compatible with the last added job
-        that can be added (i.e. are not already chosen).
-        """
-        workflow_jobs = self.get_workflow_jobs()
-
-        if workflow_jobs:
-            last_job = self.get_workflow_jobs()[-1]
-            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and last_job.is_compatible(job)]
-        else:
-            return [job for job in Job.objects.filter(is_required=True) if job not in self.get_workflow_jobs() and job.get_object().input_type == JobType.IMAGE]
-
-    def has_required_compatibility(self, job):
-        """
-        Check that the arguement job is compatible with all required jobs in this step.
-        i.e., has the same output type as all the input types of the required jobs at the current step.
-        """
-        return all(job.is_compatible(req_job) for req_job in self.get_required_jobs())
-
-    def get_available_jobs(self):
-        """
-        Return a list of the available jobs to choose from when creating a workflow,
-        checks that all required jobs are added before moving to a different input type.
-        """
-        available_jobs = []
-        workflow_jobs = self.get_workflow_jobs()
-        required_jobs = self.get_required_jobs()
-        if workflow_jobs:
-            last_job = workflow_jobs[-1]
-            #First finds enabled jobs that aren't required
-            available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job not in workflow_jobs and last_job.is_compatible(job)]
-            #If there are required jobs, filters out those jobs not compatible with required jobs, else returns available jobs
-            if required_jobs:
-                available_jobs = required_jobs + [job for job in available_jobs and self.has_required_compatibility(job)]
-        else:
-            #If there aren't any workflow jobs, finds all enabled jobs that aren't required
-            available_jobs = [job for job in Job.objects.filter(enabled=True, is_required=False) if job.get_object().input_type == JobType.IMAGE]
-            #If there are required jobs, filters out all jobs that aren't compatible with the required jobs
-            if required_jobs:
-                available_jobs = required_jobs + [job for job in available_jobs if self.has_required_compatibility(job)]
-
-        return available_jobs
-
-    def get_removable_jobs(self):
-        """
-        Get all the removeable jobs in a workflow (i.e., jobs with the same input as output type).
-        """
-        return [job for job in self.get_workflow_jobs() if job.get_object().input_type == job.get_object().output_type]
-
-    def get_jobs_same_io_type(self):
-        """
-        Get all the jobs in the available_jobs that have the same input_type as output_type.
-        """
-        return [job for job in self.get_available_jobs() if job.get_object().input_type == job.get_object().output_type]
-
-    def get_jobs_diff_io_type(self):
-        return [job for job in self.get_available_jobs() if job.get_object().input_type != job.get_object().output_type]
+Result = models.get_model('rodan', 'Result')
+Workflow = models.get_model('rodan', 'Workflow')
+Project = models.get_model('rodan', 'Project')
+ResultFile = models.get_model('rodan', 'ResultFile')
 
 
 class Page(models.Model):
@@ -221,9 +24,9 @@ class Page(models.Model):
         unique_together = ('project', 'sequence')
         ordering = ['project', 'sequence']
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey('rodan.Project')
     # Will only begin processing once a workflow has been specified
-    workflow = models.ForeignKey(Workflow, null=True, blank=True, on_delete=models.SET_NULL)
+    workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True, on_delete=models.SET_NULL)
     filename = models.CharField(max_length=50)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="Optional tag for the page. Sort of like a nickname.")
     # Used in conjunction with the @rodan_view decorator
@@ -491,7 +294,6 @@ class Page(models.Model):
         next_job_item = self.get_next_job_item(user=user)
         # Create a new result only if there are none
         if next_job_item is not None and next_job_item.result_set.filter(page=self).count() == 0:
-            Result = models.loading.get_model('rodan', 'Result')
             result = Result.objects.create(job_item=next_job_item, user=user, page=self)
             return result
 
@@ -532,7 +334,7 @@ class Page(models.Model):
                     next_job_obj.on_post(next_result.id, **next_job_obj.parameters)
 
     def get_percent_done(self):
-        Result = models.loading.get_model('rodan', 'Result')
+        Result = models.get_model('rodan', 'Result')
         num_complete = Result.objects.filter(page=self, end_total_time__isnull=False).count()
         try:
             num_jobs = self.workflow.jobitem_set.count()
@@ -547,7 +349,7 @@ class Page(models.Model):
         self.save()
 
         image_path = self.get_latest_file_path('tiff')
-        rodan.jobs.utils.create_dirs(image_path)
+        create_dirs(image_path)
 
         # perform image conversion, if necessary
         output_file = open(image_path, 'wb+')
@@ -563,10 +365,9 @@ class Page(models.Model):
                     destination.write(chunk)
 
         # Now generate thumbnails
-        rodan.jobs.thumbnail.create_thumbnails.delay(self.id, image_path, settings.THUMBNAIL_SIZES)
+        create_thumbnails.delay(self.id, image_path, settings.THUMBNAIL_SIZES)
 
     def is_job_complete(self, job_item):
-        Result = models.loading.get_model('rodan', 'Result')
         return Result.objects.filter(job_item=job_item,
                                      page=self,
                                      end_total_time__isnull=False
@@ -584,43 +385,6 @@ class Page(models.Model):
             if os.path.exists(path_to_job_file_results):
                 shutil.rmtree(path_to_job_file_results)
         results_to_delete.delete()
-
-
-class JobItem(models.Model):
-    class Meta:
-        app_label = 'rodan'
-        unique_together = ('workflow', 'sequence')
-        ordering = ['sequence']
-
-    workflow = models.ForeignKey(Workflow)
-    job = models.ForeignKey(Job)
-    sequence = models.IntegerField()
-
-    def __unicode__(self):
-        return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
-
-
-class ActionParam(models.Model):
-    """
-    Specifies the intended defaults for a job.
-    """
-    class Meta:
-        app_label = 'rodan'
-        unique_together = ('job_item', 'key')
-
-    job_item = models.ForeignKey(JobItem)
-    key = models.CharField(max_length=50)
-    value = models.CharField(max_length=50)
-
-    def __unicode__(self):
-        return "%s: %s, for %s" % (self.key, self.value, self.job_item)
-
-
-# Defines a post_save hook to ensure that a RodanUser is created for each User
-def create_rodan_user(sender, instance, created, **kwargs):
-    if created:
-        RodanUser.objects.create(user=instance)
-models.signals.post_save.connect(create_rodan_user, sender=User)
 
 
 # Defines a post-delete hook on Page to ensure that the image files are deleted
