@@ -1,4 +1,4 @@
-from gamera.core import *
+import gamera.core
 from gamera.toolkits import musicstaves
 from gamera.classify import BoundingBoxGroupingFunction
 from gamera import knn
