@@ -1,5 +1,6 @@
 import os
 import inspect
+import pkgutil
 from rodan.celery_models.jobbase import JobBase
 
 """
@@ -9,19 +10,15 @@ are the module names plus the class name (e.g. binarisation.Binarise).
 """
 
 jobs = {}
-
-for filename in os.listdir(os.path.dirname(__file__)):
-    if filename == '__init__.py' or filename[-3:] != '.py':
-        continue
-
+prefix = 'rodan.jobs.'
+for loader, modname, ispkg in pkgutil.iter_modules(__path__, prefix):
     try:
-        module = __import__(filename[:-3], locals(), globals())
-    except ImportError:
-        print "Cannot import {0}. Disabling Support".format(filename)
+        module = loader.find_module(modname).load_module(modname)
+    except ImportError as e:
+        print "Cannot import {0}. Disabling Support {1}".format(modname, e)
         continue
 
-    del filename
-    for name, job in inspect.getmembers(module):
+    for name, job in inspect.getmembers(module, inspect.isclass):
         try:
             if issubclass(job, JobBase) and not name.endswith('JobBase'):
                 jobs[module.__name__ + '.' + name] = job()
