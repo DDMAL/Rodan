@@ -7,7 +7,7 @@ class RodanUser(models.Model):
         app_label = 'rodan'
 
     user = models.OneToOneField(User)
-    affiliation = models.CharField(max_length=100)
+    affiliation = models.CharField(max_length=100, blank=True)
 
     def __unicode__(self):
         return self.user.username
