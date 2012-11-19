@@ -13,7 +13,13 @@ jobs = {}
 for filename in os.listdir(os.path.dirname(__file__)):
     if filename == '__init__.py' or filename[-3:] != '.py':
         continue
-    module = __import__(filename[:-3], locals(), globals())
+
+    try:
+        module = __import__(filename[:-3], locals(), globals())
+    except ImportError:
+        print "Cannot import {0}. Disabling Support".format(filename)
+        continue
+
     del filename
     for name, job in inspect.getmembers(module):
         try:
