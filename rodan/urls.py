@@ -6,11 +6,15 @@ from tastypie.api import Api
 from rodan.api.workflow import WorkflowResource
 from rodan.api.project import ProjectResource
 from rodan.api.job import JobResource
+from rodan.api.rodanuser import UserResource
+from rodan.api.page import PageResource
 
 v1_api = Api(api_name="v1")
 v1_api.register(WorkflowResource())
 v1_api.register(ProjectResource())
 v1_api.register(JobResource())
+v1_api.register(UserResource())
+v1_api.register(PageResource())
 
 from rodan.jobs.neon import neon_urls
 

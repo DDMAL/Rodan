@@ -4,16 +4,17 @@ from tastypie.authorization import DjangoAuthorization
 from tastypie import fields
 
 from rodan.api.project import ProjectResource
-from rodan.api.job import JobResource
-from rodan.models.workflow import Workflow
+from rodan.api.workflow import WorkflowResource
+from rodan.models.page import Page
 
 
-class WorkflowResource(ModelResource):
+class PageResource(ModelResource):
     project = fields.ForeignKey(ProjectResource, 'project')
-    jobs = fields.ManyToManyField(JobResource, 'jobs')
+    workflow = fields.ForeignKey(WorkflowResource, 'workflow')
 
     class Meta:
-        queryset = Workflow.objects.all()
-        resource_name = "workflow"
+        queryset = Page.objects.all()
+        resource_name = "page"
+        # Add it here.
         authentication = BasicAuthentication()
         authorization = DjangoAuthorization()
