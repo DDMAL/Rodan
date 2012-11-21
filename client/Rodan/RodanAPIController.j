@@ -12,6 +12,10 @@ var RODAN = "http://localhost:8000/api/v1";
 - (id)init
 {
     self = [super init];
+    if (self)
+    {
+        theResult = [[CPMutableArray alloc] init];
+    }
     return self;
 }
 
@@ -22,7 +26,6 @@ var RODAN = "http://localhost:8000/api/v1";
         request = [CPURLRequest requestWithURL:"http://localhost:8000/api/v1/" + aSection + "?format=json"];
 
     [r setResultNotification:aNotification];
-    [r setTheResult:[CPMutableArray init]];
 
     [request setHTTPMethod:"GET"];
     var connection = [CPURLConnection connectionWithRequest:request delegate:r];
@@ -43,17 +46,16 @@ var RODAN = "http://localhost:8000/api/v1";
 
 - (void)connection:(CPURLConnection)connection didReceiveData:(CPString)data
 {
-    console.log([theResult]);
     var j = JSON.parse(data);
+
     for (var i = j.objects.length - 1; i >= 0; i--)
     {
-        [theResult addObject:[Project projectWithObject:j.objects[i]]];
+        var p = [Project projectWithObject:j.objects[i]];
+        [theResult addObject:p];
     };
 
-    console.log([theResult]);
-
     [[CPNotificationCenter defaultCenter] postNotificationName:resultNotification
-                                          object:nil
+                                          object:theResult
                                           userInfo:nil];
 }
 
