@@ -16,7 +16,7 @@ v1_api.register(JobResource())
 v1_api.register(UserResource())
 v1_api.register(PageResource())
 
-from rodan.jobs.neon import neon_urls
+# from rodan.jobs.neon import neon_urls
 
 admin.autodiscover()
 
@@ -86,9 +86,9 @@ urlpatterns += patterns('rodan.views.pages',
     url(r'^pages/(?P<page_id>\d+)', include(page_urls)),
 )
 
-urlpatterns += patterns('',
-    url(r'^neon/edit/(?P<page_id>\d+)/', include(neon_urls)),
-)
+# urlpatterns += patterns('',
+#     url(r'^neon/edit/(?P<page_id>\d+)/', include(neon_urls)),
+# )
 
 urlpatterns += patterns('rodan.views.status',
     url(r'^status/task', 'task'),
