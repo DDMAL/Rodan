@@ -9,6 +9,7 @@
 @import <Foundation/CPObject.j>
 @import <AppKit/AppKit.j>
 @import "Project.j"
+@import "ProjectsViewController.j"
 
 
 @implementation AppController : CPObject
@@ -45,11 +46,8 @@
     [verticalSplitter addSubview:leftPaneView];
     [verticalSplitter addSubview:mainPaneView];
 
+    var projectsView = [[ProjectsViewController alloc] init];
 
-    var request = [CPURLRequest requestWithURL:"http://localhost:8000/api/v1/project?format=json"];
-    [request setHTTPMethod:"GET"];
-
-    var connection = [CPURLConnection connectionWithRequest:request delegate:self];
 
     [theWindow setFullPlatformWindow:YES];
 }
@@ -58,28 +56,5 @@
 {
     console.log("What what callback!");
 }
-
-- (void)connection:(CPURLConnection)connection didFailWithError:(id)error
-{
-    console.log("Oops, Error");
-}
-
-- (void)connection:(CPURLConnection)connection didReceiveResponse:(CPURLResponse)response
-{
-    console.log("Reeespooonse!");
-    console.log([response statusCode]);
-}
-
-- (void)connection:(CPURLConnection)connection didReceiveData:(CPString)data
-{
-    console.log("Data!");
-    var j = JSON.parse(data);
-    for (var i = j.objects.length - 1; i >= 0; i--)
-    {
-        var p = [Project projectWithObject:j.objects[i]];
-        console.log(p);
-    };
-}
-
 
 @end
