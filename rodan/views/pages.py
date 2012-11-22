@@ -2,22 +2,32 @@ from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from rodan.models.projects import Page, Job, JobItem, Workflow, Project
 from rodan.models.results import Result
 from rodan.utils import rodan_view
 from rodan.forms.workflows import WorkflowForm
-from rodan.models.jobs import JobType
 from rodan.views.projects import task as task_view
 
 
 @rodan_view(Page)
 def view(request, page):
+
+    data = {
+        'project': page.project,
+        'page_workflows': page.workflows.all(),
+    }
+
+    return ('View', data)
+
+
+@rodan_view(Page, Workflow)
+def view_page_workflow(request, page, workflow):
     steps = []
 
-    job_items = page.workflow.jobitem_set.all() if page.workflow else []
+    job_items = workflow.jobitem_set.all() if workflow else []
+
     for job_item in job_items:
         try:
             result = Result.objects.get(page=page, job_item=job_item)
@@ -60,10 +70,10 @@ def view(request, page):
         # to avoid extra lookups
         if is_done != -1:
             step['outputs_image'] = job_item.job.get_object().outputs_image
-            step['small_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.SMALL_THUMBNAIL, cache=False)
-            step['medium_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.MEDIUM_THUMBNAIL, cache=False)
-            step['large_thumbnail'] = page.get_thumb_url(job=job_item.job, size=settings.LARGE_THUMBNAIL, cache=False)
-            step['original_image'] = page.get_thumb_url(job=job_item.job, size=settings.ORIGINAL_SIZE, cache=False)
+            step['small_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.SMALL_THUMBNAIL, cache=False)
+            step['medium_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.MEDIUM_THUMBNAIL, cache=False)
+            step['large_thumbnail'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.LARGE_THUMBNAIL, cache=False)
+            step['original_image'] = page.get_thumb_url(workflow=workflow, job=job_item.job, size=settings.ORIGINAL_SIZE, cache=False)
 
         steps.append(step)
 
@@ -75,7 +85,6 @@ def view(request, page):
         'medium_thumbnail': page.get_thumb_url(size=settings.MEDIUM_THUMBNAIL),
         'large_thumbnail': page.get_thumb_url(size=settings.LARGE_THUMBNAIL),
         'original_image': page.get_thumb_url(size=settings.ORIGINAL_SIZE),
-        'page': page,
         'steps': steps,
     }
 
@@ -83,9 +92,9 @@ def view(request, page):
 
 
 @login_required
-@rodan_view(Page, Job)
+@rodan_view(Page, Workflow, Job)
 # Called when submiting the form on the task page
-def process(request, page, job):
+def process(request, page, workflow, job):
     if request.method != 'POST':
         return task_view(request, job_slug=job.slug, page_id=page.id)
     else:
@@ -96,7 +105,8 @@ def process(request, page, job):
         kwargs = job_object.get_parameters(job_object, request.POST, **kwargs)
 
         # First create a result ...
-        job_item = JobItem.objects.get(workflow=page.workflow, job=job)
+        # could change this just to workflow=workflow??
+        job_item = JobItem.objects.get(workflow=page.workflows.get(pk=workflow.id), job=job)
         result = Result.objects.get(job_item=job_item, user=request.user.get_profile(), page=page)
 
         # Figure out the relevant task etc
@@ -132,9 +142,9 @@ def workflow(request, page):
             new_workflow.project = page.project
             new_workflow.save()
             # Set this page's workflow to the newly-created one
-            page.workflow = new_workflow
+            page.workflows.add(new_workflow)
             page.save()
-            return redirect('add_jobs', page.id)
+            return redirect('add_jobs', page.id, new_workflow.id)
     else:
         form = WorkflowForm()
 
@@ -147,17 +157,21 @@ def workflow(request, page):
     return ('New workflow', data)
 
 @login_required
-@rodan_view(Page)
-def add_jobs(request, page):
+@rodan_view(Page, Workflow)
+def add_jobs(request, page, workflow):
     if not page.project.is_owned_by(request.user):
         raise Http404
 
+    # maybe instead of using the current_workflow just use workflow directly, the reason why its like this for now
+    # is because i am afraid that potential workflow that is not assoc. with the page comes into here, gotta look into
+    # the system a bit more
+    current_workflow = page.workflows.get(pk=workflow.id)
     if request.method == 'POST':
         done = request.POST.get('done', '')
         if done:
-            page.workflow.has_started = True
-            page.workflow.save()
-            return redirect('add_pages', workflow_id=page.workflow.id)
+            current_workflow.has_started = True
+            current_workflow.save()
+            return redirect('add_pages', workflow_id=current_workflow.id)
 
         job_to_add_slug = request.POST.get('job_to_add', '')
         remove_job = request.POST.get('job_to_remove', '')
@@ -166,15 +180,14 @@ def add_jobs(request, page):
             try:
                 job_to_add = Job.objects.get(pk=job_to_add_slug)
                 # Add validation later
-                sequence = page.workflow.jobs.count() + 1
-                job_item = JobItem.objects.create(workflow=page.workflow, job=job_to_add, sequence=sequence)
-                # page.start_next_automatic_job(user=request.user.get_profile())
+                sequence = current_workflow.jobs.count() + 1
+                job_item = JobItem.objects.create(workflow=current_workflow, job=job_to_add, sequence=sequence)
             except Job.DoesNotExist:
                 print "Job does not exist!"
 
         elif remove_job:
             remove_job_index = int(remove_job)
-            job_items = JobItem.objects.filter(workflow=page.workflow).order_by('sequence')
+            job_items = JobItem.objects.filter(workflow=current_workflow).order_by('sequence')
             if job_items.count():
                 job_items[remove_job_index].delete()
 
@@ -183,14 +196,14 @@ def add_jobs(request, page):
                 job_item.sequence = job_item.sequence - 1
                 job_item.save()
 
-    workflow_jobs = page.workflow.get_workflow_jobs()
-    removable_jobs = page.workflow.get_removable_jobs()
-    jobs_same_io_type = page.workflow.get_jobs_same_io_type()
-    jobs_diff_io_type = page.workflow.get_jobs_diff_io_type()
+    workflow_jobs = current_workflow.get_workflow_jobs()
+    removable_jobs = current_workflow.get_removable_jobs()
+    jobs_same_io_type = current_workflow.get_jobs_same_io_type()
+    jobs_diff_io_type = current_workflow.get_jobs_diff_io_type()
 
     data = {
-        'jobs_same_io_type' : jobs_same_io_type,
-        'jobs_diff_io_type' : jobs_diff_io_type,
+        'jobs_same_io_type': jobs_same_io_type,
+        'jobs_diff_io_type': jobs_diff_io_type,
         'workflow_jobs': workflow_jobs,
         'removable_jobs': removable_jobs,
         'page': page,
@@ -201,16 +214,17 @@ def add_jobs(request, page):
 
 
 @login_required
-@rodan_view(Page, Job)
-def restart(request, page, job):
+@rodan_view(Page, Workflow, Job)
+def restart(request, page, workflow, job):
     try:
-        page.reset_to_job(job)
+        page.reset_to_job(workflow, job)
         # If the next job is automatic, make it start too
-        page.start_next_automatic_job(user=request.user.get_profile())
+        page.start_next_automatic_job(workflow, user=request.user.get_profile())
     except Page.DoesNotExist:
         print "page does not exist for some reason"
 
     return redirect(page.get_absolute_url())
+
 
 @login_required
 @rodan_view(Page)
@@ -221,9 +235,9 @@ def set_workflow(request, page):
     if request.method == 'POST':
         workflow_id = request.POST.get('set', 0)
         workflow = get_object_or_404(Workflow, pk=workflow_id)
-        page.workflow = workflow
+        page.workflows.add(workflow)
         page.save()
-        page.start_next_automatic_job(request.user.get_profile())
+        page.start_next_automatic_job(workflow, request.user.get_profile())
 
         # Redirect to the workflow overview page
         return redirect(workflow)
@@ -235,6 +249,7 @@ def set_workflow(request, page):
     }
 
     return ('Set a new workflow', data)
+
 
 @login_required
 @rodan_view(Page)

@@ -28,10 +28,11 @@ def dashboard(request):
     random.shuffle(pages)
 
     for page in pages:
-        if page.workflow and page.workflow.has_started:
-            page_job = page.get_next_job(user=user)
-            if page_job:
-                available_jobs[page_job.slug] = page.project.id
+        for workflow in page.workflows.all():
+            if workflow and workflow.has_started:
+                page_job = page.get_next_job(user=user, workflow=workflow)
+                if page_job:
+                    available_jobs[page_job.slug] = page.project.id
 
     jobs = []
     for job in all_jobs:
@@ -45,8 +46,6 @@ def dashboard(request):
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True)\
         .exclude(task_state="FAILURE")
-
-    print current_jobs
 
     data = {
         'current_jobs': current_jobs,
@@ -91,9 +90,11 @@ def view(request, project):
     available_jobs = set([])
     user = request.user.get_profile() if request.user.is_authenticated() else None
     for page in project.page_set.all():
-        if page.workflow and page.workflow.has_started:
-            page_job = page.get_next_job(user=user)
-            available_jobs.add(page_job)
+        for workflow in page.workflows.all():
+            if workflow and workflow.has_started:
+                page_job = page.get_next_job(user=user, workflow=workflow)
+                if page_job:
+                    available_jobs.add(page_job)
 
     current_jobs = Result.objects.filter(Q(end_manual_time__isnull=False) | Q(job_item__job__is_automatic=True))\
         .filter(end_total_time__isnull=True, page__project=project) \
@@ -170,51 +171,55 @@ def task(request, job, project_id=0, page_id=0):
         project = get_object_or_404(Project, pk=project_id)
         all_pages = project.page_set.all()
 
-    # If this is an automatic job then start it immediately
-    if job.get_object().is_automatic:
-        page = get_object_or_404(Page, pk=page_id)
-        page.start_next_automatic_job(rodan_user)
-        return redirect(page.get_absolute_url())
-
-    # Now, try to find a page in this project that has this job next
-    # (May have been started by the current user but never finished)
-    possible_pages = [page for page in all_pages if page.get_next_job(user=rodan_user) == job and page.workflow.has_started]
-
-    # No pages that need this job. Show a 404 for now.
-    if not possible_pages:
-        if project:
-            return redirect(project.get_absolute_url() + '?nojob=1')
-        else:
-            return redirect('/dashboard?nojob=1')
-
     if page_id:
         page = get_object_or_404(Page, pk=page_id)
-        if page.get_next_job(user=request.user.get_profile()) != job:
+        possible_workflows = [workflow for workflow in page.workflows.all() if page.get_next_job(user=rodan_user, workflow=workflow) == job and workflow.has_started]
+        if not possible_workflows:
             raise Http404
+        else:
+            # If this is an automatic job then start it immediately
+            if job.get_object().is_automatic:
+                return redirect(page.get_absolute_url())
+            else:
+                page_workflow_tuple = (page, random.choice(possible_workflows))
     else:
-        page = random.choice(possible_pages)
+        print "HERE"
+        # Now, try to find a page in this project that has this job next
+        # (May have been started by the current user but never finished)
+        possible_page_workflow_tuples = [(page, workflow) for page in all_pages for workflow in page.workflows.all() if page.get_next_job(user=rodan_user, workflow=workflow) == job and workflow.has_started]
+
+        # No pages that need this job. Show a 404 for now.
+        if not possible_page_workflow_tuples:
+            if project:
+                return redirect(project.get_absolute_url() + '?nojob=1')
+            else:
+                return redirect('/dashboard?nojob=1')
+
+        page_workflow_tuple = random.choice(possible_page_workflow_tuples)
 
     # This is needed in case we're looking at all the projects
-    project = page.project
+    project = page_workflow_tuple[0].project
 
     # Start the job, noting this user (create the result, with no end time)
     # If the job has already been started by this user, do nothing
-    page.start_next_job(rodan_user)
+    page_workflow_tuple[0].start_next_job(page_workflow_tuple[1], rodan_user)
 
+    print "TUPLE"
+    print page_workflow_tuple
     job_object = job.get_object()
-    view_data = job.get_view(page)
+    view_data = job.get_view(page_workflow_tuple[0], page_workflow_tuple[1])
     data = {
         'disable_breadcrumbs': True,
         'project': project,
         'job': job,
-        'page': page,
-        'original_image': page.get_latest_thumb_url(size=settings.ORIGINAL_SIZE),
-        'large_thumbnail': page.get_latest_thumb_url(size=settings.LARGE_THUMBNAIL),
-        'medium_thumbnail': page.get_latest_thumb_url(size=settings.MEDIUM_THUMBNAIL),
-        'small_thumbnail': page.get_latest_thumb_url(size=settings.SMALL_THUMBNAIL),
+        'page': page_workflow_tuple[0],
+        'original_image': page_workflow_tuple[0].get_latest_thumb_url(page_workflow_tuple[1], size=settings.ORIGINAL_SIZE),
+        'large_thumbnail': page_workflow_tuple[0].get_latest_thumb_url(page_workflow_tuple[1], size=settings.LARGE_THUMBNAIL),
+        'medium_thumbnail': page_workflow_tuple[0].get_latest_thumb_url(page_workflow_tuple[1], size=settings.MEDIUM_THUMBNAIL),
+        'small_thumbnail': page_workflow_tuple[0].get_latest_thumb_url(page_workflow_tuple[1], size=settings.SMALL_THUMBNAIL),
         'job_template': view_data[0],
         'context': view_data[1],
-        'form_action': reverse('task_complete', args=[page.id, job.slug]),
+        'form_action': reverse('task_complete', args=[page_workflow_tuple[0].id, page_workflow_tuple[1].id, job.slug]),
         'form': True,
         'hide_sidebar': True,
     }

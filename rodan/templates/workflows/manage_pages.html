@@ -1,6 +1,6 @@
-<h1>Add pages to {{ workflow }}</h1>
+<h1>Manage pages for {{ workflow }}</h1>
 
-<p>You can only add pages in the same project ({{ project }}). Pages that already have a workflow will appear faded. Pages with a black border are already using this workflow.</p>
+<p>You can only add pages in the same project ({{ project }}). Pages with blue border are already part of the current workflow.</p>
 
 <hr />
 
@@ -15,10 +15,10 @@
 
 <ul class="grid image-buttons">
 {% for page in project.page_set.all %}
-    <li{% if page.workflow != workflow %} class="disabled"{% endif %}><img src="{{ page.get_thumb_url }}" {% if page.workflow %}class="{% if page.workflow == workflow %}current{% else %}disabled{% endif %}" {% endif %}/><input type="checkbox" name="page" value="{{ page.id }}" /></li>
+    <li{% if workflow not in page.workflows.all %} class="disabled"{% endif %}><img src="{{ page.get_thumb_url }}" {% if page.workflows.all %}class="{% if workflow in page.workflows.all %}selected{% endif %}" {% endif %}/><input type="checkbox" name="page" value="{{ page.id }}" /></li>
 {% endfor %}
 </ul>
 
 <fieldset class="submit">
-    <input type="submit" class="btn" name="done" value="Add these jobs and return to project page" />
+    <input type="submit" class="btn" name="done" value="Add/Remove these pages and return to project page" />
 </fieldset>

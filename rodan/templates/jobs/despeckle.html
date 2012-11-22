@@ -1,11 +1,9 @@
 <p>Adjust the slider until most speckles are removed</p>
-<form method="post" action="{% url task_complete page.id job.slug %}" id="despeckle-form">
     {% csrf_token %}
     <fieldset class="submit">
         <input type="hidden" name="despeckle_value" value="0" id="size-input" />
         <input type="submit" name="submit" value="Despeckle" class="submit" />
     </fieldset>
-</form>
 
 <div id="slider"></div>
 <div class="images">

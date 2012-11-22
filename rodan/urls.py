@@ -20,18 +20,22 @@ project_urls = patterns('rodan.views.projects',
 workflow_urls = patterns('rodan.views.workflows',
     url(r'^/?$', 'view'),
     url(r'^/edit', 'edit', name='edit_workflow'),
-    url(r'^/add', 'add_pages', name='add_pages'),
+    url(r'^/pages', 'manage_pages', name='manage_pages'),
     url(r'^/jobs', 'manage_jobs', name='workflow_jobs'),
 )
 
 page_urls = patterns('rodan.views.pages',
-    url(r'^/?$', 'view', name='view_page'),
-    url(r'^/jobs', 'add_jobs', name='add_jobs'),
+    url(r'^/?$', 'view', name='view'),
+    # url(r'^/jobs', 'add_jobs', name='add_jobs'),
+    url(r'^/workflow/(?P<workflow_id>[^/]+)', include(patterns('rodan.views.pages',
+        url(r'^/?$', 'view_page_workflow', name='view_page_workflow'),
+        url(r'^/jobs', 'add_jobs', name='add_jobs'),
+        url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
+        url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete')))),
     url(r'^/workflow', 'workflow', name='new_workflow'),
-    url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
+    #url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
     url(r'^/set', 'set_workflow', name='set_workflow'),
     url(r'^/clone', 'clone_workflow', name='clone_workflow'),
-    url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
 )
 
 urlpatterns = []

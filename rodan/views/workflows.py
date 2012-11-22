@@ -48,8 +48,8 @@ def edit(request, workflow):
 
 @login_required
 @rodan_view(Workflow)
-def add_pages(request, workflow):
-    project = Project.objects.filter(page__workflow=workflow).distinct()[0]
+def manage_pages(request, workflow):
+    project = Project.objects.filter(page__workflows=workflow).distinct()[0]
 
     if project.is_owned_by(request.user):
         if request.method == 'POST':
@@ -57,9 +57,16 @@ def add_pages(request, workflow):
             try:
                 for page_id in page_ids:
                     page = Page.objects.get(pk=page_id)
-                    page.workflow = workflow
-                    page.save()
-                    page.start_next_automatic_job(request.user.get_profile())
+
+                    if page in workflow.page_set.all():
+                        # if the page is already associated with the current wf, then dissociate it and remove data
+                        workflow.disassociate_page(page)
+                    else:
+                        # otherwise add the page to this workflow
+                        page.workflows.add(workflow)
+                        page.save()
+                        page.start_next_automatic_job(workflow, request.user.get_profile())
+
                 return redirect('view_project', project_id=project.id)
             except Page.DoesNotExist:
                 print "Specified an invalid page ID oh no!!!"
@@ -77,10 +84,10 @@ def add_pages(request, workflow):
 def manage_jobs(request, workflow_id):
     # Choose a sample page at random for now
     workflow = Workflow.objects.get(pk=workflow_id)
-    pages = workflow.project.page_set.all()
+    pages = workflow.page_set.all()
 
     if pages.count():
         random_page = random.choice(pages)
-        return redirect('add_jobs', page_id=random_page.id)
+        return redirect('add_jobs', page_id=random_page.id, workflow_id=workflow_id)
     else:
         raise Http404

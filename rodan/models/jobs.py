@@ -1,8 +1,8 @@
 from django.db.models.loading import get_model
-from celery.task import task
 from rodan.utils import remove_prefixes
 
 # These are not actual Django models
+
 
 class JobBase:
     is_automatic = False
@@ -30,7 +30,7 @@ class JobBase:
         """
         return self.slug or self.get_name().lower().replace(" ", "-")
 
-    def get_context(self, page):
+    def get_context(self, page, workflow):
         """
         Override this if you want to pass custom variables to the template.
         Will be accessible in the template as "context" (so if you return

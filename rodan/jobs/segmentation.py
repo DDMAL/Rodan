@@ -50,8 +50,8 @@ class Segmentation(JobBase):
     }
     task = segment
 
-    def get_context(self, page):
-        latest_json_path = page.get_latest_file_path('json')
+    def get_context(self, page, workflow):
+        latest_json_path = page.get_latest_file_path(workflow, 'json')
         data = open(latest_json_path)
         json_data = json.load(data)
         return {

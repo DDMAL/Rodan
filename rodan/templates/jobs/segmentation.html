@@ -1,12 +1,10 @@
 <p>Adjust the boxes around the staff lines (boxes indicate parts of the page to keep). To add an extra point to a polygon, hold down <b>Shift</b> and click.
 To remove a point from the polygon, select it and press <b>delete</b>.</p>
-<form method="post" action="{% url task_complete page.id job.slug %}" id="segment-form">
     {% csrf_token %}
     <fieldset class="submit">
         <input type="hidden" name="JSON" value="" id="JSON-input" />
         <input type="submit" name="submit" value="Segment" class="submit" />
     </fieldset>
-</form>
 <div id="slider"></div>
 <div class="images">
     <div class="hidden">

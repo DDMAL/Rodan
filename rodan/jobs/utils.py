@@ -49,9 +49,10 @@ def create_thumbnail(image_path, thumb_path, thumbnail_size):
 def create_thumbnails(image_path, result):
     page = result.page
     job = result.job_item.job
+    workflow = result.job_item.workflow
 
     for thumbnail_size in settings.THUMBNAIL_SIZES:
-        thumb_path = page.get_thumb_path(size=thumbnail_size, job=job)
+        thumb_path = page.get_thumb_path(size=thumbnail_size, workflow=workflow, job=job)
         width, height = create_thumbnail(image_path, thumb_path, thumbnail_size)
 
     page.latest_width = width
@@ -67,10 +68,14 @@ def rodan_task(inputs, others=[]):
             input_types = (inputs,) if isinstance(inputs, str) else inputs
             result = Result.objects.get(pk=result_id)
             page = result.page
+            workflow = result.job_item.workflow
+
+            print input_types
+            print type(input_types)
 
             # Figure out the paths to the requested input files
             # For one input, pass in a string; for multiple, a tuple
-            input_paths = map(page.get_latest_file_path, input_types)
+            input_paths = map(page.get_latest_file_path, (workflow,), input_types)
 
             other_inputs = [other_input_mapping[other](page) for other in others]
 
@@ -80,7 +85,7 @@ def rodan_task(inputs, others=[]):
 
             # Loop through all the outputs and write them to disk
             for output_type, output_content in outputs.iteritems():
-                output_path = page.get_job_path(result.job_item.job, output_type)
+                output_path = page.get_job_path(result.job_item.job, workflow, output_type)
 
                 create_dirs(output_path)
 
@@ -124,7 +129,7 @@ def rodan_task(inputs, others=[]):
             result.save_parameters(**kwargs)
 
             # If the next job is automatic, start that too!
-            page.start_next_automatic_job(result.user)
+            page.start_next_automatic_job(workflow, result.user)
 
         return real_inner
 
