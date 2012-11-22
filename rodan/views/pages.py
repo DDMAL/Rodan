@@ -171,7 +171,7 @@ def add_jobs(request, page, workflow):
         if done:
             current_workflow.has_started = True
             current_workflow.save()
-            return redirect('add_pages', workflow_id=current_workflow.id)
+            return redirect('manage_pages', workflow_id=current_workflow.id)
 
         job_to_add_slug = request.POST.get('job_to_add', '')
         remove_job = request.POST.get('job_to_remove', '')
