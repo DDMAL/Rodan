@@ -53,7 +53,7 @@
         };
 
         CPLog(@"Firing notification " + resultNotification);
-        [[CPNotificationCenter defaultCenter] postNotificationName:resultNotification
+        // [[CPNotificationCenter defaultCenter] postNotificationName:resultNotification
                                               object:theResult
                                               userInfo:nil];
     }
