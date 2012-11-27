@@ -60,7 +60,7 @@
     console.log(CGRectGetWidth(_theWindowBounds));
 
     [contentScrollView initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds) + 60)];
-    [contentScrollView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable ];
+    [contentScrollView setAutoresizingMask:CPViewHeightSizable ];
     [contentScrollView setHasHorizontalScroller:YES];
     [contentScrollView setHasVerticalScroller:YES];
     [contentScrollView setAutohidesScrollers:YES];
@@ -88,11 +88,7 @@
 
     [theToolbar setVisible:YES];
 
-    hiddenBit = [contentScrollView contentSize].height;
-
-    console.log(hiddenBit);
-
-    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
 
     // [contentScrollView setNeedsDisplay];
@@ -101,11 +97,13 @@
 - (IBAction)switchWorkspace:(id)aSender
 {
     CPLog("switchWorkspace called");
+    console.log(aSender);
     switch ([aSender itemIdentifier])
     {
         case @"statusToolbarButton":
             CPLog("Status Button!");
-            [contentScrollViews setDocumentView:projectStatusView];
+            [contentScrollView setDocumentView:projectStatusView];
+            [contentScrollView setNeedsDisplay];
             break;
         case @"manageImagesToolbarButton":
             CPLog("Manage Images!");
@@ -119,6 +117,9 @@
             CPLog("Interactive Jobs!");
             [contentScrollView setDocumentView:interactiveJobsView];
             break;
+        default:
+            console.log("Unknown identifier");
+            break;z
     }
 }
 
@@ -127,7 +128,7 @@
     [userPreferencesWindow center];
     var preferencesContentView = [userPreferencesWindow contentView];
     [preferencesContentView addSubview:accountPreferencesView];
-    [userPreferencesWindow makeKeyAndOrderFront:aSender];
+    [userPreferencesWindow orderFront:aSender];
 }
 
 - (IBAction)openServerAdmin:(id)aSender
@@ -135,25 +136,25 @@
     [serverAdminWindow center];
     var serverAdminContentView = [serverAdminWindow contentView];
     [serverAdminContentView addSubview:userAdminView];
-    [serverAdminWindow makeKeyAndOrderFront:aSender];
+    [serverAdminWindow orderFront:aSender];
 }
 
 - (IBAction)newProject:(id)aSender
 {
     [newProjectWindow center];
-    [newProjectWindow makeKeyAndOrderFront:aSender];
+    [newProjectWindow orderFront:aSender];
 }
 
 - (IBAction)openProject:(id)aSender
 {
     [openProjectWindow center];
-    [openProjectWindow makeKeyAndOrderFront:aSender];
+    [openProjectWindow orderFront:aSender];
 }
 
 - (IBAction)newWorkflow:(id)aSender
 {
     [newWorkflowWindow center];
-    [newWorkflowWindow makeKeyAndOrderFront:aSender];
+    [newWorkflowWindow orderFront:aSender];
 }
 
 @end
