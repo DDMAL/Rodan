@@ -10,12 +10,12 @@
 @import <AppKit/AppKit.j>
 @import "Project.j"
 @import "UserPreferencesController.j"
+@import "ServerAdminController.j"
 
 
 @implementation AppController : CPObject
 {
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
-    @outlet     CPWindow    userPreferencesWindow;
 
     @outlet     CPTextField username;
     @outlet     CPTextField password;
@@ -28,6 +28,21 @@
 
     @outlet     CPScrollView    contentScrollView;
     @outlet     CPToolbar   theToolbar;
+
+    @outlet     CPWindow    userPreferencesWindow;
+    @outlet     CPView      accountPreferencesView;
+
+    @outlet     CPWindow    serverAdminWindow;
+    @outlet     CPView      userAdminView;
+
+    @outlet     CPWindow    newProjectWindow;
+    @outlet     CPWindow    openProjectWindow;
+
+    @outlet     CPWindow    newWorkflowWindow;
+
+
+    CGRect      _theWindowBounds;
+
 }
 
 - (id)awakeFromCib
@@ -35,20 +50,26 @@
     CPLogRegister(CPLogConsole);
     CPLog("awakeFromCib");
 
-    var contentView = [theWindow contentView],
-        bounds = [contentView bounds],
-        windowSize = [[theWindow platformWindow] contentBounds];
+    [theWindow setFullPlatformWindow:YES];
+
+    var contentView = [theWindow contentView];
+    _theWindowBounds = [contentView bounds];
 
     [theToolbar setVisible:NO];
 
-    [contentScrollView initWithFrame:CGRectMake(0,0, CGRectGetWidth(windowSize), CGRectGetHeight(windowSize))];
+    console.log(CGRectGetWidth(_theWindowBounds));
+
+    [contentScrollView initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds) + 60)];
+    [contentScrollView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable ];
     [contentScrollView setHasHorizontalScroller:YES];
     [contentScrollView setHasVerticalScroller:YES];
     [contentScrollView setAutohidesScrollers:YES];
     [contentScrollView setAutoresizesSubviews:YES];
 
-    [contentScrollView addSubview:loginScreenView];
-    [contentView addSubview:contentScrollView];
+    // [loginScreenView setBounds:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds))];
+
+    [contentScrollView setDocumentView:loginScreenView];
+    [contentView setSubviews:[contentScrollView]];
 }
 
 
@@ -56,7 +77,7 @@
 {
     CPLog("Application Did Finish Launching");
         // contentScrollView = [[CPScrollView alloc] initWithFrame:CGRectMake(0.0, 0.0, CGRectGetWidth([contentView bounds]), CGRectGetHeight([contentView bounds]))];
-    [theWindow setFullPlatformWindow:YES];
+    // [theWindow setFullPlatformWindow:YES];
 }
 
 - (IBAction)didLogIn:(id)aSender
@@ -65,8 +86,16 @@
     CPLog("The Value of the Username: " + [username stringValue]);
     CPLog("The Value of the Password: " + [password stringValue]);
 
-    [contentScrollView replaceSubview:loginScreenView with:projectStatusView];
     [theToolbar setVisible:YES];
+
+    hiddenBit = [contentScrollView contentSize].height;
+
+    console.log(hiddenBit);
+
+    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:projectStatusView];
+
+    // [contentScrollView setNeedsDisplay];
 }
 
 - (IBAction)switchWorkspace:(id)aSender
@@ -76,28 +105,55 @@
     {
         case @"statusToolbarButton":
             CPLog("Status Button!");
-            [contentScrollView setSubviews:[projectStatusView]];
+            [contentScrollViews setDocumentView:projectStatusView];
             break;
         case @"manageImagesToolbarButton":
             CPLog("Manage Images!");
-            [contentScrollView setSubviews:[manageImagesView]];
+            [contentScrollView setDocumentView:manageImagesView];
             break;
         case @"manageWorkflowsToolbarButton":
             CPLog("Manage Workflows!");
-            [contentScrollView setSubviews:[manageWorkflowsView]];
+            [contentScrollView setDocumentView:manageWorkflowsView];
             break;
         case @"interactiveJobsToolbarButton":
             CPLog("Interactive Jobs!");
-            [contentScrollView setSubviews:[interactiveJobsView]];
+            [contentScrollView setDocumentView:interactiveJobsView];
             break;
     }
 }
 
 - (IBAction)openUserPreferences:(id)aSender
 {
-    var prefsController = [[UserPreferencesController alloc] init];
-    [[prefsController window] orderFront:self];
-    // [userPreferencesWindow center];
-    // [userPreferencesWindow makeKeyAndOrderFront:aSender];
+    [userPreferencesWindow center];
+    var preferencesContentView = [userPreferencesWindow contentView];
+    [preferencesContentView addSubview:accountPreferencesView];
+    [userPreferencesWindow makeKeyAndOrderFront:aSender];
 }
+
+- (IBAction)openServerAdmin:(id)aSender
+{
+    [serverAdminWindow center];
+    var serverAdminContentView = [serverAdminWindow contentView];
+    [serverAdminContentView addSubview:userAdminView];
+    [serverAdminWindow makeKeyAndOrderFront:aSender];
+}
+
+- (IBAction)newProject:(id)aSender
+{
+    [newProjectWindow center];
+    [newProjectWindow makeKeyAndOrderFront:aSender];
+}
+
+- (IBAction)openProject:(id)aSender
+{
+    [openProjectWindow center];
+    [openProjectWindow makeKeyAndOrderFront:aSender];
+}
+
+- (IBAction)newWorkflow:(id)aSender
+{
+    [newWorkflowWindow center];
+    [newWorkflowWindow makeKeyAndOrderFront:aSender];
+}
+
 @end
