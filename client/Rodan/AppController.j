@@ -21,6 +21,7 @@
     @outlet     CPTextField password;
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginScreenView;
+    @outlet     CPView      selectProjectView;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      manageImagesView;
@@ -86,16 +87,18 @@
     CPLog("The Value of the Username: " + [username stringValue]);
     CPLog("The Value of the Password: " + [password stringValue]);
 
-    [theToolbar setVisible:YES];
-
     // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
-    [contentScrollView setDocumentView:projectStatusView];
-
+    [contentScrollView setDocumentView:selectProjectView];
     // [contentScrollView setNeedsDisplay];
 }
 
 - (IBAction)switchWorkspace:(id)aSender
 {
+    // temporary place for enabling the toolbar
+    if (![theToolbar isVisible])
+    {
+        [didOpenProject]
+    }
     CPLog("switchWorkspace called");
     console.log(aSender);
     switch ([aSender itemIdentifier])
@@ -103,7 +106,6 @@
         case @"statusToolbarButton":
             CPLog("Status Button!");
             [contentScrollView setDocumentView:projectStatusView];
-            [contentScrollView setNeedsDisplay];
             break;
         case @"manageImagesToolbarButton":
             CPLog("Manage Images!");
@@ -121,6 +123,13 @@
             console.log("Unknown identifier");
             break;z
     }
+}
+
+- (IBAction)didOpenProject:(id)aSender
+{
+    [theWindow setTitle:@"Rodan — My Amazing Project"];
+    [theToolbar setVisible:YES];
+    [contentScrollView setDocumentView:projectStatusView];
 }
 
 - (IBAction)openUserPreferences:(id)aSender
