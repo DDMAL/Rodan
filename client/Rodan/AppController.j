@@ -20,6 +20,7 @@
 {
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
     @outlet     CPMenu      theMenu;
+    @outlet     CPToolbar   theToolbar;
 
     @outlet     CPTextField username;
     @outlet     CPTextField password;
@@ -29,10 +30,11 @@
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      manageImagesView;
+    @outlet     CPView      usersGroupsView;
                 CPView      contentView;
 
     @outlet     CPScrollView    contentScrollView;
-    @outlet     CPToolbar   theToolbar;
+
 
     @outlet     CPWindow    userPreferencesWindow;
     @outlet     CPView      accountPreferencesView;
@@ -56,14 +58,12 @@
     CPLog("awakeFromCib");
 
     [theWindow setFullPlatformWindow:YES];
-    [CPMenu setMenuBarVisible:NO];
+    [theMenu setMenuBarVisible:NO];
 
     var contentView = [theWindow contentView];
     _theWindowBounds = [contentView bounds];
 
     [theToolbar setVisible:NO];
-
-    console.log(CGRectGetWidth(_theWindowBounds));
 
     [contentScrollView initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds) + 60)];
     [contentScrollView setAutoresizingMask:CPViewHeightSizable ];
@@ -82,8 +82,6 @@
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
     CPLog("Application Did Finish Launching");
-        // contentScrollView = [[CPScrollView alloc] initWithFrame:CGRectMake(0.0, 0.0, CGRectGetWidth([contentView bounds]), CGRectGetHeight([contentView bounds]))];
-    // [theWindow setFullPlatformWindow:YES];
 }
 
 - (IBAction)didLogIn:(id)aSender
@@ -93,20 +91,15 @@
     CPLog("The Value of the Password: " + [password stringValue]);
 
     // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
-    [CPMenu setMenuBarVisible:YES];
+    // [CPMenu setMenuBarVisible:YES];
     [contentScrollView setDocumentView:selectProjectView];
     // [contentScrollView setNeedsDisplay];
 }
 
 - (IBAction)switchWorkspace:(id)aSender
 {
-    // temporary place for enabling the toolbar
-    if (![theToolbar isVisible])
-    {
-        [didOpenProject]
-    }
     CPLog("switchWorkspace called");
-    console.log(aSender);
+    console.log([contentScrollView subviews]);
     switch ([aSender itemIdentifier])
     {
         case @"statusToolbarButton":
@@ -124,6 +117,10 @@
         case @"interactiveJobsToolbarButton":
             CPLog("Interactive Jobs!");
             [contentScrollView setDocumentView:interactiveJobsView];
+            break;
+        case @"usersGroupsToolbarButton":
+            CPLog("Users and Groups!");
+            [contentScrollView setDocumentView:usersGroupsView];
             break;
         default:
             console.log("Unknown identifier");
