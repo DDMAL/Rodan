@@ -11,11 +11,15 @@
 @import "Project.j"
 @import "UserPreferencesController.j"
 @import "ServerAdminController.j"
+@import "WorkflowController.j"
+@import "ProjectController.j"
+// @import "RodanAPIController.j"
 
 
 @implementation AppController : CPObject
 {
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
+    @outlet     CPMenu      theMenu;
 
     @outlet     CPTextField username;
     @outlet     CPTextField password;
@@ -52,6 +56,7 @@
     CPLog("awakeFromCib");
 
     [theWindow setFullPlatformWindow:YES];
+    [CPMenu setMenuBarVisible:NO];
 
     var contentView = [theWindow contentView];
     _theWindowBounds = [contentView bounds];
@@ -88,6 +93,7 @@
     CPLog("The Value of the Password: " + [password stringValue]);
 
     // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [CPMenu setMenuBarVisible:YES];
     [contentScrollView setDocumentView:selectProjectView];
     // [contentScrollView setNeedsDisplay];
 }
@@ -160,6 +166,24 @@
     [openProjectWindow orderFront:aSender];
 }
 
+- (IBAction)closeProject:(id)aSender
+{
+    CPLog("Close Project");
+    var alert = [[CPAlert alloc] init];
+    [alert setTitle:"Informational Alert"];
+    [alert setMessageText:"Informational Alert"];
+    [alert setInformativeText:"CPAlerts can also be used as sheets! With the same options as before."];
+    [alert setShowsHelp:YES];
+    [alert setShowsSuppressionButton:YES];
+    [alert setAlertStyle:CPInformationalAlertStyle];
+    [alert addButtonWithTitle:"Okay"];
+
+    var closeProjectController = [[SheetController alloc] init];
+    [alert setDelegate:closeProjectController];
+    [closeProjectController setSheet:alert];
+    [closeProjectController beginSheet]
+}
+
 - (IBAction)newWorkflow:(id)aSender
 {
     [newWorkflowWindow center];
@@ -167,3 +191,23 @@
 }
 
 @end
+
+
+@implementation SheetController : CPObject
+{
+    CPAlert sheet @accessors;
+}
+
+- (void)beginSheet
+{
+    CPLog("Beginning Sheet");
+    [sheet beginSheetModalForWindow:[CPApp mainWindow]];
+}
+
+- (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
+{
+    CPLog("Alert did End returning " + returnCode);
+}
+@end
+
+
