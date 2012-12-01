@@ -28,4 +28,12 @@
     CPLog("Stop Workflow");
 }
 
+- (IBAction)newWorkflow:(id)aSender
+{
+    CPLog("In the workflow controller");
+    [newWorkflowWindow center];
+    [newWorkflowWindow orderFront:aSender];
+
+}
+
 @end

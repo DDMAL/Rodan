@@ -14,6 +14,7 @@
 @import "WorkflowController.j"
 @import "ProjectController.j"
 // @import "RodanAPIController.j"
+@import "Model/Project.j"
 
 
 @implementation AppController : CPObject
@@ -21,6 +22,7 @@
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
     @outlet     CPMenu      theMenu;
     @outlet     CPToolbar   theToolbar;
+                CPBundle    theBundle;
 
     @outlet     CPTextField username;
     @outlet     CPTextField password;
@@ -47,6 +49,11 @@
 
     @outlet     CPWindow    newWorkflowWindow;
 
+    @outlet     CPToolbarItem   statusToolbarItem;
+    @outlet     CPToolbarItem   imagesToolbarItem;
+    @outlet     CPToolbarItem   workflowsToolbarItem;
+    @outlet     CPToolbarItem   jobsToolbarItem;
+    @outlet     CPToolbarItem   usersToolbarItem;
 
     CGRect      _theWindowBounds;
 
@@ -58,12 +65,34 @@
     CPLog("awakeFromCib");
 
     [theWindow setFullPlatformWindow:YES];
-    [theMenu setMenuBarVisible:NO];
 
-    var contentView = [theWindow contentView];
+    theBundle = [CPBundle mainBundle],
+    contentView = [theWindow contentView],
     _theWindowBounds = [contentView bounds];
 
     [theToolbar setVisible:NO];
+
+    var statusToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status.png"] size:CGSizeMake(32.0, 32.0)],
+        statusToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status-selected.png"] size:CGSizeMake(32.0, 32.0)],
+        imagesToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images.png"] size:CGSizeMake(40.0, 32.0)],
+        imagesToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images-selected.png"] size:CGSizeMake(40.0, 32.0)],
+        workflowsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
+        workflowsToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows-selected.png"] size:CGSizeMake(32.0, 32.0)],
+        jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
+        jobsToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs-selected.png"] size:CGSizeMake(32.0, 32.0)],
+        usersToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users.png"] size:CGSizeMake(46.0, 32.0)],
+        usersToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users-selected.png"] size:CGSizeMake(46.0, 32.0)];
+
+    [statusToolbarItem setImage:statusToolbarIcon];
+    [statusToolbarItem setAlternateImage:statusToolbarIconSelected];
+    [imagesToolbarItem setImage:imagesToolbarIcon];
+    [imagesToolbarItem setAlternateImage:imagesToolbarIconSelected];
+    [workflowsToolbarItem setImage:workflowsToolbarIcon];
+    [workflowsToolbarItem setAlternateImage:workflowsToolbarIconSelected];
+    [jobsToolbarItem setImage:jobsToolbarIcon];
+    [jobsToolbarItem setAlternateImage:jobsToolbarIconSelected];
+    [usersToolbarItem setImage:usersToolbarIcon];
+    [usersToolbarItem setAlternateImage:usersToolbarIconSelected];
 
     [contentScrollView initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds) + 60)];
     [contentScrollView setAutoresizingMask:CPViewHeightSizable ];
@@ -81,6 +110,7 @@
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
+
     CPLog("Application Did Finish Launching");
 }
 
@@ -179,12 +209,6 @@
     [alert setDelegate:closeProjectController];
     [closeProjectController setSheet:alert];
     [closeProjectController beginSheet]
-}
-
-- (IBAction)newWorkflow:(id)aSender
-{
-    [newWorkflowWindow center];
-    [newWorkflowWindow orderFront:aSender];
 }
 
 @end
