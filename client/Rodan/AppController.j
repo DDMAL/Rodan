@@ -8,11 +8,11 @@
 
 @import <Foundation/CPObject.j>
 @import <AppKit/AppKit.j>
-@import "Project.j"
-@import "UserPreferencesController.j"
-@import "ServerAdminController.j"
-@import "WorkflowController.j"
-@import "ProjectController.j"
+@import "Controller/UserPreferencesController.j"
+@import "Controller/ServerAdminController.j"
+@import "Controller/WorkflowController.j"
+@import "Controller/ProjectController.j"
+@import "Controller/ProjectArrayController.j"
 // @import "RodanAPIController.j"
 @import "Model/Project.j"
 

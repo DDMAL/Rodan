@@ -1,5 +1,5 @@
 @import <AppKit/AppKit.j>
-@import "Model/Project.j"
+@import "../Model/Project.j"
 
 @implementation ProjectController : CPObject
 {
@@ -16,6 +16,9 @@
     {
         selectProjectsTable = [[CPTableView alloc] init];
         projectsArray = [[CPMutableArray alloc] init];
+
+        [selectProjectsTable setDataSource:projectsArray];
+
         proj = [[Project alloc] init];
         [projectsArray addObject:proj];
     }
