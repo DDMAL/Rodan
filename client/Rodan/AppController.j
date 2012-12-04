@@ -12,7 +12,6 @@
 @import "Controller/ServerAdminController.j"
 @import "Controller/WorkflowController.j"
 @import "Controller/ProjectController.j"
-@import "Controller/ProjectArrayController.j"
 // @import "RodanAPIController.j"
 @import "Model/Project.j"
 

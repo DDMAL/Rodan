@@ -4,7 +4,9 @@
 @implementation RodanAPIController : CPObject
 {
     CPMutableArray  theResult   @accessors;
-    CPString        resultNotification @accessors;
+    CPString        requestURI @accessors;
+    CPString        requestMethod @accessors;
+    CPString        callbackNotification @accessors;
 }
 
 - (id)init
@@ -13,22 +15,28 @@
     if (self)
     {
         theResult = [[CPMutableArray alloc] init];
+        requestMethod = @"GET";  // by default
     }
     return self;
 }
 
-+ (id)initWithRequest:(CPString)aSection notification:(CPString)aNotification
+// + (void)initWithRequest:(CPString)aSection notification:(CPString)aNotification
+// {
+//     conn = [[self alloc] init];
+//     [conn setResultNotification:aNotification];
+
+//     request = [CPURLRequest requestWithURL:"/api/v1/" + aSection + "?format=json"];
+//     [request setHTTPMethod:"GET"];
+//     var connection = [CPURLConnection connectionWithRequest:request delegate:conn];
+// }
+
+- (void)execute
 {
-    var r = [[self alloc] init],
-        request = [CPURLRequest requestWithURL:"/api/v1/" + aSection + "?format=json"];
-
-    [r setResultNotification:aNotification];
-
-    [request setHTTPMethod:"GET"];
-    var connection = [CPURLConnection connectionWithRequest:request delegate:r];
-
-    return r;
+    request = [CPURLRequest requestWithURL:requestURI + "?format=json"];
+    [request setHTTPMethod:requestMethod];
+    conn = [CPURLConnection connectionWithRequest:request delegate:self];
 }
+
 
 - (void)connection:(CPURLConnection)connection didFailWithError:(id)error
 {
@@ -44,17 +52,9 @@
 {
     if (data)
     {
-        var j = JSON.parse(data);
-
-        for (var i = j.objects.length - 1; i >= 0; i--)
-        {
-            var p = [Project projectWithObject:j.objects[i]];
-            [theResult addObject:p];
-        };
-
-        CPLog(@"Firing notification " + resultNotification);
-        // [[CPNotificationCenter defaultCenter] postNotificationName:resultNotification
-                                              object:theResult
+        CPLog(@"Firing notification " + callbackNotification);
+        [[CPNotificationCenter defaultCenter] postNotificationName:callbackNotification
+                                              object:data
                                               userInfo:nil];
     }
 }
