@@ -1,0 +1,3 @@
+[submodule "client/Rodan/Frameworks/Ratatosk"]
+	path = client/Rodan/Frameworks/Ratatosk
+	url = git@github.com:ahankinson/Ratatosk.git
