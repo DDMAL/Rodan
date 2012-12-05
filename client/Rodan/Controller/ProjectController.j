@@ -3,16 +3,16 @@
 @import "RodanAPIController.j"
 @import "../Model/Project.j"
 
-@implementation ProjectController : CPArrayController
+@implementation ProjectController : CPObject
 {
-    @outlet     CPTableView     theTable;
+    @outlet     CPTableView         projectChooseTable;
+    @outlet     CPArrayController   projectArrayController;
 }
 
 - (id)init
 {
     if (self = [super init])
     {
-        [self setObjectClass:Project];
         CPLog("Project controller init");
         [self fetchProjects];
     }
@@ -22,6 +22,7 @@
 - (id)awakeFromCib
 {
     // [Project fetchProjects];
+    CPLog("Awake from CIB Project Controller");
 }
 
 - (CPString)remoteActionContentType:(WLRemoteAction)anAction
@@ -31,15 +32,29 @@
 
 - (void)fetchProjects
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"project/" delegate:self message:"Loading projects…"];
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"project/" delegate:self message:"Loading projects"];
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
+    CPLog("Action did Finish");
+    console.log(anAction);
     p = [Project objectsFromJson:[anAction result].objects];
-    [self addObjects:p];
+    [projectArrayController addObjects:p];
+    console.log([projectArrayController contentArray]);
+}
 
-    console.log([self objectClass]);
+- (IBAction)addProject:(id)aSender
+{
+    // p = [[Project alloc] init];
+    // console.log([p remotePath]);
+    p = [[Project alloc] initWithJson:{"name": "My newly created project", "description": "A great description", "creator": "/api/v1/user/1/"}];
+    [projectArrayController addObject:p];
+    [p ensureCreated];
+}
+
+- (IBAction)getContentArray:(id)aSender
+{
 }
 
 @end

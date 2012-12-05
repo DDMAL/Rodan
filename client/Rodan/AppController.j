@@ -13,6 +13,7 @@
 @import "Controller/ServerAdminController.j"
 @import "Controller/WorkflowController.j"
 @import "Controller/ProjectController.j"
+@import "Controller/ProjectArrayController.j"
 // @import "RodanAPIController.j"
 @import "Model/Project.j"
 
@@ -114,7 +115,7 @@
 {
 
     CPLog("Application Did Finish Launching");
-    [[ProjectController alloc] init];
+    projectController = [[ProjectController alloc] init];
 }
 
 - (IBAction)didLogIn:(id)aSender
