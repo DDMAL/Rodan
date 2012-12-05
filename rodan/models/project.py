@@ -1,6 +1,7 @@
 import os
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class Project(models.Model):
@@ -9,7 +10,7 @@ class Project(models.Model):
 
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey('rodan.RodanUser')
+    creator = models.ForeignKey(User)
     pk_name = 'project_id'
 
     def __unicode__(self):

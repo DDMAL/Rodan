@@ -16,7 +16,7 @@ class RodanUserResource(ModelResource):
 
 
 class UserResource(ModelResource):
-    profile = fields.ToOneField(RodanUserResource, 'get_profile', full=True)
+    # profile = fields.ToOneField(RodanUserResource, 'profile', full=True)
 
     class Meta:
         queryset = User.objects.all()
