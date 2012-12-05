@@ -8,6 +8,7 @@
 
 @import <Foundation/CPObject.j>
 @import <AppKit/AppKit.j>
+@import <Ratatosk/Ratatosk.j>
 @import "Controller/UserPreferencesController.j"
 @import "Controller/ServerAdminController.j"
 @import "Controller/WorkflowController.j"
@@ -15,6 +16,8 @@
 // @import "RodanAPIController.j"
 @import "Model/Project.j"
 
+
+[WLRemoteLink setDefaultBaseURL:@"/api/v1/"];
 
 @implementation AppController : CPObject
 {
@@ -111,6 +114,7 @@
 {
 
     CPLog("Application Did Finish Launching");
+    [[ProjectController alloc] init];
 }
 
 - (IBAction)didLogIn:(id)aSender

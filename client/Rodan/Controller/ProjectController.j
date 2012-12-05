@@ -1,90 +1,45 @@
 @import <AppKit/AppKit.j>
+@import <Ratatosk/Ratatosk.j>
 @import "RodanAPIController.j"
 @import "../Model/Project.j"
 
 @implementation ProjectController : CPArrayController
 {
-    CPString    allProjectsNotification;
+    @outlet     CPTableView     theTable;
+}
 
-    @outlet     CPWindow    addProjectWindow;
-    @outlet     CPTextField projectName;
-    @outlet     CPTextField projectDescription;
-    @outlet     CPTableView theTable;
+- (id)init
+{
+    if (self = [super init])
+    {
+        [self setObjectClass:Project];
+        CPLog("Project controller init");
+        [self fetchProjects];
+    }
+    return self;
 }
 
 - (id)awakeFromCib
 {
-    CPLog("Initializing");
-    allProjectsNotification = @"didReceiveAllProjects";
-    notificationCenter = [CPNotificationCenter defaultCenter];
-    [notificationCenter addObserver:self selector:@selector(didReceiveProjectList:) name:allProjectsNotification object:nil]
-    [self getAllProjects];
+    // [Project fetchProjects];
 }
 
-- (IBAction)addProject:(id)aSender
+- (CPString)remoteActionContentType:(WLRemoteAction)anAction
 {
-    CPLog("Name: " + [projectName objectValue]);
-    CPLog("Description: " + [projectDescription objectValue]);
-    [addProjectWindow close];
-
-    [self add:aSender];
+    return @"application/json; charset=utf-8";
 }
 
-- (IBAction)add:(id)aSender
+- (void)fetchProjects
 {
-    [super add:aSender];
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"project/" delegate:self message:"Loading projects…"];
 }
 
-- (IBAction)remove:(id)aSender
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    [super remove:aSender];
+    p = [Project objectsFromJson:[anAction result].objects];
+    [self addObjects:p];
+
+    console.log([self objectClass]);
 }
 
-- (IBAction)removeAtSelectedIndex:(id)aSender
-{
-    CPLog("Removing at " + [self selectionIndex]);
-    [self removeObjectAtArrangedObjectIndex:[self selectionIndex]];
-
-}
-
-- (void)didReceiveProjectList:(id)aNotification
-{
-    data = JSON.parse([aNotification object]);
-    for (var i = 0; i < data.objects.length; i++)
-    {
-        p = [Project initWithJSONObject:data.objects[i]];
-        [self addObject:p];
-    };
-}
-
-/* Rodan Projects API */
-
-- (void)getAllProjects
-{
-    conn = [[RodanAPIController alloc] init];
-    [conn setRequestURI:"/api/v1/project"]
-    [conn setCallbackNotification:allProjectsNotification];
-    [conn execute];
-    // [ initWithRequest:@"project" notification:allProjectsNotification];
-}
-
-- (void)getProjectAtURI:(CPString)aURI
-{
-    // [RodanAPIController initWithRequest:@"project" notification:singleProjectNotification];
-}
-
-- (void)createNewProject:(CPString)aName withDescription:(CPString)aDescription
-{
-    // POST
-}
-
-- (void)deleteProjectAtURI:(CPString)aURI
-{
-    // DELETE
-}
-
-- (void)updateProjectAtURI:(CPString)aURI setName:(CPString)aName setDescription:(CPString)aDescription
-{
-    //
-}
 @end

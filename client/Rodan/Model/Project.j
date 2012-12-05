@@ -1,5 +1,7 @@
+@import <Ratatosk/Ratatosk.j>
 
-@implementation Project : CPObject
+
+@implementation Project : WLRemoteObject
 {
     CPString    projectName     @accessors;
     CPString    description     @accessors;
@@ -16,15 +18,14 @@
     return self;
 }
 
-+ (id)initWithJSONObject:(id)anObject
++ (CPArray)remoteProperties
 {
-    project = [[Project alloc] init];
-
-    [project setProjectName:anObject.name];
-    [project setDescription:anObject.description];
-    [project setResourceURI:anObject.resource_uri];
-
-    return project;
+    return [
+        ['pk', 'resource_uri'],
+        ['projectName', 'name'],
+        ['description', 'description'],
+        ['resourceURI', 'resource_uri']
+    ];
 }
 
 @end
