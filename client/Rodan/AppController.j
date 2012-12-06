@@ -9,6 +9,7 @@
 @import <Foundation/CPObject.j>
 @import <AppKit/AppKit.j>
 @import <Ratatosk/Ratatosk.j>
+@import "Controller/LogInController.j"
 @import "Controller/UserPreferencesController.j"
 @import "Controller/ServerAdminController.j"
 @import "Controller/WorkflowController.j"
@@ -21,6 +22,7 @@
 [WLRemoteLink setDefaultBaseURL:@""];
 
 RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
+RodanDidLogInNotification = @"RodanDidLogInNotification";
 
 @implementation AppController : CPObject
 {
@@ -76,6 +78,9 @@ RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
     _theWindowBounds = [contentView bounds],
     center = [CPNotificationCenter defaultCenter];
 
+    [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
+    [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
+
     [theToolbar setVisible:NO];
 
     var statusToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status.png"] size:CGSizeMake(32.0, 32.0)],
@@ -111,9 +116,6 @@ RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
 
     [contentScrollView setDocumentView:loginScreenView];
     [contentView setSubviews:[contentScrollView]];
-
-    [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
-
 }
 
 
@@ -121,17 +123,15 @@ RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
 {
 
     CPLog("Application Did Finish Launching");
-    projectController = [[ProjectController alloc] init];
 }
 
-- (IBAction)didLogIn:(id)aSender
+- (void)didLogIn:(id)aSender
 {
-    CPLog("User wants to log in.");
-    CPLog("The Value of the Username: " + [username stringValue]);
-    CPLog("The Value of the Password: " + [password stringValue]);
-
     // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     // [CPMenu setMenuBarVisible:YES];
+    projectController = [[ProjectController alloc] init];
+    [projectController fetchProjects];
+
     [contentScrollView setDocumentView:selectProjectView];
     // [contentScrollView setNeedsDisplay];
 }
