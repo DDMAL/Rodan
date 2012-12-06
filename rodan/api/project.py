@@ -8,7 +8,7 @@ from rodan.models.project import Project
 
 
 class ProjectResource(ModelResource):
-    creator = fields.ForeignKey(UserResource, 'creator', full=True)
+    creator = fields.ForeignKey(UserResource, 'creator')
 
     class Meta:
         queryset = Project.objects.all()
@@ -17,3 +17,4 @@ class ProjectResource(ModelResource):
         # Add it here.
         # authentication = BasicAuthentication()
         # authorization = DjangoAuthorization()
+        always_return_data = True
