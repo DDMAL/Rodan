@@ -10,7 +10,7 @@ class Project(models.Model):
 
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, related_name="projects")
     pk_name = 'project_id'
 
     def __unicode__(self):

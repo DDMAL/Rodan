@@ -114,6 +114,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'rest_framework',
+    'rest_framework.authtoken',
     'rodan',
     'djcelery',
     'rodan.jobs',
@@ -173,15 +175,29 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
-    "rodan.context_processors.list_projects",
-    "rodan.context_processors.login_url",
+    # "rodan.context_processors.list_projects",
+    # "rodan.context_processors.login_url",
 )
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'PAGINATE_BY': 10
+}
+
+
 # So that calling get_profile on a user will return the RodanUser instance
-AUTH_PROFILE_MODULE = 'rodan.RodanUser'
+# AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 
 # Used in conjunction with the @login_required decorator
-LOGIN_URL = '/signup'
+# LOGIN_URL = '/signup'
+LOGIN_REDIRECT_URL = '/'
 
 THUMBNAIL_EXT = 'jpg'
 SMALL_THUMBNAIL = 150

@@ -1,58 +1,51 @@
 from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
-
-from tastypie.api import Api
-from rodan.api.workflow import WorkflowResource
-from rodan.api.project import ProjectResource
-from rodan.api.job import JobResource
-from rodan.api.rodanuser import UserResource
-from rodan.api.page import PageResource
-
-v1_api = Api(api_name="v1")
-v1_api.register(WorkflowResource())
-v1_api.register(ProjectResource())
-v1_api.register(JobResource())
-v1_api.register(UserResource())
-v1_api.register(PageResource())
-
-# from rodan.jobs.neon import neon_urls
-
 admin.autodiscover()
 
-project_urls = patterns('rodan.views.projects',
-    url(r'^/?$', 'view', name='view_project'),
-    url(r'^/edit', 'edit', name='edit_project'),
-    url(r'^/upload', 'upload', name='upload'),
-    url(r'^/workflows', 'workflows', name='manage_workflows'),
-    url(r'^/diva$', 'diva', name='diva'),
-    url(r'^/divaserve', 'divaserve'),
-    url(r'^/query', 'query'),
-    url(r'^/(?P<job_slug>[^/]+)', 'task', name="project_task"),
-)
+from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework.authtoken.views import obtain_auth_token
 
-workflow_urls = patterns('rodan.views.workflows',
-    url(r'^/?$', 'view'),
-    url(r'^/edit', 'edit', name='edit_workflow'),
-    url(r'^/add', 'add_pages', name='add_pages'),
-    url(r'^/jobs', 'manage_jobs', name='workflow_jobs'),
-)
+from rodan.views.auth import session_auth
 
-page_urls = patterns('rodan.views.pages',
-    url(r'^/?$', 'view', name='view_page'),
-    url(r'^/jobs', 'add_jobs', name='add_jobs'),
-    url(r'^/workflow', 'workflow', name='new_workflow'),
-    url(r'^/restart/(?P<job_slug>[^/]+)', 'restart', name='restart_job'),
-    url(r'^/set', 'set_workflow', name='set_workflow'),
-    url(r'^/clone', 'clone_workflow', name='clone_workflow'),
-    url(r'^/(?P<job_slug>[^/]+)', 'process', name='task_complete'),
-)
+from rodan.views.main import ProjectList
+from rodan.views.main import ProjectDetail
+from rodan.views.main import WorkflowList
+from rodan.views.main import WorkflowDetail
+from rodan.views.main import PageList
+from rodan.views.main import PageDetail
+from rodan.views.main import JobList
+from rodan.views.main import JobDetail
+from rodan.views.main import ResultList
+from rodan.views.main import ResultDetail
+from rodan.views.main import UserList
+from rodan.views.main import UserDetail
 
 urlpatterns = []
 
-# This handles the API calls
+urlpatterns += format_suffix_patterns(
+    patterns('rodan.views.main',
+        url(r'^browse/$', 'api_root'),
+        url(r'^auth/token/$', obtain_auth_token),
+        url(r'^auth/session/$', session_auth),
+        url(r'^$', 'home'),
+        url(r'^projects/$', ProjectList.as_view(), name="project-list"),
+        url(r'^project/(?P<pk>[0-9]+)/$', ProjectDetail.as_view(), name="project-detail"),
+        url(r'^workflows/$', WorkflowList.as_view(), name="workflow-list"),
+        url(r'^workflow/(?P<pk>[0-9]+)/$', WorkflowDetail.as_view(), name="workflow-detail"),
+        url(r'^pages/$', PageList.as_view(), name="page-list"),
+        url(r'^page/(?P<pk>[0-9]+)/$', PageDetail.as_view(), name="page-detail"),
+        url(r'^jobs/$', JobList.as_view(), name="job-list"),
+        url(r'^job/(?P<pk>[0-9]+)/$', JobDetail.as_view(), name="job-detail"),
+        url(r'^results/$', ResultList.as_view(), name="result-list"),
+        url(r'^result/(?P<pk>[0-9]+)/$', ResultDetail.as_view(), name="result-detail"),
+        url(r'^users/$', UserList.as_view(), name="user-list"),
+        url(r'^user/(?P<pk>[0-9]+)/$', UserDetail.as_view(), name="user-detail"),
+    )
+)
+
 urlpatterns += patterns('',
-    (r'api/', include(v1_api.urls))
+    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework'))
 )
 
 
@@ -61,39 +54,6 @@ if 'django.contrib.admin' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
         url(r'^admin/', include(admin.site.urls)),
     )
-
-urlpatterns += patterns('rodan.views.main',
-    url(r'^$', 'home', name='home'),
-    url(r'^signup', 'signup', name='signup'),
-    url(r'^logout', 'logout_view', name='logout'),
-)
-
-urlpatterns += patterns('rodan.views.projects',
-    url(r'^dashboard', 'dashboard', name='dashboard'),
-    url(r'^create', 'create', name='create_project'),
-    url(r'^projects/(?P<project_id>\d+)', include(project_urls)),
-)
-
-urlpatterns += patterns('rodan.views.workflows',
-    url(r'^workflows/(?P<workflow_id>\d+)', include(workflow_urls)),
-)
-
-urlpatterns += patterns('rodan.views.jobs',
-    url(r'^jobs/(?P<job_slug>[^/]+)', 'view'),
-)
-
-urlpatterns += patterns('rodan.views.pages',
-    url(r'^pages/(?P<page_id>\d+)', include(page_urls)),
-)
-
-# urlpatterns += patterns('',
-#     url(r'^neon/edit/(?P<page_id>\d+)/', include(neon_urls)),
-# )
-
-urlpatterns += patterns('rodan.views.status',
-    url(r'^status/task', 'task'),
-    url(r'^status/page/(?P<page_id>\d+)', 'page'),
-)
 
 # For serving stuff under MEDIA_ROOT in debug mode only
 if settings.DEBUG:

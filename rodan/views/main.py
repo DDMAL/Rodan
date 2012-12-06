@@ -1,44 +1,94 @@
+# from django.shortcuts import render
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from rodan.forms.users import SignupLoginForm
+
+from rest_framework import generics
+from rest_framework import permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
+from rodan.serializers.project import ProjectSerializer
+from rodan.serializers.user import UserSerializer
+
+from rodan.models.project import Project
+from rodan.models.workflow import Workflow
+from rodan.models.page import Page
+from rodan.models.job import Job
+from rodan.models.result import Result
 
 
-@login_required
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+            'projects': reverse('project-list', request=request, format=format),
+            'workflows': reverse('workflow-list', request=request, format=format),
+            'pages': reverse('page-list', request=request, format=format),
+            'jobs': reverse('job-list', request=request, format=format),
+            'results': reverse('result-list', request=request, format=format),
+            'users': reverse('user-list', request=request, format=format)
+        }, template_name="base.html")
+
+
 def home(request):
-    data = {
-    }
-    return render(request, 'main/home.html', data)
+    data = {}
+    return render(request, 'base.html', data)
 
 
-# View to allow unauthenticated users to log in or create accounts
-def signup(request):
-    # path = request.GET.get('next', '') or reverse('dashboard')
-
-    if request.user.is_authenticated():
-        return redirect('dashboard')
-
-    if not request.POST:
-        form = SignupLoginForm()
-        data = {
-            'form': form,
-            'form_action': request.get_full_path()
-        }
-        return render(request, 'main/signup.html', data)
-    else:
-        form = SignupLoginForm(request.POST)
-        if not form.is_valid():
-            return 0  # raise an error.
-        else:
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect('dashboard')
+class ProjectList(generics.ListCreateAPIView):
+    model = Project
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = ProjectSerializer
 
 
-def logout_view(request):
-    if request.user.is_authenticated():
-        logout(request)
-    return redirect('/')
+class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Project
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = ProjectSerializer
+
+    def pre_save(self, obj):
+        obj.creator = self.request.user
+
+
+class WorkflowList(generics.ListCreateAPIView):
+    model = Workflow
+
+
+class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Workflow
+
+
+class PageList(generics.ListCreateAPIView):
+    model = Page
+
+
+class PageDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Page
+
+
+class JobList(generics.ListCreateAPIView):
+    model = Job
+
+
+class JobDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Job
+
+
+class ResultList(generics.ListCreateAPIView):
+    model = Result
+
+
+class ResultDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Result
+
+
+class UserList(generics.ListCreateAPIView):
+    model = User
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = User
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = UserSerializer
