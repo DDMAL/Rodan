@@ -18,7 +18,6 @@
     if (self = [super init])
     {
         CPLog("Project controller init");
-        [self fetchProjects];
     }
     return self;
 }
@@ -36,14 +35,14 @@
 
 - (void)fetchProjects
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"/api/v1/project/" delegate:self message:"Loading projects"];
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"/projects/" delegate:self message:"Loading projects"];
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     console.log("anAction");
     // console.log([anAction result].objects);
-    p = [Project objectsFromJson:[anAction result].objects];
+    p = [Project objectsFromJson:[anAction result].results];
     [projectArrayController addObjects:p];
 }
 
