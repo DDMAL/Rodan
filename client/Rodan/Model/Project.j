@@ -25,11 +25,11 @@
 {
     CPLog("Remote Properties Called");
     return [
-        ['pk', 'resource_uri'],
+        ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
         ['projectOwner', 'creator'],
-        ['resourceURI', 'resource_uri']
+        ['resourceURI', 'url']
     ];
 }
 
@@ -41,7 +41,7 @@
     }
     else
     {
-        return @"/api/v1/project/";
+        return @"/projects/";
     }
 }
 
