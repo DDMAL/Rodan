@@ -18,7 +18,9 @@
 @import "Model/Project.j"
 
 
-[WLRemoteLink setDefaultBaseURL:@"/api/v1/"];
+[WLRemoteLink setDefaultBaseURL:@""];
+
+RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
 
 @implementation AppController : CPObject
 {
@@ -71,7 +73,8 @@
 
     theBundle = [CPBundle mainBundle],
     contentView = [theWindow contentView],
-    _theWindowBounds = [contentView bounds];
+    _theWindowBounds = [contentView bounds],
+    center = [CPNotificationCenter defaultCenter];
 
     [theToolbar setVisible:NO];
 
@@ -108,6 +111,9 @@
 
     [contentScrollView setDocumentView:loginScreenView];
     [contentView setSubviews:[contentScrollView]];
+
+    [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
+
 }
 
 
@@ -162,9 +168,10 @@
     }
 }
 
-- (IBAction)didOpenProject:(id)aSender
+- (void)didOpenProject:(CPNotification)aNotification
 {
-    [theWindow setTitle:@"Rodan — My Amazing Project"];
+    projectName = [[aNotification object] projectName];
+    [theWindow setTitle:@"Rodan — " + projectName];
     [theToolbar setVisible:YES];
     [contentScrollView setDocumentView:projectStatusView];
 }

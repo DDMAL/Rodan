@@ -3,9 +3,10 @@
 
 @implementation Project : WLRemoteObject
 {
+    CPString    pk              @accessors;
     CPString    projectName     @accessors;
     CPString    projectDescription     @accessors;
-    CPString    projectOwner           @accessors;
+    CPObject    projectOwner    @accessors;
     CPString    resourceURI     @accessors;
 }
 
@@ -14,11 +15,9 @@
     if (self = [super init])
     {
         CPLog("Initializing Project model");
-        projectName = @"Project Name"
+        projectName = @"Project Name";
+        projectDescription = @"Hi description";
     }
-
-    console.log(self);
-
     return self;
 }
 
@@ -36,6 +35,32 @@
 
 - (CPString)remotePath
 {
-    return "project/";
+    if ([self pk])
+    {
+        return [self pk];
+    }
+    else
+    {
+        return @"/api/v1/project/";
+    }
 }
+
+- (CPString)remoteAction:(WLRemoteAction)anAction decodeResponseBody:(Object)aResponseBody
+{
+
+    response = JSON.parse(aResponseBody);
+
+    /*
+        setDirtProof ensures that updating this object does
+        not kick off a PATCH request for a change.
+    */
+    [WLRemoteObject setDirtProof:YES];
+    [self setPk:response.resource_uri];
+    [self setResourceURI:response.resource_uri];
+    [self setProjectOwner:response.creator];
+    [WLRemoteObject setDirtProof:NO];
+
+    return aResponseBody;
+}
+
 @end
