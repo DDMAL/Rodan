@@ -8,21 +8,28 @@
 
 @import <Foundation/CPObject.j>
 @import <AppKit/AppKit.j>
+@import <FileUpload/FileUpload.j>
 @import <Ratatosk/Ratatosk.j>
+
 @import "Controller/LogInController.j"
 @import "Controller/UserPreferencesController.j"
 @import "Controller/ServerAdminController.j"
 @import "Controller/WorkflowController.j"
 @import "Controller/ProjectController.j"
-@import "Controller/ProjectArrayController.j"
-// @import "RodanAPIController.j"
+@import "Controller/PageController.j"
 @import "Model/Project.j"
 
-
-[WLRemoteLink setDefaultBaseURL:@""];
-
 RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
+RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
+
+RodanMustLogInNotification = @"RodanMustLogInNotification";
 RodanDidLogInNotification = @"RodanDidLogInNotification";
+RodanCannotLogInNotification = @"RodanCannotLogInNotification";
+RodanLogInErrorNotification = @"RodanLogInErrorNotification";
+
+isLoggedIn = NO;
+activeUser = "";     // URI to the currently logged-in user
+activeProject = "";  // URI to the currently open project
 
 @implementation AppController : CPObject
 {
@@ -31,10 +38,9 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     @outlet     CPToolbar   theToolbar;
                 CPBundle    theBundle;
 
-    @outlet     CPTextField username;
-    @outlet     CPTextField password;
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginScreenView;
+    @outlet     CPView      loginWaitScreenView;
     @outlet     CPView      selectProjectView;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
@@ -43,7 +49,6 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
                 CPView      contentView;
 
     @outlet     CPScrollView    contentScrollView;
-
 
     @outlet     CPWindow    userPreferencesWindow;
     @outlet     CPView      accountPreferencesView;
@@ -57,21 +62,36 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     @outlet     CPWindow    newWorkflowWindow;
 
     @outlet     CPToolbarItem   statusToolbarItem;
-    @outlet     CPToolbarItem   imagesToolbarItem;
+    @outlet     CPToolbarItem   pagesToolbarItem;
     @outlet     CPToolbarItem   workflowsToolbarItem;
     @outlet     CPToolbarItem   jobsToolbarItem;
     @outlet     CPToolbarItem   usersToolbarItem;
 
+    @outlet     ProjectController   projectController;
+    @outlet     PageController      pageController;
+    @outlet     UploadButton        imageUploadButton;
+
     CGRect      _theWindowBounds;
+
+                CPCookie        sessionID;
+                CPCookie        CSRFToken;
 
 }
 
 - (id)awakeFromCib
 {
     CPLogRegister(CPLogConsole);
-    CPLog("awakeFromCib");
+    CPLog("AppController Awake From CIB");
+    isLoggedIn = NO;
+
+    [[LogInCheckController alloc] initCheckingStatus];
 
     [theWindow setFullPlatformWindow:YES];
+
+    [imageUploadButton setBordered:YES];
+    [imageUploadButton allowsMultipleFiles:YES];
+    [imageUploadButton setDelegate:pageController];
+    [imageUploadButton setURL:@"/pages/"];
 
     theBundle = [CPBundle mainBundle],
     contentView = [theWindow contentView],
@@ -79,14 +99,24 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     center = [CPNotificationCenter defaultCenter];
 
     [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
+    [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
+
     [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
+    [center addObserver:self selector:@selector(mustLogIn:) name:RodanMustLogInNotification object:nil];
+    [center addObserver:self selector:@selector(cannotLogIn:) name:RodanCannotLogInNotification object:nil];
+    [center addObserver:self selector:@selector(cannotLogIn:) name:RodanLogInErrorNotification object:nil];
+
+    /* Debugging Observers */
+    [center addObserver:self selector:@selector(observerDebug:) name:RodanDidOpenProjectNotification object:nil];
+    [center addObserver:self selector:@selector(observerDebug:) name:RodanDidLoadProjectsNotification object:nil];
+    /* ------------------- */
 
     [theToolbar setVisible:NO];
 
     var statusToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status.png"] size:CGSizeMake(32.0, 32.0)],
         statusToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status-selected.png"] size:CGSizeMake(32.0, 32.0)],
-        imagesToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images.png"] size:CGSizeMake(40.0, 32.0)],
-        imagesToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images-selected.png"] size:CGSizeMake(40.0, 32.0)],
+        pagesToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images.png"] size:CGSizeMake(40.0, 32.0)],
+        pagesToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images-selected.png"] size:CGSizeMake(40.0, 32.0)],
         workflowsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
         workflowsToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows-selected.png"] size:CGSizeMake(32.0, 32.0)],
         jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
@@ -96,8 +126,8 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
 
     [statusToolbarItem setImage:statusToolbarIcon];
     [statusToolbarItem setAlternateImage:statusToolbarIconSelected];
-    [imagesToolbarItem setImage:imagesToolbarIcon];
-    [imagesToolbarItem setAlternateImage:imagesToolbarIconSelected];
+    [pagesToolbarItem setImage:pagesToolbarIcon];
+    [pagesToolbarItem setAlternateImage:pagesToolbarIconSelected];
     [workflowsToolbarItem setImage:workflowsToolbarIcon];
     [workflowsToolbarItem setAlternateImage:workflowsToolbarIconSelected];
     [jobsToolbarItem setImage:jobsToolbarIcon];
@@ -112,28 +142,56 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     [contentScrollView setAutohidesScrollers:YES];
     [contentScrollView setAutoresizesSubviews:YES];
 
-    // [loginScreenView setBounds:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds))];
-
-    [contentScrollView setDocumentView:loginScreenView];
     [contentView setSubviews:[contentScrollView]];
 }
 
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
-
     CPLog("Application Did Finish Launching");
+    [contentScrollView setDocumentView:loginWaitScreenView];
 }
 
-- (void)didLogIn:(id)aSender
+- (void)mustLogIn:(id)aNotification
 {
-    // [projectStatusView setAutoresizingMask:CPViewWidthSizable];
-    // [CPMenu setMenuBarVisible:YES];
-    projectController = [[ProjectController alloc] init];
-    [projectController fetchProjects];
+    // show log in screen
+    [contentScrollView setDocumentView:loginScreenView];
+}
 
+- (void)cannotLogIn:(id)aNotification
+{
+    CPLog("Cannot log in called");
+    isLoggedIn = NO;
+    // display an alert that they cannot log in
+    var alert = [[CPAlert alloc] init];
+    [alert setTitle:@"Cannot Log In"];
+    [alert setMessageText:@"You cannot log in"];
+    [alert setInformativeText:@"Please check your username and password. If you are still having difficulties, please contact an administrator."];
+    [alert setShowsHelp:YES];
+    [alert setAlertStyle:CPInformationalAlertStyle];
+    [alert addButtonWithTitle:"Ok"];
+    [alert runModal];
+}
+
+- (void)didLogIn:(id)aNotification
+{
+    CPLog("Did Log In Successfully.");
+    authResponse = [aNotification object];
+
+    isLoggedIn = YES;
+    activeUser = [authResponse valueForKey:@"user"];
+
+    var sessionID = [[CPCookie alloc] initWithName:@"sessionid"],
+        CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
+
+    [WLRemoteLink addValue:[CSRFToken value] forGlobalHeaderField:@"X-CSRFToken"];
+
+    [projectController fetchProjects];
+}
+
+- (void)showProjectsChooser:(id)aNotification
+{
     [contentScrollView setDocumentView:selectProjectView];
-    // [contentScrollView setNeedsDisplay];
 }
 
 - (IBAction)switchWorkspace:(id)aSender
@@ -164,12 +222,13 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
             break;
         default:
             console.log("Unknown identifier");
-            break;z
+            break;
     }
 }
 
 - (void)didOpenProject:(CPNotification)aNotification
 {
+    activeProject = [[aNotification object] resourceURI];
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
     [theToolbar setVisible:YES];
@@ -192,18 +251,6 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     [serverAdminWindow orderFront:aSender];
 }
 
-- (IBAction)newProject:(id)aSender
-{
-    [newProjectWindow center];
-    [newProjectWindow orderFront:aSender];
-}
-
-- (IBAction)openProject:(id)aSender
-{
-    [openProjectWindow center];
-    [openProjectWindow orderFront:aSender];
-}
-
 - (IBAction)closeProject:(id)aSender
 {
     CPLog("Close Project");
@@ -220,6 +267,11 @@ RodanDidLogInNotification = @"RodanDidLogInNotification";
     [alert setDelegate:closeProjectController];
     [closeProjectController setSheet:alert];
     [closeProjectController beginSheet]
+}
+
+- (void)observerDebug:(id)aNotification
+{
+    CPLog("Notification was Posted: " + [aNotification name]);
 }
 
 @end

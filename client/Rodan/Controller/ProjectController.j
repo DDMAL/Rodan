@@ -1,11 +1,9 @@
 @import <AppKit/AppKit.j>
 @import <Ratatosk/Ratatosk.j>
-@import "RodanAPIController.j"
 @import "../Model/Project.j"
 
 @implementation ProjectController : CPObject
 {
-    @outlet     CPTableView         projectChooseTable;
     @outlet     CPArrayController   projectArrayController;
     @outlet     CPWindow            createProjectWindow;
 
@@ -24,7 +22,6 @@
 
 - (id)awakeFromCib
 {
-    // [Project fetchProjects];
     CPLog("Awake from CIB Project Controller");
 }
 
@@ -40,10 +37,13 @@
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    console.log("anAction");
-    // console.log([anAction result].objects);
+    CPLog("Remote Action did Finish");
+
     p = [Project objectsFromJson:[anAction result].results];
     [projectArrayController addObjects:p];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectsNotification
+                                          object:nil];
 }
 
 - (IBAction)openAddProjectWindow:(id)aSender
@@ -61,6 +61,10 @@
     projectName = [newProjectName objectValue];
     projectDescription = [newProjectDescription objectValue];
 
+    /*
+        Reset the text fields so that subsequent calls to the window
+        do not maintain their former values
+    */
     [newProjectName setObjectValue:@""];
     [newProjectDescription setObjectValue:@""];
 
@@ -68,13 +72,14 @@
     newProjectObject = {
         'name': projectName,
         'description': projectDescription,
-        'creator': "/api/v1/user/1/",
-        'resource_uri': nil
+        'creator': activeUser,
     };
 
     // create object
     p = [[Project alloc] initWithJson:newProjectObject];
+
     [projectArrayController addObject:p];
+
     [p ensureCreated];
 }
 
@@ -102,7 +107,6 @@
     [alert addButtonWithTitle:@"Delete"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert runModal];
-    // delete project
 }
 
 - (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
@@ -138,6 +142,19 @@
     theProject = [selectedObjects objectAtIndex:0];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification object:theProject];
 
+}
+
+// this tell the table how many rows it has…
+- (int)numberOfRowsInTableView:(CPTableView)aTableView
+{
+    CPLog("Num Rows " + [projectList count]);
+    return [projectList count];
+}
+
+// this defines what text will display for each row, in each column, for each table view.
+- (id)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+{
+    return [projectList objectAtIndex:aRow];
 }
 
 @end

@@ -1,7 +1,0 @@
-
-@implementation ProjectArrayController : CPArrayController
-{
-
-}
-
-@end

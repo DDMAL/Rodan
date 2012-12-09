@@ -15,15 +15,12 @@
     if (self = [super init])
     {
         CPLog("Initializing Project model");
-        projectName = @"Project Name";
-        projectDescription = @"Hi description";
     }
     return self;
 }
 
 + (CPArray)remoteProperties
 {
-    CPLog("Remote Properties Called");
     return [
         ['pk', 'url'],
         ['projectName', 'name'],
@@ -49,16 +46,19 @@
 {
 
     response = JSON.parse(aResponseBody);
-
+    console.log(response);
     /*
         setDirtProof ensures that updating this object does
         not kick off a PATCH request for a change.
     */
     [WLRemoteObject setDirtProof:YES];
-    [self setPk:response.resource_uri];
-    [self setResourceURI:response.resource_uri];
+    [self setPk:response.url];
+    [self setResourceURI:response.url];
     [self setProjectOwner:response.creator];
     [WLRemoteObject setDirtProof:NO];
+
+    CPLog("Done updating object");
+    console.log(self);
 
     return aResponseBody;
 }
