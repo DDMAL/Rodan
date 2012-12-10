@@ -9,6 +9,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 from rodan.views.auth import session_auth
 from rodan.views.auth import session_status
 
+from rodan.views.upload import page_upload
+
 from rodan.views.main import ProjectList
 from rodan.views.main import ProjectDetail
 from rodan.views.main import WorkflowList
@@ -41,6 +43,7 @@ urlpatterns += format_suffix_patterns(
         url(r'^workflowjob/(?P<pk>[0-9]+)/$', WorkflowJobDetail.as_view(), name="workflowjob-detail"),
         url(r'^pages/$', PageList.as_view(), name="page-list"),
         url(r'^page/(?P<pk>[0-9]+)/$', PageDetail.as_view(), name="page-detail"),
+        url(r'^page/upload/$', page_upload),
         url(r'^jobs/$', JobList.as_view(), name="job-list"),
         url(r'^job/(?P<pk>[0-9]+)/$', JobDetail.as_view(), name="job-detail"),
         url(r'^results/$', ResultList.as_view(), name="result-list"),
