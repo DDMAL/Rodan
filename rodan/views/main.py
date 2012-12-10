@@ -1,6 +1,6 @@
 # from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework import generics
@@ -11,6 +11,7 @@ from rest_framework.reverse import reverse
 
 from rodan.serializers.project import ProjectSerializer
 from rodan.serializers.user import UserSerializer
+from rodan.serializers.page import PageSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
@@ -85,10 +86,14 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class PageList(generics.ListCreateAPIView):
     model = Page
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = PageSerializer
 
 
 class PageDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Page
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = PageSerializer
 
 
 class JobList(generics.ListCreateAPIView):
