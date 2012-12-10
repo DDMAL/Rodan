@@ -94,9 +94,11 @@ activeProject = "";  // URI to the currently open project
     [theWindow setFullPlatformWindow:YES];
 
     [imageUploadButton setBordered:YES];
+    [imageUploadButton setFileKey:@"files"];
     [imageUploadButton allowsMultipleFiles:YES];
     [imageUploadButton setDelegate:pageController];
-    [imageUploadButton setURL:@"/pages/"];
+    [imageUploadButton setURL:@"/page/upload/"];
+    [imageUploadButton setValue:@"foo" forParameter:@"bar"];
 
     theBundle = [CPBundle mainBundle],
     contentView = [theWindow contentView],
@@ -240,6 +242,9 @@ activeProject = "";  // URI to the currently open project
 - (void)didOpenProject:(CPNotification)aNotification
 {
     activeProject = [[aNotification object] resourceURI];
+
+    [imageUploadButton setValue:activeProject forParameter:@"activeProject"];
+
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
     [theToolbar setVisible:YES];

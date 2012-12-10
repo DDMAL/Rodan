@@ -24,7 +24,7 @@
 {
     CPLog("Did Change Selection");
     console.log(selection);
-    // [button submit];
+    [button submit];
 }
 
 - (void)uploadButton:(UploadButton)button didFailWithError:(CPString)anError
