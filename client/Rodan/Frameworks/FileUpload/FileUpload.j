@@ -23,6 +23,8 @@
 
     CPDictionary    _parameters;
     var             _isBrowser;
+
+    CPString        _fileKey;
 }
 
 - (void)setup
@@ -68,7 +70,7 @@
                 document.addEventListener(CPDOMEventMouseUp, _mouseUpCallback, NO);
                 document.addEventListener(CPDOMEventMouseMoved, _mouseMovedCallback, NO);
             }
-            else if(document.attachEvent)
+            else if (document.attachEvent)
             {
                 document.attachEvent("on" + CPDOMEventMouseUp, _mouseUpCallback);
                 document.attachEvent("on" + CPDOMEventMouseMoved, _mouseMovedCallback);
@@ -214,6 +216,11 @@
     {
         _fileUploadElement.setAttribute("multiple", "true");
     }
+}
+
+- (void)setFileKey:(CPString)aKey
+{
+    _fileUploadElement.name = aKey;
 }
 
 - (void)setDelegate:(id)aDelegate
