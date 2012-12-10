@@ -1,4 +1,3 @@
-# from rodan.models.rodanuser import RodanUser
 from rodan.models.project import Project
 from rodan.models.job import Job
 from rodan.models.workflowjob import WorkflowJob
