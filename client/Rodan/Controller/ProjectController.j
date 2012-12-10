@@ -83,7 +83,7 @@
     [p ensureCreated];
 }
 
-- (IBAction)deleteProject:(id)aSender
+- (IBAction)selectDeleteProject:(id)aSender
 {
     // get selected projects
     numToBeDeleted = [[projectArrayController selectedObjects] count];
@@ -112,11 +112,16 @@
 - (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
 {
     CPLog("The alert ended with a response of " + returnCode);
-    console.log(theAlert);
     if (returnCode == 0)
     {
         // delete
         console.log("Deleting");
+        [self deleteProjects];
+    }
+}
+
+- (void)deleteProjects
+{
         selectedObjects = [projectArrayController selectedObjects];
         [projectArrayController removeObjects:selectedObjects];
 
@@ -124,7 +129,6 @@
         {
             [selectedObjects[i] ensureDeleted];
         };
-    }
 }
 
 - (IBAction)openProject:(id)aSender
