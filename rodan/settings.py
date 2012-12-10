@@ -113,13 +113,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rodan',
     'django_extensions',
     'south',
     'rest_framework',
     'rest_framework.authtoken',
-    'rodan',
     'djcelery',
-    'rodan.jobs',
+    # 'rodan.jobs',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -178,6 +178,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     # "rodan.context_processors.list_projects",
     # "rodan.context_processors.login_url",
+)
+
+FILE_UPLOAD_HANDLERS = (
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 
 REST_FRAMEWORK = {
