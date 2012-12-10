@@ -14,12 +14,11 @@ def session_status(request, format=None):
         user = reverse('user-detail', request=request, format=format, args=(request.user.pk,))
         return Response({"is_logged_in": True, 'user': user})
     else:
-    # user is not authenticated, but can try again
+        # user is not authenticated, but can try again
         return Response({"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(("GET", "POST"))
-@ensure_csrf_cookie
 def session_auth(request, format=None):
     response = None
     username = request.POST['username']
@@ -30,12 +29,11 @@ def session_auth(request, format=None):
             # log in successfully
             login(request, user)
             user = reverse('user-detail', request=request, format=format, args=(request.user.pk,))
-            response = Response({"is_logged_in": True, 'user': user})
+            return Response({"is_logged_in": True, 'user': user})
         else:
             # user exists, but is inactive
             response = Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
     else:
         # user does not exist
         response = Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
-
     return response

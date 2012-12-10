@@ -1,6 +1,7 @@
 # from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework import generics
 from rest_framework import permissions
@@ -13,6 +14,7 @@ from rodan.serializers.user import UserSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
+from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.job import Job
 from rodan.models.result import Result
@@ -23,6 +25,7 @@ def api_root(request, format=None):
     return Response({
             'projects': reverse('project-list', request=request, format=format),
             'workflows': reverse('workflow-list', request=request, format=format),
+            'workflowjobs': reverse('workflowjob-list', request=request, format=format),
             'pages': reverse('page-list', request=request, format=format),
             'jobs': reverse('job-list', request=request, format=format),
             'results': reverse('result-list', request=request, format=format),
@@ -30,6 +33,7 @@ def api_root(request, format=None):
         })
 
 
+@ensure_csrf_cookie
 def home(request):
     data = {}
     return render(request, 'base.html', data)
@@ -55,10 +59,28 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    # serializer_class = UserSerializer
+
+    def pre_save(self, obj):
+        pass
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    # serializer_class = UserSerializer
+
+    def pre_save(self, obj):
+        pass
+
+
+class WorkflowJobList(generics.ListCreateAPIView):
+    model = WorkflowJob
+
+
+class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = WorkflowJob
 
 
 class PageList(generics.ListCreateAPIView):
