@@ -8,7 +8,7 @@
     return [
         ['pk', 'url'],
         ['projectURI', 'project'],
-        ['filename', 'filename'],
+        ['pageImage', 'page_image'],
         ['pageOrder', 'page_order'],
     ];
 }
