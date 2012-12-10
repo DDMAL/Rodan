@@ -7,3 +7,4 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Project
+        fields = ("url", "name", "description", "creator")

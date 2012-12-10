@@ -27,7 +27,7 @@ def api_root(request, format=None):
             'jobs': reverse('job-list', request=request, format=format),
             'results': reverse('result-list', request=request, format=format),
             'users': reverse('user-list', request=request, format=format)
-        }, template_name="base.html")
+        })
 
 
 def home(request):
@@ -39,6 +39,9 @@ class ProjectList(generics.ListCreateAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = ProjectSerializer
+
+    def pre_save(self, obj):
+        obj.creator = self.request.user
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
