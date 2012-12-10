@@ -13,6 +13,8 @@ from rodan.views.main import ProjectList
 from rodan.views.main import ProjectDetail
 from rodan.views.main import WorkflowList
 from rodan.views.main import WorkflowDetail
+from rodan.views.main import WorkflowJobList
+from rodan.views.main import WorkflowJobDetail
 from rodan.views.main import PageList
 from rodan.views.main import PageDetail
 from rodan.views.main import JobList
@@ -35,6 +37,8 @@ urlpatterns += format_suffix_patterns(
         url(r'^project/(?P<pk>[0-9]+)/$', ProjectDetail.as_view(), name="project-detail"),
         url(r'^workflows/$', WorkflowList.as_view(), name="workflow-list"),
         url(r'^workflow/(?P<pk>[0-9]+)/$', WorkflowDetail.as_view(), name="workflow-detail"),
+        url(r'^workflowjobs/$', WorkflowJobList.as_view(), name="workflowjob-list"),
+        url(r'^workflowjob/(?P<pk>[0-9]+)/$', WorkflowJobDetail.as_view(), name="workflowjob-detail"),
         url(r'^pages/$', PageList.as_view(), name="page-list"),
         url(r'^page/(?P<pk>[0-9]+)/$', PageDetail.as_view(), name="page-detail"),
         url(r'^jobs/$', JobList.as_view(), name="job-list"),
