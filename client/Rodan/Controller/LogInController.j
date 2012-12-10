@@ -11,8 +11,10 @@
     CPLog("Calling Log In");
     username = [usernameField objectValue];
     password = [passwordField objectValue];
+    CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
 
     request = [CPURLRequest requestWithURL:@"/auth/session/"];
+    [request setValue:[CSRFToken value] forHTTPHeaderField:@"X-CSRFToken"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"]
     [request setHTTPBody:@"username=" + username + "&password=" + password];
@@ -45,8 +47,7 @@
             // UNAUTHORIZED
             CPLog("Received 401 Unauthorized");
             [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
-                                      object:nil
-                                      userInfo:nil];
+                                                  object:nil];
 
             [connection cancel];
             break;
@@ -54,8 +55,7 @@
             // FORBIDDEN
             CPLog("Received 403 Forbidden");
             [[CPNotificationCenter defaultCenter] postNotificationName:RodanCannotLogInNotification
-                                      object:nil
-                                      userInfo:nil];
+                                                  object:nil];
 
             [connection cancel]
             break;
@@ -72,10 +72,11 @@
 {
     if (data)
     {
+        var data = JSON.parse(data),
+            resp = [CPDictionary dictionaryWithJSObject:data];
         CPLog(@"Firing notification " + RodanDidLogInNotification);
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLogInNotification
-                                              object:data
-                                              userInfo:nil];
+                                              object:resp];
     }
 }
 
@@ -126,7 +127,7 @@
             break;
         case 403:
             // FORBIDDEN
-            CPLog("Received 403 Forbidden");
+            CPLog("Log-In Check: Received 403 Forbidden");
             [[CPNotificationCenter defaultCenter] postNotificationName:RodanCannotLogInNotification
                                                   object:nil];
             [connection cancel];
@@ -148,8 +149,72 @@
         var data = JSON.parse(data),
             resp = [CPDictionary dictionaryWithJSObject:data];
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLogInNotification
-                                              object:resp ];
+                                              object:resp];
     }
+}
+
+@end
+
+
+@implementation LogOutController : CPObject
+{
+}
+
++ (void)logOut
+{
+    obj = [[LogOutController alloc] init];
+
+    CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
+    request = [CPURLRequest requestWithURL:@"/auth/logout/"];
+    [request setValue:[CSRFToken value] forHTTPHeaderField:@"X-CSRFToken"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setHTTPMethod:@"POST"];
+    conn = [CPURLConnection connectionWithRequest:request delegate:obj];
+}
+
+- (void)connection:(CPURLConnection)connection didFailWithError:(id)error
+{
+    CPLog("Failed with Error");
+}
+
+- (void)connection:(CPURLConnection)connection didReceiveResponse:(CPURLResponse)response
+{
+    CPLog("Response Received");
+
+    switch ([response statusCode])
+    {
+        case 200:
+            // Success
+            CPLog("Received 200 Success");
+            [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLogOutNotification
+                                                  object:nil];
+            break;
+        case 400:
+            // BAD REQUEST
+            CPLog("Received 400 Bad Request");
+            [connection cancel];
+        case 401:
+            // UNAUTHORIZED
+            CPLog("Received 401 Unauthorized");
+            [connection cancel];
+            break;
+        case 403:
+            // FORBIDDEN
+            CPLog("Log-In Check: Received 403 Forbidden");
+            [connection cancel];
+            break;
+        case 404:
+            // NOT FOUND
+            CPLog("Received 404 Not Found");
+            [connection cancel];
+            break;
+        default:
+            console.log("I received a status code of " + [response statusCode]);
+    }
+}
+
+- (void)connection:(CPURLConnection)connection didReceiveData:(CPString)data
+{
 }
 
 @end
