@@ -26,6 +26,7 @@ RodanMustLogInNotification = @"RodanMustLogInNotification";
 RodanDidLogInNotification = @"RodanDidLogInNotification";
 RodanCannotLogInNotification = @"RodanCannotLogInNotification";
 RodanLogInErrorNotification = @"RodanLogInErrorNotification";
+RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
 isLoggedIn = NO;
 activeUser = "";     // URI to the currently logged-in user
@@ -86,6 +87,10 @@ activeProject = "";  // URI to the currently open project
 
     [[LogInCheckController alloc] initCheckingStatus];
 
+    var sessionID = [[CPCookie alloc] initWithName:@"sessionid"],
+        CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
+    [WLRemoteLink addValue:[CSRFToken value] forGlobalHeaderField:@"X-CSRFToken"];
+
     [theWindow setFullPlatformWindow:YES];
 
     [imageUploadButton setBordered:YES];
@@ -105,6 +110,7 @@ activeProject = "";  // URI to the currently open project
     [center addObserver:self selector:@selector(mustLogIn:) name:RodanMustLogInNotification object:nil];
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanCannotLogInNotification object:nil];
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanLogInErrorNotification object:nil];
+    [center addObserver:self selector:@selector(didLogOut:) name:RodanDidLogOutNotification object:nil];
 
     /* Debugging Observers */
     [center addObserver:self selector:@selector(observerDebug:) name:RodanDidOpenProjectNotification object:nil];
@@ -181,17 +187,22 @@ activeProject = "";  // URI to the currently open project
     isLoggedIn = YES;
     activeUser = [authResponse valueForKey:@"user"];
 
-    var sessionID = [[CPCookie alloc] initWithName:@"sessionid"],
-        CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
-
-    [WLRemoteLink addValue:[CSRFToken value] forGlobalHeaderField:@"X-CSRFToken"];
-
     [projectController fetchProjects];
+}
+
+- (void)didLogOut:(id)aNotification
+{
+    [contentScrollView setDocumentView:loginScreenView];
 }
 
 - (void)showProjectsChooser:(id)aNotification
 {
     [contentScrollView setDocumentView:selectProjectView];
+}
+
+- (IBAction)logOut:(id)aSender
+{
+    [LogOutController logOut];
 }
 
 - (IBAction)switchWorkspace:(id)aSender
