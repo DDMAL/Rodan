@@ -358,7 +358,7 @@
     {
         try
         {
-            var responseText = _DOMIFrameElement.contentWindow.document.body ? _DOMIFrameElement.contentWindow.document.body.innerHTML :
+            var responseText = _DOMIFrameElement.contentWindow.document.body ? _DOMIFrameElement.contentWindow.document.body.innerText :
                                                                                _DOMIFrameElement.contentWindow.document.documentElement.textContent;
 
             [self uploadDidFinishWithResponse: responseText];
