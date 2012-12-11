@@ -12,5 +12,5 @@ class Page(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    # def __unicode__(self):
-    #     return unicode(self.)
+    def __unicode__(self):
+        return unicode(self.page_image.name)
