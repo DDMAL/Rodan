@@ -97,8 +97,7 @@ activeProject = "";  // URI to the currently open project
     [imageUploadButton setFileKey:@"files"];
     [imageUploadButton allowsMultipleFiles:YES];
     [imageUploadButton setDelegate:pageController];
-    [imageUploadButton setURL:@"/page/upload/"];
-    [imageUploadButton setValue:@"foo" forParameter:@"bar"];
+    [imageUploadButton setURL:@"/pages/"];
 
     theBundle = [CPBundle mainBundle],
     contentView = [theWindow contentView],
@@ -243,7 +242,7 @@ activeProject = "";  // URI to the currently open project
 {
     activeProject = [[aNotification object] resourceURI];
 
-    [imageUploadButton setValue:activeProject forParameter:@"activeProject"];
+    [imageUploadButton setValue:activeProject forParameter:@"project"];
 
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];

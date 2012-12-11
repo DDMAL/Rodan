@@ -3,11 +3,11 @@
 
 @implementation Project : WLRemoteObject
 {
-    CPString    pk              @accessors;
-    CPString    projectName     @accessors;
-    CPString    projectDescription     @accessors;
-    CPObject    projectOwner    @accessors;
-    CPString    resourceURI     @accessors;
+    CPString    pk                  @accessors;
+    CPString    projectName         @accessors;
+    CPString    projectDescription  @accessors;
+    CPObject    projectOwner        @accessors;
+    CPString    resourceURI         @accessors;
 }
 
 - (id)init

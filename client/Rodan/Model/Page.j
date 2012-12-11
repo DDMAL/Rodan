@@ -1,6 +1,10 @@
 
 @implementation Page : WLRemoteObject
 {
+    CPString    pk          @accessors;
+    CPString    projectURI  @accessors;
+    CPString    pageImage   @accessors;
+    CPString    pageOrder   @accessors;
 }
 
 + (CPArray)remoteProperties
