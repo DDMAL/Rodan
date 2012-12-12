@@ -8,6 +8,8 @@
     CPString    projectDescription  @accessors;
     CPObject    projectOwner        @accessors;
     CPString    resourceURI         @accessors;
+    CPArray     pages               @accessors;
+    CPArray     workflows           @accessors;
 }
 
 - (id)init
@@ -26,7 +28,9 @@
         ['projectName', 'name'],
         ['projectDescription', 'description'],
         ['projectOwner', 'creator'],
-        ['resourceURI', 'url']
+        ['resourceURI', 'url'],
+        ['pages', 'pages'],
+        ['workflows', 'workflows']
     ];
 }
 
@@ -55,6 +59,8 @@
     [self setPk:response.url];
     [self setResourceURI:response.url];
     [self setProjectOwner:response.creator];
+    [self setPages:response.pages];
+    [self setWorkflows:response.workflows];
     [WLRemoteObject setDirtProof:NO];
 
     CPLog("Done updating object");
@@ -62,5 +68,4 @@
 
     return aResponseBody;
 }
-
 @end

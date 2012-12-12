@@ -1,6 +1,7 @@
 @import <AppKit/AppKit.j>
 @import <Ratatosk/Ratatosk.j>
-@import "../Model/Project.j"
+@import "../Models/Project.j"
+@import "../Transformers/ArrayCountTransformer.j"
 
 @implementation ProjectController : CPObject
 {
@@ -9,6 +10,8 @@
 
     @outlet     CPTextField         newProjectName;
     @outlet     CPTextField         newProjectDescription;
+
+                CPValueTransformer  projectCountTransformer;
 }
 
 - (id)init
@@ -146,19 +149,6 @@
     theProject = [selectedObjects objectAtIndex:0];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification object:theProject];
 
-}
-
-// this tell the table how many rows it has…
-- (int)numberOfRowsInTableView:(CPTableView)aTableView
-{
-    CPLog("Num Rows " + [projectList count]);
-    return [projectList count];
-}
-
-// this defines what text will display for each row, in each column, for each table view.
-- (id)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
-{
-    return [projectList objectAtIndex:aRow];
 }
 
 @end

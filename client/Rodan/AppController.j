@@ -11,13 +11,14 @@
 @import <FileUpload/FileUpload.j>
 @import <Ratatosk/Ratatosk.j>
 
-@import "Controller/LogInController.j"
-@import "Controller/UserPreferencesController.j"
-@import "Controller/ServerAdminController.j"
-@import "Controller/WorkflowController.j"
-@import "Controller/ProjectController.j"
-@import "Controller/PageController.j"
-@import "Model/Project.j"
+@import "Transformers/ArrayCountTransformer.j"
+@import "Controllers/LogInController.j"
+@import "Controllers/UserPreferencesController.j"
+@import "Controllers/ServerAdminController.j"
+@import "Controllers/WorkflowController.j"
+@import "Controllers/ProjectController.j"
+@import "Controllers/PageController.j"
+@import "Models/Project.j"
 
 RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
 RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
@@ -76,6 +77,20 @@ activeProject = "";  // URI to the currently open project
 
                 CPCookie        sessionID;
                 CPCookie        CSRFToken;
+
+}
+
++ (void)initialize
+{
+    [super initialize];
+    [self registerValueTransformers];
+}
+
++ (void)registerValueTransformers
+{
+    arrayCountTransformer = [[ArrayCountTransformer alloc] init];
+    [ArrayCountTransformer setValueTransformer:arrayCountTransformer
+                             forName:@"ArrayCountTransformer"];
 
 }
 
@@ -240,9 +255,10 @@ activeProject = "";  // URI to the currently open project
 
 - (void)didOpenProject:(CPNotification)aNotification
 {
-    activeProject = [[aNotification object] resourceURI];
+    activeProject = [aNotification object];
 
-    [imageUploadButton setValue:activeProject forParameter:@"project"];
+    [imageUploadButton setValue:[activeProject resourceURI] forParameter:@"project"];
+    [pageController createObjectsWithJSONResponse:activeProject];
 
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
@@ -308,5 +324,3 @@ activeProject = "";  // URI to the currently open project
     CPLog("Alert did End returning " + returnCode);
 }
 @end
-
-

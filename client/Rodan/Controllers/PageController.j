@@ -1,10 +1,10 @@
 @import <FileUpload/FileUpload.j>
-@import "../Model/Page.j"
+@import "../Models/Page.j"
 
 
 @implementation PageController : CPObject
 {
-    @outlet     UploadButton    imageUploadButton;
+    @outlet     UploadButton        imageUploadButton;
     @outlet     CPArrayController   pageArrayController;
 }
 
@@ -21,23 +21,17 @@
     CPLog("Upload files called");
 }
 
-- (void)createObjectsWithJSONResponse:(CPString)aResponse
+- (void)createObjectsWithJSONResponse:(id)aResponse
 {
-    var createdPages = aResponse.pages;
-    CPLog("Creating pages");
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
-    console.log(createdPages);
-
-    pages = [Page objectsFromJson:createdPages];
+    pages = [Page objectsFromJson:aResponse.pages];
     [pageArrayController addObjects:pages];
-
     [WLRemoteObject setDirtProof:NO];
 }
 
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
 {
     CPLog("Did Change Selection");
-    console.log(selection);
     [button submit];
 }
 
