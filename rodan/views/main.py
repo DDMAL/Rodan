@@ -6,7 +6,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -14,6 +13,8 @@ from rest_framework.reverse import reverse
 from rodan.serializers.project import ProjectSerializer
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.page import PageSerializer
+from rodan.serializers.workflow import WorkflowSerializer
+from rodan.serializers.workflowjob import WorkflowJobSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
@@ -63,7 +64,7 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-    # serializer_class = UserSerializer
+    serializer_class = WorkflowSerializer
 
     def pre_save(self, obj):
         pass
@@ -72,7 +73,7 @@ class WorkflowList(generics.ListCreateAPIView):
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-    # serializer_class = UserSerializer
+    serializer_class = WorkflowSerializer
 
     def pre_save(self, obj):
         pass
@@ -80,10 +81,12 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class WorkflowJobList(generics.ListCreateAPIView):
     model = WorkflowJob
+    serializer_class = WorkflowJobSerializer
 
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = WorkflowJob
+    serializer_class = WorkflowJobSerializer
 
 
 class PageList(generics.ListCreateAPIView):
