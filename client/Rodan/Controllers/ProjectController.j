@@ -127,11 +127,7 @@
 {
         selectedObjects = [projectArrayController selectedObjects];
         [projectArrayController removeObjects:selectedObjects];
-
-        for (var i = 0; i < selectedObjects.length; i++)
-        {
-            [selectedObjects[i] ensureDeleted];
-        };
+        [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 - (IBAction)openProject:(id)aSender
