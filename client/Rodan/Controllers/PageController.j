@@ -32,6 +32,9 @@
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
 {
     CPLog("Did Change Selection");
+    max = [[pageArrayController contentArray] valueForKeyPath:@"@max.pageOrder"];
+    next_page_order = max + 1;
+    [imageUploadButton setValue:next_page_order forParameter:@"page_order"];
     [button submit];
 }
 
@@ -43,6 +46,7 @@
 
 - (void)uploadButton:(UploadButton)button didFinishUploadWithData:(CPString)response
 {
+    CPLog("Did finish");
     [button resetSelection];
     data = JSON.parse(response)
     [self createObjectsWithJSONResponse:data];

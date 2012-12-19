@@ -99,10 +99,11 @@ class PageList(generics.ListCreateAPIView):
         if not request.FILES:
             return Response({'error': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []
+
         for seq, fileobj in enumerate(request.FILES.getlist('files')):
             data = {
                 'project': request.POST['project'],
-                'page_order': seq,
+                'page_order': (int(request.POST['page_order']) + seq),
             }
 
             files = {
