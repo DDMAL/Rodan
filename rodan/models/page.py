@@ -7,7 +7,7 @@ import os
 
 class Page(models.Model):
     def upload_path(self, filename):
-        return "projects/{0}/images/{1}".format(self.project.id, filename)
+        return "projects/{0}/pages/{1}".format(self.project.id, filename)
 
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
@@ -24,11 +24,10 @@ class Page(models.Model):
 
     def _thumb_filename(self, path, size):
         base_path, _ = os.path.splitext(path)
-        return "%s_%s.%s" % (base_path, size, settings.THUMBNAIL_EXT)
+        return "{0}_{1}.{2}".format(base_path, size, settings.THUMBNAIL_EXT)
 
     def _thumb_path(self, size):
-        return os.path.join("projects/%d" % self.project.id,
-                            "images/thumbnails/",
+        return os.path.join("projects/{0}/pages/thumbnails/".format(self.project.id),
                             self._thumb_filename(self.filename, size))
 
     def thumb_path(self, size=settings.SMALL_THUMBNAIL):
