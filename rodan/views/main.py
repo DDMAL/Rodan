@@ -22,6 +22,7 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.job import Job
 from rodan.models.result import Result
+from rodan.helpers import thumbnails
 
 
 @api_view(('GET',))
@@ -100,10 +101,12 @@ class PageList(generics.ListCreateAPIView):
             return Response({'error': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []
 
-        for seq, fileobj in enumerate(request.FILES.getlist('files')):
+        start_seq = int(request.POST['page_order'])
+
+        for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
             data = {
                 'project': request.POST['project'],
-                'page_order': (int(request.POST['page_order']) + seq),
+                'page_order': seq,
             }
 
             files = {
@@ -112,7 +115,10 @@ class PageList(generics.ListCreateAPIView):
             serializer = PageSerializer(data=data, files=files)
 
             if serializer.is_valid():
-                self.object = serializer.save()
+                page_object = serializer.save()
+
+                thumbnails.create_thumbnails(page_object)
+
                 response.append(serializer.data)
             else:
                 # if there's an error, bail early and send the error back to the client
