@@ -7,18 +7,11 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
     page_image = serializers.FileField()
     page_order = serializers.IntegerField()
 
-    class Meta:
-        model = Page
-        read_only_fields = ('created', 'updated')
-        fields = ("url", "project", "page_image", "page_order", "created", "updated")
-
-
-class PageModelSerializer(serializers.ModelSerializer):
-    # project = serializers.HyperlinkedRelatedField(view_name="project-detail")
-    page_image = serializers.FileField()
-    page_order = serializers.IntegerField()
+    small_thumb_url = serializers.Field(source='small_thumb_url')
+    medium_thumb_url = serializers.Field(source='medium_thumb_url')
+    large_thumb_url = serializers.Field(source='large_thumb_url')
 
     class Meta:
         model = Page
         read_only_fields = ('created', 'updated')
-        fields = ("page_image", "page_order", "created", "updated")
+        fields = ("url", "project", "page_image", "small_thumb_url", "medium_thumb_url", "large_thumb_url", "page_order", "created", "updated")
