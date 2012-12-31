@@ -15,6 +15,7 @@ from rodan.serializers.user import UserSerializer
 from rodan.serializers.page import PageSerializer
 from rodan.serializers.workflow import WorkflowSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
+from rodan.serializers.job import JobSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
@@ -133,8 +134,9 @@ class PageDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PageSerializer
 
 
-class JobList(generics.ListCreateAPIView):
+class JobList(generics.ListAPIView):
     model = Job
+    serializer_class = JobSerializer
 
 
 class JobDetail(generics.RetrieveUpdateDestroyAPIView):
