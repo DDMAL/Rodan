@@ -3,7 +3,6 @@ db.sqlite
 *.swp
 *.tif
 *.tiff
-gamera
 errors.log
-
+rodan_env
 .DS_Store
