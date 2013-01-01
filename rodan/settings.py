@@ -194,7 +194,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'PAGINATE_BY': 10,
-     'USE_ABSOLUTE_URLS': True
+    'USE_ABSOLUTE_URLS': True
 }
 
 
@@ -211,3 +211,13 @@ MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1000
 ORIGINAL_SIZE = 'original'
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
+
+# These pixel types mirror Gamera's pixel types found in the
+# gamera.enum module
+ONEBIT = 0
+GREYSCALE = 1
+GREY16 = 2
+RGB = 3
+FLOAT = 4
+COMPLEX = 5
+NONIMAGE = -1
