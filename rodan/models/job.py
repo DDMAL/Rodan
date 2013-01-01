@@ -15,5 +15,8 @@ class Job(models.Model):
     is_automatic = models.BooleanField()
     is_required = models.BooleanField()
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         app_label = 'rodan'
