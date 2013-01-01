@@ -14,7 +14,7 @@ django-celery-transactions==0.1.2
 django-extensions==1.0.1
 django-filter==0.5.4
 django-picklefield==0.2.1
--e git+http://github.com/ahankinson/django-rest-framework.git@18338a37d356faebb0f59bd57b2ba876d66e6b73#egg=djangorestframework-dev
+-e git+http://github.com/ahankinson/django-rest-framework.git@patch-support#egg=djangorestframework-dev
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
 gamera==3.4.0
