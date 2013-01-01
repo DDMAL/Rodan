@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from rodan.models.job import Job
 
-import rodan.jobs.gamera
+# this takes care of making sure all the jobs are
+# initialized.
+from rodan import jobs
 
 
 class JobSerializer(serializers.HyperlinkedModelSerializer):

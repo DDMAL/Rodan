@@ -4,7 +4,7 @@ from rodan.jobs.gamera.helpers import create_job_from_plugins
 
 
 def load_module():
-    print "Loading binarization module"
+    print "Loading threshold module"
     category = threshold.module.category
     all_jobs = Job.objects.filter(category__exact=category)
     all_names = [j.name for j in all_jobs]
