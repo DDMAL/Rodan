@@ -12,16 +12,20 @@
 @import <Ratatosk/Ratatosk.j>
 
 @import "Transformers/ArrayCountTransformer.j"
+@import "Transformers/GameraClassNameTransformer.j"
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
 @import "Controllers/ServerAdminController.j"
 @import "Controllers/WorkflowController.j"
 @import "Controllers/ProjectController.j"
 @import "Controllers/PageController.j"
+@import "Controllers/JobController.j"
 @import "Models/Project.j"
 
 RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
 RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
+RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
+RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
 
 RodanMustLogInNotification = @"RodanMustLogInNotification";
 RodanDidLogInNotification = @"RodanDidLogInNotification";
@@ -71,6 +75,7 @@ activeProject = "";  // URI to the currently open project
 
     @outlet     ProjectController   projectController;
     @outlet     PageController      pageController;
+    @outlet     JobController       jobController;
     @outlet     UploadButton        imageUploadButton;
 
     CGRect      _theWindowBounds;
@@ -204,6 +209,7 @@ activeProject = "";  // URI to the currently open project
     activeUser = [authResponse valueForKey:@"user"];
 
     [projectController fetchProjects];
+    [jobController fetchJobs];
 }
 
 - (void)didLogOut:(id)aNotification
