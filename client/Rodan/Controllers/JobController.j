@@ -36,6 +36,11 @@
 
 @end
 
+
+/*
+    This handles most of the work for the job outline view in the 'create workflow' window.
+    It will probably need to be refactored sometime soon, but for now it works.
+*/
 @implementation JobOutlineViewDelegate : CPObject
 {
     CPTreeNode      rootTreeNode    @accessors;
@@ -55,7 +60,7 @@
 
 + (void)withOutlineView:(CPOutlineView)anOutlineView
 {
-    theDelegate = [[JobOutlineViewDelegate alloc] init];
+    var theDelegate = [[JobOutlineViewDelegate alloc] init];
     [anOutlineView setDataSource:theDelegate];
     [theDelegate setTheOutlineView:anOutlineView];
 }
@@ -107,6 +112,9 @@
                                           object:nil];
 }
 
+/*
+    Delegate methods for the CPOutlineView
+*/
 - (id)outlineView:(CPOutlineView)outlineView child:(CPInteger)anIndex ofItem:(id)anItem
 {
     return [[self childrenForItem:anItem] objectAtIndex:anIndex];
@@ -126,6 +134,9 @@
 {
     return [[anItem representedObject] humanName];
 }
+/*
+    End CPOutlineView delegates
+*/
 
 - (void)refreshOutlineView:(id)aNotification
 {
@@ -150,7 +161,7 @@
 
 - (id)initWithName:(CPString)aName
 {
-    self = [self init];
+    var self = [self init];
     name = aName;
     return self;
 }
@@ -165,7 +176,7 @@
     var splitString = [name componentsSeparatedByString:"."];
     if ([splitString count] > 1)
     {
-        theName = [[splitString lastObject] stringByReplacingOccurrencesOfString:@"_" withString:@" "];
+        var theName = [[splitString lastObject] stringByReplacingOccurrencesOfString:@"_" withString:@" "];
         return [theName capitalizedString];
     }
     return name;
