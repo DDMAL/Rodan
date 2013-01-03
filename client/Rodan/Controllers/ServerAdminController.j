@@ -8,6 +8,7 @@
     @outlet     CPView          userAdminView;
     @outlet     CPView          databaseAdminView;
     @outlet     CPView          projectAdminView;
+    @outlet     CPView          jobsAdminView;
 }
 
 - (IBAction)switchViews:(id)aSender
@@ -29,5 +30,9 @@
         case @"projectsServerAdminToolbarButton":
             [preferencesContentView setSubviews:[projectAdminView]];
             break;
+        case @"jobsServerAdminToolbarButton":
+            [preferencesContentView setSubviews:[jobsAdminView]];
+            break;
+
     }
 }
