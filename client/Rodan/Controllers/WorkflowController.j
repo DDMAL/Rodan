@@ -33,7 +33,6 @@
     CPLog("In the workflow controller");
     [newWorkflowWindow center];
     [newWorkflowWindow orderFront:aSender];
-
 }
 
 @end
