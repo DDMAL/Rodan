@@ -137,6 +137,7 @@ class PageDetail(generics.RetrieveUpdateDestroyAPIView):
 class JobList(generics.ListAPIView):
     model = Job
     serializer_class = JobSerializer
+    paginate_by = None
 
 
 class JobDetail(generics.RetrieveUpdateDestroyAPIView):
