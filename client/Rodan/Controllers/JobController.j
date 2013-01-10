@@ -19,7 +19,8 @@
 
 - (void)fetchJobs
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"/jobs/" delegate:self message:"Loading jobs"];
+
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"/jobs?is_enabled=1" delegate:self message:"Loading jobs"];
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
@@ -56,6 +57,8 @@
         var center = [CPNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(didLoadJobs:) name:RodanDidLoadJobsNotification object:nil];
         [center addObserver:self selector:@selector(refreshOutlineView:) name:RodanJobTreeNeedsRefresh object:nil];
+
+        [theOutlineView registerForDraggedTypes:["TestData"]];
     }
     return self;
 }
@@ -136,6 +139,30 @@
 {
     return [[anItem representedObject] humanName];
 }
+
+- (CPDragOperation)outlineView:(CPOutlineView)anOutlineView
+                   validateDrop:(id < CPDraggingInfo >)theInfo
+                   proposedItem:(id)theItem
+                   proposedChildIndex:(int)theIndex
+{
+    console.log("Drag!");
+    return CPDragOperationEvery;
+}
+
+- (BOOL)outlineView:(CPOutlineView)anOutlineView writeItems:(CPArray)theItems toPasteboard:(CPPasteBoard)thePasteBoard
+{
+    [thePasteBoard declareTypes:["TestData"] owner:self];
+    [thePasteBoard setData:[CPKeyedArchiver archivedDataWithRootObject:theItems] forType:"testData"];
+
+    return YES;
+}
+
+- (BOOL)outlineView:(CPOutlineView)outlineView acceptDrop:(id < CPDraggingInfo >)theInfo item:(id)theItem childIndex:(int)theIndex
+{
+    console.log("Can Drop?");
+    return NO;
+}
+
 /*
     End CPOutlineView delegates
 */
@@ -169,9 +196,9 @@
     return self;
 }
 
-+ (NodeObject)nodeDataWithName:(CPString)aName
++ (TreeNode)nodeDataWithName:(CPString)aName
 {
-    return [[NodeObject alloc] initWithName:aName];
+    return [[TreeNode alloc] initWithName:aName];
 }
 
 - (CPString)humanName
