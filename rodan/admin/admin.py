@@ -20,6 +20,9 @@ class WorkflowAdmin(admin.ModelAdmin):
     inlines = [WorkflowJobInline]
 
 
+class JobAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_enabled')
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -36,6 +39,6 @@ class WorkflowAdmin(admin.ModelAdmin):
 admin.site.register(Project)
 admin.site.register(Page)
 admin.site.register(Workflow, WorkflowAdmin)
-admin.site.register(Job)
+admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob)
 admin.site.register(Result)
