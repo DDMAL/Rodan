@@ -17,9 +17,10 @@ var ENV = require("system").env,
 
 app ("Rodan", function(task)
 {
+    ENV["OBJJ_INCLUDE_PATHS"] = "Frameworks/Debug:Frameworks";
+
     task.setBuildIntermediatesPath(FILE.join("Build", "Rodan.build", configuration));
     task.setBuildPath(FILE.join("Build", configuration));
-
     task.setProductName("Rodan");
     task.setIdentifier("com.yourcompany.Rodan");
     task.setVersion("1.0");
