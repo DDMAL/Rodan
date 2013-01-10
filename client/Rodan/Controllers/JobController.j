@@ -3,6 +3,8 @@
 @implementation JobController : CPObject
 {
     @outlet CPOutlineView       categoryOutlineView;
+    @outlet CPTableView         serverAdminJobsList;
+
     @outlet CPArrayController   jobArrayController;
             JobOutlineViewDelegate  outlineViewDelegate;
 }
@@ -27,7 +29,7 @@
     j = [Job objectsFromJson:[anAction result]];
     [jobArrayController addObjects:j];
 
-    // boot up the delegate
+    // boot up the delegate for the outline view
     [JobOutlineViewDelegate withOutlineView:categoryOutlineView];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadJobsNotification
@@ -145,6 +147,7 @@
 
 @end
 
+/* A node object for the outline view */
 @implementation TreeNode : CPObject
 {
     CPString    name   @accessors;
@@ -181,6 +184,4 @@
     }
     return name;
 }
-
-
 @end
