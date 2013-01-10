@@ -114,6 +114,8 @@ activeProject = "";  // URI to the currently open project
     sessionID = [[CPCookie alloc] initWithName:@"sessionid"];
     CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
 
+    [[WLRemoteLink sharedRemoteLink] setDelegate:self];
+
     [theWindow setFullPlatformWindow:YES];
 
     [imageUploadButton setBordered:YES];
@@ -178,6 +180,12 @@ activeProject = "";  // URI to the currently open project
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
+
+    window.onbeforeunload = function()
+    {
+        return "This will terminate the Application. Are you sure you want to leave?";
+    }
+
     CPLog("Application Did Finish Launching");
     [contentScrollView setDocumentView:loginWaitScreenView];
 }
@@ -314,8 +322,21 @@ activeProject = "";  // URI to the currently open project
     CPLog("Notification was Posted: " + [aNotification name]);
 }
 
-@end
+#pragma mark WLRemoteLink Delegate
 
+- (void)remoteLink:(WLRemoteLink)aLink willSendRequest:(CPURLRequest)aRequest withDelegate:(id)aDelegate context:(id)aContext
+{
+    switch ([[aRequest HTTPMethod] uppercaseString])
+    {
+        case "POST":
+        case "PUT":
+        case "PATCH":
+        case "DELETE":
+            [aRequest setValue:[CSRFToken value] forHTTPHeaderField:"X-CSRFToken"];
+    }
+}
+
+@end
 
 @implementation SheetController : CPObject
 {
