@@ -139,6 +139,18 @@ class JobList(generics.ListAPIView):
     serializer_class = JobSerializer
     paginate_by = None
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        print "in queryset"
+        queryset = Job.objects.all()
+        enabled = self.request.QUERY_PARAMS.get('is_enabled', None)
+        if enabled is not None:
+            queryset = queryset.filter(is_enabled=enabled)
+        return queryset
+
 
 class JobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Job
