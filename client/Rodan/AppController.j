@@ -13,6 +13,7 @@
 
 @import "Transformers/ArrayCountTransformer.j"
 @import "Transformers/GameraClassNameTransformer.j"
+@import "Transformers/CheckBoxTransformer.j"
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
 @import "Controllers/ServerAdminController.j"
@@ -97,6 +98,9 @@ activeProject = "";  // URI to the currently open project
     [ArrayCountTransformer setValueTransformer:arrayCountTransformer
                              forName:@"ArrayCountTransformer"];
 
+    gameraClassNameTransformer = [[GameraClassNameTransformer alloc] init];
+    [GameraClassNameTransformer setValueTransformer:gameraClassNameTransformer
+                                forName:@"GameraClassNameTransformer"];
 }
 
 - (id)awakeFromCib
@@ -107,9 +111,8 @@ activeProject = "";  // URI to the currently open project
 
     [[LogInCheckController alloc] initCheckingStatus];
 
-    var sessionID = [[CPCookie alloc] initWithName:@"sessionid"],
-        CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
-    [WLRemoteLink addValue:[CSRFToken value] forGlobalHeaderField:@"X-CSRFToken"];
+    sessionID = [[CPCookie alloc] initWithName:@"sessionid"];
+    CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
 
     [theWindow setFullPlatformWindow:YES];
 
