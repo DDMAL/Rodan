@@ -64,42 +64,4 @@
     CPLog("Did Begin Upload");
 }
 
-- (IBAction)tableViewSelected:(id)sender
-{
-    var selectedRow = [sender selectedRow];
-    if (selectedRow != -1)
-    {
-        var selected = [[pageArrayController selection] valueForKey:@"self"];
-        console.log(selected);
-
-        [WLRemoteAction schedule:WLRemoteActionGetType path:selected.pk delegate:self message:"Loading projects"];
-        console.log(selected.pk);
-    }
-    else
-    {
-        //clicked on an empty row - clear the imageView
-        [imageView setImage: nil];
-    }
-
-    CPLog("Did Select in table");
-}
-
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
-{
-    CPLog("Remote Action did Finish");
-
-    var imageData = [CPString stringWithFormat:([anAction result].medium_thumb_url)];
-    //var dateCreated = [CPString stringWithFormat:([anAction result].created)];
-
-    if (imageData != nil)
-    {
-        var newImage = [[CPImage alloc] initWithContentsOfFile:imageData];
-        [imageView setImage: newImage];
-        [dateAddedField setStringValue:([anAction result].created)];
-
-        [sizeField setIntValue: ([anAction result].image_file_size)];
-        //[sizeField setIntValue: [[anAction result].image_file_size intValue] / 1024 / 1024)];
-    }
-}
-
 @end
