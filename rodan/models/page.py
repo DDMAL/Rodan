@@ -43,18 +43,6 @@ class Page(models.Model):
     def filename(self):
         return os.path.basename(self.image_path)
 
-    # @property
-    # def size(self):
-    #     return self._size
-
-    # @size.setter
-    # def size(self, value):
-    #     self._size = value
-
-    # @size.deleter
-    # def size(self):
-    #     del self._size
-
     @property
     def small_thumb_url(self):
         return os.path.join(settings.MEDIA_URL, self._thumb_path(size=settings.SMALL_THUMBNAIL))
