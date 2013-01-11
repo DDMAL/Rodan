@@ -108,6 +108,7 @@ class PageList(generics.ListCreateAPIView):
             data = {
                 'project': request.POST['project'],
                 'page_order': seq,
+                'image_file_size': fileobj.size,
             }
 
             files = {

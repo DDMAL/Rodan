@@ -9,6 +9,9 @@
     @outlet     UploadButton        imageUploadButton;
     @outlet     CPImageView         imageView;
     @outlet     CPArrayController   pageArrayController;
+    @outlet     CPTextField         sizeField;
+    @outlet     CPTextField         dateAddedField;
+    @outlet     CPTextField         addedByField;
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
@@ -26,6 +29,7 @@
 
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
+    CPLog("createObjectsWithJSONResponse pagecontroller");
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
     pages = [Page objectsFromJson:aResponse.pages];
     console.log(pages);
@@ -69,7 +73,7 @@
         console.log(selected);
 
         [WLRemoteAction schedule:WLRemoteActionGetType path:selected.pk delegate:self message:"Loading projects"];
-        console.log(selected.pk)
+        console.log(selected.pk);
     }
     else
     {
@@ -84,12 +88,17 @@
 {
     CPLog("Remote Action did Finish");
 
-    var imageData = [CPString stringWithFormat:([anAction result].small_thumb_url)];
+    var imageData = [CPString stringWithFormat:([anAction result].medium_thumb_url)];
+    //var dateCreated = [CPString stringWithFormat:([anAction result].created)];
 
     if (imageData != nil)
     {
         var newImage = [[CPImage alloc] initWithContentsOfFile:imageData];
         [imageView setImage: newImage];
+        [dateAddedField setStringValue:([anAction result].created)];
+
+        [sizeField setIntValue: ([anAction result].image_file_size)];
+        //[sizeField setIntValue: [[anAction result].image_file_size intValue] / 1024 / 1024)];
     }
 }
 

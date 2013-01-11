@@ -18,9 +18,6 @@ def create_thumbnail(image_path, thumb_path, thumbnail_size):
 
     image.save(thumb_path)
 
-    # Return the image dimensions so they can be used later
-    return width, height
-
 
 def create_thumbnails(page):
     for thumbnail_size in settings.THUMBNAIL_SIZES:

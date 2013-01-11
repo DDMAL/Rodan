@@ -12,6 +12,7 @@ class Page(models.Model):
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
     page_order = models.IntegerField(null=True)
+    image_file_size = models.IntegerField(null=True)  # in bytes
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -41,6 +42,18 @@ class Page(models.Model):
     @property
     def filename(self):
         return os.path.basename(self.image_path)
+
+    # @property
+    # def size(self):
+    #     return self._size
+
+    # @size.setter
+    # def size(self, value):
+    #     self._size = value
+
+    # @size.deleter
+    # def size(self):
+    #     del self._size
 
     @property
     def small_thumb_url(self):

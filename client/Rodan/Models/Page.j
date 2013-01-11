@@ -3,6 +3,7 @@
 {
     CPString    pk          @accessors;
     CPString    projectURI  @accessors;
+    CPString    imageFileSize   @accessors;
     CPString    pageImage   @accessors;
     CPString    pageOrder   @accessors;
     CPString    smallThumbURL  @accessors;
@@ -15,6 +16,7 @@
     return [
         ['pk', 'url'],
         ['projectURI', 'project'],
+        ['imageFileSize', 'image_file_size'],
         ['pageImage', 'page_image'],
         ['pageOrder', 'page_order'],
         ['smallThumbURL', 'small_thumb_url'],
