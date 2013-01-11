@@ -10,6 +10,7 @@
     CPString    mediumThumbURL   @accessors;
     CPString    largeThumbURL   @accessors;
     CPString    created         @accessors;
+    CPString    creator     @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -23,7 +24,8 @@
         ['smallThumbURL', 'small_thumb_url'],
         ['mediumThumbURL', 'medium_thumb_url'],
         ['largeThumbURL', 'large_thumb_url'],
-        ['created', 'created']
+        ['created', 'created'],
+        ['creator', 'creator']
     ];
 }
 

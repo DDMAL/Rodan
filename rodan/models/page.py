@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from rodan.models.project import Project
+from django.contrib.auth.models import User
 
 import os
 
@@ -13,6 +14,8 @@ class Page(models.Model):
     page_image = models.FileField(upload_to=upload_path, null=True)
     page_order = models.IntegerField(null=True)
     image_file_size = models.IntegerField(null=True)  # in bytes
+
+    creator = models.ForeignKey(User, related_name="pages", null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

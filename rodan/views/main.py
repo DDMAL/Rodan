@@ -105,7 +105,9 @@ class PageList(generics.ListCreateAPIView):
         start_seq = int(request.POST['page_order'])
 
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
+            print request
             data = {
+                'creator': request.POST['creator'],
                 'project': request.POST['project'],
                 'page_order': seq,
                 'image_file_size': fileobj.size,
