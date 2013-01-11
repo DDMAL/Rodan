@@ -1,4 +1,6 @@
 from django.db import models
+from rodan.models.job import Job
+from rodan.models.workflow import Workflow
 
 
 class WorkflowJob(models.Model):
@@ -6,8 +8,8 @@ class WorkflowJob(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    workflow = models.ForeignKey('rodan.Workflow')
-    job = models.ForeignKey('rodan.Job')
+    workflow = models.ForeignKey(Workflow)
+    job = models.ForeignKey(Job)
     sequence = models.IntegerField()
     job_settings = models.CharField(max_length=255)  # we will set this to something sane later
 

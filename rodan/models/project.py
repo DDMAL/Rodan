@@ -12,3 +12,6 @@ class Project(models.Model):
 
     class Meta:
         app_label = 'rodan'
+
+    def __unicode__(self):
+        return u"{0}".format(self.name)
