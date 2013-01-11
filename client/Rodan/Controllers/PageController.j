@@ -32,7 +32,6 @@
     CPLog("createObjectsWithJSONResponse pagecontroller");
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
     pages = [Page objectsFromJson:aResponse.pages];
-    console.log(pages);
     [pageArrayController addObjects:pages];
     [WLRemoteObject setDirtProof:NO];
 }
@@ -62,6 +61,16 @@
 - (void)uploadButtonDidBeginUpload:(UploadButton)button
 {
     CPLog("Did Begin Upload");
+}
+
+- (IBAction)removePage:(id)aSender
+{
+    var selObjects = [pageArrayController selectedObjects];
+    [pageArrayController removeObjects:selObjects];
+    [selObjects enumerateObjectsUsingBlock:function(obj, idx, stop)
+    {
+        [obj delete];
+    }];
 }
 
 @end
