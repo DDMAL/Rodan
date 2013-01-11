@@ -1,11 +1,11 @@
 from rodan.models.workflow import Workflow
 from rest_framework import serializers
+from rodan.serializers.page import PageSerializer
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
-    jobs = serializers.ManyHyperlinkedRelatedField(view_name="workflowjob-detail")
-    pages = serializers.ManyHyperlinkedRelatedField(view_name="page-detail")
+    pages = PageSerializer()
 
     class Meta:
         model = Workflow
