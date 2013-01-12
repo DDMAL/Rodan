@@ -1,5 +1,6 @@
 from rodan.models.page import Page
 from rest_framework import serializers
+from rodan.serializers.user import UserSerializer
 
 
 class PageSerializer(serializers.HyperlinkedModelSerializer):
@@ -8,7 +9,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
     page_order = serializers.IntegerField()
     image_file_size = serializers.IntegerField()
 
-    creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
+    creator = UserSerializer()
 
     small_thumb_url = serializers.Field(source='small_thumb_url')
     medium_thumb_url = serializers.Field(source='medium_thumb_url')

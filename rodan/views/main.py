@@ -101,10 +101,14 @@ class PageList(generics.ListCreateAPIView):
         if not request.FILES:
             return Response({'error': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []
-        print request.user
+
         start_seq = int(request.POST['page_order'])
+
+        print type(User.objects.get(pk=request.user.id))
+
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
             data = {
+                'creator': User.objects.get(pk=request.user.id),
                 'project': request.POST['project'],
                 'page_order': seq,
                 'image_file_size': fileobj.size,

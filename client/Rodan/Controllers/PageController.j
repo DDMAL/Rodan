@@ -41,7 +41,7 @@
     CPLog("Did Change Selection");
     var next_page_order = [[pageArrayController contentArray] valueForKeyPath:@"@max.pageOrder"] + 1;
     [imageUploadButton setValue:next_page_order forParameter:@"page_order"];
-    [imageUploadButton setValue:activeUser forParameter:@"creator"];
+
     [button submit];
 }
 
@@ -72,6 +72,12 @@
     {
         [obj delete];
     }];
+}
+
+- (IBAction)tableViewSelected:(id)sender
+{
+    console.log([pageArrayController selectedObjects]);
+    CPLog("Did Select in table");
 }
 
 @end
