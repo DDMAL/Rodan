@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'djcelery',
+    'guardian',
     # 'rodan.jobs',
 )
 
@@ -197,6 +198,15 @@ REST_FRAMEWORK = {
     'USE_ABSOLUTE_URLS': True
 }
 
+# used by django-guardian
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+# used by django-guardian, as django-guardian supports anonymous user object permissions
+# `python manage.py syncdb` will create a User instance for the anonymous user with name AnonymousUser
+ANONYMOUS_USER_ID = -1
 
 # So that calling get_profile on a user will return the RodanUser instance
 # AUTH_PROFILE_MODULE = 'rodan.RodanUser'
