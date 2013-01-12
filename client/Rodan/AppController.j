@@ -118,6 +118,7 @@ activeProject = "";  // URI to the currently open project
 
     [theWindow setFullPlatformWindow:YES];
 
+    [imageUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"]
     [imageUploadButton setBordered:YES];
     [imageUploadButton setFileKey:@"files"];
     [imageUploadButton allowsMultipleFiles:YES];

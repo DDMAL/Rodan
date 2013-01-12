@@ -93,7 +93,7 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class PageList(generics.ListCreateAPIView):
     model = Page
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = PageSerializer
 
     # override the POST method to deal with multiple files in a single request
@@ -101,13 +101,10 @@ class PageList(generics.ListCreateAPIView):
         if not request.FILES:
             return Response({'error': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []
-
+        print request.user
         start_seq = int(request.POST['page_order'])
-
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
-            print request
             data = {
-                'creator': request.POST['creator'],
                 'project': request.POST['project'],
                 'page_order': seq,
                 'image_file_size': fileobj.size,
