@@ -1,5 +1,6 @@
 # from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -23,7 +24,7 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.job import Job
 from rodan.models.result import Result
-from rodan.helpers import thumbnails
+from rodan.helpers.thumbnails import create_thumbnail
 
 
 @api_view(('GET',))
@@ -123,7 +124,9 @@ class PageList(generics.ListCreateAPIView):
                 page_object.creator = current_user
                 page_object.save()
 
-                thumbnails.create_thumbnails(page_object)
+                for thumbnail_size in settings.THUMBNAIL_SIZES:
+                    thumb_path = page_object.thumb_path(size=thumbnail_size)
+                    create_thumbnail.delay(page_object.image_path, thumb_path, thumbnail_size)
 
                 response.append(serializer.data)
             else:
