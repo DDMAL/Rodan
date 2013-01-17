@@ -1,5 +1,6 @@
 # from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -23,7 +24,7 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.job import Job
 from rodan.models.result import Result
-from rodan.helpers import thumbnails
+from rodan.helpers.thumbnails import create_thumbnail
 
 
 @api_view(('GET',))
@@ -101,14 +102,12 @@ class PageList(generics.ListCreateAPIView):
         if not request.FILES:
             return Response({'error': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []
+        current_user = User.objects.get(pk=request.user.id)
 
         start_seq = int(request.POST['page_order'])
 
-        print type(User.objects.get(pk=request.user.id))
-
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
             data = {
-                'creator': User.objects.get(pk=request.user.id),
                 'project': request.POST['project'],
                 'page_order': seq,
                 'image_file_size': fileobj.size,
@@ -122,7 +121,12 @@ class PageList(generics.ListCreateAPIView):
             if serializer.is_valid():
                 page_object = serializer.save()
 
-                thumbnails.create_thumbnails(page_object)
+                page_object.creator = current_user
+                page_object.save()
+
+                for thumbnail_size in settings.THUMBNAIL_SIZES:
+                    thumb_path = page_object.thumb_path(size=thumbnail_size)
+                    create_thumbnail.delay(page_object.image_path, thumb_path, thumbnail_size)
 
                 response.append(serializer.data)
             else:
