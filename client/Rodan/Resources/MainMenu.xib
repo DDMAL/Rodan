@@ -2920,6 +2920,7 @@
 						<reference key="NSHScroller" ref="167841865"/>
 						<reference key="NSContentView" ref="1005364474"/>
 						<reference key="NSHeaderClipView" ref="666193864"/>
+						<reference key="NSCornerView" ref="972336870"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 					</object>
 				</object>
@@ -5184,9 +5185,12 @@
 				<reference key="NSContentView" ref="206869334"/>
 			</object>
 			<object class="NSCustomView" id="458706510">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
 				<string key="NSFrameSize">{163, 96}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
+				<reference key="NSNextKeyView"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">NSView</string>
 			</object>
@@ -7225,10 +7229,14 @@
 							<string key="NSLabel">value: selection.imageFileSize</string>
 							<string key="NSBinding">value</string>
 							<string key="NSKeyPath">selection.imageFileSize</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSValueTransformerName</string>
+								<string key="NS.object.0">ImageSizeTransformer</string>
+							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">2331</int>
+					<int key="connectionID">2367</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -8999,11 +9007,11 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="928881624"/>
 							<reference ref="406755384"/>
-							<reference ref="241219530"/>
 							<reference ref="838637725"/>
 							<reference ref="655958955"/>
 							<reference ref="936684405"/>
 							<reference ref="441164425"/>
+							<reference ref="241219530"/>
 						</object>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Uploaded Pages View</string>
@@ -12210,7 +12218,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">2366</int>
+			<int key="maxID">2367</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
