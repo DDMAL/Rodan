@@ -16,6 +16,7 @@
 @import "Transformers/CheckBoxTransformer.j"
 @import "Transformers/UsernameTransformer.j"
 @import "Transformers/ImageSizeTransformer.j"
+@import "Transformers/DateFormatTransformer.j"
 
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
@@ -111,7 +112,11 @@ activeProject = "";  // URI to the currently open project
 
     imageSizeTransformer = [[ImageSizeTransformer alloc] init];
     [ImageSizeTransformer setValueTransformer:imageSizeTransformer
-                                forName:@"imageSizeTransformer"];
+                                forName:@"ImageSizeTransformer"];
+
+    dateFormatTransformer = [[DateFormatTransformer alloc] init];
+    [DateFormatTransformer setValueTransformer:dateFormatTransformer
+                                forName:@"DateFormatTransformer"];
 }
 
 - (id)awakeFromCib

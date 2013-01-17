@@ -7213,10 +7213,14 @@
 							<string key="NSLabel">value: selection.created</string>
 							<string key="NSBinding">value</string>
 							<string key="NSKeyPath">selection.created</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSValueTransformerName</string>
+								<string key="NS.object.0">DateFormatTransformer</string>
+							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">2333</int>
+					<int key="connectionID">2368</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -12218,7 +12222,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">2367</int>
+			<int key="maxID">2368</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
