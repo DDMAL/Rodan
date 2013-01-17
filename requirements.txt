@@ -21,7 +21,7 @@ django-picklefield==0.2.1
 flower==0.4.0
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
-gamera==3.4.0
+#gamera==3.4.0
 ipython==0.13.1
 kombu==2.5.4
 mimeparse==0.1.3
