@@ -2,14 +2,16 @@ from django.db import models
 from django.conf import settings
 from rodan.models.project import Project
 from django.contrib.auth.models import User
+from django_extensions.db.fields import UUIDField
 
 import os
 
 
 class Page(models.Model):
     def upload_path(self, filename):
-        return "projects/{0}/pages/{1}".format(self.project.id, filename)
+        return "projects/{0}/pages/{1}/{2}".format(self.project.uuid, self.uuid, filename)
 
+    uuid = UUIDField()
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
     page_order = models.IntegerField(null=True)
@@ -31,7 +33,7 @@ class Page(models.Model):
         return "{0}_{1}.{2}".format(base_path, size, settings.THUMBNAIL_EXT)
 
     def _thumb_path(self, size):
-        return os.path.join("projects/{0}/pages/thumbnails/".format(self.project.id),
+        return os.path.join("projects/{0}/pages/{1}/thumbnails/".format(self.project.uuid, self.uuid),
                             self._thumb_filename(self.filename, size))
 
     def thumb_path(self, size=settings.SMALL_THUMBNAIL):
