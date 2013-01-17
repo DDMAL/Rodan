@@ -9,13 +9,17 @@
 
 - (id)transformedValue:(id)value
 {
-    // var splitString = [value componentsSeparatedByString:"."];
-    // if ([splitString count] > 1)
-    // {
-    //     theName = [[splitString lastObject] stringByReplacingOccurrencesOfString:@"_" withString:@" "];
-    //     return [theName capitalizedString];
-    // }
-    // return value;
+    if (value != null)
+    {
+        if ((value.first_name != "") && (value.last_name != ""))
+        {
+            return (value.first_name + " " + value.last_name);
+        }
+        else
+        {
+            return value.username;
+        }
+    }
 }
 
 @end

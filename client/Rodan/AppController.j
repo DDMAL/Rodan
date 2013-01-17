@@ -14,6 +14,9 @@
 @import "Transformers/ArrayCountTransformer.j"
 @import "Transformers/GameraClassNameTransformer.j"
 @import "Transformers/CheckBoxTransformer.j"
+@import "Transformers/UsernameTransformer.j"
+@import "Transformers/ImageSizeTransformer.j"
+
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
 @import "Controllers/ServerAdminController.j"
@@ -101,6 +104,14 @@ activeProject = "";  // URI to the currently open project
     gameraClassNameTransformer = [[GameraClassNameTransformer alloc] init];
     [GameraClassNameTransformer setValueTransformer:gameraClassNameTransformer
                                 forName:@"GameraClassNameTransformer"];
+
+    usernameTransformer = [[UsernameTransformer alloc] init];
+    [UsernameTransformer setValueTransformer:usernameTransformer
+                                forName:@"UsernameTransformer"];
+
+    imageSizeTransformer = [[ImageSizeTransformer alloc] init];
+    [ImageSizeTransformer setValueTransformer:imageSizeTransformer
+                                forName:@"imageSizeTransformer"];
 }
 
 - (id)awakeFromCib
@@ -336,8 +347,8 @@ activeProject = "";  // URI to the currently open project
             [aRequest setValue:[CSRFToken value] forHTTPHeaderField:"X-CSRFToken"];
     }
 }
-
 @end
+
 
 @implementation SheetController : CPObject
 {
