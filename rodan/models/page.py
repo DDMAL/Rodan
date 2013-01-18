@@ -9,7 +9,7 @@ import os
 
 class Page(models.Model):
     def upload_path(self, filename):
-        return "projects/{0}/pages/{1}/{2}".format(self.project.uuid, self.uuid, filename)
+        return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), filename)
 
     uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey(Project, related_name="pages")
