@@ -17,11 +17,11 @@ django-extensions==1.0.1
 django-filter==0.5.4
 django-guardian==1.0.4
 django-picklefield==0.2.1
+django-uuidfield==0.4.0
 -e git+http://github.com/tomchristie/django-rest-framework.git@12bb25b372de43ac3a944a8eff518b1c6f41ddfc#egg=djangorestframework-dev
 flower==0.4.0
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
-#gamera==3.4.0
 ipython==0.13.1
 kombu==2.5.4
 mimeparse==0.1.3
