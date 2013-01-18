@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django_extensions.db.fields import UUIDField
+from uuidfield import UUIDField
 
 
 class Project(models.Model):
-    uuid = UUIDField()
+    uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(User, related_name="projects")
