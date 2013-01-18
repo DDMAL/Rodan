@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from rodan.models.project import Project
 from django.contrib.auth.models import User
-from django_extensions.db.fields import UUIDField
+from uuidfield import UUIDField
 
 import os
 
@@ -11,7 +11,7 @@ class Page(models.Model):
     def upload_path(self, filename):
         return "projects/{0}/pages/{1}/{2}".format(self.project.uuid, self.uuid, filename)
 
-    uuid = UUIDField()
+    uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
     page_order = models.IntegerField(null=True)
