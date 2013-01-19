@@ -23,6 +23,10 @@ class WorkflowAdmin(admin.ModelAdmin):
 class JobAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_enabled')
 
+
+class ProjectAdmin(admin.ModelAdmin):
+    readonly_fields = ('uuid',)
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -36,7 +40,7 @@ class JobAdmin(admin.ModelAdmin):
 # admin.site.register(User, RodanUserAdmin)
 
 # admin.site.register(RodanUser)
-admin.site.register(Project)
+admin.site.register(Project, ProjectAdmin)
 admin.site.register(Page)
 admin.site.register(Workflow, WorkflowAdmin)
 admin.site.register(Job, JobAdmin)
