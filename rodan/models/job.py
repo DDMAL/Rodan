@@ -1,0 +1,24 @@
+from django.db import models
+from django_extensions.db.fields import json
+from uuidfield import UUIDField
+
+
+class Job(models.Model):
+    uuid = UUIDField(primary_key=True, auto=True)
+    name = models.CharField(max_length=255)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    category = models.CharField(max_length=255, blank=True, null=True)
+
+    input_types = json.JSONField()
+    output_types = json.JSONField()
+    arguments = json.JSONField(blank=True, null=True)
+
+    is_enabled = models.BooleanField()
+    is_automatic = models.BooleanField()
+    is_required = models.BooleanField()
+
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
+    class Meta:
+        app_label = 'rodan'

@@ -3,7 +3,9 @@ db.sqlite
 *.swp
 *.tif
 *.tiff
-gamera
+*.cib
+*.xcodeproj/*
+.XcodeSupport/*
 errors.log
-
+rodan_env
 .DS_Store

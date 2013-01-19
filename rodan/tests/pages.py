@@ -31,6 +31,10 @@ class TestPageMethods(unittest.TestCase):
     def test_get_thumb_url(self):
         self.assertEqual(self.page_1.get_thumb_url(size=800, job=self.crop), '/images/1/1/crop/lol_800.jpg')
 
+    def test_get_previous_page(self):
+        self.assertEqual(self.page_1.get_previous_page(), None)
+        self.assertEqual(self.page_2.get_previous_page(), self.page_1)
+
 
 class GetNextJob(unittest.TestCase):
     def setUp(self):

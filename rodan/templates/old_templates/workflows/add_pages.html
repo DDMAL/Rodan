@@ -1,0 +1,24 @@
+<h1>Add pages to {{ workflow }}</h1>
+
+<p>You can only add pages in the same project ({{ project }}). Pages that already have a workflow will appear faded. Pages with a black border are already using this workflow.</p>
+
+<hr />
+
+<fieldset>
+    {% csrf_token %}
+    <input type="button" class="btn select-pages" data-filter="*" value="Select all" />
+    <input type="button" class="btn select-pages" data-filter=":not(.disabled)" value="Select only pages with no workflow" />
+    <input type="button" class="btn select-pages" data-filter=":even" value="Select only odd pages" />
+    <input type="button" class="btn select-pages" data-filter=":odd" value="Select only even pages" />
+    <input type="button" class="btn select-pages" data-filter="" value="Unselect all" />
+</fieldset>
+
+<ul class="grid image-buttons">
+{% for page in project.page_set.all %}
+    <li{% if page.workflow != workflow %} class="disabled"{% endif %}><img src="{{ page.get_thumb_url }}" {% if page.workflow %}class="{% if page.workflow == workflow %}current{% else %}disabled{% endif %}" {% endif %}/><input type="checkbox" name="page" value="{{ page.id }}" /></li>
+{% endfor %}
+</ul>
+
+<fieldset class="submit">
+    <input type="submit" class="btn" name="done" value="Add these jobs and return to project page" />
+</fieldset>

@@ -1,1 +1,1 @@
-from projects import *
+from rodan.admin.admin import *

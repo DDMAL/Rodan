@@ -1,4 +1,5 @@
 import djcelery
+djcelery.setup_loader()
 
 DEBUG = False
 
@@ -16,13 +17,8 @@ DATABASES = {
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = '/mnt/images/'
-
-djcelery.setup_loader()
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "rodanuser"
-BROKER_PASSWORD = "DDMALrodan"
-BROKER_VHOST = "DDMAL"
+BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
+CELERY_IMPORTS = ("rodan.helpers.thumbnails",)
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"

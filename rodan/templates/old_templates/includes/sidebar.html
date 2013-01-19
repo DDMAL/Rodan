@@ -1,0 +1,18 @@
+{% load extras %}
+
+{% if project_list %}
+    <ul id="project-list" class="nav nav-list">
+        <li class="nav-header">My Projects</li>
+        {% for p in project_list %}
+            <li {% if p.id == project.id %}class="active"{% endif %}>
+                <a href="{{ p.get_absolute_url }}" title="{{ p.description }}">{{ p.name }}</a>
+            </li>
+        {% endfor %}
+        <li class="nav-header">Group Projects</li>
+        <li><a href="#">Fake group project</a></li>
+    </ul>
+{% else %}
+    <div class="project-entry">
+        <p>There are no projects created.</p>
+    </div>
+{% endif %}

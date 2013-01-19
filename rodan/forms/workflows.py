@@ -1,5 +1,5 @@
 from django import forms
-from rodan.models.projects import Workflow
+from rodan.models.workflow import Workflow
 
 
 class WorkflowForm(forms.ModelForm):

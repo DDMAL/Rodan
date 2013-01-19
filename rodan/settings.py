@@ -114,8 +114,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rodan',
+    'django_extensions',
+    'south',
+    'rest_framework',
+    'rest_framework.authtoken',
     'djcelery',
-    'rodan.jobs',
+    'guardian',
+    # 'rodan.jobs',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -172,19 +177,56 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
-    "rodan.context_processors.list_projects",
-    "rodan.context_processors.login_url",
+    # "rodan.context_processors.list_projects",
+    # "rodan.context_processors.login_url",
 )
 
+FILE_UPLOAD_HANDLERS = (
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'PAGINATE_BY': 10,
+    'USE_ABSOLUTE_URLS': True
+}
+
+# used by django-guardian
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+# used by django-guardian, as django-guardian supports anonymous user object permissions
+# `python manage.py syncdb` will create a User instance for the anonymous user with name AnonymousUser
+ANONYMOUS_USER_ID = -1
+
 # So that calling get_profile on a user will return the RodanUser instance
-AUTH_PROFILE_MODULE = 'rodan.RodanUser'
+# AUTH_PROFILE_MODULE = 'rodan.RodanUser'
 
 # Used in conjunction with the @login_required decorator
-LOGIN_URL = '/signup'
+# LOGIN_URL = '/signup'
+LOGIN_REDIRECT_URL = '/'
 
 THUMBNAIL_EXT = 'jpg'
 SMALL_THUMBNAIL = 150
 MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1000
-ORIGINAL_SIZE = 'original'
-THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL, ORIGINAL_SIZE)
+THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
+
+# These pixel types mirror Gamera's pixel types found in the
+# gamera.enum module
+ONEBIT = 0
+GREYSCALE = 1
+GREY16 = 2
+RGB = 3
+FLOAT = 4
+COMPLEX = 5
+NONIMAGE = -1
