@@ -1,5 +1,45 @@
-# some helper functions for working with Gamera plugins
+import os
+import uuid
+import tempfile
+from celery import Task
+from celery import registry
 from rodan.models.job import Job
+import gamera.core
+
+
+class GameraTask(Task):
+    module_fn = None
+    module_settings = None
+    autoregister = False
+    workflow_job_id = None
+    page_id = None
+    task_seq = 0
+    image_path = None
+
+    def run(self, job_data, *args, **kwargs):
+        self.image_path = job_data['image_path']
+        self.task_seq = job_data['task_seq'] + 1
+        self.page_id = job_data['page_id']
+
+        # initialize the result object so we can have it hanging around
+        gamera.core.init_gamera()  # initialize Gamera in the task
+        task_image = gamera.core.load_image(self.image_path)
+
+        # perform the requested task
+        image_fn = self.name.split(".")[-1]
+        result_image = getattr(task_image, image_fn)(**self.module_settings)
+        result_file = "{0}.tiff".format(uuid.uuid4())
+        tempdir = tempfile.gettempdir()
+        result_image.save(os.path.join(tempdir, result_file))
+
+        res = {
+            'image_path': os.path.join(tempdir, result_file),
+            'workflow_job_id': self.workflow_job_id,
+            'page_id': self.page_id,
+            'task_seq': self.task_seq
+        }
+
+        return res
 
 
 def convert_arg_list(arglist):
@@ -32,28 +72,29 @@ def convert_output_type(output_type):
     return dict_repr
 
 
-def create_job_from_plugins(plugin_classes, existing_plugins, plugin_category):
-    for fn in plugin_classes:
+def create_jobs_from_module(gamera_module):
+    for fn in gamera_module.module.functions:
         if not fn.return_type:
-            # For now, we'll only deal with plugins that
-            # actually return something
             continue
-        if str(fn) in existing_plugins:
-            # we've already loaded this. Let's skip it.
-            continue
-        print "Loading ", str(fn)
+
+        module_task = GameraTask()
+        module_task.module_fn = fn
+        module_task.name = str(fn)
+        registry.tasks.register(module_task)
+
         input_types = convert_input_type(fn.self_type)
         output_types = convert_output_type(fn.return_type)
         arguments = convert_arg_list(fn.args.list)
+
         j = Job(
-                name=str(fn),
-                author=fn.author,
-                input_types=input_types,
-                output_types=output_types,
-                arguments=arguments,
-                is_enabled=True,
-                is_automatic=False,
-                is_required=True,
-                category=plugin_category
-            )
+            name=str(fn),
+            author=fn.author,
+            input_types=input_types,
+            output_types=output_types,
+            arguments=arguments,
+            is_enabled=True,
+            is_automatic=True,
+            is_required=True,
+            category=gamera_module.module.category
+        )
         j.save()
