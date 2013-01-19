@@ -26,15 +26,17 @@
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     CPLog("Remote Job Action did Finish");
+    if ([anAction result])
+    {
+        j = [Job objectsFromJson:[anAction result]];
+        [jobArrayController addObjects:j];
 
-    j = [Job objectsFromJson:[anAction result]];
-    [jobArrayController addObjects:j];
+        // boot up the delegate for the outline view
+        [JobOutlineViewDelegate withOutlineView:categoryOutlineView];
 
-    // boot up the delegate for the outline view
-    [JobOutlineViewDelegate withOutlineView:categoryOutlineView];
-
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadJobsNotification
-                                          object:[anAction result]];
+        [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadJobsNotification
+                                              object:[anAction result]];
+    }
 }
 
 @end
