@@ -10,11 +10,15 @@ import os
 class Page(models.Model):
     def upload_path(self, filename):
         _, ext = os.path.splitext(filename)
-        return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), "original_file{0}".format(ext))
+        return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), "original_file{0}".format(ext.lower()))
 
     uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
+
+    # we specify the same upload path, but we'll be replacing it with a converted
+    # image later.
+    compat_page_image = models.FileField(upload_to=upload_path, null=True)
     page_order = models.IntegerField(null=True)
     image_file_size = models.IntegerField(null=True)  # in bytes
     processed = models.BooleanField(default=False)
@@ -30,34 +34,41 @@ class Page(models.Model):
     def __unicode__(self):
         return unicode(self.page_image.name)
 
-    def _thumb_filename(self, path, size):
-        base_path, _ = os.path.splitext(path)
-        return "{0}_{1}.{2}".format(base_path, size, settings.THUMBNAIL_EXT)
+    def thumb_filename(self, size):
+        name, ext = os.path.splitext(self.filename)
+        return "{0}_{1}{2}".format(name, size, ext.lower())
 
-    def _thumb_path(self, size):
-        return os.path.join("projects/{0}/pages/{1}/thumbnails/".format(self.project.uuid, self.uuid),
-                            self._thumb_filename(self.filename, size))
+    @property
+    def thumb_path(self):
+        return os.path.join(self.image_path, "thumbnails")
 
-    def thumb_path(self, size=settings.SMALL_THUMBNAIL):
-        return os.path.join(settings.MEDIA_ROOT,
-                            self._thumb_path(size=size))
+    @property
+    def thumb_url(self):
+        return os.path.join(self.image_url, "thumbnails")
 
     @property
     def image_path(self):
-        return self.page_image.path
+        return os.path.dirname(self.page_image.path)
+
+    @property
+    def image_url(self):
+        return os.path.dirname(self.page_image.url)
 
     @property
     def filename(self):
-        return os.path.basename(self.image_path)
+        return os.path.basename(self.page_image.path)
 
     @property
     def small_thumb_url(self):
-        return os.path.join(settings.MEDIA_URL, self._thumb_path(size=settings.SMALL_THUMBNAIL))
+        return os.path.join(self.thumb_url,
+                            self.thumb_filename(size=settings.SMALL_THUMBNAIL))
 
     @property
     def medium_thumb_url(self):
-        return os.path.join(settings.MEDIA_URL, self._thumb_path(size=settings.MEDIUM_THUMBNAIL))
+        return os.path.join(self.thumb_url,
+                            self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
 
     @property
     def large_thumb_url(self):
-        return os.path.join(settings.MEDIA_URL, self._thumb_path(size=settings.LARGE_THUMBNAIL))
+        return os.path.join(self.thumb_url,
+                            self.thumb_filename(size=settings.LARGE_THUMBNAIL))
