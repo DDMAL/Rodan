@@ -119,9 +119,9 @@
                                           object:nil];
 }
 
-/*
-    Delegate methods for the CPOutlineView
-*/
+#pragma mark -
+#pragma mark CPOutlineView delegate methods
+
 - (id)outlineView:(CPOutlineView)outlineView child:(CPInteger)anIndex ofItem:(id)anItem
 {
     return [[self childrenForItem:anItem] objectAtIndex:anIndex];
@@ -165,9 +165,7 @@
     return NO;
 }
 
-/*
-    End CPOutlineView delegates
-*/
+#pragma mark -
 
 - (void)refreshOutlineView:(id)aNotification
 {
