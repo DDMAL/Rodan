@@ -1,10 +1,10 @@
+import os
+import shutil
 from django.db import models
 from django.conf import settings
 from rodan.models.project import Project
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
-
-import os
 
 
 class Page(models.Model):
@@ -33,6 +33,12 @@ class Page(models.Model):
         super(Page, self).save(*args, **kwargs)
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
+
+    def delete(self, *args, **kwargs):
+        if os.path.exists(self.image_path):
+            shutil.rmtree(self.image_path)
+        super(Page, self).delete(*args, **kwargs)
+
     class Meta:
         app_label = 'rodan'
 
