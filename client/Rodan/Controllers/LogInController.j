@@ -4,6 +4,7 @@
 {
     @outlet     CPTextField       usernameField;
     @outlet     CPSecureTextField passwordField;
+                CPCookie          CSRFToken;
 }
 
 - (IBAction)logIn:(id)aSender
@@ -13,14 +14,14 @@
     password = [passwordField objectValue];
     CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
 
-    request = [CPURLRequest requestWithURL:@"/auth/session/"];
+    var request = [CPURLRequest requestWithURL:@"/auth/session/"];
     [request setValue:[CSRFToken value] forHTTPHeaderField:@"X-CSRFToken"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"]
     [request setHTTPBody:@"username=" + username + "&password=" + password];
     [request setHTTPMethod:@"POST"];
 
-    conn = [CPURLConnection connectionWithRequest:request delegate:self];
+    var conn = [CPURLConnection connectionWithRequest:request delegate:self];
 }
 
 - (void)connection:(CPURLConnection)connection didFailWithError:(id)error
@@ -85,16 +86,15 @@
 
 @implementation LogInCheckController : CPObject
 {
-    CPURLConnection conn;
 }
 
 - (LogInCheckController)initCheckingStatus
 {
     if (self = [super init])
     {
-        request = [CPURLRequest requestWithURL:@"/auth/status/"];
+        var request = [CPURLRequest requestWithURL:@"/auth/status/"];
         [request setHTTPMethod:@"GET"];
-        conn = [CPURLConnection connectionWithRequest:request delegate:self];
+        var conn = [CPURLConnection connectionWithRequest:request delegate:self];
     }
     return self;
 }
@@ -162,14 +162,14 @@
 
 + (void)logOut
 {
-    obj = [[LogOutController alloc] init];
+    var obj = [[LogOutController alloc] init];
 
-    CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
-    request = [CPURLRequest requestWithURL:@"/auth/logout/"];
+    var CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"],
+        request = [CPURLRequest requestWithURL:@"/auth/logout/"];
     [request setValue:[CSRFToken value] forHTTPHeaderField:@"X-CSRFToken"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setHTTPMethod:@"POST"];
-    conn = [CPURLConnection connectionWithRequest:request delegate:obj];
+    var conn = [CPURLConnection connectionWithRequest:request delegate:obj];
 }
 
 - (void)connection:(CPURLConnection)connection didFailWithError:(id)error
