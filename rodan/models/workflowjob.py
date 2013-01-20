@@ -1,6 +1,7 @@
 from django.db import models
 from rodan.models.job import Job
 from rodan.models.workflow import Workflow
+from django_extensions.db.fields import json
 
 
 class WorkflowJob(models.Model):
@@ -11,7 +12,7 @@ class WorkflowJob(models.Model):
     workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
     sequence = models.IntegerField()
-    job_settings = models.CharField(max_length=255)  # we will set this to something sane later
+    job_settings = json.JSONField(blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
