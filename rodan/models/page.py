@@ -12,13 +12,14 @@ class Page(models.Model):
         _, ext = os.path.splitext(filename)
         return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), "original_file{0}".format(ext.lower()))
 
+    def compat_path(self, filename):
+        _, ext = os.path.splitext(filename)
+        return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), "compat_file{0}".format(ext.lower()))
+
     uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
-
-    # we specify the same upload path, but we'll be replacing it with a converted
-    # image later.
-    compat_page_image = models.FileField(upload_to=upload_path, null=True)
+    compat_page_image = models.FileField(upload_to=compat_path, null=True)
     page_order = models.IntegerField(null=True)
     image_file_size = models.IntegerField(null=True)  # in bytes
     processed = models.BooleanField(default=False)
