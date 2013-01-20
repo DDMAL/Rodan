@@ -1,19 +1,28 @@
 import os
+import math
 from celery import task
-
+from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
 
 
-@task(name="rodan.helpers.thumbnails.create_thumbnail", ignore_result=True)
-def create_thumbnail(image_path, thumb_path, thumbnail_size):
-    image = PIL.Image.open(image_path).convert('RGB')
+@task(name="rodan.helpers.thumbnails.create_thumbnails", ignore_result=True)
+def create_thumbnails(page_object):
+
+    if not os.path.exists(page_object.thumb_path):
+        os.makedirs(page_object.thumb_path)
+
+    image = PIL.Image.open(page_object.page_image.path).convert('RGB')
     width, height = image.size
 
-    dimensions = (thumbnail_size, int(width / float(thumbnail_size) * height))
-    image.thumbnail(dimensions, PIL.Image.ANTIALIAS)
+    for thumbnail_size in settings.THUMBNAIL_SIZES:
+        dimensions = (thumbnail_size, int(math.ceil((thumbnail_size / float(height)) * width)))
 
-    if not os.path.exists(os.path.dirname(thumb_path)):
-        os.makedirs(os.path.dirname(thumb_path))
-    image.save(thumb_path)
-    return True
+        thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
+        thumb_copy.save(os.path.join(page_object.thumb_path,
+                                page_object.thumb_filename(size=thumbnail_size)))
+
+        del thumb_copy
+    del image
+
+    return page_object
