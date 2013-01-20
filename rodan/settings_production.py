@@ -18,7 +18,9 @@ DATABASES = {
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = '/mnt/images/'
 BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
-CELERY_IMPORTS = ("rodan.helpers.thumbnails",)
+CELERY_IMPORTS = ("rodan.helpers.thumbnails",
+                  "rodan.helpers.convert")
+
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 CELERY_RESULT_BACKEND = "database"
