@@ -1,16 +1,17 @@
 
 @implementation Page : WLRemoteObject
 {
-    CPString    pk          @accessors;
-    CPString    projectURI  @accessors;
+    CPString    pk              @accessors;
+    CPString    projectURI      @accessors;
     CPString    imageFileSize   @accessors;
-    CPString    pageImage   @accessors;
-    CPString    pageOrder   @accessors;
-    CPString    smallThumbURL  @accessors;
-    CPString    mediumThumbURL   @accessors;
+    CPString    pageImage       @accessors;
+    CPString    pageOrder       @accessors;
+    CPString    smallThumbURL   @accessors;
+    CPString    mediumThumbURL  @accessors;
     CPString    largeThumbURL   @accessors;
     CPString    created         @accessors;
-    CPString    creator     @accessors;
+    CPString    creator         @accessors;
+    BOOL        processed       @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -25,7 +26,8 @@
         ['mediumThumbURL', 'medium_thumb_url'],
         ['largeThumbURL', 'large_thumb_url'],
         ['created', 'created'],
-        ['creator', 'creator']
+        ['creator', 'creator'],
+        ['processed', 'processed']
     ];
 }
 
