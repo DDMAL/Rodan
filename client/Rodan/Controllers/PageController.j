@@ -31,7 +31,7 @@
 {
     CPLog("createObjectsWithJSONResponse pagecontroller");
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
-    pages = [Page objectsFromJson:aResponse.pages];
+    var pages = [Page objectsFromJson:aResponse.pages];
     [pageArrayController addObjects:pages];
     [WLRemoteObject setDirtProof:NO];
 }
@@ -47,15 +47,13 @@
 
 - (void)uploadButton:(UploadButton)button didFailWithError:(CPString)anError
 {
-    CPLog("Did Fail");
     CPLog(anError);
 }
 
 - (void)uploadButton:(UploadButton)button didFinishUploadWithData:(CPString)response
 {
-    CPLog("Did finish");
     [button resetSelection];
-    data = JSON.parse(response)
+    var data = JSON.parse(response);
     [self createObjectsWithJSONResponse:data];
 }
 
@@ -72,12 +70,6 @@
     {
         [obj delete];
     }];
-}
-
-- (IBAction)tableViewSelected:(id)sender
-{
-    console.log([pageArrayController selectedObjects]);
-    CPLog("Did Select in table");
 }
 
 @end
