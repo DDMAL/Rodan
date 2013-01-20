@@ -28,6 +28,10 @@ class Page(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        super(Page, self).save(*args, **kwargs)
+        if not os.path.exists(self.thumb_path):
+            os.makedirs(self.thumb_path)
     class Meta:
         app_label = 'rodan'
 

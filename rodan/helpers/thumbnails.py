@@ -8,10 +8,6 @@ import PIL.ImageFile
 
 @task(name="rodan.helpers.thumbnails.create_thumbnails", ignore_result=True)
 def create_thumbnails(page_object):
-
-    if not os.path.exists(page_object.thumb_path):
-        os.makedirs(page_object.thumb_path)
-
     image = PIL.Image.open(page_object.page_image.path).convert('RGB')
     width, height = image.size
 
