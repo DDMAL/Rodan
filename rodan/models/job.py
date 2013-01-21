@@ -9,8 +9,8 @@ class Job(models.Model):
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
 
-    input_types = json.JSONField()
-    output_types = json.JSONField()
+    input_types = json.JSONField(blank=True, null=True)
+    output_types = json.JSONField(blank=True, null=True)
     arguments = json.JSONField(blank=True, null=True)
 
     is_enabled = models.BooleanField()
