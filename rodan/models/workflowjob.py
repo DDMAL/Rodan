@@ -2,6 +2,7 @@ from django.db import models
 from rodan.models.job import Job
 from rodan.models.workflow import Workflow
 from django_extensions.db.fields import json
+from uuidfield import UUIDField
 
 
 class WorkflowJob(models.Model):
@@ -9,6 +10,7 @@ class WorkflowJob(models.Model):
     class Meta:
         app_label = 'rodan'
 
+    uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
     sequence = models.IntegerField()
