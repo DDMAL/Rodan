@@ -174,6 +174,7 @@
 
 @end
 
+
 /* A node object for the outline view */
 @implementation TreeNode : CPObject
 {
