@@ -21,7 +21,7 @@ class WorkflowAdmin(admin.ModelAdmin):
 
 
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_enabled')
+    list_display = ('name', 'is_enabled', 'category')
 
 
 class ProjectAdmin(admin.ModelAdmin):
