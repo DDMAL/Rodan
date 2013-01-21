@@ -1,42 +1,55 @@
 import os
 import uuid
 import tempfile
+import shutil
+from django.core.files import File
 from celery import Task
 from celery import registry
 from rodan.models.job import Job
+from rodan.models.result import Result
 import gamera.core
 
 
 class GameraTask(Task):
     module_fn = None
-    module_settings = None
-    autoregister = False
-    workflow_job_id = None
-    page_id = None
-    task_seq = 0
-    image_path = None
+    module_settings = []
+    workflowjob_obj = None
 
     def run(self, job_data, *args, **kwargs):
-        self.image_path = job_data['image_path']
-        self.task_seq = job_data['task_seq'] + 1
-        self.page_id = job_data['page_id']
+        # initialize the outgoing result object so we can update it as we go.
+        new_task_result = Result(
+            page=job_data['previous_result'].page,
+            workflow_job=self.workflowjob_obj
+        )
+        new_task_result.save()
+        result_save_path = new_task_result.result_path
 
-        # initialize the result object so we can have it hanging around
+        # parse the module settings
+        settings = {}
+        for s in self.module_settings:
+            setting_name = "_".join(s['name'].split(" "))
+            setting_value = s['default']
+            settings[setting_name] = setting_value
+
         gamera.core.init_gamera()  # initialize Gamera in the task
-        task_image = gamera.core.load_image(self.image_path)
+        task_image = gamera.core.load_image(job_data['previous_result'].result.path)
 
+        tdir = tempfile.mkdtemp()
         # perform the requested task
-        image_fn = self.name.split(".")[-1]
-        result_image = getattr(task_image, image_fn)(**self.module_settings)
-        result_file = "{0}.tiff".format(uuid.uuid4())
-        tempdir = tempfile.gettempdir()
-        result_image.save(os.path.join(tempdir, result_file))
+        task_function = self.name.split(".")[-1]
+        result_image = getattr(task_image, task_function)(**settings)
+        result_file = "{0}.png".format(uuid.uuid4())
+        result_image.save_image(os.path.join(tdir, result_file))
 
+        f = open(os.path.join(tdir, result_file))
+        new_task_result.result.save(os.path.join(result_save_path, result_file), File(f))
+        f.close()
+        shutil.rmtree(tdir)
+
+        # this will format the output of this task in such a way that
+        # it can be chained together with another instance of a GameraTask
         res = {
-            'image_path': os.path.join(tempdir, result_file),
-            'workflow_job_id': self.workflow_job_id,
-            'page_id': self.page_id,
-            'task_seq': self.task_seq
+            'previous_result': new_task_result
         }
 
         return res
@@ -73,14 +86,20 @@ def convert_output_type(output_type):
 
 
 def create_jobs_from_module(gamera_module):
+    previously_loaded_modules = Job.objects.values_list('name', flat=True)
     for fn in gamera_module.module.functions:
         if not fn.return_type:
             continue
 
         module_task = GameraTask()
-        module_task.module_fn = fn
         module_task.name = str(fn)
+        module_task.module_fn = fn
         registry.tasks.register(module_task)
+
+        # skip the job creation if we've already
+        # stored a reference to this job in the database
+        if str(fn) in previously_loaded_modules:
+            continue
 
         input_types = convert_input_type(fn.self_type)
         output_types = convert_output_type(fn.return_type)
