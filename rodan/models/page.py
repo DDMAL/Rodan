@@ -70,6 +70,14 @@ class Page(models.Model):
         return os.path.basename(self.page_image.path)
 
     @property
+    def compat_file_path(self):
+        return self.compat_page_image.path
+
+    @property
+    def compat_file_url(self):
+        return self.compat_page_image.url
+
+    @property
     def small_thumb_url(self):
         return os.path.join(self.thumb_url,
                             self.thumb_filename(size=settings.SMALL_THUMBNAIL))
