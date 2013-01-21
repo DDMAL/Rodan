@@ -51,8 +51,16 @@ class GameraTask(Task):
         res = {
             'previous_result': new_task_result
         }
-
         return res
+
+
+class GameraInteractiveTask(Task):
+    module_fn = None
+    module_settings = []
+    workflowjob_obj = None
+
+    def run(self, job_data, *args, **kwargs):
+        pass
 
 
 def convert_arg_list(arglist):
@@ -111,9 +119,7 @@ def create_jobs_from_module(gamera_module):
             input_types=input_types,
             output_types=output_types,
             arguments=arguments,
-            is_enabled=True,
-            is_automatic=True,
-            is_required=True,
+            enabled=True,
             category=gamera_module.module.category
         )
         j.save()
