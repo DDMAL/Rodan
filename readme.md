@@ -6,37 +6,36 @@ Readme under construction. Will contain list of dependencies, usage instructions
 Dependencies
 ------------
 
-* Django 1.4 (installed on Susato)
-* Python 2.7 (also installed on Susato)
-* PostgreSQL (sqlite for local development)
-* Celery (installed on Susato)
-* Solr
-* [VIPS](http://www.vips.ecs.soton.ac.uk/index.php?title=VIPS) (installed on Susato; needed for diva)
+Check `requirements.txt` for the latest dependencies.
 
 Development
 -----------
 
-We're using virtualenv to manage dependencies
+We're using virtualenv to manage the deployment environment
 
-to install it: `sudo pip install virtualenv`
+to install it:
+
+    $> sudo pip install virtualenv`
 
 Create a virtual environment:
 
-in your checked out directory, run
+In your checked out directory, run
 
-    virtualenv --no-site-packages rodan_env
+    $> virtualenv --no-site-packages rodan_env
+
+Activate your virtual environment:
+
+    $> source rodan_env/bin/activate
 
 Install all the dependencies:
 
-    source rodan_env/bin/activate
-    
-    pip install -r requirements.txt
+    $> pip install -r requirements.txt
 
-if you need to add a dependency, install it with pip then run
+(If you need to add a dependency, install it with pip then run
 
-    pip freeze > requirements.txt
+    $> pip freeze > requirements.txt
 
-and commit the requirements file
+and commit the requirements file)
 
 ### Other dependencies
 
