@@ -25,6 +25,7 @@ from rodan.models.job import Job
 from rodan.models.result import Result
 from rodan.helpers.convert import ensure_compatible
 from rodan.helpers.thumbnails import create_thumbnails
+from rodan.helpers.workflow import run_workflow
 
 
 @api_view(('GET',))
@@ -38,6 +39,13 @@ def api_root(request, format=None):
             'results': reverse('result-list', request=request, format=format),
             'users': reverse('user-list', request=request, format=format)
         })
+
+
+def kickoff_workflow(request, pk):
+    run_workflow(pk)
+    return Response({
+        'success': True
+    })
 
 
 @ensure_csrf_cookie
