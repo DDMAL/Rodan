@@ -49,7 +49,7 @@ urlpatterns += format_suffix_patterns(
         url(r'^result/(?P<pk>[0-9a-z\-]+)/$', ResultDetail.as_view(), name="result-detail"),
         url(r'^users/$', UserList.as_view(), name="user-list"),
         url(r'^user/(?P<pk>[0-9]+)/$', UserDetail.as_view(), name="user-detail"),
-        url(r'^run_workflow/(?P<pk>[0-9]+)/$', 'kickoff_workflow')
+        url(r'^run_workflow/(?P<pk>[0-9a-z\-]+)/$', 'kickoff_workflow')
     )
 )
 
