@@ -18,6 +18,7 @@ def ensure_compatible(page_object):
     compatible_image_path = os.path.join(page_object.image_path, filename)
     f = open(os.path.join(tmpdir, filename), 'rb')
     page_object.compat_page_image.save(compatible_image_path, File(f))
-
+    f.close()
     shutil.rmtree(tmpdir)
+
     return page_object
