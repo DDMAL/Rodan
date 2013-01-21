@@ -3,7 +3,7 @@ from rodan.models.job import Job
 
 # this takes care of making sure all the jobs are
 # initialized.
-from rodan import jobs
+# from rodan import jobs
 
 
 class JobSerializer(serializers.HyperlinkedModelSerializer):
