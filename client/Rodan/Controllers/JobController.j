@@ -23,7 +23,7 @@
 - (void)fetchJobs
 {
 
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"/jobs?is_enabled=1" delegate:self message:"Loading jobs"];
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"/jobs?enabled=1" delegate:self message:"Loading jobs"];
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction

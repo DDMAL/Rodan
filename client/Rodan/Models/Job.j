@@ -19,7 +19,7 @@
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
         ['category', 'category'],
-        ['isEnabled', 'is_enabled']
+        ['isEnabled', 'enabled']
     ];
 }
 

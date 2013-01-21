@@ -167,9 +167,9 @@ class JobList(generics.ListAPIView):
         """
         print "in queryset"
         queryset = Job.objects.all()
-        enabled = self.request.QUERY_PARAMS.get('is_enabled', None)
+        enabled = self.request.QUERY_PARAMS.get('enabled', None)
         if enabled is not None:
-            queryset = queryset.filter(is_enabled=enabled)
+            queryset = queryset.filter(enabled=enabled)
         return queryset
 
 

@@ -13,9 +13,7 @@ class Job(models.Model):
     output_types = json.JSONField(blank=True, null=True)
     arguments = json.JSONField(blank=True, null=True)
 
-    is_enabled = models.BooleanField()
-    is_automatic = models.BooleanField()
-    is_required = models.BooleanField()
+    enabled = models.BooleanField()
 
     def __unicode__(self):
         return u"{0}".format(self.name)
