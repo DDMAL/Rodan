@@ -87,6 +87,7 @@ activeProject = "";  // URI to the currently open project
 
                 CPCookie        sessionID;
                 CPCookie        CSRFToken;
+                CPString        projectName;
 
 }
 
@@ -143,8 +144,8 @@ activeProject = "";  // URI to the currently open project
 
     theBundle = [CPBundle mainBundle],
     contentView = [theWindow contentView],
-    _theWindowBounds = [contentView bounds],
-    center = [CPNotificationCenter defaultCenter];
+    _theWindowBounds = [contentView bounds];
+    var center = [CPNotificationCenter defaultCenter];
 
     [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
     [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
@@ -231,7 +232,7 @@ activeProject = "";  // URI to the currently open project
 - (void)didLogIn:(id)aNotification
 {
     CPLog("Did Log In Successfully.");
-    authResponse = [aNotification object];
+    var authResponse = [aNotification object];
 
     isLoggedIn = YES;
     activeUser = [authResponse valueForKey:@"user"];

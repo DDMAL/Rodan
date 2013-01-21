@@ -3,6 +3,10 @@
 @import "../Models/Project.j"
 @import "../Transformers/ArrayCountTransformer.j"
 
+@global RodanDidLoadProjectsNotification
+@global RodanDidOpenProjectNotification
+@global activeUser
+
 @implementation ProjectController : CPObject
 {
     @outlet     CPArrayController   projectArrayController;
@@ -42,7 +46,7 @@
 {
     CPLog("Remote Action did Finish");
 
-    p = [Project objectsFromJson:[anAction result].results];
+    var p = [Project objectsFromJson:[anAction result].results];
     [projectArrayController addObjects:p];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectsNotification
@@ -61,8 +65,8 @@
     [createProjectWindow close];
 
     // get window username & description
-    projectName = [newProjectName objectValue];
-    projectDescription = [newProjectDescription objectValue];
+    var projectName = [newProjectName objectValue];
+    var projectDescription = [newProjectDescription objectValue];
 
     /*
         Reset the text fields so that subsequent calls to the window
@@ -72,14 +76,14 @@
     [newProjectDescription setObjectValue:@""];
 
     // add to JSON description
-    newProjectObject = {
+    var newProjectObject = {
         'name': projectName,
         'description': projectDescription,
         'creator': activeUser,
     };
 
     // create object
-    p = [[Project alloc] initWithJson:newProjectObject];
+    var p = [[Project alloc] initWithJson:newProjectObject];
 
     [projectArrayController addObject:p];
 
@@ -89,7 +93,7 @@
 - (IBAction)selectDeleteProject:(id)aSender
 {
     // get selected projects
-    numToBeDeleted = [[projectArrayController selectedObjects] count];
+    var numToBeDeleted = [[projectArrayController selectedObjects] count];
     if (numToBeDeleted > 1)
     {
         var plThis = "These",
@@ -101,7 +105,7 @@
             plProj = "project";
     }
 
-    message = [CPString stringWithFormat:@"%@ %@ %@ will be deleted! This cannot be undone.", plThis, numToBeDeleted, plProj];
+    var message = [CPString stringWithFormat:@"%@ %@ %@ will be deleted! This cannot be undone.", plThis, numToBeDeleted, plProj];
     // pop up a warning
     alert = [[CPAlert alloc] init];
     [alert setMessageText:message];
@@ -125,14 +129,14 @@
 
 - (void)deleteProjects
 {
-        selectedObjects = [projectArrayController selectedObjects];
+        var selectedObjects = [projectArrayController selectedObjects];
         [projectArrayController removeObjects:selectedObjects];
         [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 - (IBAction)openProject:(id)aSender
 {
-    selectedObjects = [projectArrayController selectedObjects];
+    var selectedObjects = [projectArrayController selectedObjects];
     if (selectedObjects > 1)
     {
         alert = [[CPAlert alloc] init];
@@ -142,7 +146,7 @@
         [alert runModal];
         return nil;
     }
-    theProject = [selectedObjects objectAtIndex:0];
+    var theProject = [selectedObjects objectAtIndex:0];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification object:theProject];
 
 }

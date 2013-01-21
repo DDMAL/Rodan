@@ -49,7 +49,7 @@
 - (CPString)remoteAction:(WLRemoteAction)anAction decodeResponseBody:(Object)aResponseBody
 {
 
-    response = JSON.parse(aResponseBody);
+    var response = JSON.parse(aResponseBody);
     console.log(response);
     /*
         setDirtProof ensures that updating this object does

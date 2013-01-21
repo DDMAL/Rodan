@@ -1,5 +1,8 @@
 @import "../Models/Job.j"
 
+@global RodanDidLoadJobsNotification
+@global RodanJobTreeNeedsRefresh
+
 @implementation JobController : CPObject
 {
     @outlet CPOutlineView       categoryOutlineView;
@@ -28,7 +31,7 @@
     CPLog("Remote Job Action did Finish");
     if ([anAction result])
     {
-        j = [Job objectsFromJson:[anAction result]];
+        var j = [Job objectsFromJson:[anAction result]];
         [jobArrayController addObjects:j];
 
         // boot up the delegate for the outline view

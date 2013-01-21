@@ -1,5 +1,10 @@
 @import <AppKit/AppKit.j>
 
+@global RodanMustLogInNotification
+@global RodanCannotLogInNotification
+@global RodanDidLogInNotification
+@global RodanDidLogOutNotification
+
 @implementation LogInController : CPObject
 {
     @outlet     CPTextField       usernameField;
@@ -10,8 +15,8 @@
 - (IBAction)logIn:(id)aSender
 {
     CPLog("Calling Log In");
-    username = [usernameField objectValue];
-    password = [passwordField objectValue];
+    var username = [usernameField objectValue],
+        password = [passwordField objectValue];
     CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
 
     var request = [CPURLRequest requestWithURL:@"/auth/session/"];
