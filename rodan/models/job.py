@@ -8,6 +8,7 @@ class Job(models.Model):
     name = models.CharField(max_length=255)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
 
     input_types = json.JSONField(blank=True, null=True)
     output_types = json.JSONField(blank=True, null=True)
@@ -20,3 +21,4 @@ class Job(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ['category']
