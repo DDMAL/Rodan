@@ -1,4 +1,4 @@
-# from django.shortcuts import render
+import os
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -16,6 +16,7 @@ from rodan.serializers.page import PageSerializer
 from rodan.serializers.workflow import WorkflowSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.job import JobSerializer
+from rodan.serializers.result import ResultSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
@@ -116,6 +117,7 @@ class PageList(generics.ListCreateAPIView):
 
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
             data = {
+                'name': fileobj.name,
                 'project': request.POST['project'],
                 'page_order': seq,
                 'image_file_size': fileobj.size,
@@ -165,7 +167,6 @@ class JobList(generics.ListAPIView):
         Optionally restricts the returned purchases to a given user,
         by filtering against a `username` query parameter in the URL.
         """
-        print "in queryset"
         queryset = Job.objects.all()
         enabled = self.request.QUERY_PARAMS.get('enabled', None)
         if enabled is not None:
@@ -179,10 +180,12 @@ class JobDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ResultList(generics.ListCreateAPIView):
     model = Result
+    serializer_class = ResultSerializer
 
 
 class ResultDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Result
+    serializer_class = ResultSerializer
 
 
 class UserList(generics.ListCreateAPIView):
