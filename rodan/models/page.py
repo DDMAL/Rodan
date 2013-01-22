@@ -17,6 +17,7 @@ class Page(models.Model):
         return os.path.join("projects", str(self.project.uuid), "pages", str(self.uuid), "compat_file{0}".format(ext.lower()))
 
     uuid = UUIDField(primary_key=True, auto=True)
+    name = models.CharField(max_length=255, default=False, null=True)
     project = models.ForeignKey(Project, related_name="pages")
     page_image = models.FileField(upload_to=upload_path, null=True)
     compat_page_image = models.FileField(upload_to=compat_path, null=True)
