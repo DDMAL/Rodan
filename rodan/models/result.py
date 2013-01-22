@@ -17,6 +17,7 @@ class Result(models.Model):
         return os.path.join(self.result_path, "{0}{1}".format(str(uuid.uuid4()), ext))
 
     uuid = UUIDField(primary_key=True, auto=True)
+    task_name = models.CharField(max_length=255)
     workflow_job = models.ForeignKey(WorkflowJob, null=True)
     page = models.ForeignKey(Page)
     result = models.FileField(upload_to=upload_fn, null=True)
