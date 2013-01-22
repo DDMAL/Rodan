@@ -116,6 +116,7 @@ def create_jobs_from_module(gamera_module):
         j = Job(
             name=str(fn),
             author=fn.author,
+            description=fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"'),
             input_types=input_types,
             output_types=output_types,
             arguments=arguments,
