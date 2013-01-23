@@ -3,7 +3,6 @@ from django.core.files import File
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflow import Workflow
 from rodan.models.result import Result
-from celery import Task
 from celery import registry
 
 
@@ -35,7 +34,8 @@ def run_workflow(workflow_id):
         f = open(os.path.join(page.image_path, "compat_file.png"), 'rb')
         r = Result(
             page=page,
-            workflow_job=workflow_jobs[0]
+            workflow_job=workflow_jobs[0],
+            task_name=workflow_jobs[0].job.name
         )
         r.save()
         r.result.save(os.path.join(page.image_path, "compat_file.png"), File(f))
