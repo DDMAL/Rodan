@@ -20,7 +20,7 @@ class GameraTask(Task):
         new_task_result = Result(
             page=job_data['previous_result'].page,
             workflow_job=self.workflowjob_obj,
-            task_name=self.workflowjob_obj.job.name
+            task_name=self.name
         )
         new_task_result.save()
         result_save_path = new_task_result.result_path
