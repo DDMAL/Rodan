@@ -2,6 +2,7 @@
 @implementation Result : WLRemoteObject
 {
     CPString    pk              @accessors;
+    CPString    taskName        @accessors;
     CPString    created         @accessors;
 }
 
@@ -9,6 +10,7 @@
 {
     return [
         ['pk', 'url'],
+        ['taskName', 'task_name']
     ];
 }
 
