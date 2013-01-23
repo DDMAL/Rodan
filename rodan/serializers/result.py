@@ -11,4 +11,4 @@ class ResultSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Result
-        fields = ("url", "page", "workflow_job", "result", "created", "updated")
+        fields = ("url", "page", "workflow_job", "task_name", "result", "created", "updated")
