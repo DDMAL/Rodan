@@ -19,7 +19,8 @@ class GameraTask(Task):
         # initialize the outgoing result object so we can update it as we go.
         new_task_result = Result(
             page=job_data['previous_result'].page,
-            workflow_job=self.workflowjob_obj
+            workflow_job=self.workflowjob_obj,
+            task_name=self.workflowjob_obj.job.name
         )
         new_task_result.save()
         result_save_path = new_task_result.result_path
@@ -55,12 +56,26 @@ class GameraTask(Task):
 
 
 class GameraInteractiveTask(Task):
+    max_retries = None
     module_fn = None
     module_settings = []
     workflowjob_obj = None
 
+    # this flag will get set to `False` when the task has
+    # received human input and is ready to be run; otherwise
+    # it will re-queue itself indefinitely, waiting for more input.
+    needs_input = True
+
     def run(self, job_data, *args, **kwargs):
-        pass
+        if self.needs_input:
+            self.retry(job_data)
+        else:
+            # do stuff
+            pass
+
+    def retry(self, job_data, *args, **kwargs):
+        # do something like this
+        super(GameraInteractiveTask, self).retry(job_data, *args, **kwargs)
 
 
 def convert_arg_list(arglist):
