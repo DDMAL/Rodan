@@ -7,7 +7,7 @@ from rodan.serializers.workflowjob import WorkflowJobSerializer
 class ResultSerializer(serializers.HyperlinkedModelSerializer):
     page = PageSerializer()
     workflow_job = WorkflowJobSerializer()
-    result = serializers.FileField()
+    result = serializers.FileField(allow_empty_file=True)
 
     class Meta:
         model = Result
