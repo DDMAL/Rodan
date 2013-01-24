@@ -12,7 +12,7 @@ def run_workflow(workflow_id):
         a Celery task and run it with settings.
     """
     workflow = Workflow.objects.get(pk=workflow_id)
-    pages = workflow.pages.all()
+    pages = workflow.pages.filter(processed=True)  # only get images that are ready to be processed
 
     workflow_jobs = WorkflowJob.objects.filter(workflow__uuid=workflow_id).order_by('sequence')
     for page in pages:
