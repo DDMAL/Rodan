@@ -34,3 +34,9 @@ try:
     lyric_extraction.load_module()
 except ImportError as e:
     print "No Lyric Extraction Toolkit Installed. Skipping."
+
+try:
+    from rodan.jobs.gamera.toolkits import musicstaves
+    musicstaves.load_module()
+except ImportError as e:
+    print "No Music Staves Toolkit Installed. Skipping."
