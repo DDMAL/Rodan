@@ -15,6 +15,7 @@ class Job(models.Model):
     arguments = json.JSONField(blank=True, null=True)
 
     enabled = models.BooleanField()
+    interactive = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
