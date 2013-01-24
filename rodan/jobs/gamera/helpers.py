@@ -11,15 +11,12 @@ import gamera.core
 
 
 class GameraTask(Task):
-    def __init__(self, settings=None, workflowjob_obj=None):
-        self.module_settings = settings
-        self.workflowjob_obj = workflowjob_obj
 
-    def run(self, job_data, *args, **kwargs):
+    def run(self, job_data, task_settings, *args, **kwargs):
         # initialize the outgoing result object so we can update it as we go.
         new_task_result = Result(
             page=job_data['previous_result'].page,
-            workflow_job=self.workflowjob_obj,
+            workflow_job=job_data['previous_result'].workflow_job,
             task_name=self.name
         )
         new_task_result.save()
@@ -27,7 +24,7 @@ class GameraTask(Task):
 
         # parse the module settings
         settings = {}
-        for s in self.module_settings:
+        for s in task_settings:
             setting_name = "_".join(s['name'].split(" "))
             setting_value = s['default']
             settings[setting_name] = setting_value
