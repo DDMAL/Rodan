@@ -7,6 +7,7 @@ from celery import Task
 from celery import registry
 from rodan.models.job import Job
 from rodan.models.result import Result
+from rodan.jobs import utils
 import gamera.core
 
 
@@ -55,37 +56,6 @@ class GameraTask(Task):
         return res
 
 
-
-def convert_arg_list(arglist):
-    if not arglist:
-        return None
-    ret = []
-    for a in arglist:
-        arg = a.__dict__
-        if 'klass' in arg.keys():
-            del arg['klass']
-
-        # so we don't have to use Gamera's NoneType
-        if str(arg['default']) == 'None':
-            arg['default'] = None
-        ret.append(arg)
-    return ret
-
-
-def convert_input_type(input_type):
-    dict_repr = input_type.__dict__
-    if 'klass' in dict_repr.keys():
-        del dict_repr['klass']
-    return dict_repr
-
-
-def convert_output_type(output_type):
-    dict_repr = output_type.__dict__
-    if 'klass' in dict_repr.keys():
-        del dict_repr['klass']
-    return dict_repr
-
-
 def create_jobs_from_module(gamera_module):
     previously_loaded_modules = Job.objects.values_list('name', flat=True)
     for fn in gamera_module.module.functions:
@@ -101,9 +71,9 @@ def create_jobs_from_module(gamera_module):
         if str(fn) in previously_loaded_modules:
             continue
 
-        input_types = convert_input_type(fn.self_type)
-        output_types = convert_output_type(fn.return_type)
-        arguments = convert_arg_list(fn.args.list)
+        input_types = utils.convert_input_type(fn.self_type)
+        output_types = utils.convert_output_type(fn.return_type)
+        arguments = utils.convert_arg_list(fn.args.list)
 
         j = Job(
             name=str(fn),
