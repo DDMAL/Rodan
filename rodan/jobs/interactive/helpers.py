@@ -6,7 +6,7 @@ from django.core.files import File
 from celery import Task
 from celery import registry
 from rodan.models.job import Job
-from rodan.jobs import utils
+from rodan.jobs.gamera import argconvert
 from rodan.models.result import Result
 import gamera.core
 
@@ -47,13 +47,14 @@ def create_interactive_job_from_gamera_function(gamera_fn):
     if str(gamera_fn) in previously_loaded_modules:
         return
 
-    input_types = utils.convert_input_type(gamera_fn.self_type)
+    input_types = argconvert.convert_input_type(gamera_fn.self_type)
 
+    # we should only ever be using jobs that have an output type.
+    # jobs that do not will need to be handled differently.
+    # output_types = argconvert.convert_output_type(gamera_fn.return_type)
     output_types = None
-    if gamera_fn.return_type:
-        output_types = utils.convert_output_type(gamera_fn.return_type)
 
-    arguments = utils.convert_arg_list(gamera_fn.args.list)
+    arguments = argconvert.convert_arg_list(gamera_fn.args.list)
 
     j = Job(
         name=str(gamera_fn),

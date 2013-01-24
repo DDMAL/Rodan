@@ -7,11 +7,24 @@ def convert_arg_list(arglist):
         if 'klass' in arg.keys():
             del arg['klass']
 
+        arg['type'] = str(a).strip('<>').lower()
+
         # so we don't have to use Gamera's NoneType
         if str(arg['default']) == 'None':
             arg['default'] = None
         ret.append(arg)
     return ret
+
+
+def convert_to_arg_type(atype, value):
+    if atype in ['float', 'real']:
+        return float(value)
+    elif atype in ['int']:
+        return int(value)
+    elif atype in ['complex']:
+        return complex(value)
+    elif atype in ['str']:
+        return str(value)
 
 
 def convert_input_type(input_type):

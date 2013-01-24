@@ -7,7 +7,7 @@ from celery import Task
 from celery import registry
 from rodan.models.job import Job
 from rodan.models.result import Result
-from rodan.jobs import utils
+from rodan.jobs.gamera import argconvert
 import gamera.core
 
 
@@ -27,7 +27,7 @@ class GameraTask(Task):
         settings = {}
         for s in task_settings:
             setting_name = "_".join(s['name'].split(" "))
-            setting_value = s['default']
+            setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
             settings[setting_name] = setting_value
 
         gamera.core.init_gamera()  # initialize Gamera in the task
@@ -68,9 +68,9 @@ def create_jobs_from_module(gamera_module):
         if str(fn) in previously_loaded_modules:
             continue
 
-        input_types = utils.convert_input_type(fn.self_type)
-        output_types = utils.convert_output_type(fn.return_type)
-        arguments = utils.convert_arg_list(fn.args.list)
+        input_types = argconvert.convert_input_type(fn.self_type)
+        output_types = argconvert.convert_output_type(fn.return_type)
+        arguments = argconvert.convert_arg_list(fn.args.list)
 
         j = Job(
             name=str(fn),
