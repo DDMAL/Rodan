@@ -9,6 +9,7 @@ class WorkflowJob(models.Model):
     """ A WorkflowJob is an instantiation of a Job in a Workflow """
     class Meta:
         app_label = 'rodan'
+        ordering = ['sequence']
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow)
