@@ -23,10 +23,10 @@ def run_workflow(workflow_id):
         # create a task chain from the workflow jobs for this image.
         task_chain = []
         for wjob in workflow_jobs:
-            job_settings = wjob.job_settings
             rodan_task = registry.tasks[str(wjob.job.name)]
-            if job_settings:
-                rodan_task.module_settings = job_settings
+            if wjob.job_settings:
+                rodan_task.module_settings = wjob.job_settings
+
             rodan_task.workflowjob_obj = wjob
             task_chain.append(rodan_task)
 

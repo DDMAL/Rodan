@@ -11,9 +11,9 @@ import gamera.core
 
 
 class GameraTask(Task):
-    module_fn = None
-    module_settings = []
-    workflowjob_obj = None
+    def __init__(self, settings=None, workflowjob_obj=None):
+        self.module_settings = settings
+        self.workflowjob_obj = workflowjob_obj
 
     def run(self, job_data, *args, **kwargs):
         # initialize the outgoing result object so we can update it as we go.
@@ -116,7 +116,6 @@ def create_jobs_from_module(gamera_module):
 
         module_task = GameraTask()
         module_task.name = str(fn)
-        module_task.module_fn = fn
         registry.tasks.register(module_task)
 
         # skip the job creation if we've already
