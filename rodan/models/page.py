@@ -48,7 +48,7 @@ class Page(models.Model):
 
     def thumb_filename(self, size):
         name, ext = os.path.splitext(self.filename)
-        return "{0}_{1}{2}".format(name, size, ext.lower())
+        return "{0}_{1}.{2}".format(name, size, settings.THUMBNAIL_EXT)
 
     @property
     def thumb_path(self):
