@@ -57,6 +57,7 @@ def create_interactive_job_from_gamera_function(gamera_fn):
         output_types=output_types,
         arguments=arguments,
         enabled=True,
-        category=gamera_fn.module.category
+        category=gamera_fn.module.category,
+        interactive=True,
     )
     j.save()
