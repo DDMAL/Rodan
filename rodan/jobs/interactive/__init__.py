@@ -4,3 +4,6 @@ despeckle.load_interactive_job()
 
 from rodan.jobs.interactive.crop import crop
 crop.load_interactive_job()
+
+from rodan.jobs.interactive.rotate import rotate
+rotate.load_interactive_job()
