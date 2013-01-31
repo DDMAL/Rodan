@@ -1,14 +1,7 @@
-import os
-import uuid
-import tempfile
-import shutil
-from django.core.files import File
 from celery import Task
 from celery import registry
 from rodan.models.job import Job
 from rodan.jobs.gamera import argconvert
-from rodan.models.result import Result
-import gamera.core
 
 
 class RodanInteractiveTask(Task):
