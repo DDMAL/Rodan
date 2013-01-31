@@ -29,6 +29,8 @@ class RodanInteractiveTask(Task):
 
 def create_interactive_job_from_gamera_function(gamera_fn):
     previously_loaded_modules = Job.objects.values_list('name', flat=True)
+    if not gamera_fn.return_type:
+        return
 
     module_task = RodanInteractiveTask()
     module_task.name = str(gamera_fn)
@@ -44,9 +46,7 @@ def create_interactive_job_from_gamera_function(gamera_fn):
 
     # we should only ever be using jobs that have an output type.
     # jobs that do not will need to be handled differently.
-    # output_types = argconvert.convert_output_type(gamera_fn.return_type)
-    output_types = None
-
+    output_types = argconvert.convert_output_type(gamera_fn.return_type)
     arguments = argconvert.convert_arg_list(gamera_fn.args.list)
 
     j = Job(
