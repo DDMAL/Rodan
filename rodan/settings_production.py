@@ -20,6 +20,7 @@ MEDIA_ROOT = '/mnt/images/'
 BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
 CELERY_IMPORTS = ("rodan.helpers.thumbnails",
                   "rodan.helpers.convert",
+                  "rodan.helpers.pagedone",
                   "rodan.jobs.gamera.helpers")
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
