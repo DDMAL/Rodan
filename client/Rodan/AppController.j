@@ -48,18 +48,20 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPMenu      theMenu;
     @outlet     CPToolbar   theToolbar;
                 CPBundle    theBundle;
+    @outlet     CPWindow    logInWindow;
 
     @outlet     CPView      projectStatusView;
-    @outlet     CPView      loginScreenView;
     @outlet     CPView      loginWaitScreenView;
     @outlet     CPView      selectProjectView;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      manageImagesView;
     @outlet     CPView      usersGroupsView;
+    @outlet     CPView      workflowDesignerView;
                 CPView      contentView;
 
-    @outlet     CPScrollView    contentScrollView;
+    // @outlet     CPScrollView    contentScrollView;
+                CPScrollView    contentScrollView;
 
     @outlet     CPWindow    userPreferencesWindow;
     @outlet     CPView      accountPreferencesView;
@@ -77,11 +79,13 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPToolbarItem   workflowsToolbarItem;
     @outlet     CPToolbarItem   jobsToolbarItem;
     @outlet     CPToolbarItem   usersToolbarItem;
+    @outlet     CPToolbarItem   workflowDesignerToolbarItem;
 
     @outlet     ProjectController   projectController;
     @outlet     PageController      pageController;
     @outlet     JobController       jobController;
     @outlet     UploadButton        imageUploadButton;
+    @outlet     LogInController     logInController;
 
     CGRect      _theWindowBounds;
 
@@ -133,6 +137,7 @@ activeProject = "";  // URI to the currently open project
 
     [[WLRemoteLink sharedRemoteLink] setDelegate:self];
 
+    console.log([theWindow frame]);
     [theWindow setFullPlatformWindow:YES];
 
     [imageUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"]
@@ -185,12 +190,13 @@ activeProject = "";  // URI to the currently open project
     [usersToolbarItem setImage:usersToolbarIcon];
     [usersToolbarItem setAlternateImage:usersToolbarIconSelected];
 
-    [contentScrollView initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_theWindowBounds), CGRectGetHeight(_theWindowBounds) + 60)];
-    [contentScrollView setAutoresizingMask:CPViewHeightSizable ];
+    [contentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+
+    contentScrollView = [[CPScrollView alloc] initWithFrame:[contentView bounds]];
+    [contentScrollView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     [contentScrollView setHasHorizontalScroller:YES];
     [contentScrollView setHasVerticalScroller:YES];
     [contentScrollView setAutohidesScrollers:YES];
-    [contentScrollView setAutoresizesSubviews:YES];
 
     [contentView setSubviews:[contentScrollView]];
 }
@@ -205,13 +211,16 @@ activeProject = "";  // URI to the currently open project
     }
 
     CPLog("Application Did Finish Launching");
+    [loginWaitScreenView setFrame:[contentScrollView bounds]];
+    [loginWaitScreenView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:loginWaitScreenView];
 }
 
 - (void)mustLogIn:(id)aNotification
 {
-    // show log in screen
-    [contentScrollView setDocumentView:loginScreenView];
+    var blankView = [[CPView alloc] init];
+    [contentScrollView setDocumentView:blankView];
+    [logInController runLogInSheet];
 }
 
 - (void)cannotLogIn:(id)aNotification
@@ -243,11 +252,16 @@ activeProject = "";  // URI to the currently open project
 
 - (void)didLogOut:(id)aNotification
 {
-    [contentScrollView setDocumentView:loginScreenView];
+    // [contentScrollView setDocumentView:];
+    [projectController emptyProjectArrayController];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
+                                      object:nil];
 }
 
 - (void)showProjectsChooser:(id)aNotification
 {
+    [selectProjectView setFrame:[contentScrollView bounds]];
+    [selectProjectView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:selectProjectView];
 }
 
@@ -264,23 +278,39 @@ activeProject = "";  // URI to the currently open project
     {
         case @"statusToolbarButton":
             CPLog("Status Button!");
+            [projectStatusView setFrame:[contentScrollView bounds]];
+            [projectStatusView setAutoresizingMask:CPViewWidthSizable];
             [contentScrollView setDocumentView:projectStatusView];
             break;
         case @"manageImagesToolbarButton":
             CPLog("Manage Images!");
+            [manageImagesView setFrame:[contentScrollView bounds]];
+            [manageImagesView setAutoresizingMask:CPViewWidthSizable];
             [contentScrollView setDocumentView:manageImagesView];
             break;
         case @"manageWorkflowsToolbarButton":
             CPLog("Manage Workflows!");
+            [manageWorkflowsView setFrame:[contentScrollView bounds]];
+            [manageWorkflowsView setAutoresizingMask:CPViewWidthSizable];
             [contentScrollView setDocumentView:manageWorkflowsView];
             break;
         case @"interactiveJobsToolbarButton":
             CPLog("Interactive Jobs!");
+            [interactiveJobsView setFrame:[contentScrollView bounds]];
+            [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
             [contentScrollView setDocumentView:interactiveJobsView];
             break;
         case @"usersGroupsToolbarButton":
             CPLog("Users and Groups!");
+            [usersGroupsView setFrame:[contentScrollView bounds]];
+            [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
             [contentScrollView setDocumentView:usersGroupsView];
+            break;
+        case @"workflowDesignerToolbarButton":
+            CPLog("Workflow Designer!");
+            [workflowDesignerView setFrame:[contentScrollView bounds]];
+            [workflowDesignerView layoutIfNeeded];
+            [contentScrollView setDocumentView:workflowDesignerView];
             break;
         default:
             console.log("Unknown identifier");
@@ -298,6 +328,9 @@ activeProject = "";  // URI to the currently open project
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
     [theToolbar setVisible:YES];
+
+    [projectStatusView setFrame:[contentScrollView bounds]];
+    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
 }
 

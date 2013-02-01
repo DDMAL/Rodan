@@ -9,10 +9,27 @@
 {
     @outlet     CPTextField       usernameField;
     @outlet     CPSecureTextField passwordField;
+    @outlet     CPWindow          logInWindow;
                 CPCookie          CSRFToken;
 }
 
-- (IBAction)logIn:(id)aSender
+- (void)runLogInSheet
+{
+    [CPApp beginSheet:logInWindow modalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+}
+
+- (IBAction)closeSheet:(id)aSender
+{
+    [CPApp endSheet:logInWindow returnCode:[aSender tag]];
+}
+
+- (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
+{
+    [logInWindow orderOut:self];
+    [self logIn];
+}
+
+- (void)logIn
 {
     CPLog("Calling Log In");
     var username = [usernameField objectValue],
