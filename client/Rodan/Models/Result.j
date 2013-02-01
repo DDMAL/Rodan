@@ -4,6 +4,9 @@
     CPString    pk              @accessors;
     CPString    taskName        @accessors;
     CPString    created         @accessors;
+    JSObject    page            @accessors;
+    JSObject    workflowJob     @accessors;
+    CPString    resultURI       @accessors;
 }
 
 + (CPArray)remoteProperties
