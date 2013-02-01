@@ -1,4 +1,7 @@
+import os
+import shutil
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
 
@@ -17,3 +20,17 @@ class Project(models.Model):
 
     def __unicode__(self):
         return u"{0}".format(self.name)
+
+    def save(self, *args, **kwargs):
+        super(Project, self).save(*args, **kwargs)
+        if not os.path.exists(self.project_path):
+            os.makedirs(self.project_path)
+
+    def delete(self, *args, **kwargs):
+        if os.path.exists(self.project_path):
+            shutil.rmtree(self.project_path)
+        super(Project, self).delete(*args, **kwargs)
+
+    @property
+    def project_path(self):
+        return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
