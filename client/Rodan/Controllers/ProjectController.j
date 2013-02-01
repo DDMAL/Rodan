@@ -105,7 +105,7 @@
             plProj = "project";
     }
 
-    var message = [CPString stringWithFormat:@"%@ %@ %@ will be deleted! This cannot be undone.", plThis, numToBeDeleted, plProj];
+    var message = [CPString stringWithFormat:@"%@ %@ %@ and all associated files will be deleted! This cannot be undone. Are you sure?", plThis, numToBeDeleted, plProj];
     // pop up a warning
     alert = [[CPAlert alloc] init];
     [alert setMessageText:message];
@@ -129,9 +129,9 @@
 
 - (void)deleteProjects
 {
-        var selectedObjects = [projectArrayController selectedObjects];
-        [projectArrayController removeObjects:selectedObjects];
-        [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
+    var selectedObjects = [projectArrayController selectedObjects];
+    [projectArrayController removeObjects:selectedObjects];
+    [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 - (IBAction)openProject:(id)aSender
