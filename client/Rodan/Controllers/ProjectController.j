@@ -151,4 +151,9 @@
 
 }
 
+- (void)emptyProjectArrayController
+{
+    [[projectArrayController contentArray] removeAllObjects];
+}
+
 @end
