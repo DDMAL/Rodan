@@ -1,4 +1,5 @@
 import os
+import json
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -78,18 +79,13 @@ class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = WorkflowSerializer
-
-    def pre_save(self, obj):
-        pass
+    paginate_by = None
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = WorkflowSerializer
-
-    def pre_save(self, obj):
-        pass
 
 
 class WorkflowJobList(generics.ListCreateAPIView):
