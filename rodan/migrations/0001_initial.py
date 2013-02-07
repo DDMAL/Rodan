@@ -25,27 +25,14 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('author', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('category', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('input_types', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('output_types', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('arguments', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('enabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('interactive', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('rodan', ['Job'])
-
-        # Adding model 'Page'
-        db.create_table('rodan_page', (
-            ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['rodan.Project'])),
-            ('page_image', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True)),
-            ('compat_page_image', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True)),
-            ('page_order', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('image_file_size', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('processed', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', null=True, to=orm['auth.User'])),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal('rodan', ['Page'])
 
         # Adding model 'Workflow'
         db.create_table('rodan_workflow', (
@@ -58,6 +45,14 @@ class Migration(SchemaMigration):
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal('rodan', ['Workflow'])
+
+        # Adding M2M table for field jobs on 'Workflow'
+        db.create_table('rodan_workflow_jobs', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('workflow', models.ForeignKey(orm['rodan.workflow'], null=False)),
+            ('workflowjob', models.ForeignKey(orm['rodan.workflowjob'], null=False))
+        ))
+        db.create_unique('rodan_workflow_jobs', ['workflow_id', 'workflowjob_id'])
 
         # Adding M2M table for field pages on 'Workflow'
         db.create_table('rodan_workflow_pages', (
@@ -79,37 +74,33 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('rodan', ['WorkflowJob'])
 
+        # Adding model 'Page'
+        db.create_table('rodan_page', (
+            ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(default=False, max_length=255, null=True)),
+            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['rodan.Project'])),
+            ('page_image', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
+            ('compat_page_image', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
+            ('page_order', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('image_file_size', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('processed', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', null=True, to=orm['auth.User'])),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal('rodan', ['Page'])
+
         # Adding model 'Result'
         db.create_table('rodan_result', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
+            ('task_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('workflow_job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.WorkflowJob'], null=True)),
             ('page', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Page'])),
-            ('result', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True)),
+            ('result', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal('rodan', ['Result'])
-
-        # Adding model 'ResultFile'
-        db.create_table('rodan_resultfile', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('result', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Result'])),
-            ('result_type', self.gf('django.db.models.fields.CharField')(max_length=10)),
-            ('filename', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal('rodan', ['ResultFile'])
-
-        # Adding model 'ResultTask'
-        db.create_table('rodan_resulttask', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('result', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Result'])),
-            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['djcelery.TaskMeta'])),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal('rodan', ['ResultTask'])
 
 
     def backwards(self, orm):
@@ -119,11 +110,11 @@ class Migration(SchemaMigration):
         # Deleting model 'Job'
         db.delete_table('rodan_job')
 
-        # Deleting model 'Page'
-        db.delete_table('rodan_page')
-
         # Deleting model 'Workflow'
         db.delete_table('rodan_workflow')
+
+        # Removing M2M table for field jobs on 'Workflow'
+        db.delete_table('rodan_workflow_jobs')
 
         # Removing M2M table for field pages on 'Workflow'
         db.delete_table('rodan_workflow_pages')
@@ -131,14 +122,11 @@ class Migration(SchemaMigration):
         # Deleting model 'WorkflowJob'
         db.delete_table('rodan_workflowjob')
 
+        # Deleting model 'Page'
+        db.delete_table('rodan_page')
+
         # Deleting model 'Result'
         db.delete_table('rodan_result')
-
-        # Deleting model 'ResultFile'
-        db.delete_table('rodan_resultfile')
-
-        # Deleting model 'ResultTask'
-        db.delete_table('rodan_resulttask')
 
 
     models = {
@@ -178,35 +166,27 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'djcelery.taskmeta': {
-            'Meta': {'object_name': 'TaskMeta', 'db_table': "'celery_taskmeta'"},
-            'date_done': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'hidden': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'meta': ('djcelery.picklefield.PickledObjectField', [], {'default': 'None', 'null': 'True'}),
-            'result': ('djcelery.picklefield.PickledObjectField', [], {'default': 'None', 'null': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'PENDING'", 'max_length': '50'}),
-            'task_id': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'traceback': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
-        },
         'rodan.job': {
-            'Meta': {'object_name': 'Job'},
+            'Meta': {'ordering': "['category']", 'object_name': 'Job'},
             'arguments': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
             'author': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'category': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'input_types': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
+            'interactive': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'output_types': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.page': {
             'Meta': {'object_name': 'Page'},
-            'compat_page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True'}),
+            'compat_page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pages'", 'null': 'True', 'to': "orm['auth.User']"}),
             'image_file_size': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'default': 'False', 'max_length': '255', 'null': 'True'}),
+            'page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'page_order': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pages'", 'to': "orm['rodan.Project']"}),
@@ -226,42 +206,26 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Result'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Page']"}),
-            'result': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True'}),
+            'result': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
+            'task_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
             'workflow_job': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.WorkflowJob']", 'null': 'True'})
-        },
-        'rodan.resultfile': {
-            'Meta': {'object_name': 'ResultFile'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'filename': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'result': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Result']"}),
-            'result_type': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
-            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
-        },
-        'rodan.resulttask': {
-            'Meta': {'object_name': 'ResultTask'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'result': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Result']"}),
-            'task': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['djcelery.TaskMeta']"}),
-            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         'rodan.workflow': {
             'Meta': {'object_name': 'Workflow'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'has_started': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'jobs': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['rodan.Job']", 'null': 'True', 'through': "orm['rodan.WorkflowJob']", 'blank': 'True'}),
+            'jobs': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'workflows'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['rodan.WorkflowJob']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'pages': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'workflows'", 'symmetrical': 'False', 'to': "orm['rodan.Page']"}),
+            'pages': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'workflows'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['rodan.Page']"}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': "orm['rodan.Project']"}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.workflowjob': {
-            'Meta': {'object_name': 'WorkflowJob'},
+            'Meta': {'ordering': "['sequence']", 'object_name': 'WorkflowJob'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'job': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Job']"}),
             'job_settings': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
