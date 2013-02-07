@@ -3,8 +3,8 @@
 {
     CPString    workflowName    @accessors;
     CPString    project         @accessors;
-    CPString    jobs            @accessors;
-    CPString    pages           @accessors;
+    CPArray    jobs            @accessors;
+    CPArray    pages           @accessors;
     CPString    description     @accessors;
     BOOL        hasStarted      @accessors;
 }
@@ -14,6 +14,9 @@
     if (self = [super init])
     {
         workflowName = @"Untitled";
+        jobs = [];
+        pages = [];
+        hasStarted = NO;
     }
     return self;
 }
