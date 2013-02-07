@@ -1,16 +1,17 @@
 from django.db import models
-from rodan.models.job import Job
-from rodan.models.page import Page
-from rodan.models.project import Project
 from uuidfield import UUIDField
 
 
 class Workflow(models.Model):
+    """
+        This model uses quoted relationship names to avoid
+        circular imports.
+    """
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
-    project = models.ForeignKey(Project, related_name="workflows")
-    jobs = models.ManyToManyField(Job, through='WorkflowJob', null=True, blank=True)
-    pages = models.ManyToManyField(Page, related_name="workflows")
+    project = models.ForeignKey("rodan.Project", related_name="workflows")
+    jobs = models.ManyToManyField("rodan.WorkflowJob", related_name="workflows", blank=True)
+    pages = models.ManyToManyField("rodan.Page", related_name="workflows", blank=True)
     description = models.TextField(blank=True, null=True)
     has_started = models.BooleanField(default=False)
 
