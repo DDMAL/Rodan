@@ -1,4 +1,5 @@
 @import <Foundation/CPObject.j>
+@import <AppKit/CPArrayController.j>
 @import <AppKit/CPBrowser.j>
 @import <AppKit/CPOutlineView.j>
 @import <AppKit/CPTableView.j>
@@ -6,12 +7,35 @@
 @import "../Models/Workflow.j"
 
 @global activeProject;
+@global RodanDidLoadWorkflowsNotification;
+@global RodanWorkflowTreeNeedsRefresh;
 
 @implementation WorkflowController : CPObject
 {
-    @outlet     CPBrowser       jobBrowser;
-    @outlet     CPOutlineView   existingWorkflows;
-    @outlet     CPTableView     workflowView;
+    @outlet     CPBrowser           jobBrowser;
+    @outlet     CPTableView         existingWorkflows;
+    @outlet     CPTableView         workflowView;
+    @outlet     CPArrayController   workflowArrayController;
+}
+
+- (void)fetchWorkflows
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"/workflows" delegate:self message:"Loading jobs"];
+}
+
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    if ([anAction result])
+    {
+        var j = [Workflow objectsFromJson:[anAction result]];
+        [workflowArrayController addObjects:j];
+
+        // boot up the delegate for the outline view
+        [existingWorkflows setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
+
+        [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowsNotification
+                                              object:[anAction result]];
+    }
 }
 
 - (id)init
@@ -42,13 +66,19 @@
     CPLog("Stop Workflow");
 }
 
+- (void)removeWorkflow:(id)aSender
+{
+    var selectedObjects = [workflowArrayController selectedObjects];
+    [workflowArrayController removeObjects:selectedObjects];
+    [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
+}
+
 - (void)newWorkflow:(id)aSender
 {
     var wflow = [[Workflow alloc] init];
-    console.log(activeProject);
     [wflow setProject:[activeProject pk]];
+    [workflowArrayController addObject:wflow];
     [wflow ensureCreated];
-    console.log(wflow);
 }
 
 - (void)newWorkflowGroup:(id)aSender
