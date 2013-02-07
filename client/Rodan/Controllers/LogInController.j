@@ -9,12 +9,15 @@
 {
     @outlet     CPTextField       usernameField;
     @outlet     CPSecureTextField passwordField;
+    @outlet     CPButton          submitButton;
     @outlet     CPWindow          logInWindow;
                 CPCookie          CSRFToken;
 }
 
 - (void)runLogInSheet
 {
+    [logInWindow setDefaultButton:submitButton];
+
     [CPApp beginSheet:logInWindow modalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
