@@ -11,6 +11,7 @@
 {
     @outlet     CPArrayController   projectArrayController;
     @outlet     CPWindow            createProjectWindow;
+    @outlet     CPButton            createProjectButton;
 
     @outlet     CPTextField         newProjectName;
     @outlet     CPTextField         newProjectDescription;
@@ -56,6 +57,7 @@
 - (IBAction)openAddProjectWindow:(id)aSender
 {
     // pop up window
+    [createProjectWindow setDefaultButton:createProjectButton];
     [createProjectWindow center];
     [createProjectWindow makeKeyAndOrderFront:aSender];
 }
