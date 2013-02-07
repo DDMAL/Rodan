@@ -34,6 +34,8 @@ RodanDidCloseProjectNotification = @"RodanDidCloseProjectNotification";
 RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
 RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
+RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
+RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
 
 RodanMustLogInNotification = @"RodanMustLogInNotification";
 RodanDidLogInNotification = @"RodanDidLogInNotification";
@@ -174,26 +176,18 @@ activeProject = "";  // URI to the currently open project
     [theToolbar setVisible:NO];
 
     var statusToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status.png"] size:CGSizeMake(32.0, 32.0)],
-        statusToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status-selected.png"] size:CGSizeMake(32.0, 32.0)],
         pagesToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images.png"] size:CGSizeMake(40.0, 32.0)],
-        pagesToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images-selected.png"] size:CGSizeMake(40.0, 32.0)],
         workflowsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
-        workflowsToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows-selected.png"] size:CGSizeMake(32.0, 32.0)],
         jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
-        jobsToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs-selected.png"] size:CGSizeMake(32.0, 32.0)],
         usersToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users.png"] size:CGSizeMake(46.0, 32.0)],
-        usersToolbarIconSelected = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users-selected.png"] size:CGSizeMake(46.0, 32.0)];
+        workflowDesignerToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflow-designer.png"] size:CGSizeMake(32.0, 32.0)];
 
     [statusToolbarItem setImage:statusToolbarIcon];
-    [statusToolbarItem setAlternateImage:statusToolbarIconSelected];
     [pagesToolbarItem setImage:pagesToolbarIcon];
-    [pagesToolbarItem setAlternateImage:pagesToolbarIconSelected];
     [workflowsToolbarItem setImage:workflowsToolbarIcon];
-    [workflowsToolbarItem setAlternateImage:workflowsToolbarIconSelected];
     [jobsToolbarItem setImage:jobsToolbarIcon];
-    [jobsToolbarItem setAlternateImage:jobsToolbarIconSelected];
     [usersToolbarItem setImage:usersToolbarIcon];
-    [usersToolbarItem setAlternateImage:usersToolbarIconSelected];
+    [workflowDesignerToolbarItem setImage:workflowDesignerToolbarIcon];
 
     [contentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 
@@ -331,7 +325,6 @@ activeProject = "";  // URI to the currently open project
 {
     activeProject = [aNotification object];
 
-    workflowController = [[WorkflowController alloc] init];
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
         addWorkflowTitle = @"Add Workflow...",
@@ -345,7 +338,10 @@ activeProject = "";  // URI to the currently open project
 
     [addWorkflowItem setAction:@selector(newWorkflow:)];
     [addWorkflowItem setTarget:workflowController];
-    [addWorkflowGroupItem setAction:@selector(newWorkflowGroup:)];
+    // [addWorkflowGroupItem setAction:@selector(newWorkflowGroup:)];
+
+    [removeButton setAction:@selector(removeWorkflow:)];
+    [removeButton setTarget:workflowController];
 
     [imageUploadButton setValue:[activeProject resourceURI] forParameter:@"project"];
     [pageController createObjectsWithJSONResponse:activeProject];
@@ -358,6 +354,8 @@ activeProject = "";  // URI to the currently open project
     [projectStatusView setFrame:[contentScrollView bounds]];
     [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
+
+    [workflowController fetchWorkflows];
 }
 
 - (void)didCloseProject:(CPNotification)aNotification
@@ -395,16 +393,6 @@ activeProject = "";  // URI to the currently open project
     var serverAdminContentView = [serverAdminWindow contentView];
     [serverAdminContentView addSubview:userAdminView];
     [serverAdminWindow orderFront:aSender];
-}
-
-- (void)newWorkflow:(id)aSender
-{
-    console.log("Creating a new workflow");
-}
-
-- (void)newWorkflowGroup:(id)aSender
-{
-    console.log("Creating a new workflow group");
 }
 
 - (void)observerDebug:(id)aNotification
