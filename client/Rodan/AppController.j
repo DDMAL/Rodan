@@ -11,6 +11,8 @@
 @import <FileUpload/FileUpload.j>
 @import <Ratatosk/Ratatosk.j>
 
+@import "Categories/CPButtonBar+PopupButtons.j"
+
 @import "Transformers/ArrayCountTransformer.j"
 @import "Transformers/GameraClassNameTransformer.j"
 @import "Transformers/CheckBoxTransformer.j"
@@ -28,6 +30,7 @@
 @import "Models/Project.j"
 
 RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
+RodanDidCloseProjectNotification = @"RodanDidCloseProjectNotification";
 RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
 RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
@@ -45,17 +48,15 @@ activeProject = "";  // URI to the currently open project
 @implementation AppController : CPObject
 {
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
-    @outlet     CPMenu      theMenu;
     @outlet     CPToolbar   theToolbar;
                 CPBundle    theBundle;
-    @outlet     CPWindow    logInWindow;
 
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginWaitScreenView;
     @outlet     CPView      selectProjectView;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
-    @outlet     CPView      manageImagesView;
+    @outlet     CPView      managePagesView;
     @outlet     CPView      usersGroupsView;
     @outlet     CPView      workflowDesignerView;
                 CPView      contentView;
@@ -72,20 +73,23 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPWindow    newProjectWindow;
     @outlet     CPWindow    openProjectWindow;
 
-    @outlet     CPWindow    newWorkflowWindow;
-
     @outlet     CPToolbarItem   statusToolbarItem;
     @outlet     CPToolbarItem   pagesToolbarItem;
     @outlet     CPToolbarItem   workflowsToolbarItem;
     @outlet     CPToolbarItem   jobsToolbarItem;
     @outlet     CPToolbarItem   usersToolbarItem;
     @outlet     CPToolbarItem   workflowDesignerToolbarItem;
+    @outlet     CPButtonBar     workflowAddRemoveBar;
+
+    @outlet     CPMenu          switchWorkspaceMenu;
+    @outlet     CPMenuItem      rodanMenuItem;
 
     @outlet     ProjectController   projectController;
     @outlet     PageController      pageController;
     @outlet     JobController       jobController;
     @outlet     UploadButton        imageUploadButton;
     @outlet     LogInController     logInController;
+    @outlet     WorkflowController  workflowController;
 
     CGRect      _theWindowBounds;
 
@@ -154,6 +158,7 @@ activeProject = "";  // URI to the currently open project
 
     [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
     [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
+    [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
 
     [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
     [center addObserver:self selector:@selector(mustLogIn:) name:RodanMustLogInNotification object:nil];
@@ -209,6 +214,10 @@ activeProject = "";  // URI to the currently open project
     {
         return "This will terminate the Application. Are you sure you want to leave?";
     }
+
+    [CPMenu setMenuBarVisible:NO];
+    var menubarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"menubar-icon.png"] size:CGSizeMake(16.0, 16.0)];
+    [rodanMenuItem setImage:menubarIcon];
 
     CPLog("Application Did Finish Launching");
     [loginWaitScreenView setFrame:[contentScrollView bounds]];
@@ -270,68 +279,106 @@ activeProject = "";  // URI to the currently open project
     [LogOutController logOut];
 }
 
-- (IBAction)switchWorkspace:(id)aSender
+#pragma mark -
+#pragma mark Switch Workspaces
+
+- (IBAction)switchWorkspaceToProjectStatus:(id)aSender
 {
-    CPLog("switchWorkspace called");
-    console.log([contentScrollView subviews]);
-    switch ([aSender itemIdentifier])
-    {
-        case @"statusToolbarButton":
-            CPLog("Status Button!");
-            [projectStatusView setFrame:[contentScrollView bounds]];
-            [projectStatusView setAutoresizingMask:CPViewWidthSizable];
-            [contentScrollView setDocumentView:projectStatusView];
-            break;
-        case @"manageImagesToolbarButton":
-            CPLog("Manage Images!");
-            [manageImagesView setFrame:[contentScrollView bounds]];
-            [manageImagesView setAutoresizingMask:CPViewWidthSizable];
-            [contentScrollView setDocumentView:manageImagesView];
-            break;
-        case @"manageWorkflowsToolbarButton":
-            CPLog("Manage Workflows!");
-            [manageWorkflowsView setFrame:[contentScrollView bounds]];
-            [manageWorkflowsView setAutoresizingMask:CPViewWidthSizable];
-            [contentScrollView setDocumentView:manageWorkflowsView];
-            break;
-        case @"interactiveJobsToolbarButton":
-            CPLog("Interactive Jobs!");
-            [interactiveJobsView setFrame:[contentScrollView bounds]];
-            [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
-            [contentScrollView setDocumentView:interactiveJobsView];
-            break;
-        case @"usersGroupsToolbarButton":
-            CPLog("Users and Groups!");
-            [usersGroupsView setFrame:[contentScrollView bounds]];
-            [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
-            [contentScrollView setDocumentView:usersGroupsView];
-            break;
-        case @"workflowDesignerToolbarButton":
-            CPLog("Workflow Designer!");
-            [workflowDesignerView setFrame:[contentScrollView bounds]];
-            [workflowDesignerView layoutIfNeeded];
-            [contentScrollView setDocumentView:workflowDesignerView];
-            break;
-        default:
-            console.log("Unknown identifier");
-            break;
-    }
+    [projectStatusView setFrame:[contentScrollView bounds]];
+    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:projectStatusView];
 }
+
+- (IBAction)switchWorkspaceToManagePages:(id)aSender
+{
+    [managePagesView setFrame:[contentScrollView bounds]];
+    [managePagesView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:managePagesView];
+}
+
+- (IBAction)switchWorkspaceToManageWorkflows:(id)aSender
+{
+    [manageWorkflowsView setFrame:[contentScrollView bounds]];
+    [manageWorkflowsView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:manageWorkflowsView];
+}
+
+- (IBAction)switchWorkspaceToInteractiveJobs:(id)aSender
+{
+    [interactiveJobsView setFrame:[contentScrollView bounds]];
+    [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:interactiveJobsView];
+}
+
+- (IBAction)switchWorkspaceToUsersGroups:(id)aSender
+{
+    [usersGroupsView setFrame:[contentScrollView bounds]];
+    [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:usersGroupsView];
+}
+
+- (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
+{
+    [workflowDesignerView setFrame:[contentScrollView bounds]];
+    [workflowDesignerView layoutIfNeeded];
+    [contentScrollView setDocumentView:workflowDesignerView];
+}
+
+#pragma mark -
+#pragma mark Project Opening and Closing
 
 - (void)didOpenProject:(CPNotification)aNotification
 {
     activeProject = [aNotification object];
 
+    workflowController = [[WorkflowController alloc] init];
+    var addButton = [CPButtonBar plusPopupButton],
+        removeButton = [CPButtonBar minusButton],
+        addWorkflowTitle = @"Add Workflow...",
+        addWorkflowGroupTitle = @"Add Workflow Group";
+
+    [addButton addItemsWithTitles:[addWorkflowTitle, addWorkflowGroupTitle]];
+    [workflowAddRemoveBar setButtons:[addButton, removeButton]];
+
+    var addWorkflowItem = [addButton itemWithTitle:addWorkflowTitle],
+        addWorkflowGroupItem = [addButton itemWithTitle:addWorkflowGroupTitle];
+
+    [addWorkflowItem setAction:@selector(newWorkflow:)];
+    [addWorkflowItem setTarget:workflowController];
+    [addWorkflowGroupItem setAction:@selector(newWorkflowGroup:)];
+
     [imageUploadButton setValue:[activeProject resourceURI] forParameter:@"project"];
     [pageController createObjectsWithJSONResponse:activeProject];
-
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
+
+    [CPMenu setMenuBarVisible:YES];
     [theToolbar setVisible:YES];
 
     [projectStatusView setFrame:[contentScrollView bounds]];
     [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
+}
+
+- (void)didCloseProject:(CPNotification)aNotification
+{
+    // perform some cleanup
+    [projectController emptyProjectArrayController];
+    [theToolbar setVisible:NO];
+    [CPMenu setMenuBarVisible:NO];
+
+    // this should fire off a request to reload the projects and then show the
+    // project chooser once they have returned.
+    [projectController fetchProjects];
+    [jobController fetchJobs]
+}
+
+- (IBAction)closeProject:(id)aSender
+{
+    CPLog("Close Project");
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
+                                  object:nil];
+
 }
 
 - (IBAction)openUserPreferences:(id)aSender
@@ -350,22 +397,14 @@ activeProject = "";  // URI to the currently open project
     [serverAdminWindow orderFront:aSender];
 }
 
-- (IBAction)closeProject:(id)aSender
+- (void)newWorkflow:(id)aSender
 {
-    CPLog("Close Project");
-    var alert = [[CPAlert alloc] init];
-    [alert setTitle:"Informational Alert"];
-    [alert setMessageText:"Informational Alert"];
-    [alert setInformativeText:"CPAlerts can also be used as sheets! With the same options as before."];
-    [alert setShowsHelp:YES];
-    [alert setShowsSuppressionButton:YES];
-    [alert setAlertStyle:CPInformationalAlertStyle];
-    [alert addButtonWithTitle:"Okay"];
+    console.log("Creating a new workflow");
+}
 
-    var closeProjectController = [[SheetController alloc] init];
-    [alert setDelegate:closeProjectController];
-    [closeProjectController setSheet:alert];
-    [closeProjectController beginSheet]
+- (void)newWorkflowGroup:(id)aSender
+{
+    console.log("Creating a new workflow group");
 }
 
 - (void)observerDebug:(id)aNotification
@@ -385,23 +424,5 @@ activeProject = "";  // URI to the currently open project
         case "DELETE":
             [aRequest setValue:[CSRFToken value] forHTTPHeaderField:"X-CSRFToken"];
     }
-}
-@end
-
-
-@implementation SheetController : CPObject
-{
-    CPAlert sheet @accessors;
-}
-
-- (void)beginSheet
-{
-    CPLog("Beginning Sheet");
-    [sheet beginSheetModalForWindow:[CPApp mainWindow]];
-}
-
-- (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
-{
-    CPLog("Alert did End returning " + returnCode);
 }
 @end
