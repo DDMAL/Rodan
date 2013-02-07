@@ -65,8 +65,8 @@
     [createProjectWindow close];
 
     // get window username & description
-    var projectName = [newProjectName objectValue];
-    var projectDescription = [newProjectDescription objectValue];
+    var projectName = [newProjectName objectValue],
+        projectDescription = [newProjectDescription objectValue];
 
     /*
         Reset the text fields so that subsequent calls to the window
@@ -79,11 +79,9 @@
     var newProjectObject = {
         'name': projectName,
         'description': projectDescription,
-        'creator': activeUser,
-    };
-
-    // create object
-    var p = [[Project alloc] initWithJson:newProjectObject];
+        'creator': activeUser
+        },
+        p = [[Project alloc] initWithJson:newProjectObject];
 
     [projectArrayController addObject:p];
 
