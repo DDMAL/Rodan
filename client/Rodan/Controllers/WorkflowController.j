@@ -1,16 +1,30 @@
-@import <AppKit/AppKit.j>
+@import <Foundation/CPObject.j>
+@import <AppKit/CPBrowser.j>
+@import <AppKit/CPOutlineView.j>
+@import <AppKit/CPTableView.j>
+
+@import "../Models/Workflow.j"
+
+@global activeProject;
 
 @implementation WorkflowController : CPObject
 {
-    @outlet     CPWindow    newWorkflowWindow;
-    @outlet     CPWindow    addImageWindow;
-    @outlet     CPTextField projectName;
+    @outlet     CPBrowser       jobBrowser;
+    @outlet     CPOutlineView   existingWorkflows;
+    @outlet     CPTableView     workflowView;
+}
+
+- (id)init
+{
+    if (self = [super init])
+    {
+    }
+    return self;
 }
 
 - (IBAction)saveWorkflow:(id)aSender
 {
     CPLog("Save Workflow");
-    [newWorkflowWindow close];
 }
 
 - (IBAction)addImagesToWorkflow:(id)aSender
@@ -28,11 +42,18 @@
     CPLog("Stop Workflow");
 }
 
-- (IBAction)newWorkflow:(id)aSender
+- (void)newWorkflow:(id)aSender
+{
+    var wflow = [[Workflow alloc] init];
+    console.log(activeProject);
+    [wflow setProject:[activeProject pk]];
+    [wflow ensureCreated];
+    console.log(wflow);
+}
+
+- (void)newWorkflowGroup:(id)aSender
 {
     CPLog("In the workflow controller");
-    [newWorkflowWindow center];
-    [newWorkflowWindow orderFront:aSender];
 }
 
 @end
