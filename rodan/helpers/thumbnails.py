@@ -12,7 +12,10 @@ def create_thumbnails(page_object):
     width, height = image.size
 
     for thumbnail_size in settings.THUMBNAIL_SIZES:
-        dimensions = (thumbnail_size, int(math.ceil((thumbnail_size / float(height)) * width)))
+        if width > height:
+            dimensions = (thumbnail_size, int(math.ceil((height / (width / float(thumbnail_size))))))
+        else:
+            dimensions = (int(math.ceil((width / (height / float(thumbnail_size))))), thumbnail_size)
 
         thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
         thumb_copy.save(os.path.join(page_object.thumb_path,
