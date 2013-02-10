@@ -95,6 +95,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = WorkflowJob
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = WorkflowJobSerializer
 
 
@@ -174,6 +175,8 @@ class JobList(generics.ListAPIView):
 
 class JobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Job
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = JobSerializer
 
 
 class ResultList(generics.ListCreateAPIView):
