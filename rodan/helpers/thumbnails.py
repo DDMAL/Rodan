@@ -1,5 +1,4 @@
 import os
-import math
 from celery import task
 from django.conf import settings
 import PIL.Image
