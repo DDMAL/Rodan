@@ -9,13 +9,13 @@ import PIL.ImageFile
 @task(name="rodan.helpers.thumbnails.create_thumbnails")
 def create_thumbnails(page_object):
     image = PIL.Image.open(page_object.page_image.path).convert('RGB')
-    width, height = image.size
+    width = float(image.size[0])
+    height = float(image.size[1])
 
     for thumbnail_size in settings.THUMBNAIL_SIZES:
-        if width > height:
-            dimensions = (thumbnail_size, int(math.ceil((height / (width / float(thumbnail_size))))))
-        else:
-            dimensions = (int(math.ceil((width / (height / float(thumbnail_size))))), thumbnail_size)
+        thumbnail_size = float(thumbnail_size)
+        ratio = min((thumbnail_size / width), (thumbnail_size / height))
+        dimensions = (int(width * ratio), int(height * ratio))
 
         thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
         thumb_copy.save(os.path.join(page_object.thumb_path,
