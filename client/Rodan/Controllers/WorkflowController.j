@@ -27,6 +27,7 @@
 {
     if ([anAction result])
     {
+        console.log([anAction result]);
         var j = [Workflow objectsFromJson:[anAction result]];
         [workflowArrayController addObjects:j];
 
@@ -60,6 +61,14 @@
 {
     CPLog("Edit Workflow");
 }
+
+- (IBAction)startWorkflow:(id)aSender
+{
+    CPLog("Start Workflow");
+    var selectedObjects = [workflowArrayController selectedObjects];
+    console.log(selectedObjects);
+}
+
 
 - (IBAction)stopWorkflow:(id)aSender
 {
