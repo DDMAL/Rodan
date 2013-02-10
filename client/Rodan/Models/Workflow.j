@@ -1,10 +1,15 @@
+@import "WorkflowJob.j"
+@import "Job.j"
 
 @implementation Workflow : WLRemoteObject
 {
+    CPString    pk              @accessors;
+    CPString    uuid            @accessors;
     CPString    workflowName    @accessors;
-    CPString    project         @accessors;
-    CPArray    jobs            @accessors;
-    CPArray    pages           @accessors;
+    CPString    projectURI      @accessors;
+    CPArray     jobs            @accessors;
+    CPArray     workflowJobs    @accessors;
+    CPArray     pages           @accessors;
     CPString    description     @accessors;
     BOOL        hasStarted      @accessors;
 }
@@ -25,9 +30,11 @@
 {
     return [
         ['pk', 'url'],
+        ['uuid', 'uuid'],
         ['workflowName', 'name'],
-        ['project', 'project'],
-        ['jobs', 'jobs'],
+        ['projectURI', 'project'],
+        ['jobs', 'jobs', [WLForeignObjectOrObjectsTransformer forObjectClass:Job]],
+        ['workflowJobs', 'workflowjob_set', [WLForeignObjectOrObjectsTransformer forObjectClass:WorkflowJob]],
         ['pages', 'pages'],
         ['description', 'description'],
         ['hasStarted', 'has_started'],
