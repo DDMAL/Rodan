@@ -8,6 +8,19 @@
     JSObject    outputTypes     @accessors;
     CPString    category        @accessors;
     BOOL        isEnabled       @accessors;
+
+    CPImage     sourceListIcon  @accessors;
+}
+
+- (id)init
+{
+    if (self = [super init])
+    {
+        sourceListIcon = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"job-sourcelist-icon.png"]
+                                  size:CGSizeMake(16.0, 16.0)];
+
+    }
+    return self;
 }
 
 + (CPArray)remoteProperties

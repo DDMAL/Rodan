@@ -7,6 +7,8 @@
     CPArray    pages           @accessors;
     CPString    description     @accessors;
     BOOL        hasStarted      @accessors;
+
+    CPImage     sourceListIcon  @accessors;
 }
 
 - (id)init
@@ -17,6 +19,10 @@
         jobs = [];
         pages = [];
         hasStarted = NO;
+
+        sourceListIcon = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"workflow-sourcelist-icon.png"]
+                                          size:CGSizeMake(16.0, 16.0)]
+
     }
     return self;
 }
