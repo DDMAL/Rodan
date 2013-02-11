@@ -12,7 +12,7 @@ class WorkflowJob(models.Model):
         ordering = ['sequence']
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow)
+    workflow = models.ForeignKey(Workflow, related_name="wjobs")
     job = models.ForeignKey(Job)
     sequence = models.IntegerField()
     job_settings = json.JSONField(blank=True, null=True)

@@ -1,4 +1,3 @@
-
 @implementation Job : WLRemoteObject
 {
     CPString    pk              @accessors;
