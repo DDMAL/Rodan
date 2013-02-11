@@ -362,6 +362,8 @@ activeProject = "";  // URI to the currently open project
 {
     // perform some cleanup
     [projectController emptyProjectArrayController];
+    [workflowController emptyWorkflowArrayController];
+
     [theToolbar setVisible:NO];
     [CPMenu setMenuBarVisible:NO];
 
