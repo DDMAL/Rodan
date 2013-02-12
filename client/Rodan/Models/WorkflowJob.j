@@ -4,6 +4,7 @@
 {
     CPString    pk              @accessors;
     CPString    workflow        @accessors;
+    CPString    jobName         @accessors;
     CPString    job             @accessors;
     CPNumber    sequence        @accessors;
     CPArray     jobSettings     @accessors;
@@ -14,6 +15,7 @@
     return [
         ['pk', 'url'],
         ['workflow', 'workflow'],
+        ['jobName', 'name'],
         ['job', 'job'],
         ['sequence', 'sequence'],
         ['jobSettings', 'job_settings'],

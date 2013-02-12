@@ -23,6 +23,10 @@ class WorkflowJob(models.Model):
     def __unicode__(self):
         return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
 
+    @property
+    def name(self):
+        return self.job.name
+
 # this is here because it will be the last thing loaded when we launch
 # the django app. Ideally we'll use signals for startup/shutdown, but
 # this is not quite ready yet.
