@@ -3,7 +3,7 @@ from django.core.files import File
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflow import Workflow
 from rodan.models.result import Result
-from celery import registry
+from celery import registry, chain
 
 
 def run_workflow(workflow_id):
@@ -33,14 +33,7 @@ def run_workflow(workflow_id):
             'previous_result': r
         }
 
-        res = None
-        for num, wjob in enumerate(workflow_jobs):
-            rodan_task = registry.tasks[str(wjob.job.name)]
-            if num == 0:
-                res = rodan_task.s(job_data, wjob.job_settings)
-                continue
-            else:
-                res.link(rodan_task.s(wjob.job_settings))
+        res = chain([registry.tasks[str(workflow_jobs[0].job.name)].s(job_data, workflow_jobs[0].job_settings)] +
+                    [registry.tasks[str(wjob.job.name)].s(wjob.job_settings) for wjob in workflow_jobs[1:]])
 
-        # once we've done a task chain, let's kick it off.
         res.apply_async()
