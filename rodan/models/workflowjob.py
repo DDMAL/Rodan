@@ -14,18 +14,27 @@ class WorkflowJob(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow, related_name="wjobs")
     job = models.ForeignKey(Job)
-    sequence = models.IntegerField()
+    sequence = models.IntegerField(blank=True, null=True)
     job_settings = json.JSONField(blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
+        # return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
+        return "a workflow job"
 
     @property
     def name(self):
         return self.job.name
+
+    @property
+    def input_pixel_types(self):
+        return self.job.input_types["pixel_types"]
+
+    @property
+    def output_pixel_types(self):
+        return self.job.output_types["pixel_types"]
 
 # this is here because it will be the last thing loaded when we launch
 # the django app. Ideally we'll use signals for startup/shutdown, but
