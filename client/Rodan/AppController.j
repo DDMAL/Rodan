@@ -24,6 +24,7 @@
 @import "Controllers/UserPreferencesController.j"
 @import "Controllers/ServerAdminController.j"
 @import "Controllers/WorkflowController.j"
+@import "Controllers/WorkflowDesignerController.j"
 @import "Controllers/ProjectController.j"
 @import "Controllers/PageController.j"
 @import "Controllers/JobController.j"
@@ -35,6 +36,7 @@ RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
 RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
 RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
+RodanShouldLoadWorkflowDesignerNotification = @"RodanShouldLoadWorkflowDesignerNotification";
 RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
 
 RodanMustLogInNotification = @"RodanMustLogInNotification";
@@ -56,15 +58,19 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginWaitScreenView;
     @outlet     CPView      selectProjectView;
+    @outlet     CPTableView selectProjectTable;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      managePagesView;
     @outlet     CPView      usersGroupsView;
+    @outlet     CPView      chooseWorkflowView;
     @outlet     CPView      workflowDesignerView;
                 CPView      contentView;
 
     // @outlet     CPScrollView    contentScrollView;
                 CPScrollView    contentScrollView;
+    @outlet     CPButtonBar projectAddRemoveButtonBar;
+    @outlet     CPArrayController   projectArrayController;
 
     @outlet     CPWindow    userPreferencesWindow;
     @outlet     CPView      accountPreferencesView;
@@ -86,12 +92,13 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPMenu          switchWorkspaceMenu;
     @outlet     CPMenuItem      rodanMenuItem;
 
-    @outlet     ProjectController   projectController;
-    @outlet     PageController      pageController;
-    @outlet     JobController       jobController;
-    @outlet     UploadButton        imageUploadButton;
-    @outlet     LogInController     logInController;
-    @outlet     WorkflowController  workflowController;
+    @outlet     ProjectController           projectController;
+    @outlet     PageController              pageController;
+    @outlet     JobController               jobController;
+    @outlet     UploadButton                imageUploadButton;
+    @outlet     LogInController             logInController;
+    @outlet     WorkflowController          workflowController;
+    @outlet     WorkflowDesignerController  workflowDesignerController;
 
     CGRect      _theWindowBounds;
 
@@ -143,7 +150,6 @@ activeProject = "";  // URI to the currently open project
 
     [[WLRemoteLink sharedRemoteLink] setDelegate:self];
 
-    console.log([theWindow frame]);
     [theWindow setFullPlatformWindow:YES];
 
     [imageUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"]
@@ -161,6 +167,7 @@ activeProject = "";  // URI to the currently open project
     [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
     [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
     [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
+    [center addObserver:self selector:@selector(showWorkflowDesigner:) name:RodanShouldLoadWorkflowDesignerNotification object:nil];
 
     [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
     [center addObserver:self selector:@selector(mustLogIn:) name:RodanMustLogInNotification object:nil];
@@ -180,7 +187,8 @@ activeProject = "";  // URI to the currently open project
         workflowsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
         jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
         usersToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users.png"] size:CGSizeMake(46.0, 32.0)],
-        workflowDesignerToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflow-designer.png"] size:CGSizeMake(32.0, 32.0)];
+        workflowDesignerToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflow-designer.png"] size:CGSizeMake(32.0, 32.0)],
+        backgroundTexture = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"workflow-backgroundTexture.png"] size:CGSizeMake(200.0, 200.0)];
 
     [statusToolbarItem setImage:statusToolbarIcon];
     [pagesToolbarItem setImage:pagesToolbarIcon];
@@ -188,6 +196,9 @@ activeProject = "";  // URI to the currently open project
     [jobsToolbarItem setImage:jobsToolbarIcon];
     [usersToolbarItem setImage:usersToolbarIcon];
     [workflowDesignerToolbarItem setImage:workflowDesignerToolbarIcon];
+
+    [chooseWorkflowView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
+    [selectProjectView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
 
     [contentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 
@@ -263,6 +274,27 @@ activeProject = "";  // URI to the currently open project
 
 - (void)showProjectsChooser:(id)aNotification
 {
+    var addButton = [CPButtonBar plusPopupButton],
+        removeButton = [CPButtonBar minusButton],
+        addProjectTitle = @"Add Project...";
+    // addWorkflowGroupTitle = @"Add Workflow Group";
+
+    [addButton addItemsWithTitles:[addProjectTitle]];
+    [projectAddRemoveButtonBar setButtons:[addButton, removeButton]];
+
+    var addProjectItem = [addButton itemWithTitle:addProjectTitle];
+
+    [addProjectItem setAction:@selector(openAddProjectWindow:)];
+    [addProjectItem setTarget:projectController];
+
+    [removeButton setAction:@selector(selectDeleteProject:)];
+    [removeButton setTarget:projectController];
+
+    [removeButton bind:@"enabled"
+                  toObject:projectArrayController
+                  withKeyPath:@"selection.pk"
+                  options:nil]
+
     [selectProjectView setFrame:[contentScrollView bounds]];
     [selectProjectView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:selectProjectView];
@@ -313,9 +345,9 @@ activeProject = "";  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
 {
-    [workflowDesignerView setFrame:[contentScrollView bounds]];
-    [workflowDesignerView layoutIfNeeded];
-    [contentScrollView setDocumentView:workflowDesignerView];
+    [chooseWorkflowView setFrame:[contentScrollView bounds]];
+    [chooseWorkflowView layoutIfNeeded];
+    [contentScrollView setDocumentView:chooseWorkflowView];
 }
 
 #pragma mark -
@@ -327,18 +359,16 @@ activeProject = "";  // URI to the currently open project
 
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
-        addWorkflowTitle = @"Add Workflow...",
-        addWorkflowGroupTitle = @"Add Workflow Group";
+        addWorkflowTitle = @"Add Workflow...";
+        // addWorkflowGroupTitle = @"Add Workflow Group";
 
-    [addButton addItemsWithTitles:[addWorkflowTitle, addWorkflowGroupTitle]];
+    [addButton addItemsWithTitles:[addWorkflowTitle]];
     [workflowAddRemoveBar setButtons:[addButton, removeButton]];
 
-    var addWorkflowItem = [addButton itemWithTitle:addWorkflowTitle],
-        addWorkflowGroupItem = [addButton itemWithTitle:addWorkflowGroupTitle];
+    var addWorkflowItem = [addButton itemWithTitle:addWorkflowTitle];
 
     [addWorkflowItem setAction:@selector(newWorkflow:)];
     [addWorkflowItem setTarget:workflowController];
-    // [addWorkflowGroupItem setAction:@selector(newWorkflowGroup:)];
 
     [removeButton setAction:@selector(removeWorkflow:)];
     [removeButton setTarget:workflowController];
@@ -378,7 +408,6 @@ activeProject = "";  // URI to the currently open project
     CPLog("Close Project");
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
                                   object:nil];
-
 }
 
 - (IBAction)openUserPreferences:(id)aSender
@@ -395,6 +424,13 @@ activeProject = "";  // URI to the currently open project
     var serverAdminContentView = [serverAdminWindow contentView];
     [serverAdminContentView addSubview:userAdminView];
     [serverAdminWindow orderFront:aSender];
+}
+
+- (IBAction)showWorkflowDesigner:(id)aSender
+{
+    [workflowDesignerView setFrame:[contentScrollView bounds]];
+    [workflowDesignerView layoutIfNeeded];
+    [contentScrollView setDocumentView:workflowDesignerView];
 }
 
 - (void)observerDebug:(id)aNotification
