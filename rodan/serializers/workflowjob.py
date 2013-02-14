@@ -14,7 +14,7 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WorkflowJob
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', 'updated', 'input_pixel_types', 'output_pixel_types')
         fields = ("url",
                 "workflow",
                 "input_pixel_types",
