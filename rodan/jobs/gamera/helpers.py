@@ -56,7 +56,11 @@ class GameraTask(Task):
 def create_jobs_from_module(gamera_module):
     previously_loaded_modules = Job.objects.values_list('name', flat=True)
     for fn in gamera_module.module.functions:
+        # we only want jobs that will return a result and has a known pixel type
         if not fn.return_type:
+            continue
+
+        if "pixel_types" not in fn.return_type.__dict__.keys():
             continue
 
         module_task = GameraTask()
