@@ -9,4 +9,4 @@ from rodan.models.job import Job
 class JobSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Job
-        fields = ("url", "name", "arguments", "input_types", "output_types", "category", 'enabled')
+        fields = ("url", "name", "arguments", "description", "input_types", "output_types", "category", 'enabled')
