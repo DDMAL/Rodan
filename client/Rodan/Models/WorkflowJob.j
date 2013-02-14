@@ -8,7 +8,18 @@
     CPString    job             @accessors;
     CPNumber    sequence        @accessors;
     CPArray     jobSettings     @accessors;
+    CPArray     inputPixels     @accessors;
+    CPArray     outputPixels    @accessors;
 }
+
+// + (WorkflowJob)initWithJob:(CPString)aJobURI forWorkflow:(CPString)aWorkflowURI
+// {
+//     var self = [[WorkflowJob alloc] init];
+//     [self setJob:aJobURI];
+//     [self setWorkflow:aWorkflowURI];
+
+//     return self;
+// }
 
 + (CPArray)remoteProperties
 {
@@ -19,6 +30,8 @@
         ['job', 'job'],
         ['sequence', 'sequence'],
         ['jobSettings', 'job_settings'],
+        ['inputPixels', 'input_pixel_types'],
+        ['outputPixels', 'output_pixel_types']
     ];
 }
 
