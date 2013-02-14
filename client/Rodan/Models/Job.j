@@ -6,6 +6,7 @@
     JSObject    inputTypes      @accessors;
     JSObject    outputTypes     @accessors;
     CPString    category        @accessors;
+    CPString    description     @accessors;
     BOOL        isEnabled       @accessors;
 
     CPImage     sourceListIcon  @accessors;
@@ -28,6 +29,7 @@
         ['pk', 'url'],
         ['jobName', 'name'],
         ['arguments', 'arguments'],
+        ['description', 'description'],
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
         ['category', 'category'],
