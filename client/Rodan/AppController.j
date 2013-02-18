@@ -37,6 +37,7 @@ RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
 RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
 RodanShouldLoadWorkflowDesignerNotification = @"RodanShouldLoadWorkflowDesignerNotification";
+RodanRemoveJobFromWorkflowNotification = @"RodanRemoveJobFromWorkflowNotification";
 RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
 
 RodanMustLogInNotification = @"RodanMustLogInNotification";
