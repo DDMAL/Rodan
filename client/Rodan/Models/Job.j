@@ -2,9 +2,9 @@
 {
     CPString    pk              @accessors;
     CPString    jobName         @accessors;
-    JSObject    arguments       @accessors;
-    JSObject    inputTypes      @accessors;
-    JSObject    outputTypes     @accessors;
+    CPArray     arguments       @accessors;
+    CPArray     inputTypes      @accessors;
+    CPArray     outputTypes     @accessors;
     CPString    category        @accessors;
     CPString    description     @accessors;
     BOOL        isEnabled       @accessors;
