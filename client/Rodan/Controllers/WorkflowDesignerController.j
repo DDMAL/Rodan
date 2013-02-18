@@ -1,20 +1,25 @@
-@import "../Views/RDCollectionView.j"
+@import <LPKit/LPMultiLineTextField.j>
+
+@import "../Views/WorkflowCollectionView.j"
 
 @global RodanShouldLoadWorkflowDesignerNotification
+@global RodanRemoveJobFromWorkflowNotification
 
 JobItemType = @"JobItemType";
 activeWorkflow = nil;
 
 @implementation WorkflowDesignerController : CPObject
 {
-    @outlet     CPTableView         jobList;
-    @outlet     CPTableView         workflowList;
-    @outlet     RDCollectionView    workflowDesign;
-    @outlet     CPArrayController   workflowArrayController;
-    @outlet     CPArrayController   jobArrayController;
+    @outlet     CPTableView             jobList;
+    @outlet     CPView                  jobInfoParentView;
+    @outlet     LPMultiLineTextField    jobInfo;
+    @outlet     CPTableView             workflowList;
+    @outlet     WorkflowCollectionView  workflowDesign;
+    @outlet     CPArrayController       workflowArrayController;
+    @outlet     CPArrayController       jobArrayController;
 
-    @outlet     CPArrayController   currentWorkflow;
-    @outlet     CPMutableArray      currentWorkflowContentArray;
+    @outlet     CPArrayController       currentWorkflow;
+    @outlet     CPMutableArray          currentWorkflowContentArray;
 }
 
 - (void)awakeFromCib
@@ -23,6 +28,12 @@ activeWorkflow = nil;
                                           selector:@selector(shouldLoadWorkflow:)
                                           name:RodanShouldLoadWorkflowDesignerNotification
                                           object:nil];
+
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(removeJobFromWorkflow:)
+                                          name:RodanRemoveJobFromWorkflowNotification
+                                          object:nil];
+
 
     currentWorkflowContentArray = [[CPArray alloc] init];
     [workflowList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
@@ -51,6 +62,11 @@ activeWorkflow = nil;
 {
 }
 
+- (IBAction)removeJobFromWorkflow:(CPNotification)aSender
+{
+    [currentWorkflow removeObject:[[aSender object] representedObject]];
+}
+
 - (CPData)collectionView:(CPCollectionView)collectionView dataForItemsAtIndexes:(CPIndexSet)indices forType:(CPString)aType
 {
     console.log("Coll view");
@@ -58,7 +74,7 @@ activeWorkflow = nil;
 
 - (BOOL)collectionView:(CPCollectionView)collectionView acceptDrop:(CPDraggingInfo)info index:(int)anIndex dropOperation:(int)aDropOperation
 {
-    console.log("Accept Drop");
+    // console.log("Accept Drop");
     var pboard = [info draggingPasteboard],
         rowData = [pboard dataForType:JobItemType],
         dragRows = [CPKeyedUnarchiver unarchiveObjectWithData:rowData],
@@ -79,7 +95,7 @@ activeWorkflow = nil;
     if ([[currentWorkflow contentArray] count] == 0)
     {
         // we can't fail because we don't have anything to check against
-        console.log("Empty content array");
+        // console.log("Empty content array");
         input_type_passes = YES;
         output_type_passes = YES;
     }
@@ -88,7 +104,7 @@ activeWorkflow = nil;
         // check the previous item in the content array
         if (anIndex == 0)  // we're trying to insert it at the beginning
         {
-            console.log("At the beginning?");
+            // console.log("At the beginning?");
             input_type_passes = YES;
         }
         else
@@ -105,10 +121,10 @@ activeWorkflow = nil;
                 prevOutputTypes = JSON.parse([previousJob outputTypes]),
                 prevOutputSet = [CPSet setWithArray:prevOutputTypes.pixel_types];
 
-            console.log("Previous Job");
-            console.log(prevOutputSet);
-            console.log("This Job");
-            console.log(input_pixel_types);
+            // console.log("Previous Job");
+            // console.log(prevOutputSet);
+            // console.log("This Job");
+            // console.log(input_pixel_types);
 
             if ([prevOutputSet intersectsSet:input_pixel_types])
                 input_type_passes = YES;
@@ -117,7 +133,7 @@ activeWorkflow = nil;
         if (anIndex == [[currentWorkflow contentArray] count])
         {
             // we're appending to the end, so the output type should pass
-            console.log("At the end?");
+            // console.log("At the end?");
             output_type_passes = YES;
         }
         else
@@ -145,14 +161,23 @@ activeWorkflow = nil;
         return NO;
     }
 
+    // The JSON field module we're using likes setting an empty dictionary
+    // as a placeholder for fields with no values. We always want to have
+    // this set as an array, even if it is blank.
+    if ([jobObj arguments] === "{}")
+        var jobSettings = "[{}]";
+    else
+        var jobSettings = [jobObj arguments];
+
     // create a workflow job JSON object for this new job.
     var wkObj = {
             "workflow": [activeWorkflow pk],
             "job": [jobObj pk],
-            "job_settings": [jobObj arguments]
-            },
-        workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
+            "job_settings": jobSettings,
+            "sequence": anIndex
+            };
 
+    var workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
     [workflowJobObject ensureCreated];
 
     [currentWorkflow insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
@@ -165,7 +190,7 @@ activeWorkflow = nil;
     activeWorkflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowDesignerNotification
-                              object:nil];
+                                          object:nil];
 }
 
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
@@ -179,23 +204,57 @@ activeWorkflow = nil;
 
 @implementation JobItemView : CPView
 {
+    @outlet     CPString    jobName             @accessors;
+    @outlet     CPTextField jobNameField        @accessors;
+
+    @outlet     CPButton    closeButton;
+                id          representedObject   @accessors;
 }
 
-- (id)initWithFrame:(CPRect)aFrame
+- (id)initWithCoder:(CPCoder)aCoder
 {
-    self = [super initWithFrame:aFrame];
+    var self = [super initWithCoder:aCoder];
     if (self)
     {
-        console.log("Init with frame");
+        var frame = [self frame],
+            controlHeight = (frame.size.height - 30) / 2;
+
+        jobNameField = [[CPTextField alloc] initWithFrame:CPMakeRect(frame.size.width - 320,
+                                                                     5,
+                                                                     300,
+                                                                     22)];
+        [jobNameField setAlignment:CPRightTextAlignment];
+        [jobNameField setAutoresizingMask:CPViewMinXMargin];
+        [jobNameField setEditable:NO];
+        [jobNameField setBordered:NO];
+        [jobNameField setDrawsBackground:NO];
+
+        [self addSubview:jobNameField];
     }
 
     return self;
 }
 
-- (void)setRepresentedObject:(id)anObject
+- (void)setJobName:(CPString)aTitle
 {
-    [self setBackgroundColor:[CPColor whiteColor]];
-    // console.log(anObject);
+    jobName = aTitle;
+    [jobNameField setObjectValue:jobName];
+}
+
+- (void)setRepresentedObject:(CPString)anObject
+{
+    if (anObject === nil)
+        return;
+
+    console.log(anObject);
+
+    representedObject = anObject;
+}
+
+- (IBAction)removeSelfFromWorkflow:(id)aSender
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanRemoveJobFromWorkflowNotification
+                                          object:self];
 }
 
 @end
