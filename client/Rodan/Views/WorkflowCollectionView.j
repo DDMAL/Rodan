@@ -30,12 +30,15 @@
     var item = [super newItemForRepresentedObject:anObject],
         view = [item view];
 
-    console.log("New Item for Represented Object called for " + anObject);
-
     [view bind:@"jobName"
           toObject:anObject
           withKeyPath:@"jobName"
           options:[CPMutableDictionary dictionaryWithObject:GameraClassNameTransformer forKey:CPValueTransformerNameBindingOption]];
+
+    [view bind:@"jobSettings"
+          toObject:anObject
+          withKeyPath:@"jobSettings"
+          options:nil];
 
     [view setBackgroundColor:[CPColor whiteColor]];
     return item;
