@@ -1,15 +1,11 @@
-from celery import Task
+# from celery import Task
 from celery import registry
 from rodan.models.job import Job
+from rodan.jobs.gamera.helpers import GameraTask
 from rodan.jobs.gamera import argconvert
 
 
-class RodanInteractiveTask(Task):
-    max_retries = None
-    module_fn = None
-    module_settings = []
-    workflowjob_obj = None
-
+class GameraInteractiveTask(GameraTask):
     # this flag will get set to `False` when the task has
     # received human input and is ready to be run; otherwise
     # it will re-queue itself indefinitely, waiting for more input.
@@ -19,12 +15,11 @@ class RodanInteractiveTask(Task):
         if self.needs_input:
             self.retry(job_data)
         else:
-            # do stuff
-            pass
+            print "running job!!!"
 
     def retry(self, job_data, *args, **kwargs):
         # do something like this
-        super(RodanInteractiveTask, self).retry(job_data, *args, **kwargs)
+        super(GameraInteractiveTask, self).retry(job_data, countdown=10, *args, **kwargs)
 
 
 def create_interactive_job_from_gamera_function(gamera_fn):
@@ -32,7 +27,7 @@ def create_interactive_job_from_gamera_function(gamera_fn):
     if not gamera_fn.return_type:
         return
 
-    module_task = RodanInteractiveTask()
+    module_task = GameraInteractiveTask()
     module_task.name = str(gamera_fn)
     module_task.module_fn = gamera_fn
     registry.tasks.register(module_task)
