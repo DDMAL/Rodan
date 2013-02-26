@@ -8,6 +8,7 @@
     CPString    category        @accessors;
     CPString    description     @accessors;
     BOOL        isEnabled       @accessors;
+    BOOL        isInteractive   @accessors;
 
     CPImage     sourceListIcon  @accessors;
 }
@@ -33,7 +34,8 @@
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
         ['category', 'category'],
-        ['isEnabled', 'enabled']
+        ['isEnabled', 'enabled'],
+        ['isInteractive', 'interactive']
     ];
 }
 
