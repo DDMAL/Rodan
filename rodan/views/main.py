@@ -44,7 +44,8 @@ def api_root(request, format=None):
         })
 
 
-def kickoff_workflow(request, pk):
+@api_view(('GET',))
+def kickoff_workflow(request, pk, format=None):
     run_workflow(pk)
     return Response({
         'success': True
