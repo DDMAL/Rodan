@@ -7,9 +7,11 @@
     CPString    jobName         @accessors;
     CPString    job             @accessors;
     CPNumber    sequence        @accessors;
+    CPNumber    jobType         @accessors;
     CPArray     jobSettings     @accessors;
     CPArray     inputPixels     @accessors;
     CPArray     outputPixels    @accessors;
+    BOOL        needsInput      @accessors;
 }
 
 // + (WorkflowJob)initWithJob:(CPString)aJobURI forWorkflow:(CPString)aWorkflowURI
@@ -31,7 +33,10 @@
         ['sequence', 'sequence'],
         ['jobSettings', 'job_settings'],
         ['inputPixels', 'input_pixel_types'],
-        ['outputPixels', 'output_pixel_types']
+        ['outputPixels', 'output_pixel_types'],
+        ['jobType', 'job_type'],
+        ['needsInput', 'needs_input']
+
     ];
 }
 
