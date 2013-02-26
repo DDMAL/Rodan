@@ -65,6 +65,7 @@ activeWorkflow = nil;
 - (IBAction)removeJobFromWorkflow:(CPNotification)aSender
 {
     [currentWorkflow removeObject:[[aSender object] representedObject]];
+    [[[aSender object] representedObject] ensureDeleted];
 }
 
 - (CPData)collectionView:(CPCollectionView)collectionView dataForItemsAtIndexes:(CPIndexSet)indices forType:(CPString)aType
@@ -74,7 +75,6 @@ activeWorkflow = nil;
 
 - (BOOL)collectionView:(CPCollectionView)collectionView acceptDrop:(CPDraggingInfo)info index:(int)anIndex dropOperation:(int)aDropOperation
 {
-    // console.log("Accept Drop");
     var pboard = [info draggingPasteboard],
         rowData = [pboard dataForType:JobItemType],
         dragRows = [CPKeyedUnarchiver unarchiveObjectWithData:rowData],
@@ -92,7 +92,7 @@ activeWorkflow = nil;
         output_type_passes = NO;
 
 
-    if ([[currentWorkflow contentArray] count] == 0)
+    if ([[currentWorkflow contentArray] count] === 0)
     {
         // we can't fail because we don't have anything to check against
         // console.log("Empty content array");
@@ -102,7 +102,7 @@ activeWorkflow = nil;
     else
     {
         // check the previous item in the content array
-        if (anIndex == 0)  // we're trying to insert it at the beginning
+        if (anIndex === 0)  // we're trying to insert it at the beginning
         {
             // console.log("At the beginning?");
             input_type_passes = YES;
@@ -138,10 +138,18 @@ activeWorkflow = nil;
         }
         else
         {
-            var nextObject = [[currentWorkflow contentArray] objectAtIndex:anIndex + 1],
-                nextObjJobId = [nextObject job];
+            if (anIndex === 0)
+                /*
+                    If we we're here and anIndex is 0, it means we're inserting
+                    a job at the beginning of the workflow. This will shift the
+                    existing jobs down, but we need to get the first object in the array.
+                */
+                var nextObject = [[currentWorkflow contentArray] objectAtIndex:anIndex];
+            else
+                var nextObject = [[currentWorkflow contentArray] objectAtIndex:anIndex + 1];
 
-            var nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
+            var nextObjJobId = [nextObject job],
+                nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
                 {
                     return [obj pk] == nextObjJobId;
                 }];
@@ -169,19 +177,36 @@ activeWorkflow = nil;
     else
         var jobSettings = [jobObj arguments];
 
+    var interactive = false,
+        needsInput = false,
+        jobType = 0;
+
+    if ([jobObj isInteractive])
+    {
+        interactive = true;
+        needsInput = true;
+        jobType = 1;
+    }
+
     // create a workflow job JSON object for this new job.
     var wkObj = {
             "workflow": [activeWorkflow pk],
             "job": [jobObj pk],
             "job_settings": jobSettings,
-            "sequence": anIndex
+            "sequence": anIndex,
+            "job_type": jobType,
+            "interactive": interactive,
+            "needs_input": needsInput
             };
 
+    // console.log(wkObj);
+
     var workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
+
     [workflowJobObject ensureCreated];
 
     [currentWorkflow insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
-
+    console.log(workflowJobObject);
     return YES;
 }
 
@@ -206,6 +231,7 @@ activeWorkflow = nil;
 {
     @outlet     CPString    jobName             @accessors;
     @outlet     CPTextField jobNameField        @accessors;
+    @outlet     CPArray     jobSettings         @accessors;
 
     @outlet     CPButton    closeButton;
                 id          representedObject   @accessors;
@@ -241,12 +267,52 @@ activeWorkflow = nil;
     [jobNameField setObjectValue:jobName];
 }
 
+- (void)setJobSettings:(CPArray)jobSettings
+{
+    console.log("Setting job settings.");
+    var settings = [CPArray arrayFromArray:jobSettings];
+    for (setting in [settings objectEnumerator])
+    {
+        var widget;
+
+        if (setting.type === "imagetype")
+            // we don't know how to deal with these yet...
+            continue;
+
+
+        if (setting.type === "int" || setting.type === "real" || setting.type === "pixel")
+        {
+            if (setting.rng)
+            {
+                var upperBounds = setting.rng[0],
+                    lowerBounds = setting.rng[1];
+
+                widget = [[CPStepper alloc] init];
+                [widget setMaxValue:upperBounds];
+                [widget setMinValue:lowerBounds];
+            }
+            else
+            {
+                widget = [[CPTextField alloc] init];
+            }
+
+        }
+        else if (setting.type === "choice")
+        {
+            var widget = [[CPPopUpButton alloc] init];
+        }
+
+        if (setting.has_default)
+        {
+            // this has a default value
+        }
+    }
+}
+
 - (void)setRepresentedObject:(CPString)anObject
 {
     if (anObject === nil)
         return;
-
-    console.log(anObject);
 
     representedObject = anObject;
 }
