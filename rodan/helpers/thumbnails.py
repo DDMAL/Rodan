@@ -16,6 +16,7 @@ def create_thumbnails(page_object):
         ratio = min((thumbnail_size / width), (thumbnail_size / height))
         dimensions = (int(width * ratio), int(height * ratio))
 
+        thumbnail_size = str(int(thumbnail_size))
         thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
         thumb_copy.save(os.path.join(page_object.thumb_path,
                                 page_object.thumb_filename(size=thumbnail_size)))
