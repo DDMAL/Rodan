@@ -23,3 +23,20 @@ class Workflow(models.Model):
 
     class Meta:
         app_label = 'rodan'
+
+    def next_job(self, job):
+        """Fetches the next job in the workflow, or None if it is the last job"""
+        lookup = self.wjobs.filter(sequence=job.sequence + 1)
+        if lookup:
+            # if this doesn't return an empty list, we know there's a next job
+            return lookup.get()
+        else:
+            return None
+
+    def previous_job(self, job):
+        """Fetches the previous job in the workflow, or None if it is the first job"""
+        lookup = self.wjobs.filter(sequence=job.sequence - 1)
+        if lookup:
+            return lookup.get()
+        else:
+            return None
