@@ -46,14 +46,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('rodan', ['Workflow'])
 
-        # Adding M2M table for field jobs on 'Workflow'
-        db.create_table('rodan_workflow_jobs', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('workflow', models.ForeignKey(orm['rodan.workflow'], null=False)),
-            ('workflowjob', models.ForeignKey(orm['rodan.workflowjob'], null=False))
-        ))
-        db.create_unique('rodan_workflow_jobs', ['workflow_id', 'workflowjob_id'])
-
         # Adding M2M table for field pages on 'Workflow'
         db.create_table('rodan_workflow_pages', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
@@ -65,10 +57,12 @@ class Migration(SchemaMigration):
         # Adding model 'WorkflowJob'
         db.create_table('rodan_workflowjob', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
-            ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Workflow'])),
+            ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(related_name='wjobs', to=orm['rodan.Workflow'])),
             ('job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Job'])),
-            ('sequence', self.gf('django.db.models.fields.IntegerField')()),
+            ('sequence', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('job_settings', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
+            ('job_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('needs_input', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -112,9 +106,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Workflow'
         db.delete_table('rodan_workflow')
-
-        # Removing M2M table for field jobs on 'Workflow'
-        db.delete_table('rodan_workflow_jobs')
 
         # Removing M2M table for field pages on 'Workflow'
         db.delete_table('rodan_workflow_pages')
@@ -217,9 +208,9 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'has_started': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'jobs': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'workflows'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['rodan.WorkflowJob']"}),
+            'jobs': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'workflows'", 'blank': 'True', 'through': "orm['rodan.WorkflowJob']", 'to': "orm['rodan.Job']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'pages': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'workflows'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['rodan.Page']"}),
+            'pages': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'workflows'", 'blank': 'True', 'to': "orm['rodan.Page']"}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': "orm['rodan.Project']"}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
@@ -229,10 +220,12 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'job': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Job']"}),
             'job_settings': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
-            'sequence': ('django.db.models.fields.IntegerField', [], {}),
+            'job_type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'needs_input': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'sequence': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
-            'workflow': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Workflow']"})
+            'workflow': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'wjobs'", 'to': "orm['rodan.Workflow']"})
         }
     }
 
