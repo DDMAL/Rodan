@@ -25,10 +25,5 @@ class Result(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not os.path.exists(self.result_path):
-            os.makedirs(self.result_path)
-        super(Result, self).save(*args, **kwargs)
-
     class Meta:
         app_label = 'rodan'
