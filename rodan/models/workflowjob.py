@@ -32,7 +32,7 @@ class WorkflowJob(models.Model):
 
     def __unicode__(self):
         # return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
-        return u"{0} ({1})".format(self.job, self.job_type.get_job_type_display())
+        return u"{0} ({1})".format(self.job, self.get_job_type_display())
 
     @property
     def name(self):
