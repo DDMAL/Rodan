@@ -21,6 +21,7 @@ class Result(models.Model):
     workflow_job = models.ForeignKey(WorkflowJob, null=True)
     page = models.ForeignKey(Page)
     result = models.FileField(upload_to=upload_fn, null=True, max_length=255)
+    result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=255)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
