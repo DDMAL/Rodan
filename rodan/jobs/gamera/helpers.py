@@ -7,8 +7,8 @@ from celery import Task
 from celery import registry
 from rodan.models.job import Job
 from rodan.models.result import Result
-from rodan.jobs import argconvert
-import gamera.core
+from rodan.jobs.gamera import argconvert
+from gamera.core import init_gamera, load_image
 
 
 class GameraTask(Task):
@@ -49,8 +49,8 @@ class GameraTask(Task):
                 setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
                 settings[setting_name] = setting_value
 
-            gamera.core.init_gamera()  # initialize Gamera in the task
-            task_image = gamera.core.load_image(job_data['previous_result'].result.path)
+            init_gamera()  # initialize Gamera in the task
+            task_image = load_image(job_data['previous_result'].result.path)
 
             tdir = tempfile.mkdtemp()
             # perform the requested task
@@ -77,7 +77,7 @@ class GameraTask(Task):
         super(GameraTask, self).retry(job_data=job_data, countdown=10, *args, **kwargs)
 
 
-def create_jobs_from_module(gamera_module):
+def create_jobs_from_module(gamera_module, interactive=False):
     previously_loaded_modules = Job.objects.values_list('name', flat=True)
     for fn in gamera_module.module.functions:
         # we only want jobs that will return a result and has a known pixel type
@@ -108,42 +108,7 @@ def create_jobs_from_module(gamera_module):
             output_types=output_types,
             arguments=arguments,
             enabled=True,
-            category=gamera_module.module.category
+            category=gamera_module.module.category,
+            interactive=interactive
         )
         j.save()
-
-
-def create_interactive_job_from_gamera_function(gamera_fn):
-    previously_loaded_modules = Job.objects.values_list('name', flat=True)
-    if not gamera_fn.return_type:
-        return
-
-    module_task = GameraTask()
-    module_task.name = str(gamera_fn)
-    module_task.module_fn = gamera_fn
-    registry.tasks.register(module_task)
-
-    # skip the job creation if we've already
-    # stored a reference to this job in the database
-    if str(gamera_fn) in previously_loaded_modules:
-        return
-
-    input_types = argconvert.convert_input_type(gamera_fn.self_type)
-
-    # we should only ever be using jobs that have an output type.
-    # jobs that do not will need to be handled differently.
-    output_types = argconvert.convert_output_type(gamera_fn.return_type)
-    arguments = argconvert.convert_arg_list(gamera_fn.args.list)
-
-    j = Job(
-        name=str(gamera_fn),
-        author=gamera_fn.author,
-        description=gamera_fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"'),
-        input_types=input_types,
-        output_types=output_types,
-        arguments=arguments,
-        enabled=True,
-        category=gamera_fn.module.category,
-        interactive=True,
-    )
-    j.save()

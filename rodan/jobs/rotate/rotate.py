@@ -1,6 +1,0 @@
-from rodan.jobs.helpers import create_interactive_job_from_gamera_function
-from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
-
-
-def load_interactive_job():
-    create_interactive_job_from_gamera_function(rdn_rotate)
