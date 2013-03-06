@@ -1,4 +1,4 @@
-from rodan.jobs.helpers import create_jobs_from_module
+from rodan.jobs.gamera.helpers import create_jobs_from_module
 from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
 from gamera.toolkits.rodan_plugins.plugins.rdn_despeckle import rdn_despeckle
 from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop

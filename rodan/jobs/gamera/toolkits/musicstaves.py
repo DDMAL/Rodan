@@ -1,4 +1,4 @@
-from rodan.jobs.helpers import create_jobs_from_module
+from rodan.jobs.gamera.helpers import create_jobs_from_module
 from gamera.toolkits.musicstaves.plugins import musicstaves_plugins
 
 
