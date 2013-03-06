@@ -30,16 +30,23 @@ class GameraTask(Task):
                 # the previous_job
                 this_job = previous_job
 
-        # check if this job needs input
-        if this_job.needs_input:
+        # create a result for the current job if it has not been already created.
+        new_task_result, created = Result.objects.get_or_create(
+            page=job_data['previous_result'].page,
+            workflow_job=this_job,
+            task_name=self.name,
+        )
+
+        # check if the workflow job is of Interactive type and check if we just created the result object
+        if this_job.job_type == 1 and created:
+            # set the result object to need input
+            new_task_result.needs_input = True
+            new_task_result.save()
+
+        # check if this result needs input
+        if new_task_result.needs_input:
             self.retry(job_data=job_data)
         else:
-            # initialize the outgoing result object so we can update it as we go.
-            new_task_result = Result(
-                page=job_data['previous_result'].page,
-                workflow_job=this_job,
-                task_name=self.name
-            )
             new_task_result.save()
             result_save_path = new_task_result.result_path
 
