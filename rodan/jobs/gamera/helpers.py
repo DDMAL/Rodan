@@ -12,8 +12,6 @@ from gamera.core import init_gamera, load_image
 
 
 class GameraTask(Task):
-    max_retries = 10
-
     def run(self, job_data, *args, **kwargs):
         previous_job = job_data['previous_result'].workflow_job
 
@@ -83,7 +81,7 @@ class GameraTask(Task):
 
     def retry(self, job_data, *args, **kwargs):
         # do something like this
-        super(GameraTask, self).retry(job_data=job_data, countdown=10, *args, **kwargs)
+        super(GameraTask, self).retry(job_data=job_data, max_retries=None, *args, **kwargs)
 
 
 def create_jobs_from_module(gamera_module, interactive=False):
