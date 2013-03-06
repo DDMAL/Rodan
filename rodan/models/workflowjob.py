@@ -23,9 +23,6 @@ class WorkflowJob(models.Model):
     job_settings = json.JSONField(blank=True, null=True)
 
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
-    # for interactive jobs: If this is set to True the job will not run.
-    # set it to false to allow it to run.
-    needs_input = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
