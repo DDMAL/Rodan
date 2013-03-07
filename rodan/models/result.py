@@ -7,7 +7,6 @@ from uuidfield import UUIDField
 
 
 class Result(models.Model):
-
     @property
     def result_path(self):
         return os.path.join("projects", str(self.page.project.pk), "pages", str(self.page.pk), "results", str(self.uuid))
@@ -21,10 +20,6 @@ class Result(models.Model):
     workflow_job = models.ForeignKey(WorkflowJob, null=True)
     page = models.ForeignKey(Page)
     result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=255)
-
-    # for interactive jobs: If this is set to True the job will not run.
-    # set it to false to allow it to run.
-    needs_input = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
