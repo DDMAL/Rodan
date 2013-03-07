@@ -62,6 +62,7 @@ class Migration(SchemaMigration):
             ('sequence', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('job_settings', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('job_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('needs_input', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -90,7 +91,6 @@ class Migration(SchemaMigration):
             ('workflow_job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.WorkflowJob'], null=True)),
             ('page', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Page'])),
             ('result', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True, blank=True)),
-            ('needs_input', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -196,7 +196,6 @@ class Migration(SchemaMigration):
         'rodan.result': {
             'Meta': {'object_name': 'Result'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'needs_input': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Page']"}),
             'result': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'task_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
@@ -222,6 +221,7 @@ class Migration(SchemaMigration):
             'job': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Job']"}),
             'job_settings': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
             'job_type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'needs_input': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'sequence': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
