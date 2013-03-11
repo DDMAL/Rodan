@@ -60,6 +60,7 @@ activeWorkflow = nil;
     @outlet     CPTableView         currentWorkflow;
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   jobArrayController;
+                CPMutableArray      shadowWorkflowViewArray; // used so that we can keep track of the views
 
     @outlet     CPView              workflowJobView;
 }
@@ -71,13 +72,37 @@ activeWorkflow = nil;
 
 - (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 {
+    // console.log("Data view for table column");
     var identifier = [aTableColumn identifier],
         aView = [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
 
-    console.log([aView objectValue]);
-
-
     return aView;
+}
+
+- (int)tableView:(CPTableView)aTableView heightOfRow:(int)aRow
+{
+    // create a dummy table cell view with the value of the row
+    // for calculating the view height. This is a hack until we get
+    // proper querying of the view in the table.
+    console.log("For row: ");
+    console.log(aRow);
+    var tmpCell = [[WorkflowJobView alloc] init],
+        tmpValue = [[currentWorkflowArrayController contentArray] objectAtIndex:aRow];
+    [tmpCell setObjectValue:tmpValue];
+
+    var height = [tmpCell viewHeight];
+
+    [aTableView setRowHeight:height];
+
+    tmpCell = nil;
+    tmpValue = nil;
+
+    return height;
+}
+
+- (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aColumn row:(int)aRow
+{
+    console.log('will display view');
 }
 
 - (CPDragOperation)tableView:(CPTableView)aTableView
@@ -252,6 +277,17 @@ activeWorkflow = nil;
                 id          objectValue     @accessors;
     @outlet     CPTextField jobName         @accessors;
                 CPArray     jobSettings     @accessors;
+                int         viewHeight      @accessors;
+}
+
+// if an object has keys, return false; otherwise it's empty.
+- (BOOL)_isEmptyObject:(id)anObject
+{
+    for (var i in anObject)
+    {
+        return false;
+    }
+    return true;
 }
 
 - (void)setObjectValue:(id)aValue
@@ -262,48 +298,72 @@ activeWorkflow = nil;
     var topOrigin = 25,
         leftOrigin = 25,
         widgetHeight = 25,
-        widgetWidth = 100;
+        widgetWidth = 100,
+        labelWidth = 300;
 
-    jobSettings = [CPArray arrayWithArray:JSON.parse([aValue jobSettings])];
-    for (var i = 0; i < [jobSettings count]; i++)
-    {
-        var widget,
-            obj = [jobSettings objectAtIndex:i];
 
-        if (obj.type == "imagetype")
-        {
-            continue;
-        }
+    // jobSettings = [CPArray arrayWithArray:JSON.parse([aValue jobSettings])];
+    var prevWidget = nil;
 
-        if (obj.type === "int" || obj.type === "real" || obj.type === "pixel")
-        {
-            widget = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-            if (obj.has_default)
-            {
-                [widget setObjectValue:obj.default];
-            }
+    viewHeight = 50;
 
-            if (obj.rng)
-            {
-                var upperBounds = obj.rng[0],
-                    lowerBounds = obj.rng[1];
+    // for (var i = 0; i < [jobSettings count]; i++)
+    // {
+    //     var widget,
+    //         label,
+    //         labelString = @"",
+    //         obj = [jobSettings objectAtIndex:i];
 
-                var stepper = [[CPStepper alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-                [stepper setMaxValue:upperBounds];
-                [stepper setMinValue:lowerBounds];
-                [widget setDoubleValue:[stepper objectValue]];
-            }
-        }
-        else if (obj.type === "choice")
-        {
-            var widget = [[CPPopUpButton alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-            [widget addItemsWithTitles:[CPArray arrayWithArray:obj.choices]];
-        }
+    //     if ([self _isEmptyObject:obj])
+    //         continue;
 
-        [self addSubview:widget];
+    //     if (obj.type == "imagetype")
+    //         continue;
 
-        topOrigin += widgetHeight + 10;
-    }
+    //     label = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin + widgetWidth + 5, topOrigin, labelWidth, widgetHeight)];
+
+    //     if (obj.name)
+    //         labelString = [CPString stringWithString:obj.name];
+    //     else
+    //         labelString = @"No name";
+
+    //     if (obj.type === "int" || obj.type === "real" || obj.type === "pixel")
+    //     {
+    //         widget = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
+    //         [widget setEditable:YES];
+    //         [widget setBezeled:YES];
+
+    //         if (obj.has_default)
+    //             [widget setObjectValue:obj.default];
+
+    //         if (obj.rng)
+    //         {
+    //             var lowerBounds = obj.rng[0],
+    //                 upperBounds = obj.rng[1],
+    //                 formatter = [[CPNumberFormatter alloc] init];
+
+    //             labelString = [labelString stringByAppendingFormat:@" (min: %d, max: %d)", lowerBounds, upperBounds];
+
+    //             [formatter setMinimum:lowerBounds];
+    //             [formatter setMaximum:upperBounds];
+    //             [widget setFormatter:formatter];
+    //         }
+    //     }
+    //     else if (obj.type === "choice")
+    //     {
+    //         var widget = [[CPPopUpButton alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
+    //         [widget addItemsWithTitles:[CPArray arrayWithArray:obj.choices]];
+    //     }
+
+    //     [self addSubview:widget];
+    //     [label setObjectValue:labelString];
+    //     [self addSubview:label];
+
+    //     prevWidget = widget;
+    //     topOrigin += widgetHeight + 5;  // add 5 pixels spacing between fields
+
+    //     viewHeight += 30;
+    // }
 }
 
 - (id)drawRect:(CGRect)aRect
@@ -316,8 +376,6 @@ activeWorkflow = nil;
 
 - (@action)removeSelfFromWorkflow:(id)aSender
 {
-    console.log("Remove me!");
-    console.log(objectValue);
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanRemoveJobFromWorkflowNotification
                                       object:self];
 
