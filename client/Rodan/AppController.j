@@ -36,6 +36,7 @@ RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
 RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
 RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
+RodanDidLoadWorkflowNotification = @"RodanDidLoadWorkflowNotification";
 RodanShouldLoadWorkflowDesignerNotification = @"RodanShouldLoadWorkflowDesignerNotification";
 RodanRemoveJobFromWorkflowNotification = @"RodanRemoveJobFromWorkflowNotification";
 RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
@@ -168,7 +169,7 @@ activeProject = "";  // URI to the currently open project
     [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
     [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
     [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
-    [center addObserver:self selector:@selector(showWorkflowDesigner:) name:RodanShouldLoadWorkflowDesignerNotification object:nil];
+    [center addObserver:self selector:@selector(showWorkflowDesigner:) name:RodanDidLoadWorkflowNotification object:nil];
 
     [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
     [center addObserver:self selector:@selector(mustLogIn:) name:RodanMustLogInNotification object:nil];
