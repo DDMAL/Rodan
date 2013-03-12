@@ -1,5 +1,6 @@
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanRemoveJobFromWorkflowNotification
+@global RodanDidLoadWorkflowNotification
 
 JobItemType = @"JobItemType";
 activeWorkflow = nil;
@@ -8,6 +9,7 @@ activeWorkflow = nil;
 {
     @outlet     CPArrayController       workflowArrayController;
     @outlet     CPArrayController       currentWorkflowArrayController;
+    @outlet     CPObject                activeWorkflowDelegate;
     @outlet     CPTableView             jobList;
     @outlet     CPTextField             jobInfo;
     @outlet     CPTableView             currentWorkflow;
@@ -35,6 +37,10 @@ activeWorkflow = nil;
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
 {
     console.log("I should load the jobs for workflow " + [activeWorkflow pk]);
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:[activeWorkflow pk]
+                    delegate:activeWorkflowDelegate
+                    message:"Loading Workflow Jobs"];
 
 }
 
@@ -54,13 +60,31 @@ activeWorkflow = nil;
 
 @end
 
+@implementation LoadActiveWorkflowDelegate : CPObject
+{
+    @outlet     CPArrayController   currentWorkflowArrayController;
+}
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    console.log("Remote action did finish");
+
+    var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
+    [currentWorkflowArrayController addObjects:workflowJobs];
+
+    console.log(currentWorkflowArrayController);
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
+                                          object:nil];
+}
+
+@end
+
 
 @implementation WorkflowDesignerDelegate : CPObject
 {
     @outlet     CPTableView         currentWorkflow;
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   jobArrayController;
-                CPMutableArray      shadowWorkflowViewArray; // used so that we can keep track of the views
 
     @outlet     CPView              workflowJobView;
 }
@@ -70,39 +94,31 @@ activeWorkflow = nil;
     return [[currentWorkflowArrayController contentArray] count];
 }
 
-- (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
-{
-    // console.log("Data view for table column");
-    var identifier = [aTableColumn identifier],
-        aView = [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
+// - (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+// {
+//     // console.log("Data view for table column");
+//     var identifier = [aTableColumn identifier],
+//         aView = [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
 
-    return aView;
+//     return aView;
+// }
+
+- (@action)didSelectRow:(id)aSender
+{
+    console.log("Did select row");
+    console.log([currentWorkflowArrayController selectionIndex]);
 }
 
-- (int)tableView:(CPTableView)aTableView heightOfRow:(int)aRow
+// - (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aColumn row:(int)aRow
+// {
+//     // console.log('will display view');
+// }
+
+- (void)tableViewDeleteKeyPressed:(CPTableView)aTableView
 {
-    // create a dummy table cell view with the value of the row
-    // for calculating the view height. This is a hack until we get
-    // proper querying of the view in the table.
-    console.log("For row: ");
-    console.log(aRow);
-    var tmpCell = [[WorkflowJobView alloc] init],
-        tmpValue = [[currentWorkflowArrayController contentArray] objectAtIndex:aRow];
-    [tmpCell setObjectValue:tmpValue];
-
-    var height = [tmpCell viewHeight];
-
-    [aTableView setRowHeight:height];
-
-    tmpCell = nil;
-    tmpValue = nil;
-
-    return height;
-}
-
-- (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aColumn row:(int)aRow
-{
-    console.log('will display view');
+    var deletedObjects = [currentWorkflowArrayController selectedObjects];
+    [currentWorkflowArrayController removeObjects:deletedObjects];
+    [deletedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 - (CPDragOperation)tableView:(CPTableView)aTableView
@@ -110,7 +126,7 @@ activeWorkflow = nil;
                    proposedRow:(CPInteger)row
                    proposedDropOperation:(CPTableViewDropOperation)operation
 {
-    console.log("Validate Drop");
+    // console.log("Validate Drop");
     [currentWorkflow setDropRow:row dropOperation:CPTableViewDropAbove];
 
     return CPDragOperationCopy;
@@ -118,7 +134,7 @@ activeWorkflow = nil;
 
 - (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)anIndex dropOperation:(CPTableViewDropOperation)aDropOperation
 {
-    console.log("accept drop?");
+    // console.log("accept drop?");
     var content = [jobArrayController contentArray],
         pboard = [info draggingPasteboard],
         sourceIndexes = [pboard dataForType:JobItemType],
@@ -128,79 +144,50 @@ activeWorkflow = nil;
         output_types = JSON.parse([jobObj outputTypes]);
 
     // Check to see if this job can fit in with the next or previous ones
-    var input_pixel_types = [CPSet setWithArray:input_types.pixel_types],
-        output_pixel_types = [CPSet setWithArray:output_types.pixel_types],
+    var inputPixelTypes = [CPSet setWithArray:input_types.pixel_types],
+        outputPixelTypes = [CPSet setWithArray:output_types.pixel_types],
         input_type_passes = NO,
-        output_type_passes = NO;
+        output_type_passes = NO,
+        contentArrayCount = [[currentWorkflowArrayController contentArray] count];
 
-    if ([[currentWorkflowArrayController contentArray] count] === 0)
+    if (contentArrayCount === 0)
     {
-        // we can't fail because we don't have anything to check against
-        // console.log("Empty content array");
         input_type_passes = YES;
         output_type_passes = YES;
     }
     else
     {
-        // check the previous item in the content array
-        if (anIndex === 0)  // we're trying to insert it at the beginning
+        var lastIndex = contentArrayCount - 1,
+            prevObject,
+            nextObject;
+
+        console.log("An Index: " + anIndex);
+        console.log("last index: " + lastIndex);
+        if (anIndex === 0)
         {
-            // console.log("At the beginning?");
+            console.log("inserting at beginning");
+            nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
+
             input_type_passes = YES;
+            output_type_passes = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
         }
-        else
+        else if (anIndex === contentArrayCount)
         {
-            var previousObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1],
-                prevObjJobId = [previousObject job];
+            console.log("Inserting at end");
+            prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
 
-            var prevJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
-                {
-                    return [obj pk] == prevObjJobId;
-                }];
-
-            var previousJob = [[jobArrayController contentArray] objectAtIndex:prevJobIdx],
-                prevOutputTypes = JSON.parse([previousJob outputTypes]),
-                prevOutputSet = [CPSet setWithArray:prevOutputTypes.pixel_types];
-
-            // console.log("Previous Job");
-            // console.log(prevOutputSet);
-            // console.log("This Job");
-            // console.log(input_pixel_types);
-
-            if ([prevOutputSet intersectsSet:input_pixel_types])
-                input_type_passes = YES;
-        }
-
-        if (anIndex == [[currentWorkflowArrayController contentArray] count])
-        {
-            // we're appending to the end, so the output type should pass
-            // console.log("At the end?");
+            input_type_passes = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
             output_type_passes = YES;
         }
         else
         {
-            if (anIndex === 0)
-                /*
-                    If we we're here and anIndex is 0, it means we're inserting
-                    a job at the beginning of the workflow. This will shift the
-                    existing jobs down, but we need to get the first object in the array.
-                */
-                var nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
-            else
-                var nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex + 1];
+            console.log("Inserting somewhere in the middle");
+            // if we're inserting in the middle, the next object is the one we're looking for.
+            prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
+            nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
 
-            var nextObjJobId = [nextObject job],
-                nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
-                {
-                    return [obj pk] == nextObjJobId;
-                }];
-
-            var nextJob = [[jobArrayController contentArray] objectAtIndex:nextJobIdx],
-                nextInputTypes = JSON.parse([nextJob inputTypes]),
-                nextInputSet = [CPSet setWithArray:nextInputTypes.pixel_types];
-
-            if ([nextInputSet intersectsSet:output_pixel_types])
-                output_type_passes = YES;
+            input_type_passes = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
+            output_type_passes = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
         }
     }
 
@@ -213,10 +200,10 @@ activeWorkflow = nil;
     // The JSON field module we're using likes setting an empty dictionary
     // as a placeholder for fields with no values. We always want to have
     // this set as an array, even if it is blank.
-    if ([jobObj arguments] === "{}")
-        var jobSettings = "[{}]";
-    else
-        var jobSettings = [jobObj arguments];
+    // if ([jobObj arguments] === "{}")
+    //     var jobSettings = "[{}]";
+    // else
+    //     var jobSettings = [jobObj arguments];
 
     var interactive = false,
         needsInput = false,
@@ -233,7 +220,7 @@ activeWorkflow = nil;
     var wkObj = {
             "workflow": [activeWorkflow pk],
             "job": [jobObj pk],
-            "job_settings": jobSettings,
+            "job_settings": [jobObj arguments],
             "sequence": anIndex,
             "job_type": jobType,
             "interactive": interactive,
@@ -248,6 +235,58 @@ activeWorkflow = nil;
     [currentWorkflowArrayController insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
 
     return YES;
+}
+
+- (BOOL)_checkInputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
+{
+    var prevObjJobId = [anObject job],
+        prevJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
+            {
+                return [obj pk] === prevObjJobId;
+            }],
+        previousJob = [[jobArrayController contentArray] objectAtIndex:prevJobIdx],
+        prevOutputTypes = JSON.parse([previousJob outputTypes]),
+        prevOutputSet = [CPSet setWithArray:prevOutputTypes.pixel_types];
+
+    if ([prevOutputSet intersectsSet:pixelTypes])
+    {
+        console.log("Previous Job Pixel output: ");
+        console.log(prevOutputSet);
+        console.log("This pixel type: ");
+        console.log(pixelTypes);
+        return YES;
+    }
+    else
+    {
+        console.log('input type does not match');
+        return NO;
+    }
+}
+
+- (BOOL)_checkOutputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
+{
+    var nextObjJobId = [anObject job],
+        nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
+        {
+            return [obj pk] == nextObjJobId;
+        }],
+        nextJob = [[jobArrayController contentArray] objectAtIndex:nextJobIdx],
+        nextInputTypes = JSON.parse([nextJob inputTypes]),
+        nextInputSet = [CPSet setWithArray:nextInputTypes.pixel_types];
+
+    if ([nextInputSet intersectsSet:pixelTypes])
+    {
+        console.log("Previous Job Pixel output: ");
+        console.log(nextInputSet);
+        console.log("This pixel type: ");
+        console.log(pixelTypes);
+        return YES;
+    }
+    else
+    {
+        console.log("output type does not match");
+        return NO;
+    }
 }
 
 @end
@@ -272,113 +311,113 @@ activeWorkflow = nil;
 
 @end
 
-@implementation WorkflowJobView : CPTableCellView
-{
-                id          objectValue     @accessors;
-    @outlet     CPTextField jobName         @accessors;
-                CPArray     jobSettings     @accessors;
-                int         viewHeight      @accessors;
-}
+// @implementation WorkflowJobView : CPTableCellView
+// {
+//                 id          objectValue     @accessors;
+//     @outlet     CPTextField jobName         @accessors;
+//                 CPArray     jobSettings     @accessors;
+//                 int         viewHeight      @accessors;
+// }
 
-// if an object has keys, return false; otherwise it's empty.
-- (BOOL)_isEmptyObject:(id)anObject
-{
-    for (var i in anObject)
-    {
-        return false;
-    }
-    return true;
-}
+// // if an object has keys, return false; otherwise it's empty.
+// - (BOOL)_isEmptyObject:(id)anObject
+// {
+//     for (var i in anObject)
+//     {
+//         return false;
+//     }
+//     return true;
+// }
 
-- (void)setObjectValue:(id)aValue
-{
-    console.log("Setting object value");
-    objectValue = aValue;
+// - (void)setObjectValue:(id)aValue
+// {
+//     // console.log("Setting object value");
+//     // console.log(aValue);
+//     objectValue = aValue;
 
-    var topOrigin = 25,
-        leftOrigin = 25,
-        widgetHeight = 25,
-        widgetWidth = 100,
-        labelWidth = 300;
+//     // var topOrigin = 25,
+//     //     leftOrigin = 25,
+//     //     widgetHeight = 25,
+//     //     widgetWidth = 100,
+//     //     labelWidth = 300;
 
 
-    // jobSettings = [CPArray arrayWithArray:JSON.parse([aValue jobSettings])];
-    var prevWidget = nil;
+//     // jobSettings = [CPArray arrayWithArray:JSON.parse([aValue jobSettings])];
+//     // var prevWidget = nil;
 
-    viewHeight = 50;
+//     // viewHeight = 50;
 
-    // for (var i = 0; i < [jobSettings count]; i++)
-    // {
-    //     var widget,
-    //         label,
-    //         labelString = @"",
-    //         obj = [jobSettings objectAtIndex:i];
+//     // for (var i = 0; i < [jobSettings count]; i++)
+//     // {
+//     //     var widget,
+//     //         label,
+//     //         labelString = @"",
+//     //         obj = [jobSettings objectAtIndex:i];
 
-    //     if ([self _isEmptyObject:obj])
-    //         continue;
+//     //     if ([self _isEmptyObject:obj])
+//     //         continue;
 
-    //     if (obj.type == "imagetype")
-    //         continue;
+//     //     if (obj.type == "imagetype")
+//     //         continue;
 
-    //     label = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin + widgetWidth + 5, topOrigin, labelWidth, widgetHeight)];
+//     //     label = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin + widgetWidth + 5, topOrigin, labelWidth, widgetHeight)];
 
-    //     if (obj.name)
-    //         labelString = [CPString stringWithString:obj.name];
-    //     else
-    //         labelString = @"No name";
+//     //     if (obj.name)
+//     //         labelString = [CPString stringWithString:obj.name];
+//     //     else
+//     //         labelString = @"No name";
 
-    //     if (obj.type === "int" || obj.type === "real" || obj.type === "pixel")
-    //     {
-    //         widget = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-    //         [widget setEditable:YES];
-    //         [widget setBezeled:YES];
+//     //     if (obj.type === "int" || obj.type === "real" || obj.type === "pixel")
+//     //     {
+//     //         widget = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
+//     //         [widget setEditable:YES];
+//     //         [widget setBezeled:YES];
 
-    //         if (obj.has_default)
-    //             [widget setObjectValue:obj.default];
+//     //         if (obj.has_default)
+//     //             [widget setObjectValue:obj.default];
 
-    //         if (obj.rng)
-    //         {
-    //             var lowerBounds = obj.rng[0],
-    //                 upperBounds = obj.rng[1],
-    //                 formatter = [[CPNumberFormatter alloc] init];
+//     //         if (obj.rng)
+//     //         {
+//     //             var lowerBounds = obj.rng[0],
+//     //                 upperBounds = obj.rng[1],
+//     //                 formatter = [[CPNumberFormatter alloc] init];
 
-    //             labelString = [labelString stringByAppendingFormat:@" (min: %d, max: %d)", lowerBounds, upperBounds];
+//     //             labelString = [labelString stringByAppendingFormat:@" (min: %d, max: %d)", lowerBounds, upperBounds];
 
-    //             [formatter setMinimum:lowerBounds];
-    //             [formatter setMaximum:upperBounds];
-    //             [widget setFormatter:formatter];
-    //         }
-    //     }
-    //     else if (obj.type === "choice")
-    //     {
-    //         var widget = [[CPPopUpButton alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-    //         [widget addItemsWithTitles:[CPArray arrayWithArray:obj.choices]];
-    //     }
+//     //             [formatter setMinimum:lowerBounds];
+//     //             [formatter setMaximum:upperBounds];
+//     //             [widget setFormatter:formatter];
+//     //         }
+//     //     }
+//     //     else if (obj.type === "choice")
+//     //     {
+//     //         var widget = [[CPPopUpButton alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
+//     //         [widget addItemsWithTitles:[CPArray arrayWithArray:obj.choices]];
+//     //     }
 
-    //     [self addSubview:widget];
-    //     [label setObjectValue:labelString];
-    //     [self addSubview:label];
+//     //     [self addSubview:widget];
+//     //     [label setObjectValue:labelString];
+//     //     [self addSubview:label];
 
-    //     prevWidget = widget;
-    //     topOrigin += widgetHeight + 5;  // add 5 pixels spacing between fields
+//     //     prevWidget = widget;
+//     //     topOrigin += widgetHeight + 5;  // add 5 pixels spacing between fields
 
-    //     viewHeight += 30;
-    // }
-}
+//     //     viewHeight += 30;
+//     // }
+// }
 
-- (id)drawRect:(CGRect)aRect
-{
-    console.log("Draw rect called!");
-    [[CPColor yellowColor] set];
-    var ctx = [[CPGraphicsContext currentContext] graphicsPort];
-    CGContextFillRect(ctx, aRect);
-}
+// - (void)drawRect:(CGRect)aRect
+// {
+//     var context = [[CPGraphicsContext currentContext] graphicsPort];
+//     CGContextSetFillColor(context, [CPColor grayColor]);
+//     CGContextFillRoundedRectangleInRect(context, [self bounds], 6.0, 6.0, YES, YES, YES, YES);
+// }
 
-- (@action)removeSelfFromWorkflow:(id)aSender
-{
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanRemoveJobFromWorkflowNotification
-                                      object:self];
+// - (@action)removeSelfFromWorkflow:(id)aSender
+// {
+//     [[CPNotificationCenter defaultCenter] postNotificationName:RodanRemoveJobFromWorkflowNotification
+//                                       object:self];
 
-}
+// }
 
-@end
+// @end
