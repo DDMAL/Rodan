@@ -1,12 +1,15 @@
 from rest_framework import serializers
 from rodan.models.job import Job
 
-# this takes care of making sure all the jobs are
-# initialized.
-# from rodan import jobs
-
-
 class JobSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Job
-        fields = ("url", "name", "arguments", "description", "input_types", "output_types", "category", 'enabled', 'interactive')
+        fields = ("url",
+                  "name",
+                  "arguments",
+                  "description",
+                  "input_types",
+                  "output_types",
+                  "category",
+                  'enabled',
+                  'interactive')
