@@ -1,3 +1,4 @@
+@import "../Transformers/JobArgumentsTransformer.j"
 
 // A WorkflowJob is an instantiation of a Job in a Workflow
 @implementation WorkflowJob : WLRemoteObject
@@ -31,7 +32,7 @@
         ['jobName', 'name'],
         ['job', 'job'],
         ['sequence', 'sequence'],
-        ['jobSettings', 'job_settings'],
+        ['jobSettings', 'job_settings', [[JobArgumentsTransformer alloc] init]],
         ['inputPixels', 'input_pixel_types'],
         ['outputPixels', 'output_pixel_types'],
         ['jobType', 'job_type'],

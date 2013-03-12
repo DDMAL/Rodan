@@ -1,3 +1,5 @@
+@import "../Transformers/JobArgumentsTransformer.j"
+
 @implementation Job : WLRemoteObject
 {
     CPString    pk              @accessors;
@@ -29,7 +31,7 @@
     return [
         ['pk', 'url'],
         ['jobName', 'name'],
-        ['arguments', 'arguments'],
+        ['arguments', 'arguments', [[JobArgumentsTransformer alloc] init]],
         ['description', 'description'],
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
