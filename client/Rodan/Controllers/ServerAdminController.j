@@ -6,7 +6,6 @@
     @outlet     CPWindow        theWindow;
     @outlet     CPView          celeryQueueView;
     @outlet     CPView          userAdminView;
-    @outlet     CPView          databaseAdminView;
     @outlet     CPView          projectAdminView;
     @outlet     CPView          jobsAdminView;
 }
@@ -23,9 +22,6 @@
             break;
         case @"celeryServerAdminToolbarButton":
             [preferencesContentView setSubviews:[celeryQueueView]];
-            break;
-        case @"databaseServerAdminToolbarButton":
-            [preferencesContentView setSubviews:[databaseAdminView]];
             break;
         case @"projectsServerAdminToolbarButton":
             [preferencesContentView setSubviews:[projectAdminView]];
