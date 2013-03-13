@@ -1,3 +1,5 @@
+@import "../Models/WorkflowJobSetting.j"
+
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanRemoveJobFromWorkflowNotification
 @global RodanDidLoadWorkflowNotification
@@ -13,6 +15,8 @@ activeWorkflow = nil;
     @outlet     CPTableView             jobList;
     @outlet     CPTextField             jobInfo;
     @outlet     CPTableView             currentWorkflow;
+
+    @outlet     CPArrayController       selectedJobSettingsArray;
 }
 
 - (void)awakeFromCib
@@ -58,6 +62,13 @@ activeWorkflow = nil;
     [[[aSender object] objectValue] ensureDeleted];
 }
 
+- (@action)didSelectRow:(id)aSender
+{
+    var selectedJob = [currentWorkflowArrayController selectedObject];
+
+}
+
+
 @end
 
 @implementation LoadActiveWorkflowDelegate : CPObject
@@ -102,12 +113,6 @@ activeWorkflow = nil;
 
 //     return aView;
 // }
-
-- (@action)didSelectRow:(id)aSender
-{
-    console.log("Did select row");
-    console.log([currentWorkflowArrayController selectionIndex]);
-}
 
 // - (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aColumn row:(int)aRow
 // {
