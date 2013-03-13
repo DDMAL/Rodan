@@ -12,6 +12,7 @@
 @import <Ratatosk/Ratatosk.j>
 
 @import "Categories/CPButtonBar+PopupButtons.j"
+@import "Categories/CPArrayController+selectedObject.j"
 
 @import "Transformers/ArrayCountTransformer.j"
 @import "Transformers/GameraClassNameTransformer.j"
