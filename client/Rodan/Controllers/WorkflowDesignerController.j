@@ -1,8 +1,8 @@
-@import "../Models/WorkflowJobSetting.j"
+@import "../Models/Page.j"
 
 @global RodanShouldLoadWorkflowDesignerNotification
-@global RodanRemoveJobFromWorkflowNotification
 @global RodanDidLoadWorkflowNotification
+@global RodanRemoveJobFromWorkflowNotification
 
 JobItemType = @"JobItemType";
 activeWorkflow = nil;
@@ -10,13 +10,19 @@ activeWorkflow = nil;
 @implementation WorkflowDesignerController : CPObject
 {
     @outlet     CPArrayController       workflowArrayController;
-    @outlet     CPArrayController       currentWorkflowArrayController;
-    @outlet     CPObject                activeWorkflowDelegate;
-    @outlet     CPTableView             jobList;
-    @outlet     CPTextField             jobInfo;
-    @outlet     CPTableView             currentWorkflow;
 
-    @outlet     CPArrayController       selectedJobSettingsArray;
+    @outlet     CPTableView             currentWorkflow;
+    @outlet     CPArrayController       currentWorkflowArrayController;
+
+    @outlet     CPArrayController       workflowPagesArrayController;
+    @outlet     CPWindow                addImagesToWorkflowWindow;
+    @outlet     CPButton                addImagesToWorkflowButton;
+
+    @outlet     CPObject                activeWorkflowDelegate;
+
+    @outlet     CPTableView             jobList;
+
+    @outlet     CPTableView             pageList;
 }
 
 - (void)awakeFromCib
@@ -33,8 +39,9 @@ activeWorkflow = nil;
 
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
+    [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     // [currentWorkflow setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
-    [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
+    // [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
     [currentWorkflow registerForDraggedTypes:[CPArray arrayWithObject:JobItemType]];
 }
 
@@ -62,30 +69,25 @@ activeWorkflow = nil;
     [[[aSender object] objectValue] ensureDeleted];
 }
 
-- (@action)didSelectRow:(id)aSender
+- (@action)openAddImagesWindow:(id)aSender
 {
-    var selectedJob = [currentWorkflowArrayController selectedObject];
-
+    // [addImagesToWorkflowWindow makeKeyAndOrderFront:aSender];
+    [addImagesToWorkflowWindow setDefaultButton:addImagesToWorkflowButton];
+    [CPApp beginSheet:addImagesToWorkflowWindow
+           modalForWindow:[CPApp mainWindow]
+           modalDelegate:self
+           didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
-
-@end
-
-@implementation LoadActiveWorkflowDelegate : CPObject
+- (IBAction)closeSheet:(id)aSender
 {
-    @outlet     CPArrayController   currentWorkflowArrayController;
+    [CPApp endSheet:addImagesToWorkflowWindow returnCode:[aSender tag]];
 }
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+
+- (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
 {
-    console.log("Remote action did finish");
-
-    var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
-    [currentWorkflowArrayController addObjects:workflowJobs];
-
-    console.log(currentWorkflowArrayController);
-
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
-                                          object:nil];
+    console.log(returnCode);
+    [addImagesToWorkflowWindow orderOut:self];
 }
 
 @end
@@ -96,28 +98,12 @@ activeWorkflow = nil;
     @outlet     CPTableView         currentWorkflow;
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   jobArrayController;
-
-    @outlet     CPView              workflowJobView;
 }
 
 - (int)numberOfRowsInTableView:(CPTableView)aTableView
 {
     return [[currentWorkflowArrayController contentArray] count];
 }
-
-// - (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
-// {
-//     // console.log("Data view for table column");
-//     var identifier = [aTableColumn identifier],
-//         aView = [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
-
-//     return aView;
-// }
-
-// - (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aColumn row:(int)aRow
-// {
-//     // console.log('will display view');
-// }
 
 - (void)tableViewDeleteKeyPressed:(CPTableView)aTableView
 {
@@ -131,9 +117,7 @@ activeWorkflow = nil;
                    proposedRow:(CPInteger)row
                    proposedDropOperation:(CPTableViewDropOperation)operation
 {
-    // console.log("Validate Drop");
     [currentWorkflow setDropRow:row dropOperation:CPTableViewDropAbove];
-
     return CPDragOperationCopy;
 }
 
@@ -145,20 +129,20 @@ activeWorkflow = nil;
         sourceIndexes = [pboard dataForType:JobItemType],
         jobObj = [content objectAtIndex:[sourceIndexes firstIndex]];
 
-    var input_types = JSON.parse([jobObj inputTypes]),
-        output_types = JSON.parse([jobObj outputTypes]);
+    var inputTypes = JSON.parse([jobObj inputTypes]),
+        outputTypes = JSON.parse([jobObj outputTypes]);
 
     // Check to see if this job can fit in with the next or previous ones
-    var inputPixelTypes = [CPSet setWithArray:input_types.pixel_types],
-        outputPixelTypes = [CPSet setWithArray:output_types.pixel_types],
-        input_type_passes = NO,
-        output_type_passes = NO,
+    var inputPixelTypes = [CPSet setWithArray:inputTypes.pixel_types],
+        outputPixelTypes = [CPSet setWithArray:outputTypes.pixel_types],
+        inputTypePasses = NO,
+        outputTypePasses = NO,
         contentArrayCount = [[currentWorkflowArrayController contentArray] count];
 
     if (contentArrayCount === 0)
     {
-        input_type_passes = YES;
-        output_type_passes = YES;
+        inputTypePasses = YES;
+        outputTypePasses = YES;
     }
     else
     {
@@ -166,49 +150,41 @@ activeWorkflow = nil;
             prevObject,
             nextObject;
 
-        console.log("An Index: " + anIndex);
-        console.log("last index: " + lastIndex);
+        // console.log("An Index: " + anIndex);
+        // console.log("last index: " + lastIndex);
         if (anIndex === 0)
         {
-            console.log("inserting at beginning");
+            // console.log("inserting at beginning");
             nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
 
-            input_type_passes = YES;
-            output_type_passes = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
+            inputTypePasses = YES;
+            outputTypePasses = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
         }
         else if (anIndex === contentArrayCount)
         {
-            console.log("Inserting at end");
+            // console.log("Inserting at end");
             prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
 
-            input_type_passes = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
-            output_type_passes = YES;
+            inputTypePasses = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
+            outputTypePasses = YES;
         }
         else
         {
-            console.log("Inserting somewhere in the middle");
+            // console.log("Inserting somewhere in the middle");
             // if we're inserting in the middle, the next object is the one we're looking for.
             prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
             nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
 
-            input_type_passes = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
-            output_type_passes = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
+            inputTypePasses = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
+            outputTypePasses = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
         }
     }
 
     // do not permit a drop if either the input or the output passes
-    if (!input_type_passes || !output_type_passes)
+    if (!inputTypePasses || !outputTypePasses)
     {
         return NO;
     }
-
-    // The JSON field module we're using likes setting an empty dictionary
-    // as a placeholder for fields with no values. We always want to have
-    // this set as an array, even if it is blank.
-    // if ([jobObj arguments] === "{}")
-    //     var jobSettings = "[{}]";
-    // else
-    //     var jobSettings = [jobObj arguments];
 
     var interactive = false,
         needsInput = false,
@@ -242,6 +218,9 @@ activeWorkflow = nil;
     return YES;
 }
 
+/***
+    Checks if a job's pixel types match the input type of another job object.
+***/
 - (BOOL)_checkInputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
 {
     var prevObjJobId = [anObject job],
@@ -254,20 +233,14 @@ activeWorkflow = nil;
         prevOutputSet = [CPSet setWithArray:prevOutputTypes.pixel_types];
 
     if ([prevOutputSet intersectsSet:pixelTypes])
-    {
-        console.log("Previous Job Pixel output: ");
-        console.log(prevOutputSet);
-        console.log("This pixel type: ");
-        console.log(pixelTypes);
         return YES;
-    }
     else
-    {
-        console.log('input type does not match');
         return NO;
-    }
 }
 
+/***
+    Checks if a job's pixel types match the output type of another job object.
+***/
 - (BOOL)_checkOutputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
 {
     var nextObjJobId = [anObject job],
@@ -280,22 +253,40 @@ activeWorkflow = nil;
         nextInputSet = [CPSet setWithArray:nextInputTypes.pixel_types];
 
     if ([nextInputSet intersectsSet:pixelTypes])
-    {
-        console.log("Previous Job Pixel output: ");
-        console.log(nextInputSet);
-        console.log("This pixel type: ");
-        console.log(pixelTypes);
         return YES;
-    }
     else
-    {
-        console.log("output type does not match");
         return NO;
-    }
 }
 
 @end
 
+
+/***
+    A delegate method for loading the remote workflow from the server.
+***/
+@implementation LoadActiveWorkflowDelegate : CPObject
+{
+    @outlet     CPArrayController   currentWorkflowArrayController;
+    @outlet     CPArrayController   workflowPagesArrayController;
+}
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
+    [currentWorkflowArrayController addObjects:workflowJobs];
+
+    var workflowPages = [Page objectsFromJson:[anAction result].pages];
+    [workflowPagesArrayController addObjects:workflowPages];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
+                                          object:nil];
+}
+
+@end
+
+
+/***
+    A simple class that handles some of the delegate methods to support drag-n-drop.
+***/
 @implementation JobListDelegate : CPObject
 {
 }
@@ -316,113 +307,3 @@ activeWorkflow = nil;
 
 @end
 
-// @implementation WorkflowJobView : CPTableCellView
-// {
-//                 id          objectValue     @accessors;
-//     @outlet     CPTextField jobName         @accessors;
-//                 CPArray     jobSettings     @accessors;
-//                 int         viewHeight      @accessors;
-// }
-
-// // if an object has keys, return false; otherwise it's empty.
-// - (BOOL)_isEmptyObject:(id)anObject
-// {
-//     for (var i in anObject)
-//     {
-//         return false;
-//     }
-//     return true;
-// }
-
-// - (void)setObjectValue:(id)aValue
-// {
-//     // console.log("Setting object value");
-//     // console.log(aValue);
-//     objectValue = aValue;
-
-//     // var topOrigin = 25,
-//     //     leftOrigin = 25,
-//     //     widgetHeight = 25,
-//     //     widgetWidth = 100,
-//     //     labelWidth = 300;
-
-
-//     // jobSettings = [CPArray arrayWithArray:JSON.parse([aValue jobSettings])];
-//     // var prevWidget = nil;
-
-//     // viewHeight = 50;
-
-//     // for (var i = 0; i < [jobSettings count]; i++)
-//     // {
-//     //     var widget,
-//     //         label,
-//     //         labelString = @"",
-//     //         obj = [jobSettings objectAtIndex:i];
-
-//     //     if ([self _isEmptyObject:obj])
-//     //         continue;
-
-//     //     if (obj.type == "imagetype")
-//     //         continue;
-
-//     //     label = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin + widgetWidth + 5, topOrigin, labelWidth, widgetHeight)];
-
-//     //     if (obj.name)
-//     //         labelString = [CPString stringWithString:obj.name];
-//     //     else
-//     //         labelString = @"No name";
-
-//     //     if (obj.type === "int" || obj.type === "real" || obj.type === "pixel")
-//     //     {
-//     //         widget = [[CPTextField alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-//     //         [widget setEditable:YES];
-//     //         [widget setBezeled:YES];
-
-//     //         if (obj.has_default)
-//     //             [widget setObjectValue:obj.default];
-
-//     //         if (obj.rng)
-//     //         {
-//     //             var lowerBounds = obj.rng[0],
-//     //                 upperBounds = obj.rng[1],
-//     //                 formatter = [[CPNumberFormatter alloc] init];
-
-//     //             labelString = [labelString stringByAppendingFormat:@" (min: %d, max: %d)", lowerBounds, upperBounds];
-
-//     //             [formatter setMinimum:lowerBounds];
-//     //             [formatter setMaximum:upperBounds];
-//     //             [widget setFormatter:formatter];
-//     //         }
-//     //     }
-//     //     else if (obj.type === "choice")
-//     //     {
-//     //         var widget = [[CPPopUpButton alloc] initWithFrame:CGRectMake(leftOrigin, topOrigin, widgetWidth, widgetHeight)];
-//     //         [widget addItemsWithTitles:[CPArray arrayWithArray:obj.choices]];
-//     //     }
-
-//     //     [self addSubview:widget];
-//     //     [label setObjectValue:labelString];
-//     //     [self addSubview:label];
-
-//     //     prevWidget = widget;
-//     //     topOrigin += widgetHeight + 5;  // add 5 pixels spacing between fields
-
-//     //     viewHeight += 30;
-//     // }
-// }
-
-// - (void)drawRect:(CGRect)aRect
-// {
-//     var context = [[CPGraphicsContext currentContext] graphicsPort];
-//     CGContextSetFillColor(context, [CPColor grayColor]);
-//     CGContextFillRoundedRectangleInRect(context, [self bounds], 6.0, 6.0, YES, YES, YES, YES);
-// }
-
-// - (@action)removeSelfFromWorkflow:(id)aSender
-// {
-//     [[CPNotificationCenter defaultCenter] postNotificationName:RodanRemoveJobFromWorkflowNotification
-//                                       object:self];
-
-// }
-
-// @end
