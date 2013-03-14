@@ -23,6 +23,9 @@ activeWorkflow = nil;
     @outlet     CPTableView             jobList;
 
     @outlet     CPTableView             pageList;
+    @outlet     CPView                  pageThumbnailView;
+
+    @outlet     CPView                  workflowJobInspectorPane;
 }
 
 - (void)awakeFromCib
@@ -40,6 +43,7 @@ activeWorkflow = nil;
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
+    [pageThumbnailView setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     // [currentWorkflow setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     // [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
     [currentWorkflow registerForDraggedTypes:[CPArray arrayWithObject:JobItemType]];
@@ -110,6 +114,12 @@ activeWorkflow = nil;
     var deletedObjects = [currentWorkflowArrayController selectedObjects];
     [currentWorkflowArrayController removeObjects:deletedObjects];
     [deletedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
+}
+
+- (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+{
+    console.log("Data view for table column");
+    return [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
 }
 
 - (CPDragOperation)tableView:(CPTableView)aTableView
