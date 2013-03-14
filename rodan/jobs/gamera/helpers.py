@@ -12,6 +12,7 @@ from gamera.core import init_gamera, load_image
 
 
 class GameraTask(Task):
+
     def run(self, job_data, *args, **kwargs):
         previous_job = job_data['previous_result'].workflow_job
 
@@ -21,7 +22,7 @@ class GameraTask(Task):
         else:
             workflow = previous_job.workflow
             # this job is the next one from the previous result. Duh.
-            this_job = workflow.next_job(previous_job)
+            this_job = workflow.next_job(previous_job, previous_job.page)
 
             if this_job is None:
                 # we probably only have one job in this workflow, so this_job is the same as
@@ -34,7 +35,6 @@ class GameraTask(Task):
         else:
             # initialize the outgoing result object so we can update it as we go.
             new_task_result = Result(
-                page=job_data['previous_result'].page,
                 workflow_job=this_job,
                 task_name=self.name
             )

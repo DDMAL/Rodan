@@ -14,16 +14,14 @@ def run_workflow(workflow_id):
     workflow = Workflow.objects.get(pk=workflow_id)
     pages = workflow.pages.filter(processed=True)  # only get images that are ready to be processed
 
-    workflow_jobs = WorkflowJob.objects.filter(workflow__uuid=workflow_id).order_by('sequence')
-
     for page in pages:
+        workflow_jobs = WorkflowJob.objects.filter(workflow__uuid=workflow_id, page=page).order_by('sequence')
         # construct the workflow by creating a task chain for each image.
         # To kick it off we will define a first "Result", which will simply
         # be a copy of the original image saved as a result.
         # now we kick it off by passing this result to the first job in the chain
         f = open(os.path.join(page.image_path, "compat_file.png"), 'rb')
         r = Result(
-            page=page,
             workflow_job=workflow_jobs[0],
             task_name="rodan.initial.copy_task"
         )
