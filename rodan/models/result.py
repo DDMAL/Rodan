@@ -2,14 +2,13 @@ import os
 from django.db import models
 import uuid
 from rodan.models.workflowjob import WorkflowJob
-from rodan.models.page import Page
 from uuidfield import UUIDField
 
 
 class Result(models.Model):
     @property
     def result_path(self):
-        return os.path.join("projects", str(self.page.project.pk), "pages", str(self.page.pk), "results", str(self.uuid))
+        return os.path.join("projects", str(self.workflow_job.workflow.project.pk), "pages", str(self.workflow_job.page.pk), "results", str(self.uuid))
 
     def upload_fn(self, filename):
         _, ext = os.path.splitext(os.path.basename(filename))
@@ -18,7 +17,6 @@ class Result(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     task_name = models.CharField(max_length=255)
     workflow_job = models.ForeignKey(WorkflowJob, null=True)
-    page = models.ForeignKey(Page)
     result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=255)
 
     created = models.DateTimeField(auto_now_add=True)

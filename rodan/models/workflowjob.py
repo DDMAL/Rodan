@@ -1,5 +1,6 @@
 from django.db import models
 from rodan.models.job import Job
+from rodan.models.page import Page
 from rodan.models.workflow import Workflow
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
@@ -27,6 +28,7 @@ class WorkflowJob(models.Model):
     # for interactive jobs: If this is set to True the job will not run.
     # set it to false to allow it to run.
     needs_input = models.BooleanField(default=False)
+    page = models.ForeignKey(Page)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

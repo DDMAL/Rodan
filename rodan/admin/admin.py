@@ -11,13 +11,13 @@ from rodan.models.result import Result
 # from rodan.models.rodanuser import RodanUser
 
 
-class WorkflowJobInline(admin.StackedInline):
-    model = WorkflowJob
-    extra = 5
+# class WorkflowJobInline(admin.StackedInline):
+#     model = WorkflowJob
+#     extra = 5
 
 
-class WorkflowAdmin(admin.ModelAdmin):
-    inlines = [WorkflowJobInline]
+# class WorkflowAdmin(admin.ModelAdmin):
+#     inlines = [WorkflowJobInline]
 
 
 class JobAdmin(admin.ModelAdmin):
@@ -46,7 +46,7 @@ class PageAdmin(admin.ModelAdmin):
 # admin.site.register(RodanUser)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Page, PageAdmin)
-admin.site.register(Workflow, WorkflowAdmin)
+admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob)
 admin.site.register(Result)

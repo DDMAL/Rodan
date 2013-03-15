@@ -9,33 +9,28 @@ from rodan.models.job import Job
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
+from rodan.models.workflowjob import WorkflowJob
 
 
 class GameraTask(Task):
     def run(self, job_data, *args, **kwargs):
-        previous_job = job_data['previous_result'].workflow_job
+        current_wf_job = WorkflowJob.objects.get(uuid=job_data['current_wf_job_uuid'])
 
-        if previous_job.job.name == self.name:
-            #this is for the case of the first job in the workflow
-            this_job = previous_job
-        else:
-            workflow = previous_job.workflow
-            # this job is the next one from the previous result. Duh.
-            this_job = workflow.next_job(previous_job)
-
-            if this_job is None:
-                # we probably only have one job in this workflow, so this_job is the same as
-                # the previous_job
-                this_job = previous_job
-
-        # check if this job needs input
-        if this_job.needs_input:
+        if current_wf_job.needs_input:
             self.retry(job_data=job_data)
         else:
+            workflow = current_wf_job.workflow
+            previous_wf_job = workflow.previous_job(wf_job=current_wf_job, page=current_wf_job.page)
+
+            if previous_wf_job is None:
+                # this is the first task in the workflow
+                path_to_image = current_wf_job.page.compat_file_path
+            else:
+                path_to_image = previous_wf_job.result_set.all()[0].result.path
+
             # initialize the outgoing result object so we can update it as we go.
             new_task_result = Result(
-                page=job_data['previous_result'].page,
-                workflow_job=this_job,
+                workflow_job=current_wf_job,
                 task_name=self.name
             )
             new_task_result.save()
@@ -44,13 +39,13 @@ class GameraTask(Task):
             # parse the module settings
             settings = {}
 
-            for s in this_job.job_settings:
+            for s in current_wf_job.job_settings:
                 setting_name = "_".join(s['name'].split(" "))
                 setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
                 settings[setting_name] = setting_value
 
             init_gamera()  # initialize Gamera in the task
-            task_image = load_image(job_data['previous_result'].result.path)
+            task_image = load_image(path_to_image)
 
             tdir = tempfile.mkdtemp()
             # perform the requested task
@@ -65,12 +60,11 @@ class GameraTask(Task):
             f.close()
             shutil.rmtree(tdir)
 
-            # this will format the output of this task in such a way that
-            # it can be chained together with another instance of a GameraTask
-            res = {
-                'previous_result': new_task_result
+            next_wf_job = workflow.next_job(wf_job=current_wf_job, page=current_wf_job.page)
+            out = {
+                'current_wf_job_uuid': next_wf_job.uuid if next_wf_job is not None else None
             }
-            return res
+            return out
 
     def retry(self, job_data, *args, **kwargs):
         # do something like this
