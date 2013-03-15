@@ -9,10 +9,17 @@ def run_workflow(workflow_id):
         a Celery task and run it with settings.
     """
     workflow = Workflow.objects.get(pk=workflow_id)
+    workflow.last_run += 1
+    workflow.save()
+
     pages = workflow.pages.filter(processed=True)  # only get images that are ready to be processed
 
     for page in pages:
         workflow_jobs = WorkflowJob.objects.filter(workflow__uuid=workflow_id, page=page).order_by('sequence')
+
+        for workflow_job in workflow_jobs:
+            workflow_job.workflow_run = workflow.last_run
+            workflow_job.save()
 
         job_data = {
             'current_wf_job_uuid': workflow_jobs[0].uuid,
