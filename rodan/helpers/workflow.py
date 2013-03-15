@@ -1,8 +1,5 @@
-import os
-from django.core.files import File
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflow import Workflow
-from rodan.models.result import Result
 from celery import registry, chain
 
 
