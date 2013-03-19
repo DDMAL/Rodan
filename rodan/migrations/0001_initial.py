@@ -57,6 +57,7 @@ class Migration(SchemaMigration):
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflows', to=orm['rodan.Project'])),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('has_started', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('last_run', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -75,6 +76,7 @@ class Migration(SchemaMigration):
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(related_name='wjobs', to=orm['rodan.Workflow'])),
             ('job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Job'])),
+            ('workflow_run', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('sequence', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('job_settings', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('job_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
@@ -208,6 +210,7 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'has_started': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'jobs': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'workflows'", 'blank': 'True', 'through': "orm['rodan.WorkflowJob']", 'to': "orm['rodan.Job']"}),
+            'last_run': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'pages': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'workflows'", 'blank': 'True', 'to': "orm['rodan.Page']"}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': "orm['rodan.Project']"}),
@@ -225,7 +228,8 @@ class Migration(SchemaMigration):
             'sequence': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
-            'workflow': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'wjobs'", 'to': "orm['rodan.Workflow']"})
+            'workflow': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'wjobs'", 'to': "orm['rodan.Workflow']"}),
+            'workflow_run': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         }
     }
 

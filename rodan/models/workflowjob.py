@@ -20,9 +20,11 @@ class WorkflowJob(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow, related_name="wjobs")
     job = models.ForeignKey(Job)
-    sequence = models.IntegerField(blank=True, null=True)
-    job_settings = json.JSONField(blank=True, null=True)
 
+    workflow_run = models.IntegerField(blank=True, null=True)
+    sequence = models.IntegerField(blank=True, null=True)
+
+    job_settings = json.JSONField(blank=True, null=True)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
 
     # for interactive jobs: If this is set to True the job will not run.
