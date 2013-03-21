@@ -1,5 +1,6 @@
 @import "WorkflowJob.j"
 @import "Job.j"
+@import "Page.j"
 
 @implementation Workflow : WLRemoteObject
 {
@@ -41,7 +42,7 @@
         ['projectURI', 'project'],
         ['jobs', 'jobs', [WLForeignObjectOrObjectsTransformer forObjectClass:Job]],
         ['workflowJobs', 'workflowjob_set', [WLForeignObjectOrObjectsTransformer forObjectClass:WorkflowJob]],
-        ['pages', 'pages'],
+        ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['description', 'description'],
         ['hasStarted', 'has_started'],
     ];
@@ -57,5 +58,27 @@
     {
         return @"/workflows/";
     }
+}
+
+- (void)addPage:(id)aPage
+{
+    // adds a page to a workflow
+    console.log("Adding a page to the workflow");
+}
+
+- (void)addPages:(CPArray)pages
+{
+    console.log("Adding pages to workflow");
+    // adds lots of pages to a workflow
+}
+
+- (void)addJob:(id)aJob
+{
+    // add a job to a workflow
+}
+
+- (void)addJobs:(CPArray)jobs
+{
+    // add lots of jobs to a workflow
 }
 @end
