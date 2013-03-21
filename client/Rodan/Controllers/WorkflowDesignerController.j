@@ -13,16 +13,18 @@ activeWorkflow = nil;
 
     @outlet     CPTableView             currentWorkflow;
     @outlet     CPArrayController       currentWorkflowArrayController;
-
     @outlet     CPArrayController       workflowPagesArrayController;
+
     @outlet     CPWindow                addImagesToWorkflowWindow;
     @outlet     CPButton                addImagesToWorkflowButton;
+    @outlet     CPTableView             addImagesToWorkflowTableView;
 
     @outlet     CPObject                activeWorkflowDelegate;
 
     @outlet     CPTableView             jobList;
 
     @outlet     CPTableView             pageList;
+    @outlet     CPArrayController       pageArrayController;
     @outlet     CPView                  pageThumbnailView;
 
     @outlet     CPView                  workflowJobInspectorPane;
@@ -59,7 +61,7 @@ activeWorkflow = nil;
 
 }
 
-- (IBAction)selectWorkflow:(id)aSender
+- (@action)selectWorkflow:(id)aSender
 {
     activeWorkflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
 
@@ -67,7 +69,7 @@ activeWorkflow = nil;
                                           object:nil];
 }
 
-- (IBAction)removeJobFromWorkflow:(CPNotification)aSender
+- (@action)removeJobFromWorkflow:(CPNotification)aSender
 {
     [currentWorkflowArrayController removeObject:[[aSender object] objectValue]];
     [[[aSender object] objectValue] ensureDeleted];
@@ -83,8 +85,16 @@ activeWorkflow = nil;
            didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
-- (IBAction)closeSheet:(id)aSender
+- (@action)closeAddImagesSheet:(id)aSender
 {
+    if ([aSender tag] === 0)
+    {
+        var myObjects = [pageArrayController selectedObjects];
+        [workflowPagesArrayController addObjects:myObjects];
+    }
+
+    console.log([workflowPagesArrayController contentArray]);
+
     [CPApp endSheet:addImagesToWorkflowWindow returnCode:[aSender tag]];
 }
 
@@ -281,11 +291,25 @@ activeWorkflow = nil;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
-    [currentWorkflowArrayController addObjects:workflowJobs];
+    // var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
+    // [currentWorkflowArrayController addObjects:workflowJobs];
+    [currentWorkflowArrayController bind:@"contentArray"
+                                    toObject:activeWorkflow
+                                    withKeyPath:@"workflowJobs"
+                                    options:nil];
 
-    var workflowPages = [Page objectsFromJson:[anAction result].pages];
-    [workflowPagesArrayController addObjects:workflowPages];
+    [workflowPagesArrayController bind:@"contentArray"
+                                  toObject:activeWorkflow
+                                  withKeyPath:@"pages"
+                                  options:nil];
+
+    console.log("Bound Pages Array Controller");
+    console.log([[workflowPagesArrayController contentArray] objectAtIndex:0]);
+
+    console.log(activeWorkflow);
+
+    // var workflowPages = [Page objectsFromJson:[anAction result].pages];
+    // [workflowPagesArrayController addObjects:workflowPages];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
@@ -313,6 +337,55 @@ activeWorkflow = nil;
     [pboard setData:rowIndexes forType:JobItemType];
 
     return YES;
+}
+
+@end
+
+@implementation PageListDelegate : CPObject
+{
+    @outlet     CPArrayController       pageArrayController;
+}
+
+- (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+{
+    console.log([pageArrayController contentArray]);
+
+    var aView = [aTableView makeViewWithIdentifier:@"workflowPage" owner:self];
+    console.log(aView);
+
+    return aView;
+}
+
+@end
+
+@implementation PageListCellView : CPView
+{
+    id          objectValue @accessors;
+    CPTextField textField   @accessors;
+}
+
+- (id)init
+{
+    self = [super init];
+    console.log("Initializing PageList Cell");
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)aFrame
+{
+    self = [super initWithFrame:aFrame];
+    console.log("Init with Frame");
+    console.log(objectValue);
+
+    return self;
+}
+
+- (id)initWithCoder:(CPCoder)aCoder
+{
+    self = [super initWithCoder:aCoder];
+    console.log("Init with coder");
+    console.log(objectValue);
+    return self;
 }
 
 @end
