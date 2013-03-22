@@ -15,9 +15,9 @@ activeWorkflow = nil;
     @outlet     CPArrayController       currentWorkflowArrayController;
     @outlet     CPArrayController       workflowPagesArrayController;
 
-    @outlet     CPWindow                addImagesToWorkflowWindow;
-    @outlet     CPButton                addImagesToWorkflowButton;
-    @outlet     CPTableView             addImagesToWorkflowTableView;
+    @outlet     CPWindow                addPagesToWorkflowWindow;
+    @outlet     CPButton                addPagesToWorkflowButton;
+    @outlet     CPTableView             addPagesToWorkflowTableView;
 
     @outlet     CPObject                activeWorkflowDelegate;
 
@@ -26,8 +26,10 @@ activeWorkflow = nil;
     @outlet     CPTableView             pageList;
     @outlet     CPArrayController       pageArrayController;
     @outlet     CPView                  pageThumbnailView;
+    @outlet     CPButtonBar             pageListAddRemoveButtonBar;
 
     @outlet     CPView                  workflowJobInspectorPane;
+
 }
 
 - (void)awakeFromCib
@@ -45,10 +47,30 @@ activeWorkflow = nil;
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
-    [pageThumbnailView setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     // [currentWorkflow setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
-    // [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
-    [currentWorkflow registerForDraggedTypes:[CPArray arrayWithObject:JobItemType]];
+    [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
+    [currentWorkflow registerForDraggedTypes:[JobItemType]];
+    console.log("Current Workflow Table");
+    console.log(currentWorkflow);
+
+    var addButton = [CPButtonBar plusPopupButton],
+        removeButton = [CPButtonBar minusButton],
+        addPagesTitle = @"Add Pages to Workflow...";
+    [addButton addItemsWithTitles:[addPagesTitle]];
+
+    var addPagesItem = [addButton itemWithTitle:addPagesTitle];
+    [pageListAddRemoveButtonBar setButtons:[addButton, removeButton]];
+
+    [addPagesItem setAction:@selector(openAddPagesWindow:)];
+    [addPagesItem setTarget:self];
+
+    [removeButton setAction:@selector(removePagesFromWorkflow:)];
+    [removeButton setTarget:self];
+
+    [removeButton bind:@"enabled"
+                  toObject:workflowPagesArrayController
+                  withKeyPath:@"selection.pk"
+                  options:nil];
 }
 
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
@@ -75,17 +97,22 @@ activeWorkflow = nil;
     [[[aSender object] objectValue] ensureDeleted];
 }
 
-- (@action)openAddImagesWindow:(id)aSender
+- (@action)removePagesFromWorkflow:(id)aSender
+{
+    //pass
+}
+
+- (@action)openAddPagesWindow:(id)aSender
 {
     // [addImagesToWorkflowWindow makeKeyAndOrderFront:aSender];
-    [addImagesToWorkflowWindow setDefaultButton:addImagesToWorkflowButton];
-    [CPApp beginSheet:addImagesToWorkflowWindow
+    [addPagesToWorkflowWindow setDefaultButton:addPagesToWorkflowButton];
+    [CPApp beginSheet:addPagesToWorkflowWindow
            modalForWindow:[CPApp mainWindow]
            modalDelegate:self
            didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
-- (@action)closeAddImagesSheet:(id)aSender
+- (@action)closeAddPagesSheet:(id)aSender
 {
     if ([aSender tag] === 0)
     {
@@ -95,13 +122,13 @@ activeWorkflow = nil;
 
     console.log([workflowPagesArrayController contentArray]);
 
-    [CPApp endSheet:addImagesToWorkflowWindow returnCode:[aSender tag]];
+    [CPApp endSheet:addPagesToWorkflowWindow returnCode:[aSender tag]];
 }
 
 - (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
 {
     console.log(returnCode);
-    [addImagesToWorkflowWindow orderOut:self];
+    [addPagesToWorkflowWindow orderOut:self];
 }
 
 @end
@@ -126,7 +153,7 @@ activeWorkflow = nil;
     [deletedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
-- (void)tableView:(CPTableView)aTableView dataViewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+- (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 {
     console.log("Data view for table column");
     return [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
@@ -137,13 +164,20 @@ activeWorkflow = nil;
                    proposedRow:(CPInteger)row
                    proposedDropOperation:(CPTableViewDropOperation)operation
 {
+    console.log("validate drop");
     [currentWorkflow setDropRow:row dropOperation:CPTableViewDropAbove];
     return CPDragOperationCopy;
 }
 
+- (void)tableView:(CPTableView)aTableView willDisplayView:(id)aView forTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
+{
+    console.log("A view to display");
+    console.log(aView);
+}
+
 - (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)anIndex dropOperation:(CPTableViewDropOperation)aDropOperation
 {
-    // console.log("accept drop?");
+    console.log("accept drop?");
     var content = [jobArrayController contentArray],
         pboard = [info draggingPasteboard],
         sourceIndexes = [pboard dataForType:JobItemType],
@@ -263,6 +297,9 @@ activeWorkflow = nil;
 ***/
 - (BOOL)_checkOutputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
 {
+    console.log("An object: ");
+    console.log(anObject);
+
     var nextObjJobId = [anObject job],
         nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
         {
@@ -303,14 +340,6 @@ activeWorkflow = nil;
                                   withKeyPath:@"pages"
                                   options:nil];
 
-    console.log("Bound Pages Array Controller");
-    console.log([[workflowPagesArrayController contentArray] objectAtIndex:0]);
-
-    console.log(activeWorkflow);
-
-    // var workflowPages = [Page objectsFromJson:[anAction result].pages];
-    // [workflowPagesArrayController addObjects:workflowPages];
-
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
 }
@@ -333,7 +362,7 @@ activeWorkflow = nil;
 - (BOOL)tableView:(CPTableView)aTableView writeRowsWithIndexes:(CPIndexSet)rowIndexes toPasteboard:(CPPasteboard)pboard
 {
     console.log("write rows with indexes");
-    [pboard declareTypes:[CPArray arrayWithObject:JobItemType] owner:self];
+    [pboard declareTypes:[JobItemType] owner:self];
     [pboard setData:rowIndexes forType:JobItemType];
 
     return YES;
@@ -348,10 +377,7 @@ activeWorkflow = nil;
 
 - (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 {
-    console.log([pageArrayController contentArray]);
-
     var aView = [aTableView makeViewWithIdentifier:@"workflowPage" owner:self];
-    console.log(aView);
 
     return aView;
 }
@@ -375,7 +401,6 @@ activeWorkflow = nil;
 {
     self = [super initWithFrame:aFrame];
     console.log("Init with Frame");
-    console.log(objectValue);
 
     return self;
 }
@@ -384,8 +409,14 @@ activeWorkflow = nil;
 {
     self = [super initWithCoder:aCoder];
     console.log("Init with coder");
-    console.log(objectValue);
     return self;
+}
+
+- (void)setObjectValue:(id)aValue
+{
+    console.log("Setting object value");
+    console.log(aValue);
+    objectValue = aValue;
 }
 
 @end
