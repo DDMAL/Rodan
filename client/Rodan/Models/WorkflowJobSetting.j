@@ -22,18 +22,18 @@
 
 + (id)initWithSetting:(JSObject)setting
 {
-    var self = [self init];
+    var self = [[WorkflowJobSetting alloc] init];
 
-    if (settings.name)
-        [self setSettingName:settings.name];
+    if (setting.name)
+        [self setSettingName:setting.name];
 
-    if (settings.has_default)
-        [self setSettingDefault:settings.default];
+    if (setting.has_default)
+        [self setSettingDefault:setting.default];
 
-    if (settings.rng)
-        [self setRange:[CPArray arrayWithArray:settings.rng]];
+    if (setting.rng)
+        [self setRange:[CPArray arrayWithArray:setting.rng]];
 
-    [self setSettingType:settings.type];
+    [self setSettingType:setting.type];
 
     return self;
 }
