@@ -1,21 +1,23 @@
 Rodan
 =====
 
-Readme under construction. Will contain list of dependencies, usage instructions, explanation of the file structure, etc.
+Rodan is a web-based document recognition system.
 
-Dependencies
-------------
 
-Check `requirements.txt` for the latest dependencies.
+Building Rodan
+--------------
 
-Development
------------
+You should check out the latest version from GitHub. In these instructions, $RODAN_HOME is the directory where you have checked out the Rodan source code.
 
-We're using virtualenv to manage the deployment environment
+Rodan uses [Celery](http://www.celeryproject.org) for performing all image manipulation operations. Celery uses the RabbitMQ back-end for message passing. You should follow the [instructions for installing RabbitMQ on your machine](http://www.rabbitmq.com/download.html).
+
+### Python Server
+
+We're using [virtualenv](http://www.virtualenv.org/en/latest/) to manage the server environment.
 
 to install it:
 
-    $> sudo pip install virtualenv`
+    $> sudo pip install virtualenv
 
 Create a virtual environment:
 
@@ -31,90 +33,86 @@ Install all the dependencies:
 
     $> pip install -r requirements.txt
 
-(If you need to add a dependency, install it with pip then run
+When this installs successfully, you should edit the `$RODAN_HOME/rodan/settings_production.py` file to correspond with your environment. For beginning development, the default sqlite3 database settings should be fine; however, you may wish to move to a more complete database system like Postgresql.
 
-    $> pip freeze > requirements.txt
+Once you have verified your settings, you can sync the Rodan models with the database. Since we are using the [South](http://south.aeracode.org) module for migrations, this is slightly different than "regular" Django:
 
-and commit the requirements file)
+    $> cd $RODAN_HOME
+    $> python manage.py syncdb
+    $> python manage.py migrate
 
-### Other dependencies
+If you run into errors about database key dependencies you can migrate two of the apps individually.
 
-Since gamera is not installable with pip, you have to download it from http://sourceforge.net/projects/gamera/
-and then build the python module with `python setup.py build && sudo python setup.py install`
+    $> python manage.py migrate djcelery
+    $> python manage.py migrate rodan
 
-```
-cd rodan_env/lib/python2.7/site-packages/
-ln -s <python module directory>/gamera gamera
-```
+Once this is complete you may test your application by making sure it starts up:
 
-You will also need these plugins for gamera, which have to be added manually as well:
+    $> python manage.py runserver_plus
 
-* MusicStaves Toolkit @ `http://gamera.informatik.hsnr.de/addons/musicstaves/index.html`
-  Note that this plugin has an build error in the file <root dir of toolkit>/include/plugins/line_tracking.hpp
-  To fix it, simply copy paste the "chord_length" function at the end of the file to the beginning of the file
-  right after the preprocessor commands.
+([`runserver_plus`](http://pythonhosted.org/django-extensions/runserver_plus.html) is installed via the Django-extensions module, and has several advantages over the "regular" Django `runserver` command.)
 
-* Border-Removal @ `https://github.com/DDMAL/document-preprocessing-toolkit`
-  ```
-  cd <document-preprocessing-toolkit location>/border-removal
-  python setup.py install
-  ```
+### Celery Queue
 
-* libmei @ `https://github.com/gburlet/libmei/tree/solesmesbuild`
-  Note that if you are getting `pymei` import errors, it is because you are missing `libmei` and not `pymei`.
+You should set up Celery and RabbitMQ as necessary. If you just want the default account information that comes with Rodan, you should set up RabbitMQ like this:
+    
+    $> rabbitmqctl add_user rodanuser DDMALrodan
+    $> rabbitmqctl add_vhost DDMAL
+    $> rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
 
-* MUSIC21 is included in the pip requirements.txt, but it will not be installed correctly. You will need to:
-```
-cd <directory where you ran "pip install -r requirements.txt">/build/music21
-chmod u+x installer.command
-./installer.command
-```
-  to get MUSIC21 installed and working properly. Information regarding the installation process using installer.command
-  can be found here `http://mit.edu/music21/doc/html/installMac.html#installmac`.
-  After you have installed MUSIC21, you can remove the rodan_env/build directory
-```
-cd rodan_env
-sudo rm -rf build
-```
+This corresponds to the following default setting in `settings_production.py`.
 
-You'll also need to install VIPS (along with the Python bindings) for the diva module to work. The installation guide is probably somewhere on the [wiki](http://www.vips.ecs.soton.ac.uk/). If you don't want to install it, create a directory called `vipsCC` in the project root, containing an `__init__.py` file as well as a file called `VImage.py`. In `VImage.py`, write something like `VImage = ''`. That should be enough if you just need to get the system up and running and don't care if diva works or not. Just don't test the diva preprocessing job.
+    BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
 
-Setup
------
-* Install rabbitmq if required
+Which follows the pattern:
 
-Configure rabbitmq with
+    amqp://$USER:$PASSWORD@$HOST:$PORT/$VHOST
 
-    /usr/local/sbin/rabbitmqctl add_user rodanuser DDMALrodan
-    /usr/local/sbin/rabbitmqctl add_vhost DDMAL
-    /usr/local/sbin/rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
+You should now be able to start up the Celery queue with the following command:
 
-Instructions
-------------
+    $> python manage.py celery worker --loglevel=info -E
 
-* Check out the source with `git clone git@github.com:DDMAL/Rodan.git rodan`
-* `cd` into the rodan directory
-* `source rodan_env/bin/activate` to setup the virtualenv
-* `python manage.py syncdb` should do all the database stuff for you. Don't say yes when asked
-   to create a superuser and a fixture will be created
-* `python manage.py celeryd --loglevel=info -E` to start the celery broker
-* `python manage.py celeryev --camera=rodan.monitor.RodanMonitor`
-* `python manage.py runserver`. Access the site at http://localhost:8000
-* If you're running it on susato and want to be able to access it remotely, pick a port
-  (e.g. 8001) and do something like this: `python manage.py runserver 0.0.0.0:8001`.
-  You can now access your Django instance from http://rodan.simssa.ca:8001. If the
-  port you're trying to use is already taken, use another one.
+You may see some messages about skipping modules -- we'll fix this when we install Gamera later.
 
-Project layout
--------------
+### Cappuccino client
 
-* `db.sqlite` - for development only. not tracked by git. created upon running `python manage.py syncdb`
-* `__init__.py`
-* `manage.py` - comes with Django. Not modified.
-* `readme.md`
-* `rodan/`
-    * `__init__.py` - empty file, needed to be able to import the app
-    * `settings.py` - the project-wide settings. should not need to be changed
-    * `templates/` - all the template files will go under here. there will be a directory for each app.
-    * `urls.py` - includes all the urls.py files for each app (e.g. `correction/urls.py`) and maps the base url to the `main` view defined in `views.py`
-    * `views.py` - defines the `main` view, which either returns the `dashboard` view in `projects.views` or asks the user to register/login
+The Rodan interface is build using [Cappuccino](http://www.cappuccino-project.org). You must first follow the instructions for getting and building Cappuccino.
+
+After Cappuccino is installed, you must link the compiled Frameworks into the Rodan client:
+
+    $> cd $RODAN_HOME/client
+    $> capp gen -l -f Rodan
+
+This will create symlinks inside of the `Frameworks` folder to the compiled versions of the Cappuccino frameworks.
+
+Next, you must create a symlink between the Rodan client and the Django server. (This is for development; in production, the client interface may be served separately from the Django web application).
+
+    $> cd $RODAN_HOME/rodan/static
+    $> ln -s ../../client/Rodan .
+
+With the Django server running you should now be able to visit `http://localhost:8000` in your web browser and see the Rodan interface.
+
+### Gamera
+
+Currently, Rodan comes configured with support for the [Gamera](http://gamera.informatik.hsnr.de) toolkit. You should download the source code and, ensuring you are still within your Rodan virtual environment, install it with the following command:
+
+    $> python setup.py install --nowx
+
+This command installs Gamera without the GUI, since we are only interested in the Gamera image processing modules. Once you have installed this, you can install a number of optional Gamera modules:
+
+#### The Musicstaves toolkit
+
+The [Musicstaves toolkit](http://gamera.informatik.hsnr.de/addons/musicstaves/) contains a number of functions for working with printed music scores. To install it you will need to download it and install it within your Rodan virtualenv. If you get an error about a missing header file, you will need to add a CFLAGS option to your installation command that contains a reference to the `includes` folder in your Gamera source. Thus, you might install it like this:
+
+    $> cd $MUSICSTAVES_DOWNLOAD_LOCATION
+    $> CFLAGS="-I/path/to/gamera/gamera/includes" python setup.py install
+
+#### Document Preprocessing Toolkits
+
+These are four modules that offer some further document processing functionality. [Check out the code](http://github.com/DDMAL/document-preprocessing-toolkit), and then install each of the four modules individually. You will also likely need to install using the CFLAGS option demonstrated above. You should also make sure you install the `lyric_extraction` module last, since it depends on functions in other modules.
+
+#### Rodan plugins
+
+Finally, you should install the [Rodan plugins module](http://github.com/DDMAL/rodan_plugins), a set of Gamera plugins that replace built-in Gamera modules to allow them to operate with input/output, rather than modifying an image in-place. Install this in the same way as the previous modules.
+
+
