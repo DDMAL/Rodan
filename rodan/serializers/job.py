@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from rodan.models.job import Job
 
+
 class JobSerializer(serializers.HyperlinkedModelSerializer):
+    arguments = serializers.CharField(required=False)  # this actually sends it as JSON
+
     class Meta:
         model = Job
         fields = ("url",
-                  "name",
+                  "job_name",
                   "arguments",
                   "description",
                   "input_types",
