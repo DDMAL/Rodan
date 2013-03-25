@@ -10,6 +10,7 @@
 @import <AppKit/AppKit.j>
 @import <FileUpload/FileUpload.j>
 @import <Ratatosk/Ratatosk.j>
+@import <TNKit/TNKit.j>
 
 @import "Categories/CPButtonBar+PopupButtons.j"
 @import "Categories/CPArrayController+selectedObject.j"
