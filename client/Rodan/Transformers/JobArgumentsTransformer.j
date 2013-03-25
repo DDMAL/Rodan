@@ -1,3 +1,5 @@
+@import "../Models/WorkflowJobSetting.j"
+
 @implementation JobArgumentsTransformer : CPObject
 {
 }
@@ -7,29 +9,57 @@
     return YES;
 }
 
-- (id)transformedValue:(id)value
++ (Class)transformedValueClass
 {
-    if (value === "{}")
-        return [{}];
-
-    if ([value class] === [CPString class])
-        return JSON.parse(value);
-
-    return value;
+    return [CPArray class];
 }
 
-- (id)reverseTransformedValue:(id)value
+- (id)transformedValue:(id)values
 {
-    return JSON.stringify(value);
-}
+    // values should be a string
+    console.log("Pre-transformed values");
+    var c = values.length,
+        returnArray = [];
 
-- (BOOL)_isEmptyObject:(id)anObject
-{
-    for (var i in anObject)
+    while (c--)
     {
-        return false;
+        [returnArray addObject:[WorkflowJobSetting initWithSetting:values[c]]];
     }
-    return true;
+    console.log(returnArray);
+    return returnArray;
 }
+
+- (id)reverseTransformedValue:(id)values
+{
+    // values should be an array
+    console.log("Reverse transformed values");
+    var reversedSettings = [],
+        propertyMap = [WorkflowJobSetting propertyMap],
+        c = values.length;
+
+    while (c--)
+    {
+        var obj = values[c],
+            retObj = {};
+        for (var i = 0; i < propertyMap.length; i++)
+        {
+            retObj[propertyMap[i][1]] = obj[propertyMap[i][0]];
+        };
+        [reversedSettings addObject:retObj];
+    }
+
+    // should return a string
+    console.log(JSON.stringify(reversedSettings));
+    return @"" + JSON.stringify(reversedSettings);
+}
+
+// - (BOOL)_isEmptyObject:(id)anObject
+// {
+//     for (var i in anObject)
+//     {
+//         return false;
+//     }
+//     return true;
+// }
 
 @end
