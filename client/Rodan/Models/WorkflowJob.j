@@ -13,6 +13,7 @@
     CPArray     inputPixels     @accessors;
     CPArray     outputPixels    @accessors;
     BOOL        needsInput      @accessors;
+    CPString    jobDescription  @accessors;
 }
 
 // + (WorkflowJob)initWithJob:(CPString)aJobURI forWorkflow:(CPString)aWorkflowURI
@@ -29,7 +30,8 @@
     return [
         ['pk', 'url'],
         ['workflow', 'workflow'],
-        ['jobName', 'name'],
+        ['jobName', 'job_name', nil, true],  // nil transformer, true read-only
+        ['jobDescription', 'job_description', nil, true],  // nil transformer, true read-only
         ['job', 'job'],
         ['sequence', 'sequence'],
         ['jobSettings', 'job_settings', [[JobArgumentsTransformer alloc] init]],

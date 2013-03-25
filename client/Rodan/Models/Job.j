@@ -30,8 +30,9 @@
 {
     return [
         ['pk', 'url'],
-        ['jobName', 'name'],
-        ['arguments', 'arguments', [[JobArgumentsTransformer alloc] init]],
+        ['jobName', 'job_name'],
+        // ['arguments', 'arguments', [[JobArgumentsTransformer alloc] init]],
+        ['arguments', 'arguments'],
         ['description', 'description'],
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
