@@ -1,4 +1,7 @@
+@import <LPKit/LPMultiLineTextField.j>
+
 @import "../Models/Page.j"
+@import "../Models/WorkflowJobSetting.j"
 
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanDidLoadWorkflowNotification
@@ -23,12 +26,24 @@ activeWorkflow = nil;
 
     @outlet     CPTableView             jobList;
 
+    @outlet     TNTabView               pageRunTabView;
+
+    @outlet     CPView                  pageTab;
     @outlet     CPTableView             pageList;
     @outlet     CPArrayController       pageArrayController;
     @outlet     CPView                  pageThumbnailView;
     @outlet     CPButtonBar             pageListAddRemoveButtonBar;
 
+    @outlet     CPView                  runTab;
+    @outlet     CPTableView             runList;
+    @outlet     CPArrayController       runArrayController;
+    @outlet     CPButtonBar             runAddRemoveButtonBar;
+
     @outlet     CPView                  workflowJobInspectorPane;
+    @outlet     TNTabView               workflowJobTabView;
+    @outlet     CPView                  selectedWorkflowJobSettingsTab;
+    @outlet     CPView                  selectedWorkflowJobDescriptionTab;
+    @outlet     LPMultiLineTextField    selectedWorkflowJobDescription;
 
 }
 
@@ -47,11 +62,25 @@ activeWorkflow = nil;
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
+    [runList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     // [currentWorkflow setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
     [currentWorkflow registerForDraggedTypes:[JobItemType]];
     console.log("Current Workflow Table");
     console.log(currentWorkflow);
+
+    // page and run tab view
+    var tab1 = [[CPTabViewItem alloc] initWithIdentifier:@"pageListTab"],
+        tab2 = [[CPTabViewItem alloc] initWithIdentifier:@"runListTab"];
+    [tab1 setLabel:@"Workflow Pages"];
+    [tab1 setView:pageTab];
+
+    [tab2 setLabel:@"Workflow Runs"];
+    [tab2 setView:runTab];
+
+    [pageRunTabView addTabViewItem:tab1];
+    [pageRunTabView addTabViewItem:tab2];
+
 
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
@@ -71,11 +100,26 @@ activeWorkflow = nil;
                   toObject:workflowPagesArrayController
                   withKeyPath:@"selection.pk"
                   options:nil];
+
+    // Inspector Pane
+    var tab1 = [[CPTabViewItem alloc] initWithIdentifier:@"settingsTab"],
+        tab2 = [[CPTabViewItem alloc] initWithIdentifier:@"descriptionTab"];
+    [tab1 setLabel:@"Settings"];
+    [tab1 setView:selectedWorkflowJobSettingsTab];
+    [tab2 setLabel:@"Description"];
+    [tab2 setView:selectedWorkflowJobDescriptionTab];
+    [workflowJobTabView addTabViewItem:tab1];
+    [workflowJobTabView addTabViewItem:tab2];
+
+    [selectedWorkflowJobDescription bind:@"value"
+                                    toObject:currentWorkflowArrayController
+                                    withKeyPath:@"selection.jobDescription"
+                                    options:nil];
+
 }
 
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
 {
-    console.log("I should load the jobs for workflow " + [activeWorkflow pk]);
     [WLRemoteAction schedule:WLRemoteActionGetType
                     path:[activeWorkflow pk]
                     delegate:activeWorkflowDelegate
@@ -255,6 +299,7 @@ activeWorkflow = nil;
     var wkObj = {
             "workflow": [activeWorkflow pk],
             "job": [jobObj pk],
+            "job_name": [jobObj jobName],
             "job_settings": [jobObj arguments],
             "sequence": anIndex,
             "job_type": jobType,
@@ -262,12 +307,11 @@ activeWorkflow = nil;
             "needs_input": needsInput
             };
 
-    // console.log(wkObj);
-
     var workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
     [workflowJobObject ensureCreated];
 
     [currentWorkflowArrayController insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
+    console.log("Finished inserting");
 
     return YES;
 }
@@ -328,8 +372,12 @@ activeWorkflow = nil;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
+    console.log("Action did finish");
+    console.log(activeWorkflow);
     // var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
     // [currentWorkflowArrayController addObjects:workflowJobs];
+    console.log([activeWorkflow valueForKey:@"workflowJobs"]);
+
     [currentWorkflowArrayController bind:@"contentArray"
                                     toObject:activeWorkflow
                                     withKeyPath:@"workflowJobs"
@@ -340,6 +388,9 @@ activeWorkflow = nil;
                                   withKeyPath:@"pages"
                                   options:nil];
 
+    []
+
+    console.log("Action did finish finish");
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
 }
