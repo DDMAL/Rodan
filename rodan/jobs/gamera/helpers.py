@@ -72,7 +72,7 @@ class GameraTask(Task):
 
 
 def create_jobs_from_module(gamera_module, interactive=False):
-    previously_loaded_modules = Job.objects.values_list('name', flat=True)
+    previously_loaded_modules = Job.objects.values_list('job_name', flat=True)
     for fn in gamera_module.module.functions:
         # we only want jobs that will return a result and has a known pixel type
         if not fn.return_type:
@@ -95,7 +95,7 @@ def create_jobs_from_module(gamera_module, interactive=False):
         arguments = argconvert.convert_arg_list(fn.args.list)
 
         j = Job(
-            name=str(fn),
+            job_name=str(fn),
             author=fn.author,
             description=fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"'),
             input_types=input_types,

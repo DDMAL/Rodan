@@ -21,7 +21,7 @@ from rodan.models.result import Result
 
 
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('name', 'enabled', 'category')
+    list_display = ('job_name', 'enabled', 'category')
 
 
 class ProjectAdmin(admin.ModelAdmin):
