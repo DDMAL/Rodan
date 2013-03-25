@@ -34,11 +34,8 @@
 {
     var self = [[WorkflowJobSetting alloc] init];
 
-    if (setting.name)
-        [self setSettingName:setting.name];
-
-    if (setting.has_default)
-        [self setSettingDefault:setting.default];
+    [self setSettingName:setting.name];
+    [self setSettingDefault:setting.default];
 
     if (setting.rng)
         [self setRange:[CPArray arrayWithArray:setting.rng]];
