@@ -1,6 +1,6 @@
 def convert_arg_list(arglist):
     if not arglist:
-        return None
+        return []
     ret = []
     for a in arglist:
         arg = a.__dict__
