@@ -22,7 +22,7 @@ class WorkflowJob(models.Model):
     workflow = models.ForeignKey(Workflow, related_name="wjobs")
     job = models.ForeignKey(Job)
 
-    workflow_run = models.IntegerField(blank=True, null=True)
+    workflow_run = models.IntegerField(blank=True, null=True, default=1)
     sequence = models.IntegerField(blank=True, null=True)
 
     job_settings = json.JSONField(blank=True, null=True)

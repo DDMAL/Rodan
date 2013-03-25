@@ -15,7 +15,9 @@ class Workflow(models.Model):
     description = models.TextField(blank=True, null=True)
     has_started = models.BooleanField(default=False)
 
-    last_run = models.IntegerField(default=0)
+    # The run field is incremented with each new run. We always start with an initial run, so the default
+    # value of this field is 1, not 0.
+    run = models.IntegerField(default=1)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
