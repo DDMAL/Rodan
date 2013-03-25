@@ -2,6 +2,7 @@ from django.db import models
 from rodan.models.job import Job
 from rodan.models.page import Page
 from rodan.models.workflow import Workflow
+# from rodan.models.workflowjobsetting import WorkflowJobSetting
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
@@ -25,6 +26,7 @@ class WorkflowJob(models.Model):
     sequence = models.IntegerField(blank=True, null=True)
 
     job_settings = json.JSONField(blank=True, null=True)
+    # job_settings = models.ManyToManyField(WorkflowJobSetting)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
 
     # for interactive jobs: If this is set to True the job will not run.
@@ -40,8 +42,12 @@ class WorkflowJob(models.Model):
         return u"{0} ({1})".format(self.job, self.get_job_type_display())
 
     @property
-    def name(self):
-        return self.job.name
+    def job_name(self):
+        return self.job.job_name
+
+    @property
+    def job_description(self):
+        return self.job.description
 
     @property
     def input_pixel_types(self):

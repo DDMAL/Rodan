@@ -10,7 +10,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     # pages = serializers.ManyHyperlinkedRelatedField(view_name="page-detail", null=True)
     pages = PageSerializer()
-    jobs = JobSerializer()
+    # jobs = JobSerializer()
 
     wjobs = WorkflowJobSerializer()
 
