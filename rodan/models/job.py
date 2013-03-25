@@ -5,7 +5,7 @@ from uuidfield import UUIDField
 
 class Job(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=255)
+    job_name = models.CharField(max_length=255)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -18,7 +18,7 @@ class Job(models.Model):
     interactive = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u"{0}".format(self.name)
+        return u"{0}".format(self.job_name)
 
     class Meta:
         app_label = 'rodan'
