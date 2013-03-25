@@ -14,10 +14,20 @@
     var self = [super init];
     if (self)
     {
-
     }
 
     return self;
+}
+
++ (CPArray)propertyMap
+{
+    return [
+        ['settingDefault', 'default'],
+        ['hasDefault', 'has_default'],
+        ['range', 'rng'],
+        ['settingType', 'type'],
+        ['settingName', 'name']
+    ];
 }
 
 + (id)initWithSetting:(JSObject)setting
