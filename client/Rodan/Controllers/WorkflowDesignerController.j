@@ -66,16 +66,14 @@ activeWorkflow = nil;
     // [currentWorkflow setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [currentWorkflow setGridStyleMask:CPTableViewSolidHorizontalGridLineMask];
     [currentWorkflow registerForDraggedTypes:[JobItemType]];
-    console.log("Current Workflow Table");
-    console.log(currentWorkflow);
 
     // page and run tab view
     var tab1 = [[CPTabViewItem alloc] initWithIdentifier:@"pageListTab"],
         tab2 = [[CPTabViewItem alloc] initWithIdentifier:@"runListTab"];
-    [tab1 setLabel:@"Workflow Pages"];
+    [tab1 setLabel:@"Pages"];
     [tab1 setView:pageTab];
 
-    [tab2 setLabel:@"Workflow Runs"];
+    [tab2 setLabel:@"Runs"];
     [tab2 setView:runTab];
 
     [pageRunTabView addTabViewItem:tab1];
@@ -115,7 +113,6 @@ activeWorkflow = nil;
                                     toObject:currentWorkflowArrayController
                                     withKeyPath:@"selection.jobDescription"
                                     options:nil];
-
 }
 
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
@@ -163,8 +160,6 @@ activeWorkflow = nil;
         var myObjects = [pageArrayController selectedObjects];
         [workflowPagesArrayController addObjects:myObjects];
     }
-
-    console.log([workflowPagesArrayController contentArray]);
 
     [CPApp endSheet:addPagesToWorkflowWindow returnCode:[aSender tag]];
 }
@@ -307,6 +302,9 @@ activeWorkflow = nil;
             "needs_input": needsInput
             };
 
+    console.log("Creating workflow job object");
+    console.log(wkObj);
+
     var workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
     [workflowJobObject ensureCreated];
 
@@ -369,14 +367,12 @@ activeWorkflow = nil;
 {
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   workflowPagesArrayController;
+    @outlet     CPArrayController   workflowRunsArrayController;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    console.log("Action did finish");
-    console.log(activeWorkflow);
-    // var workflowJobs = [WorkflowJob objectsFromJson:[anAction result].wjobs];
-    // [currentWorkflowArrayController addObjects:workflowJobs];
-    console.log([activeWorkflow valueForKey:@"workflowJobs"]);
+    console.log(anAction);
+
 
     [currentWorkflowArrayController bind:@"contentArray"
                                     toObject:activeWorkflow
@@ -388,9 +384,6 @@ activeWorkflow = nil;
                                   withKeyPath:@"pages"
                                   options:nil];
 
-    []
-
-    console.log("Action did finish finish");
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
 }
