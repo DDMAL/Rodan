@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    projects = serializers.ManyHyperlinkedRelatedField(view_name='project-detail')
+    projects = serializers.HyperlinkedRelatedField(view_name='project-detail', many=True)
 
     class Meta:
         model = User
