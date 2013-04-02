@@ -56,7 +56,7 @@ activeProject = "";  // URI to the currently open project
 @implementation AppController : CPObject
 {
     @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
-    @outlet     CPToolbar   theToolbar;
+    @outlet     TNToolbar   theToolbar;
                 CPBundle    theBundle;
 
     @outlet     CPView      projectStatusView;
@@ -296,7 +296,7 @@ activeProject = "";  // URI to the currently open project
 
     [removeButton bind:@"enabled"
                   toObject:projectArrayController
-                  withKeyPath:@"selection.pk"
+                  withKeyPath:@"selectedObjects.@count"
                   options:nil]
 
     [selectProjectView setFrame:[contentScrollView bounds]];
