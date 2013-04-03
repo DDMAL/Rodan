@@ -1,5 +1,3 @@
-import os
-import json
 import urlparse
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -20,6 +18,8 @@ from rodan.serializers.workflow import WorkflowSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.job import JobSerializer
 from rodan.serializers.result import ResultSerializer
+from rodan.serializers.workflowrun import WorkflowRunSerializer
+from rodan.serializers.runjob import RunJobSerializer
 
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
@@ -27,6 +27,8 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.job import Job
 from rodan.models.result import Result
+from rodan.models.runjob import RunJob
+from rodan.models.workflowrun import WorkflowRun
 from rodan.helpers.convert import ensure_compatible
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.pagedone import pagedone
@@ -39,6 +41,8 @@ def api_root(request, format=None):
             'projects': reverse('project-list', request=request, format=format),
             'workflows': reverse('workflow-list', request=request, format=format),
             'workflowjobs': reverse('workflowjob-list', request=request, format=format),
+            'workflowruns': reverse('workflowrun-list', request=request, format=format),
+            'runjobs': reverse('runjob-list', request=request, format=format),
             'pages': reverse('page-list', request=request, format=format),
             'jobs': reverse('job-list', request=request, format=format),
             'results': reverse('result-list', request=request, format=format),
@@ -82,6 +86,42 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
         obj.creator = self.request.user
 
 
+class WorkflowRunList(generics.ListCreateAPIView):
+    model = WorkflowRun
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = WorkflowRunSerializer
+
+    def get_queryset(self):
+        workflow = self.request.QUERY_PARAMS.get('workflow', None)
+        run = self.request.QUERY_PARAMS.get('run', None)
+
+        queryset = WorkflowRun.objects.all()
+        if workflow:
+            queryset = queryset.filter(workflow__uuid=workflow)
+        if run:
+            queryset = queryset.filter(run=run)
+
+        return queryset
+
+
+class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = WorkflowRun
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = WorkflowRunSerializer
+
+
+class RunJobList(generics.ListCreateAPIView):
+    model = RunJob
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = RunJobSerializer
+
+
+class RunJobDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = RunJob
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    serializer_class = RunJobSerializer
+
+
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
@@ -91,11 +131,11 @@ class WorkflowList(generics.ListCreateAPIView):
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowSerializer
 
     def patch(self, request, pk, *args, **kwargs):
-        print "Patch called"
         kwargs['partial'] = True
 
         workflow = Workflow.objects.get(pk=pk)
@@ -206,9 +246,9 @@ class JobList(generics.ListAPIView):
         Optionally restricts the returned purchases to a given user,
         by filtering against a `username` query parameter in the URL.
         """
-        queryset = Job.objects.all()
         enabled = self.request.QUERY_PARAMS.get('enabled', None)
-        if enabled is not None:
+        queryset = Job.objects.all()
+        if enabled:
             queryset = queryset.filter(enabled=enabled)
         return queryset
 
@@ -221,7 +261,21 @@ class JobDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ResultList(generics.ListCreateAPIView):
     model = Result
+    paginate_by = None
     serializer_class = ResultSerializer
+
+    def get_queryset(self):
+        queryset = Result.objects.all()
+        workflow_run = self.request.QUERY_PARAMS.get('workflowrun', None)
+        page = self.request.QUERY_PARAMS.get('page', None)
+
+        if workflow_run:
+            queryset = queryset.filter(run_job__workflow_run__uuid=workflow_run)
+
+        if page:
+            queryset = queryset.filter(run_job__page__uuid=page)
+
+        return queryset
 
 
 class ResultDetail(generics.RetrieveUpdateDestroyAPIView):
