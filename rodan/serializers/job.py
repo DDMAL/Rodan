@@ -3,7 +3,7 @@ from rodan.models.job import Job
 
 
 class JobSerializer(serializers.HyperlinkedModelSerializer):
-    arguments = serializers.CharField(required=False)  # this actually sends it as JSON
+    settings = serializers.CharField(required=False)  # this actually sends it as JSON
 
     class Meta:
         model = Job

@@ -7,6 +7,10 @@ from uuidfield import UUIDField
 
 
 class Project(models.Model):
+    @property
+    def project_path(self):
+        return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
+
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -15,11 +19,8 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        app_label = 'rodan'
-
     def __unicode__(self):
-        return u"{0}".format(self.name)
+        return u"<Project {0}>".format(self.name)
 
     def save(self, *args, **kwargs):
         super(Project, self).save(*args, **kwargs)
@@ -31,6 +32,5 @@ class Project(models.Model):
             shutil.rmtree(self.project_path)
         super(Project, self).delete(*args, **kwargs)
 
-    @property
-    def project_path(self):
-        return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
+    class Meta:
+        app_label = 'rodan'

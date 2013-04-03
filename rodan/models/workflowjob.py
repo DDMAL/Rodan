@@ -1,45 +1,31 @@
 from django.db import models
 from rodan.models.job import Job
-from rodan.models.page import Page
 from rodan.models.workflow import Workflow
-# from rodan.models.workflowjobsetting import WorkflowJobSetting
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
 class WorkflowJob(models.Model):
-    """ A WorkflowJob is an instantiation of a Job in a Workflow """
-    class Meta:
-        app_label = 'rodan'
-        ordering = ['sequence']
-
     WORKFLOW_JOB_TYPES = (
         (0, "Non-Interactive"),
         (1, "Interactive")
     )
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow, related_name="wjobs")
+    workflow = models.ForeignKey(Workflow)
     job = models.ForeignKey(Job)
-
-    workflow_run = models.IntegerField(blank=True, null=True, default=1)
     sequence = models.IntegerField(blank=True, null=True)
-
-    job_settings = json.JSONField(blank=True, null=True)
-    # job_settings = models.ManyToManyField(WorkflowJobSetting)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
-
-    # for interactive jobs: If this is set to True the job will not run.
-    # set it to false to allow it to run.
-    needs_input = models.BooleanField(default=False)
-    page = models.ForeignKey(Page, blank=True, null=True)
+    job_settings = json.JSONField(default="[]", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        # return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
-        return u"{0} ({1})".format(self.job, self.get_job_type_display())
+        return u"<WorkflowJob {0}>".format(str(self.uuid))
+
+    class Meta:
+        app_label = 'rodan'
 
     @property
     def job_name(self):
@@ -56,6 +42,58 @@ class WorkflowJob(models.Model):
     @property
     def output_pixel_types(self):
         return self.job.output_types["pixel_types"]
+
+
+
+# class WorkflowJob(models.Model):
+#     """ A WorkflowJob is an instantiation of a Job in a Workflow """
+#     class Meta:
+#         app_label = 'rodan'
+#         ordering = ['sequence']
+
+#     WORKFLOW_JOB_TYPES = (
+#         (0, "Non-Interactive"),
+#         (1, "Interactive")
+#     )
+
+#     uuid = UUIDField(primary_key=True, auto=True)
+#     workflow = models.ForeignKey(Workflow, related_name="wjobs")
+#     job = models.ForeignKey(Job)
+
+#     workflow_run = models.IntegerField(blank=True, null=True, default=1)
+#     sequence = models.IntegerField(blank=True, null=True)
+
+#     job_settings = json.JSONField(blank=True, null=True)
+#     # job_settings = models.ManyToManyField(WorkflowJobSetting)
+#     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
+
+#     # for interactive jobs: If this is set to True the job will not run.
+#     # set it to false to allow it to run.
+#     needs_input = models.BooleanField(default=False)
+#     page = models.ForeignKey(Page, blank=True, null=True)
+
+#     created = models.DateTimeField(auto_now_add=True)
+#     updated = models.DateTimeField(auto_now=True)
+
+#     def __unicode__(self):
+#         # return "%s in workflow '%s' (step %d)" % (self.job, self.workflow, self.sequence)
+#         return u"{0} ({1})".format(self.job, self.get_job_type_display())
+
+#     @property
+#     def job_name(self):
+#         return self.job.job_name
+
+#     @property
+#     def job_description(self):
+#         return self.job.description
+
+#     @property
+#     def input_pixel_types(self):
+#         return self.job.input_types["pixel_types"]
+
+#     @property
+#     def output_pixel_types(self):
+#         return self.job.output_types["pixel_types"]
 
 # this is here because it will be the last thing loaded when we launch
 # the django app. Ideally we'll use signals for startup/shutdown, but

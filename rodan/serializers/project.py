@@ -6,8 +6,6 @@ from rodan.serializers.workflow import WorkflowSerializer
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
-    # pages = serializers.RelatedField()
-    # workflows = serializers.RelatedField()
     pages = PageSerializer(many=True, required=False, read_only=True)
     workflows = WorkflowSerializer(many=True, required=False, read_only=True)
 

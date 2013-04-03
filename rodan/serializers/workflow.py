@@ -1,14 +1,11 @@
 from rodan.models.workflow import Workflow
 from rest_framework import serializers
-
-from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.page import PageSerializer
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     pages = PageSerializer()
-    wjobs = WorkflowJobSerializer()
     uuid = serializers.Field(source='uuid')
 
     class Meta:
@@ -18,9 +15,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "uuid",
                   "name",
                   "project",
-                  'wjobs',
-                  # "jobs",
-                  'run',
+                  'runs',
                   "pages",
                   "description",
                   "has_started",

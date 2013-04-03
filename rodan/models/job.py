@@ -12,13 +12,13 @@ class Job(models.Model):
 
     input_types = json.JSONField(blank=True, null=True)
     output_types = json.JSONField(blank=True, null=True)
-    arguments = json.JSONField(blank=True, null=True)
+    settings = json.JSONField(blank=True, null=True)
 
     enabled = models.BooleanField()
     interactive = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u"{0}".format(self.job_name)
+        return u"<Job {0}>".format(self.job_name)
 
     class Meta:
         app_label = 'rodan'

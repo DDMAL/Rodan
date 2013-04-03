@@ -1,3 +1,5 @@
+import os
+import shutil
 from django.db import models
 from uuidfield import UUIDField
 
@@ -7,40 +9,33 @@ class Workflow(models.Model):
         This model uses quoted relationship names to avoid
         circular imports.
     """
+    @property
+    def workflow_path(self):
+        return os.path.join(self.project.project_path, "workflows", str(self.uuid))
+
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
     project = models.ForeignKey("rodan.Project", related_name="workflows")
-    jobs = models.ManyToManyField("rodan.Job", through='rodan.WorkflowJob', related_name="workflows", blank=True)
     pages = models.ManyToManyField("rodan.Page", related_name="workflows", blank=True)
     description = models.TextField(blank=True, null=True)
     has_started = models.BooleanField(default=False)
-
-    # The run field is incremented with each new run. We always start with an initial run, so the default
-    # value of this field is 1, not 0.
-    run = models.IntegerField(default=1)
+    runs = models.IntegerField(default=1)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u"{0}".format(self.name)
+        return u"<Workflow {0}>".format(self.name)
 
     class Meta:
         app_label = 'rodan'
 
-    def next_job(self, wf_job, page):
-        """Fetches the next job in the workflow, or None if it is the last job"""
-        lookup = self.wjobs.filter(sequence=wf_job.sequence + 1, page=page)
-        if lookup:
-            # if this doesn't return an empty list, we know there's a next job
-            return lookup.get()
-        else:
-            return None
+    def save(self, *args, **kwargs):
+        super(Workflow, self).save(*args, **kwargs)
+        if not os.path.exists(self.workflow_path):
+            os.makedirs(self.workflow_path)
 
-    def previous_job(self, wf_job, page):
-        """Fetches the previous job in the workflow, or None if it is the first job"""
-        lookup = self.wjobs.filter(sequence=wf_job.sequence - 1, page=page)
-        if lookup:
-            return lookup.get()
-        else:
-            return None
+    def delete(self, *args, **kwargs):
+        if os.path.exists(self.workflow_path):
+            shutil.rmtree(self.workflow_path)
+        super(Workflow, self).delete(*args, **kwargs)

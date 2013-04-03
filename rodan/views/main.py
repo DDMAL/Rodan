@@ -43,15 +43,22 @@ def api_root(request, format=None):
             'jobs': reverse('job-list', request=request, format=format),
             'results': reverse('result-list', request=request, format=format),
             'users': reverse('user-list', request=request, format=format)
-        })
+    })
 
 
 @api_view(('GET',))
 def kickoff_workflow(request, pk, format=None):
-    run_workflow(pk)
+    workflows = run_workflow(pk)
     return Response({
-        'success': True
+        'success': True,
+        'workflows': workflows
     })
+
+
+@api_view(('GET',))
+def run_test_workflow(request, pk, page_id, format=None):
+    run_workflow(pk, testing=True, page_id=page_id)
+    return Response({'success': True})
 
 
 @ensure_csrf_cookie
@@ -64,9 +71,6 @@ class ProjectList(generics.ListCreateAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = ProjectSerializer
-
-    def pre_save(self, obj):
-        obj.creator = self.request.user
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):

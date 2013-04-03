@@ -6,6 +6,8 @@ from rodan.models.project import Project
 from rodan.models.page import Page
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
+from rodan.models.workflowrun import WorkflowRun
+from rodan.models.runjob import RunJob
 from rodan.models.job import Job
 from rodan.models.result import Result
 # from rodan.models.rodanuser import RodanUser
@@ -45,6 +47,8 @@ class PageAdmin(admin.ModelAdmin):
 
 # admin.site.register(RodanUser)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(WorkflowRun)
+admin.site.register(RunJob)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
