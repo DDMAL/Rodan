@@ -17,6 +17,10 @@ from rodan.views.main import WorkflowList
 from rodan.views.main import WorkflowDetail
 from rodan.views.main import WorkflowJobList
 from rodan.views.main import WorkflowJobDetail
+from rodan.views.main import WorkflowRunList
+from rodan.views.main import WorkflowRunDetail
+from rodan.views.main import RunJobList
+from rodan.views.main import RunJobDetail
 from rodan.views.main import PageList
 from rodan.views.main import PageDetail
 from rodan.views.main import JobList
@@ -49,7 +53,10 @@ urlpatterns += format_suffix_patterns(
         url(r'^result/(?P<pk>[0-9a-z\-]+)/$', ResultDetail.as_view(), name="result-detail"),
         url(r'^users/$', UserList.as_view(), name="user-list"),
         url(r'^user/(?P<pk>[0-9]+)/$', UserDetail.as_view(), name="user-detail"),
-
+        url(r'^workflowruns/$', WorkflowRunList.as_view(), name="workflowrun-list"),
+        url(r'^workflowrun/(?P<pk>[0-9a-z\-]+)/$', WorkflowRunDetail.as_view(), name="workflowrun-detail"),
+        url(r'^runjobs/$', RunJobList.as_view(), name="runjob-list"),
+        url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
         url(r'^run_workflow/(?P<pk>[0-9a-z\-]+)/$', 'kickoff_workflow'),
         url(r'^test_workflow/(?P<pk>[0-9a-z\-]+)/(?P<pageid>[0-9a-z\-]+)/$', 'run_test_workflow')
     )
