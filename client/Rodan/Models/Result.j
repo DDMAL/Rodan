@@ -20,8 +20,8 @@
         ['pk', 'url', nil, true],
         ['runJob', 'run_job', nil, true],
         ['resultURL', 'result', nil, true],
-        ['created', 'created', WLDateTransformer, true],
-        ['updated', 'updated', WLDateTransformer, true]
+        ['created', 'created', [WLDateTransformer alloc], true],
+        ['updated', 'updated', [WLDateTransformer alloc], true]
     ];
 }
 

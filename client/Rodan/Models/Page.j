@@ -4,7 +4,8 @@
 {
     CPString    pk              @accessors;
     CPString    projectURI      @accessors;
-    CPString    imageFileSize   @accessors;
+    CPNumber    imageFileSize   @accessors;
+    CPNumber    compatFileSize  @accessors;
     CPString    pageName        @accessors;
     CPString    pageImage       @accessors;
     CPString    pageOrder       @accessors;
@@ -29,7 +30,7 @@
         ['smallThumbURL', 'small_thumb_url', nil, true],
         ['mediumThumbURL', 'medium_thumb_url', nil, true],
         ['largeThumbURL', 'large_thumb_url', nil, true],
-        ['created', 'created', WLDateTransformer, true],
+        ['created', 'created', nil, true],
         ['creator', 'creator', nil, true],
         ['processed', 'processed', nil, true]
     ];

@@ -5,6 +5,7 @@
 {
     CPString    pk                  @accessors;
     CPString    projectName         @accessors;
+    CPString    projectCreator      @accessors;
     CPString    projectDescription  @accessors;
     CPObject    projectOwner        @accessors;
     CPString    resourceURI         @accessors;
@@ -32,8 +33,8 @@
         ['projectCreator', 'creator'],
         ['pages', 'pages'],
         ['workflows', 'workflows'],
-        ['created', 'created', WLDateTransformer, true],
-        ['updated', 'updated', WLDateTransformer, true]
+        ['created', 'created', [WLDateTransformer alloc], true],
+        ['updated', 'updated', [WLDateTransformer alloc], true]
     ];
 }
 

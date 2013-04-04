@@ -20,8 +20,8 @@
         ['needsInput', 'needs_input'],
         ['result', 'result'],
         ['page', 'page'],
-        ['created', 'created', WLDateTransformer, true],
-        ['updated', 'updated', WLDateTransformer, true]
+        ['created', 'created', [WLDateTransformer alloc], true],
+        ['updated', 'updated', [WLDateTransformer alloc], true]
     ];
 }
 

@@ -22,7 +22,6 @@
     if (self = [super init])
     {
         workflowName = @"Untitled";
-        jobs = [];
         pages = [];
         hasStarted = NO;
 
