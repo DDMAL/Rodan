@@ -377,7 +377,7 @@ activeProject = "";  // URI to the currently open project
     [removeButton setAction:@selector(removeWorkflow:)];
     [removeButton setTarget:workflowController];
 
-    [imageUploadButton setValue:[activeProject resourceURI] forParameter:@"project"];
+    [imageUploadButton setValue:[activeProject pk] forParameter:@"project"];
     [pageController createObjectsWithJSONResponse:activeProject];
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
