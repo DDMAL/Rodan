@@ -14,9 +14,10 @@ class RunJob(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ['workflow_job__sequence']
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_run = models.ForeignKey("rodan.WorkflowRun")
+    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
     workflow_job = models.ForeignKey("rodan.WorkflowJob")
     page = models.ForeignKey("rodan.Page")
 
@@ -38,3 +39,7 @@ class RunJob(models.Model):
         if os.path.exists(self.runjob_path):
             shutil.rmtree(self.runjob_path)
         super(RunJob, self).delete(*args, **kwargs)
+
+    @property
+    def sequence(self):
+        return self.workflow_job.sequence

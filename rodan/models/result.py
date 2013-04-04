@@ -17,7 +17,7 @@ class Result(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=512)
-    run_job = models.ForeignKey("rodan.RunJob")
+    run_job = models.ForeignKey("rodan.RunJob", related_name="result")
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
