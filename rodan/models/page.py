@@ -58,11 +58,15 @@ class Page(models.Model):
 
     @property
     def image_file_size(self):
-        return self.page_image.size
+        if self.page_image:
+            return self.page_image.size
+        return None
 
     @property
     def compat_image_file_size(self):
-        return self.compat_page_image.size
+        if self.compat_page_image:
+            return self.compat_page_image.size
+        return None
 
     @property
     def thumb_path(self):
@@ -78,7 +82,7 @@ class Page(models.Model):
 
     @property
     def image_url(self):
-        return os.path.dirname(self.page_image.url)
+        return "/" + os.path.relpath(os.path.dirname(self.page_image.url), settings.PROJECT_DIR)
 
     @property
     def filename(self):

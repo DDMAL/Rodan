@@ -9,7 +9,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
         model = Job
         fields = ("url",
                   "job_name",
-                  "arguments",
+                  "settings",
                   "description",
                   "input_types",
                   "output_types",

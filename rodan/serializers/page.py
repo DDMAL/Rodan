@@ -8,7 +8,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
     page_image = serializers.FileField()
     page_order = serializers.IntegerField()
     # image_file_size = serializers.IntegerField()
-    creator = UserSerializer()
+    creator = UserSerializer(read_only=True)
 
     image_file_size = serializers.Field(source="image_file_size")
     compat_image_file_size = serializers.Field(source="compat_image_file_size")
@@ -18,7 +18,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Page
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', 'updated', 'creator')
         fields = ("url",
                   "project",
                   "name",

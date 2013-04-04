@@ -46,7 +46,7 @@ class Result(models.Model):
 
     @property
     def image_url(self):
-        return os.path.dirname(self.result.url)
+        return "/" + os.path.relpath(os.path.dirname(self.result.url), settings.PROJECT_DIR)
 
     @property
     def thumb_path(self):
