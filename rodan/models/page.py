@@ -26,7 +26,6 @@ class Page(models.Model):
     page_image = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_page_image = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
     page_order = models.IntegerField(null=True, blank=True)
-    image_file_size = models.IntegerField(null=True, blank=True)  # in bytes
     processed = models.BooleanField(default=False)
 
     creator = models.ForeignKey(User, related_name="pages", null=True, blank=True)
@@ -56,6 +55,14 @@ class Page(models.Model):
     def thumb_filename(self, size):
         name, ext = os.path.splitext(self.filename)
         return "{0}_{1}.{2}".format(name, size, settings.THUMBNAIL_EXT)
+
+    @property
+    def image_file_size(self):
+        return self.page_image.size
+
+    @property
+    def compat_image_file_size(self):
+        return self.compat_page_image.size
 
     @property
     def thumb_path(self):
