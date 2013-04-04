@@ -11,24 +11,24 @@ from rodan.views.auth import session_status
 
 # from rodan.views.upload import page_upload
 
-from rodan.views.main import ProjectList
-from rodan.views.main import ProjectDetail
-from rodan.views.main import WorkflowList
-from rodan.views.main import WorkflowDetail
-from rodan.views.main import WorkflowJobList
-from rodan.views.main import WorkflowJobDetail
-from rodan.views.main import WorkflowRunList
-from rodan.views.main import WorkflowRunDetail
-from rodan.views.main import RunJobList
-from rodan.views.main import RunJobDetail
-from rodan.views.main import PageList
-from rodan.views.main import PageDetail
-from rodan.views.main import JobList
-from rodan.views.main import JobDetail
-from rodan.views.main import ResultList
-from rodan.views.main import ResultDetail
-from rodan.views.main import UserList
-from rodan.views.main import UserDetail
+from rodan.views.project import ProjectList
+from rodan.views.project import ProjectDetail
+from rodan.views.workflow import WorkflowList
+from rodan.views.workflow import WorkflowDetail
+from rodan.views.workflowjob import WorkflowJobList
+from rodan.views.workflowjob import WorkflowJobDetail
+from rodan.views.workflowrun import WorkflowRunList
+from rodan.views.workflowrun import WorkflowRunDetail
+from rodan.views.runjob import RunJobList
+from rodan.views.runjob import RunJobDetail
+from rodan.views.page import PageList
+from rodan.views.page import PageDetail
+from rodan.views.job import JobList
+from rodan.views.job import JobDetail
+from rodan.views.result import ResultList
+from rodan.views.result import ResultDetail
+from rodan.views.user import UserList
+from rodan.views.user import UserDetail
 
 urlpatterns = []
 
