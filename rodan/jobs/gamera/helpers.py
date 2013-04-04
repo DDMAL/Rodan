@@ -9,6 +9,7 @@ from rodan.models.job import Job
 from rodan.models.runjob import RunJob
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
+from rodan.helpers.thumbnails import create_thumbnails
 from gamera.core import init_gamera, load_image
 # from rodan.models.workflowjob import WorkflowJob
 
@@ -59,7 +60,10 @@ class GameraTask(Task):
         return str(new_result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):
-        print "Task Was Successful"
+        # create thumbnails after successfully processing an image object
+        result = Result.objects.get(pk=retval)
+        res = create_thumbnails.s(result)
+        res.apply_async()
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         print "After Return!!"

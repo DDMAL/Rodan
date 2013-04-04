@@ -6,8 +6,8 @@ import PIL.ImageFile
 
 
 @task(name="rodan.helpers.thumbnails.create_thumbnails")
-def create_thumbnails(page_object):
-    image = PIL.Image.open(page_object.page_image.path).convert('RGB')
+def create_thumbnails(database_object):
+    image = PIL.Image.open(database_object.page_image.path).convert('RGB')
     width = float(image.size[0])
     height = float(image.size[1])
 
@@ -18,10 +18,10 @@ def create_thumbnails(page_object):
 
         thumbnail_size = str(int(thumbnail_size))
         thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
-        thumb_copy.save(os.path.join(page_object.thumb_path,
-                                page_object.thumb_filename(size=thumbnail_size)))
+        thumb_copy.save(os.path.join(database_object.thumb_path,
+                                     database_object.thumb_filename(size=thumbnail_size)))
 
         del thumb_copy
     del image
 
-    return page_object
+    return database_object
