@@ -18,18 +18,18 @@
 {
     if (self = [super init])
     {
-        CPLog("Init with Coder called");
+        // CPLog("Init with Coder called");
     }
 }
 
 - (IBAction)uploadFiles:(id)aSender
 {
-    CPLog("Upload files called");
+    // CPLog("Upload files called");
 }
 
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
-    CPLog("createObjectsWithJSONResponse pagecontroller");
+    // CPLog("createObjectsWithJSONResponse pagecontroller");
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
     var pages = [Page objectsFromJson:aResponse.pages];
     [pageArrayController addObjects:pages];
@@ -38,9 +38,9 @@
 
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
 {
-    CPLog("Did Change Selection");
-    var next_page_order = [[pageArrayController contentArray] valueForKeyPath:@"@max.pageOrder"] + 1;
-    [imageUploadButton setValue:next_page_order forParameter:@"page_order"];
+    // CPLog("Did Change Selection");
+    var nextPageOrder = [[pageArrayController contentArray] valueForKeyPath:@"@max.pageOrder"] + 1;
+    [imageUploadButton setValue:nextPageOrder forParameter:@"page_order"];
 
     [button submit];
 }
@@ -64,12 +64,9 @@
 
 - (IBAction)removePage:(id)aSender
 {
-    var selObjects = [pageArrayController selectedObjects];
-    [pageArrayController removeObjects:selObjects];
-    [selObjects enumerateObjectsUsingBlock:function(obj, idx, stop)
-    {
-        [obj delete];
-    }];
+    var selectedObjects = [pageArrayController selectedObjects];
+    [pageArrayController removeObjects:selectedObjects];
+    [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 @end
