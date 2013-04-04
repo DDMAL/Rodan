@@ -1,19 +1,27 @@
+@import <Ratatosk/WLRemoteTransformers.j>
+
 
 @implementation Result : WLRemoteObject
 {
     CPString    pk              @accessors;
-    CPString    taskName        @accessors;
-    CPString    created         @accessors;
-    JSObject    page            @accessors;
-    JSObject    workflowJob     @accessors;
-    CPString    resultURI       @accessors;
+    CPString    resultURL       @accessors;
+    CPDate      created         @accessors;
+    CPDate      updated         @accessors;
+    // CPString    taskName        @accessors;
+    // CPString    created         @accessors;
+    // JSObject    page            @accessors;
+    // JSObject    workflowJob     @accessors;
+    // CPString    resultURI       @accessors;
 }
 
 + (CPArray)remoteProperties
 {
     return [
-        ['pk', 'url'],
-        ['taskName', 'task_name']
+        ['pk', 'url', nil, true],
+        ['runJob', 'run_job', nil, true],
+        ['resultURL', 'result', nil, true],
+        ['created', 'created', WLDateTransformer, true],
+        ['updated', 'updated', WLDateTransformer, true]
     ];
 }
 

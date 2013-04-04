@@ -1,3 +1,4 @@
+@import <Ratatosk/WLRemoteTransformers.j>
 
 @implementation Page : WLRemoteObject
 {
@@ -10,7 +11,7 @@
     CPString    smallThumbURL   @accessors;
     CPString    mediumThumbURL  @accessors;
     CPString    largeThumbURL   @accessors;
-    CPString    created         @accessors;
+    CPDate      created         @accessors;
     CPString    creator         @accessors;
     BOOL        processed       @accessors;
 }
@@ -21,15 +22,16 @@
         ['pk', 'url'],
         ['projectURI', 'project'],
         ['pageName', 'name'],
-        ['imageFileSize', 'image_file_size'],
+        ['imageFileSize', 'image_file_size', nil, true],
+        ['compatFileSize', 'compat_image_file_size', nil, true],
         ['pageImage', 'page_image'],
         ['pageOrder', 'page_order'],
-        ['smallThumbURL', 'small_thumb_url'],
-        ['mediumThumbURL', 'medium_thumb_url'],
-        ['largeThumbURL', 'large_thumb_url'],
-        ['created', 'created'],
-        ['creator', 'creator'],
-        ['processed', 'processed']
+        ['smallThumbURL', 'small_thumb_url', nil, true],
+        ['mediumThumbURL', 'medium_thumb_url', nil, true],
+        ['largeThumbURL', 'large_thumb_url', nil, true],
+        ['created', 'created', WLDateTransformer, true],
+        ['creator', 'creator', nil, true],
+        ['processed', 'processed', nil, true]
     ];
 }
 

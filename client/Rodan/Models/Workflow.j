@@ -7,8 +7,8 @@
     CPString    pk              @accessors;
     CPString    uuid            @accessors;
     CPString    workflowName    @accessors;
-    CPString    projectURI      @accessors;
-    CPArray     jobs            @accessors;
+    CPString    projectURL      @accessors;
+    CPNumber    runs            @accessors;
     CPArray     workflowJobs    @accessors;
     CPArray     pages           @accessors;
     CPString    description     @accessors;
@@ -38,10 +38,10 @@
     return [
         ['pk', 'url'],
         ['uuid', 'uuid'],
+        ['runs', 'runs', nil, true],
         ['workflowName', 'name'],
-        ['projectURI', 'project'],
-        ['jobs', 'jobs', [WLForeignObjectsTransformer forObjectClass:Job]],
-        ['workflowJobs', 'wjobs', [WLForeignObjectsTransformer forObjectClass:WorkflowJob]],
+        ['projectURL', 'project'],
+        ['workflowJobs', 'workflow_jobs', [WLForeignObjectsTransformer forObjectClass:WorkflowJob]],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['description', 'description'],
         ['hasStarted', 'has_started'],

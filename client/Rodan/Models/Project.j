@@ -1,4 +1,4 @@
-@import <Ratatosk/Ratatosk.j>
+@import <Ratatosk/WLRemoteTransformers.j>
 
 
 @implementation Project : WLRemoteObject
@@ -10,6 +10,8 @@
     CPString    resourceURI         @accessors;
     CPArray     pages               @accessors;
     CPArray     workflows           @accessors;
+    CPDate      created             @accessors;
+    CPDate      updated             @accessors;
 }
 
 - (id)init
@@ -27,10 +29,11 @@
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
-        ['projectOwner', 'creator'],
-        ['resourceURI', 'url'],
+        ['projectCreator', 'creator'],
         ['pages', 'pages'],
-        ['workflows', 'workflows']
+        ['workflows', 'workflows'],
+        ['created', 'created', WLDateTransformer, true],
+        ['updated', 'updated', WLDateTransformer, true]
     ];
 }
 

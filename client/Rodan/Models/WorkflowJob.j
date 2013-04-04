@@ -12,7 +12,6 @@
     CPArray     jobSettings     @accessors;
     CPArray     inputPixels     @accessors;
     CPArray     outputPixels    @accessors;
-    BOOL        needsInput      @accessors;
     CPString    jobDescription  @accessors;
 }
 
@@ -38,8 +37,6 @@
         ['inputPixels', 'input_pixel_types'],
         ['outputPixels', 'output_pixel_types'],
         ['jobType', 'job_type'],
-        ['needsInput', 'needs_input']
-
     ];
 }
 

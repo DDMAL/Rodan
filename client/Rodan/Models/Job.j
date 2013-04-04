@@ -4,7 +4,7 @@
 {
     CPString    pk              @accessors;
     CPString    jobName         @accessors;
-    CPArray     arguments       @accessors;
+    CPArray     settings        @accessors;
     CPArray     inputTypes      @accessors;
     CPArray     outputTypes     @accessors;
     CPString    category        @accessors;
@@ -32,7 +32,7 @@
         ['pk', 'url'],
         ['jobName', 'job_name'],
         // ['arguments', 'arguments', [[JobArgumentsTransformer alloc] init]],
-        ['arguments', 'arguments'],
+        ['settings', 'settings'],
         ['description', 'description'],
         ['inputTypes', 'input_types'],
         ['outputTypes', 'output_types'],
