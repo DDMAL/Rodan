@@ -12,4 +12,6 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url',
                   'run_jobs',
                   'workflow',
-                  'run')
+                  'run',
+                  'created',
+                  'updated')
