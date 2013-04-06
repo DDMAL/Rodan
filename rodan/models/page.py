@@ -82,7 +82,7 @@ class Page(models.Model):
 
     @property
     def image_url(self):
-        return "/" + os.path.relpath(os.path.dirname(self.page_image.url), settings.PROJECT_DIR)
+        return "/" + os.path.relpath(self.page_image.url, settings.PROJECT_DIR)
 
     @property
     def filename(self):
@@ -94,7 +94,7 @@ class Page(models.Model):
 
     @property
     def compat_file_url(self):
-        return self.compat_page_image.url
+        return "/" + os.path.relpath(self.compat_page_image.url, settings.PROJECT_DIR)
 
     @property
     def small_thumb_url(self):
