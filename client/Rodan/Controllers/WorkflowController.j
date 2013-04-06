@@ -57,7 +57,7 @@
 - (void)newWorkflow:(id)aSender
 {
     var wflow = [[Workflow alloc] init];
-    [wflow setProjectURI:[activeProject pk]];
+    [wflow setProjectURL:[activeProject pk]];
     [workflowArrayController addObject:wflow];
     [wflow ensureCreated];
 }
