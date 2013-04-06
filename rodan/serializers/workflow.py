@@ -8,13 +8,15 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     pages = MinimalPageSerializer()
+    # pages = serializers.HyperlinkedRelatedField(many=True, view_name="page-detail")
     workflow_jobs = WorkflowJobSerializer()
     workflow_runs = WorkflowRunSerializer()
     uuid = serializers.Field(source='uuid')
+    # runs = serializers.IntegerField(required=False)
 
     class Meta:
         model = Workflow
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', 'updated', 'runs')
         fields = ("url",
                   "uuid",
                   "name",
