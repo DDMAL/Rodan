@@ -7,6 +7,8 @@
     CPNumber    run         @accessors;
     CPArray     runJobs     @accessors;
     CPString    workflowURL @accessors;
+    CPDate      created     @accessors;
+    CPDate      updated     @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -15,7 +17,9 @@
         ['pk', 'url'],
         ['runJobs', 'run_jobs', [WLForeignObjectsTransformer forObjectClass:RunJob]],
         ['workflowURL', 'workflow'],
-        ['run', 'run']
+        ['run', 'run'],
+        ['created', 'created', [[WLDateTransformer alloc] init], true],
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];
 }
 

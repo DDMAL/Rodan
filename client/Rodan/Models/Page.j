@@ -13,6 +13,7 @@
     CPString    mediumThumbURL  @accessors;
     CPString    largeThumbURL   @accessors;
     CPDate      created         @accessors;
+    CPDate      updated         @accessors;
     CPString    creator         @accessors;
     BOOL        processed       @accessors;
 }
@@ -30,7 +31,8 @@
         ['smallThumbURL', 'small_thumb_url', nil, true],
         ['mediumThumbURL', 'medium_thumb_url', nil, true],
         ['largeThumbURL', 'large_thumb_url', nil, true],
-        ['created', 'created', nil, true],
+        ['created', 'created', [[WLDateTransformer alloc] init], true],
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true],
         ['creator', 'creator', nil, true],
         ['processed', 'processed', nil, true]
     ];

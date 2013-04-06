@@ -1,4 +1,5 @@
 @import "WorkflowJob.j"
+@import "WorkflowRun.j"
 @import "Job.j"
 @import "Page.j"
 
@@ -10,6 +11,7 @@
     CPString    projectURL      @accessors;
     CPNumber    runs            @accessors;
     CPArray     workflowJobs    @accessors;
+    CPArray     workflowRuns    @accessors;
     CPArray     pages           @accessors;
     CPString    description     @accessors;
     BOOL        hasStarted      @accessors;
@@ -41,6 +43,7 @@
         ['workflowName', 'name'],
         ['projectURL', 'project'],
         ['workflowJobs', 'workflow_jobs', [WLForeignObjectsTransformer forObjectClass:WorkflowJob]],
+        ['workflowRuns', 'workflow_runs', [WLForeignObjectsTransformer forObjectClass:WorkflowRun]],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['description', 'description'],
         ['hasStarted', 'has_started'],
