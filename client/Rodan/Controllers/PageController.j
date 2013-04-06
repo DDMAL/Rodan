@@ -14,12 +14,22 @@
     @outlet     CPTextField         addedByField;
 }
 
+- (void)awakeFromCib
+{
+    var formatter = [[CPDateFormatter alloc] init];
+    [formatter setDateStyle:CPDateFormatterMediumStyle];
+    [dateAddedField setFormatter:formatter];
+}
+
 - (id)initWithCoder:(CPCoder)aCoder
 {
-    if (self = [super init])
+    var self = [super initWithCoder:aCoder];
+    if (self)
     {
         // CPLog("Init with Coder called");
     }
+
+    return self;
 }
 
 - (IBAction)uploadFiles:(id)aSender

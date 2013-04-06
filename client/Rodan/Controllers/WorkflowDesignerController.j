@@ -371,9 +371,6 @@ activeWorkflow = nil;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    console.log(anAction);
-
-
     [currentWorkflowArrayController bind:@"contentArray"
                                     toObject:activeWorkflow
                                     withKeyPath:@"workflowJobs"
@@ -383,6 +380,11 @@ activeWorkflow = nil;
                                   toObject:activeWorkflow
                                   withKeyPath:@"pages"
                                   options:nil];
+
+    [workflowRunsArrayController bind:@"contentArray"
+                                 toObject:activeWorkflow
+                                 withKeyPath:@"workflowRuns"
+                                 options:nil];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
