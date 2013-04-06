@@ -13,7 +13,7 @@ class WorkflowRun(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey('rodan.Workflow')
+    workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs")
     run = models.IntegerField(default=1)
 
     created = models.DateTimeField(auto_now_add=True)
