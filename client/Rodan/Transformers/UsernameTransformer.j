@@ -12,13 +12,9 @@
     if (value != null)
     {
         if ((value.first_name != "") && (value.last_name != ""))
-        {
             return (value.first_name + " " + value.last_name);
-        }
         else
-        {
             return value.username;
-        }
     }
 }
 
