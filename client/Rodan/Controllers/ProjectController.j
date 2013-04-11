@@ -54,43 +54,50 @@
                                           object:nil];
 }
 
-- (IBAction)openAddProjectWindow:(id)aSender
+// - (IBAction)openAddProjectWindow:(id)aSender
+// {
+//     // pop up window
+//     [createProjectWindow setDefaultButton:createProjectButton];
+//     [createProjectWindow center];
+//     [createProjectWindow makeKeyAndOrderFront:aSender];
+// }
+
+// - (IBAction)createNewProject:(id)aSender
+// {
+//     [createProjectWindow close];
+
+//     // get window username & description
+//     var projectName = [newProjectName objectValue],
+//         projectDescription = [newProjectDescription objectValue];
+
+
+//         Reset the text fields so that subsequent calls to the window
+//         do not maintain their former values
+
+//     [newProjectName setObjectValue:@""];
+//     [newProjectDescription setObjectValue:@""];
+
+//     // add to JSON description
+//     var newProjectObject = {
+//         'name': projectName,
+//         'description': projectDescription,
+//         'creator': activeUser
+//         },
+//         p = [[Project alloc] initWithJson:newProjectObject];
+
+//     [projectArrayController addObject:p];
+
+//     [p ensureCreated];
+// }
+
+- (@action)newProject:(id)aSender
 {
-    // pop up window
-    [createProjectWindow setDefaultButton:createProjectButton];
-    [createProjectWindow center];
-    [createProjectWindow makeKeyAndOrderFront:aSender];
+    var newProject = [[Project alloc] initWithCreator:activeUser];
+    [projectArrayController addObject:newProject];
+    [newProject ensureCreated];
 }
 
-- (IBAction)createNewProject:(id)aSender
-{
-    [createProjectWindow close];
-
-    // get window username & description
-    var projectName = [newProjectName objectValue],
-        projectDescription = [newProjectDescription objectValue];
-
-    /*
-        Reset the text fields so that subsequent calls to the window
-        do not maintain their former values
-    */
-    [newProjectName setObjectValue:@""];
-    [newProjectDescription setObjectValue:@""];
-
-    // add to JSON description
-    var newProjectObject = {
-        'name': projectName,
-        'description': projectDescription,
-        'creator': activeUser
-        },
-        p = [[Project alloc] initWithJson:newProjectObject];
-
-    [projectArrayController addObject:p];
-
-    [p ensureCreated];
-}
-
-- (IBAction)selectDeleteProject:(id)aSender
+- (@action)deleteProject:(id)aSender
 {
     // get selected projects
     var numToBeDeleted = [[projectArrayController selectedObjects] count];

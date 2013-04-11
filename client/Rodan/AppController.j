@@ -288,10 +288,10 @@ activeProject = "";  // URI to the currently open project
 
     var addProjectItem = [addButton itemWithTitle:addProjectTitle];
 
-    [addProjectItem setAction:@selector(openAddProjectWindow:)];
+    [addProjectItem setAction:@selector(newProject:)];
     [addProjectItem setTarget:projectController];
 
-    [removeButton setAction:@selector(selectDeleteProject:)];
+    [removeButton setAction:@selector(deleteProject:)];
     [removeButton setTarget:projectController];
 
     [removeButton bind:@"enabled"

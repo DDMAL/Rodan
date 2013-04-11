@@ -19,8 +19,16 @@
 {
     if (self = [super init])
     {
-        CPLog("Initializing Project model");
+        projectName = @"Untitled Project";
     }
+
+    return self;
+}
+
+- (id)initWithCreator:(CPString)aCreator
+{
+    var self = [self init];
+    [self setProjectCreator:aCreator];
     return self;
 }
 
