@@ -14,7 +14,8 @@ class WorkflowRun(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs")
-    run = models.IntegerField(default=1)
+    run = models.IntegerField(null=True, blank=True)
+    test_run = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -26,3 +27,7 @@ class WorkflowRun(models.Model):
         super(WorkflowRun, self).save(*args, **kwargs)
         if not os.path.exists(self.workflow_run_path):
             os.makedirs(self.workflow_run_path)
+
+    def get_absolute_url(self):
+        """ NOTE: This is a hack. We should come up with a more flexible way of doing this. """
+        return u"/workflowrun/{0}/".format(self.pk)
