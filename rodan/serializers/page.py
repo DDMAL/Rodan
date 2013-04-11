@@ -5,7 +5,8 @@ from rodan.serializers.user import UserSerializer
 
 class PageSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
-    page_image = serializers.FileField()
+    page_image = serializers.Field(source="image_url")
+    compat_image = serializers.Field(source="compat_file_url")
     page_order = serializers.IntegerField()
     # image_file_size = serializers.IntegerField()
     creator = UserSerializer(read_only=True)
@@ -23,6 +24,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
                   "project",
                   "name",
                   "page_image",
+                  "compat_image",
                   "creator",
                   "image_file_size",
                   "compat_image_file_size",
@@ -36,7 +38,8 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
 
 class MinimalPageSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
-    page_image = serializers.FileField()
+    page_image = serializers.Field(source="image_url")
+    compat_image = serializers.Field(source="compat_file_url")
     page_order = serializers.IntegerField()
 
     image_file_size = serializers.Field(source="image_file_size")
@@ -52,6 +55,7 @@ class MinimalPageSerializer(serializers.HyperlinkedModelSerializer):
                   "project",
                   "name",
                   "page_image",
+                  "compat_image",
                   "creator",
                   "image_file_size",
                   "compat_image_file_size",

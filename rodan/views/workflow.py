@@ -29,7 +29,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         workflow = Workflow.objects.get(pk=pk)
         if not workflow:
-            return Response({}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'status': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
         pages = request.DATA.get('pages')
         if pages:

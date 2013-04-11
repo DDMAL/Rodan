@@ -1,3 +1,9 @@
 [submodule "client/Rodan/Frameworks/Ratatosk"]
 	path = client/Rodan/Frameworks/Ratatosk
 	url = git@github.com:ahankinson/Ratatosk.git
+[submodule "client/Rodan/Frameworks/TNKit"]
+	path = client/Rodan/Frameworks/TNKit
+	url = https://github.com/ArchipelProject/TNKit.git
+[submodule "client/Rodan/Frameworks/LPKit"]
+	path = client/Rodan/Frameworks/LPKit
+	url = https://github.com/aljungberg/LPKit.git
