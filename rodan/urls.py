@@ -57,8 +57,6 @@ urlpatterns += format_suffix_patterns(
         url(r'^workflowrun/(?P<pk>[0-9a-z\-]+)/$', WorkflowRunDetail.as_view(), name="workflowrun-detail"),
         url(r'^runjobs/$', RunJobList.as_view(), name="runjob-list"),
         url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
-        url(r'^run_workflow/(?P<pk>[0-9a-z\-]+)/$', 'kickoff_workflow'),
-        url(r'^test_workflow/(?P<pk>[0-9a-z\-]+)/(?P<pageid>[0-9a-z\-]+)/$', 'run_test_workflow')
     )
 )
 
