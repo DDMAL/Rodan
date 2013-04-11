@@ -33,10 +33,10 @@ class PageList(generics.ListCreateAPIView):
                 'page_order': seq,
             }
 
-            files = {
+            pagefile = {
                 'page_image': fileobj
             }
-            serializer = PageSerializer(data=data, files=files)
+            serializer = PageSerializer(data=data, files=pagefile)
 
             if serializer.is_valid():
                 page_object = serializer.save()
