@@ -1,4 +1,5 @@
 import urlparse
+import celery
 from django.core.urlresolvers import resolve
 
 from rest_framework import generics
@@ -12,8 +13,6 @@ from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
 from rodan.serializers.workflowrun import WorkflowRunSerializer
-
-from celery import registry, chain
 
 
 class WorkflowRunList(generics.ListCreateAPIView):
@@ -97,10 +96,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
                                 page=page)
                 runjob.save()
 
-                rodan_task = registry.tasks[str(workflow_job.job_name)]
+                rodan_task = celery.registry.tasks[str(workflow_job.job_name)]
                 workflow_chain.append((rodan_task, str(runjob.uuid)))
             first_job = workflow_chain[0]
-            res = chain([first_job[0].si(None, first_job[1])] + [job[0].s(job[1]) for job in workflow_chain[1:]])
+            res = celery.chain([first_job[0].si(None, first_job[1])] + [job[0].s(job[1]) for job in workflow_chain[1:]])
             res.apply_async()
             return_objects.append(res)
 
