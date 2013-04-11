@@ -9,6 +9,7 @@
     CPString    workflowURL @accessors;
     CPDate      created     @accessors;
     CPDate      updated     @accessors;
+    BOOL        testRun     @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -19,7 +20,8 @@
         ['workflowURL', 'workflow'],
         ['run', 'run'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
-        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true],
+        ['testRun', 'test_run']
     ];
 }
 
