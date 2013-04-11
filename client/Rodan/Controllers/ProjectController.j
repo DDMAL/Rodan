@@ -23,14 +23,14 @@
 {
     if (self = [super init])
     {
-        CPLog("Project controller init");
+        // CPLog("Project controller init");
     }
     return self;
 }
 
 - (id)awakeFromCib
 {
-    CPLog("Awake from CIB Project Controller");
+    // CPLog("Awake from CIB Project Controller");
 }
 
 - (CPString)remoteActionContentType:(WLRemoteAction)anAction
@@ -45,50 +45,12 @@
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    CPLog("Remote Action did Finish");
-
     var p = [Project objectsFromJson:[anAction result].results];
     [projectArrayController addObjects:p];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectsNotification
                                           object:nil];
 }
-
-// - (IBAction)openAddProjectWindow:(id)aSender
-// {
-//     // pop up window
-//     [createProjectWindow setDefaultButton:createProjectButton];
-//     [createProjectWindow center];
-//     [createProjectWindow makeKeyAndOrderFront:aSender];
-// }
-
-// - (IBAction)createNewProject:(id)aSender
-// {
-//     [createProjectWindow close];
-
-//     // get window username & description
-//     var projectName = [newProjectName objectValue],
-//         projectDescription = [newProjectDescription objectValue];
-
-
-//         Reset the text fields so that subsequent calls to the window
-//         do not maintain their former values
-
-//     [newProjectName setObjectValue:@""];
-//     [newProjectDescription setObjectValue:@""];
-
-//     // add to JSON description
-//     var newProjectObject = {
-//         'name': projectName,
-//         'description': projectDescription,
-//         'creator': activeUser
-//         },
-//         p = [[Project alloc] initWithJson:newProjectObject];
-
-//     [projectArrayController addObject:p];
-
-//     [p ensureCreated];
-// }
 
 - (@action)newProject:(id)aSender
 {
@@ -125,13 +87,8 @@
 
 - (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
 {
-    CPLog("The alert ended with a response of " + returnCode);
     if (returnCode == 0)
-    {
-        // delete
-        console.log("Deleting");
         [self deleteProjects];
-    }
 }
 
 - (void)deleteProjects
@@ -154,7 +111,8 @@
         return nil;
     }
     var theProject = [selectedObjects objectAtIndex:0];
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification object:theProject];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification
+                                          object:theProject];
 
 }
 

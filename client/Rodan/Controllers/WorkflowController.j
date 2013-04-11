@@ -21,22 +21,11 @@
 {
     if ([anAction result])
     {
-        console.log([anAction result]);
         var j = [Workflow objectsFromJson:[anAction result]];
         [workflowArrayController addObjects:j];
 
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowsNotification
                                       object:[anAction result]];
-    }
-}
-
-- (IBAction)loadJobsForWorkflow:(id)aSender
-{
-    var selectionIndex = [workflowArrayController selectionIndex];
-    if (selectionIndex != -1)
-    {
-        var workflow = [[workflowArrayController contentArray] objectAtIndex:selectionIndex];
-
     }
 }
 

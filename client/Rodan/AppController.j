@@ -144,7 +144,6 @@ activeProject = "";  // URI to the currently open project
 - (id)awakeFromCib
 {
     CPLogRegister(CPLogConsole);
-    CPLog("AppController Awake From CIB");
     isLoggedIn = NO;
 
     [[LogInCheckController alloc] initCheckingStatus];
@@ -228,7 +227,6 @@ activeProject = "";  // URI to the currently open project
     var menubarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"menubar-icon.png"] size:CGSizeMake(16.0, 16.0)];
     [rodanMenuItem setImage:menubarIcon];
 
-    CPLog("Application Did Finish Launching");
     [loginWaitScreenView setFrame:[contentScrollView bounds]];
     [loginWaitScreenView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:loginWaitScreenView];
@@ -243,7 +241,6 @@ activeProject = "";  // URI to the currently open project
 
 - (void)cannotLogIn:(id)aNotification
 {
-    CPLog("Cannot log in called");
     isLoggedIn = NO;
     // display an alert that they cannot log in
     var alert = [[CPAlert alloc] init];
@@ -258,7 +255,6 @@ activeProject = "";  // URI to the currently open project
 
 - (void)didLogIn:(id)aNotification
 {
-    CPLog("Did Log In Successfully.");
     var authResponse = [aNotification object];
 
     isLoggedIn = YES;
@@ -270,10 +266,9 @@ activeProject = "";  // URI to the currently open project
 
 - (void)didLogOut:(id)aNotification
 {
-    // [contentScrollView setDocumentView:];
     [projectController emptyProjectArrayController];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
-                                      object:nil];
+                                          object:nil];
 }
 
 - (void)showProjectsChooser:(id)aNotification
@@ -281,7 +276,6 @@ activeProject = "";  // URI to the currently open project
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
         addProjectTitle = @"Add Project...";
-    // addWorkflowGroupTitle = @"Add Workflow Group";
 
     [addButton addItemsWithTitles:[addProjectTitle]];
     [projectAddRemoveButtonBar setButtons:[addButton, removeButton]];
@@ -409,9 +403,8 @@ activeProject = "";  // URI to the currently open project
 
 - (IBAction)closeProject:(id)aSender
 {
-    CPLog("Close Project");
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
-                                  object:nil];
+                                          object:nil];
 }
 
 - (IBAction)openUserPreferences:(id)aSender
