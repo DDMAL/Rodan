@@ -43,42 +43,42 @@ class WorkflowRunList(generics.ListCreateAPIView):
         page_id = request.QUERY_PARAMS.get('page_id', None)
 
         if not workflow:
-            return Response({'error': "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
 
         value = urlparse.urlparse(workflow).path
         try:
             w = resolve(value)
-        except Exception, e:
-            return Response({'error': "Could not resolve ID to workflow object", "message": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except:
+            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             workflow_obj = Workflow.objects.get(pk=w.kwargs.get('pk'))
         except:
-            return Response({'error': "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow_obj).order_by('sequence')
 
         if not workflow_jobs.exists():
-            return Response({'error': "No jobs for workflow {0} were specified".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "No jobs for workflow {0} were specified".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
 
         if test_status:
             # running in test mode. This runs the workflow on a single page.
             if not page_id:
-                return Response({'error': "You must specify a page ID if you are running in test mode."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "You must specify a page ID if you are running in test mode."}, status=status.HTTP_400_BAD_REQUEST)
 
             pages = Page.objects.filter(pk=page_id)
             run_num = None
             test_status = True
 
             if not pages.exists():
-                return Response({'error': "No pages for page ID {0} were found".format(page_id)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "No pages for page ID {0} were found".format(page_id)}, status=status.HTTP_400_BAD_REQUEST)
         else:
             pages = workflow_obj.pages.filter(processed=True)
             run_num = workflow_obj.runs + 1
             test_status = False
 
             if not pages:
-                return Response({'error': "No pages were assigned to workflow ID {0}".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "No pages were assigned to workflow ID {0}".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
 
         workflow_run = WorkflowRun(workflow=workflow_obj, run=run_num, test_run=test_status)
 
@@ -107,9 +107,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             # If we're not doing a test run, update the run count on the workflow
             workflow_obj.runs = run_num
 
-        return Response({'success': True,
-                         'created': workflow_run.get_absolute_url(),
-                         'response': return_objects}, status=status.HTTP_201_CREATED)
+        return Response({"message": workflow_run.get_absolute_url()}, status=status.HTTP_201_CREATED)
 
 
 class WorkflowRunDetail(generics.RetrieveDestroyAPIView):

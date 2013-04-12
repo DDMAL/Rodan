@@ -10,12 +10,6 @@
 @implementation ProjectController : CPObject
 {
     @outlet     CPArrayController   projectArrayController;
-    @outlet     CPWindow            createProjectWindow;
-    @outlet     CPButton            createProjectButton;
-
-    @outlet     CPTextField         newProjectName;
-    @outlet     CPTextField         newProjectDescription;
-
                 CPValueTransformer  projectCountTransformer;
 }
 
@@ -23,7 +17,6 @@
 {
     if (self = [super init])
     {
-        // CPLog("Project controller init");
     }
     return self;
 }

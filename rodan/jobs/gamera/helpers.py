@@ -65,9 +65,6 @@ class GameraTask(Task):
         res = create_thumbnails.s(result)
         res.apply_async()
 
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        print "After Return!!"
-
 
 def create_jobs_from_module(gamera_module, interactive=False):
     previously_loaded_modules = Job.objects.values_list('job_name', flat=True)

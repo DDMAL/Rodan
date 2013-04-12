@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
 
 from rodan.models.project import Project
 from rodan.models.page import Page
@@ -31,7 +29,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 class PageAdmin(admin.ModelAdmin):
-    list_display = ('page_image', 'created', 'updated')
+    list_display = ('page_image', 'page_order', 'created', 'updated')
 
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser

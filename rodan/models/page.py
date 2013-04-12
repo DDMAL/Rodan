@@ -42,19 +42,25 @@ class Page(models.Model):
             os.makedirs(self.thumb_path)
 
     def delete(self, *args, **kwargs):
-        if os.path.exists(self.image_path):
-            shutil.rmtree(self.image_path)
+        if os.path.exists(self.page_path):
+            shutil.rmtree(self.page_path)
         super(Page, self).delete(*args, **kwargs)
 
     class Meta:
         app_label = 'rodan'
 
     def __unicode__(self):
-        return u"<Page {0}>".format(self.page_image.name)
+        if self.page_image:
+            return u"<Page {0}>".format(self.page_image.name)
+
+    @property
+    def username(self):
+        return self.creator.username
 
     def thumb_filename(self, size):
-        name, ext = os.path.splitext(self.filename)
-        return "{0}_{1}.{2}".format(name, size, settings.THUMBNAIL_EXT)
+        if self.filename:
+            name, ext = os.path.splitext(self.filename)
+            return "{0}_{1}.{2}".format(name, size, settings.THUMBNAIL_EXT)
 
     @property
     def image_file_size(self):
@@ -70,43 +76,51 @@ class Page(models.Model):
 
     @property
     def thumb_path(self):
-        return os.path.join(self.image_path, "thumbnails")
+        return os.path.join(self.page_path, "thumbnails")
 
     @property
     def thumb_url(self):
-        return os.path.join(self.image_url, "thumbnails")
+        return "/" + os.path.join(os.path.relpath(self.page_path, settings.PROJECT_DIR), "thumbnails")
 
     @property
     def image_path(self):
-        return os.path.dirname(self.page_image.path)
+        if self.page_image:
+            return os.path.dirname(self.page_image.path)
 
     @property
     def image_url(self):
-        return "/" + os.path.relpath(self.page_image.url, settings.PROJECT_DIR)
+        if self.page_image:
+            return "/" + os.path.relpath(self.page_image.url, settings.PROJECT_DIR)
 
     @property
     def filename(self):
-        return os.path.basename(self.page_image.path)
+        if self.page_image:
+            return os.path.basename(self.page_image.path)
 
     @property
     def compat_file_path(self):
-        return self.compat_page_image.path
+        if self.compat_page_image:
+            return self.compat_page_image.path
 
     @property
     def compat_file_url(self):
-        return "/" + os.path.relpath(self.compat_page_image.url, settings.PROJECT_DIR)
+        if self.compat_page_image:
+            return "/" + os.path.relpath(self.compat_page_image.url, settings.PROJECT_DIR)
 
     @property
     def small_thumb_url(self):
-        return os.path.join(self.thumb_url,
-                            self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+        if self.thumb_url:
+            return os.path.join(self.thumb_url,
+                                self.thumb_filename(size=settings.SMALL_THUMBNAIL))
 
     @property
     def medium_thumb_url(self):
-        return os.path.join(self.thumb_url,
-                            self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+        if self.thumb_url:
+            return os.path.join(self.thumb_url,
+                                self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
 
     @property
     def large_thumb_url(self):
-        return os.path.join(self.thumb_url,
-                            self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+        if self.thumb_url:
+            return os.path.join(self.thumb_url,
+                                self.thumb_filename(size=settings.LARGE_THUMBNAIL))

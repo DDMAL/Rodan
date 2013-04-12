@@ -62,7 +62,6 @@ activeProject = "";  // URI to the currently open project
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginWaitScreenView;
     @outlet     CPView      selectProjectView;
-    @outlet     CPTableView selectProjectTable;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      managePagesView;
@@ -72,8 +71,8 @@ activeProject = "";  // URI to the currently open project
                 CPView      contentView;
 
     // @outlet     CPScrollView    contentScrollView;
-                CPScrollView    contentScrollView;
-    @outlet     CPButtonBar projectAddRemoveButtonBar;
+                CPScrollView        contentScrollView;
+    @outlet     CPButtonBar         projectAddRemoveButtonBar;
     @outlet     CPArrayController   projectArrayController;
 
     @outlet     CPWindow    userPreferencesWindow;
@@ -81,9 +80,6 @@ activeProject = "";  // URI to the currently open project
 
     @outlet     CPWindow    serverAdminWindow;
     @outlet     CPView      userAdminView;
-
-    @outlet     CPWindow    newProjectWindow;
-    @outlet     CPWindow    openProjectWindow;
 
     @outlet     CPToolbarItem   statusToolbarItem;
     @outlet     CPToolbarItem   pagesToolbarItem;
@@ -372,7 +368,9 @@ activeProject = "";  // URI to the currently open project
     [removeButton setTarget:workflowController];
 
     [imageUploadButton setValue:[activeProject pk] forParameter:@"project"];
+
     [pageController createObjectsWithJSONResponse:activeProject];
+
     projectName = [[aNotification object] projectName];
     [theWindow setTitle:@"Rodan — " + projectName];
 
@@ -389,6 +387,7 @@ activeProject = "";  // URI to the currently open project
 - (void)didCloseProject:(CPNotification)aNotification
 {
     // perform some cleanup
+    [pageController emptyPageArrayController];
     [projectController emptyProjectArrayController];
     [workflowController emptyWorkflowArrayController];
 
