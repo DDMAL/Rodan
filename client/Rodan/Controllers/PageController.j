@@ -17,9 +17,9 @@
 
 - (void)awakeFromCib
 {
-    var formatter = [[CPDateFormatter alloc] init];
-    [formatter setDateStyle:CPDateFormatterMediumStyle];
-    [dateAddedField setFormatter:formatter];
+    // var formatter = [[CPDateFormatter alloc] init];
+    // [formatter setDateStyle:CPDateFormatterMediumStyle];
+    // [dateAddedField setFormatter:formatter];
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
