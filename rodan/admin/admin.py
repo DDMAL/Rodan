@@ -31,6 +31,14 @@ class ProjectAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     list_display = ('page_image', 'page_order', 'created', 'updated')
 
+
+class WorkflowJobAdmin(admin.ModelAdmin):
+    list_display = ('job_name', 'created', 'updated')
+
+
+class RunJobAdmin(admin.ModelAdmin):
+    list_display = ('job_name', 'created', 'updated')
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -46,9 +54,9 @@ class PageAdmin(admin.ModelAdmin):
 # admin.site.register(RodanUser)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(WorkflowRun)
-admin.site.register(RunJob)
+admin.site.register(RunJob, RunJobAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
-admin.site.register(WorkflowJob)
+admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(Result)
