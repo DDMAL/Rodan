@@ -2,13 +2,13 @@ from rest_framework import generics
 from rest_framework import permissions
 
 from rodan.models.project import Project
-from rodan.serializers.project import ProjectSerializer
+from rodan.serializers.project import ProjectSerializer, ProjectListSerializer
 
 
 class ProjectList(generics.ListCreateAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectListSerializer
 
     def get_queryset(self):
         queryset = Project.objects.all()

@@ -8,13 +8,13 @@ from rest_framework.response import Response
 
 from rodan.models.workflow import Workflow
 from rodan.models.page import Page
-from rodan.serializers.workflow import WorkflowSerializer
+from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-    serializer_class = WorkflowSerializer
+    serializer_class = WorkflowListSerializer
     paginate_by = None
 
 
@@ -55,9 +55,4 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 workflow.pages.add(page_obj)
             del request.DATA['pages']
 
-        workflow_jobs = request.DATA.get('workflow_jobs', None)
-        if workflow_jobs:
-            for job in workflow_jobs:
-                pass
-        # return self.update(request, *args, **kwargs)
-        return Response({})
+        return self.update(request, *args, **kwargs)

@@ -29,3 +29,18 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "created",
                   "updated",
                   "workflow_runs")
+
+
+class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
+    uuid = serializers.Field(source='uuid')
+    project = serializers.HyperlinkedRelatedField(view_name="project-detail")
+
+    class Meta:
+        model = Workflow
+        read_only_fields = ('created', 'updated', 'runs')
+        fields = ('url',
+                  'project',
+                  'uuid',
+                  'name',
+                  'created',
+                  'updated')
