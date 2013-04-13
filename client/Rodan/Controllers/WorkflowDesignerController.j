@@ -22,7 +22,7 @@ activeWorkflow = nil;
     @outlet     CPButton                addPagesToWorkflowButton;
     @outlet     CPTableView             addPagesToWorkflowTableView;
 
-    @outlet     CPObject                activeWorkflowDelegate;
+    @outlet     LoadActiveWorkflowDelegate loadActiveWorkflowDelegate;
 
     @outlet     CPTableView             jobList;
 
@@ -39,7 +39,6 @@ activeWorkflow = nil;
     @outlet     CPArrayController       runArrayController;
     @outlet     CPButtonBar             runAddRemoveButtonBar;
 
-    @outlet     CPView                  workflowJobInspectorPane;
     @outlet     TNTabView               workflowJobTabView;
     @outlet     CPView                  selectedWorkflowJobSettingsTab;
     @outlet     CPView                  selectedWorkflowJobDescriptionTab;
@@ -78,7 +77,6 @@ activeWorkflow = nil;
 
     [pageRunTabView addTabViewItem:tab1];
     [pageRunTabView addTabViewItem:tab2];
-
 
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
@@ -120,18 +118,18 @@ activeWorkflow = nil;
 - (void)shouldLoadWorkflow:(CPNotification)aNotification
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:[activeWorkflow pk]
-                    delegate:activeWorkflowDelegate
+                    path:[[aNotification object] pk]
+                    delegate:loadActiveWorkflowDelegate
                     message:"Loading Workflow Jobs"];
 
 }
 
 - (@action)selectWorkflow:(id)aSender
 {
-    activeWorkflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
+    var selectedWorkflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowDesignerNotification
-                                          object:nil];
+                                          object:selectedWorkflow];
 }
 
 - (@action)removeJobFromWorkflow:(CPNotification)aSender
@@ -168,7 +166,6 @@ activeWorkflow = nil;
 
 - (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
 {
-    console.log(returnCode);
     [addPagesToWorkflowWindow orderOut:self];
 }
 
@@ -219,13 +216,14 @@ activeWorkflow = nil;
 - (void)tableViewDeleteKeyPressed:(CPTableView)aTableView
 {
     var deletedObjects = [currentWorkflowArrayController selectedObjects];
+    [WLRemoteObject setDirtProof:YES];
     [currentWorkflowArrayController removeObjects:deletedObjects];
+    [WLRemoteObject setDirtProof:NO];
     [deletedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
 - (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 {
-    console.log("Data view for table column");
     return [aTableView makeViewWithIdentifier:@"workflowJob" owner:self];
 }
 
@@ -234,20 +232,16 @@ activeWorkflow = nil;
                    proposedRow:(CPInteger)row
                    proposedDropOperation:(CPTableViewDropOperation)operation
 {
-    console.log("validate drop");
     [currentWorkflow setDropRow:row dropOperation:CPTableViewDropAbove];
     return CPDragOperationCopy;
 }
 
 - (void)tableView:(CPTableView)aTableView willDisplayView:(id)aView forTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 {
-    console.log("A view to display");
-    console.log(aView);
 }
 
 - (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)anIndex dropOperation:(CPTableViewDropOperation)aDropOperation
 {
-    console.log("accept drop?");
     var content = [jobArrayController contentArray],
         pboard = [info draggingPasteboard],
         sourceIndexes = [pboard dataForType:JobItemType],
@@ -325,7 +319,6 @@ activeWorkflow = nil;
             "job": [jobObj pk],
             "job_name": [jobObj jobName],
             "job_settings": [jobObj settings],
-            "sequence": anIndex,
             "job_type": jobType,
             "interactive": interactive,
             "needs_input": needsInput
@@ -333,8 +326,16 @@ activeWorkflow = nil;
         workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
     [workflowJobObject ensureCreated];
 
-    [currentWorkflowArrayController insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
-    console.log("Finished inserting");
+    /// don't send a patch request for updating this array
+    [WLRemoteObject setDirtProof:YES];
+    [[currentWorkflowArrayController contentArray] insertObject:workflowJobObject atIndex:anIndex];
+
+    // update the workflow jobs sequence property
+    [[currentWorkflowArrayController contentArray] enumerateObjectsUsingBlock:function(obj, idx, stop)
+        {
+            [obj setSequence:idx + 1];  // sequence in a workflow is 1-based;
+        }];
+    [WLRemoteObject setDirtProof:NO];
 
     return YES;
 }
@@ -396,6 +397,13 @@ activeWorkflow = nil;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
+    // since we're initializing another model for this workflow object,
+    // we don't want it to sync back to the server when we create it.
+    // so we set it as "Dirt Proof" while it's being created.
+    [WLRemoteObject setDirtProof:YES];
+    activeWorkflow = [[Workflow alloc] initWithJson:[anAction result]];
+    [WLRemoteObject setDirtProof:NO];
+
     [currentWorkflowArrayController bind:@"contentArray"
                                     toObject:activeWorkflow
                                     withKeyPath:@"workflowJobs"
@@ -464,29 +472,23 @@ activeWorkflow = nil;
 - (id)init
 {
     self = [super init];
-    console.log("Initializing PageList Cell");
     return self;
 }
 
 - (id)initWithFrame:(CGRect)aFrame
 {
     self = [super initWithFrame:aFrame];
-    console.log("Init with Frame");
-
     return self;
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
 {
     self = [super initWithCoder:aCoder];
-    console.log("Init with coder");
     return self;
 }
 
 - (void)setObjectValue:(id)aValue
 {
-    console.log("Setting object value");
-    console.log(aValue);
     objectValue = aValue;
 }
 
