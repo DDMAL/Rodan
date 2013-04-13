@@ -19,7 +19,7 @@ def create_thumbnails(database_object):
         thumbnail_size = str(int(thumbnail_size))
         thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
         thumb_copy.save(os.path.join(database_object.thumb_path,
-                                     database_object.thumb_filename(size=thumbnail_size)))
+                                     database_object.thumb_filename(size=thumbnail_size)), optimize=True, bits=4)
 
         del thumb_copy
     del image
