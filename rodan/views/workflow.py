@@ -26,12 +26,12 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, pk, *args, **kwargs):
         kwargs['partial'] = True
-
+        print request.DATA
         workflow = Workflow.objects.get(pk=pk)
         if not workflow:
-            return Response({'status': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        pages = request.DATA.get('pages')
+        pages = request.DATA.get('pages', None)
         if pages:
             for page in pages:
                 value = urlparse.urlparse(page['url']).path
@@ -39,7 +39,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 try:
                     p = resolve(value)
                 except:
-                    return Response({'error': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response({'message': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 # check if the page already exists on this workflow. If so, we skip it.
                 relationship_exists = workflow.pages.filter(pk=p.kwargs.get('pk')).exists()
@@ -50,8 +50,14 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 page_obj = Page.objects.get(pk=p.kwargs.get('pk'))
                 # finally, add this page to the workflow
                 if not page_obj:
-                    return Response({'error': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({'message': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
 
                 workflow.pages.add(page_obj)
+            del request.DATA['pages']
 
-        return self.update(request, *args, **kwargs)
+        workflow_jobs = request.DATA.get('workflow_jobs', None)
+        if workflow_jobs:
+            for job in workflow_jobs:
+                pass
+        # return self.update(request, *args, **kwargs)
+        return Response({})
