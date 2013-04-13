@@ -3,14 +3,27 @@
 @import "../Models/Project.j"
 @import "../Transformers/ArrayCountTransformer.j"
 
+@global RodanShouldLoadProjectNotification
 @global RodanDidLoadProjectsNotification
-@global RodanDidOpenProjectNotification
+@global RodanDidLoadProjectNotification
+@global RodanDidCloseProjectNotification
+
 @global activeUser
+@global activeProject
 
 @implementation ProjectController : CPObject
 {
-    @outlet     CPArrayController   projectArrayController;
-                CPValueTransformer  projectCountTransformer;
+    @outlet     CPArrayController           projectArrayController;
+                CPValueTransformer          projectCountTransformer;
+    @outlet     LoadActiveProjectDelegate   activeProjectDelegate;
+    @outlet     CPButtonBar                 projectAddRemoveButtonBar;
+    @outlet     CPView                      selectProjectView;
+
+    @outlet     PageController              pageController;
+    @outlet     CPArrayController           pageArrayController;
+    @outlet     WorkflowController          workflowController;
+    @outlet     CPArrayController           workflowArrayController;
+    @outlet     JobController               jobController;
 }
 
 - (id)init
@@ -23,7 +36,20 @@
 
 - (id)awakeFromCib
 {
-    // CPLog("Awake from CIB Project Controller");
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(shouldLoadProject:)
+                                          name:RodanShouldLoadProjectNotification
+                                          object:nil];
+
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(showProjectsChooser:)
+                                          name:RodanDidLoadProjectsNotification
+                                          object:nil];
+
+    var backgroundTexture = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"workflow-backgroundTexture.png"]
+                                             size:CGSizeMake(200.0, 200.0)];
+
+    [selectProjectView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
 }
 
 - (CPString)remoteActionContentType:(WLRemoteAction)anAction
@@ -38,7 +64,7 @@
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    var p = [Project objectsFromJson:[anAction result].results];
+    var p = [MinimalProject objectsFromJson:[anAction result].results];
     [projectArrayController addObjects:p];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectsNotification
@@ -47,12 +73,12 @@
 
 - (@action)newProject:(id)aSender
 {
-    var newProject = [[Project alloc] initWithCreator:activeUser];
+    var newProject = [[MinimalProject alloc] initWithCreator:activeUser];
     [projectArrayController addObject:newProject];
     [newProject ensureCreated];
 }
 
-- (@action)deleteProject:(id)aSender
+- (@action)shouldDeleteProjects:(id)aSender
 {
     // get selected projects
     var numToBeDeleted = [[projectArrayController selectedObjects] count];
@@ -91,27 +117,107 @@
     [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
 }
 
+- (void)shouldLoadProject:(CPNotification)aNotification
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:[[aNotification object] pk]
+                    delegate:activeProjectDelegate
+                    message:"Loading Project"];
+}
+
 - (IBAction)openProject:(id)aSender
 {
-    var selectedObjects = [projectArrayController selectedObjects];
-    if (selectedObjects > 1)
-    {
-        alert = [[CPAlert alloc] init];
-        [alert setMessageText:@"You must choose just one project to open."];
-        [alert setAlertStyle:CPWarningAlertStyle];
-        [alert addButtonWithTitle:@"OK"];
-        [alert runModal];
-        return nil;
-    }
-    var theProject = [selectedObjects objectAtIndex:0];
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidOpenProjectNotification
-                                          object:theProject];
+    var selectedProject = [[projectArrayController selectedObjects] objectAtIndex:0];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadProjectNotification
+                                          object:selectedProject];
 
 }
 
 - (void)emptyProjectArrayController
 {
     [[projectArrayController contentArray] removeAllObjects];
+}
+
+#pragma mark -
+#pragma mark Project Opening and Closing
+
+- (void)showProjectsChooser:(id)aNotification
+{
+    var addButton = [CPButtonBar plusPopupButton],
+        removeButton = [CPButtonBar minusButton],
+        addProjectTitle = @"Add Project...";
+
+    [addButton addItemsWithTitles:[addProjectTitle]];
+    [projectAddRemoveButtonBar setButtons:[addButton, removeButton]];
+
+    var addProjectItem = [addButton itemWithTitle:addProjectTitle];
+
+    [addProjectItem setAction:@selector(newProject:)];
+    [addProjectItem setTarget:self];
+
+    [removeButton setAction:@selector(shouldDeleteProjects:)];
+    [removeButton setTarget:self];
+
+    [removeButton bind:@"enabled"
+                  toObject:projectArrayController
+                  withKeyPath:@"selectedObjects.@count"
+                  options:nil]
+
+    [selectProjectView setFrame:[[[CPApp delegate] contentScrollView] bounds]];
+    [selectProjectView setAutoresizingMask:CPViewWidthSizable];
+    [[[CPApp delegate] contentScrollView] setDocumentView:selectProjectView];
+}
+
+- (void)didCloseProject:(CPNotification)aNotification
+{
+    // perform some cleanup
+    [self emptyProjectArrayController];
+    [pageController emptyPageArrayController];
+    [workflowController emptyWorkflowArrayController];
+
+    [[[CPApp delegate] theToolbar] setVisible:NO];
+    [CPMenu setMenuBarVisible:NO];
+
+    // this should fire off a request to reload the projects and then show the
+    // project chooser once they have returned.
+    [self fetchProjects];
+    [jobController fetchJobs]
+}
+
+- (IBAction)closeProject:(id)aSender
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
+                                          object:nil];
+}
+
+@end
+
+@implementation LoadActiveProjectDelegate : CPObject
+{
+    @outlet     CPArrayController       pageArrayController;
+    @outlet     CPArrayController       workflowArrayController;
+}
+
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    [WLRemoteObject setDirtProof:YES];
+    activeProject = [[Project alloc] initWithJson:[anAction result]];
+    [WLRemoteObject setDirtProof:NO];
+
+    [pageArrayController bind:@"contentArray"
+                         toObject:activeProject
+                         withKeyPath:@"pages"
+                         options:nil];
+
+    [workflowArrayController bind:@"contentArray"
+                             toObject:activeProject
+                             withKeyPath:@"workflows"
+                             options:nil];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectNotification
+                                          object:nil];
+
 }
 
 @end
