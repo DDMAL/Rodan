@@ -66,7 +66,13 @@ class WorkflowRunList(generics.ListCreateAPIView):
             if not page_id:
                 return Response({"message": "You must specify a page ID if you are running in test mode."}, status=status.HTTP_400_BAD_REQUEST)
 
-            pages = Page.objects.filter(pk=page_id)
+            value = urlparse.urlparse(page_id).path
+            try:
+                p = resolve(value)
+            except:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+            pages = Page.objects.filter(pk=p.kwargs.get('pk'))
             run_num = None
             test_status = True
 
