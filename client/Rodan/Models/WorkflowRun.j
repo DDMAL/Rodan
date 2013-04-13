@@ -10,6 +10,8 @@
     CPDate      created     @accessors;
     CPDate      updated     @accessors;
     BOOL        testRun     @accessors;
+
+    CPString    testPageID  @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -23,6 +25,15 @@
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],
         ['testRun', 'test_run']
     ];
+}
+
+/* This modifies the request path so that we can launch a test run */
+- (CPString)postPath
+{
+    var pathComponents = @"";
+    if (testRun)
+        pathComponents = "?test=true&page_id=" + testPageID;
+    return [self remotePath] + pathComponents;
 }
 
 - (CPString)remotePath
