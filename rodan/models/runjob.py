@@ -43,3 +43,7 @@ class RunJob(models.Model):
     @property
     def sequence(self):
         return self.workflow_job.sequence
+
+    @property
+    def job_name(self):
+        return self.workflow_job.job_name
