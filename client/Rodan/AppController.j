@@ -32,14 +32,18 @@
 @import "Controllers/JobController.j"
 @import "Models/Project.j"
 
-RodanDidOpenProjectNotification = @"RodanDidOpenProjectNotification";
+RodanDidLoadProjectNotification = @"RodanDidLoadProjectNotification";
 RodanDidCloseProjectNotification = @"RodanDidCloseProjectNotification";
+RodanShouldLoadProjectNotification = @"RodanShouldLoadProjectNotification";
 RodanDidLoadProjectsNotification = @"RodanDidLoadProjectsNotification";
+
 RodanDidLoadJobsNotification = @"RodanDidLoadJobsNotification";
 RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
+
 RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
 RodanDidLoadWorkflowNotification = @"RodanDidLoadWorkflowNotification";
 RodanShouldLoadWorkflowDesignerNotification = @"RodanShouldLoadWorkflowDesignerNotification";
+
 RodanRemoveJobFromWorkflowNotification = @"RodanRemoveJobFromWorkflowNotification";
 RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
 
@@ -50,18 +54,17 @@ RodanLogInErrorNotification = @"RodanLogInErrorNotification";
 RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
 isLoggedIn = NO;
-activeUser = "";     // URI to the currently logged-in user
-activeProject = "";  // URI to the currently open project
+activeUser = nil;     // URI to the currently logged-in user
+activeProject = nil;  // URI to the currently open project
 
 @implementation AppController : CPObject
 {
-    @outlet     CPWindow    theWindow;  //this "outlet" is connected automatically by the Cib
-    @outlet     TNToolbar   theToolbar;
+    @outlet     CPWindow    theWindow;
+    @outlet     TNToolbar   theToolbar  @accessors(readonly);
                 CPBundle    theBundle;
 
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginWaitScreenView;
-    @outlet     CPView      selectProjectView;
     @outlet     CPView      manageWorkflowsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      managePagesView;
@@ -71,8 +74,7 @@ activeProject = "";  // URI to the currently open project
                 CPView      contentView;
 
     // @outlet     CPScrollView    contentScrollView;
-                CPScrollView        contentScrollView;
-    @outlet     CPButtonBar         projectAddRemoveButtonBar;
+                CPScrollView        contentScrollView       @accessors(readonly);
     @outlet     CPArrayController   projectArrayController;
 
     @outlet     CPWindow    userPreferencesWindow;
@@ -163,8 +165,9 @@ activeProject = "";  // URI to the currently open project
     _theWindowBounds = [contentView bounds];
     var center = [CPNotificationCenter defaultCenter];
 
-    [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidOpenProjectNotification object:nil];
-    [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
+    // [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidLoadProjectNotification object:nil];
+    [center addObserver:self selector:@selector(didLoadProject:) name:RodanDidLoadProjectNotification object:nil];
+    // [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
     [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
     [center addObserver:self selector:@selector(showWorkflowDesigner:) name:RodanDidLoadWorkflowNotification object:nil];
 
@@ -173,11 +176,6 @@ activeProject = "";  // URI to the currently open project
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanCannotLogInNotification object:nil];
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanLogInErrorNotification object:nil];
     [center addObserver:self selector:@selector(didLogOut:) name:RodanDidLogOutNotification object:nil];
-
-    /* Debugging Observers */
-    [center addObserver:self selector:@selector(observerDebug:) name:RodanDidOpenProjectNotification object:nil];
-    [center addObserver:self selector:@selector(observerDebug:) name:RodanDidLoadProjectsNotification object:nil];
-    /* ------------------- */
 
     [theToolbar setVisible:NO];
 
@@ -197,7 +195,6 @@ activeProject = "";  // URI to the currently open project
     [workflowDesignerToolbarItem setImage:workflowDesignerToolbarIcon];
 
     [chooseWorkflowView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
-    [selectProjectView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
 
     [contentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 
@@ -263,41 +260,28 @@ activeProject = "";  // URI to the currently open project
 - (void)didLogOut:(id)aNotification
 {
     [projectController emptyProjectArrayController];
+
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
                                           object:nil];
-}
-
-- (void)showProjectsChooser:(id)aNotification
-{
-    var addButton = [CPButtonBar plusPopupButton],
-        removeButton = [CPButtonBar minusButton],
-        addProjectTitle = @"Add Project...";
-
-    [addButton addItemsWithTitles:[addProjectTitle]];
-    [projectAddRemoveButtonBar setButtons:[addButton, removeButton]];
-
-    var addProjectItem = [addButton itemWithTitle:addProjectTitle];
-
-    [addProjectItem setAction:@selector(newProject:)];
-    [addProjectItem setTarget:projectController];
-
-    [removeButton setAction:@selector(deleteProject:)];
-    [removeButton setTarget:projectController];
-
-    [removeButton bind:@"enabled"
-                  toObject:projectArrayController
-                  withKeyPath:@"selectedObjects.@count"
-                  options:nil]
-
-    [selectProjectView setFrame:[contentScrollView bounds]];
-    [selectProjectView setAutoresizingMask:CPViewWidthSizable];
-    [contentScrollView setDocumentView:selectProjectView];
 }
 
 - (IBAction)logOut:(id)aSender
 {
     [LogOutController logOut];
 }
+
+- (void)didLoadProject:(CPNotification)aNotification
+{
+    [theWindow setTitle:@"Rodan — " + [activeProject projectName]];
+
+    [CPMenu setMenuBarVisible:YES];
+    [theToolbar setVisible:YES];
+
+    [projectStatusView setFrame:[contentScrollView bounds]];
+    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:projectStatusView];
+}
+
 
 #pragma mark -
 #pragma mark Switch Workspaces
@@ -342,68 +326,6 @@ activeProject = "";  // URI to the currently open project
     [chooseWorkflowView setFrame:[contentScrollView bounds]];
     [chooseWorkflowView layoutIfNeeded];
     [contentScrollView setDocumentView:chooseWorkflowView];
-}
-
-#pragma mark -
-#pragma mark Project Opening and Closing
-
-- (void)didOpenProject:(CPNotification)aNotification
-{
-    activeProject = [aNotification object];
-
-    var addButton = [CPButtonBar plusPopupButton],
-        removeButton = [CPButtonBar minusButton],
-        addWorkflowTitle = @"Add Workflow...";
-        // addWorkflowGroupTitle = @"Add Workflow Group";
-
-    [addButton addItemsWithTitles:[addWorkflowTitle]];
-    [workflowAddRemoveBar setButtons:[addButton, removeButton]];
-
-    var addWorkflowItem = [addButton itemWithTitle:addWorkflowTitle];
-
-    [addWorkflowItem setAction:@selector(newWorkflow:)];
-    [addWorkflowItem setTarget:workflowController];
-
-    [removeButton setAction:@selector(removeWorkflow:)];
-    [removeButton setTarget:workflowController];
-
-    [imageUploadButton setValue:[activeProject pk] forParameter:@"project"];
-
-    [pageController createObjectsWithJSONResponse:activeProject];
-
-    projectName = [[aNotification object] projectName];
-    [theWindow setTitle:@"Rodan — " + projectName];
-
-    [CPMenu setMenuBarVisible:YES];
-    [theToolbar setVisible:YES];
-
-    [projectStatusView setFrame:[contentScrollView bounds]];
-    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
-    [contentScrollView setDocumentView:projectStatusView];
-
-    [workflowController fetchWorkflows];
-}
-
-- (void)didCloseProject:(CPNotification)aNotification
-{
-    // perform some cleanup
-    [pageController emptyPageArrayController];
-    [projectController emptyProjectArrayController];
-    [workflowController emptyWorkflowArrayController];
-
-    [theToolbar setVisible:NO];
-    [CPMenu setMenuBarVisible:NO];
-
-    // this should fire off a request to reload the projects and then show the
-    // project chooser once they have returned.
-    [projectController fetchProjects];
-    [jobController fetchJobs]
-}
-
-- (IBAction)closeProject:(id)aSender
-{
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
-                                          object:nil];
 }
 
 - (IBAction)openUserPreferences:(id)aSender
