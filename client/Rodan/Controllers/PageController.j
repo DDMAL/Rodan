@@ -3,6 +3,7 @@
 @import <Ratatosk/Ratatosk.j>
 @import "../Models/Page.j"
 
+@global activeProject
 
 @implementation PageController : CPObject
 {
@@ -31,10 +32,6 @@
     return self;
 }
 
-- (IBAction)uploadFiles:(id)aSender
-{
-}
-
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
@@ -46,6 +43,7 @@
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
 {
     var nextPageOrder = [[pageArrayController contentArray] valueForKeyPath:@"@max.pageOrder"] + 1;
+    [imageUploadButton setValue:[activeProject pk] forParameter:@"project"];
     [imageUploadButton setValue:nextPageOrder forParameter:@"page_order"];
 
     [button submit];
