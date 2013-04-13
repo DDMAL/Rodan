@@ -99,6 +99,8 @@ activeWorkflow = nil;
                   withKeyPath:@"selection.pk"
                   options:nil];
 
+    // [removeButton bind:@""]
+
     // Inspector Pane
     var tab1 = [[CPTabViewItem alloc] initWithIdentifier:@"settingsTab"],
         tab2 = [[CPTabViewItem alloc] initWithIdentifier:@"descriptionTab"];
@@ -168,6 +170,35 @@ activeWorkflow = nil;
 {
     console.log(returnCode);
     [addPagesToWorkflowWindow orderOut:self];
+}
+
+- (@action)testWorkflow:(id)aSender
+{
+    // this forces the workflow jobs to update themselves to the server
+    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+
+    var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
+        workflowRun = {
+        "workflow": [activeWorkflow pk],
+        "test_run": true
+        },
+        testWorkflowRun = [[WorkflowRun alloc] initWithJson:workflowRun];
+    [testWorkflowRun setTestPageID:[selectedPage pk]];
+    [testWorkflowRun ensureCreated];
+}
+
+- (@action)runWorkflow:(id)aSender
+{
+    // this forces the workflow jobs to update themselves to the server
+    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+
+    var workflowRunObj = {
+        "workflow": [activeWorkflow pk]
+        },
+        workflow = [[WorkflowRun alloc] initWithJson:workflowRunObj];
+    [workflow ensureCreated];
 }
 
 @end
@@ -275,9 +306,7 @@ activeWorkflow = nil;
 
     // do not permit a drop if either the input or the output passes
     if (!inputTypePasses || !outputTypePasses)
-    {
         return NO;
-    }
 
     var interactive = false,
         needsInput = false,
@@ -295,17 +324,13 @@ activeWorkflow = nil;
             "workflow": [activeWorkflow pk],
             "job": [jobObj pk],
             "job_name": [jobObj jobName],
-            "job_settings": [jobObj arguments],
+            "job_settings": [jobObj settings],
             "sequence": anIndex,
             "job_type": jobType,
             "interactive": interactive,
             "needs_input": needsInput
-            };
-
-    console.log("Creating workflow job object");
-    console.log(wkObj);
-
-    var workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
+            },
+        workflowJobObject = [[WorkflowJob alloc] initWithJson:wkObj];
     [workflowJobObject ensureCreated];
 
     [currentWorkflowArrayController insertObject:workflowJobObject atArrangedObjectIndex:anIndex];
