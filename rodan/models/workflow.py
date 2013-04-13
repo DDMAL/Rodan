@@ -29,6 +29,7 @@ class Workflow(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ('created',)
 
     def save(self, *args, **kwargs):
         super(Workflow, self).save(*args, **kwargs)
