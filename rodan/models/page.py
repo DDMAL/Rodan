@@ -48,6 +48,7 @@ class Page(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ('page_order',)
 
     def __unicode__(self):
         if self.page_image:

@@ -26,6 +26,7 @@ class WorkflowJob(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ('sequence',)
 
     @property
     def job_name(self):
