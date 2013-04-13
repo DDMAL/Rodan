@@ -24,7 +24,7 @@ class Result(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u"<Result Hello {0}>".format(self.run_job.workflow_job.job.job_name)
+        return u"<Result {0}>".format(self.run_job.workflow_job.job.job_name)
 
     def save(self, *args, **kwargs):
         super(Result, self).save(*args, **kwargs)
