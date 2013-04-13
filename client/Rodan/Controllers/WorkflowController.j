@@ -10,11 +10,31 @@
 {
     @outlet     CPArrayController       workflowArrayController;
     @outlet     CPArrayController       jobArrayController;
+    @outlet     CPArrayController       resultsArrayController;
+    @outlet     CPButtonBar             workflowAddRemoveBar;
+}
+
+- (void)awakeFromCib
+{
+    var addButton = [CPButtonBar plusPopupButton],
+        removeButton = [CPButtonBar minusButton],
+        addWorkflowTitle = @"Add Workflow...";
+        // addWorkflowGroupTitle = @"Add Workflow Group";
+
+    [addButton addItemsWithTitles:[addWorkflowTitle]];
+    [workflowAddRemoveBar setButtons:[addButton, removeButton]];
+
+    var addWorkflowItem = [addButton itemWithTitle:addWorkflowTitle];
+
+    [addWorkflowItem setAction:@selector(newWorkflow:)];
+    [addWorkflowItem setTarget:self];
+    [removeButton setAction:@selector(removeWorkflow:)];
+    [removeButton setTarget:self];
 }
 
 - (void)fetchWorkflows
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"/workflows" delegate:self message:"Loading jobs"];
+    [WLRemoteAction schedule:WLRemoteActionGetType path:"/workflows" delegate:self message:"Loading workflows"];
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
@@ -25,7 +45,7 @@
         [workflowArrayController addObjects:j];
 
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowsNotification
-                                      object:[anAction result]];
+                                              object:[anAction result]];
     }
 }
 
