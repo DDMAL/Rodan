@@ -3,6 +3,7 @@
 @implementation RunJob : WLRemoteObject
 {
     CPString    pk          @accessors;
+    CPString    jobName     @accessors;
     CPNumber    sequence    @accessors;
     BOOL        needsInput  @accessors;
     CPArray     jobSettings @accessors;
@@ -16,12 +17,13 @@
 {
     return [
         ['pk', 'url', nil, true],
+        ['jobName', 'job_name'],
         ['sequence', 'sequence'],
         ['needsInput', 'needs_input'],
-        ['result', 'result'],
+        ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
         ['page', 'page'],
-        ['created', 'created', [WLDateTransformer alloc], true],
-        ['updated', 'updated', [WLDateTransformer alloc], true]
+        ['created', 'created', [[WLDateTransformer alloc] init], true],
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];
 }
 
