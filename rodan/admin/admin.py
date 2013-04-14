@@ -40,6 +40,11 @@ class WorkflowJobAdmin(admin.ModelAdmin):
 class RunJobAdmin(admin.ModelAdmin):
     list_display = ('job_name', 'created', 'updated')
 
+
+class WorkflowRunAdmin(admin.ModelAdmin):
+    list_display = ('workflow', 'run', 'created')
+
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -54,7 +59,7 @@ class RunJobAdmin(admin.ModelAdmin):
 
 # admin.site.register(RodanUser)
 admin.site.register(Project, ProjectAdmin)
-admin.site.register(WorkflowRun)
+admin.site.register(WorkflowRun, WorkflowRunAdmin)
 admin.site.register(RunJob, RunJobAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Workflow)
