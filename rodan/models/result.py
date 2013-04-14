@@ -7,7 +7,7 @@ from uuidfield import UUIDField
 class Result(models.Model):
     @property
     def result_path(self):
-        return os.path.join(self.run_job.runjob_path)
+        return self.run_job.runjob_path
 
     def upload_fn(self, filename):
         _, ext = os.path.splitext(os.path.basename(filename))
@@ -46,7 +46,7 @@ class Result(models.Model):
 
     @property
     def image_url(self):
-        return "/" + os.path.relpath(self.result.url, settings.PROJECT_DIR)
+        return "/" + os.path.relpath(self.result_path, settings.PROJECT_DIR)
 
     @property
     def thumb_path(self):
