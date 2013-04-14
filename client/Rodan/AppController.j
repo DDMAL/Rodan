@@ -21,6 +21,7 @@
 @import "Transformers/UsernameTransformer.j"
 @import "Transformers/ImageSizeTransformer.j"
 @import "Transformers/DateFormatTransformer.j"
+@import "Transformers/ResultsDisplayTransformer.j"
 
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
@@ -43,6 +44,7 @@ RodanJobTreeNeedsRefresh = @"RodanJobTreeNeedsRefresh";
 RodanDidLoadWorkflowsNotification = @"RodanDidLoadWorkflowsNotification";
 RodanDidLoadWorkflowNotification = @"RodanDidLoadWorkflowNotification";
 RodanShouldLoadWorkflowDesignerNotification = @"RodanShouldLoadWorkflowDesignerNotification";
+RodanDidRefreshWorkflowsNotification = @"RodanDidRefreshWorkflowsNotification";
 
 RodanRemoveJobFromWorkflowNotification = @"RodanRemoveJobFromWorkflowNotification";
 RodanWorkflowTreeNeedsRefresh = @"RodanWorkflowTreeNeedsRefresh";
@@ -137,6 +139,11 @@ activeProject = nil;  // URI to the currently open project
     dateFormatTransformer = [[DateFormatTransformer alloc] init];
     [DateFormatTransformer setValueTransformer:dateFormatTransformer
                                 forName:@"DateFormatTransformer"];
+
+    resultsDisplayTransformer = [[ResultsDisplayTransformer alloc] init];
+    [ResultsDisplayTransformer setValueTransformer:resultsDisplayTransformer
+                                forName:@"ResultsDisplayTransformer"];
+
 }
 
 - (id)awakeFromCib
