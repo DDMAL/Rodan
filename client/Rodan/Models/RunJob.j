@@ -1,4 +1,6 @@
 @import <Ratatosk/WLRemoteObject.j>
+@import "Result.j"
+@import "Page.j"
 
 @implementation RunJob : WLRemoteObject
 {
@@ -8,7 +10,8 @@
     BOOL        needsInput  @accessors;
     CPArray     jobSettings @accessors;
     CPArray     result      @accessors;
-    CPString    page        @accessors;
+    // this uses a simplified page object instead of the full one via Ratatosk. It's just the page name and url.
+    JSObject    page        @accessors;
     CPDate      created     @accessors;
     CPDate      updated     @accessors;
 }
