@@ -9,7 +9,7 @@
 
 - (id)transformedValue:(id)value
 {
-    if (value != null)
+    if (value)
     {
         if ((value.first_name != "") && (value.last_name != ""))
             return (value.first_name + " " + value.last_name);
