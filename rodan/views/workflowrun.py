@@ -27,6 +27,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         queryset = WorkflowRun.objects.all()
         if workflow:
             queryset = queryset.filter(workflow__uuid=workflow)
+
         if run:
             queryset = queryset.filter(run=run)
 
