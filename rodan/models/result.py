@@ -38,7 +38,8 @@ class Result(models.Model):
 
     @property
     def filename(self):
-        return os.path.basename(self.result.path)
+        if (self.result):
+            return os.path.basename(self.result.path)
 
     def thumb_filename(self, size):
         name, ext = os.path.splitext(self.filename)
