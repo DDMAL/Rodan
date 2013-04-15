@@ -17,3 +17,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'is_superuser',
                   'groups',
                   'projects')
+
+
+class UserListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'first_name', "last_name")
