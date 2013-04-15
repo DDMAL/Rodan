@@ -47,3 +47,7 @@ class RunJob(models.Model):
     @property
     def job_name(self):
         return self.workflow_job.job_name
+
+    @property
+    def page_name(self):
+        return self.page.name
