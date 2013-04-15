@@ -103,15 +103,31 @@
 @implementation WorkflowStatusDelegate : CPObject
 {
     @outlet     WorkflowController  workflowController;
+    @outlet     RunsStatusDelegate  runsStatusDelegate;
     @outlet     CPArrayController   workflowArrayController;
                 CPArrayController   runsArrayController     @accessors(readonly);
     @outlet     CPTableView         runsTableView;
     @outlet     CPTableView         resultsTableView;
 }
 
+- (void)tableViewSelectionIsChanging:(CPNotification)aNotification
+{
+    if ([[[aNotification object] selectedRowIndexes] count] === 0)
+    {
+        [self emptyArrayControllers];
+    }
+}
+
+- (void)emptyArrayControllers
+{
+    [runsArrayController setContent:nil];
+
+    // ensure we empty out the other array controller if we're deslecting the workflow.
+    [runsStatusDelegate emptyArrayControllers];
+}
+
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    console.log("Table view row " + rowIndex + " selected");
     runsArrayController = [[CPArrayController alloc] init];
     var workflowObject = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
 
@@ -139,11 +155,29 @@
 {
     @outlet WorkflowStatusDelegate  workflowStatusDelegate;
     @outlet CPTableView             runJobsTableView;
+    @outlet CPTableView             pagesTableView;
+    @outlet CPTableView             resultsTableView;
             CPArrayController       runJobsArrayController;
+
 
     // a bug in cappuccino sends the delegate signal twice. Catch that and only
     // allow the results to be fetched once.
             BOOL                    isFetching;
+}
+
+- (void)emptyArrayControllers
+{
+    [runJobsArrayController setContent:nil];
+}
+
+
+- (void)tableViewSelectionIsChanging:(CPNotification)aNotification
+{
+    if ([[[aNotification object] selectedRowIndexes] count] === 0)
+    {
+        [self emptyArrayControllers];
+    }
+
 }
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
@@ -156,12 +190,14 @@
     var run = [[[workflowStatusDelegate runsArrayController] contentArray] objectAtIndex:rowIndex];
 
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:[run pk]
+                    path:[run pk] + @"?bypage=true"
                     delegate:self
                     message:"Loading Workflow Run Results"];
 
     return YES;
 }
+
+
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
@@ -170,22 +206,32 @@
     var workflowRun = [[WorkflowRun alloc] initWithJson:[anAction result]];
     [WLRemoteObject setDirtProof:NO];
 
-    [runJobsArrayController bind:@"contentArray"
-                            toObject:workflowRun
-                            withKeyPath:@"runJobs"
-                            options:nil];
 
-    [runJobsTableView bind:@"content"
-                      toObject:runJobsArrayController
-                      withKeyPath:@"arrangedObjects"
-                      options:nil];
+    // [runJobsArrayController bind:@"contentArray"
+    //                         toObject:workflowRun
+    //                         withKeyPath:@"runJobs"
+    //                         options:nil];
 
-    [runJobsTableView bind:@"selectionIndexes"
-                      toObject:runJobsArrayController
-                      withKeyPath:@"selectionIndexes"
-                      options:nil];
+    // [runJobsTableView bind:@"content"
+    //                   toObject:runJobsArrayController
+    //                   withKeyPath:@"arrangedObjects"
+    //                   options:nil];
+
+    // [runJobsTableView bind:@"selectionIndexes"
+    //                   toObject:runJobsArrayController
+    //                   withKeyPath:@"selectionIndexes"
+    //                   options:nil];
 
 
 }
 
+@end
+
+
+/* we don't need the ratatosk setup for this page representation, so we'll work with a highly simplified model */
+@implementation SimplePageModel : CPObject
+{
+    CPString    pageName    @accessors;
+    CPString    pk          @accessors;
+}
 @end
