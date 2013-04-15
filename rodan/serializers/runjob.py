@@ -1,5 +1,6 @@
 from rodan.models.runjob import RunJob
 from rodan.models.result import Result
+from rodan.models.page import Page
 from rest_framework import serializers
 
 
@@ -16,12 +17,19 @@ class ResultRunJobSerializer(serializers.HyperlinkedModelSerializer):
         model = Result
 
 
+class PageRunJobSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Page
+        fields = ('url', 'name')
+
+
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     sequence = serializers.Field(source='sequence')
     job_settings = serializers.CharField()
     # result = ResultSerializer()
     result = ResultRunJobSerializer()
     job_name = serializers.Field(source="job_name")
+    page = PageRunJobSerializer()
 
     class Meta:
         model = RunJob
