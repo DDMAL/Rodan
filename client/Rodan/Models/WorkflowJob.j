@@ -51,4 +51,11 @@
         return @"/workflowjobs/";
     }
 }
+
+- (void)removeFromWorkflow
+{
+    [self setWorkflow:nil];
+    [self ensureSaved];
+}
+
 @end
