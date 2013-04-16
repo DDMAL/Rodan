@@ -12,6 +12,7 @@ class ResultRunJobSerializer(serializers.HyperlinkedModelSerializer):
     small_thumb_url = serializers.Field(source="small_thumb_url")
     medium_thumb_url = serializers.Field(source="medium_thumb_url")
     result = serializers.Field(source="image_url")
+    run_job_name = serializers.Field(source="run_job_name")
 
     class Meta:
         model = Result
@@ -20,7 +21,7 @@ class ResultRunJobSerializer(serializers.HyperlinkedModelSerializer):
 class PageRunJobSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Page
-        fields = ('url', 'name')
+        fields = ('url', 'name', 'page_order')
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):

@@ -16,3 +16,16 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
                   'created',
                   'updated',
                   'test_run')
+
+
+class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = WorkflowRun
+        read_only_fields = ("created", "updated")
+        fields = ('url',
+                  'workflow',
+                  'run',
+                  'created',
+                  'updated',
+                  'test_run')
