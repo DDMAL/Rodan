@@ -32,13 +32,17 @@ class Result(models.Model):
             os.makedirs(self.thumb_path)
 
     @property
+    def run_job_name(self):
+        return self.run_job.job_name
+
+    @property
     def page_image(self):
         """ A simple wrapper that makes the create_thumbnails task compatible with this model"""
         return self.result
 
     @property
     def filename(self):
-        if (self.result):
+        if self.result:
             return os.path.basename(self.result.path)
 
     def thumb_filename(self, size):
@@ -47,7 +51,8 @@ class Result(models.Model):
 
     @property
     def image_url(self):
-        return "/" + os.path.relpath(self.result_path, settings.PROJECT_DIR)
+        if self.result:
+            return "/" + os.path.relpath(self.result_path, settings.PROJECT_DIR)
 
     @property
     def thumb_path(self):
@@ -55,19 +60,23 @@ class Result(models.Model):
 
     @property
     def thumb_url(self):
-        return os.path.join(self.image_url, "thumbnails")
+        if self.result:
+            return os.path.join(self.image_url, "thumbnails")
 
     @property
     def small_thumb_url(self):
-        return os.path.join(self.thumb_url, self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+        if self.result:
+            return os.path.join(self.thumb_url, self.thumb_filename(size=settings.SMALL_THUMBNAIL))
 
     @property
     def medium_thumb_url(self):
-        return os.path.join(self.thumb_url, self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+        if self.result:
+            return os.path.join(self.thumb_url, self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
 
     @property
     def large_thumb_url(self):
-        return os.path.join(self.thumb_url, self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+        if self.result:
+            return os.path.join(self.thumb_url, self.thumb_filename(size=settings.LARGE_THUMBNAIL))
 
 
     # def delete(self, *args, **kwargs):
