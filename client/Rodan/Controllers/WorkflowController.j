@@ -158,6 +158,8 @@
     @outlet CPTableView             pagesTableView;
     @outlet CPTableView             resultsTableView;
             CPArrayController       runJobsArrayController;
+            CPArrayController       pagesArrayController;
+            CPArrayController       resultsArrayController;
 
 
     // a bug in cappuccino sends the delegate signal twice. Catch that and only
@@ -168,6 +170,8 @@
 - (void)emptyArrayControllers
 {
     [runJobsArrayController setContent:nil];
+    [pagesArrayController setContent:nil];
+    [resultsArrayController setContent:nil];
 }
 
 
@@ -190,22 +194,50 @@
     var run = [[[workflowStatusDelegate runsArrayController] contentArray] objectAtIndex:rowIndex];
 
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:[run pk] + @"?bypage=true"
+                    path:[run pk] + @"?by_page=true"  // return results by page, rather than by run_job
                     delegate:self
                     message:"Loading Workflow Run Results"];
 
     return YES;
 }
 
-
-
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     isFetching = NO;
-    [WLRemoteObject setDirtProof:YES];
-    var workflowRun = [[WorkflowRun alloc] initWithJson:[anAction result]];
-    [WLRemoteObject setDirtProof:NO];
+    var workflowRun = [[SimpleWorkflowRunModel alloc] initWithJson:[anAction result]];
 
+    pagesArrayController = [[CPArrayController alloc] init];
+    resultsArrayController = [[CPArrayController alloc] init];
+
+    [pagesArrayController bind:@"contentArray"
+                          toObject:workflowRun
+                          withKeyPath:@"pages"
+                          options:nil];
+
+    [pagesTableView bind:@"content"
+                    toObject:pagesArrayController
+                    withKeyPath:@"arrangedObjects"
+                    options:nil];
+
+    [pagesTableView bind:@"selectionIndexes"
+                    toObject:pagesArrayController
+                    withKeyPath:@"selectionIndexes"
+                    options:nil];
+
+    [resultsArrayController bind:@"contentArray"
+                            toObject:pagesArrayController
+                            withKeyPath:@"selection.results"
+                            options:nil];
+
+    [resultsTableView bind:@"content"
+                      toObject:resultsArrayController
+                      withKeyPath:@"arrangedObjects"
+                      options:nil];
+
+    [resultsTableView bind:@"selectionIndexes"
+                      toObject:resultsArrayController
+                      withKeyPath:@"selectionIndexes"
+                      options:nil];
 
     // [runJobsArrayController bind:@"contentArray"
     //                         toObject:workflowRun
@@ -228,10 +260,136 @@
 @end
 
 
-/* we don't need the ratatosk setup for this page representation, so we'll work with a highly simplified model */
+/* we don't need the ratatosk setup for these model representations, so we'll work with a highly simplified model */
 @implementation SimplePageModel : CPObject
 {
     CPString    pageName    @accessors;
+    CPNumber    pageOrder   @accessors;
     CPString    pk          @accessors;
+    CPArray     results     @accessors;
 }
+
+- (id)initWithJson:(JSObject)jsonObject
+{
+    var mapping = [
+        ['pk', 'url'],
+        ['pageName', 'name'],
+        ['pageOrder', 'page_order'],
+        ['results', 'results'],
+        ];
+
+    var i = 0,
+        count = mapping.length;
+
+    for (; i < count; i++)
+    {
+        var map = mapping[i],
+            resultArray = [];
+        if (map[1] == "results")
+        {
+            var j = 0,
+                resCount = jsonObject['results'].length;
+
+            for (; j < resCount; j++)
+            {
+                var res = [[SimpleResultsModel alloc] initWithJson:jsonObject['results'][j]];
+                [resultArray addObject:res];
+            }
+            [self setValue:resultArray forKey:map[0]];
+        }
+        else
+        {
+            [self setValue:jsonObject[map[1]] forKey:map[0]];
+        }
+    }
+
+    return self;
+}
+@end
+
+@implementation SimpleWorkflowRunModel : CPObject
+{
+    CPString    pk          @accessors;
+    CPString    workflow    @accessors;
+    CPNumber    run         @accessors;
+    BOOL        testRun     @accessors;
+    CPArray     pages       @accessors;
+    CPString    created     @accessors;
+    CPString    updated     @accessors;
+}
+
+- (id)initWithJson:(JSObject)jsonObject
+{
+    var mapping = [
+        ['pk', 'url'],
+        ['workflow', 'workflow'],
+        ['run', 'run'],
+        ['testRun', 'test_run'],
+        ['pages', 'pages'],
+        ['created', 'created'],
+        ['updated', 'updated']
+        ];
+
+    var i = 0,
+        count = mapping.length;
+
+    for (; i < count; i++)
+    {
+        var map = mapping[i],
+            pageArray = [];
+
+        if (map[1] === "pages")
+        {
+            var j = 0,
+                pageCount = jsonObject['pages'].length;
+
+            for (; j < pageCount; j++)
+            {
+                var page = [[SimplePageModel alloc] initWithJson:jsonObject['pages'][j]];
+                [pageArray addObject:page];
+            }
+            [self setValue:pageArray forKey:map[0]];
+        }
+        else
+        {
+            [self setValue:jsonObject[map[1]] forKey:map[0]];
+        }
+    };
+
+    return self;
+}
+@end
+
+@implementation SimpleResultsModel : CPObject
+{
+    CPString    created         @accessors;
+    CPString    mediumThumbURL  @accessors;
+    CPString    result          @accessors;
+    CPString    runJob          @accessors;
+    CPString    runJobName      @accessors;
+    CPString    pk              @accessors;
+}
+
+- (id)initWithJson:(JSObject)jsonObject
+{
+    var mapping = [
+        ['created', 'created'],
+        ['mediumThumbURL', 'medium_thumb_url'],
+        ['result', 'result'],
+        ['runJob', 'run_job'],
+        ['runJobName', 'run_job_name'],
+        ['pk', 'url']
+        ];
+
+    var i = 0,
+        count = mapping.length;
+    for (; i < count; i++)
+    {
+        var map = mapping[i];
+        [self setValue:jsonObject[map[1]] forKey:map[0]];
+    }
+
+    return self;
+}
+
 @end
