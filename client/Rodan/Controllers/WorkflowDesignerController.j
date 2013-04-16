@@ -219,7 +219,7 @@ activeWorkflow = nil;
     [WLRemoteObject setDirtProof:YES];
     [currentWorkflowArrayController removeObjects:deletedObjects];
     [WLRemoteObject setDirtProof:NO];
-    [deletedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
+    [deletedObjects makeObjectsPerformSelector:@selector(removeFromWorkflow)];
 }
 
 - (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
