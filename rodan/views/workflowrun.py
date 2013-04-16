@@ -1,4 +1,5 @@
 import urlparse
+from operator import itemgetter
 from celery import registry, chain
 from django.core.urlresolvers import resolve
 
@@ -12,7 +13,8 @@ from rodan.models.page import Page
 from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
-from rodan.serializers.workflowrun import WorkflowRunSerializer
+from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
+from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 
 
 class WorkflowRunList(generics.ListCreateAPIView):
@@ -121,3 +123,29 @@ class WorkflowRunDetail(generics.RetrieveDestroyAPIView):
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = WorkflowRunSerializer
+
+    def get(self, request, pk, *args, **kwargs):
+        by_page = self.request.QUERY_PARAMS.get('by_page', None)
+        if not by_page:
+            return self.retrieve(request, pk, *args, **kwargs)
+
+        # If we have ?by_page=true set, we should return the results
+        # by page, rather than by run_job. This makes it easier to display
+        # the results on a page-by-page basis.
+        workflow_run = WorkflowRun.objects.filter(pk=pk).select_related()
+        run_jobs = workflow_run[0].run_jobs.all()
+        pages = {}
+        for run_job in run_jobs:
+            page_data = PageRunJobSerializer(run_job.page).data
+            k = page_data['url']
+            if k not in pages:
+                page_data["results"] = []
+                pages[k] = page_data
+
+            if run_job.result.all():
+                pages[k]['results'].append(ResultRunJobSerializer(run_job.result.all()[0]).data)
+
+        workflow_run = WorkflowRunByPageSerializer(workflow_run).data[0]
+        workflow_run['pages'] = sorted(pages.values(), key=itemgetter('page_order'))
+
+        return Response(workflow_run)
