@@ -25,6 +25,10 @@ def convert_to_arg_type(atype, value):
         return complex(value)
     elif atype in ['str']:
         return str(value)
+    elif atype in ['choice']:
+        return int(value)
+    else:
+        return value
 
 
 def convert_input_type(input_type):
