@@ -8,6 +8,13 @@ from uuidfield import UUIDField
 class WorkflowJob(models.Model):
     """
         A WorkflowJob is a Job object that has been added to a workflow.
+
+        WorkflowJobs may be interactive or non-interactive. An interactive job will present
+        users with an interface for performing a unit of work; for example, cropping or rotating a page,
+        or confirming an operation before the image can proceed to the next job.
+
+        Non-interactive jobs do not require human input (e.g., converting an RGB image to greyscale) and
+        as such may be executed automatically.
     """
     WORKFLOW_JOB_TYPES = (
         (0, "Non-Interactive"),
