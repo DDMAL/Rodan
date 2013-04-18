@@ -2,12 +2,12 @@ from django.contrib.auth import authenticate, login
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.reverse import reverse
 
 
 @api_view(("GET",))
 def session_status(request, format=None):
+    """ Get session status to see if the user is logged in or they need to authenticate. """
     is_auth = request.user.is_authenticated()
     if is_auth:
         # user is already authenticated
@@ -20,7 +20,6 @@ def session_status(request, format=None):
 
 @api_view(("GET", "POST"))
 def session_auth(request, format=None):
-    response = None
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
@@ -32,8 +31,7 @@ def session_auth(request, format=None):
             return Response({"is_logged_in": True, 'user': user})
         else:
             # user exists, but is inactive
-            response = Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
     else:
         # user does not exist
-        response = Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
-    return response
+        return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
