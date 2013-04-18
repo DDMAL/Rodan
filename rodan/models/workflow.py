@@ -6,8 +6,11 @@ from uuidfield import UUIDField
 
 class Workflow(models.Model):
     """
-        This model uses quoted relationship names to avoid
-        circular imports.
+        A Workflow is a sequence of jobs, where the output of one job becomes the input
+        of the subsequent job. Each workflow also has multiple Pages assigned to it, so that
+        a workflow may apply the same sequence of jobs to all the pages.
+
+        This model uses quoted relationed model names to avoid circular imports.
     """
     @property
     def workflow_path(self):
