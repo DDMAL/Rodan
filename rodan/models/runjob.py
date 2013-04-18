@@ -3,11 +3,21 @@ import shutil
 from django.db import models
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
-# from rodan.models.job import Job
-# from rodan.models.result import Result
 
 
 class RunJob(models.Model):
+    """
+        A RunJob is a job that has been executed as part of a Workflow Run. Every Result
+        object is associated with a RunJob, since it is by the execution of this job that
+        each result is produced.
+
+        A RunJob keeps track of the settings that were used to produce the result image.
+
+        The "needs_input" parameter is key to the functioning of interactive jobs. Each celery task
+        should retrieve its associated runjob just prior to executing the job. If it sees a True value
+        for `needs_input`, it will fall out of the queue and schedule itself for retrying after a set period.
+        (By default, 3 minutes)
+    """
     @property
     def runjob_path(self):
         return os.path.join(self.workflow_run.workflow_run_path, "{0}_{1}".format(self.workflow_job.sequence, str(self.pk)))
