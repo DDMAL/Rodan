@@ -5,6 +5,18 @@ from uuidfield import UUIDField
 
 
 class WorkflowRun(models.Model):
+    """
+        A WorkflowRun model represents the running of a workflow. Since Rodan is based
+        on a RESTful design, workflows are *not* run by sending a "run workflow" command.
+        Rather, they are run by creating a new WorkflowRun resource.
+
+        WorkflowRuns can be either a test run, or a "real" run. Test runs operate on a single page,
+        while "real" runs operate on a whole collection of pages.
+
+        Each RunJob instance has a foreign key to the WorkflowRun they are associated with.
+
+        To see how WorkflowRuns are executed, see `views/workflowrun.py`.
+    """
     @property
     def workflow_run_path(self):
         return os.path.join(self.workflow.workflow_path, "runs", str(self.pk))
