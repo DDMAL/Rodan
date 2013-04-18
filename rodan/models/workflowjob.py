@@ -6,6 +6,9 @@ from uuidfield import UUIDField
 
 
 class WorkflowJob(models.Model):
+    """
+        A WorkflowJob is a Job object that has been added to a workflow.
+    """
     WORKFLOW_JOB_TYPES = (
         (0, "Non-Interactive"),
         (1, "Interactive")
