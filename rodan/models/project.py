@@ -7,6 +7,11 @@ from uuidfield import UUIDField
 
 
 class Project(models.Model):
+    """
+        A Project is mostly administrative and organizational. It's the top-level model.
+
+        Pages and Workflows both belong to a project.
+    """
     @property
     def project_path(self):
         return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
@@ -29,7 +34,6 @@ class Project(models.Model):
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.project_path):
-            print "Removing {0}".format(self.project_path)
             shutil.rmtree(self.project_path)
         super(Project, self).delete(*args, **kwargs)
 
