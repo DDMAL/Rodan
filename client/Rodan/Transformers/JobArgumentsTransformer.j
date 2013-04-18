@@ -47,13 +47,4 @@
     return @"" + JSON.stringify(reversedSettings);
 }
 
-// - (BOOL)_isEmptyObject:(id)anObject
-// {
-//     for (var i in anObject)
-//     {
-//         return false;
-//     }
-//     return true;
-// }
-
 @end
