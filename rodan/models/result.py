@@ -5,6 +5,11 @@ from uuidfield import UUIDField
 
 
 class Result(models.Model):
+    """
+        A Result object stores pointers to the output of a RunJob. A single result file is the output
+        of the job, but like Pages, a result is *always* thumbnailed for display on the interface.
+
+    """
     @property
     def result_path(self):
         return self.run_job.runjob_path
