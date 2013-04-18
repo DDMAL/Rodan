@@ -8,6 +8,23 @@ from uuidfield import UUIDField
 
 
 class Page(models.Model):
+    """
+        A Page represents a single page image from a book. When pages are uploaded they are
+        automatically sent through a series of Celery tasks (defined in the `helpers` directory)
+        that prepare them for Rodan.
+
+        These tasks include:
+        1. Make a "compat" image. Compat images are *always* lossless PNG. Image operations are never
+            performed on the original file, but on the compat image. This means that any jobs that must be run
+            should either operate on PNG images, or contain a (lossless) conversion step. Results should always
+            be stored as PNG as well.
+
+        2. Thumbnail. Each page image is thumbnailed for display in three configurable sizes (150, 400, 1000 pixels
+            in the largest dimension).
+
+        3. Once 1 & 2 are completed, step 3 simply sets the "processed" flag to True to make Rodan aware that
+            the page has gone through these steps.
+    """
     @property
     def page_path(self):
         return os.path.join(self.project.project_path, "pages", str(self.uuid))
