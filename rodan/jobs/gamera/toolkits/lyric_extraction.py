@@ -1,4 +1,4 @@
-from rodan.jobs.gamera.helpers import create_jobs_from_module
+from rodan.jobs.gamera.module_loader import create_jobs_from_module
 from gamera.toolkits.lyric_extraction.plugins import border_lyric
 from gamera.toolkits.lyric_extraction.plugins import lyricline
 
