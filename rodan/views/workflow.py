@@ -17,6 +17,15 @@ class WorkflowList(generics.ListCreateAPIView):
     serializer_class = WorkflowListSerializer
     paginate_by = None
 
+    def get_queryset(self):
+        queryset = Workflow.objects.all()
+        project = self.request.QUERY_PARAMS.get('project', None)
+
+        if project:
+            queryset = queryset.filter(project__uuid=project)
+
+        return queryset
+
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
