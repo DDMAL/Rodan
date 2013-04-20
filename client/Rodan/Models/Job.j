@@ -31,7 +31,6 @@
     return [
         ['pk', 'url'],
         ['jobName', 'job_name'],
-        // ['arguments', 'arguments', [[JobArgumentsTransformer alloc] init]],
         ['settings', 'settings'],
         ['description', 'description'],
         ['inputTypes', 'input_types'],
