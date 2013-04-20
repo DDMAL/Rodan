@@ -1,6 +1,5 @@
 import os
 import shutil
-from django.contrib.auth.models import User
 from django.db import models
 from uuidfield import UUIDField
 
@@ -24,7 +23,7 @@ class Workflow(models.Model):
     description = models.TextField(blank=True, null=True)
     has_started = models.BooleanField(default=False)
     runs = models.IntegerField(default=1)
-    creator = models.ForeignKey(User, related_name="workflows")
+    creator = models.ForeignKey("auth.User", related_name="workflows")
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
