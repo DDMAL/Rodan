@@ -98,7 +98,7 @@ class Migration(SchemaMigration):
         db.create_table(u'rodan_workflowrun', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflow_runs', to=orm['rodan.Workflow'])),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflow_runs', to=orm['auth.User'])),
             ('run', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('test_run', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
@@ -213,7 +213,7 @@ class Migration(SchemaMigration):
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.project': {
-            'Meta': {'object_name': 'Project'},
+            'Meta': {'ordering': "('created',)", 'object_name': 'Project'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': u"orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
@@ -267,7 +267,7 @@ class Migration(SchemaMigration):
         'rodan.workflowrun': {
             'Meta': {'object_name': 'WorkflowRun'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflow_runs'", 'to': u"orm['auth.User']"}),
             'run': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'test_run': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
