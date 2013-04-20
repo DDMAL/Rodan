@@ -75,7 +75,7 @@
 
 - (void)emptyPageArrayController
 {
-    [[pageArrayController contentArray] removeAllObjects];
+    [pageArrayController setContent:nil];
 }
 
 @end
