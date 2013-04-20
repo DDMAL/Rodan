@@ -17,22 +17,20 @@ class SessionStatus(views.APIView):
     def get(self, request, *args, **kwargs):
         is_auth = request.user.is_authenticated()
         if is_auth:
-            obj = User.objects.get(pk=request.user.pk)
+            obj = User.objects.get(pk=request.user.id)
             serializer = UserSerializer(obj)
-            print serializer.data
             return Response(serializer.data)
         else:
             return Response({'detail': "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class SessionAuth(views.APIView):
-    def get(self, request, *args, **kwargs):
-        print "GET method called"
-        return Response({})
+class SessionAuth(generics.CreateAPIView):
+    # def get(self, request, *args, **kwargs):
+    #     print "GET method called"
+    #     return Response({})
 
-    def post(self, request, pk, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         print "POST method called"
-        print pk
 
         username = request.DATA.get('username', None)
         password = request.DATA.get('password', None)
