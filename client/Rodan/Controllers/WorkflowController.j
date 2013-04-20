@@ -22,7 +22,6 @@
     var addButton = [CPButtonBar plusPopupButton],
         removeButton = [CPButtonBar minusButton],
         addWorkflowTitle = @"Add Workflow...";
-        // addWorkflowGroupTitle = @"Add Workflow Group";
 
     [addButton addItemsWithTitles:[addWorkflowTitle]];
     [workflowAddRemoveBar setButtons:[addButton, removeButton]];
@@ -38,32 +37,6 @@
                   toObject:workflowArrayController
                   withKeyPath:@"selectedObjects.@count"
                   options:nil];
-}
-
-- (void)fetchWorkflows
-{
-    [WLRemoteAction schedule:WLRemoteActionGetType path:"/workflows" delegate:self message:"Loading workflows"];
-}
-
-- (@action)refreshWorkflows:(id)aSender
-{
-    [self emptyWorkflowArrayController];
-    [self fetchWorkflows];
-
-    [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidRefreshWorkflowsNotification
-                                          object:nil];
-}
-
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
-{
-    if ([anAction result])
-    {
-        var j = [Workflow objectsFromJson:[anAction result]];
-        [workflowArrayController addObjects:j];
-
-        [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowsNotification
-                                              object:[anAction result]];
-    }
 }
 
 - (void)removeWorkflow:(id)aSender
@@ -101,7 +74,7 @@
 
 - (void)emptyWorkflowArrayController
 {
-    [[workflowArrayController contentArray] removeAllObjects];
+    [workflowArrayController setContent:nil];
 }
 
 @end
