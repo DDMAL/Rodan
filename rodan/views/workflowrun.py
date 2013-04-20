@@ -19,8 +19,9 @@ from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerialize
 
 class WorkflowRunList(generics.ListCreateAPIView):
     model = WorkflowRun
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
+    paginate_by = None
 
     def get_queryset(self):
         workflow = self.request.QUERY_PARAMS.get('workflow', None)
@@ -121,7 +122,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
 class WorkflowRunDetail(generics.RetrieveDestroyAPIView):
     model = WorkflowRun
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
 
     def get(self, request, pk, *args, **kwargs):
