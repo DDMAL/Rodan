@@ -19,10 +19,14 @@
 {
     [logInWindow setDefaultButton:submitButton];
 
-    [CPApp beginSheet:logInWindow modalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+    [CPApp beginSheet:logInWindow
+           modalForWindow:[CPApp mainWindow]
+           modalDelegate:self
+           didEndSelector:@selector(didEndSheet:returnCode:contextInfo:)
+           contextInfo:nil];
 }
 
-- (IBAction)closeSheet:(id)aSender
+- (@action)closeSheet:(id)aSender
 {
     [CPApp endSheet:logInWindow returnCode:[aSender tag]];
 }
@@ -35,6 +39,8 @@
 
 - (void)logIn
 {
+    console.log("Log in called");
+
     var username = [usernameField objectValue],
         password = [passwordField objectValue];
     CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
