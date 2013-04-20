@@ -1,6 +1,4 @@
 from rest_framework import generics
-from rest_framework import permissions
-
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
 
@@ -22,7 +20,6 @@ class JobList(generics.ListAPIView):
         return queryset
 
 
-class JobDetail(generics.RetrieveUpdateDestroyAPIView):
+class JobDetail(generics.RetrieveAPIView):
     model = Job
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = JobSerializer
