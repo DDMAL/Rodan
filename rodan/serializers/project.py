@@ -20,8 +20,16 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
     page_count = serializers.Field(source="page_count")
     workflow_count = serializers.Field(source="workflow_count")
+    creator = UserListSerializer()
 
     class Meta:
         model = Project
         read_only_fields = ('created', 'updated')
-        fields = ('url', 'name', "page_count", "workflow_count", 'description', 'creator', 'created', 'updated')
+        fields = ('url', 
+                  'name',
+                  "page_count",
+                  "workflow_count",
+                  'description',
+                  'creator',
+                  'created',
+                  'updated')

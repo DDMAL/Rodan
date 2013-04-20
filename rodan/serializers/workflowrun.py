@@ -15,7 +15,8 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
                   'run',
                   'created',
                   'updated',
-                  'test_run')
+                  'test_run',
+                  'creator')
 
 
 class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
