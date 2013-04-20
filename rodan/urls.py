@@ -6,8 +6,8 @@ admin.autodiscover()
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.authtoken.views import obtain_auth_token
 
-from rodan.views.auth import session_auth
-from rodan.views.auth import session_status
+from rodan.views.auth import SessionAuth
+from rodan.views.auth import SessionStatus
 
 # from rodan.views.upload import page_upload
 
@@ -36,8 +36,8 @@ urlpatterns += format_suffix_patterns(
     patterns('rodan.views.main',
         url(r'^browse/$', 'api_root'),
         url(r'^auth/token/$', obtain_auth_token),
-        url(r'^auth/session/$', session_auth),
-        url(r'^auth/status/$', session_status),
+        url(r'^auth/session/$', SessionAuth.as_view()),
+        url(r'^auth/status/$', SessionStatus.as_view()),
         url(r'^$', 'home'),
         url(r'^projects/$', ProjectList.as_view(), name="project-list"),
         url(r'^project/(?P<pk>[0-9a-z\-]+)/$', ProjectDetail.as_view(), name="project-detail"),
@@ -59,11 +59,6 @@ urlpatterns += format_suffix_patterns(
         url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
     )
 )
-
-urlpatterns += patterns('',
-    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework'))
-)
-
 
 # Only add admin if it's enabled
 if 'django.contrib.admin' in settings.INSTALLED_APPS:
