@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
+from guardian.shortcuts import get_objects_for_user
 
 from rodan.helpers.check_uuid import check_uuid
 from rodan.models.project import Project
@@ -14,7 +15,8 @@ class ProjectList(generics.ListCreateAPIView):
     serializer_class = ProjectListSerializer
 
     def get_queryset(self):
-        queryset = Project.objects.all()
+        # queryset = Project.objects.all()
+        queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')
         return queryset
 
 
