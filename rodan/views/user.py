@@ -9,6 +9,9 @@ class UserList(generics.ListCreateAPIView):
     model = User
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = UserListSerializer
+    def get_queryset(self):
+        queryset = User.objects.exclude(pk=-1)
+        return queryset
 
 
 class UserDetail(generics.RetrieveAPIView):
