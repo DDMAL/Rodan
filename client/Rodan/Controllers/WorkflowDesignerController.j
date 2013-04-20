@@ -255,6 +255,12 @@ activeWorkflow = nil;
 {
 }
 
+/*
+    Validates the drag-and-drop of Jobs into the Workflow. When a Job is dragged into the workflow,
+    this method will check if the input and output types of the jobs match with the surrounding jobs.
+    If everything checks out it will create a new WorkflowJob resource from the Job object, and allow
+    the drop; otherwise it will not.
+*/
 - (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)anIndex dropOperation:(CPTableViewDropOperation)aDropOperation
 {
     var content = [jobArrayController contentArray],
@@ -283,27 +289,20 @@ activeWorkflow = nil;
             prevObject,
             nextObject;
 
-        // console.log("An Index: " + anIndex);
-        // console.log("last index: " + lastIndex);
         if (anIndex === 0)
         {
-            // console.log("inserting at beginning");
             nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
-
             inputTypePasses = YES;
             outputTypePasses = [self _checkOutputTypeMatches:nextObject withPixelTypes:outputPixelTypes];
         }
         else if (anIndex === contentArrayCount)
         {
-            // console.log("Inserting at end");
             prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
-
             inputTypePasses = [self _checkInputTypeMatches:prevObject withPixelTypes:inputPixelTypes];
             outputTypePasses = YES;
         }
         else
         {
-            // console.log("Inserting somewhere in the middle");
             // if we're inserting in the middle, the next object is the one we're looking for.
             prevObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex - 1];
             nextObject = [[currentWorkflowArrayController contentArray] objectAtIndex:anIndex];
@@ -380,9 +379,6 @@ activeWorkflow = nil;
 ***/
 - (BOOL)_checkOutputTypeMatches:(id)anObject withPixelTypes:(CPSet)pixelTypes
 {
-    console.log("An object: ");
-    console.log(anObject);
-
     var nextObjJobId = [anObject job],
         nextJobIdx = [[jobArrayController contentArray] indexOfObjectPassingTest:function(obj, idx)
         {
