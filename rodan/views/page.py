@@ -17,8 +17,10 @@ from rodan.helpers.pagedone import pagedone
 
 class PageList(generics.ListCreateAPIView):
     model = Page
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = PageSerializer
+    paginate_by = None
+
     def get_queryset(self):
         queryset = Page.objects.all()
         project = self.request.QUERY_PARAMS.get('project', None)
@@ -84,5 +86,5 @@ class PageList(generics.ListCreateAPIView):
 
 class PageDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Page
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = PageSerializer
