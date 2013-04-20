@@ -11,8 +11,9 @@ from rodan.serializers.project import ProjectSerializer, ProjectListSerializer
 
 class ProjectList(generics.ListCreateAPIView):
     model = Project
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProjectListSerializer
+    paginate_by = None
 
     def get_queryset(self):
         # queryset = Project.objects.all()
@@ -22,13 +23,10 @@ class ProjectList(generics.ListCreateAPIView):
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Project
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProjectSerializer
 
     def get(self, request, pk, *args, **kwargs):
         if not check_uuid(pk):
             return Response({'message': "You must supply a valid UUID identifier"}, status=status.HTTP_400_BAD_REQUEST)
         return self.retrieve(request, *args, **kwargs)
-
-    def pre_save(self, obj):
-        obj.creator = self.request.user
