@@ -1,11 +1,14 @@
 @import <Ratatosk/WLRemoteTransformers.j>
+@import "User.j"
+@import "Page.j"
+@import "Workflow.j"
 
 /* a full representation of a project, including arrays for the pages and workflows */
 @implementation Project : WLRemoteObject
 {
     CPString    pk                  @accessors;
     CPString    projectName         @accessors;
-    CPString    projectCreator      @accessors;
+    User        projectCreator      @accessors;
     CPString    projectDescription  @accessors;
     CPObject    projectOwner        @accessors;
     CPString    resourceURI         @accessors;
@@ -25,7 +28,7 @@
     return self;
 }
 
-- (id)initWithCreator:(CPString)aCreator
+- (id)initWithCreator:(User)aCreator
 {
     var self = [self init];
     [self setProjectCreator:aCreator];
@@ -38,7 +41,7 @@
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
-        ['projectCreator', 'creator'],
+        ['projectCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['workflows', 'workflows', [WLForeignObjectsTransformer forObjectClass:Workflow]],
         ['created', 'created', [WLDateTransformer alloc], true],
@@ -90,7 +93,7 @@
     CPString projectDescription @accessors;
     CPNumber pageCount          @accessors;
     CPNumber workflowCount      @accessors;
-    CPString projectCreator     @accessors;
+    User     projectCreator     @accessors;
     CPDate   created            @accessors;
     CPDate   updated            @accessors;
 }
@@ -117,7 +120,7 @@
     }
 }
 
-- (id)initWithCreator:(CPString)aCreator
+- (id)initWithCreator:(User)aCreator
 {
     var self = [self init];
     [self setProjectCreator:aCreator];
@@ -131,7 +134,7 @@
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
-        ['projectCreator', 'creator'],
+        ['projectCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
         ['pageCount', 'page_count'],
         ['workflowCount', 'workflow_count'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],

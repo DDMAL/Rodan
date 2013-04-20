@@ -3,6 +3,7 @@
 @import "../Models/Page.j"
 @import "../Models/WorkflowJobSetting.j"
 
+@global activeUser
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanDidLoadWorkflowNotification
 @global RodanRemoveJobFromWorkflowNotification
@@ -178,7 +179,8 @@ activeWorkflow = nil;
     var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
         workflowRun = {
         "workflow": [activeWorkflow pk],
-        "test_run": true
+        "test_run": true,
+        "creator": [activeUser pk]
         },
         testWorkflowRun = [[WorkflowRun alloc] initWithJson:workflowRun];
     [testWorkflowRun setTestPageID:[selectedPage pk]];
@@ -192,7 +194,8 @@ activeWorkflow = nil;
     [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
 
     var workflowRunObj = {
-        "workflow": [activeWorkflow pk]
+        "workflow": [activeWorkflow pk],
+        "creator": [activeUser pk]
         },
         workflow = [[WorkflowRun alloc] initWithJson:workflowRunObj];
     [workflow ensureCreated];

@@ -15,7 +15,7 @@
     CPArray     pages           @accessors;
     CPString    description     @accessors;
     BOOL        hasStarted      @accessors;
-
+    CPString    workflowCreator @accessors;
     CPImage     sourceListIcon  @accessors;
 }
 
@@ -47,6 +47,7 @@
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['description', 'description'],
         ['hasStarted', 'has_started'],
+        ['workflowCreator', 'creator']
     ];
 }
 

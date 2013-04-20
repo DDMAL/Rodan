@@ -32,8 +32,6 @@
 @import "Transformers/ArrayCountTransformer.j"
 @import "Transformers/GameraClassNameTransformer.j"
 @import "Transformers/CheckBoxTransformer.j"
-@import "Transformers/UsernameTransformer.j"
-@import "Transformers/ImageSizeTransformer.j"
 @import "Transformers/DateFormatTransformer.j"
 @import "Transformers/ResultsDisplayTransformer.j"
 
@@ -46,6 +44,7 @@
 @import "Controllers/PageController.j"
 @import "Controllers/JobController.j"
 @import "Models/Project.j"
+@import "Models/User.j"
 
 RodanDidLoadProjectNotification = @"RodanDidLoadProjectNotification";
 RodanDidCloseProjectNotification = @"RodanDidCloseProjectNotification";
@@ -141,14 +140,6 @@ activeProject = nil;  // URI to the currently open project
     gameraClassNameTransformer = [[GameraClassNameTransformer alloc] init];
     [GameraClassNameTransformer setValueTransformer:gameraClassNameTransformer
                                 forName:@"GameraClassNameTransformer"];
-
-    usernameTransformer = [[UsernameTransformer alloc] init];
-    [UsernameTransformer setValueTransformer:usernameTransformer
-                                forName:@"UsernameTransformer"];
-
-    imageSizeTransformer = [[ImageSizeTransformer alloc] init];
-    [ImageSizeTransformer setValueTransformer:imageSizeTransformer
-                                forName:@"ImageSizeTransformer"];
 
     dateFormatTransformer = [[DateFormatTransformer alloc] init];
     [DateFormatTransformer setValueTransformer:dateFormatTransformer
@@ -269,10 +260,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (void)didLogIn:(id)aNotification
 {
-    var authResponse = [aNotification object];
-
     isLoggedIn = YES;
-    activeUser = [authResponse valueForKey:@"user"];
+    activeUser = [aNotification object];
 
     [projectController fetchProjects];
     [jobController fetchJobs];

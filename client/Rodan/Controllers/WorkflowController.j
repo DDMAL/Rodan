@@ -3,6 +3,7 @@
 @import "../Models/Result.j"
 
 @global activeProject
+@global activeUser
 @global RodanDidRefreshWorkflowsNotification
 @global RodanDidLoadWorkflowsNotification
 @global RodanWorkflowTreeNeedsRefresh
@@ -78,6 +79,7 @@
 {
     var wflow = [[Workflow alloc] init];
     [wflow setProjectURL:[activeProject pk]];
+    [wflow setWorkflowCreator:[activeUser pk]];
     [workflowArrayController addObject:wflow];
     [wflow ensureCreated];
 }

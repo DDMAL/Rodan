@@ -1,5 +1,6 @@
 @import <Ratatosk/WLRemoteObject.j>
 @import "RunJob.j"
+@import "User.j"
 
 @implementation WorkflowRun : WLRemoteObject
 {
@@ -8,6 +9,7 @@
     CPArray     runJobs     @accessors;
     CPString    workflowURL @accessors;
     CPDate      created     @accessors;
+    CPString    runCreator  @accessors;
     CPDate      updated     @accessors;
     BOOL        testRun     @accessors;
 
@@ -20,6 +22,7 @@
         ['pk', 'url'],
         ['runJobs', 'run_jobs', [WLForeignObjectsTransformer forObjectClass:RunJob]],
         ['workflowURL', 'workflow'],
+        ['runCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
         ['run', 'run'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],
