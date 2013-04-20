@@ -7,7 +7,10 @@ from rodan.serializers.workflowjob import WorkflowJobSerializer
 
 class WorkflowJobList(generics.ListCreateAPIView):
     model = WorkflowJob
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
+    paginate_by = None
+
     def get_queryset(self):
         queryset = WorkflowJob.objects.all()
         workflow = self.request.QUERY_PARAMS.get('workflow', None)
@@ -20,5 +23,5 @@ class WorkflowJobList(generics.ListCreateAPIView):
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = WorkflowJob
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
