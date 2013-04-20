@@ -39,8 +39,6 @@
 
 - (void)logIn
 {
-    console.log("Log in called");
-
     var username = [usernameField objectValue],
         password = [passwordField objectValue];
     CSRFToken = [[CPCookie alloc] initWithName:@"csrftoken"];
