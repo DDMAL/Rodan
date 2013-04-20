@@ -28,9 +28,6 @@ class PageList(generics.ListCreateAPIView):
         current_user = User.objects.get(pk=request.user.id)
 
         start_seq = request.DATA.get('page_order', None)
-        print "Start sequence"
-        print start_seq
-
         if not start_seq:
             return Response({'message': "The start sequence for the page ordering may not be empty."}, status=status.HTTP_400_BAD_REQUEST)
 

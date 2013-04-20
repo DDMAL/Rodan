@@ -17,10 +17,6 @@ class ProjectList(generics.ListCreateAPIView):
         queryset = Project.objects.all()
         return queryset
 
-    def post(self, request, *args, **kwargs):
-        print request.DATA
-        return self.create(request, *args, **kwargs)
-
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Project
