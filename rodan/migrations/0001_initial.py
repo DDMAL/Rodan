@@ -42,6 +42,7 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('has_started', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('runs', self.gf('django.db.models.fields.IntegerField')(default=1)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflows', to=orm['auth.User'])),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -97,6 +98,7 @@ class Migration(SchemaMigration):
         db.create_table(u'rodan_workflowrun', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflow_runs', to=orm['rodan.Workflow'])),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('run', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('test_run', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
@@ -241,6 +243,7 @@ class Migration(SchemaMigration):
         'rodan.workflow': {
             'Meta': {'ordering': "('created',)", 'object_name': 'Workflow'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': u"orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'has_started': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
@@ -264,6 +267,7 @@ class Migration(SchemaMigration):
         'rodan.workflowrun': {
             'Meta': {'object_name': 'WorkflowRun'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
             'run': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'test_run': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
