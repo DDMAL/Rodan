@@ -73,7 +73,7 @@
 
 - (@action)newProject:(id)aSender
 {
-    var newProject = [[MinimalProject alloc] initWithCreator:activeUser];
+    var newProject = [[MinimalProject alloc] initWithCreator:[activeUser pk]];
     [projectArrayController addObject:newProject];
     [newProject ensureCreated];
 }
