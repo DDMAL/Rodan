@@ -6,6 +6,21 @@
 @global RodanDidLogInNotification
 @global RodanDidLogOutNotification
 
+/*
+    The Rodan client login process looks like this: The client sends a request to the
+    server to see if the user is authorized to proceed (see the auth.SessionStatus view). If they are
+    already authenticated, they can continue as normal. This is handled by sending a RodanDidLogInNotification.
+
+    If, however, they are not authenticated the server will return a 401 UNAUTHORIZED status code. The
+    login handler will catch this (see the connection:didReceiveResponse method below). It will then send
+    a notification that the client should ask the user to log in (sending RodanMustLogInNotification). This
+    will trigger the client to display the login sheet.
+
+    If the user is not allowed to authenticate, the handlers here will also catch this with a 403 FORBIDDEN message.
+
+
+
+*/
 @implementation LogInController : CPObject
 {
     @outlet     CPTextField       usernameField;
@@ -89,7 +104,8 @@
             // NOT FOUND
             break;
         default:
-            console.log("I received a status code of " + [response statusCode]);
+            // console.log("I received a status code of " + [response statusCode]);
+            break;
     }
 }
 
@@ -162,6 +178,10 @@
 {
     if (data)
     {
+        /*
+            If successful, an authorization attempt will return the serialized user object.
+            This can be instantiated and, in the AppController, will be set as the currently active user.
+        */
         var data = JSON.parse(data),
             user = [[User alloc] initWithJson:data];
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLogInNotification
