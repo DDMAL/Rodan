@@ -19,6 +19,14 @@ class PageList(generics.ListCreateAPIView):
     model = Page
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = PageSerializer
+    def get_queryset(self):
+        queryset = Page.objects.all()
+        project = self.request.QUERY_PARAMS.get('project', None)
+
+        if project:
+            queryset = queryset.filter(project__uuid=project)
+
+        return queryset
 
     # override the POST method to deal with multiple files in a single request
     def post(self, request, *args, **kwargs):
