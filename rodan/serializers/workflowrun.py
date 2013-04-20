@@ -5,6 +5,7 @@ from rodan.serializers.runjob import RunJobSerializer
 
 class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
     run_jobs = RunJobSerializer()
+    creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
 
     class Meta:
         model = WorkflowRun
@@ -20,6 +21,7 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
+    creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
 
     class Meta:
         model = WorkflowRun
@@ -29,4 +31,5 @@ class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
                   'run',
                   'created',
                   'updated',
-                  'test_run')
+                  'test_run',
+                  'creator')
