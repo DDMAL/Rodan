@@ -9,10 +9,12 @@ from rest_framework.authtoken.models import Token
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
 
-class UserList(generics.ListCreateAPIView):
+class UserList(generics.ListAPIView):
     model = User
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserListSerializer
+    paginate_by = None
+
     def get_queryset(self):
         queryset = User.objects.exclude(pk=-1)
         return queryset
@@ -20,8 +22,10 @@ class UserList(generics.ListCreateAPIView):
 
 class UserDetail(generics.RetrieveAPIView):
     model = User
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserSerializer
+
+
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
