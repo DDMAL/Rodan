@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserListSerializer
@@ -20,7 +20,7 @@ class UserList(generics.ListAPIView):
         return queryset
 
 
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserSerializer
