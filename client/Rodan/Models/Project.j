@@ -8,7 +8,7 @@
 {
     CPString    pk                  @accessors;
     CPString    projectName         @accessors;
-    User        projectCreator      @accessors;
+    CPString    projectCreator      @accessors;
     CPString    projectDescription  @accessors;
     CPObject    projectOwner        @accessors;
     CPString    resourceURI         @accessors;
@@ -41,7 +41,7 @@
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
-        ['projectCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
+        ['projectCreator', 'creator'],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['workflows', 'workflows', [WLForeignObjectsTransformer forObjectClass:Workflow]],
         ['created', 'created', [WLDateTransformer alloc], true],
@@ -93,7 +93,7 @@
     CPString projectDescription @accessors;
     CPNumber pageCount          @accessors;
     CPNumber workflowCount      @accessors;
-    User     projectCreator     @accessors;
+    CPString projectCreator     @accessors;
     CPDate   created            @accessors;
     CPDate   updated            @accessors;
 }
@@ -134,7 +134,7 @@
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],
-        ['projectCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
+        ['projectCreator', 'creator'],
         ['pageCount', 'page_count'],
         ['workflowCount', 'workflow_count'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
