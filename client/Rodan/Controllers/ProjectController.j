@@ -69,7 +69,7 @@
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    var p = [MinimalProject objectsFromJson:[anAction result].results];
+    var p = [MinimalProject objectsFromJson:[anAction result]];
     [projectArrayController addObjects:p];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectsNotification
