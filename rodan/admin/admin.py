@@ -1,4 +1,5 @@
 from django.contrib import admin
+from guardian.admin import GuardedModelAdmin
 
 from rodan.models.project import Project
 from rodan.models.page import Page
@@ -24,7 +25,7 @@ class JobAdmin(admin.ModelAdmin):
     list_display = ('job_name', 'enabled', 'category')
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(GuardedModelAdmin):
     readonly_fields = ('uuid',)
 
 

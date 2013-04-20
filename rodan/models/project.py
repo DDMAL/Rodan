@@ -39,6 +39,10 @@ class Project(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        ordering = ("created",)
+        permissions = (
+            ('view_projects', 'Can view projects'),
+        )
 
     @property
     def page_count(self):
