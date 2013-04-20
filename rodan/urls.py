@@ -8,8 +8,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 from rodan.views.auth import SessionAuth
 from rodan.views.auth import SessionStatus
-
-# from rodan.views.upload import page_upload
+from rodan.views.auth import SessionClose
 
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail
@@ -38,6 +37,7 @@ urlpatterns += format_suffix_patterns(
         url(r'^auth/token/$', obtain_auth_token),
         url(r'^auth/session/$', SessionAuth.as_view()),
         url(r'^auth/status/$', SessionStatus.as_view()),
+        url(r'^auth/logout/$', SessionClose.as_view()),
         url(r'^$', 'home'),
         url(r'^projects/$', ProjectList.as_view(), name="project-list"),
         url(r'^project/(?P<pk>[0-9a-z\-]+)/$', ProjectDetail.as_view(), name="project-detail"),
