@@ -46,6 +46,11 @@
                                           name:RodanDidLoadProjectsNotification
                                           object:nil];
 
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(didCloseProject:)
+                                          name:RodanDidCloseProjectNotification
+                                          object:nil];
+
     var backgroundTexture = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"workflow-backgroundTexture.png"]
                                              size:CGSizeMake(200.0, 200.0)];
 
@@ -136,7 +141,7 @@
 
 - (void)emptyProjectArrayController
 {
-    [[projectArrayController contentArray] removeAllObjects];
+    [projectArrayController setContent:nil];
 }
 
 #pragma mark -
