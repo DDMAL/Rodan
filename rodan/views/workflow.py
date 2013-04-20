@@ -13,7 +13,8 @@ from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerialize
 
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    # permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
     paginate_by = None
 
@@ -30,12 +31,11 @@ class WorkflowList(generics.ListCreateAPIView):
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
 
     def patch(self, request, pk, *args, **kwargs):
         kwargs['partial'] = True
-        print request.DATA
         workflow = Workflow.objects.get(pk=pk)
         if not workflow:
             return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
