@@ -26,6 +26,7 @@
 @import <FileUpload/FileUpload.j>
 @import <Ratatosk/Ratatosk.j>
 @import <TNKit/TNKit.j>
+@import <RodanKit/RodanKit.j>
 
 @import "Categories/CPButtonBar+PopupButtons.j"
 
@@ -44,6 +45,7 @@
 @import "Controllers/PageController.j"
 @import "Controllers/JobController.j"
 @import "Controllers/MenuItemsController.j"
+@import "Controllers/InteractiveJobsController.j"
 @import "Models/Project.j"
 @import "Models/User.j"
 
