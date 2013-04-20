@@ -33,6 +33,11 @@
     [addWorkflowItem setTarget:self];
     [removeButton setAction:@selector(removeWorkflow:)];
     [removeButton setTarget:self];
+
+    [removeButton bind:@"enabled"
+                  toObject:workflowArrayController
+                  withKeyPath:@"selectedObjects.@count"
+                  options:nil];
 }
 
 - (void)fetchWorkflows
