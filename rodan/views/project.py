@@ -17,10 +17,14 @@ class ProjectList(generics.ListCreateAPIView):
         queryset = Project.objects.all()
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        print request.DATA
+        return self.create(request, *args, **kwargs)
+
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Project
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (permissions.AllowAny, )
     serializer_class = ProjectSerializer
 
     def get(self, request, pk, *args, **kwargs):

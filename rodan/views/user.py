@@ -11,7 +11,7 @@ class UserList(generics.ListCreateAPIView):
     serializer_class = UserListSerializer
 
 
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+class UserDetail(generics.RetrieveAPIView):
     model = User
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     serializer_class = UserSerializer

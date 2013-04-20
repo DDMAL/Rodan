@@ -1,37 +1,79 @@
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.reverse import reverse
+from rest_framework import views
+from rest_framework import generics
+
+from rodan.serializers.user import UserSerializer
 
 
-@api_view(("GET",))
-def session_status(request, format=None):
+class SessionStatus(views.APIView):
     """ Get session status to see if the user is logged in or they need to authenticate. """
-    is_auth = request.user.is_authenticated()
-    if is_auth:
-        # user is already authenticated
-        user = reverse('user-detail', request=request, format=format, args=(request.user.pk,))
-        return Response({"is_logged_in": True, 'user': user})
-    else:
-        # user is not authenticated, but can try again
-        return Response({"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED)
+    model = User
+    serializer_class = UserSerializer
 
-
-@api_view(("GET", "POST"))
-def session_auth(request, format=None):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            # log in successfully
-            login(request, user)
-            user = reverse('user-detail', request=request, format=format, args=(request.user.pk,))
-            return Response({"is_logged_in": True, 'user': user})
+    def get(self, request, *args, **kwargs):
+        is_auth = request.user.is_authenticated()
+        if is_auth:
+            obj = User.objects.get(pk=request.user.pk)
+            serializer = UserSerializer(obj)
+            print serializer.data
+            return Response(serializer.data)
         else:
-            # user exists, but is inactive
+            return Response({'detail': "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class SessionAuth(views.APIView):
+    def get(self, request, *args, **kwargs):
+        print "GET method called"
+        return Response({})
+
+    def post(self, request, pk, *args, **kwargs):
+        print "POST method called"
+        print pk
+
+        username = request.DATA.get('username', None)
+        password = request.DATA.get('password', None)
+
+        if not username:
+            return Response({'detail': "You must supply a username"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not password:
+            return Response({'detail': "You must supply a password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                # log in successfully
+                login(request, user)
+                return Response(UserSerializer(user).data)
+            else:
+                # user exists, but is inactive
+                return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            # user does not exist
             return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
-    else:
-        # user does not exist
-        return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+
+# @api_view(("GET", "POST"))
+# def session_auth(request, format=None):
+#     username = request.POST.get('username', None)
+#     password = request.POST.get('password', None)
+
+#     if not username:
+#         return Response({'detail': "You must supply a username"}, status=status.HTTP_401_UNAUTHORIZED)
+#     if not password:
+#         return Response({'detail': "You must supply a password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     user = authenticate(username=username, password=password)
+#     if user is not None:
+#         if user.is_active:
+#             # log in successfully
+#             login(request, user)
+#             return Response(UserSerializer(user).data)
+#         else:
+#             # user exists, but is inactive
+#             return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+#     else:
+#         # user does not exist
+#         return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
