@@ -13,6 +13,7 @@ activeWorkflow = nil;
 
 @implementation WorkflowDesignerController : CPObject
 {
+    @outlet     CPObject                menuItemsController;
     @outlet     CPArrayController       workflowArrayController;
 
     @outlet     CPTableView             currentWorkflow;
@@ -58,6 +59,12 @@ activeWorkflow = nil;
                                           selector:@selector(removeJobFromWorkflow:)
                                           name:RodanRemoveJobFromWorkflowNotification
                                           object:nil];
+
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(setWorkflowMenu:)
+                                          name:RodanDidLoadWorkflowNotification
+                                          object:nil];
+
 
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
@@ -114,6 +121,11 @@ activeWorkflow = nil;
                                     toObject:currentWorkflowArrayController
                                     withKeyPath:@"selection.jobDescription"
                                     options:nil];
+}
+
+- (void)setWorkflowMenu:(CPNotification)aNotification
+{
+    [menuItemsController setDesignerIsActive:YES];
 }
 
 - (void)shouldLoadWorkflow:(CPNotification)aNotification

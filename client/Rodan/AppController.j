@@ -43,6 +43,7 @@
 @import "Controllers/ProjectController.j"
 @import "Controllers/PageController.j"
 @import "Controllers/JobController.j"
+@import "Controllers/MenuItemsController.j"
 @import "Models/Project.j"
 @import "Models/User.j"
 
@@ -80,13 +81,14 @@ activeProject = nil;  // URI to the currently open project
 
     @outlet     CPView      projectStatusView;
     @outlet     CPView      loginWaitScreenView;
-    @outlet     CPView      manageWorkflowsView;
+    @outlet     CPView      workflowResultsView;
     @outlet     CPView      interactiveJobsView;
     @outlet     CPView      managePagesView;
     @outlet     CPView      usersGroupsView;
     @outlet     CPView      chooseWorkflowView;
     @outlet     CPView      workflowDesignerView;
                 CPView      contentView;
+    @outlet     CPObject    menuItemsController;
 
     // @outlet     CPScrollView    contentScrollView;
                 CPScrollView        contentScrollView       @accessors(readonly);
@@ -100,7 +102,7 @@ activeProject = nil;  // URI to the currently open project
 
     @outlet     CPToolbarItem   statusToolbarItem;
     @outlet     CPToolbarItem   pagesToolbarItem;
-    @outlet     CPToolbarItem   workflowsToolbarItem;
+    @outlet     CPToolbarItem   workflowResultsToolbarItem;
     @outlet     CPToolbarItem   jobsToolbarItem;
     @outlet     CPToolbarItem   usersToolbarItem;
     @outlet     CPToolbarItem   workflowDesignerToolbarItem;
@@ -180,7 +182,7 @@ activeProject = nil;  // URI to the currently open project
     // [center addObserver:self selector:@selector(didOpenProject:) name:RodanDidLoadProjectNotification object:nil];
     [center addObserver:self selector:@selector(didLoadProject:) name:RodanDidLoadProjectNotification object:nil];
     // [center addObserver:self selector:@selector(showProjectsChooser:) name:RodanDidLoadProjectsNotification object:nil];
-    [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
+    // [center addObserver:self selector:@selector(didCloseProject:) name:RodanDidCloseProjectNotification object:nil];
     [center addObserver:self selector:@selector(showWorkflowDesigner:) name:RodanDidLoadWorkflowNotification object:nil];
 
     [center addObserver:self selector:@selector(didLogIn:) name:RodanDidLogInNotification object:nil];
@@ -193,7 +195,7 @@ activeProject = nil;  // URI to the currently open project
 
     var statusToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-status.png"] size:CGSizeMake(32.0, 32.0)],
         pagesToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-images.png"] size:CGSizeMake(40.0, 32.0)],
-        workflowsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
+        workflowResultsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
         jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
         usersToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users.png"] size:CGSizeMake(46.0, 32.0)],
         workflowDesignerToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflow-designer.png"] size:CGSizeMake(32.0, 32.0)],
@@ -201,7 +203,7 @@ activeProject = nil;  // URI to the currently open project
 
     [statusToolbarItem setImage:statusToolbarIcon];
     [pagesToolbarItem setImage:pagesToolbarIcon];
-    [workflowsToolbarItem setImage:workflowsToolbarIcon];
+    [workflowResultsToolbarItem setImage:workflowResultsToolbarIcon];
     [jobsToolbarItem setImage:jobsToolbarIcon];
     [usersToolbarItem setImage:usersToolbarIcon];
     [workflowDesignerToolbarItem setImage:workflowDesignerToolbarIcon];
@@ -222,7 +224,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
-
+    // This will catch a user and display a dialog if they try to leave the page. This
+    // is to avoid any inadvertent forward/back behaviour if, e.g., they're scrolling in a table.
     window.onbeforeunload = function()
     {
         return "This will terminate the Application. Are you sure you want to leave?";
@@ -247,15 +250,27 @@ activeProject = nil;  // URI to the currently open project
 - (void)cannotLogIn:(id)aNotification
 {
     isLoggedIn = NO;
+
     // display an alert that they cannot log in
     var alert = [[CPAlert alloc] init];
     [alert setTitle:@"Cannot Log In"];
+    [alert setDelegate:self];
     [alert setMessageText:@"You cannot log in"];
     [alert setInformativeText:@"Please check your username and password. If you are still having difficulties, please contact an administrator."];
     [alert setShowsHelp:YES];
-    [alert setAlertStyle:CPInformationalAlertStyle];
+    [alert setAlertStyle:CPCriticalAlertStyle];
     [alert addButtonWithTitle:"Ok"];
     [alert runModal];
+}
+
+- (void)alertDidEnd:(CPAlert)alert returnCode:(int)returnCode
+{
+    /*
+        The cannotLogIn alert has ended, informing the user they should try again. This will
+        redirect them back to the login sheet.
+    */
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
+                                          object:nil];
 }
 
 - (void)didLogIn:(id)aNotification
@@ -270,12 +285,17 @@ activeProject = nil;  // URI to the currently open project
 - (void)didLogOut:(id)aNotification
 {
     [projectController emptyProjectArrayController];
+    [CPMenu setMenuBarVisible:NO];
+    [theToolbar setVisible:NO];
 
+    /*
+        Once the user has logged out, redirect the screen to the login sheet.
+    */
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanMustLogInNotification
                                           object:nil];
 }
 
-- (IBAction)logOut:(id)aSender
+- (@action)logOut:(id)aSender
 {
     [LogOutController logOut];
 }
@@ -298,6 +318,9 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToProjectStatus:(id)aSender
 {
+    [menuItemsController reset];
+    [menuItemsController setStatusIsActive:YES];
+
     [projectStatusView setFrame:[contentScrollView bounds]];
     [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
@@ -305,20 +328,29 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToManagePages:(id)aSender
 {
+    [menuItemsController reset];
+    [menuItemsController setPagesIsActive:YES];
+
     [managePagesView setFrame:[contentScrollView bounds]];
     [managePagesView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:managePagesView];
 }
 
-- (IBAction)switchWorkspaceToManageWorkflows:(id)aSender
+- (IBAction)switchWorkspaceToWorkflowResults:(id)aSender
 {
-    [manageWorkflowsView setFrame:[contentScrollView bounds]];
-    [manageWorkflowsView setAutoresizingMask:CPViewWidthSizable];
-    [contentScrollView setDocumentView:manageWorkflowsView];
+    [menuItemsController reset];
+    [menuItemsController setResultsIsActive:YES];
+
+    [workflowResultsView setFrame:[contentScrollView bounds]];
+    [workflowResultsView setAutoresizingMask:CPViewWidthSizable];
+    [contentScrollView setDocumentView:workflowResultsView];
 }
 
 - (IBAction)switchWorkspaceToInteractiveJobs:(id)aSender
 {
+    [menuItemsController reset];
+    [menuItemsController setJobsIsActive:YES];
+
     [interactiveJobsView setFrame:[contentScrollView bounds]];
     [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:interactiveJobsView];
@@ -326,6 +358,9 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToUsersGroups:(id)aSender
 {
+    [menuItemsController reset];
+    [menuItemsController setUsersIsActive:YES];
+
     [usersGroupsView setFrame:[contentScrollView bounds]];
     [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:usersGroupsView];
@@ -333,6 +368,7 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
 {
+    [menuItemsController reset];
     [chooseWorkflowView setFrame:[contentScrollView bounds]];
     [chooseWorkflowView layoutIfNeeded];
     [contentScrollView setDocumentView:chooseWorkflowView];
