@@ -1,0 +1,26 @@
+{% extends "jobs/job_base.html" %}
+
+{% block resources %}
+        <script src="//cdnjs.cloudflare.com/ajax/libs/kineticjs/4.3.1/kinetic.min.js"></script>
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/crop.js"></script>
+{% endblock %}
+
+{% block body %}
+        {% csrf_token %}
+        <fieldset class="submit">
+            <input type="hidden" name="tlx" value="0" id="tlx-input" />
+            <input type="hidden" name="tly" value="0" id="tly-input" />
+            <input type="hidden" name="brx" value="0" id="brx-input" />
+            <input type="hidden" name="bry" value="0" id="bry-input" />
+            <input type="hidden" name="imw" value="1.0" id="imw-input" />
+            <input type="submit" name="submit" value="Crop" class="submit" />
+        </fieldset>
+
+        <div id="slider"></div>
+            <div class="images">
+                <div class="hidden">
+                    <img id="image-original" src="{{ image }}" />
+                </div>
+            <div id="image-preview"></div>
+        </div>
+{% endblock %}

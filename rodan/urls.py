@@ -60,6 +60,10 @@ urlpatterns += format_suffix_patterns(
     )
 )
 
+urlpatterns += patterns('rodan.views.interactive',
+        url(r'^interactive/crop/$', 'crop')
+    )
+
 # Only add admin if it's enabled
 if 'django.contrib.admin' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
