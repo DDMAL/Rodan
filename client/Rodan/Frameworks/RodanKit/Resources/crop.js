@@ -47,7 +47,7 @@
     function addAnchor(group, x, y, name) {
         var stage = group.getStage();
         var layer = group.getLayer();
-    
+
         var anchor = new Kinetic.Circle({
             x: x,
             y: y,
@@ -64,7 +64,7 @@
                 bottom: margin + imageObj.height
             }
         });
-    
+
         anchor.on("dragmove", function() {
             update(group, this);
             layer.draw();
@@ -96,7 +96,7 @@
             this.setStrokeWidth(1);
             layer.draw();
         });
-    
+
         group.add(anchor);
     }
 
@@ -107,12 +107,11 @@
             draggable: true,
             name: "box"
         });
-    
         var layer = new Kinetic.Layer();
-    
+
         layer.add(group);
         stage.add(layer);
-    
+
         var rect = new Kinetic.Rect({
             x: (imageObj.width / 20.0) + margin,
             y: (imageObj.height / 20.0) + margin,
@@ -124,11 +123,15 @@
             alpha: 0.2,
             name: "rect"
         });
-        group.setDragBounds({
-            top: margin - rect.getY(),
-            left: margin - rect.getX(),
-            right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
-            bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+        group.setDragBoundFunc(function(pos) {
+            // THIS IS BROKEN IN KINETIC > 4.0.2. Needs to be fixed.
+            // top: margin - rect.getY(),
+            // left: margin - rect.getX(),
+            // right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
+            // bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+
+            // This is just here so that it's not broken.
+            return pos;
         });
         group.add(rect);
 
@@ -136,10 +139,10 @@
         addAnchor(group, rect.getX() + rect.getWidth(), rect.getY(), "topRight");
         addAnchor(group, rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), "bottomRight");
         addAnchor(group, rect.getX(), rect.getY() + rect.getHeight(), "bottomLeft");
-    
+
         stage.draw();
     }
-    
+
     function logRect() {
         var group = stage.get(".box")[0];
         var topLeft = group.get(".topLeft")[0];
