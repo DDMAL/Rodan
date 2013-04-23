@@ -229,4 +229,10 @@ GREY16 = 2
 RGB = 3
 FLOAT = 4
 COMPLEX = 5
+
+# extra job output types
+MEI = 6
+JPEG2000 = 7
+PACKAGE = 8  # a `package` is used to produce multiple outputs from a single job.
+
 NONIMAGE = -1
