@@ -86,3 +86,11 @@ try:
     musicstaves.load_module()
 except ImportError as e:
     print "No Music Staves Toolkit Installed. Skipping."
+
+##########
+
+try:
+    from rodan.jobs.diva import to_jpeg2000
+    to_jpeg2000.load_module()
+except ImportError as e:
+    print "No Diva JPEG2000 converter Installed. Skipping. ", e
