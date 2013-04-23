@@ -90,7 +90,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
             if not pages:
                 return Response({"message": "No pages were assigned to workflow ID {0}".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
 
-        workflow_run = WorkflowRun(workflow=workflow_obj, run=run_num, test_run=test_status)
+        workflow_run = WorkflowRun(workflow=workflow_obj,
+                                   run=run_num,
+                                   test_run=test_status,
+                                   creator=request.user)
 
         workflow_run.save()
 
