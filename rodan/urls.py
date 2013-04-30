@@ -64,6 +64,10 @@ urlpatterns += patterns('rodan.views.interactive',
         url(r'^interactive/crop/$', 'crop')
     )
 
+urlpatterns += patterns('rodan.views.diva',
+        url(r'^diva/data/$', 'divaserve')
+    )
+
 # Only add admin if it's enabled
 if 'django.contrib.admin' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
