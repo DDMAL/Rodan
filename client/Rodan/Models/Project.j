@@ -44,8 +44,8 @@
         ['projectCreator', 'creator'],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['workflows', 'workflows', [WLForeignObjectsTransformer forObjectClass:Workflow]],
-        ['created', 'created', [WLDateTransformer alloc], true],
-        ['updated', 'updated', [WLDateTransformer alloc], true]
+        ['created', 'created', [[WLDateTransformer alloc] init], true],
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];
 }
 
