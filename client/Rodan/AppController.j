@@ -35,6 +35,7 @@
 @import "Transformers/CheckBoxTransformer.j"
 @import "Transformers/DateFormatTransformer.j"
 @import "Transformers/ResultsDisplayTransformer.j"
+@import "Transformers/UsernameTransformer.j"
 
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
