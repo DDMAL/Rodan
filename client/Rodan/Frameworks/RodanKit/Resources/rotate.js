@@ -1,5 +1,4 @@
-(function ($) {
-    "use strict";
+$(document).ready(function() {
     var imageObj;
     var stage;
     var defRulerWidth = 100;
@@ -7,8 +6,8 @@
     var rulerShow = true;
     var rulerHoriz = true;
     var defAngle = 0;
-    
-    function toggleRuler() {
+
+    var toggleRuler = function () {
         var ruler = stage.get(".ruler")[0];
         if (rulerShow) {
             rulerShow = false;
@@ -18,9 +17,9 @@
             ruler.show();
         }
         ruler.getLayer().draw();
-    }
-    
-    function reorientRuler() {
+    };
+
+    var reorientRuler = function () {
         var ruler = stage.get(".ruler")[0];
         if (rulerHoriz) {
             rulerHoriz = false;
@@ -37,8 +36,16 @@
         ruler.attrs.x = ruler.attrs.y;
         ruler.attrs.y = rX;
         ruler.getLayer().draw();
-    }
-    
+    };
+
+    $("#toggleRuler").click(function () {
+        toggleRuler();
+    });
+
+    $("#reorientRuler").click(function () {
+        reorientRuler();
+    });
+
     function rotate(angle) {
         defAngle = angle;
         var image = stage.get(".image")[0];
@@ -111,4 +118,4 @@
             $('#angle-input').val(outAngle);
         });
     };
-})(jQuery)
+});

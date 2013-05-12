@@ -1,0 +1,28 @@
+{% extends "jobs/job_base.html" %}
+
+{% block resources %}
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v3.10.2.min.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/barline-correction.js"></script>
+{% endblock %}
+
+{% block body %}
+<p>View the measures encoded in the resulting <a href="{{ context.mei_path }}">MEI file</a>.</p>
+{% csrf_token %}
+<fieldset class="submit">
+    <input type="submit" name="submit" value="Done" class="submit" />
+</fieldset>
+<div id="imview"></div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // derive background image name from mei
+        $('#imview').barlinecorrection({
+            meipath: "{{ context.mei_path }}",
+            bgimgpath: "{{ context.bgimgpath }}",
+            origwidth: {{ context.orig_width }},
+            origheight: {{ context.orig_height }}
+        });
+    });
+</script>
+{% endblock %}

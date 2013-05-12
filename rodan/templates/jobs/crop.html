@@ -1,8 +1,16 @@
 {% extends "jobs/job_base.html" %}
 
 {% block resources %}
-        <script src="//cdnjs.cloudflare.com/ajax/libs/kineticjs/4.3.1/kinetic.min.js"></script>
+        <!--<script src="//cdnjs.cloudflare.com/ajax/libs/kineticjs/4.3.1/kinetic.min.js"></script>-->
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v3.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/crop.js"></script>
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
+
+       <!--<script src="{{ STATIC_URL }}js/kinetic-v3.10.2.min.js"></script>
+        <script src="{{ STATIC_URL }}js/crop.js"></script>
+        <script src="{{ STATIC_URL }}js/Stats.js"></script>
+        <script src="{{ STATIC_URL }}js/show_stats.js"></script>-->
 {% endblock %}
 
 {% block body %}

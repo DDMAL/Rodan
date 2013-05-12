@@ -1,0 +1,34 @@
+{% extends "jobs/job_base.html" %}
+
+{% block resources %}
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v3.10.2.min.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/segment.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<p>Adjust the boxes around the staff lines (boxes indicate parts of the page to keep). To add an extra point to a polygon, hold down <b>Shift</b> and click.
+To remove a point from the polygon, select it and press <b>delete</b>.</p>
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="JSON" value="" id="JSON-input" />
+        <input type="submit" name="submit" value="Segment" class="submit" />
+    </fieldset>
+<div id="slider"></div>
+<div class="images">
+    <div class="hidden">
+        <p id="JSON">{{ context.json }}</p>
+        <p id="width">{{ context.width }}</p>
+        <img id="image-original" src="{{ image }}" />
+    </div>
+	<div class="seg-view">
+		<div class="fixed-bar">
+			<button type="button" id="addPoly">Add Poly</button>
+			<button type="button" id="removePoly">Remove Poly</button>
+		</div>
+    	<div id="image-preview"></div>
+	</div>
+</div>
+{% endblock %}

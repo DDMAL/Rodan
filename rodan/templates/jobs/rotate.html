@@ -1,0 +1,30 @@
+{% extends "jobs/job_base.html" %}
+
+{% block resources %}
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/jquery.knob.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v3.10.2.min.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/rotate.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<p>Adjust the page rotation until the page is square. Use the ruler to
+line up objects on the page.</p>
+    {% csrf_token %}
+    <fieldset class="submit">
+        <input type="hidden" name="angle" value="0" id="angle-input" />
+        <input type="submit" name="submit" value="Rotate" class="submit" />
+    </fieldset>
+
+<input id="toggleRuler" type="button" value="Toggle Ruler"></input>
+<input id="reorientRuler" type="button" value="Reorient Ruler"></input>
+<div class="images">
+	<div class="rotate-row">
+		<input class="knob" id="dialctrl" data-cursor=true data-thickness=".3"></input>
+		<div id="image-preview"></div>
+		<img id="image-original" src="{{ image }}" />
+	</div>
+</div>
+{% endblock %}
