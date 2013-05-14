@@ -579,7 +579,7 @@
 					<int key="NSvFlags">256</int>
 					<string key="NSFrameSize">{1024, 600}</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMinSize">{1024, 678}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
@@ -803,7 +803,7 @@
 					<string key="NSFrameSize">{743, 377}</string>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -952,7 +952,7 @@
 					<string key="NSFrameSize">{473, 306}</string>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1271,7 +1271,7 @@
 					<reference key="NSNextKeyView" ref="512674773"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1412,7 +1412,7 @@
 					<reference key="NSNextKeyView" ref="928455372"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1604,7 +1604,7 @@
 					<reference key="NSNextKeyView" ref="28123836"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1640,11 +1640,11 @@
 											<string key="NSFrameSize">{609, 17}</string>
 											<reference key="NSSuperview" ref="422209719"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="517278675"/>
+											<reference key="NSNextKeyView" ref="377563714"/>
 											<string key="NSReuseIdentifierKey">_NS:16</string>
 											<reference key="NSTableView" ref="570359875"/>
 										</object>
-										<object class="_NSCornerView" key="NSCornerView" id="517278675">
+										<object class="_NSCornerView" key="NSCornerView" id="377563714">
 											<reference key="NSNextResponder" ref="936684405"/>
 											<int key="NSvFlags">-2147483392</int>
 											<string key="NSFrame">{{224, 0}, {16, 17}}</string>
@@ -1782,7 +1782,7 @@
 								<reference key="NSBGColor" ref="261822172"/>
 								<int key="NScvFlags">4</int>
 							</object>
-							<reference ref="517278675"/>
+							<reference ref="377563714"/>
 						</object>
 						<string key="NSFrame">{{20, 61}, {611, 310}}</string>
 						<reference key="NSSuperview" ref="137411687"/>
@@ -1794,7 +1794,7 @@
 						<reference key="NSHScroller" ref="705341862"/>
 						<reference key="NSContentView" ref="317854177"/>
 						<reference key="NSHeaderClipView" ref="422209719"/>
-						<reference key="NSCornerView" ref="517278675"/>
+						<reference key="NSCornerView" ref="377563714"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 						<double key="NSMinMagnification">0.25</double>
 						<double key="NSMaxMagnification">4</double>
@@ -7687,11 +7687,7 @@
 				<string key="NSObjectClassName">Page</string>
 				<bool key="NSEditable">YES</bool>
 				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
-				<bool key="NSAvoidsEmptySelection">YES</bool>
-				<bool key="NSPreservesSelection">YES</bool>
-				<bool key="NSSelectsInsertedObjects">YES</bool>
 				<bool key="NSFilterRestrictsInsertion">YES</bool>
-				<bool key="NSClearsFilterPredicateOnInsertion">YES</bool>
 			</object>
 			<object class="NSArrayController" id="232359807">
 				<object class="NSMutableArray" key="NSDeclaredKeys">
