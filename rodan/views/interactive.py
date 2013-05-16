@@ -21,7 +21,7 @@ def crop(request):
                 path_to_image = previous_job_result.large_thumb_url
 
             data = {
-                "image": path_to_image,  # a placeholder image for now
+                "image": path_to_image,
                 "form_url": "/interactive/crop/",  # should probably find a more elegant way of doing this
                 "run_job_uuid": rj_uuid
             }
