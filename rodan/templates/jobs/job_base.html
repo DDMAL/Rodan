@@ -29,7 +29,10 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
+        <form method="post" action="{{ form_url }}">
+            <input type="hidden" name="run_job_uuid" value="{{ run_job_uuid }}">
         {% block body %}
         {% endblock %}
+        </form>
     </body>
 </html>
