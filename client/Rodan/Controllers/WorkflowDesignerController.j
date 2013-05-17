@@ -263,7 +263,7 @@ activeWorkflow = nil;
 */
 - (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)anIndex dropOperation:(CPTableViewDropOperation)aDropOperation
 {
-    var content = [jobArrayController contentArray],
+    var content = [jobArrayController arrangedObjects],
         pboard = [info draggingPasteboard],
         sourceIndexes = [pboard dataForType:JobItemType],
         jobObj = [content objectAtIndex:[sourceIndexes firstIndex]];
