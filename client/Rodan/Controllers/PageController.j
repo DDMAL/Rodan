@@ -20,6 +20,9 @@
     // var formatter = [[CPDateFormatter alloc] init];
     // [formatter setDateStyle:CPDateFormatterMediumStyle];
     // [dateAddedField setFormatter:formatter];
+    var byteCountFormatter = [[CPByteCountFormatter alloc] init];
+    [sizeField setFormatter:byteCountFormatter];
+
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
