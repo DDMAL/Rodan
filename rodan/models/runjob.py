@@ -5,6 +5,15 @@ from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
+class RunJobStatus(object):
+    NOT_RUNNING = 0
+    RUNNING = 1
+    WAITING_FOR_INPUT = 2
+    RUN_ONCE_WAITING = 3
+    HAS_FINISHED = 4
+    FAILED = -1
+
+
 class RunJob(models.Model):
     """
         A RunJob is a job that has been executed as part of a Workflow Run. Every Result
@@ -18,6 +27,13 @@ class RunJob(models.Model):
         for `needs_input`, it will fall out of the queue and schedule itself for retrying after a set period.
         (By default, 3 minutes)
     """
+    STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
+                      (RunJobStatus.RUNNING, "Running"),
+                      (RunJobStatus.WAITING_FOR_INPUT, "Waiting for input"),
+                      (RunJobStatus.RUN_ONCE_WAITING, "Run once, waiting for input"),
+                      (RunJobStatus.HAS_FINISHED, "Has finished"),
+                      (RunJobStatus.FAILED, "Failed, ZOMG")]
+
     @property
     def runjob_path(self):
         return os.path.join(self.workflow_run.workflow_run_path, "{0}_{1}".format(self.workflow_job.sequence, str(self.pk)))
@@ -33,6 +49,7 @@ class RunJob(models.Model):
 
     job_settings = json.JSONField(blank=True, null=True)
     needs_input = models.BooleanField(default=False)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

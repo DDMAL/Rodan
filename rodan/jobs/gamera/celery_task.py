@@ -5,6 +5,7 @@ import shutil
 from django.core.files import File
 from celery import Task
 from rodan.models.runjob import RunJob
+from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
@@ -16,10 +17,18 @@ class GameraTask(Task):
 
     def run(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
+        runjob.status = RunJobStatus.RUNNING
+        runjob.save()
 
         # fall through to retrying if we're waiting for input
         if runjob.needs_input:
+            runjob.status = RunJobStatus.WAITING_FOR_INPUT
+            runjob.save()
             self.retry(args=[result_id, runjob_id], *args, **kwargs)
+
+        if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
+            runjob.status = RunJobStatus.RUNNING
+            runjob.save()
 
         if result_id is None:
             # this is the first job in a run
@@ -59,5 +68,13 @@ class GameraTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         # create thumbnails after successfully processing an image object
         result = Result.objects.get(pk=retval)
+        result.run_job.status = RunJobStatus.HAS_FINISHED
+        result.save()
+
         res = create_thumbnails.s(result)
         res.apply_async()
+
+    def on_failure(self, *args, **kwargs):
+        runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
+        runjob.status = RunJobStatus.FAILED
+        runjob.save()
