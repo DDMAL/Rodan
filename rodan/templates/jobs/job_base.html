@@ -28,8 +28,8 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- Add your site or application content here -->
-        <form method="post" action="{{ form_url }}">
+        <!-- id="form" is there because brian's javascript interactive job code depends on it -->
+        <form method="post" id="form" action="{{ form_url }}">
             <input type="hidden" name="run_job_uuid" value="{{ run_job_uuid }}">
         {% block body %}
         {% endblock %}
