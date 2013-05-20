@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rodan.models import RunJob
 from rodan.models import Result
 
+
 def crop(request):
     if request.method == "GET":
         if 'rj_uuid' in request.GET:
@@ -39,8 +40,16 @@ def crop(request):
             # check if all required job_settings have been provided in the POST
             if all(job_setting in request.POST for job_setting in run_job_settings):
                 # change all the job_settings values of the run_job to the new values
+                # (note that the coordinate values need to be scaled since they were taken from a thumbnailed version
+                # displayed on the js interface - inside request.POST, the 'imw' parameter hold the value of the width)
+                for job_setting in run_job.job_settings:
+                    job_setting['default'] = request.POST[job_setting['name']]
 
                 # uncheck needs-input
+                run_job.needs_input = False
+
+                # save all the changes
+                run_job.save()
 
                 return render(request, 'jobs/job_input_done.html')
             else:
