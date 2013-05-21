@@ -9,6 +9,9 @@
 @global RodanWorkflowTreeNeedsRefresh
 
 
+var activeWorkflow = nil;
+
+
 @implementation WorkflowController : CPObject
 {
     @outlet     CPArrayController       workflowArrayController;
@@ -77,6 +80,17 @@
     [workflowArrayController setContent:nil];
 }
 
++ (Workflow)getActiveWorkflow
+{
+    return activeWorkflow;
+}
+
++ (void)setActiveWorkflow:(Workflow)aWorkflow
+{
+    activeWorkflow = aWorkflow;
+    console.log("active workflow: " + [activeWorkflow workflowName]);
+}
+
 @end
 
 
@@ -110,7 +124,7 @@
 {
     runsArrayController = [[CPArrayController alloc] init];
     var workflowObject = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
-
+    [WorkflowController setActiveWorkflow:workflowObject];
     [runsArrayController bind:@"contentArray"
                          toObject:workflowObject
                          withKeyPath:@"workflowRuns"

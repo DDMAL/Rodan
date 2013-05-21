@@ -9,7 +9,6 @@
 @global RodanRemoveJobFromWorkflowNotification
 
 JobItemType = @"JobItemType";
-activeWorkflow = nil;
 
 @implementation WorkflowDesignerController : CPObject
 {
@@ -185,12 +184,12 @@ activeWorkflow = nil;
 - (@action)testWorkflow:(id)aSender
 {
     // this forces the workflow jobs to update themselves to the server
-    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
 
     var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
         workflowRun = {
-        "workflow": [activeWorkflow pk],
+        "workflow": [[WorkflowController getActiveWorkflow] pk],
         "test_run": true,
         "creator": [activeUser pk]
         },
@@ -202,11 +201,11 @@ activeWorkflow = nil;
 - (@action)runWorkflow:(id)aSender
 {
     // this forces the workflow jobs to update themselves to the server
-    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[activeWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
 
     var workflowRunObj = {
-        "workflow": [activeWorkflow pk],
+        "workflow": [[WorkflowController getActiveWorkflow] pk],
         "creator": [activeUser pk]
         },
         workflow = [[WorkflowRun alloc] initWithJson:workflowRunObj];
@@ -329,7 +328,7 @@ activeWorkflow = nil;
 
     // create a workflow job JSON object for this new job.
     var wkObj = {
-            "workflow": [activeWorkflow pk],
+            "workflow": [[WorkflowController getActiveWorkflow] pk],
             "job": [jobObj pk],
             "job_name": [jobObj jobName],
             "job_settings": [jobObj settings],
@@ -412,21 +411,21 @@ activeWorkflow = nil;
     // we don't want it to sync back to the server when we create it.
     // so we set it as "Dirt Proof" while it's being created.
     [WLRemoteObject setDirtProof:YES];
-    activeWorkflow = [[Workflow alloc] initWithJson:[anAction result]];
+    [WorkflowController setActiveWorkflow:[[Workflow alloc] initWithJson:[anAction result]]];
     [WLRemoteObject setDirtProof:NO];
 
     [currentWorkflowArrayController bind:@"contentArray"
-                                    toObject:activeWorkflow
+                                    toObject:[WorkflowController getActiveWorkflow]
                                     withKeyPath:@"workflowJobs"
                                     options:nil];
 
     [workflowPagesArrayController bind:@"contentArray"
-                                  toObject:activeWorkflow
+                                  toObject:[WorkflowController getActiveWorkflow]
                                   withKeyPath:@"pages"
                                   options:nil];
 
     [workflowRunsArrayController bind:@"contentArray"
-                                 toObject:activeWorkflow
+                                 toObject:[WorkflowController getActiveWorkflow]
                                  withKeyPath:@"workflowRuns"
                                  options:nil];
 
