@@ -155,11 +155,15 @@
                 strokeWidth: 1,
                 radius: 3,
                 draggable: true,
-                dragBounds: {
-                    top: margin,
-                    left: margin,
-                    right: margin + imageObj.width,
-                    bottom: margin + imageObj.height
+                dragBoundFunc: function(pos) {
+                    var newX = pos.x < margin ? margin : pos.x;
+                    newX = newX > (margin + imageObj.width) ? (margin + imageObj.width) : newX;
+                    var newY = pos.y < margin ? margin : pos.y;
+                    newY = newY > (margin + imageObj.height) ? (margin + imageObj.height) : newY;
+                    return {
+                        x: newX,
+                        y: newY
+                    };
                 }
             });
             anchor.on("dragmove", function() {
@@ -168,8 +172,8 @@
                 var pA = group.attrs.anchors[anchorI];
                 var pointA = poly.attrs.points[anchorI];
                 var nPoints = poly.attrs.points.length;
-                pointA.y = pA.attrs.y;
-                pointA.x = pA.attrs.x;
+                pointA.y = pA.getY();
+                pointA.x = pA.getX();
                 layer.draw();
             });
             anchor.on("mousedown touchstart", function() {
@@ -193,11 +197,15 @@
                         maxY = Math.max(maxY, point.y);
                     }
                 }
-                group.setDragBounds({
-                    top: margin - minY,
-                    left: margin - minX,
-                    right: margin + imageObj.width - maxX,
-                    bottom: margin + imageObj.height - maxY
+                group.setDragBoundFunc(function(pos) {
+                    var newX = pos.x < (margin - minX) ? (margin - minX) : pos.x;
+                    newX = newX > (margin + imageObj.width) ? (margin + imageObj.width) : newX;
+                    var newY = pos.y < (margin + imageObj.width - maxX) ? (margin + imageObj.width - maxX) : pos.y;
+                    newY = newY > (margin + imageObj.height - maxY) ? (margin + imageObj.height - maxY) : newY;
+                    return {
+                        x: newX,
+                        y: newY
+                    };
                 });
                 poly.attrs.width = maxX - minX;
                 poly.attrs.height = maxY - minY;
@@ -313,11 +321,15 @@
                 y: y,
                 draggable: true,
                 name: "group",
-                dragBounds: {
-                    top: margin - minY,
-                    left: margin - minX,
-                    right: margin + imageObj.width - maxX,
-                    bottom: margin + imageObj.height - maxY
+                dragBoundFunc: function(pos) {
+                    var newX = pos.x < (margin - minX) ? (margin - minX) : pos.x;
+                    newX = newX > (margin + imageObj.width) ? (margin + imageObj.width) : newX;
+                    var newY = pos.y < (margin + imageObj.width - maxX) ? (margin + imageObj.width - maxX) : pos.y;
+                    newY = newY > (margin + imageObj.height - maxY) ? (margin + imageObj.height - maxY) : newY;
+                    return {
+                        x: newX,
+                        y: newY
+                    };
                 },
                 anchors: []
             });
@@ -330,7 +342,7 @@
                 fill: sel ? pSelColour : pDefColour,
                 stroke: 'black',
                 strokeWidth: 2,
-                alpha: 0.2,
+                opacity: 0.2,
                 name: "poly"
             });
             group.add(poly);
@@ -490,7 +502,7 @@
                         width: 0,
                         height: 0,
                         fill: 'yellow',
-                        alpha: 0.2,
+                        opacity: 0.2,
                         stroke: 'black',
                         strokewidth: 3,
                         visible: false
