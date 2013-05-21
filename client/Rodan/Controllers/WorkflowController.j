@@ -12,6 +12,9 @@
 var activeWorkflow = nil;
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// WorkflowController
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation WorkflowController : CPObject
 {
     @outlet     CPArrayController       workflowArrayController;
@@ -19,6 +22,7 @@ var activeWorkflow = nil;
     @outlet     CPArrayController       resultsArrayController;
     @outlet     CPButtonBar             workflowAddRemoveBar;
 }
+
 
 - (void)awakeFromCib
 {
@@ -42,6 +46,7 @@ var activeWorkflow = nil;
                   options:nil];
 }
 
+
 - (void)removeWorkflow:(id)aSender
 {
     if ([workflowArrayController selectedObjects])
@@ -56,6 +61,7 @@ var activeWorkflow = nil;
     }
 }
 
+
 - (void)newWorkflow:(id)aSender
 {
     var wflow = [[Workflow alloc] init];
@@ -64,6 +70,7 @@ var activeWorkflow = nil;
     [workflowArrayController addObject:wflow];
     [wflow ensureCreated];
 }
+
 
 - (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
 {
@@ -75,15 +82,18 @@ var activeWorkflow = nil;
     }
 }
 
+
 - (void)emptyWorkflowArrayController
 {
     [workflowArrayController setContent:nil];
 }
 
-+ (Workflow)getActiveWorkflow
+
++ (Workflow)activeWorkflow
 {
     return activeWorkflow;
 }
+
 
 + (void)setActiveWorkflow:(Workflow)aWorkflow
 {
@@ -94,6 +104,9 @@ var activeWorkflow = nil;
 @end
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// WorkflowStatusDelegate
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation WorkflowStatusDelegate : CPObject
 {
     @outlet     WorkflowController  workflowController;
@@ -122,6 +135,9 @@ var activeWorkflow = nil;
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
+    // We also need to empty array controllers here.  We've loaded a new workflow.
+    [self emptyArrayControllers];
+
     runsArrayController = [[CPArrayController alloc] init];
     var workflowObject = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
     [WorkflowController setActiveWorkflow:workflowObject];
@@ -145,6 +161,11 @@ var activeWorkflow = nil;
 
 @end
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RunsStatusDelegate
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation RunsStatusDelegate : CPObject
 {
     @outlet WorkflowStatusDelegate  workflowStatusDelegate;
@@ -254,7 +275,12 @@ var activeWorkflow = nil;
 @end
 
 
+
 /* we don't need the ratatosk setup for these model representations, so we'll work with a highly simplified model */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SimplePageModel
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation SimplePageModel : CPObject
 {
     CPString    pageName    @accessors;
@@ -301,6 +327,11 @@ var activeWorkflow = nil;
 }
 @end
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SimpleWorkflowRunModel
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation SimpleWorkflowRunModel : CPObject
 {
     CPString    pk          @accessors;
@@ -354,6 +385,11 @@ var activeWorkflow = nil;
 }
 @end
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SimpleResultsModel
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation SimpleResultsModel : CPObject
 {
     CPString    created         @accessors;

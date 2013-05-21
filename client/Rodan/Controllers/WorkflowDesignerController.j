@@ -184,12 +184,12 @@ JobItemType = @"JobItemType";
 - (@action)testWorkflow:(id)aSender
 {
     // this forces the workflow jobs to update themselves to the server
-    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
 
     var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
         workflowRun = {
-        "workflow": [[WorkflowController getActiveWorkflow] pk],
+        "workflow": [[WorkflowController activeWorkflow] pk],
         "test_run": true,
         "creator": [activeUser pk]
         },
@@ -201,11 +201,11 @@ JobItemType = @"JobItemType";
 - (@action)runWorkflow:(id)aSender
 {
     // this forces the workflow jobs to update themselves to the server
-    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[[WorkflowController getActiveWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
 
     var workflowRunObj = {
-        "workflow": [[WorkflowController getActiveWorkflow] pk],
+        "workflow": [[WorkflowController activeWorkflow] pk],
         "creator": [activeUser pk]
         },
         workflow = [[WorkflowRun alloc] initWithJson:workflowRunObj];
@@ -328,7 +328,7 @@ JobItemType = @"JobItemType";
 
     // create a workflow job JSON object for this new job.
     var wkObj = {
-            "workflow": [[WorkflowController getActiveWorkflow] pk],
+            "workflow": [[WorkflowController activeWorkflow] pk],
             "job": [jobObj pk],
             "job_name": [jobObj jobName],
             "job_settings": [jobObj settings],
@@ -415,17 +415,17 @@ JobItemType = @"JobItemType";
     [WLRemoteObject setDirtProof:NO];
 
     [currentWorkflowArrayController bind:@"contentArray"
-                                    toObject:[WorkflowController getActiveWorkflow]
+                                    toObject:[WorkflowController activeWorkflow]
                                     withKeyPath:@"workflowJobs"
                                     options:nil];
 
     [workflowPagesArrayController bind:@"contentArray"
-                                  toObject:[WorkflowController getActiveWorkflow]
+                                  toObject:[WorkflowController activeWorkflow]
                                   withKeyPath:@"pages"
                                   options:nil];
 
     [workflowRunsArrayController bind:@"contentArray"
-                                 toObject:[WorkflowController getActiveWorkflow]
+                                 toObject:[WorkflowController activeWorkflow]
                                  withKeyPath:@"workflowRuns"
                                  options:nil];
 
