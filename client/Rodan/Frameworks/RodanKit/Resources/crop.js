@@ -23,20 +23,20 @@
         // update anchor positions
         switch (activeAnchor.getName()) {
           case "topLeft":
-            topRight.attrs.y = activeAnchor.attrs.y;
-            bottomLeft.attrs.x = activeAnchor.attrs.x;
+            topRight.setY(activeAnchor.getY());
+            bottomLeft.setX(activeAnchor.getX());
             break;
           case "topRight":
-            topLeft.attrs.y = activeAnchor.attrs.y;
-            bottomRight.attrs.x = activeAnchor.attrs.x;
+            topLeft.setY(activeAnchor.getY());
+            bottomRight.setX(activeAnchor.getX());
             break;
           case "bottomRight":
-            bottomLeft.attrs.y = activeAnchor.attrs.y;
-            topRight.attrs.x = activeAnchor.attrs.x;
+            bottomLeft.setY(activeAnchor.getY());
+            topRight.setX(activeAnchor.getX());
             break;
           case "bottomLeft":
-            bottomRight.attrs.y = activeAnchor.attrs.y;
-            topLeft.attrs.x = activeAnchor.attrs.x;
+            bottomRight.setY(activeAnchor.getY());
+            topLeft.setX(activeAnchor.getX());
             break;
         }
 
@@ -57,11 +57,15 @@
             radius: 3,
             name: name,
             draggable: true,
-            dragBounds: {
-                top: margin,
-                left: margin,
-                right: margin + imageObj.width,
-                bottom: margin + imageObj.height
+            dragBoundFunc: function(pos) {
+                var newX = pos.x < margin ? margin : pos.x;
+                newX = newX > (margin + imageObj.width) ? (margin + imageObj.width) : newX;
+                var newY = pos.y < margin ? margin : pos.y;
+                newY = newY > (margin + imageObj.height) ? (margin + imageObj.height) : newY;
+                return {
+                    x: newX,
+                    y: newY
+                };
             }
         });
     
@@ -75,12 +79,6 @@
         });
         anchor.on("dragend", function() {
             var rect = group.get(".rect")[0];
-            group.setDragBounds({
-                top: margin - rect.getY(),
-                left: margin - rect.getX(),
-                right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
-                bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
-            });
             group.setDraggable(true);
             layer.draw();
         });
@@ -121,14 +119,22 @@
             fill: defColour,
             stroke: 'black',
             strokeWidth: 2,
-            alpha: 0.2,
+            opacity: 0.2,
             name: "rect"
         });
-        group.setDragBounds({
-            top: margin - rect.getY(),
-            left: margin - rect.getX(),
-            right: margin + imageObj.width - (rect.getX() + rect.getWidth()),
-            bottom: margin + imageObj.height - (rect.getY() + rect.getHeight())
+        group.setDragBoundFunc(function(pos) {
+            var topLim = margin - rect.getY();
+            var leftLim = margin - rect.getX();
+            var rightLim = margin + imageObj.width - (rect.getX() + rect.getWidth());
+            var bottomLim = margin + imageObj.height - (rect.getY() + rect.getHeight());
+            var newX = pos.x < leftLim ? leftLim : pos.x;
+            newX = newX > rightLim ? rightLim : newX;
+            var newY = pos.y < topLim ? topLim : pos.y;
+            newY = newY > bottomLim ? bottomLim : newY;
+            return {
+                x: newX,
+                y: newY
+            };
         });
         group.add(rect);
 
