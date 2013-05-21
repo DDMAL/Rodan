@@ -26,7 +26,6 @@
         // Generates a PMF (Probability Mass Function) for the given image (required for Brink)
         function genPMF(imageO, canvas) {
             var canvas, context, i, imageData, data, pmf, brightness;
-            // var canvas = document;  <- Canvas is overridden below?
             context = canvas.getContext("2d");
             i = 0;
 
@@ -244,13 +243,17 @@
                 fill: 'blue',
                 stroke: 'black',
                 strokeWidth: 2,
-                alpha: 0.2,
+                opacity: 0.2,
                 draggable: false,
-                dragBounds: {
-                    top: 0,
-                    left: 0,
-                    right: imageThumb.width - boxWidth,
-                    bottom: imageThumb.height - boxWidth
+                dragBoundfunc: function(pos) {
+                    var newX = pos.x < 0 ? 0 : pos.x;
+                    newX = newX > (imageThumb.width - boxWidth) ? (imageThumb.width - boxWidth) : newX;
+                    var newY = pos.y < 0 ? 0 : pos.y;
+                    newY = newY > (imageThumb.height - boxWidth) ? (imageThumb.height - boxWidth) : newY;
+                    return {
+                        x: newX,
+                        y: newY
+                    };
                 },
                 name: 'viewBox'
             });
@@ -262,27 +265,23 @@
             context = canvas.getContext("2d");
             bodyDOM = document.getElementsByTagName("body")[0];
             
-            window.onresize = function() {
-                // console.log("here");
-                // console.log($(window).height());
-                // viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
-                // canvas.width = viewWidth;
-                // canvas.height = viewWidth;
-                // $("#slider").width(viewWidth);
-                // boxWidth = viewWidth * scaleVal;
-                // viewBox.setWidth(boxWidth);
-                // viewBox.setHeight(boxWidth);
-                // viewBox.setDragBounds({
-                //     top: 0,
-                //     left: 0,
-                //     right: imageThumb.width - boxWidth,
-                //     bottom: imageThumb.height - boxWidth
-                // });
-                // layerB.draw();
-                // boxX = viewBox.getX() / scaleVal;
-                // boxY = viewBox.getY() / scaleVal;
-                // binarise(imageObj, canvas, defThresh, boxX, boxY);
+            function resizeWindow() {
+                viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
+                canvas.width = viewWidth;
+                canvas.height = viewWidth;
+                $("#slider").width(viewWidth);
+                boxWidth = viewWidth * scaleVal;
+                viewBox.setWidth(boxWidth);
+                viewBox.setHeight(boxWidth);
+                layerB.draw();
+                boxX = viewBox.getX() / scaleVal;
+                boxY = viewBox.getY() / scaleVal;
+                binarise(imageObj, canvas, defThresh, boxX, boxY);
             }
+            
+            window.onresize = resizeWindow;
+            
+            resizeWindow();
             
             pMouseDown = false;
 
