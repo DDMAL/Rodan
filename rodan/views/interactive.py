@@ -1,11 +1,15 @@
 from django.shortcuts import render
+from django.views.generic.base import View
 
 from rodan.models import RunJob
 from rodan.models import Result
 
 
-def crop(request):
-    if request.method == "GET":
+class RodanInteractiveBaseView(View):
+    view_url = ""
+    template_name = ""
+
+    def get(self, request, *args, **kwargs):
         if 'rj_uuid' in request.GET:
             rj_uuid = request.GET['rj_uuid']
             run_job = RunJob.objects.get(uuid=rj_uuid)
@@ -23,14 +27,14 @@ def crop(request):
 
             data = {
                 "image": path_to_image,
-                "form_url": "/interactive/crop/",  # should probably find a more elegant way of doing this
+                "form_url": self.view_url,
                 "run_job_uuid": rj_uuid
             }
-            return render(request, 'jobs/crop.html', data)
+            return render(request, "{0}/{1}".format('jobs', self.template_name), data)
         else:
             return render(request, 'jobs/bad_request.html')
 
-    elif request.method == "POST":
+    def post(self, request, *args, **kwargs):
         if 'run_job_uuid' in request.POST:
             rj_uuid = request.POST['run_job_uuid']
             run_job = RunJob.objects.get(uuid=rj_uuid)
@@ -54,6 +58,16 @@ def crop(request):
                 return render(request, 'jobs/job_input_done.html')
             else:
                 return render(request, 'jobs/bad_request.html')
+
+
+class CropView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/crop/"
+        self.template_name = "crop.html"
+        return super(CropView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(CropView, self).post(request, *args, **kwargs)
 
 
 def binarise(request):

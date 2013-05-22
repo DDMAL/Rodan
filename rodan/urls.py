@@ -29,6 +29,9 @@ from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
 
+from rodan.views.interactive import CropView
+
+
 urlpatterns = []
 
 urlpatterns += format_suffix_patterns(
@@ -61,7 +64,7 @@ urlpatterns += format_suffix_patterns(
 )
 
 urlpatterns += patterns('rodan.views.interactive',
-        url(r'^interactive/crop/$', 'crop'),
+        url(r'^interactive/crop/$', CropView.as_view()),
         url(r'^interactive/binarise/$', 'binarise'),
         url(r'^interactive/despeckle/$', 'despeckle'),
         url(r'^interactive/rotate/$', 'rotate'),
