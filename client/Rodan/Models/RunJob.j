@@ -30,6 +30,22 @@
     ];
 }
 
+
+/**
+ * Returns the last component of the pk URL, which is the UUID of the RunJob.
+ * If pk is nil, returns nil.
+ */
+- (CPString)getUUID
+{
+    var runJobUUID = nil;
+    if ([self pk])
+    {
+        runJobUUID = [pk lastPathComponent];
+    }
+    return runJobUUID;
+}
+
+
 - (CPString)remotePath
 {
     if ([self pk])

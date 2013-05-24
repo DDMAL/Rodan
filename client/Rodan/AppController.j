@@ -72,6 +72,9 @@ RodanCannotLogInNotification = @"RodanCannotLogInNotification";
 RodanLogInErrorNotification = @"RodanLogInErrorNotification";
 RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
+RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
+RodanDidLoadInteractiveJobsNotification = @"RodanDidLoadInteractiveJobsNotification";
+
 isLoggedIn = NO;
 activeUser = nil;     // URI to the currently logged-in user
 activeProject = nil;  // URI to the currently open project

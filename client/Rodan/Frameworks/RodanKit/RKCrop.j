@@ -1,25 +1,23 @@
-
-
-/*
-    This instantiates a crop "view" that is just a window into the interactive view.
-*/
+/**
+ *   This instantiates a crop "view" that is just a window into the interactive view.
+ */
 @implementation RKCrop : CPWebView
 {
 }
 
-- (id)initWithFrame:(CGRect)aFrame
+- (id)initWithFrame:(CGRect)aFrame runJobUUID:(int)aRunJobUUID
 {
     console.log("RKCrop init with frame");
     var self = [super initWithFrame:aFrame];
     if (self)
     {
         [self setFrameLoadDelegate:self];
-        [self setMainFrameURL:@"/interactive/crop"];  // loads the interactive crop window from Django.
+        [self setMainFrameURL:@"/interactive/crop?rj_uuid=" + aRunJobUUID];  // loads the interactive crop window from Django.
     }
 
     return self;
 }
-
+/*
 - (CPArray)cropArea
 {
     var domWin = [self DOMWindow];
@@ -28,7 +26,7 @@
     // and return the crop area in an array of points.
 
     return [[CPArray alloc] init];
-}
+}*/
 
 #pragma mark -
 #pragma mark Delegate method for web view
@@ -51,12 +49,12 @@
     RKCrop      theCropView;
 }
 
-- (id)initWithContentRect:(CGRect)aRect styleMask:(int)aMask
+- (id)initWithContentRect:(CGRect)aRect styleMask:(int)aMask runJobUUID:(int)aRunJobUUID
 {
     var self = [super initWithContentRect:aRect styleMask:aMask];
     if (self)
     {
-        theCropView = [[RKCrop alloc] initWithFrame:[[self contentView] bounds]];
+        theCropView = [[RKCrop alloc] initWithFrame:[[self contentView] bounds] runJobUUID:aRunJobUUID];
         [theCropView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 
         [[self contentView] addSubview:theCropView];
