@@ -1,10 +1,4 @@
-@import <RodanKit/RKCrop.j>
-@import <RodanKit/RKBinarise.j>
-@import <RodanKit/RKDespeckle.j>
-@import <RodanKit/RKRotate.j>
-@import <RodanKit/RKSegment.j>
-@import <RodanKit/RKLuminance.j>
-@import <RodanKit/RKBarlineCorrection.j>
+@import <RodanKit/RKInteractiveJob.j>
 @import <RodanKit/RKDiva.j>
 
 
@@ -97,9 +91,9 @@
 {
     // Get the UUID and give it to a new window.
     var runJobUUID = [currentlySelectedInteractiveJob getUUID];
-    var cropWindow = [[RKCropWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
-                                           styleMask:CPClosableWindowMask | CPResizableWindowMask
-                                           runJobUUID:runJobUUID];
+    var cropWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
+                                              styleMask:CPClosableWindowMask | CPResizableWindowMask
+                                              runJobUUID:runJobUUID];
     [cropWindow center];
     [cropWindow makeKeyAndOrderFront:aSender];
 }
@@ -107,12 +101,6 @@
 
 
 /*
-- (@action)displayCropWindow:(id)aSender
-{
-    var cropWindow = [[RKCropWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600) styleMask:CPClosableWindowMask | CPResizableWindowMask];
-    [cropWindow center];
-    [cropWindow makeKeyAndOrderFront:aSender];
-}
 
 - (@action)displayBinariseWindow:(id)aSender
 {
