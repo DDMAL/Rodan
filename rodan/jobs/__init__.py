@@ -94,3 +94,10 @@ try:
     to_jpeg2000.load_module()
 except ImportError as e:
     print "No Diva JPEG2000 converter Installed. Skipping. ", e
+
+
+try:
+    from rodan.jobs.border_removal import br_auto
+    br_auto.load_module()
+except ImportError as e:
+    print "No Border Removal job installed.", e
