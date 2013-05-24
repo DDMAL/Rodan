@@ -54,7 +54,7 @@
 - (void)shouldLoadInteractiveJobs:(CPNotification)aNotification
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:"/runjobs/?requires_interaction=1"
+                    path:"/runjobs/?requires_interaction=true"
                     delegate:self
                     message:"Retrieving RunJobs"];
 }

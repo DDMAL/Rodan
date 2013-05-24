@@ -13,9 +13,9 @@ class RunJobList(generics.ListAPIView):
     paginate_by = None
 
     def get_queryset(self):
-        requiresInteraction = self.request.QUERY_PARAMS.get('requires_interaction', 0)
+        requiresInteraction = self.request.QUERY_PARAMS.get('requires_interaction', 'false')
         queryset = RunJob.objects.all()
-        if requiresInteraction:
+        if requiresInteraction == 'true':
             queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING])
         return queryset
 
