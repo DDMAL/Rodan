@@ -66,10 +66,10 @@ class GameraTask(Task):
         return str(new_result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):
-        # create thumbnails after successfully processing an image object
+        # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.save()
+        result.run_job.save()
 
         res = create_thumbnails.s(result)
         res.apply_async()
