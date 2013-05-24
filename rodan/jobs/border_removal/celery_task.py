@@ -9,7 +9,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
-from gamera.core import init_gamera, load_image #, save image?
+from gamera.core import init_gamera, load_image  # , save image?
 import gamera.toolkits.border_removal
 
 JOB_NAME = 'border_removal.auto_border_removal'
@@ -40,13 +40,20 @@ class BorderRemovalAutoTask(Task):
 
         result_save_path = new_result.result_path
 
+        #Get the settings. Note that the runtime value is passed inside the 'default' field.
+        settings = {}
+        for s in runjob.job_settings:
+            setting_name = "_".join(s['name'].split(" "))
+            setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
+            settings[setting_name] = setting_value
+
         #Gamera methods begins here
         init_gamera()
 
         task_image = load_image(page)
         tdir = tempfile.mkdtemp()
 
-        crop_mask = task_image.border_removal()
+        crop_mask = task_image.border_removal(**settings)
         result_image = task_image.mask(crop_mask)
         result_file = "{0}.png".format(str(uuid.uuid4()))
         result_image.save_image(os.path.join(tdir, result_file))
@@ -60,10 +67,11 @@ class BorderRemovalAutoTask(Task):
         return str(new_result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):
-        # create thumbnails after successfully processing an image object
+        # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.save()
+        result.run_job.save()
+
 
         res = create_thumbnails.s(result)
         res.apply_async()
