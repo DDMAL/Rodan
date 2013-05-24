@@ -11,6 +11,10 @@ class RunJobList(generics.ListAPIView):
     serializer_class = RunJobSerializer
     paginate_by = None
 
+    def get_queryset(self):
+        queryset = RunJob.objects.all()
+        return queryset
+
 
 class RunJobDetail(generics.RetrieveUpdateAPIView):
     model = RunJob

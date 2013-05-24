@@ -1,6 +1,3 @@
-/*
-    A stub controller to test interactive jobs
-*/
 @import <RodanKit/RKCrop.j>
 @import <RodanKit/RKBinarise.j>
 @import <RodanKit/RKDespeckle.j>
@@ -11,10 +8,105 @@
 @import <RodanKit/RKDiva.j>
 
 
+@import "../Models/RunJob.j"
+
+
+@global RodanDidLoadInteractiveJobsNotification
+@global RodanShouldLoadInteractiveJobsNotification
+
+
+/**
+ * General interactive jobs controller.
+ */
 @implementation InteractiveJobsController : CPObject
+{
+    @outlet CPTableView         interactiveJobsTableView;
+    @outlet CPArrayController   interactiveJobsArrayController  @accessors(readonly);
+            RunJob              currentlySelectedInteractiveJob;
+}
+
+
+- (void)awakeFromCib
+{
+    // Register self to listen for interactive job array loading (and success).
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(shouldLoadInteractiveJobs:)
+                                          name:RodanShouldLoadInteractiveJobsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(didLoadInteractiveJobs:)
+                                          name:RodanDidLoadInteractiveJobsNotification
+                                          object:nil];
+
+    // Request loading.
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadInteractiveJobsNotification
+                                          object:nil];
+}
+
+
+/**
+ * Handle row selection.
+ */
+- (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)aRowIndex
+{
+    currentlySelectedInteractiveJob = [[interactiveJobsArrayController contentArray] objectAtIndex:aRowIndex];
+    return YES;
+}
+
+
+/**
+ * Handles the request to load interactive jobs.
+ */
+- (void)shouldLoadInteractiveJobs:(CPNotification)aNotification
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:"/runjobs/"
+                    delegate:self
+                    message:"Retrieving RunJobs"];
+}
+
+
+/**
+ * Handles success of interactive jobs loading.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        // Go through the RunJobs and take only those that currently require interaction.
+        var runJobs = [RunJob objectsFromJson:[aAction result]];
+        [interactiveJobsArrayController addObjects:runJobs];
+        [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadInteractiveJobsNotification
+                                              object:nil];
+    }
+}
+
+
+/**
+ * Handles load request notification.  This is here as a dummy, but other classes may need the notification.
+ */
+- (void)didLoadInteractiveJobs:(CPNotification)aNotification
 {
 }
 
+
+/**
+ * Loads interactive job window.
+ */
+- (@action)displayInteractiveJobWindow:(id)aSender
+{
+    // Get the UUID and give it to a new window.
+    var runJobUUID = [currentlySelectedInteractiveJob getUUID];
+    var cropWindow = [[RKCropWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
+                                           styleMask:CPClosableWindowMask | CPResizableWindowMask
+                                           runJobUUID:runJobUUID];
+    [cropWindow center];
+    [cropWindow makeKeyAndOrderFront:aSender];
+}
+
+
+
+/*
 - (@action)displayCropWindow:(id)aSender
 {
     var cropWindow = [[RKCropWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600) styleMask:CPClosableWindowMask | CPResizableWindowMask];
@@ -73,6 +165,5 @@
     [[divaWindow contentView] addSubview:divaView];
     [divaWindow center];
     [divaWindow makeKeyAndOrderFront:aSender];
-}
-
-@end;
+}*/
+@end
