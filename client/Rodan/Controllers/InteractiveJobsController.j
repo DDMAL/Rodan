@@ -67,9 +67,13 @@
 {
     if ([aAction result])
     {
-        // Go through the RunJobs and take only those that currently require interaction.
+        // Populate the array controller, set the new "currently active", and send notification.
         var runJobs = [RunJob objectsFromJson:[aAction result]];
         [interactiveJobsArrayController addObjects:runJobs];
+        if ([[interactiveJobsArrayController contentArray] count] > 0)
+        {
+            currentlySelectedInteractiveJob = [[interactiveJobsArrayController contentArray] objectAtIndex:0];
+        }
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadInteractiveJobsNotification
                                               object:nil];
     }
