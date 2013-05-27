@@ -33,6 +33,15 @@ Install all the dependencies:
 
     $> pip install -r requirements.txt
 
+Note: You may receive a message like this:
+
+    $> Downloading/unpacking background-estimation==2.2.0pre2 (from -r requirements.txt (line 12))
+    $>   Could not find any downloads that satisfy the requirement background-estimation==2.2.0pre2 (from -r requirements.txt (line 12))
+    $> No distributions at all found for background-estimation==2.2.0pre2 (from -r requirements.txt (line 12))
+    $> Storing complete log in /Users/$YOUR_HOME/.pip/pip.log
+
+PIP was not able to install a package because it does not know from where to download it.  To bypass the installation of this requirement, edit `$RODAN_HOME/requirements.txt` and comment out (`#`) the line with the requirement and rerun the PIP install.  This may happen for multiple packages.
+
 When this installs successfully, you should edit the `$RODAN_HOME/rodan/settings_production.py` file to correspond with your environment. For beginning development, the default sqlite3 database settings should be fine; however, you may wish to move to a more complete database system like Postgresql.
 
 Once you have verified your settings, you can sync the Rodan models with the database. Since we are using the [South](http://south.aeracode.org) module for migrations, this is slightly different than "regular" Django:
