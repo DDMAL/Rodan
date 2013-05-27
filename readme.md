@@ -55,12 +55,6 @@ If you run into errors about database key dependencies you can migrate two of th
     $> python manage.py migrate djcelery
     $> python manage.py migrate rodan
 
-Once this is complete you may test your application by making sure it starts up:
-
-    $> python manage.py runserver_plus
-
-([`runserver_plus`](http://pythonhosted.org/django-extensions/runserver_plus.html) is installed via the Django-extensions module, and has several advantages over the "regular" Django `runserver` command.)
-
 ### Celery Queue
 
 You should set up Celery and RabbitMQ as necessary. If you just want the default account information that comes with Rodan, you should set up RabbitMQ like this:
@@ -77,15 +71,16 @@ Which follows the pattern:
 
     amqp://$USER:$PASSWORD@$HOST:$PORT/$VHOST
 
-You should now be able to start up the Celery queue with the following command:
-
-    $> python manage.py celery worker --loglevel=info -E
-
-You may see some messages about skipping modules -- we'll fix this when we install Gamera later.
-
 ### Cappuccino client
 
-The Rodan interface is build using [Cappuccino](http://www.cappuccino-project.org). You must first follow the instructions for getting and building Cappuccino.
+The Rodan interface is built using [Cappuccino](http://www.cappuccino-project.org).  You must first follow the instructions for getting and building Cappuccino.  This is usually accomplished by the following, but double-check with the Cappuccino documentation:
+
+    $> git clone git://github.com/cappuccino/cappuccino.git
+    $> ulimit -n 1024
+    $> cd cappuccino
+    $> jake sudo-install
+
+This (1) grabs the source from Cappuccinos Git repo, (2) increases the number of open resources we will allow to 1024, and finally (3) does an Obj-J "make" and install on cappuccino.  Again, make sure to READ THE CAPPUCCINO DOCUMENTATION for the most up-to-date build and install instructions.
 
 After Cappuccino is installed, you must link the compiled Frameworks into the Rodan client:
 
@@ -98,8 +93,6 @@ Next, you must create a symlink between the Rodan client and the Django server. 
 
     $> cd $RODAN_HOME/rodan/static
     $> ln -s ../../client/Rodan .
-
-With the Django server running you should now be able to visit `http://localhost:8000` in your web browser and see the Rodan interface.
 
 ### Gamera
 
@@ -125,3 +118,22 @@ These are four modules that offer some further document processing functionality
 Finally, you should install the [Rodan plugins module](http://github.com/DDMAL/rodan_plugins), a set of Gamera plugins that replace built-in Gamera modules to allow them to operate with input/output, rather than modifying an image in-place. Install this in the same way as the previous modules.
 
 
+
+Running Rodan
+--------------
+
+From $RODAN_HOME, make sure to activate the virtual environment:
+
+    $> source rodan_env/bin/activate
+
+Next, start the server:
+
+    $> python manage.py runserver_plus
+
+([`runserver_plus`](http://pythonhosted.org/django-extensions/runserver_plus.html) is installed via the Django-extensions module, and has several advantages over the "regular" Django `runserver` command.)
+
+Next, start celery:
+
+    $> python manage.py celery worker --loglevel=info -E
+
+Open your browser and open `http://localhost:8000` to test your install.
