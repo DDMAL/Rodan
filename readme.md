@@ -7,7 +7,7 @@ Rodan is a web-based document recognition system.
 Building Rodan
 --------------
 
-You should check out the latest version from GitHub. In these instructions, $RODAN_HOME is the directory where you have checked out the Rodan source code.
+You should check out the latest version from GitHub.  Make sure to do a recursive clone. In these instructions, $RODAN_HOME is the directory where you have checked out the Rodan source code.
 
 Rodan uses [Celery](http://www.celeryproject.org) for performing all image manipulation operations. Celery uses the RabbitMQ back-end for message passing. You should follow the [instructions for installing RabbitMQ on your machine](http://www.rabbitmq.com/download.html).
 
@@ -21,7 +21,7 @@ to install it:
 
 Create a virtual environment:
 
-In your checked out directory, run
+In $RODAN_HOME, run
 
     $> virtualenv --no-site-packages rodan_env
 
@@ -42,11 +42,21 @@ Note: You may receive a message like this:
 
 PIP was not able to install a package because it does not know from where to download it.  To bypass the installation of this requirement, edit `$RODAN_HOME/requirements.txt` and comment out (`#`) the line with the requirement and rerun the PIP install.  This may happen for multiple packages.
 
-When this installs successfully, you should edit the `$RODAN_HOME/rodan/settings_production.py` file to correspond with your environment. For beginning development, the default sqlite3 database settings should be fine; however, you may wish to move to a more complete database system like Postgresql.
+When this installs successfully, you should edit the `$RODAN_HOME/rodan/settings_production.py` file to correspond with your environment. For beginning development, the default sqlite3 database settings should be fine; however, you may wish to move to a more complete database system like Postgresql.  sqlite3 settings will look like this:
 
-Once you have verified your settings, you can sync the Rodan models with the database. Since we are using the [South](http://south.aeracode.org) module for migrations, this is slightly different than "regular" Django:
+    $>DATABASES = {
+    $>    'default': {
+    $>        'ENGINE': 'django.db.backends.sqlite3',
+    $>        'NAME': 'rodan.sqlite3',
+    $>        'USER': '',
+    $>        'PASSWORD': '',
+    $>        'HOST': '',
+    $>        'PORT': ''
+    $>    }
+    $>}
 
-    $> cd $RODAN_HOME
+Once you have verified your settings, you can sync the Rodan models with the database. Since we are using the [South](http://south.aeracode.org) module for migrations, this is slightly different than "regular" Django.  From $RODAN_HOME:
+
     $> python manage.py syncdb
     $> python manage.py migrate
 
@@ -93,6 +103,18 @@ Next, you must create a symlink between the Rodan client and the Django server. 
 
     $> cd $RODAN_HOME/rodan/static
     $> ln -s ../../client/Rodan .
+
+Once this is done, we must install Ratatosk.
+
+#### Ratatosk
+
+[Ratatosk](https://github.com/wireload/Ratatosk) helps Cappuccino work with RESTful APIs.  You should refer to the online documentation regarding installation.  It usually is simply the following:
+
+    $> cd $RODAN_HOME/client/Rodan/Frameworks/
+    $> rm -Rf Ratatosk
+    $> git clone git://github.com/wireload/Ratatosk.git
+
+Note: when cloning Rodan recursively from Git, the Ratatosk submodule clone fails.  This populates the `Ratatosk` directory with a `.git` file.  In order to do a clean clone, we must remove (`rm -Rf Ratatosk`) before cloning.
 
 ### Gamera
 
