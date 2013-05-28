@@ -24,7 +24,7 @@ class GameraTask(Task):
         if runjob.needs_input:
             runjob.status = RunJobStatus.WAITING_FOR_INPUT
             runjob.save()
-            self.retry(args=[result_id, runjob_id], *args, **kwargs)
+            self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
         if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
             runjob.status = RunJobStatus.RUNNING

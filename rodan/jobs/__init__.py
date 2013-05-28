@@ -97,7 +97,7 @@ except ImportError as e:
 
 
 try:
-    from rodan.jobs.border_removal import br_auto
-    br_auto.load_module()
+    from rodan.jobs.gamera.custom.border_removal import module_loader
+    module_loader.load_module()
 except ImportError as e:
-    print "No Border Removal job installed.", e
+    print "Custom Border Removal job not installed.", e
