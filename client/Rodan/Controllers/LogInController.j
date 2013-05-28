@@ -114,9 +114,9 @@
     if (data)
     {
         var data = JSON.parse(data),
-            resp = [CPDictionary dictionaryWithJSObject:data];
+            user = [[User alloc] initWithJson:data];
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLogInNotification
-                                              object:resp];
+                                              object:user];
     }
 }
 
