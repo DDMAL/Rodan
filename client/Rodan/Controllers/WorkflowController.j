@@ -1,4 +1,5 @@
 @import <Foundation/CPObject.j>
+@import <RodanKit/Utilities/RKNotificationTimer.j>
 @import "../Models/Workflow.j"
 @import "../Models/Result.j"
 
@@ -7,6 +8,7 @@
 @global RodanDidRefreshWorkflowsNotification
 @global RodanDidLoadWorkflowsNotification
 @global RodanWorkflowTreeNeedsRefresh
+@global RodanHasFocusWorkflowResultsViewNotification
 
 
 var activeWorkflow = nil;
@@ -44,6 +46,16 @@ var activeWorkflow = nil;
                   toObject:workflowArrayController
                   withKeyPath:@"selectedObjects.@count"
                   options:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(receiveHasFocusEvent:)
+                                          name:RodanHasFocusWorkflowResultsViewNotification
+                                          object:nil];
+}
+
+
+- (void)receiveHasFocusEvent:(CPNotification)aNotification
+{
+    [RKNotificationTimer clearTimedNotification];
 }
 
 

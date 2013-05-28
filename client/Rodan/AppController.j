@@ -72,8 +72,14 @@ RodanCannotLogInNotification = @"RodanCannotLogInNotification";
 RodanLogInErrorNotification = @"RodanLogInErrorNotification";
 RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
+// Data loading events.
 RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
-RodanDidLoadInteractiveJobsNotification = @"RodanDidLoadInteractiveJobsNotification";
+RodanShouldLoadProjectWorkflowsNotification = @"RodanShouldLoadProjectWorkflowsNotification";
+RodanShouldLoadWorkflowRunsNotification = @"RodanShouldLoadWorkflowRunsNotification";
+
+// View entry events.
+RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
+RodanHasFocusWorkflowResultsViewNotification = @"RodanHasFocusWorkflowResultsViewNotification";
 
 isLoggedIn = NO;
 activeUser = nil;     // URI to the currently logged-in user
@@ -350,6 +356,9 @@ activeProject = nil;  // URI to the currently open project
     [workflowResultsView setFrame:[contentScrollView bounds]];
     [workflowResultsView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:workflowResultsView];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusWorkflowResultsViewNotification
+                                          object:nil];
 }
 
 - (IBAction)switchWorkspaceToInteractiveJobs:(id)aSender
@@ -360,6 +369,9 @@ activeProject = nil;  // URI to the currently open project
     [interactiveJobsView setFrame:[contentScrollView bounds]];
     [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:interactiveJobsView];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusInteractiveJobsViewNotification
+                                          object:nil];
 }
 
 - (IBAction)switchWorkspaceToUsersGroups:(id)aSender
