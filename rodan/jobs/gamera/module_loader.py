@@ -5,7 +5,8 @@ from rodan.jobs.gamera import argconvert
 
 
 def create_jobs_from_module(gamera_module, interactive=False):
-    previously_loaded_modules = Job.objects.values_list('job_name', flat=True)
+    previously_loaded_modules = Job.objects.values_list('job_name', 'interactive')
+
     for fn in gamera_module.module.functions:
         # we only want jobs that will return a result and has a known pixel type
         if not fn.return_type:
@@ -20,7 +21,7 @@ def create_jobs_from_module(gamera_module, interactive=False):
 
         # skip the job creation if we've already
         # stored a reference to this job in the database
-        if str(fn) in previously_loaded_modules:
+        if (str(fn), interactive) in previously_loaded_modules:
             continue
 
         input_types = argconvert.convert_input_type(fn.self_type)

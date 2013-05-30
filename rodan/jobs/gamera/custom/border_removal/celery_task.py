@@ -63,7 +63,7 @@ class AutoBorderRemovalTask(Task):
     name = JOB_NAME_AUTO
 
     def run(self, result_id, runjob_id, *args, **kwargs):
-        #Guess what? I'm running.
+        #Set status to running
         runjob = RunJob.objects.get(pk=runjob_id)
         runjob.status = RunJobStatus.RUNNING
         runjob.save()

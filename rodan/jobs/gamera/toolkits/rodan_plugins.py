@@ -7,4 +7,5 @@ from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
 def load_module():
     create_jobs_from_module(rdn_rotate, interactive=True)
     create_jobs_from_module(rdn_despeckle, interactive=True)
+    create_jobs_from_module(rdn_despeckle, interactive=False)
     create_jobs_from_module(rdn_crop, interactive=True)
