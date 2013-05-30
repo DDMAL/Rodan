@@ -100,4 +100,4 @@ try:
     from rodan.jobs.gamera.custom.border_removal import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Border Removal job not installed.", e
+    print "Custom Border Removal job not installed. Skipping", e
