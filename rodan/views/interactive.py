@@ -87,31 +87,41 @@ class DespeckleView(RodanInteractiveBaseView):
         return super(DespeckleView, self).post(request, *args, **kwargs)
 
 
-def rotate(request):
-    data = {
-        "image": "http://placehold.it/1000x1000"  # a placeholder image for now
-    }
-    return render(request, 'jobs/rotate.html', data)
+class RotateView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "interactive/rotate/"
+        self.template_name = "rotate.html"
+        return super(RotateView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(RotateView, self).post(request, *args, **kwargs)
 
 
-def segment(request):
-    data = {
-        "image": "http://placehold.it/1000x1000"  # a placeholder image for now
-    }
-    return render(request, 'jobs/segmentation.html', data)
+class SegmentView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/segment/"
+        self.template_name = "segmentation.html"
+        return super(SegmentView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(SegmentView, self).post(request, *args, **kwargs)
 
 
-def luminance(request):
-    data = {
-        "medium_thumbnail": "http://placehold.it/400x400",  # a placeholder image for now
-    }
-    return render(request, 'jobs/luminance.html', data)
+class LuminanceView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/luminance/"
+        self.template_name = "luminance.html"
+        return super(LuminanceView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(LuminanceView, self).post(request, *args, **kwargs)
 
 
-def barlinecorrection(request):
-    data = {
-        "original_image": "http://placehold.it/1000x1000",  # a placeholder image for now
-        "small_thumbnail": "http://placehold.it/150x150",
-    }
+class BarlineCorrectionView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/barlinecorrection/"
+        self.template_name = "barline-correction.html"
+        return super(BarlineCorrectionView, self).get(request, *args, **kwargs)
 
-    return render(request, 'jobs/barline-correction.html', data)
+    def post(self, request, *args, **kwargs):
+        return super(BarlineCorrectionView, self).post(request, *args, **kwargs)

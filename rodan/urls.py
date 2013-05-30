@@ -63,14 +63,14 @@ urlpatterns += format_suffix_patterns(
     )
 )
 
-urlpatterns += patterns('rodan.views.interactive',
+urlpatterns += patterns('',
         url(r'^interactive/crop/$', interactive.CropView.as_view()),
         url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
         url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
-        url(r'^interactive/rotate/$', 'rotate'),
-        url(r'^interactive/segment/$', 'segment'),
-        url(r'^interactive/luminance/$', 'luminance'),
-        url(r'^interactive/barlinecorrection/$', 'barlinecorrection'),
+        url(r'^interactive/rotate/$', interactive.RotateView.as_view()),
+        url(r'^interactive/segment/$', interactive.SegmentView.as_view()),
+        url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
+        url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
     )
 
 urlpatterns += patterns('rodan.views.diva',
