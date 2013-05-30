@@ -289,6 +289,7 @@ var activeWorkflow = nil,
                     path:[run pk] + @"?by_page=true"  // return results by page, rather than by run_job
                     delegate:self
                     message:"Loading Workflow Run Results"];
+    return YES;
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
@@ -328,7 +329,6 @@ var activeWorkflow = nil,
                       withKeyPath:@"selectionIndexes"
                       options:nil];
 }
-
 @end
 
 
