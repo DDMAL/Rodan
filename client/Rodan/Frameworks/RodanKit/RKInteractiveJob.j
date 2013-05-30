@@ -13,7 +13,8 @@
     if (self)
     {
         [self setFrameLoadDelegate:self];
-        [self setMainFrameURL:@"/interactive/crop?rj_uuid=" + aRunJobUUID];
+        var urlPart = [[CPBundle bundleForClass:[self class]] objectForInfoDictionaryKey:"gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop"];
+        [self setMainFrameURL:@"/interactive/" + urlPart + "?rj_uuid=" + aRunJobUUID];
     }
     return self;
 }

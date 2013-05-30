@@ -8,5 +8,7 @@
     <string>FMWK</string>
     <key>CPPrincipalClass</key>
     <string>RodanKit</string>
+    <key>gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop</key>
+    <string>crop</string>
 </dict>
 </plist>
