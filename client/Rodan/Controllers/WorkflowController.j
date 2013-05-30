@@ -9,7 +9,9 @@
 @global RodanDidLoadWorkflowsNotification
 @global RodanWorkflowTreeNeedsRefresh
 @global RodanHasFocusWorkflowResultsViewNotification
-@global RodanShouldLoadWorkflowResultsNotification
+@global RodanShouldLoadWorkflowResultsWorkflowsNotification
+@global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+@global RodanShouldLoadWorkflowResultsWorkflowResultsNotification
 
 
 var activeWorkflow = nil,
@@ -57,13 +59,25 @@ var activeWorkflow = nil,
                   toObject:workflowArrayController
                   withKeyPath:@"selectedObjects.@count"
                   options:nil];
+
+    // Subscriptions for self.
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(receiveHasFocusEvent:)
                                           name:RodanHasFocusWorkflowResultsViewNotification
                                           object:nil];
     [[CPNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(shouldLoad:)
-                                          name:RodanShouldLoadWorkflowResultsNotification
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadWorkflowResultsWorkflowsNotification
+                                          object:nil];
+
+    // Subscriptions for delegates.
+    [[CPNotificationCenter defaultCenter] addObserver:workflowStatusDelegate
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:workflowRunsStatusDelegate
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
                                           object:nil];
 }
 
@@ -119,39 +133,25 @@ var activeWorkflow = nil,
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
-                         notification:RodanShouldLoadWorkflowResultsNotification];
+                         notification:RodanShouldLoadWorkflowResultsWorkflowsNotification];
 }
 
 
 /**
- * Handles the request to load.
+ * Handles load notification and delegates loading to the associated sub-delegates.
  */
-- (void)shouldLoad:(CPNotification)aNotification
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    // Reload the runs of the currently selected workflow.
-    if ([workflowStatusDelegate currentlySelectedWorkflow] != nil)
-    {
-        // Remote call.
-        [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:[[workflowStatusDelegate currentlySelectedWorkflow] remotePath]
-                        delegate:self
-                        message:"Loading Workflow"];
-    }
-}
+    // We need to refresh the known workflows.
+    //...
 
+    // Next, tell the workflow status delegate to update the currently selected workflow.
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+                                          object:nil];
 
-/**
- * Handles success of loading.
- */
-- (void)remoteActionDidFinish:(WLRemoteAction)aAction
-{
-    if ([aAction result])
-    {
-        [WLRemoteObject setDirtProof:YES];
-        [[workflowStatusDelegate currentlySelectedWorkflow] initWithJson:[aAction result]];
-        [WLRemoteObject setDirtProof:NO];
-        [workflowStatusDelegate bindWorkflowRuns];
-    }
+    // Finally, tell the runs status delegate to update.
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+                                          object:nil];
 }
 
 
@@ -209,7 +209,6 @@ var activeWorkflow = nil,
                          toObject:currentlySelectedWorkflow
                          withKeyPath:@"workflowRuns"
                          options:nil];
-
     [runsTableView bind:@"content"
                    toObject:runsArrayController
                    withKeyPath:@"arrangedObjects"
@@ -245,13 +244,40 @@ var activeWorkflow = nil,
 }
 
 
+/**
+ * Handles the request to load.
+ */
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
+{
+    if (currentlySelectedWorkflow != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:[currentlySelectedWorkflow remotePath]
+                        delegate:self
+                        message:"Loading Workflow"];
+    }
+}
+
+
+/**
+ * Handles success of loading.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        [currentlySelectedWorkflow initWithJson:[aAction result]];
+        [WLRemoteObject setDirtProof:NO];
+        [self bindWorkflowRuns];
+    }
+}
 @end
 
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// RunsStatusDelegate
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Runs status delegate that handles the "runs" view.
+ */
 @implementation RunsStatusDelegate : CPObject
 {
     @outlet WorkflowStatusDelegate  workflowStatusDelegate;
@@ -261,8 +287,13 @@ var activeWorkflow = nil,
             CPArrayController       runJobsArrayController;
             CPArrayController       pagesArrayController;
             CPArrayController       resultsArrayController;
+            WorkflowRun             currentlySelectedWorkflowRun;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)emptyArrayControllers
 {
     [runJobsArrayController setContent:nil];
@@ -271,6 +302,9 @@ var activeWorkflow = nil,
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Handler Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
     if ([[[aNotification object] selectedRowIndexes] count] === 0)
@@ -283,24 +317,36 @@ var activeWorkflow = nil,
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
     runJobsArrayController = [[CPArrayController alloc] init];
-    var run = [[[workflowStatusDelegate runsArrayController] contentArray] objectAtIndex:rowIndex];
-
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:[run pk] + @"?by_page=true"  // return results by page, rather than by run_job
-                    delegate:self
-                    message:"Loading Workflow Run Results"];
+    currentlySelectedWorkflowRun = [[[workflowStatusDelegate runsArrayController] contentArray] objectAtIndex:rowIndex];
+    [self handleShouldLoadNotification:nil];
     return YES;
 }
 
+
+/**
+ * Handles the request to load.
+ */
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
+{
+    if (currentlySelectedWorkflowRun != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:[currentlySelectedWorkflowRun pk] + @"?by_page=true"  // return results by page, rather than by run_job
+                        delegate:self
+                        message:"Loading Workflow Run Results"];
+    }
+}
+
+
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    var workflowRun = [[SimpleWorkflowRunModel alloc] initWithJson:[anAction result]];
+    currentlySelectedWorkflowRun = [[SimpleWorkflowRunModel alloc] initWithJson:[anAction result]];
 
     pagesArrayController = [[CPArrayController alloc] init];
     resultsArrayController = [[CPArrayController alloc] init];
 
     [pagesArrayController bind:@"contentArray"
-                          toObject:workflowRun
+                          toObject:currentlySelectedWorkflowRun
                           withKeyPath:@"pages"
                           options:nil];
 
