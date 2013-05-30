@@ -21,8 +21,6 @@ var _msLOADINTERVAL = 5.0;
 {
     @outlet CPTableView         interactiveJobsTableView;
     @outlet CPArrayController   interactiveJobsArrayController  @accessors(readonly);
-            RunJob              currentlySelectedInteractiveJob;
-            CPTimer             timer;
 }
 
 
@@ -69,10 +67,6 @@ var _msLOADINTERVAL = 5.0;
         // Populate the array controller, set the new "currently active", and send notification.
         var runJobs = [RunJob objectsFromJson:[aAction result]];
         [interactiveJobsArrayController setContent:runJobs];
-        if ([[interactiveJobsArrayController contentArray] count] > 0)
-        {
-            currentlySelectedInteractiveJob = [[interactiveJobsArrayController contentArray] objectAtIndex:0];
-        }
     }
 }
 
@@ -83,8 +77,9 @@ var _msLOADINTERVAL = 5.0;
 - (@action)displayInteractiveJobWindow:(id)aSender
 {
     // Get the UUID and give it to a new window.
-    var runJobUUID = [currentlySelectedInteractiveJob getUUID],
-        jobName = [currentlySelectedInteractiveJob jobName],
+    var runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0],
+        runJobUUID = [runJob getUUID],
+        jobName = [runJob jobName],
         cropWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
                                               styleMask:CPClosableWindowMask | CPResizableWindowMask
                                               runJobUUID:runJobUUID
@@ -102,7 +97,6 @@ var _msLOADINTERVAL = 5.0;
  */
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)aRowIndex
 {
-    currentlySelectedInteractiveJob = [[interactiveJobsArrayController contentArray] objectAtIndex:aRowIndex];
     return YES;
 }
 
