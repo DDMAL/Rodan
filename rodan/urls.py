@@ -29,7 +29,7 @@ from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
 
-from rodan.views.interactive import CropView, BinariseView, DespeckleView
+from rodan.views import interactive
 
 
 urlpatterns = []
@@ -64,9 +64,9 @@ urlpatterns += format_suffix_patterns(
 )
 
 urlpatterns += patterns('rodan.views.interactive',
-        url(r'^interactive/crop/$', CropView.as_view()),
-        url(r'^interactive/binarise/$', BinariseView.as_view()),
-        url(r'^interactive/despeckle/$', DespeckleView.as_view()),
+        url(r'^interactive/crop/$', interactive.CropView.as_view()),
+        url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
+        url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
         url(r'^interactive/rotate/$', 'rotate'),
         url(r'^interactive/segment/$', 'segment'),
         url(r'^interactive/luminance/$', 'luminance'),

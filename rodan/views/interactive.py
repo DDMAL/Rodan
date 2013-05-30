@@ -8,6 +8,7 @@ from rodan.models import Result
 class RodanInteractiveBaseView(View):
     view_url = ""
     template_name = ""
+    data = {}
 
     def get(self, request, *args, **kwargs):
         if 'rj_uuid' in request.GET:
@@ -18,18 +19,23 @@ class RodanInteractiveBaseView(View):
 
             # if this is the first job in the sequence, the file path is just the original image
             if sequence == 1:
-                path_to_image = run_job.page.large_thumb_url
+                image_source = run_job.page
             else:
-                previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1), workflow_run__uuid=run_job.workflow_run.uuid)
-                previous_job_result = Result.objects.get(run_job__uuid=previous_run_job.uuid)
+                previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1),
+                                                      workflow_run__uuid=run_job.workflow_run.uuid)
+                image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
 
-                path_to_image = previous_job_result.large_thumb_url
+            # This dictionary contains context for all the possible interactive views.
+            # For any particular view, there will be redundant data, but compared to the reduction
+            # in code duplication this is a small price to pay.
+            data = {'form_url': self.view_url,
+                    'run_job_uuid': rj_uuid,
+                    'image': image_source.large_thumb_url,
+                    'original_image': image_source.large_thumb_url,
+                    'medium_thumbnail': image_source.medium_thumb_url,
+                    'small_thumbnail': image_source.small_thumb_url
+                    }
 
-            data = {
-                "image": path_to_image,
-                "form_url": self.view_url,
-                "run_job_uuid": rj_uuid
-            }
             return render(request, "{0}/{1}".format('jobs', self.template_name), data)
         else:
             return render(request, 'jobs/bad_request.html')
@@ -39,25 +45,16 @@ class RodanInteractiveBaseView(View):
             rj_uuid = request.POST['run_job_uuid']
             run_job = RunJob.objects.get(uuid=rj_uuid)
 
-            run_job_settings = [y['name'] for y in run_job.job_settings]
-
-            # check if all required job_settings have been provided in the POST
-            if all(job_setting in request.POST for job_setting in run_job_settings):
-                # change all the job_settings values of the run_job to the new values
-                # (note that the coordinate values need to be scaled since they were taken from a thumbnailed version
-                # displayed on the js interface - inside request.POST, the 'imw' parameter hold the value of the width)
-                for job_setting in run_job.job_settings:
+            for job_setting in run_job.job_settings:
+                if job_setting['name'] in request.POST:
                     job_setting['default'] = request.POST[job_setting['name']]
 
-                # uncheck needs-input
-                run_job.needs_input = False
+            run_job.needs_input = False
+            run_job.save()
 
-                # save all the changes
-                run_job.save()
-
-                return render(request, 'jobs/job_input_done.html')
-            else:
-                return render(request, 'jobs/bad_request.html')
+            return render(request, 'jobs/job_input_done.html')
+        else:
+            return render(request, 'jobs/bad_request.html')
 
 
 class CropView(RodanInteractiveBaseView):
@@ -66,39 +63,9 @@ class CropView(RodanInteractiveBaseView):
         self.template_name = "crop.html"
         return super(CropView, self).get(request, *args, **kwargs)
 
-    #Override post because 'imw' should be optional for the client. 
     def post(self, request, *args, **kwargs):
-        if 'run_job_uuid' in request.POST:
-            rj_uuid = request.POST['run_job_uuid']
-            run_job = RunJob.objects.get(uuid=rj_uuid)
+        return super(CropView, self).post(request, *args, **kwargs)
 
-            run_job_settings = ('ulx', 'uly', 'lrx', 'lry')
-
-            # check if all required job_settings have been provided in the POST
-            if all(job_setting in request.POST for job_setting in run_job_settings):
-                # change all the job_settings values of the run_job to the new values
-                # (note that the coordinate values need to be scaled since they were taken from a thumbnailed version
-                # displayed on the js interface - inside request.POST, the 'imw' parameter hold the value of the width)
-                for job_setting in run_job.job_settings:
-                    job_setting['default'] = request.POST[job_setting['name']]
-
-                #This is separate because imw is optional.
-                #I wonder if there is a more Pythonic way to do this. 
-                if 'imw' in request.POST:
-                    for setting in run_job.job_settings:
-                        if 'imw' == setting['name']:
-                            break
-                    setting['default'] = request.POST['imw']
-
-                # uncheck needs-input
-                run_job.needs_input = False
-
-                # save all the changes
-                run_job.save()
-
-                return render(request, 'jobs/job_input_done.html')
-            else:
-                return render(request, 'jobs/bad_request.html')
 
 class BinariseView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):
@@ -108,6 +75,7 @@ class BinariseView(RodanInteractiveBaseView):
 
     def post(self, request, *args, **kwargs):
         return super(BinariseView, self).post(request, *args, **kwargs)
+
 
 class DespeckleView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):
