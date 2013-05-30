@@ -10,5 +10,9 @@
     <string>RodanKit</string>
     <key>gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop</key>
     <string>crop</string>
+    <key>gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle</key>
+    <string>despeckle</string>
+    <key>gamera.plugins.threshold.threshold</key>
+    <string>binarise</string>
 </dict>
 </plist>

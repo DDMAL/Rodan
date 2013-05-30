@@ -84,9 +84,11 @@ var _msLOADINTERVAL = 5.0;
 {
     // Get the UUID and give it to a new window.
     var runJobUUID = [currentlySelectedInteractiveJob getUUID],
+        jobName = [currentlySelectedInteractiveJob jobName],
         cropWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
                                               styleMask:CPClosableWindowMask | CPResizableWindowMask
-                                              runJobUUID:runJobUUID];
+                                              runJobUUID:runJobUUID
+                                              jobName:jobName];
     [cropWindow center];
     [cropWindow makeKeyAndOrderFront:aSender];
 }
