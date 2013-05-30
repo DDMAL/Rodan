@@ -66,24 +66,57 @@ class CropView(RodanInteractiveBaseView):
         self.template_name = "crop.html"
         return super(CropView, self).get(request, *args, **kwargs)
 
+    #Override post because 'imw' should be optional for the client. 
     def post(self, request, *args, **kwargs):
-        return super(CropView, self).post(request, *args, **kwargs)
+        if 'run_job_uuid' in request.POST:
+            rj_uuid = request.POST['run_job_uuid']
+            run_job = RunJob.objects.get(uuid=rj_uuid)
 
+            run_job_settings = ('ulx', 'uly', 'lrx', 'lry')
 
-def binarise(request):
-    data = {
-        "original_image": "http://placehold.it/1000x1000",  # a placeholder image for now
-        "small_thumbnail": "http://placehold.it/150x150",
-    }
-    return render(request, 'jobs/simple-binarise.html', data)
+            # check if all required job_settings have been provided in the POST
+            if all(job_setting in request.POST for job_setting in run_job_settings):
+                # change all the job_settings values of the run_job to the new values
+                # (note that the coordinate values need to be scaled since they were taken from a thumbnailed version
+                # displayed on the js interface - inside request.POST, the 'imw' parameter hold the value of the width)
+                for job_setting in run_job.job_settings:
+                    job_setting['default'] = request.POST[job_setting['name']]
 
+                #This is separate because imw is optional.
+                #I wonder if there is a more Pythonic way to do this. 
+                if 'imw' in request.POST:
+                    for setting in run_job.job_settings:
+                        if 'imw' == setting['name']:
+                            break
+                    setting['default'] = request.POST['imw']
 
-def despeckle(request):
-    data = {
-        "original_image": "http://placehold.it/1000x1000",  # a placeholder image for now
-        "small_thumbnail": "http://placehold.it/150x150",
-    }
-    return render(request, 'jobs/despeckle.html', data)
+                # uncheck needs-input
+                run_job.needs_input = False
+
+                # save all the changes
+                run_job.save()
+
+                return render(request, 'jobs/job_input_done.html')
+            else:
+                return render(request, 'jobs/bad_request.html')
+
+class BinariseView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/binarise/"
+        self.template_name = "simple-binarise.html"
+        return super(BinariseView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(BinariseView, self).post(request, *args, **kwargs)
+
+class DespeckleView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/despeckle/"
+        self.template_name = "despeckle.html"
+        return super(DespeckleView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(DespeckleView, self).post(request, *args, **kwargs)
 
 
 def rotate(request):
