@@ -9,23 +9,34 @@
 @global RodanDidLoadWorkflowsNotification
 @global RodanWorkflowTreeNeedsRefresh
 @global RodanHasFocusWorkflowResultsViewNotification
+@global RodanShouldLoadWorkflowResultsNotification
 
 
-var activeWorkflow = nil;
+var activeWorkflow = nil,
+    _msLOADINTERVAL = 5.0;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// WorkflowController
+// CONTROLLERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * General workflow controller that exists with the Workflow Results View.
+ * It's purpose is to do a lot of reload handling.
+ */
 @implementation WorkflowController : CPObject
 {
     @outlet     CPArrayController       workflowArrayController;
     @outlet     CPArrayController       jobArrayController;
     @outlet     CPArrayController       resultsArrayController;
     @outlet     CPButtonBar             workflowAddRemoveBar;
+    @outlet     WorkflowStatusDelegate  workflowStatusDelegate;
+    @outlet     RunsStatusDelegate      workflowRunsStatusDelegate;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Init Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)awakeFromCib
 {
     var addButton = [CPButtonBar plusPopupButton],
@@ -50,15 +61,16 @@ var activeWorkflow = nil;
                                           selector:@selector(receiveHasFocusEvent:)
                                           name:RodanHasFocusWorkflowResultsViewNotification
                                           object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(shouldLoad:)
+                                          name:RodanShouldLoadWorkflowResultsNotification
+                                          object:nil];
 }
 
 
-- (void)receiveHasFocusEvent:(CPNotification)aNotification
-{
-    [RKNotificationTimer clearTimedNotification];
-}
-
-
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeWorkflow:(id)aSender
 {
     if ([workflowArrayController selectedObjects])
@@ -101,6 +113,51 @@ var activeWorkflow = nil;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Handler Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (void)receiveHasFocusEvent:(CPNotification)aNotification
+{
+    [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
+                         notification:RodanShouldLoadWorkflowResultsNotification];
+}
+
+
+/**
+ * Handles the request to load.
+ */
+- (void)shouldLoad:(CPNotification)aNotification
+{
+    // Reload the runs of the currently selected workflow.
+    if ([workflowStatusDelegate currentlySelectedWorkflow] != nil)
+    {
+        // Remote call.
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:[[workflowStatusDelegate currentlySelectedWorkflow] remotePath]
+                        delegate:self
+                        message:"Loading Workflow"];
+    }
+}
+
+
+/**
+ * Handles success of loading.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        [[workflowStatusDelegate currentlySelectedWorkflow] initWithJson:[aAction result]];
+        [WLRemoteObject setDirtProof:NO];
+        [workflowStatusDelegate bindWorkflowRuns];
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Static Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 + (Workflow)activeWorkflow
 {
     return activeWorkflow;
@@ -112,49 +169,44 @@ var activeWorkflow = nil;
     activeWorkflow = aWorkflow;
     console.log("active workflow: " + [activeWorkflow workflowName]);
 }
-
 @end
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// WorkflowStatusDelegate
+// DELEGATES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Delegate for the Workflow table view in the Workflow Status view.
+ */
 @implementation WorkflowStatusDelegate : CPObject
 {
     @outlet     WorkflowController  workflowController;
     @outlet     RunsStatusDelegate  runsStatusDelegate;
     @outlet     CPArrayController   workflowArrayController;
-                CPArrayController   runsArrayController     @accessors(readonly);
+                CPArrayController   runsArrayController         @accessors(readonly);
     @outlet     CPTableView         runsTableView;
     @outlet     CPTableView         resultsTableView;
+                Workflow            currentlySelectedWorkflow   @accessors(readonly);
 }
 
-- (void)tableViewSelectionIsChanging:(CPNotification)aNotification
-{
-    if ([[[aNotification object] selectedRowIndexes] count] === 0)
-    {
-        [self emptyArrayControllers];
-    }
-}
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)emptyArrayControllers
 {
     [runsArrayController setContent:nil];
-
-    // ensure we empty out the other array controller if we're deslecting the workflow.
     [runsStatusDelegate emptyArrayControllers];
 }
 
-- (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
-{
-    // We also need to empty array controllers here.  We've loaded a new workflow.
-    [self emptyArrayControllers];
 
-    runsArrayController = [[CPArrayController alloc] init];
-    var workflowObject = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
-    [WorkflowController setActiveWorkflow:workflowObject];
+/**
+ * Binds array controller for Workflow Runs to the table view.
+ */
+- (void)bindWorkflowRuns
+{
     [runsArrayController bind:@"contentArray"
-                         toObject:workflowObject
+                         toObject:currentlySelectedWorkflow
                          withKeyPath:@"workflowRuns"
                          options:nil];
 
@@ -167,9 +219,31 @@ var activeWorkflow = nil;
                    toObject:runsArrayController
                    withKeyPath:@"selectionIndexes"
                    options:nil];
+}
 
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Handler Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (void)tableViewSelectionIsChanging:(CPNotification)aNotification
+{
+    if ([[[aNotification object] selectedRowIndexes] count] === 0)
+    {
+        [self emptyArrayControllers];
+    }
+}
+
+
+- (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
+{
+    [self emptyArrayControllers];
+    runsArrayController = [[CPArrayController alloc] init];
+    currentlySelectedWorkflow = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
+    [WorkflowController setActiveWorkflow:currentlySelectedWorkflow];
+    [self bindWorkflowRuns];
     return YES;
 }
+
 
 @end
 
@@ -187,11 +261,6 @@ var activeWorkflow = nil;
             CPArrayController       runJobsArrayController;
             CPArrayController       pagesArrayController;
             CPArrayController       resultsArrayController;
-
-
-    // a bug in cappuccino sends the delegate signal twice. Catch that and only
-    // allow the results to be fetched once.
-            BOOL                    isFetching;
 }
 
 - (void)emptyArrayControllers
@@ -213,10 +282,6 @@ var activeWorkflow = nil;
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    if (isFetching)
-        return;
-
-    isFetching = YES;
     runJobsArrayController = [[CPArrayController alloc] init];
     var run = [[[workflowStatusDelegate runsArrayController] contentArray] objectAtIndex:rowIndex];
 
@@ -224,13 +289,10 @@ var activeWorkflow = nil;
                     path:[run pk] + @"?by_page=true"  // return results by page, rather than by run_job
                     delegate:self
                     message:"Loading Workflow Run Results"];
-
-    return YES;
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
-    isFetching = NO;
     var workflowRun = [[SimpleWorkflowRunModel alloc] initWithJson:[anAction result]];
 
     pagesArrayController = [[CPArrayController alloc] init];
@@ -265,23 +327,6 @@ var activeWorkflow = nil;
                       toObject:resultsArrayController
                       withKeyPath:@"selectionIndexes"
                       options:nil];
-
-    // [runJobsArrayController bind:@"contentArray"
-    //                         toObject:workflowRun
-    //                         withKeyPath:@"runJobs"
-    //                         options:nil];
-
-    // [runJobsTableView bind:@"content"
-    //                   toObject:runJobsArrayController
-    //                   withKeyPath:@"arrangedObjects"
-    //                   options:nil];
-
-    // [runJobsTableView bind:@"selectionIndexes"
-    //                   toObject:runJobsArrayController
-    //                   withKeyPath:@"selectionIndexes"
-    //                   options:nil];
-
-
 }
 
 @end

@@ -2428,7 +2428,6 @@
 						<reference key="NSHScroller" ref="167841865"/>
 						<reference key="NSContentView" ref="1005364474"/>
 						<reference key="NSHeaderClipView" ref="666193864"/>
-						<reference key="NSCornerView" ref="541957506"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 						<double key="NSMinMagnification">0.25</double>
 						<double key="NSMaxMagnification">4</double>
@@ -8720,6 +8719,22 @@
 						<reference key="destination" ref="195870385"/>
 					</object>
 					<int key="connectionID">3758</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">workflowRunsStatusDelegate</string>
+						<reference key="source" ref="606711763"/>
+						<reference key="destination" ref="413465052"/>
+					</object>
+					<int key="connectionID">4048</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">workflowStatusDelegate</string>
+						<reference key="source" ref="606711763"/>
+						<reference key="destination" ref="989848291"/>
+					</object>
+					<int key="connectionID">4049</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -16204,7 +16219,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">4046</int>
+			<int key="maxID">4049</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -17243,6 +17258,8 @@
 							<string>resultsArrayController</string>
 							<string>workflowAddRemoveBar</string>
 							<string>workflowArrayController</string>
+							<string>workflowRunsStatusDelegate</string>
+							<string>workflowStatusDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -17250,6 +17267,8 @@
 							<string>NSArrayController</string>
 							<string>CPButtonBar</string>
 							<string>NSArrayController</string>
+							<string>RunsStatusDelegate</string>
+							<string>WorkflowStatusDelegate</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
@@ -17260,6 +17279,8 @@
 							<string>resultsArrayController</string>
 							<string>workflowAddRemoveBar</string>
 							<string>workflowArrayController</string>
+							<string>workflowRunsStatusDelegate</string>
+							<string>workflowStatusDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -17278,6 +17299,14 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">workflowArrayController</string>
 								<string key="candidateClassName">NSArrayController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">workflowRunsStatusDelegate</string>
+								<string key="candidateClassName">RunsStatusDelegate</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">workflowStatusDelegate</string>
+								<string key="candidateClassName">WorkflowStatusDelegate</string>
 							</object>
 						</object>
 					</object>

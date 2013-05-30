@@ -74,8 +74,7 @@ RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
 // Data loading events.
 RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
-RodanShouldLoadProjectWorkflowsNotification = @"RodanShouldLoadProjectWorkflowsNotification";
-RodanShouldLoadWorkflowRunsNotification = @"RodanShouldLoadWorkflowRunsNotification";
+RodanShouldLoadWorkflowResultsNotification = @"RodanShouldLoadWorkflowResultsNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
