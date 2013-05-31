@@ -267,6 +267,7 @@
             
             function resizeWindow() {
                 viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
+                viewWidth = Math.min(imageObj.width, viewWidth);
                 canvas.width = viewWidth;
                 canvas.height = viewWidth;
                 $("#slider").width(viewWidth);

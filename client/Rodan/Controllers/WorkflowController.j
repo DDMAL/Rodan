@@ -128,6 +128,24 @@ var activeWorkflow = nil,
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+// Action Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Runs the currently selected workflow.
+ */
+- (@action)runWorkflow:(id)aSender
+{
+    var workflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
+    if (workflow != nil)
+    {
+        var workflowRunAsJson = {"workflow": [workflow pk], "creator": [activeUser pk]},
+            workflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
+        [workflowRun ensureCreated];
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
@@ -167,7 +185,6 @@ var activeWorkflow = nil,
 + (void)setActiveWorkflow:(Workflow)aWorkflow
 {
     activeWorkflow = aWorkflow;
-    console.log("active workflow: " + [activeWorkflow workflowName]);
 }
 @end
 

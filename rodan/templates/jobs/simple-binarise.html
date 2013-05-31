@@ -23,10 +23,12 @@
         <img id="image-thumb" src="{{ small_thumbnail }}"/>
 		<img id="image-mid" src="{{ original_image }}"/>
     </div>
-    <canvas id="image-viewport" alt="Image viewport"></canvas>
-	<div id="image-rightside">
+	<div style="float:left" id="image-rightside">
     	<div id="image-miniframe"></div>
 		<canvas id="image-preview" alt="Image preview"></canvas>
 	</div>
+    <div style="float:left">
+        <canvas id="image-viewport" alt="Image viewport"></canvas>
+    </div>
 </div>
 {% endblock %}
