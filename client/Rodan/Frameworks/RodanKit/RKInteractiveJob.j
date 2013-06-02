@@ -14,7 +14,7 @@
     {
         [self setFrameLoadDelegate:self];
         var urlPart = [[CPBundle bundleForClass:[self class]] objectForInfoDictionaryKey:aJobName];
-        [self setMainFrameURL:@"/interactive/" + urlPart + "?rj_uuid=" + aRunJobUUID];
+        [self setMainFrameURL:@"/interactive/" + urlPart + "?runjob=" + aRunJobUUID];
     }
     return self;
 }

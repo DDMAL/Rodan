@@ -8,53 +8,48 @@ from rodan.models import Result
 class RodanInteractiveBaseView(View):
     view_url = ""
     template_name = ""
-    data = {}
 
     def get(self, request, *args, **kwargs):
-        if 'rj_uuid' in request.GET:
-            rj_uuid = request.GET['rj_uuid']
-            run_job = RunJob.objects.get(uuid=rj_uuid)
-
-            sequence = run_job.workflow_job.sequence
-
-            # if this is the first job in the sequence, the file path is just the original image
-            if sequence == 1:
-                image_source = run_job.page
-            else:
-                previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1),
-                                                      workflow_run__uuid=run_job.workflow_run.uuid)
-                image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
-
-            # This dictionary contains context for all the possible interactive views.
-            # For any particular view, there will be redundant data, but compared to the reduction
-            # in code duplication this is a small price to pay.
-            data = {'form_url': self.view_url,
-                    'run_job_uuid': rj_uuid,
-                    'image': image_source.large_thumb_url,
-                    'original_image': image_source.large_thumb_url,
-                    'medium_thumbnail': image_source.medium_thumb_url,
-                    'small_thumbnail': image_source.small_thumb_url
-                    }
-
-            return render(request, "{0}/{1}".format('jobs', self.template_name), data)
-        else:
+        if 'runjob' not in request.GET:
             return render(request, 'jobs/bad_request.html')
+
+        rj_uuid = request.GET['runjob']
+        run_job = RunJob.objects.get(uuid=rj_uuid)
+
+        sequence = run_job.workflow_job.sequence
+
+        # if this is the first job in the sequence, the file path is just the original image
+        if sequence == 1:
+            image_source = run_job.page
+        else:
+            previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1),
+                                                  workflow_run__uuid=run_job.workflow_run.uuid)
+            image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
+
+        # This dictionary contains context for all the possible interactive views.
+        # For any particular view, there will be redundant data, but compared to the reduction
+        # in code duplication this is a small price to pay.
+        data = {'form_url': self.view_url,
+                'run_job_uuid': rj_uuid,
+                'image_source': image_source}
+
+        return render(request, "{0}/{1}".format('jobs', self.template_name), data)
 
     def post(self, request, *args, **kwargs):
-        if 'run_job_uuid' in request.POST:
-            rj_uuid = request.POST['run_job_uuid']
-            run_job = RunJob.objects.get(uuid=rj_uuid)
-
-            for job_setting in run_job.job_settings:
-                if job_setting['name'] in request.POST:
-                    job_setting['default'] = request.POST[job_setting['name']]
-
-            run_job.needs_input = False
-            run_job.save()
-
-            return render(request, 'jobs/job_input_done.html')
-        else:
+        if not 'run_job_uuid' in request.POST:
             return render(request, 'jobs/bad_request.html')
+
+        rj_uuid = request.POST['run_job_uuid']
+        run_job = RunJob.objects.get(uuid=rj_uuid)
+
+        for job_setting in run_job.job_settings:
+            if job_setting['name'] in request.POST:
+                job_setting['default'] = request.POST[job_setting['name']]
+
+        run_job.needs_input = False
+        run_job.save()
+
+        return render(request, 'jobs/job_input_done.html')
 
 
 class CropView(RodanInteractiveBaseView):
@@ -89,7 +84,7 @@ class DespeckleView(RodanInteractiveBaseView):
 
 class RotateView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):
-        self.view_url = "interactive/rotate/"
+        self.view_url = "/interactive/rotate/"
         self.template_name = "rotate.html"
         return super(RotateView, self).get(request, *args, **kwargs)
 
