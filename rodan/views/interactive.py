@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.base import View
+from rest_framework import status
 
 from rodan.models import RunJob
 from rodan.models import Result
@@ -11,7 +12,7 @@ class RodanInteractiveBaseView(View):
 
     def get(self, request, *args, **kwargs):
         if 'runjob' not in request.GET:
-            return render(request, 'jobs/bad_request.html')
+            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
         rj_uuid = request.GET['runjob']
         run_job = RunJob.objects.get(uuid=rj_uuid)
@@ -26,9 +27,6 @@ class RodanInteractiveBaseView(View):
                                                   workflow_run__uuid=run_job.workflow_run.uuid)
             image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
 
-        # This dictionary contains context for all the possible interactive views.
-        # For any particular view, there will be redundant data, but compared to the reduction
-        # in code duplication this is a small price to pay.
         data = {'form_url': self.view_url,
                 'run_job_uuid': rj_uuid,
                 'image_source': image_source}
@@ -36,8 +34,8 @@ class RodanInteractiveBaseView(View):
         return render(request, "{0}/{1}".format('jobs', self.template_name), data)
 
     def post(self, request, *args, **kwargs):
-        if not 'run_job_uuid' in request.POST:
-            return render(request, 'jobs/bad_request.html')
+        if 'run_job_uuid' not in request.POST:
+            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
         rj_uuid = request.POST['run_job_uuid']
         run_job = RunJob.objects.get(uuid=rj_uuid)
