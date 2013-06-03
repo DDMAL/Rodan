@@ -9,6 +9,7 @@ from rodan.models import Result
 class RodanInteractiveBaseView(View):
     view_url = ""
     template_name = ""
+    data = {}
 
     def get(self, request, *args, **kwargs):
         if 'runjob' not in request.GET:
@@ -31,6 +32,9 @@ class RodanInteractiveBaseView(View):
                 'run_job_uuid': rj_uuid,
                 'image_source': image_source}
 
+        for setting in run_job.job_settings:
+            data[setting['name']] = setting['default']
+        
         return render(request, "{0}/{1}".format('jobs', self.template_name), data)
 
     def post(self, request, *args, **kwargs):
