@@ -13,10 +13,11 @@ class RunJobList(generics.ListAPIView):
     paginate_by = None
 
     def get_queryset(self):
-        requiresInteraction = self.request.QUERY_PARAMS.get('requires_interaction', 'false')
+        requires_interaction = self.request.QUERY_PARAMS.get('requires_interaction', None)
         queryset = RunJob.objects.all()
-        if requiresInteraction == 'true':
+        if requires_interaction:
             queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING])
+
         return queryset
 
 
