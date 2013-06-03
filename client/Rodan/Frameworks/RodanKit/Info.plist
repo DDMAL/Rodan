@@ -14,5 +14,7 @@
     <string>despeckle</string>
     <key>gamera.plugins.threshold.threshold</key>
     <string>binarise</string>
+    <key>gamera.custom.segmentation.segmentation</key>
+    <string>segment</string>
 </dict>
 </plist>
