@@ -139,7 +139,7 @@ var activeWorkflow = nil,
     var workflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
     if (workflow != nil)
     {
-        [workflow touchWorkflowJobs];
+        [WorkflowController touchWorkflowJobs:workflow];
         var workflowRunAsJson = {"workflow": [workflow pk], "creator": [activeUser pk]},
             workflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
         [workflowRun ensureCreated];
