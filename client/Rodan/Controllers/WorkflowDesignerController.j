@@ -180,38 +180,6 @@ JobItemType = @"JobItemType";
 {
     [addPagesToWorkflowWindow orderOut:self];
 }
-
-- (@action)testWorkflow:(id)aSender
-{
-    // this forces the workflow jobs to update themselves to the server
-    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
-
-    var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
-        workflowRun = {
-        "workflow": [[WorkflowController activeWorkflow] pk],
-        "test_run": true,
-        "creator": [activeUser pk]
-        },
-        testWorkflowRun = [[WorkflowRun alloc] initWithJson:workflowRun];
-    [testWorkflowRun setTestPageID:[selectedPage pk]];
-    [testWorkflowRun ensureCreated];
-}
-
-- (@action)runWorkflow:(id)aSender
-{
-    // this forces the workflow jobs to update themselves to the server
-    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-    [[[WorkflowController activeWorkflow] workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
-
-    var workflowRunObj = {
-        "workflow": [[WorkflowController activeWorkflow] pk],
-        "creator": [activeUser pk]
-        },
-        workflow = [[WorkflowRun alloc] initWithJson:workflowRunObj];
-    [workflow ensureCreated];
-}
-
 @end
 
 

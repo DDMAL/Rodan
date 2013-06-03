@@ -28,6 +28,7 @@ var activeWorkflow = nil,
 @implementation WorkflowController : CPObject
 {
     @outlet     CPArrayController       workflowArrayController;
+    @outlet     CPArrayController       workflowPagesArrayController;
     @outlet     CPArrayController       jobArrayController;
     @outlet     CPArrayController       resultsArrayController;
     @outlet     CPButtonBar             workflowAddRemoveBar;
@@ -138,11 +139,28 @@ var activeWorkflow = nil,
     var workflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
     if (workflow != nil)
     {
-        [[workflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-        [[workflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+        [workflow touchWorkflowJobs];
         var workflowRunAsJson = {"workflow": [workflow pk], "creator": [activeUser pk]},
             workflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
         [workflowRun ensureCreated];
+    }
+}
+
+
+/**
+ * Tests the workflow.
+ */
+- (@action)testWorkflow:(id)aSender
+{
+    var workflow = [WorkflowController activeWorkflow];
+    if (workflow != nil)
+    {
+        [WorkflowController touchWorkflowJobs:workflow];
+        var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
+            workflowRunAsJson = {"workflow": [workflow pk], "test_run": true, "creator": [activeUser pk]},
+            testWorkflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
+        [testWorkflowRun setTestPageID:[selectedPage pk]];
+        [testWorkflowRun ensureCreated];
     }
 }
 
@@ -187,6 +205,19 @@ var activeWorkflow = nil,
 + (void)setActiveWorkflow:(Workflow)aWorkflow
 {
     activeWorkflow = aWorkflow;
+}
+
+
+/**
+ * Given a workflow, touches it so job settings are saved.
+ */
++ (void)touchWorkflowJobs:(Workflow)aWorkflow
+{
+    if (aWorkflow != nil)
+    {
+        [[aWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
+        [[aWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
+    }
 }
 @end
 
