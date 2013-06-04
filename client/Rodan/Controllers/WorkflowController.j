@@ -139,7 +139,7 @@ var activeWorkflow = nil,
     var workflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
     if (workflow != nil)
     {
-        [WorkflowController touchWorkflowJobs:workflow];
+        [workflow touchWorkflowJobs];
         var workflowRunAsJson = {"workflow": [workflow pk], "creator": [activeUser pk]},
             workflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
         [workflowRun ensureCreated];
@@ -155,7 +155,7 @@ var activeWorkflow = nil,
     var workflow = [WorkflowController activeWorkflow];
     if (workflow != nil)
     {
-        [WorkflowController touchWorkflowJobs:workflow];
+        [workflow touchWorkflowJobs];
         var selectedPage = [[workflowPagesArrayController contentArray] objectAtIndex:[workflowPagesArrayController selectionIndex]],
             workflowRunAsJson = {"workflow": [workflow pk], "test_run": true, "creator": [activeUser pk]},
             testWorkflowRun = [[WorkflowRun alloc] initWithJson:workflowRunAsJson];
@@ -206,19 +206,6 @@ var activeWorkflow = nil,
 {
     activeWorkflow = aWorkflow;
 }
-
-
-/**
- * Given a workflow, touches it so job settings are saved.
- */
-+ (void)touchWorkflowJobs:(Workflow)aWorkflow
-{
-    if (aWorkflow != nil)
-    {
-        [[aWorkflow workflowJobs] makeObjectsPerformSelector:@selector(makeAllDirty)];
-        [[aWorkflow workflowJobs] makeObjectsPerformSelector:@selector(ensureSaved)];
-    }
-}
 @end
 
 
@@ -237,6 +224,7 @@ var activeWorkflow = nil,
     @outlet     CPTableView         runsTableView;
     @outlet     CPTableView         resultsTableView;
                 Workflow            currentlySelectedWorkflow   @accessors(readonly);
+                Workflow            loadingWorkflow;
 }
 
 
@@ -247,27 +235,30 @@ var activeWorkflow = nil,
 {
     [runsArrayController setContent:nil];
     [runsStatusDelegate emptyArrayControllers];
+    currentlySelectedWorkflow = nil;
 }
 
 
 /**
  * Binds array controller for Workflow Runs to the table view.
  */
-- (void)bindWorkflowRuns
+- (void)bindWorkflowRuns:(Workflow)aWorkflow
 {
-    [runsArrayController bind:@"contentArray"
-                         toObject:currentlySelectedWorkflow
-                         withKeyPath:@"workflowRuns"
-                         options:nil];
-    [runsTableView bind:@"content"
-                   toObject:runsArrayController
-                   withKeyPath:@"arrangedObjects"
-                   options:nil];
-
-    [runsTableView bind:@"selectionIndexes"
-                   toObject:runsArrayController
-                   withKeyPath:@"selectionIndexes"
-                   options:nil];
+    if (aWorkflow != nil)
+    {
+        [runsArrayController bind:@"contentArray"
+                             toObject:aWorkflow
+                             withKeyPath:@"workflowRuns"
+                             options:nil];
+        [runsTableView bind:@"content"
+                       toObject:runsArrayController
+                       withKeyPath:@"arrangedObjects"
+                       options:nil];
+        [runsTableView bind:@"selectionIndexes"
+                       toObject:runsArrayController
+                       withKeyPath:@"selectionIndexes"
+                       options:nil];
+    }
 }
 
 
@@ -289,7 +280,7 @@ var activeWorkflow = nil,
     runsArrayController = [[CPArrayController alloc] init];
     currentlySelectedWorkflow = [[workflowArrayController contentArray] objectAtIndex:rowIndex];
     [WorkflowController setActiveWorkflow:currentlySelectedWorkflow];
-    [self bindWorkflowRuns];
+    [self bindWorkflowRuns:currentlySelectedWorkflow];
     return YES;
 }
 
@@ -299,10 +290,11 @@ var activeWorkflow = nil,
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    if (currentlySelectedWorkflow != nil)
+    if (loadingWorkflow == nil && currentlySelectedWorkflow != nil)
     {
+        loadingWorkflow = currentlySelectedWorkflow;
         [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:[currentlySelectedWorkflow remotePath]
+                        path:[loadingWorkflow remotePath]
                         delegate:self
                         message:"Loading Workflow"];
     }
@@ -317,9 +309,10 @@ var activeWorkflow = nil,
     if ([aAction result])
     {
         [WLRemoteObject setDirtProof:YES];
-        [currentlySelectedWorkflow initWithJson:[aAction result]];
+        [loadingWorkflow initWithJson:[aAction result]];
+        [self bindWorkflowRuns:loadingWorkflow];
+        loadingWorkflow = nil;
         [WLRemoteObject setDirtProof:NO];
-        [self bindWorkflowRuns];
     }
 }
 @end

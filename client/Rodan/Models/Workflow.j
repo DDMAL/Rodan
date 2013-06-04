@@ -84,4 +84,14 @@
 {
     // add lots of jobs to a workflow
 }
+
+
+/**
+ * Touches it so job settings are saved.
+ */
+- (void)touchWorkflowJobs
+{
+    [workflowJobs makeObjectsPerformSelector:@selector(makeAllDirty)];
+    [workflowJobs makeObjectsPerformSelector:@selector(ensureSaved)];
+}
 @end
