@@ -24,7 +24,6 @@
 {
     var bounds = [self bounds],
         domWin = [self DOMWindow];
-    console.log("Did finish loading delegate");
 }
 @end
 
