@@ -7,6 +7,7 @@
     CPString    pk          @accessors;
     CPString    jobName     @accessors;
     CPNumber    sequence    @accessors;
+    CPNumber    status      @accessors;
     BOOL        needsInput  @accessors;
     CPArray     jobSettings @accessors;
     CPArray     result      @accessors;
@@ -22,9 +23,10 @@
         ['pk', 'url', nil, true],
         ['jobName', 'job_name'],
         ['sequence', 'sequence'],
+        ['status', 'status'],
         ['needsInput', 'needs_input'],
         ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
-        ['page', 'page'],
+        ['page', 'page', [WLForeignObjectTransformer forObjectClass:Page]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];

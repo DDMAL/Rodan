@@ -35,6 +35,7 @@
 @import "Transformers/CheckBoxTransformer.j"
 @import "Transformers/DateFormatTransformer.j"
 @import "Transformers/ResultsDisplayTransformer.j"
+@import "Transformers/RunJobStatusTransformer.j"
 @import "Transformers/UsernameTransformer.j"
 
 @import "Controllers/LogInController.j"
@@ -163,6 +164,10 @@ activeProject = nil;  // URI to the currently open project
     resultsDisplayTransformer = [[ResultsDisplayTransformer alloc] init];
     [ResultsDisplayTransformer setValueTransformer:resultsDisplayTransformer
                                 forName:@"ResultsDisplayTransformer"];
+
+    runJobStatusTransformer = [[RunJobStatusTransformer alloc] init];
+    [RunJobStatusTransformer setValueTransformer:runJobStatusTransformer
+                                forName:@"RunJobStatusTransformer"];
 
 }
 
