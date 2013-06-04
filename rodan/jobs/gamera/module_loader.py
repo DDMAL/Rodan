@@ -5,7 +5,7 @@ from rodan.jobs.gamera import argconvert
 
 
 def create_jobs_from_module(gamera_module, interactive=False):
-    previously_loaded_modules = Job.objects.values_list('job_name', 'interactive')
+    previously_loaded_modules = list(Job.objects.values_list('job_name', 'interactive'))
 
     for fn in gamera_module.module.functions:
         # we only want jobs that will return a result and has a known pixel type
@@ -39,4 +39,7 @@ def create_jobs_from_module(gamera_module, interactive=False):
             category=gamera_module.module.category,
             interactive=interactive
         )
+
         j.save()
+
+        previously_loaded_modules += [(str(fn), interactive)]
