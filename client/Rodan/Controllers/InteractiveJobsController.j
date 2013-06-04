@@ -64,7 +64,6 @@ var _msLOADINTERVAL = 5.0;
 {
     if ([aAction result])
     {
-        // Populate the array controller, set the new "currently active", and send notification.
         var runJobs = [RunJob objectsFromJson:[aAction result]];
         [interactiveJobsArrayController setContent:runJobs];
     }
