@@ -9,13 +9,12 @@ def load_segmentation():
     if job.exists():
         return None
     else:
-        settings = []
-        settings += [{'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'num lines','type':'int'}]
-        settings += [{'default':5,'has_default':True,'rng':[-1048576,1048576],'name':'scanlines','type':'int'}]
-        settings += [{'default':0.8,'has_default':True,'rng':[-1048576,1048576],'name':'blackness','type':'real'}]
-        settings += [{'default':-1,'has_default':True,'rng':[-1048576,1048576],'name':'tolerance','type':'int'}]
-        settings += [{'default': None,'has_default':True,'name':'polygon_outer_points','type':'json'}]
-        settings += [{'default': 0,'has_default':True,'rng':[-1048576,1048576],'name':'image_width','type':'int'}]
+        settings = [{'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'num lines','type':'int'},
+                    {'default':5,'has_default':True,'rng':(-1048576,1048576),'name':'scanlines','type':'int'},
+                    {'default':0.8,'has_default':True,'rng':(-1048576,1048576),'name':'blackness','type':'real'},
+                    {'default':-1,'has_default':True,'rng':(-1048576,1048576),'name':'tolerance','type':'int'},
+                    {'default': None,'has_default':True,'name':'polygon_outer_points','type':'json'},
+                    {'default': 0,'has_default':True,'rng':(-1048576,1048576),'name':'image_width','type':'int'}]
 
         j = Job(job_name=JOB_NAME,
                 author="Deepanjan Roy",

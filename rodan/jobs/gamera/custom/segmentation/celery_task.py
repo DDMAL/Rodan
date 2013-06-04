@@ -27,7 +27,7 @@ class SegmentationTask(Task):
         runjob = RunJob.objects.get(pk=runjob_id)
 
         # The job has already run once. No need to generate polygons again.
-        if RunJobStatus.RUN_ONCE_WAITING == runjob.status:
+        if runjob.status == RunJobStatus.RUN_ONCE_WAITING:
             if runjob.needs_input:
                 self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
@@ -50,14 +50,15 @@ class SegmentationTask(Task):
             task_image = load_image(page)
 
             ranked_page = task_image.rank(9, 9, 0)
-
+            
             settings = {}
             for s in runjob.job_settings:
-                if s['name'] in ('polygon_outer_points', 'image_width'):
-                    continue
                 setting_name = "_".join(s['name'].split(" "))
                 setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
                 settings[setting_name] = setting_value
+
+            # delete these two extra settings since miyao staff-finder does not accept it.
+            del settings['polygon_outer_points'], settings['image_width']
 
             staff_finder = StaffFinder_miyao(ranked_page, 0, 0)
             staff_finder.find_staves(**settings)
@@ -67,9 +68,9 @@ class SegmentationTask(Task):
             poly_json_list = create_polygon_outer_points_json_dict(poly_list)
 
             for setting in runjob.job_settings:
-                if 'polygon_outer_points' == setting['name']:
+                if setting['name'] == 'polygon_outer_points':
                     setting['default'] = poly_json_list
-                if 'image_width' == setting['name']:
+                if setting['name'] == 'image_width':
                     setting['default'] = task_image.ncols
 
             runjob.status = RunJobStatus.RUN_ONCE_WAITING
