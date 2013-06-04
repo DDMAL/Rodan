@@ -45,22 +45,29 @@
             }
         }
     
-        function findNearestPoints(point) {
+
+        function findNearestPoints(point) 
+        {
             var minDist = -1;
             var minGroup = null;
             var minPoint = null;
             var minNeighbour = null;
-            var g, i, gPoint, poly, nPoints, dist;
-            for (g in stage.get(".group")) {
-                if (stage.get(".group")[g] !== undefined) {
-                    var group = stage.get(".group")[g];
+            var gPoint = null;
+            var poly = null;
+            var nPoints = null;
+            var dist = null;
+            for(var i = 0; i < stage.get(".group").length; i++)
+            {
+                if(stage.get(".group")[i] !== undefined)
+                {
+                    var group = stage.get(".group")[i];
                     gPoint = $.extend({}, true, point);
                     gPoint.x -= group.getX();
                     gPoint.y -= group.getY();
                     poly = group.get(".poly")[0];
-                    nPoints = poly.getPoints().length;
-                    for (i = 0; i < nPoints; i++) {
-                        var anchor = group.attrs.anchors[i];
+                    for (var j = 0; j < poly.getPoints().length; j++)
+                    {
+                        var anchor = group.attrs.anchors[j];
                         var dY = anchor.getY() - gPoint.y;
                         dist = Math.abs(dY);
                         if (minDist < 0 || dist < minDist) {
@@ -238,7 +245,7 @@
                     if (gPoly.attrs.fill === pSelColour) {
                         layer = group.getLayer();
                         layer.remove(group);
-                        stage.remove(layer);
+                        layer.destroy();
                         break;
                     }
                 }
@@ -246,12 +253,13 @@
                 group = poly.getParent();
                 layer = group.getLayer();
                 layer.remove(group);
-                stage.remove(layer);
+                layer.destroy();
             }
+            selectedPoly = null;
         }
-        
+
         function addPoint(e) {
-            var point = stage.getUserPosition(e);
+            var point = {x: e.layerX, y: e.layerY};
             var nearestPoints = findNearestPoints(point);
             var group = nearestPoints[0].getParent();
             var poly = group.get(".poly")[0];
@@ -321,10 +329,11 @@
                 y: y,
                 draggable: true,
                 name: "group",
-                dragBoundFunc: function(pos) {
+                dragBoundFunc: function(pos) 
+                {
                     var newX = pos.x < (margin - minX) ? (margin - minX) : pos.x;
-                    newX = newX > (margin + imageObj.width) ? (margin + imageObj.width) : newX;
-                    var newY = pos.y < (margin + imageObj.width - maxX) ? (margin + imageObj.width - maxX) : pos.y;
+                    newX = newX > (margin + imageObj.width - maxX) ? (margin + imageObj.width - maxX) : newX;
+                    var newY = pos.y < (margin - minY) ? (margin - minY) : pos.y;
                     newY = newY > (margin + imageObj.height - maxY) ? (margin + imageObj.height - maxY) : newY;
                     return {
                         x: newX,
@@ -391,20 +400,22 @@
                 tLY = box.getY() + box.getHeight() - margin;
                 bRY = tLY - box.getHeight();
             }
-        
+
             var sPoints = [];
-            var g;
-            for (g in stage.get(".group")) {
-                if (stage.get(".group")[g] !== undefined) {
-                    var group = stage.get(".group")[g];
-                    var a;
-                    for (a in group.attrs.anchors) {
-                        if (group.attrs.anchors[a] !== undefined) {
-                            var anchor = group.attrs.anchors[a];
+            for(var i = 0; i < stage.get(".group").length; i++)
+            {
+                if (stage.get(".group")[i] !== undefined)
+                {
+                    var group = stage.get(".group")[i];
+                    for(var j = 0; j < group.attrs.anchors.length; j++)
+                    {
+                        if (group.attrs.anchors[j] !== undefined)
+                        {
+                            var anchor = group.attrs.anchors[j];
                             var adjX = anchor.getX() + group.getX() - margin;
                             var adjY = anchor.getY() + group.getY() - margin;
-                            if (adjX >= tLX && adjY >= tLY
-                                && adjX <= bRX && adjY <= bRY) {
+                            if (adjX >= tLX && adjY >= tLY && adjX <= bRX && adjY <= bRY)
+                            {
                                 sPoints.push(anchor);
                             }
                         }
@@ -495,10 +506,10 @@
                 } else {
                     deselectPoints();
                     // CREATE DRAG BOX
-                    var boxStart = stage.getUserPosition(e);
+                 //   var boxStart = stage.getUserPosition(e);
                     selectionBox = new Kinetic.Rect({
-                        x: boxStart.x,
-                        y: boxStart.y,
+                        x: e.layerX,//boxStart.x,
+                        y: e.layerY,//boxStart.y,
                         width: 0,
                         height: 0,
                         fill: 'yellow',
@@ -511,16 +522,15 @@
                     layer.add(selectionBox);
                     stage.add(layer);
                     layer.draw();
-                    var dStage = stage.getDOM();
+                    var dStage = document.getElementById("image-preview");//stage.getDOM();
                     var bodyDOM = document.getElementsByTagName("body")[0];
                     var moveListener = function(e) {
                         if (selectionBox !== null) {
-                            var point = stage.getUserPosition(e);
                             if (!selectionBox.isVisible()) {
                                 selectionBox.attrs.visible = true;
                             }
-                            var dX = point.x - selectionBox.getX();
-                            var dY = point.y - selectionBox.getY();
+                            var dX = e.layerX - selectionBox.getX();
+                            var dY = e.layerY - selectionBox.getY();
                             selectionBox.setAttrs({
                                 width: dX,
                                 height: dY
@@ -531,11 +541,10 @@
                     var upListener = function() {
                         if (selectionBox !== null) {
                             selectAnchors(findContainedPoints(selectionBox));
-                        
                             layer = selectionBox.getLayer();
                             layer.remove(selectionBox);
                             layer.draw();
-                            stage.remove(layer);
+                            layer.destroy();
                             selectionBox = null;
                             bodyDOM.removeEventListener("mouseup", upListener);
                         }
