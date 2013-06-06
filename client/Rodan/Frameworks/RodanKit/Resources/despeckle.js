@@ -24,45 +24,25 @@
         boxY = 0;
 
 
-
-        //binarises data, splitting foreground and background at a given brightness level
-        function binarise(thresh, x, y) {
-            if (x === undefined) {
-                x = 0;
+        /**
+         * Draws the test image.
+         */
+        function drawImage(aX, aY)
+        {
+            var canvas = document.getElementById("image-viewport");
+            var context = canvas.getContext("2d");
+            if(aX === 0 && aY === 0)
+            {
+                context.drawImage(imageObj, aX, aY);
             }
-            if (y === undefined) {
-                y = 0;
+            else
+            {
+                context.drawImage(imageObj, aX, aY, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
             }
-            var canvas, context, imageData, data, dLen, i, brightness;
-            canvas = document.getElementById("image-viewport");
-            context = canvas.getContext("2d");
-            //Have to redraw image and then scrape data
-            if (x == 0 && y == 0) {
-                context.drawImage(imageObj, x, y);
-            } else {
-                context.drawImage(imageObj, x, y, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            }
-            imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            data = imageData.data;
-            dLen = data.length;
-            for (i = 0; i < dLen; i += 4) {
-                //Brightness is the greyscale value for the given pixel
-                brightness = rScale * data[i] + gScale * data[i + 1] + bScale * data[i + 2];
-
-                // binarise image (set to black or white)
-                if (brightness > thresh) {
-                    data[i] = 255;
-                    data[i + 1] = 255;
-                    data[i + 2] = 255;
-                } else {
-                    data[i] = 0;
-                    data[i + 1] = 0;
-                    data[i + 2] = 0;
-                }
-            }
-            //Draw binarised image
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             context.putImageData(imageData, 0, 0);
         }
+
 
         //Despeckling function
         function despeckle(size, dx, dy) {
@@ -78,10 +58,10 @@
             defSize = size;
             canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
-            binarise(100, dx, dy);
-            if (size > 0) {
+            drawImage(dx, dy);
                 imageDataO = context.getImageData(0, 0, canvas.width, canvas.height);
                 dataO = imageDataO.data;
+            if (size > 0) {
 
                 w = canvas.width;
                 h = canvas.height;
@@ -155,8 +135,8 @@
                         }
                     }
                 }
-                context.putImageData(imageDataO, 0, 0);
             }
+                context.putImageData(imageDataO, 0, 0);
         }
 
         //Thumbnail post-loading functions, which occur after the full image is loaded
@@ -271,7 +251,7 @@
                     viewBox.getLayer().draw();
                     boxX = viewBox.getX() / scaleVal;
                     boxY = viewBox.getY() / scaleVal;
-                    binarise(100, boxX, boxY);
+                    drawImage(boxX, boxY);
                 }
             }
 
@@ -325,7 +305,7 @@
                     viewBox.getLayer().draw();
                     boxX = viewBox.getX() / scaleVal;
                     boxY = viewBox.getY() / scaleVal;
-                    binarise(100, boxX, boxY);
+                    drawImage(boxX, boxY);
                 }
             });
             bodyDOM.addEventListener("mouseup", function (e) {
@@ -371,7 +351,6 @@
             viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
             canvas.width = viewWidth;
             canvas.height = viewWidth;
-            binarise(100);
             $("#slider").width(viewWidth);
             imageThumb.src = $("#image-thumb").attr("src");
         };
@@ -390,7 +369,6 @@
             slide: function (event, ui) {
                 $("#cl_size").html(ui.value);
                 despeckle(ui.value, boxX, boxY);
-                console.log(imageObj.width)
             }
         });
         $('#form').submit(function () {
