@@ -26,8 +26,8 @@ class ManualClassificationTask(Task):
 
         if runjob.needs_input:
             runjob.status = RunJobStatus.WAITING_FOR_INPUT
-            self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
             runjob.save()
+            self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
         runjob.status = RunJobStatus.RUNNING
         runjob.save()
