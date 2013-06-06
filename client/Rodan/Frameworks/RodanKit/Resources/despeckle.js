@@ -382,7 +382,7 @@
         $("#slider").slider({
             animate: true,
             min: 0,
-            max: Math.round(100*631/4414),
+            max: 100,
             orientation: "horizontal",
             step: 1,
             value: 0,
@@ -390,10 +390,15 @@
             slide: function (event, ui) {
                 $("#cl_size").html(ui.value);
                 despeckle(ui.value, boxX, boxY);
+                console.log(imageObj.width)
             }
         });
         $('#form').submit(function () {
-            $('#size-input').val(Math.round(defSize*4414/631));
+            $('#size-input').val(defSize);
+            console.log(imageObj.width);
+            $('#imw-input').val(imageObj.width);
+
+
         });
     });
 })(jQuery)
