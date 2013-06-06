@@ -10,9 +10,12 @@
 
 {% block body %}
 <p>Adjust the slider until most speckles are removed</p>
+<p>Client cc_size: <span id="cl_size">Not provided</span> </p>
+<p>Server cc_size: <span id="serv_size">Not provided</span> </p>
+<p>Client Image Width: <span id="cl_imw">Not provided</span> </p>
     {% csrf_token %}
     <fieldset class="submit">
-        <input type="hidden" name="despeckle_value" value="0" id="size-input" />
+        <input type="hidden" name="cc_size" value="12" id="size-input" />
         <input type="submit" name="submit" value="Despeckle" class="submit" />
     </fieldset>
 
@@ -21,6 +24,7 @@
     <div class="hidden">
         <img id="image-full" src="{{ image_source.large_thumb_url }}"/>
         <img id="image-thumb" src="{{ image_source.small_thumb_url }}"/>
+        <p id="width">{{ image_width }}</p>
     </div>
     <canvas id="image-viewport" alt="Image preview"></canvas>
     <div id="image-miniframe"></div>

@@ -3,7 +3,9 @@
     //Setup
     $(document).ready(function () {
         var imageObj, imageThumb, BLACK, WHITE, rScale, gScale, bScale, defSize, viewWidth, boxX, boxY;
+
         //ImageData object storing full-sized image
+
         imageObj = new Image();
         imageThumb = new Image();
         //Constant for black rgb value
@@ -20,6 +22,8 @@
         //Current x and y coordinates of the frame of the viewport, relative to the full image
         boxX = 0;
         boxY = 0;
+
+
 
         //binarises data, splitting foreground and background at a given brightness level
         function binarise(thresh, x, y) {
@@ -378,17 +382,18 @@
         $("#slider").slider({
             animate: true,
             min: 0,
-            max: 100,
+            max: Math.round(100*631/4414),
             orientation: "horizontal",
             step: 1,
             value: 0,
             range: false,
             slide: function (event, ui) {
+                $("#cl_size").html(ui.value);
                 despeckle(ui.value, boxX, boxY);
             }
         });
-        $('#despeckle-form').submit(function () {
-            $('#size-input').val(defSize);
+        $('#form').submit(function () {
+            $('#size-input').val(Math.round(defSize*4414/631));
         });
     });
 })(jQuery)
