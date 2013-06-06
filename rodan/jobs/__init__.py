@@ -108,3 +108,9 @@ try:
 except ImportError as e:
     print "Custom Segmentation job not installed. Skipping", e
 
+try:
+    from rodan.jobs.gamera.custom.neume_classification import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    print "Custom Classification job not installed. Skipping", e
+
