@@ -371,7 +371,6 @@ JobItemType = @"JobItemType";
 {
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   workflowPagesArrayController;
-    @outlet     CPArrayController   workflowRunsArrayController;
 }
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
@@ -391,11 +390,6 @@ JobItemType = @"JobItemType";
                                   toObject:[WorkflowController activeWorkflow]
                                   withKeyPath:@"pages"
                                   options:nil];
-
-    [workflowRunsArrayController bind:@"contentArray"
-                                 toObject:[WorkflowController activeWorkflow]
-                                 withKeyPath:@"workflowRuns"
-                                 options:nil];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
