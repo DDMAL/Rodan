@@ -1,7 +1,7 @@
 @import <Foundation/CPObject.j>
 
 
-@implementation SimpleResults : CPObject
+@implementation SimpleResult : CPObject
 {
     CPString    created         @accessors;
     CPString    mediumThumbURL  @accessors;

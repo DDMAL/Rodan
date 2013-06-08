@@ -1,5 +1,5 @@
 @import <Foundation/CPObject.j>
-@import "../Models/SimpleResults.j"
+@import "../Models/SimpleResult.j"
 
 
 @implementation SimplePage : CPObject
@@ -33,7 +33,7 @@
 
             for (; j < resCount; j++)
             {
-                var res = [[SimpleResults alloc] initWithJson:jsonObject['results'][j]];
+                var res = [[SimpleResult alloc] initWithJson:jsonObject['results'][j]];
                 [resultArray addObject:res];
             }
             [self setValue:resultArray forKey:map[0]];
