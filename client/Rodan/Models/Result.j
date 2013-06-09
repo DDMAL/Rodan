@@ -24,8 +24,8 @@
         ['runJob', 'run_job', nil, true],
         ['resultURL', 'result', nil, true],
         ['thumbURL', 'medium_thumb_url'],
-        ['created', 'created', [WLDateTransformer alloc], true],
-        ['updated', 'updated', [WLDateTransformer alloc], true]
+        ['created', 'created', [[WLDateTransformer alloc] init], true],
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];
 }
 

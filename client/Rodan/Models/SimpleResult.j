@@ -18,8 +18,7 @@
         ['mediumThumbURL', 'medium_thumb_url'],
         ['result', 'result'],
         ['runJob', 'run_job'],
-        ['runJobName', 'run_job_name'],
-        ['pk', 'url']
+        ['runJobName', 'run_job_name']
         ];
 
     var i = 0,
