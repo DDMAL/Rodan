@@ -1,5 +1,5 @@
 @import <Foundation/CPObject.j>
-@import "../Models/SimpleResults.j"
+@import "../Models/SimpleResult.j"
 
 
 /**
@@ -8,7 +8,7 @@
 @implementation ResultsViewResultsDelegate : CPObject
 {
     @outlet CPArrayController   _resultArrayController;
-            SimpleResults       _currentlySelectedResult;
+            SimpleResult       _currentlySelectedResult;
 }
 
 
