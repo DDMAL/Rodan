@@ -14,9 +14,12 @@ class RunJobList(generics.ListAPIView):
 
     def get_queryset(self):
         requires_interaction = self.request.QUERY_PARAMS.get('requires_interaction', None)
+        project = self.request.QUERY_PARAMS.get('project', None)
         queryset = RunJob.objects.all()
         if requires_interaction:
             queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING])
+        if project:
+            queryset = queryset.filter(workflow_job__workflow__project__uuid=project)
 
         return queryset
 
