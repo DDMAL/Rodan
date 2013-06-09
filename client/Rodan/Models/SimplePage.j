@@ -4,10 +4,11 @@
 
 @implementation SimplePage : CPObject
 {
-    CPString    pageName    @accessors;
-    CPNumber    pageOrder   @accessors;
-    CPString    pk          @accessors;
-    CPArray     results     @accessors;
+    CPString    pageName        @accessors;
+    CPNumber    pageOrder       @accessors;
+    CPString    pk              @accessors;
+    CPArray     results         @accessors;
+    CPString    mediumThumbURL  @accessors;
 }
 
 - (id)initWithJson:(JSObject)jsonObject
@@ -17,6 +18,7 @@
         ['pageName', 'name'],
         ['pageOrder', 'page_order'],
         ['results', 'results'],
+        ['mediumThumbURL', 'medium_thumb_url'],
         ];
 
     var i = 0,
