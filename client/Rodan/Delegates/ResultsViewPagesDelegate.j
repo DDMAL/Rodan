@@ -22,6 +22,7 @@
     [_pageArrayController setContent:aContents];
     if ([[_pageArrayController content] count] == 0)
     {
+        _currentlySelectedPage = nil;
         [_resultsViewResultsDelegate setArrayContents:nil];
     }
 }
