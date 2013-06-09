@@ -6,6 +6,7 @@
 /* a full representation of a project, including arrays for the pages and workflows */
 @implementation Project : WLRemoteObject
 {
+    CPString    uuid                @accessors;
     CPString    pk                  @accessors;
     CPString    projectName         @accessors;
     CPString    projectCreator      @accessors;
@@ -38,6 +39,7 @@
 + (CPArray)remoteProperties
 {
     return [
+        ['uuid', 'uuid'],
         ['pk', 'url'],
         ['projectName', 'name'],
         ['projectDescription', 'description'],

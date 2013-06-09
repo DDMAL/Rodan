@@ -9,6 +9,7 @@
 
 @global RodanHasFocusInteractiveJobsViewNotification
 @global RodanShouldLoadInteractiveJobsNotification
+@global activeProject
 
 
 var _msLOADINTERVAL = 5.0;
@@ -50,8 +51,13 @@ var _msLOADINTERVAL = 5.0;
  */
 - (void)shouldLoad:(CPNotification)aNotification
 {
+    var projectUUID = nil;
+    if (activeProject != nil)
+    {
+        projectUUID = [activeProject uuid];
+    }
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:"/runjobs/?requires_interaction=true"
+                    path:"/runjobs/?requires_interaction=true&project=" + projectUUID
                     delegate:self
                     message:"Retrieving RunJobs"];
 }

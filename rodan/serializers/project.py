@@ -9,11 +9,12 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
     pages = MinimalPageSerializer(many=True, required=False, read_only=True)
     workflows = WorkflowSerializer(many=True, required=False, read_only=True)
+    uuid = serializers.Field(source="uuid")
 
     class Meta:
         model = Project
         read_only_fields = ('created', 'updated')
-        fields = ("url", "name", "description", "creator", "pages", "workflows")
+        fields = ("uuid", "url", "name", "description", "creator", "pages", "workflows")
 
 
 class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
