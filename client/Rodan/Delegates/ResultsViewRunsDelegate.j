@@ -79,7 +79,7 @@
     {
         [WLRemoteObject setDirtProof:YES];
 
-        // Put the returned data into the dictionary.
+        // Get the key.
         var simpleRun = [[SimpleWorkflowRun alloc] initWithJson:[aAction result]],
             key = [simpleRun pk],
             splitString = [key componentsSeparatedByString:"/"];
