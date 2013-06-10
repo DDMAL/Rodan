@@ -34,12 +34,14 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     result = ResultRunJobSerializer()
     job_name = serializers.Field(source="job_name")
     page = PageRunJobSerializer()
+    workflow_name = serializers.Field(source="workflow_name")
 
     class Meta:
         model = RunJob
         read_only_fields = ("created", "updated")
         fields = ('url',
                   'job_name',
+                  'workflow_name',
                   'workflow_run',
                   'workflow_job',
                   'sequence',

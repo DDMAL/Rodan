@@ -76,5 +76,9 @@ class RunJob(models.Model):
         return self.workflow_job.job_name
 
     @property
+    def workflow_name(self):
+        return self.workflow_job.workflow.name
+
+    @property
     def page_name(self):
         return self.page.name
