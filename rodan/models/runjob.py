@@ -61,6 +61,7 @@ class RunJob(models.Model):
         super(RunJob, self).save(*args, **kwargs)
         if not os.path.exists(self.runjob_path):
             os.makedirs(self.runjob_path)
+        self.workflow_run.save()
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.runjob_path):

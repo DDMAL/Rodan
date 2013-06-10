@@ -35,6 +35,7 @@ class Result(models.Model):
         super(Result, self).save(*args, **kwargs)
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
+        self.run_job.save()
 
     @property
     def run_job_name(self):
