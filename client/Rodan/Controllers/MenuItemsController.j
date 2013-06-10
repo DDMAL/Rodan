@@ -10,6 +10,7 @@
     BOOL    jobsIsActive        @accessors;
     BOOL    usersIsActive       @accessors;
     BOOL    resultsIsActive     @accessors;
+    BOOL    classifierIsActive  @accessors;
     BOOL    designerIsActive    @accessors;
 }
 
@@ -20,6 +21,7 @@
     jobsIsActive = NO;
     usersIsActive = NO;
     resultsIsActive = NO;
+    classifierIsActive = NO;
     designerIsActive = NO;
 }
 
