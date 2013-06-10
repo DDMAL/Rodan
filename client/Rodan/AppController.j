@@ -119,6 +119,7 @@ activeProject = nil;  // URI to the currently open project
     @outlet     CPToolbarItem   workflowResultsToolbarItem;
     @outlet     CPToolbarItem   jobsToolbarItem;
     @outlet     CPToolbarItem   usersToolbarItem;
+    @outlet     CPToolbarItem   classifierToolbarItem;
     @outlet     CPToolbarItem   workflowDesignerToolbarItem;
     @outlet     CPButtonBar     workflowAddRemoveBar;
 
@@ -216,6 +217,7 @@ activeProject = nil;  // URI to the currently open project
         workflowResultsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflows.png"] size:CGSizeMake(32.0, 32.0)],
         jobsToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-jobs.png"] size:CGSizeMake(32.0, 32.0)],
         usersToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-users.png"] size:CGSizeMake(46.0, 32.0)],
+        classifierToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-classifier.png"] size:CGSizeMake(32.0, 32.0)],
         workflowDesignerToolbarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"toolbar-workflow-designer.png"] size:CGSizeMake(32.0, 32.0)],
         backgroundTexture = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"workflow-backgroundTexture.png"] size:CGSizeMake(200.0, 200.0)];
 
@@ -224,6 +226,7 @@ activeProject = nil;  // URI to the currently open project
     [workflowResultsToolbarItem setImage:workflowResultsToolbarIcon];
     [jobsToolbarItem setImage:jobsToolbarIcon];
     [usersToolbarItem setImage:usersToolbarIcon];
+    [classifierToolbarItem setImage:classifierToolbarIcon];
     [workflowDesignerToolbarItem setImage:workflowDesignerToolbarIcon];
 
     [chooseWorkflowView setBackgroundColor:[CPColor colorWithPatternImage:backgroundTexture]];
@@ -388,6 +391,25 @@ activeProject = nil;  // URI to the currently open project
     [usersGroupsView setFrame:[contentScrollView bounds]];
     [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:usersGroupsView];
+}
+
+- (IBAction)switchWorkspaceToClassifier:(id)aSender
+{
+    [menuItemsController reset];
+    [menuItemsController setClassifierIsActive:YES];
+
+    console.log("TODO: implement load classifierView from a xib file.");
+
+    // var classifierView = [[CPView alloc] initWithCibName:[theBundle pathForResource:@"classifierView.cib"]];
+    // var classifierView = [[CPView alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
+    var classifierView = [[CPView alloc] init],
+        classifierViewController = [[CPViewController alloc] init];
+    [classifierViewController setView:classifierView];
+    [classifierViewController initWithCibName:@"classifierView.cib" bundle:theBundle];
+    [classifierView setFrame:[contentScrollView bounds]];
+    [classifierView setAutoresizingMask:CPViewWidthSizable];  // Why not height sizable?
+    [contentScrollView setDocumentView:classifierView];
+    // debugger;
 }
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
