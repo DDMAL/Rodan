@@ -20,8 +20,8 @@ var _msLOADINTERVAL = 5.0;
  */
 @implementation InteractiveJobsController : CPObject
 {
-    @outlet CPTableView         interactiveJobsTableView;
-    @outlet CPArrayController   interactiveJobsArrayController  @accessors(readonly);
+    @outlet CPTableView             interactiveJobsTableView;
+    @outlet CPArrayController       interactiveJobsArrayController  @accessors(readonly);
 }
 
 
@@ -82,15 +82,18 @@ var _msLOADINTERVAL = 5.0;
 - (@action)displayInteractiveJobWindow:(id)aSender
 {
     // Get the UUID and give it to a new window.
-    var runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0],
+    var newPlatformWindow = [[CPPlatformWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)],
+        runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0],
         runJobUUID = [runJob getUUID],
         jobName = [runJob jobName],
-        cropWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
-                                              styleMask:CPClosableWindowMask | CPResizableWindowMask
-                                              runJobUUID:runJobUUID
-                                              jobName:jobName];
-    [cropWindow center];
-    [cropWindow makeKeyAndOrderFront:aSender];
+        jobWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
+                                                    styleMask:CPClosableWindowMask | CPResizableWindowMask
+                                                    runJobUUID:runJobUUID
+                                                    jobName:jobName];
+    [jobWindow setFullPlatformWindow:YES];
+    [jobWindow setPlatformWindow:newPlatformWindow];
+    [jobWindow center];
+    [jobWindow makeKeyAndOrderFront:aSender];
 }
 
 
