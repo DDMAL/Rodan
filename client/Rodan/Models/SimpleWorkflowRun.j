@@ -15,43 +15,52 @@
 
 - (id)initWithJson:(JSObject)jsonObject
 {
-    var mapping = [
-        ['pk', 'url'],
-        ['workflow', 'workflow'],
-        ['run', 'run'],
-        ['testRun', 'test_run'],
-        ['pages', 'pages'],
-        ['created', 'created'],
-        ['updated', 'updated']
-        ];
-
-    var i = 0,
-        count = mapping.length;
-
-    for (; i < count; i++)
+    if (self = [self init])
     {
-        var map = mapping[i],
-            pageArray = [];
+        var mapping = [
+            ['pk', 'url'],
+            ['workflow', 'workflow'],
+            ['run', 'run'],
+            ['testRun', 'test_run'],
+            ['pages', 'pages'],
+            ['created', 'created'],
+            ['updated', 'updated']
+            ];
 
-        if (map[1] === "pages")
+        var i = 0,
+            count = mapping.length;
+
+        for (; i < count; i++)
         {
-            var j = 0,
-                pageCount = jsonObject['pages'].length;
+            var map = mapping[i],
+                pageArray = [];
 
-            for (; j < pageCount; j++)
+            if (map[1] === "pages")
             {
-                var page = [[SimplePage alloc] initWithJson:jsonObject['pages'][j]];
-                [pageArray addObject:page];
-            }
-            [self setValue:pageArray forKey:map[0]];
-        }
-        else
-        {
-            console.log()
-            [self setValue:jsonObject[map[1]] forKey:map[0]];
-        }
-    };
+                var j = 0,
+                    pageCount = jsonObject['pages'].length;
 
+                for (; j < pageCount; j++)
+                {
+                    var page = [[SimplePage alloc] initWithJson:jsonObject['pages'][j]];
+                    [pageArray addObject:page];
+                }
+                [self setValue:pageArray forKey:map[0]];
+            }
+            else
+            {
+                console.log()
+                [self setValue:jsonObject[map[1]] forKey:map[0]];
+            }
+        }
+    }
     return self;
+}
+
+#pragma mark CPObject
+
+- (CPString)description
+{
+    return "<" + [self class] + " " + [self UID] + (pk ? " " + pk : "") + ">";
 }
 @end
