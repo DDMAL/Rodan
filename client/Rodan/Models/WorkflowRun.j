@@ -51,4 +51,23 @@
     }
 }
 
+
+/**
+ * We override WLRemoteObject::isEqual to make sure that other WLRemoteObjects that have this class as a member (e.g. Workflow)
+ * don't just look at the PK and class (which is what isEqual does by default).
+ *
+ * We can create a custom list of fields that override WLRemoteObject equality, but for now it's just the 'updated' member.
+ */
+- (BOOL)isEqual:(id)aObject
+{
+    if ([super isEqual:aObject])
+    {
+        if ([self updated] === [aObject updated])
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
