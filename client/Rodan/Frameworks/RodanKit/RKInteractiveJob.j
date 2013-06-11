@@ -8,7 +8,6 @@
 
 - (id)initWithFrame:(CGRect)aFrame runJobUUID:(int)aRunJobUUID jobName:(CPString)aJobName
 {
-    console.log("RKInteractiveJob init with frame; RunJob UUID is " + aRunJobUUID);
     var self = [super initWithFrame:aFrame];
     if (self)
     {
