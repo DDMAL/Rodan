@@ -48,6 +48,8 @@
 @import "Controllers/JobController.j"
 @import "Controllers/MenuItemsController.j"
 @import "Controllers/InteractiveJobsController.j"
+@import "Controllers/ClassifierController.j"
+
 @import "Models/Project.j"
 @import "Models/User.j"
 
@@ -133,6 +135,8 @@ activeProject = nil;  // URI to the currently open project
     @outlet     LogInController             logInController;
     @outlet     WorkflowController          workflowController;
     @outlet     WorkflowDesignerController  workflowDesignerController;
+
+    ClassifierController classifierController;  // Isn't an outlet because it gets initialized with initWithCib
 
     CGRect      _theWindowBounds;
 
@@ -240,6 +244,15 @@ activeProject = nil;  // URI to the currently open project
     [contentScrollView setAutohidesScrollers:YES];
 
     [contentView setSubviews:[contentScrollView]];
+
+    // classifierController = [[ClassifierController alloc] initWithCibName:@"classifierView" bundle:theBundle];  // Infinite loop... in the tableView in the cib
+    // var classifierViewController = [[CPViewController alloc] initWithCibName:@"classifierView" bundle:theBundle];
+    // [theBundle loadCibNamed:@"classifierView.xib" owner:classifierController];
+    // classifierController = [[CPViewController alloc] initWithCibName:@"testView" bundle:theBundle];
+    // [classifierController loadView];
+    // [theWindow addSubview:[classifierViewController view]];
+    classifierController = [[ClassifierController alloc] initWithCibName:@"classifierView" bundle:theBundle];
+
 }
 
 
@@ -398,18 +411,32 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setClassifierIsActive:YES];
 
-    console.log("TODO: implement load classifierView from a xib file.");
+    // // var classifierView = [[CPView alloc] initWithCibName:[theBundle pathForResource:@"classifierView.cib"]];
+    // // var classifierView = [[CPView alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
+    // // var classifierView = [[CPView alloc] init],
+    // // //     classifierViewController = [[CPViewController alloc] init];
+    // // // // [classifierViewController setView:classifierView];  // loadView says that it'll call setView
+    // // // // [classifierViewController initWithCibName:@"classifierView.cib" bundle:theBundle];
+    // // // [classifierViewController initWithCibName:@"testView.cib" bundle:theBundle];  // Try a test xib that won't need any linking
+    // //     // classifierViewController = [[CPViewController alloc] initWithCibName:@"testView.cib" bundle:theBundle];
+    // //     classifierViewController = [[CPViewController alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
+    // // var classifierViewController = [[CPViewController alloc] initWithCibName:@"testView.cib" bundle:theBundle];
+    // // var classifierViewController = [[CPViewController alloc] initWithCibName:@"testView" bundle:theBundle];  // so... who is the owner?  File's owner...
+    // var classifierViewController = classifierController;
+    //     // Maybe I should subclass CPViewController.  Maybe there's a manual for this.
+    // [classifierViewController loadView];
+    // [theWindow addSubview:[classifierViewController view]];
+    // // var classifierView = [classifierViewController view];
+    // // console.log(classifierView);
+    // // [classifierView setFrame:[contentScrollView bounds]];
+    // // [classifierView setAutoresizingMask:CPViewWidthSizable];  // Why not height sizable?
+    // // [contentScrollView setDocumentView:classifierView];
+    // // debugger;
 
-    // var classifierView = [[CPView alloc] initWithCibName:[theBundle pathForResource:@"classifierView.cib"]];
-    // var classifierView = [[CPView alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
-    var classifierView = [[CPView alloc] init],
-        classifierViewController = [[CPViewController alloc] init];
-    [classifierViewController setView:classifierView];
-    [classifierViewController initWithCibName:@"classifierView.cib" bundle:theBundle];
-    [classifierView setFrame:[contentScrollView bounds]];
-    [classifierView setAutoresizingMask:CPViewWidthSizable];  // Why not height sizable?
-    [contentScrollView setDocumentView:classifierView];
-    // debugger;
+    // // Note: classifier objects... I'll keep them with Rodan and pretend that things are tightly knit.
+    // // They kind of are anyway.  It's the same separation as is already there.
+
+    [contentScrollView setDocumentView:[classifierController view]];
 }
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
