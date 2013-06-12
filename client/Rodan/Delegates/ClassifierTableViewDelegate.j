@@ -431,7 +431,7 @@
 }
 - (void)tableViewColumnDidResize:(CPNotification)aNotification
 {
-    console.log("Resized.");
+    // console.log("Resized.");
     var tableView = [aNotification object];
     [tableView noteHeightOfRowsWithIndexesChanged:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,[tableView numberOfRows])]];
         // Maybe turn off animation for the above command

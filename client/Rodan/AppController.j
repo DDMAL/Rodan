@@ -48,7 +48,7 @@
 @import "Controllers/JobController.j"
 @import "Controllers/MenuItemsController.j"
 @import "Controllers/InteractiveJobsController.j"
-@import "Controllers/ClassifierController.j"
+@import "Controllers/ClassifierViewController.j"
 
 @import "Models/Project.j"
 @import "Models/User.j"
@@ -136,7 +136,7 @@ activeProject = nil;  // URI to the currently open project
     @outlet     WorkflowController          workflowController;
     @outlet     WorkflowDesignerController  workflowDesignerController;
 
-    ClassifierController classifierController;  // Isn't an outlet because it gets initialized with initWithCib
+    @outlet     ClassifierViewController classifierViewController;
 
     CGRect      _theWindowBounds;
 
@@ -251,7 +251,7 @@ activeProject = nil;  // URI to the currently open project
     // classifierController = [[CPViewController alloc] initWithCibName:@"testView" bundle:theBundle];
     // [classifierController loadView];
     // [theWindow addSubview:[classifierViewController view]];
-    classifierController = [[ClassifierController alloc] initWithCibName:@"classifierView" bundle:theBundle];
+    // classifierViewController = [[ClassifierViewController alloc] initWithCibName:@"classifierView" bundle:theBundle];  // now in [ClassifierViewController init].
 
 }
 
@@ -260,10 +260,10 @@ activeProject = nil;  // URI to the currently open project
 {
     // This will catch a user and display a dialog if they try to leave the page. This
     // is to avoid any inadvertent forward/back behaviour if, e.g., they're scrolling in a table.
-    window.onbeforeunload = function()
-    {
-        return "This will terminate the Application. Are you sure you want to leave?";
-    }
+    // window.onbeforeunload = function()
+    // {
+    //     return "This will terminate the Application. Are you sure you want to leave?";
+    // }
 
     [CPMenu setMenuBarVisible:NO];
     var menubarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"menubar-icon.png"] size:CGSizeMake(16.0, 16.0)];
@@ -436,7 +436,7 @@ activeProject = nil;  // URI to the currently open project
     // // Note: classifier objects... I'll keep them with Rodan and pretend that things are tightly knit.
     // // They kind of are anyway.  It's the same separation as is already there.
 
-    [contentScrollView setDocumentView:[classifierController view]];
+    [contentScrollView setDocumentView:[classifierViewController view]];
 }
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender

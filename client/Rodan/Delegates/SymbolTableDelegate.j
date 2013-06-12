@@ -1,3 +1,5 @@
+@import "../Models/Symbol.j"
+
 @implementation SymbolTableDelegate : CPObject
 {
     @outlet CPArrayController symbolArrayController;

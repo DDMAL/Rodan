@@ -6,7 +6,7 @@
 @import "../Views/PhotoView.j"  // For the saved collection view
 
 
-@implementation ClassifierController : CPViewController
+@implementation ClassifierController : CPObject
 {
     Classifier theClassifier;  // Initialized by Open
     @outlet CPArrayController classifierArrayController;
@@ -17,7 +17,6 @@
     @outlet CPButton createButton;
     @outlet CPTextField newClassifierTextfield;
     @outlet CPTextField nameUsedLabel;
-    @outlet CPTextField statusLabel;
     @outlet CPWindow openClassifierWindow;
     InitOpenFetchClassifiersDelegate initOpenFetchClassifiersDelegate;
     @outlet CPButton openButton;
@@ -230,11 +229,6 @@ was pressed.*/
         if ([theClassifier isDirty])
         {
             [theClassifier ensureSaved];
-            [statusLabel setStringValue:@"Saved and closed."];
-        }
-        else
-        {
-            [statusLabel setStringValue:@"Closed."];
         }
         theClassifier = null;
 
@@ -303,12 +297,3 @@ was pressed.*/
 }
 @end
 
-@implementation NewClassifierTextfieldDelegate : CPObject
-{
-    @outlet ClassifierController classifierController;
-}
-- (void)controlTextDidChange:(CPNotification)aNotification
-{
-    [classifierController updateNameUsedLabel];
-}
-@end
