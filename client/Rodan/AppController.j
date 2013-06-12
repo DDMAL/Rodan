@@ -136,7 +136,7 @@ activeProject = nil;  // URI to the currently open project
     @outlet     WorkflowController          workflowController;
     @outlet     WorkflowDesignerController  workflowDesignerController;
 
-    @outlet     ClassifierViewController classifierViewController;
+    @outlet     ClassifierViewController    classifierViewController;
 
     CGRect      _theWindowBounds;
 
@@ -244,15 +244,6 @@ activeProject = nil;  // URI to the currently open project
     [contentScrollView setAutohidesScrollers:YES];
 
     [contentView setSubviews:[contentScrollView]];
-
-    // classifierController = [[ClassifierController alloc] initWithCibName:@"classifierView" bundle:theBundle];  // Infinite loop... in the tableView in the cib
-    // var classifierViewController = [[CPViewController alloc] initWithCibName:@"classifierView" bundle:theBundle];
-    // [theBundle loadCibNamed:@"classifierView.xib" owner:classifierController];
-    // classifierController = [[CPViewController alloc] initWithCibName:@"testView" bundle:theBundle];
-    // [classifierController loadView];
-    // [theWindow addSubview:[classifierViewController view]];
-    // classifierViewController = [[ClassifierViewController alloc] initWithCibName:@"classifierView" bundle:theBundle];  // now in [ClassifierViewController init].
-
 }
 
 
@@ -260,10 +251,10 @@ activeProject = nil;  // URI to the currently open project
 {
     // This will catch a user and display a dialog if they try to leave the page. This
     // is to avoid any inadvertent forward/back behaviour if, e.g., they're scrolling in a table.
-    // window.onbeforeunload = function()
-    // {
-    //     return "This will terminate the Application. Are you sure you want to leave?";
-    // }
+    window.onbeforeunload = function()
+    {
+        return "This will terminate the Application. Are you sure you want to leave?";
+    }
 
     [CPMenu setMenuBarVisible:NO];
     var menubarIcon = [[CPImage alloc] initWithContentsOfFile:[theBundle pathForResource:@"menubar-icon.png"] size:CGSizeMake(16.0, 16.0)];
@@ -410,32 +401,9 @@ activeProject = nil;  // URI to the currently open project
 {
     [menuItemsController reset];
     [menuItemsController setClassifierIsActive:YES];
-
-    // // var classifierView = [[CPView alloc] initWithCibName:[theBundle pathForResource:@"classifierView.cib"]];
-    // // var classifierView = [[CPView alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
-    // // var classifierView = [[CPView alloc] init],
-    // // //     classifierViewController = [[CPViewController alloc] init];
-    // // // // [classifierViewController setView:classifierView];  // loadView says that it'll call setView
-    // // // // [classifierViewController initWithCibName:@"classifierView.cib" bundle:theBundle];
-    // // // [classifierViewController initWithCibName:@"testView.cib" bundle:theBundle];  // Try a test xib that won't need any linking
-    // //     // classifierViewController = [[CPViewController alloc] initWithCibName:@"testView.cib" bundle:theBundle];
-    // //     classifierViewController = [[CPViewController alloc] initWithCibName:@"classifierView.cib" bundle:theBundle];
-    // // var classifierViewController = [[CPViewController alloc] initWithCibName:@"testView.cib" bundle:theBundle];
-    // // var classifierViewController = [[CPViewController alloc] initWithCibName:@"testView" bundle:theBundle];  // so... who is the owner?  File's owner...
-    // var classifierViewController = classifierController;
-    //     // Maybe I should subclass CPViewController.  Maybe there's a manual for this.
-    // [classifierViewController loadView];
-    // [theWindow addSubview:[classifierViewController view]];
-    // // var classifierView = [classifierViewController view];
-    // // console.log(classifierView);
-    // // [classifierView setFrame:[contentScrollView bounds]];
-    // // [classifierView setAutoresizingMask:CPViewWidthSizable];  // Why not height sizable?
-    // // [contentScrollView setDocumentView:classifierView];
-    // // debugger;
-
-    // // Note: classifier objects... I'll keep them with Rodan and pretend that things are tightly knit.
-    // // They kind of are anyway.  It's the same separation as is already there.
-
+    var classifierView = [classifierViewController view];
+    [classifierView setFrame:[contentScrollView bounds]];
+    [classifierView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:[classifierViewController view]];
 }
 
