@@ -81,18 +81,20 @@ def save_result(result, result_temp_path):
 
 
 def save_result_as_png(result_image, runjob):
+    temp_path = create_temp_path(ext="png")
     try:
-        temp_path = create_temp_path(ext="png")
         result_image.save_image(temp_path)
-        result = init_result(runjob)
-        save_result(result, temp_path)
-        return result
     except AttributeError as e:
         # Debugging
-        print "The process_image method probably did not return a valid gamera image." 
+        print "The process_image method probably did not return a valid gamera image."
         print "Did you forget to override process_image or add a return statement?"
         print "Error:"
         print e
+    else:
+        result = init_result(runjob)
+        save_result(result, temp_path)
+        return result
+
 
 def default_on_success(self, retval, task_id, args, kwargs):
     # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
@@ -102,6 +104,7 @@ def default_on_success(self, retval, task_id, args, kwargs):
 
     res = create_thumbnails.s(result)
     res.apply_async()
+
 
 def default_on_failure(self, *args, **kwargs):
     runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance

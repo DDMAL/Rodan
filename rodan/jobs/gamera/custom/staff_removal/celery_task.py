@@ -1,8 +1,7 @@
 from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 
-from rodan.jobs.gamera import argconvert
-from gamera.core import init_gamera
 from gamera.toolkits.musicstaves import MusicStaves_rl_roach_tatem
+
 
 class RTStafflineRemovalTask(GameraCustomTask):
     max_retries = None
