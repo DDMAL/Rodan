@@ -5,6 +5,7 @@
 @implementation WorkflowRun : WLRemoteObject
 {
     CPString    pk          @accessors;
+    CPString    uuid        @accessors;
     CPNumber    run         @accessors;
     CPArray     runJobs     @accessors;
     CPString    workflowURL @accessors;
@@ -20,6 +21,7 @@
 {
     return [
         ['pk', 'url'],
+        ['uuid', 'uuid'],
         ['runJobs', 'run_jobs', [WLForeignObjectsTransformer forObjectClass:RunJob]],
         ['workflowURL', 'workflow'],
         ['runCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],

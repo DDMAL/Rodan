@@ -11,8 +11,10 @@
 {
     @outlet ResultsViewPagesDelegate        _resultsViewPagesDelegate;
     @outlet CPArrayController               _runsArrayController;
+    @outlet CPArrayController               _runJobArrayController;
             WorkflowRun                     _currentlySelectedWorkflowRun;
             CPDictionary                    _simpleRunMap;
+            WorkflowRun                     _loadingWorkflowRun;
 }
 
 
@@ -26,6 +28,11 @@
     {
         _currentlySelectedWorkflowRun = nil;
         [_resultsViewPagesDelegate setArrayContents:nil];
+        [_runJobArrayController setContent: nil];
+    }
+    else
+    {
+        [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
     }
 }
 
@@ -44,11 +51,13 @@
 {
     _currentlySelectedWorkflowRun = nil;
     [_resultsViewPagesDelegate setArrayContents:nil];
+    [_runJobArrayController setContent: nil];
 }
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
     _currentlySelectedWorkflowRun = [[_runsArrayController contentArray] objectAtIndex:rowIndex];
+    [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
     [_resultsViewPagesDelegate setArrayContents:nil];
     [self handleShouldLoadNotification:nil];
     return YES;
@@ -60,8 +69,9 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    if (_currentlySelectedWorkflowRun != nil)
+    if (_loadingWorkflowRun == nil && _currentlySelectedWorkflowRun != nil)
     {
+        _loadingWorkflowRun = _currentlySelectedWorkflowRun;
         [WLRemoteAction schedule:WLRemoteActionGetType
                         path:[_currentlySelectedWorkflowRun pk] + @"?by_page=true"  // return results by page, rather than by run_job
                         delegate:self
@@ -78,6 +88,10 @@
     if ([aAction result])
     {
         [WLRemoteObject setDirtProof:YES];
+
+        // Update the loading object.
+        [_loadingWorkflowRun initWithJson:[aAction result]];
+        _loadingWorkflowRun = nil;
 
         // Get the key.
         var simpleRun = [[SimpleWorkflowRun alloc] initWithJson:[aAction result]],
