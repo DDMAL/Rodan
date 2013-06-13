@@ -3,6 +3,7 @@
 @implementation Classifier : WLRemoteObject
 {
     CPString    pk          @accessors;
+    CPString    project     @accessors;
     CPString    name        @accessors;
     CPArray     glyphs      @accessors;
 }
@@ -18,6 +19,7 @@
 {
     return [
         ['pk',          'url'],
+        ['project',     'project'],
         ['name',        'name',      nil, nil],
         ['glyphs',      'glyphs',    [[GlyphTransformer alloc] init]]
     ];

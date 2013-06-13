@@ -123,10 +123,11 @@ class Migration(SchemaMigration):
         # Adding model 'Classifier'
         db.create_table('rodan_classifier', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['rodan.Project'])),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='classifiers', to=orm['rodan.Project'])),
         ))
         db.send_create_signal('rodan', ['Classifier'])
+
 
     def backwards(self, orm):
         # Deleting model 'Project'
@@ -155,6 +156,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'RunJob'
         db.delete_table('rodan_runjob')
+
+        # Deleting model 'Classifier'
+        db.delete_table('rodan_classifier')
 
 
     models = {
@@ -193,6 +197,12 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'rodan.classifier': {
+            'Meta': {'object_name': 'Classifier'},
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'classifiers'", 'to': "orm['rodan.Project']"}),
+            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.job': {
             'Meta': {'ordering': "['category']", 'object_name': 'Job'},

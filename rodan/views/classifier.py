@@ -29,6 +29,7 @@ class ClassifierList(generics.ListCreateAPIView):
 def create_xml(sender, instance=None, created=False, **kwargs):
     print "create_xml"
     if created:
+        instance.save()
         instance._create_new_xml()
 
 

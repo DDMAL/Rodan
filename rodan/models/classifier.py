@@ -35,6 +35,19 @@ class Classifier(models.Model):
         print "Classifier.classifier_path"
         return os.path.join(self.project.project_path, "classifiers", "{0}.xml".format(str(self.uuid)))
 
+    #def classifier_path(self):
+    #    return os.path.join(self.project.project_path, "classifiers")
+
+    #def upload_path(self, filename):
+    #    _, ext = os.path.splitext(filename)
+    #    return os.path.join(self.page_path, "original_file{0}".format(ext.lower()))
+
+    def save(self, *args, **kwargs):
+        super(Classifier, self).save(*args, **kwargs)
+        _classifier_dir = os.path.join(self.project.project_path, "classifiers")
+        if not os.path.exists(_classifier_dir):
+            os.makedirs(_classifier_dir)
+
     @property
     def glyphs(self):
         """ Makes a dictionary out of the gamera XML and returns it.
