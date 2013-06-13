@@ -10,7 +10,7 @@ class Project(models.Model):
     """
         A Project is mostly administrative and organizational. It's the top-level model.
 
-        Pages and Workflows both belong to a project.
+        Pages, Workflows, and Classifiers belong to a project.
     """
     @property
     def project_path(self):
@@ -51,3 +51,7 @@ class Project(models.Model):
     @property
     def workflow_count(self):
         return self.workflows.count()
+
+    @property
+    def classifier_count(self):
+        return self.classifiers.count()

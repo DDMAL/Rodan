@@ -110,7 +110,7 @@ class Classifier(models.Model):
         glyphs_element = etree.SubElement(gamera_database, "glyphs")
         for json_glyph in classifier_glyphs:
             glyph_element = etree.SubElement(glyphs_element, "glyph",
-                                             uly=str(json_glyph['uly']), 
+                                             uly=str(json_glyph['uly']),
                                              ulx=str(json_glyph['ulx']),
                                              nrows=str(json_glyph['nrows']),
                                              ncols=str(json_glyph['ncols']))

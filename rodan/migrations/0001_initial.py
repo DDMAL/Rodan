@@ -120,6 +120,13 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('rodan', ['RunJob'])
 
+        # Adding model 'Classifier'
+        db.create_table('rodan_classifier', (
+            ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['rodan.Project'])),
+        ))
+        db.send_create_signal('rodan', ['Classifier'])
 
     def backwards(self, orm):
         # Deleting model 'Project'

@@ -49,7 +49,7 @@ class WorkflowRunAdmin(admin.ModelAdmin):
 
 
 class ClassifierAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name',)
 
 
 # class UserProfileInline(admin.StackedInline):
