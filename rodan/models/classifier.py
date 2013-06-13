@@ -3,7 +3,9 @@ from django.db import models
 from uuidfield import UUIDField
 
 import os
-from django.conf import settings
+# from django.conf import settings
+
+from rodan.models.project import Project
 
 from lxml import etree
 import re
@@ -15,11 +17,13 @@ import base64
 class Classifier(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name="classifiers")  # workflows.py does it differently.
+
     # add "created"?
     # add "updated"?
 
     class Meta:
-        app_label = "ClassifierInterface"
+        app_label = 'rodan'
 
     def __unicode__(self):
         return u"classifier" + str(self.uuid)
@@ -27,7 +31,9 @@ class Classifier(models.Model):
     @property
     def classifier_path(self):
         # TODO: change this when integrating to rodan
-        return os.path.join(settings.MEDIA_ROOT, "projects/1/classifiers", "{0}.xml".format(str(self.uuid)))
+        # return os.path.join(settings.MEDIA_ROOT, "projects/1/classifiers", "{0}.xml".format(str(self.uuid)))
+        print "Classifier.classifier_path"
+        return os.path.join(self.project.project_path, "classifiers", "{0}.xml".format(str(self.uuid)))
 
     @property
     def glyphs(self):
@@ -37,6 +43,7 @@ class Classifier(models.Model):
         right from the XML.  The exception is the 'data' field which is
         converted from Gamera's runlength encoding to PNG."""
 
+        print "Classifier.glyphs"
         parser = etree.XMLParser(resolve_entities=True)
         classifier = etree.parse(open(self.classifier_path, 'r'), parser)
         glyphs = []
@@ -85,6 +92,7 @@ class Classifier(models.Model):
     def _create_new_xml(self):
         """ Called when a POST is received and a new object is created.
         """
+        print "Classifier._create_new_xml"
         gamera_database = etree.XML(r'<gamera-database version="2.0" />')
         etree.SubElement(gamera_database, "glyphs")
 
@@ -97,6 +105,7 @@ class Classifier(models.Model):
         Writes XML.  Assume that I have a whole classifier (array of
         glyph dictionaries) object as defined in the footnote. """
 
+        print "Classifier.write_xml"
         gamera_database = etree.XML(r'<gamera-database version="2.0" />')
         glyphs_element = etree.SubElement(gamera_database, "glyphs")
         for json_glyph in classifier_glyphs:
@@ -128,6 +137,7 @@ class Classifier(models.Model):
     def _base64_png_encode(self, glyph):
         """ Takes an xpath glyph element and returns a png image of the
         glyph. """
+        print "Classifier._base64_png_encode"
         nrows = int(glyph.get('nrows'))
         ncols = int(glyph.get('ncols'))
         # Make an iterable that yields each row in boxed row flat pixel format:
@@ -150,6 +160,7 @@ class Classifier(models.Model):
         return base64.b64encode(buf.getvalue())
 
     def _runlength_encode(self, base64_encoded_png):
+        print "Classifer._runlength_encode"
         my_png = base64.b64decode(base64_encoded_png)
         buf = StringIO.StringIO(my_png)
         r = png.Reader(file=buf)  # Note: it gets confused if you don't name the argument
@@ -176,7 +187,7 @@ class Classifier(models.Model):
         # The 'map' call converts to an array of strings, then 'join' into one string
 
     def delete_xml(self):
-        print "delete_xml being called" + self.classifier_path
+        print "Classifier.delete_xml removing " + self.classifier_path
         return os.remove(self.classifier_path)
 
 
