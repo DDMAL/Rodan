@@ -28,6 +28,9 @@ from rodan.views.result import ResultList
 from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
+from rodan.views.classifier import ClassifierList
+from rodan.views.classifier import ClassifierDetail
+
 
 from rodan.views import interactive
 
@@ -60,6 +63,8 @@ urlpatterns += format_suffix_patterns(
         url(r'^workflowrun/(?P<pk>[0-9a-z\-]+)/$', WorkflowRunDetail.as_view(), name="workflowrun-detail"),
         url(r'^runjobs/$', RunJobList.as_view(), name="runjob-list"),
         url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
+        url(r'^classifiers/$', ClassifierList.as_view(), name="classifier-list"),
+        url(r'^classifier/(?P<pk>[0-9a-z\-]+)/$', ClassifierDetail.as_view(), name="classifier-detail"),
     )
 )
 

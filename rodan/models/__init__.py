@@ -6,3 +6,4 @@ from rodan.models.page import Page
 from rodan.models.workflow import Workflow
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
+from rodan.models.classifier import Classifier

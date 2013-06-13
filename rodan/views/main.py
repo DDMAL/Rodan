@@ -16,7 +16,8 @@ def api_root(request, format=None):
                      'pages': reverse('page-list', request=request, format=format),
                      'jobs': reverse('job-list', request=request, format=format),
                      'results': reverse('result-list', request=request, format=format),
-                     'users': reverse('user-list', request=request, format=format)})
+                     'users': reverse('user-list', request=request, format=format),
+                     'classifiers': reverse('classifier-list', request=request, format=format)})
 
 
 @ensure_csrf_cookie

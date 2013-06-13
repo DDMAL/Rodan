@@ -2,30 +2,32 @@ from rest_framework import generics
 from rest_framework import permissions
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.shortcuts import render
-from django.views.decorators.csrf import ensure_csrf_cookie
 
-from ClassifierInterface.models import Classifier
-from ClassifierInterface.serializers import ClassifierSerializer, ClassifierListSerializer
+from rodan.models.classifier import Classifier
+from rodan.serializers.classifier import ClassifierSerializer, ClassifierListSerializer
 
 #import ast
-
-
-@ensure_csrf_cookie
-def home(request):
-    context = {}
-    return render(request, 'index.html', context)
 
 
 class ClassifierList(generics.ListCreateAPIView):
     model = Classifier
     permission_classes = (permissions.IsAuthenticated, )
-    # permission_classes = (permissions.AllowAny,)  # TODO: change
     serializer_class = ClassifierListSerializer
+
+    def get_queryset(self):
+        print "ClassifierList.get_queryset"
+        queryset = Classifier.objects.all()
+        project = self.request.QUERY_PARAMS.get('project', None)
+
+        if project:
+            queryset = queryset.filter(project__uuid=project)
+
+        return queryset
 
 
 @receiver(post_save, sender=Classifier)
 def create_xml(sender, instance=None, created=False, **kwargs):
+    print "create_xml"
     if created:
         instance._create_new_xml()
 
@@ -33,10 +35,10 @@ def create_xml(sender, instance=None, created=False, **kwargs):
 class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Classifier
     permission_classes = (permissions.IsAuthenticated, )
-    # permission_classes = (permissions.AllowAny,)  # TODO: change
     serializer_class = ClassifierSerializer
 
     def patch(self, request, pk, *args, **kwargs):
+        print "ClassifierDetail.patch"
         kwargs['partial'] = True
         glyphs = request.DATA.get('glyphs', None)
         if glyphs:
@@ -45,5 +47,6 @@ class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, pk, *args, **kwargs):
+        print "ClassifierDetail.delete"
         self.get_object().delete_xml()
         return self.destroy(request, *args, **kwargs)  # See class RetrieveUpdateDestroyAPIView

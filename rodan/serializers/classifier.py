@@ -1,19 +1,19 @@
-from ClassifierInterface.models import Classifier
+from rodan.models.classifier import Classifier
 from rest_framework import serializers
 
 
 class ClassifierSerializer(serializers.HyperlinkedModelSerializer):
+    project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     glyphs = serializers.Field(source="glyphs")
 
     class Meta:
         model = Classifier
-        fields = ("url", "name", "glyphs")
+        fields = ("url", "project", "name", "glyphs")
 
 
 class ClassifierListSerializer(serializers.HyperlinkedModelSerializer):
+    project = serializers.HyperlinkedRelatedField(view_name="project-detail")
+
     class Meta:
         model = Classifier
-        fields = ("url", "name")
-
-#class PngSerializer(serializers.HyperlinkedM
-# Hmm... going simpler instead.  I don't really need a model nor a serializer right now.
+        fields = ("url", "project", "name")

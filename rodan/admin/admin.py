@@ -9,6 +9,8 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
 from rodan.models.job import Job
 from rodan.models.result import Result
+from rodan.models.classifier import Classifier
+
 # from rodan.models.rodanuser import RodanUser
 
 
@@ -46,6 +48,10 @@ class WorkflowRunAdmin(admin.ModelAdmin):
     list_display = ('workflow', 'run', 'created')
 
 
+class ClassifierAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -67,3 +73,4 @@ admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(Result)
+admin.site.register(Classifier, ClassifierAdmin)

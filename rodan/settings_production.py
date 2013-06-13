@@ -5,12 +5,12 @@ DEBUG = False
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'rodan',
-        'USER': 'ahankins',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'rodan.sqlite3',
+        #'USER': 'ahankins',
+        #'PASSWORD': '',
+        #'HOST': 'localhost',
+        #'PORT': '5432'
     }
 }
 
