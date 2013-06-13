@@ -80,12 +80,26 @@ var _msLOADINTERVAL = 5.0;
  * Loads interactive job window.
  */
 - (@action)displayInteractiveJobWindow:(id)aSender
+{;
+    var runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0];
+    [self runInteractiveRunJob:runJob fromSender:aSender];
+}
+
+
+/**
+ * Attempts to start interactive run job given run job.
+ */
+- (void)runInteractiveRunJob:(RunJob)aRunJob fromSender:(id)aSender
 {
+    if (aRunJob == nil || ![aRunJob needsInput])
+    {
+        return;
+    }
+
     // Get the UUID and give it to a new window.
     var newPlatformWindow = [[CPPlatformWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)],
-        runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0],
-        runJobUUID = [runJob getUUID],
-        jobName = [runJob jobName],
+        runJobUUID = [aRunJob getUUID],
+        jobName = [aRunJob jobName],
         jobWindow = [[RKInteractiveJobWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600)
                                                     styleMask:CPClosableWindowMask | CPResizableWindowMask
                                                     runJobUUID:runJobUUID

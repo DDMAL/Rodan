@@ -1,4 +1,5 @@
 @import <Foundation/CPObject.j>
+@import "../Controllers/InteractiveJobsController.j"
 @import "../Delegates/ResultsViewPagesDelegate.j"
 @import "../Models/SimpleWorkflowRun.j"
 @import "../Models/WorkflowRun.j"
@@ -9,6 +10,7 @@
  */
 @implementation ResultsViewRunsDelegate : CPObject
 {
+    @outlet InteractiveJobsController       _interactiveJobsController;
     @outlet ResultsViewPagesDelegate        _resultsViewPagesDelegate;
     @outlet CPArrayController               _runsArrayController;
     @outlet CPArrayController               _runJobArrayController;
@@ -47,6 +49,16 @@
     _currentlySelectedRowIndex = -1;
     _simpleRunMap = [[CPDictionary alloc] init];
     return self;
+}
+
+
+/**
+ * Attempts interactive job.
+ */
+- (@action)displayInteractiveJobWindow:(id)aSender
+{
+    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0];
+    [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
 }
 
 
