@@ -13,6 +13,7 @@
     @outlet CPArrayController               _runsArrayController;
     @outlet CPArrayController               _runJobArrayController;
             WorkflowRun                     _currentlySelectedWorkflowRun;
+            int                             _currentlySelectedRowIndex;
             CPDictionary                    _simpleRunMap;
             WorkflowRun                     _loadingWorkflowRun;
 }
@@ -23,14 +24,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setArrayContents:(CPArray)aContents
 {
+    // Do a reset and check if we were filled.
     [_runsArrayController setContent:aContents];
     if ([[_runsArrayController content] count] == 0)
     {
-        _currentlySelectedWorkflowRun = nil;
+        _currentlySelectedRowIndex = -1;
         [_resultsViewPagesDelegate setArrayContents:nil];
         [_runJobArrayController setContent: nil];
     }
-    else
+    [self _repointCurrentlySelectedObject];
+
+    // If something is currently selected, we should updated run jobs.
+    if (_currentlySelectedRowIndex >= 0)
     {
         [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
     }
@@ -39,8 +44,28 @@
 
 - (id)init
 {
+    _currentlySelectedRowIndex = -1;
     _simpleRunMap = [[CPDictionary alloc] init];
     return self;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Private Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Repoints the currently selected object.
+ */
+- (void)_repointCurrentlySelectedObject
+{
+    if (_currentlySelectedRowIndex >= 0)
+    {
+        _currentlySelectedWorkflowRun = [[_runsArrayController contentArray] objectAtIndex:_currentlySelectedRowIndex];
+    }
+    else
+    {
+        _currentlySelectedWorkflowRun = nil;
+    }
 }
 
 
@@ -49,17 +74,27 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
-    _currentlySelectedWorkflowRun = nil;
-    [_resultsViewPagesDelegate setArrayContents:nil];
+    // Update ourselves.
+    _currentlySelectedRowIndex = -1;
+    [self _repointCurrentlySelectedObject];
     [_runJobArrayController setContent: nil];
+
+    // Inform others.
+    [_resultsViewPagesDelegate setArrayContents:nil];
 }
+
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    _currentlySelectedWorkflowRun = [[_runsArrayController contentArray] objectAtIndex:rowIndex];
+    // Update ourselves.
+    _currentlySelectedRowIndex = rowIndex;
+    [self _repointCurrentlySelectedObject];
     [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
-    [_resultsViewPagesDelegate setArrayContents:nil];
     [self handleShouldLoadNotification:nil];
+
+    // Inform others.
+    [_resultsViewPagesDelegate setArrayContents:nil];
+
     return YES;
 }
 
