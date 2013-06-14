@@ -84,7 +84,12 @@ class Result(models.Model):
         if self.result:
             return os.path.join(self.thumb_url, self.thumb_filename(size=settings.LARGE_THUMBNAIL))
 
-
+    @property
+    def thumbnail_ready(self):
+        absolute_to_small = os.path.join(settings.PROJECT_DIR, self.small_thumb_url[1:])
+        absolute_to_medium = os.path.join(settings.PROJECT_DIR, self.medium_thumb_url[1:])
+        absolute_to_large = os.path.join(settings.PROJECT_DIR, self.large_thumb_url[1:])
+        return os.path.exists(absolute_to_small) and os.path.exists(absolute_to_medium) and os.path.exists(absolute_to_large)
     # def delete(self, *args, **kwargs):
     #     self.result.delete()
     #     super(Result, self).delete(*args, **kwargs)

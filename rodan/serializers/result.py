@@ -9,6 +9,7 @@ class ResultSerializer(serializers.HyperlinkedModelSerializer):
     small_thumb_url = serializers.Field(source="small_thumb_url")
     medium_thumb_url = serializers.Field(source="medium_thumb_url")
     large_thumb_url = serializers.Field(source="large_thumb_url")
+    thumbnail_ready = serializers.Field(source="thumbnail_ready")
 
     class Meta:
         model = Result
@@ -19,5 +20,6 @@ class ResultSerializer(serializers.HyperlinkedModelSerializer):
                   "small_thumb_url",
                   "medium_thumb_url",
                   "large_thumb_url",
+                  "thumbnail_ready",
                   "created",
                   "updated")
