@@ -118,13 +118,10 @@ was pressed.*/
     // Check the user's classifier name then create.
     // TODO: Enter button from the textbox must call this function
     var newName = [newClassifierTextfield stringValue];
-    console.log("In createClassifier.");
     if (newName !== @"" && ! [self classifierExists:newName])
     {
         var classifier = [[Classifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
-        console.log("create classifier on ");
-        console.log(classifier);
         [classifier ensureCreated];
         [newClassifierWindow close];
     }

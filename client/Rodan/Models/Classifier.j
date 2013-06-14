@@ -7,16 +7,6 @@
     CPString    name        @accessors;
     CPArray     glyphs      @accessors;
 }
-// - (id)init:(CPString)aName
-// {
-//     if (self = [super init])
-//     {
-//         [self setName:aName];
-//         [self setProject:@"debug"];  // Create is giving 400, maybe this'll help
-//         // [self setPk:@"mybuggypk"];
-//     }
-//     return self;
-// }
 - (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
 {
     if (self = [self init])
@@ -39,13 +29,11 @@
 {
     if ([self pk])
     {
-        console.log("Classifier remotePath returning: " + [self pk]);
         return [self pk];
     }
     else
     {
-        console.log("Classifier remotePath returning: classifiers");
-        return @"/classifiers/";
+        return @"/classifiers/";  // remotePath is /classifiers/ when pk is not yet set because that's where we POST to.
     }
 }
 @end

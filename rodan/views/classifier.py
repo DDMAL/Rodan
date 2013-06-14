@@ -16,7 +16,6 @@ class ClassifierList(generics.ListCreateAPIView):
     paginate_by = None
 
     def get_queryset(self):
-        print "ClassifierList.get_queryset"
         queryset = Classifier.objects.all()
         project = self.request.QUERY_PARAMS.get('project', None)
 
@@ -27,18 +26,8 @@ class ClassifierList(generics.ListCreateAPIView):
 
     @receiver(post_save, sender=Classifier)
     def create_xml(sender, instance=None, created=False, **kwargs):
-        print "create_xml"
         if created:
-            instance.save()
             instance._create_new_xml()
-
-    def post(self, request, *args, **kwargs):
-        print request.DATA
-        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-        print serializer._errors  # in create (CreateModelMixin) serializer.is_valid is failing, which is so when _errors is populated (rest serializers.py)
-        print serializer.is_valid()
-        print serializer.errors
-        return self.create(request, *args, **kwargs)  # ListCreateAPIView.post does this only
 
 
 class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -47,7 +36,6 @@ class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ClassifierSerializer
 
     def patch(self, request, pk, *args, **kwargs):
-        print "ClassifierDetail.patch"
         kwargs['partial'] = True
         glyphs = request.DATA.get('glyphs', None)
         if glyphs:
@@ -56,6 +44,5 @@ class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, pk, *args, **kwargs):
-        print "ClassifierDetail.delete"
         self.get_object().delete_xml()
         return self.destroy(request, *args, **kwargs)  # See class RetrieveUpdateDestroyAPIView

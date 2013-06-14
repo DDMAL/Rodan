@@ -30,18 +30,7 @@ class Classifier(models.Model):
 
     @property
     def classifier_path(self):
-        print "Classifier.classifier_path"
         return os.path.join(self.project.project_path, "classifiers", "{0}.xml".format(str(self.uuid)))
-
-    def save(self, *args, **kwargs):
-        print "---Classifier save"
-        print self
-        print args
-        print kwargs
-        super(Classifier, self).save(*args, **kwargs)
-        _classifier_dir = os.path.join(self.project.project_path, "classifiers")
-        if not os.path.exists(_classifier_dir):
-            os.makedirs(_classifier_dir)
 
     @property
     def glyphs(self):
@@ -51,7 +40,6 @@ class Classifier(models.Model):
         right from the XML.  The exception is the 'data' field which is
         converted from Gamera's runlength encoding to PNG."""
 
-        print "Classifier.glyphs"
         parser = etree.XMLParser(resolve_entities=True)
         classifier = etree.parse(open(self.classifier_path, 'r'), parser)
         glyphs = []
@@ -100,9 +88,12 @@ class Classifier(models.Model):
     def _create_new_xml(self):
         """ Called when a POST is received and a new object is created.
         """
-        print "Classifier._create_new_xml"
         gamera_database = etree.XML(r'<gamera-database version="2.0" />')
         etree.SubElement(gamera_database, "glyphs")
+
+        _classifier_dir = os.path.join(self.project.project_path, "classifiers")
+        if not os.path.exists(_classifier_dir):
+            os.makedirs(_classifier_dir)
 
         f = open(self.classifier_path, 'w')
         f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
@@ -113,7 +104,6 @@ class Classifier(models.Model):
         Writes XML.  Assume that I have a whole classifier (array of
         glyph dictionaries) object as defined in the footnote. """
 
-        print "Classifier.write_xml"
         gamera_database = etree.XML(r'<gamera-database version="2.0" />')
         glyphs_element = etree.SubElement(gamera_database, "glyphs")
         for json_glyph in classifier_glyphs:
@@ -145,7 +135,6 @@ class Classifier(models.Model):
     def _base64_png_encode(self, glyph):
         """ Takes an xpath glyph element and returns a png image of the
         glyph. """
-        print "Classifier._base64_png_encode"
         nrows = int(glyph.get('nrows'))
         ncols = int(glyph.get('ncols'))
         # Make an iterable that yields each row in boxed row flat pixel format:
@@ -168,7 +157,6 @@ class Classifier(models.Model):
         return base64.b64encode(buf.getvalue())
 
     def _runlength_encode(self, base64_encoded_png):
-        print "Classifer._runlength_encode"
         my_png = base64.b64decode(base64_encoded_png)
         buf = StringIO.StringIO(my_png)
         r = png.Reader(file=buf)  # Note: it gets confused if you don't name the argument
@@ -195,7 +183,6 @@ class Classifier(models.Model):
         # The 'map' call converts to an array of strings, then 'join' into one string
 
     def delete_xml(self):
-        print "Classifier.delete_xml removing " + self.classifier_path
         return os.remove(self.classifier_path)
 
 
