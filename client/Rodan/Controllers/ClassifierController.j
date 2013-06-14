@@ -5,6 +5,7 @@
 @import "../Delegates/SymbolTableDelegate.j"
 @import "../Views/PhotoView.j"  // For the saved collection view
 
+@global activeProject
 
 @implementation ClassifierController : CPObject
 {
@@ -117,10 +118,13 @@ was pressed.*/
     // Check the user's classifier name then create.
     // TODO: Enter button from the textbox must call this function
     var newName = [newClassifierTextfield stringValue];
+    console.log("In createClassifier.");
     if (newName !== @"" && ! [self classifierExists:newName])
     {
-        var classifier = [[Classifier alloc] init:newName];
+        var classifier = [[Classifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
+        console.log("create classifier on ");
+        console.log(classifier);
         [classifier ensureCreated];
         [newClassifierWindow close];
     }
@@ -134,9 +138,9 @@ was pressed.*/
 - (@action)open:(CPMenuItem)aSender
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
-            path:'/classifiers/'
-            delegate:initOpenFetchClassifiersDelegate
-            message:"Loading classifier list for open"];
+                    path:'/classifiers/'
+                    delegate:initOpenFetchClassifiersDelegate
+                    message:"Loading classifier list for open"];
 }
 - (void)initOpenFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {

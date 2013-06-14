@@ -30,19 +30,14 @@ class Classifier(models.Model):
 
     @property
     def classifier_path(self):
-        # TODO: change this when integrating to rodan
-        # return os.path.join(settings.MEDIA_ROOT, "projects/1/classifiers", "{0}.xml".format(str(self.uuid)))
         print "Classifier.classifier_path"
         return os.path.join(self.project.project_path, "classifiers", "{0}.xml".format(str(self.uuid)))
 
-    #def classifier_path(self):
-    #    return os.path.join(self.project.project_path, "classifiers")
-
-    #def upload_path(self, filename):
-    #    _, ext = os.path.splitext(filename)
-    #    return os.path.join(self.page_path, "original_file{0}".format(ext.lower()))
-
     def save(self, *args, **kwargs):
+        print "---Classifier save"
+        print self
+        print args
+        print kwargs
         super(Classifier, self).save(*args, **kwargs)
         _classifier_dir = os.path.join(self.project.project_path, "classifiers")
         if not os.path.exists(_classifier_dir):

@@ -32,6 +32,7 @@ class PageList(generics.ListCreateAPIView):
 
     # override the POST method to deal with multiple files in a single request
     def post(self, request, *args, **kwargs):
+        print request.REQUEST
         if not request.FILES:
             return Response({'message': "You must supply at least one file to upload"}, status=status.HTTP_400_BAD_REQUEST)
         response = []

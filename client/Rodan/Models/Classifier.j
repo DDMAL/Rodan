@@ -7,11 +7,22 @@
     CPString    name        @accessors;
     CPArray     glyphs      @accessors;
 }
-- (id)init:(CPString)aName
+// - (id)init:(CPString)aName
+// {
+//     if (self = [super init])
+//     {
+//         [self setName:aName];
+//         [self setProject:@"debug"];  // Create is giving 400, maybe this'll help
+//         // [self setPk:@"mybuggypk"];
+//     }
+//     return self;
+// }
+- (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
 {
-    if (self = [super init])
+    if (self = [self init])
     {
         [self setName:aName];
+        [self setProject:aProjectPk];
     }
     return self;
 }
@@ -27,8 +38,14 @@
 - (CPString)remotePath  //Ratatosk
 {
     if ([self pk])
+    {
+        console.log("Classifier remotePath returning: " + [self pk]);
         return [self pk];
+    }
     else
+    {
+        console.log("Classifier remotePath returning: classifiers");
         return @"/classifiers/";
+    }
 }
 @end

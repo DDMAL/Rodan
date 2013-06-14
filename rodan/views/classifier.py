@@ -13,6 +13,7 @@ class ClassifierList(generics.ListCreateAPIView):
     model = Classifier
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ClassifierListSerializer
+    paginate_by = None
 
     def get_queryset(self):
         print "ClassifierList.get_queryset"
@@ -24,13 +25,20 @@ class ClassifierList(generics.ListCreateAPIView):
 
         return queryset
 
+    @receiver(post_save, sender=Classifier)
+    def create_xml(sender, instance=None, created=False, **kwargs):
+        print "create_xml"
+        if created:
+            instance.save()
+            instance._create_new_xml()
 
-@receiver(post_save, sender=Classifier)
-def create_xml(sender, instance=None, created=False, **kwargs):
-    print "create_xml"
-    if created:
-        instance.save()
-        instance._create_new_xml()
+    def post(self, request, *args, **kwargs):
+        print request.DATA
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        print serializer._errors  # in create (CreateModelMixin) serializer.is_valid is failing, which is so when _errors is populated (rest serializers.py)
+        print serializer.is_valid()
+        print serializer.errors
+        return self.create(request, *args, **kwargs)  # ListCreateAPIView.post does this only
 
 
 class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
