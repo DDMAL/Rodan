@@ -5,6 +5,7 @@
 {
     CPString    pk              @accessors;
     CPString    created         @accessors;
+    CPString    updated         @accessors;
     CPString    mediumThumbURL  @accessors;
     CPString    result          @accessors;
     CPString    runJob          @accessors;
@@ -17,6 +18,7 @@
     {
         var mapping = [
             ['created', 'created'],
+            ['updated', 'updated'],
             ['mediumThumbURL', 'medium_thumb_url'],
             ['result', 'result'],
             ['runJob', 'run_job'],
