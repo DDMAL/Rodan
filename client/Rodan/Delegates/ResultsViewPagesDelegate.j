@@ -11,6 +11,7 @@
     @outlet ResultsViewResultsDelegate  _resultsViewResultsDelegate;
     @outlet CPArrayController           _pageArrayController;
             SimplePage                  _currentlySelectedPage;
+            int                         _currentlySelectedRowIndex;
 }
 
 
@@ -22,8 +23,41 @@
     [_pageArrayController setContent:aContents];
     if ([[_pageArrayController content] count] == 0)
     {
-        _currentlySelectedPage = nil;
+        _currentlySelectedRowIndex = -1;
         [_resultsViewResultsDelegate setArrayContents:nil];
+    }
+    [self _repointCurrentlySelectedObject];
+
+    // If something is currently selected, we should updated results.
+    if (_currentlySelectedRowIndex >= 0)
+    {
+        [_resultsViewResultsDelegate setArrayContents:[_currentlySelectedPage results]];
+    }
+}
+
+
+- (id)init
+{
+    _currentlySelectedRowIndex = -1;
+    return self;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Private Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Repoints the currently selected object.
+ */
+- (void)_repointCurrentlySelectedObject
+{
+    if (_currentlySelectedRowIndex >= 0)
+    {
+        _currentlySelectedPage = [[_pageArrayController contentArray] objectAtIndex:_currentlySelectedRowIndex];
+    }
+    else
+    {
+        _currentlySelectedPage = nil;
     }
 }
 
@@ -33,14 +67,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
-    _currentlySelectedPage = nil;
+    // Update ourselves.
+    _currentlySelectedRowIndex = -1;
+    [self _repointCurrentlySelectedObject];
+
+    // Inform others.
     [_resultsViewResultsDelegate setArrayContents:nil];
 }
 
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    _currentlySelectedPage = [[_pageArrayController contentArray] objectAtIndex:rowIndex];
+    _currentlySelectedRowIndex = rowIndex;
+    [self _repointCurrentlySelectedObject];
     [_resultsViewResultsDelegate setArrayContents:[_currentlySelectedPage results]];
     return YES;
 }
