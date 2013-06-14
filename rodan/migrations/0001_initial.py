@@ -128,6 +128,21 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('rodan', ['Classifier'])
 
+        # Adding model 'PageGlyphs'
+        db.create_table('rodan_pageglyphs', (
+            ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+        ))
+        db.send_create_signal('rodan', ['PageGlyphs'])
+
+        # Adding M2M table for field classifier on 'PageGlyphs'
+        db.create_table('rodan_pageglyphs_classifier', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('pageglyphs', models.ForeignKey(orm['rodan.pageglyphs'], null=False)),
+            ('classifier', models.ForeignKey(orm['rodan.classifier'], null=False))
+        ))
+        db.create_unique('rodan_pageglyphs_classifier', ['pageglyphs_id', 'classifier_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'Project'
@@ -159,6 +174,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Classifier'
         db.delete_table('rodan_classifier')
+
+        # Deleting model 'PageGlyphs'
+        db.delete_table('rodan_pageglyphs')
+
+        # Removing M2M table for field classifier on 'PageGlyphs'
+        db.delete_table('rodan_pageglyphs_classifier')
 
 
     models = {
@@ -228,6 +249,12 @@ class Migration(SchemaMigration):
             'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pages'", 'to': "orm['rodan.Project']"}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
+        },
+        'rodan.pageglyphs': {
+            'Meta': {'object_name': 'PageGlyphs'},
+            'classifier': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'pageglyphs'", 'blank': 'True', 'to': "orm['rodan.Classifier']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.project': {
