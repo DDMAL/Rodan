@@ -50,6 +50,11 @@
 @import "Controllers/InteractiveJobsController.j"
 @import "Controllers/ClassifierViewController.j"
 
+@import "Delegates/ResultsViewPagesDelegate.j"
+@import "Delegates/ResultsViewResultsDelegate.j"
+@import "Delegates/ResultsViewRunsDelegate.j"
+@import "Delegates/ResultsViewWorkflowsDelegate.j"
+
 @import "Models/Project.j"
 @import "Models/User.j"
 

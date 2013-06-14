@@ -5,6 +5,9 @@
 @import "../Models/WorkflowRun.j"
 
 
+@global RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+
+
 /**
  * Runs status delegate that handles the "runs" view.
  */
@@ -48,6 +51,10 @@
 {
     _currentlySelectedRowIndex = -1;
     _simpleRunMap = [[CPDictionary alloc] init];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+                                          object:nil];
     return self;
 }
 

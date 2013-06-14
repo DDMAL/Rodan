@@ -1,15 +1,10 @@
 @import <Foundation/CPObject.j>
 @import <RodanKit/Utilities/RKNotificationTimer.j>
-@import "../Delegates/ResultsViewRunsDelegate.j"
-@import "../Delegates/ResultsViewWorkflowsDelegate.j"
 @import "../Models/Workflow.j"
 
 
 @global activeProject
 @global activeUser
-@global RodanDidRefreshWorkflowsNotification
-@global RodanDidLoadWorkflowsNotification
-@global RodanWorkflowTreeNeedsRefresh
 @global RodanHasFocusWorkflowResultsViewNotification
 @global RodanShouldLoadWorkflowResultsWorkflowsNotification
 @global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
@@ -32,8 +27,6 @@ var activeWorkflow = nil,
     @outlet     CPArrayController               workflowArrayController;
     @outlet     CPArrayController               workflowPagesArrayController;
     @outlet     CPButtonBar                     workflowAddRemoveBar;
-    @outlet     ResultsViewWorkflowsDelegate    resultsViewWorkflowsDelegate;
-    @outlet     ResultsViewRunsDelegate         resultsViewRunsDelegate;
 }
 
 
@@ -69,16 +62,6 @@ var activeWorkflow = nil,
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(handleShouldLoadNotification:)
                                           name:RodanShouldLoadWorkflowResultsWorkflowsNotification
-                                          object:nil];
-
-    // Subscriptions for delegates.
-    [[CPNotificationCenter defaultCenter] addObserver:resultsViewWorkflowsDelegate
-                                          selector:@selector(handleShouldLoadNotification:)
-                                          name:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
-                                          object:nil];
-    [[CPNotificationCenter defaultCenter] addObserver:resultsViewRunsDelegate
-                                          selector:@selector(handleShouldLoadNotification:)
-                                          name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
                                           object:nil];
 }
 

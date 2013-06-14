@@ -3,6 +3,9 @@
 @import "../Models/Workflow.j"
 
 
+@global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+
+
 /**
  * Delegate for the Workflow table view in the Results view.
  */
@@ -12,6 +15,19 @@
     @outlet     ResultsViewRunsDelegate _resultsViewRunsDelegate;
                 Workflow                _currentlySelectedWorkflow;
                 Workflow                _loadingWorkflow;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (id)init
+{
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+                                          object:nil];
+    return self;
 }
 
 
