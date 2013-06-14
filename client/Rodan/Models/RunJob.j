@@ -62,4 +62,10 @@
     }
 }
 
+
+- (BOOL)canRunInteractive
+{
+    return [self status] == 2 || [self status] == 3;
+}
+
 @end
