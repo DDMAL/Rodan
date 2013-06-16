@@ -3,7 +3,8 @@
     CPString symbolName @accessors;
     int count @accessors;
 }
-- (Symbol)init:(CPString)aSymbolName
+
+- (Symbol)initWithName:(CPString)aSymbolName
 {
     [self setSymbolName:aSymbolName];
     [self setCount:1];

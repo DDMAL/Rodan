@@ -26,7 +26,7 @@
     [symbolArrayController setContent:[]];  // This is necessary if the user didn't 'close'
     for (; i < glyphCount; ++i)
     {
-        var newSymbol = [[Symbol alloc] init:[glyphArray[i] idName]],
+        var newSymbol = [[Symbol alloc] initWithName:[glyphArray[i] idName]],
         //var found = [self reverseArrayContains:[symbolArrayController contentArray]:newSymbol];
             found = [self reverseArrayContains:[symbolArrayController contentArray] item:newSymbol];
         if (found < 0)

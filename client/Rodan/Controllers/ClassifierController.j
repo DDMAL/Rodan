@@ -43,8 +43,8 @@
     [classifierTableView setDataSource:classifierTableViewDelegate];
 
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
-    initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] init:self];
-    initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] init:self];
+    initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
+    initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -270,7 +270,8 @@ was pressed.*/
 {
     ClassifierController classifierController;
 }
-- (id)init:(ClassifierController)aClassifierController
+
+- (id)initWithClassifierController:(ClassifierController)aClassifierController
 {
     self = [super init];
     classifierController = aClassifierController;
@@ -286,7 +287,8 @@ was pressed.*/
 {
     ClassifierController classifierController;
 }
-- (id)init:(ClassifierController)aClassifierController
+
+- (id)initWithClassifierController:(ClassifierController)aClassifierController
 {
     self = [super init];
     classifierController = aClassifierController;
