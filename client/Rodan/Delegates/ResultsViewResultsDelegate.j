@@ -8,9 +8,8 @@
 @implementation ResultsViewResultsDelegate : CPObject
 {
     @outlet CPArrayController   _resultArrayController;
-            SimpleResult       _currentlySelectedResult;
+            SimpleResult        _currentlySelectedResult;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Methods
@@ -24,7 +23,6 @@
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +30,6 @@
 {
     _currentlySelectedResult = nil;
 }
-
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {

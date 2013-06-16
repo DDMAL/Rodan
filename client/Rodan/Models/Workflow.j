@@ -29,8 +29,8 @@
 
         sourceListIcon = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"workflow-sourcelist-icon.png"]
                                           size:CGSizeMake(16.0, 16.0)]
-
     }
+
     return self;
 }
 
@@ -54,13 +54,9 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk]
-    }
     else
-    {
         return @"/workflows/";
-    }
 }
 
 - (void)addPage:(id)aPage
@@ -84,7 +80,6 @@
 {
     // add lots of jobs to a workflow
 }
-
 
 /**
  * Touches it so job settings are saved.

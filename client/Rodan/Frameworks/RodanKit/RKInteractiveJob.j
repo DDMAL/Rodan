@@ -18,7 +18,6 @@
     return self;
 }
 
-
 - (void)webView:(CPWebView)aWebView didFinishLoadForFrame:(id)aFrame
 {
     var bounds = [self bounds],
@@ -34,7 +33,6 @@
 {
     RKInteractiveJob      interactiveJob;
 }
-
 
 - (id)initWithContentRect:(CGRect)aRect styleMask:(int)aMask runJobUUID:(int)aRunJobUUID jobName:(CPString)aJobName
 {

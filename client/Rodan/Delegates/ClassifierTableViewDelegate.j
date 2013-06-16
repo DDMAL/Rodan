@@ -5,24 +5,27 @@
 
 @implementation ClassifierTableViewDelegate : CPObject
 {
-    @outlet CPArrayController symbolCollectionArrayController;  // Debug
-    CPMutableArray cvArrayControllers @accessors;
-    int headerLabelHeight @accessors;
-    int photoViewInset @accessors;
-    @outlet CPTableView theTableView;
+    @outlet CPArrayController   symbolCollectionArrayController;  // Debug
+            CPMutableArray      cvArrayControllers  @accessors;
+            int                 headerLabelHeight   @accessors;
+            int                 photoViewInset      @accessors;
+    @outlet CPTableView         theTableView;
 }
 
 - (void)init
 {
     self = [super init];
-    [self setHeaderLabelHeight:20];
-    [self setPhotoViewInset:10];
-    // [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewContentBoundsDidChange:) name:CPViewBoundsDidChangeNotification object:self.scrollView.contentView];
-    [self setCvArrayControllers:[[CPArray alloc] init]];
+    if (self)
+    {
+        [self setHeaderLabelHeight:20];
+        [self setPhotoViewInset:10];
+        // [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewContentBoundsDidChange:) name:CPViewBoundsDidChangeNotification object:self.scrollView.contentView];
+        [self setCvArrayControllers:[[CPArray alloc] init]];
+    }
+
     return self;
 }
 
-// - (void)initializeSymbolCollections:(Classifier)aClassifier
 - (void)initializeTableView:(CPArrayController)classifierGlyphsArrayController
 {
     var i = 0,
@@ -31,9 +34,7 @@
         // glyphs = [classifierGlyphsArrayController contentArray],
         glyphs_count = [glyphs count],
         symbolCollectionArray = [[CPMutableArray alloc] init];
-    console.log("Does it break things when I use classifierGlyphsArrayController arrangedObjects?");
-    console.log([classifierGlyphsArrayController arrangedObjects]);
-    console.log([classifierGlyphsArrayController contentArray]);  // Same glyphs.
+
     while (i < glyphs_count)
     // Assume the glyphs are sorted by id name.
     // Make an array for each id name.
@@ -56,6 +57,7 @@
     {
         [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:symbolCollectionArray[j]]];  // gets added at index j
     }
+
     [theTableView reloadData];
 }
 
@@ -172,6 +174,7 @@
     [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
     return cvArrayController;
 }
+
 - (void)close
 {
     [symbolCollectionArrayController setContent:[]];  // Also need to kill all of the subArrays.
@@ -196,15 +199,7 @@
     // the data).  Side note: the SymbolOutline uses the former approach (binding.)
 }
 
-
-
-
 // ------------------------------------- DELEGATE METHODS ----------------------------------------------
-
-
-
-
-
 - (CPView)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 // Return a view for the TableView to use a cell of the table.
 {
@@ -221,6 +216,7 @@
     // console.log([cvArrayControllers[0] selectionIndexes]);
     return [[ViewWithObjectValue alloc] initWithFrame:CGRectMakeZero()];
 }
+
 - (void)tableView:(CPTableView)aTableView willDisplayView:(CPView)aView forTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 // Set up the view to display.  (Delegate method.)
 // (Note: I do things in this function so that I have access to objectValue... which I don't in viewForTableColumn.)
@@ -317,17 +313,18 @@
     // each time someone hits enter on the text box.  If the models are looking at the same data, that SHOULD work.
 }
 
-
 - (void)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 // (Data source method)
 {
     return [symbolCollectionArrayController arrangedObjects][aRow]; // (Ignoring the column... the table has only one column)
 }
+
 - (void)numberOfRowsInTableView:(CPTableView)aTableView
 // (Data source method)
 {
     return [[symbolCollectionArrayController contentArray] count];
 }
+
 - (void)tableView:(CPTableView)aTableView heightOfRow:(int)aRow
 // Returns the height of a specified row.  (Delegate method.)
 {
@@ -364,6 +361,7 @@
     //   (?) because that never worked for me before, I think it must be laid out inside the tableView's aView... which I don't think gives me leeway...
     //   unless I call setFrame on the collView.  Worth a shot.
 }
+
 - (void)recheck_heights:(CPView)aCvParentView
 {
     var _cv = [aCvParentView subviews][0];
@@ -374,6 +372,7 @@
     console.log("---Out recheck_heights!---");
     return;
 }
+
 - (CPCollectionView)_makeCollectionViewForTableView:(CPTableView)aTableView arrayController:(CPArrayController)cvArrayController parentView:(CPView)aView  row:(int)aRow
 {
     // console.log("_make for row " + aRow);
@@ -431,6 +430,7 @@
     // console.log("_make returning cv for row: " + aRow + " of height: " + CGRectGetHeight([cv frame]));
     return cv;
 }
+
 - (void)tableViewColumnDidResize:(CPNotification)aNotification
 {
     // console.log("Resized.");
@@ -443,6 +443,7 @@
     [tableView reloadDataForRowIndexes:visibleRows columnIndexes:0];
         // see http://stackoverflow.com/questions/12067018 for other approaches
 }
+
 // This function will help with selection... find a way to pass the event to the collection view
 - (void)tableView:(CPTableView)aTableView shouldSelectRow:(int)aRow
 // Returns the height of a specified row

@@ -2,6 +2,7 @@
 {
     @outlet CPWindow deleteClassifierWindow;
 }
+
 - (void)tableViewSelectionDidChange:(CPNotification)aNotification
 {
     /* Checks if the user opened an 'are you sure' window, and if so,

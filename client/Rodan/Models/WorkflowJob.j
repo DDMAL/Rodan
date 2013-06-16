@@ -15,15 +15,6 @@
     CPString    jobDescription  @accessors;
 }
 
-// + (WorkflowJob)initWithJob:(CPString)aJobURI forWorkflow:(CPString)aWorkflowURI
-// {
-//     var self = [[WorkflowJob alloc] init];
-//     [self setJob:aJobURI];
-//     [self setWorkflow:aWorkflowURI];
-
-//     return self;
-// }
-
 + (CPArray)remoteProperties
 {
     return [
@@ -43,13 +34,9 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk]
-    }
     else
-    {
         return @"/workflowjobs/";
-    }
 }
 
 - (void)removeFromWorkflow

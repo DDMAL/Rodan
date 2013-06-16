@@ -40,6 +40,7 @@
     }
     console.log([symbolArrayController contentArray]);
 }
+
 - (int)reverseArrayContains:(CPArray)array item:(id)thing
 /* Intuitive except:
  - starts searching at the end
@@ -55,6 +56,7 @@
     }
     return -1;
 }
+
 - (void)close
 {
     [symbolArrayController setContent:[]];

@@ -3,10 +3,10 @@
 // TODO: Rename this because it's not an OutlineView anymore.
 @implementation SymbolOutlineDelegate : CPObject
 {
-    CPDictionary items;
-    @outlet CPOutlineView theOutlineView;
-    @outlet CPScrollView scrollView;
-    @outlet CPTableColumn textColumn;
+            CPDictionary    items;
+    @outlet CPOutlineView   theOutlineView;
+    @outlet CPScrollView    scrollView;
+    @outlet CPTableColumn   textColumn;
     @outlet CPArrayController symbolArrayController;
 }
 
@@ -25,9 +25,8 @@
     [theOutlineView setDataSource:self];  // This tells the outlineView to look at SymbolOutlineController
                                           // for the methods it needs.
 }
+
 // ---------------------------- DELEGATE METHODS --------------------------------------
-
-
 - (id)outlineView:(CPOutlineView)outlineView child:(int)index ofItem:(id)item
 {
     //CPLog("outlineView:%@ child:%@ ofItem:%@", outlineView, index, item);
@@ -100,8 +99,6 @@
     // What if I omit text, to convey meaning, in a way that doesn't waste rows...
     // (You will only be able to drag and drop into bins that already have a neume.)
 }
-
-
 
 - (BOOL)outlineView:(CPOutlineView)outlineView isItemExpandable:(id)item
 {

@@ -23,7 +23,6 @@
             WorkflowRun                     _loadingWorkflowRun;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,18 +45,21 @@
     }
 }
 
-
 - (id)init
 {
-    _currentlySelectedRowIndex = -1;
-    _simpleRunMap = [[CPDictionary alloc] init];
-    [[CPNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(handleShouldLoadNotification:)
-                                          name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
-                                          object:nil];
+    self = [super init];
+    if (self)
+    {
+        _currentlySelectedRowIndex = -1;
+        _simpleRunMap = [[CPDictionary alloc] init];
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(handleShouldLoadNotification:)
+                                              name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+                                              object:nil];
+    }
+
     return self;
 }
-
 
 /**
  * Attempts interactive job.
@@ -67,7 +69,6 @@
     var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0];
     [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Private Methods
@@ -87,7 +88,6 @@
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,6 @@
     // Inform others.
     [_resultsViewPagesDelegate setArrayContents:nil];
 }
-
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
@@ -117,7 +116,6 @@
     return YES;
 }
 
-
 /**
  * Handles the request to load.
  */
@@ -132,7 +130,6 @@
                         message:"Loading Workflow Run Results"];
     }
 }
-
 
 /**
  * Handles remote object load.

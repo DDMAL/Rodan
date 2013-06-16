@@ -6,6 +6,7 @@
 {
     @outlet ClassifierController classifierController;
 }
+
 - (void)controlTextDidChange:(CPNotification)aNotification
 {
     [classifierController updateNameUsedLabel];
