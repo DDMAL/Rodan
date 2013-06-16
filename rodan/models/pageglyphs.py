@@ -1,8 +1,7 @@
+import os
 
 from django.db import models
 from uuidfield import UUIDField
-
-import os
 
 from rodan.models.gameraXML import GameraXML
 from rodan.models.classifier import Classifier
