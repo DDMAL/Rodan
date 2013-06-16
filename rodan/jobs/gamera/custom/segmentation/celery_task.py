@@ -1,24 +1,23 @@
-from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
-
-from gamera.core import init_gamera, load_image
 import json
+from gamera.core import init_gamera, load_image
+from gamera.plugins.pil_io import from_pil
 import Image
 import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from gamera.plugins.pil_io import from_pil
+from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 
 
 class SegmentationTask(GameraCustomTask):
     max_retries = None
     name = 'gamera.custom.segmentation.segmentation'
 
-    settings = [{'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'num lines','type':'int'},
-                    {'default':5,'has_default':True,'rng':(-1048576,1048576),'name':'scanlines','type':'int'},
-                    {'default':0.8,'has_default':True,'rng':(-1048576,1048576),'name':'blackness','type':'real'},
-                    {'default':-1,'has_default':True,'rng':(-1048576,1048576),'name':'tolerance','type':'int'},
-                    {'default': None,'has_default':True,'name':'polygon_outer_points','type':'json'},
-                    {'default': 0,'has_default':True,'rng':(-1048576,1048576),'name':'image_width','type':'int'}]
+    settings = [{'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'num lines', 'type': 'int'},
+                {'default': 5, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'scanlines', 'type': 'int'},
+                {'default': 0.8, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'blackness', 'type': 'real'},
+                {'default': -1, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'tolerance', 'type': 'int'},
+                {'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'},
+                {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'}]
 
     def preconfigure_settings(self, page_url, settings):
         init_gamera()

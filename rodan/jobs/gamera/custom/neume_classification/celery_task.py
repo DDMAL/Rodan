@@ -1,16 +1,8 @@
-import os
-import uuid
-import tempfile
-import shutil
-import json
-from django.core.files import File
 from celery import Task
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
-from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
-from gamera.core import init_gamera, load_image
 
 JOB_NAME_MANUAL = 'gamera.custom.neume_classification.manual_classification'
 
@@ -33,7 +25,6 @@ class ManualClassificationTask(Task):
         runjob.save()
 
         print "The job received input."
-
 
     def on_success(self, retval, task_id, args, kwargs):
         # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.

@@ -1,6 +1,5 @@
 from celery import Task
 from rodan.models.runjob import RunJob
-from rodan.models.result import Result
 from rodan.models.runjob import RunJobStatus
 from rodan.jobs.util import taskutil
 from gamera.core import init_gamera, load_image

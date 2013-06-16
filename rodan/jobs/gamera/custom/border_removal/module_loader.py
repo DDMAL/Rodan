@@ -1,7 +1,7 @@
 from rodan.models.job import Job
 from rodan.settings import ONEBIT, GREYSCALE, RGB
-
 from rodan.jobs.gamera.custom.border_removal.celery_task import AutoBorderRemovalTask, CropBorderRemovalTask
+
 
 def load_auto_border_removal():
     task_class = AutoBorderRemovalTask
