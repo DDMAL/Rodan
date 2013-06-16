@@ -1,11 +1,10 @@
-
 import os
-
-from lxml import etree
 import re
 import png
 import StringIO
 import base64
+
+from lxml import etree
 
 # Note about class structure:  I'd like GameraXML to
 # - inherit Model
@@ -15,7 +14,7 @@ import base64
 # Cannot create a consistent method resolution
 
 
-class GameraXML():
+class GameraXML(object):
 
     class Meta:
         app_label = 'rodan'
@@ -266,7 +265,3 @@ class GameraXML():
 # It's just a list of names.  Very simple.
 # The symbols get saved when you save page glyphs.
 # It can honesly just be a 1d array of strings.
-
-
-
-
