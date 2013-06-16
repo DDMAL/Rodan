@@ -41,12 +41,8 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk]
-    }
     else
-    {
         return @"/pages/";
-    }
 }
 @end

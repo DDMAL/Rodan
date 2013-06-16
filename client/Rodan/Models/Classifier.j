@@ -7,6 +7,7 @@
     CPString    name        @accessors;
     CPArray     glyphs      @accessors;
 }
+
 - (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
 {
     if (self = [self init])
@@ -16,6 +17,7 @@
     }
     return self;
 }
+
 + (CPArray)remoteProperties  //Ratatosk
 {
     return [
@@ -25,15 +27,12 @@
         ['glyphs',      'glyphs',    [[GlyphTransformer alloc] init]]
     ];
 }
+
 - (CPString)remotePath  //Ratatosk
 {
     if ([self pk])
-    {
         return [self pk];
-    }
     else
-    {
         return @"/classifiers/";  // remotePath is /classifiers/ when pk is not yet set because that's where we POST to.
-    }
 }
 @end

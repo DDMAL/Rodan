@@ -22,7 +22,6 @@
     // [dateAddedField setFormatter:formatter];
     var byteCountFormatter = [[CPByteCountFormatter alloc] init];
     [sizeField setFormatter:byteCountFormatter];
-
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
@@ -80,5 +79,4 @@
 {
     [pageArrayController setContent:nil];
 }
-
 @end

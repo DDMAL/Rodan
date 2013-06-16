@@ -34,7 +34,6 @@
     ];
 }
 
-
 /**
  * Returns the last component of the pk URL, which is the UUID of the RunJob.
  * If pk is nil, returns nil.
@@ -49,19 +48,13 @@
     return runJobUUID;
 }
 
-
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk]
-    }
     else
-    {
         return @"/runjobs/";
-    }
 }
-
 
 - (BOOL)canRunInteractive
 {

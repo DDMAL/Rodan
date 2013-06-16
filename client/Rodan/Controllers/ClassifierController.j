@@ -32,6 +32,7 @@
     @outlet ClassifierTableViewDelegate classifierTableViewDelegate;
     @outlet CPTableView classifierTableView;
 }
+
 - (void)awakeFromCib
 {
     [newClassifierTextfield setDelegate:newClassifierTextfieldDelegate];
@@ -56,6 +57,7 @@
                     delegate:initNewFetchClassifiersDelegate
                     message:"Loading classifier list"];
 }
+
 - (void)initNewFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
     var classifiers = [Classifier objectsFromJson:[anAction result]];
@@ -64,6 +66,7 @@
     [self updateNameUsedLabel];
     [newClassifierWindow makeKeyAndOrderFront:null];
 }
+
 - (CPString)suggestNameForNewClassifier
 // Comes up with a suggestion for the user to name the new classifier.
 // Default suggestion is classifier0.
@@ -81,6 +84,7 @@
     }
     return @"classifier" + classifierCount.toString();
 }
+
 - (Boolean)classifierExists:(CPString)classifierName
 /* Tells you if we have a classifier with the given name.
 Doesn't go to the server... it relies on the previous call to fetchClassifiers.
@@ -100,6 +104,7 @@ was pressed.*/
     }
     return false;
 }
+
 - (void)updateNameUsedLabel
 // Gets called on every keystroke of the NewClassifier textbox
 {
@@ -112,6 +117,7 @@ was pressed.*/
         [nameUsedLabel setHidden:YES];
     }
 }
+
 - (@action)createClassifier:(id)aSender
 {
     // This is for the create button in the New Classifier window.
@@ -132,6 +138,7 @@ was pressed.*/
         // red text that displays when classifierExists is true.
     }
 }
+
 - (@action)open:(CPMenuItem)aSender
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
@@ -139,12 +146,14 @@ was pressed.*/
                     delegate:initOpenFetchClassifiersDelegate
                     message:"Loading classifier list for open"];
 }
+
 - (void)initOpenFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
     var classifiers = [Classifier objectsFromJson:[anAction result]];
     [classifierArrayController setContent:classifiers];
     [openClassifierWindow makeKeyAndOrderFront:null];  // Opens the window
 }
+
 - (@action)openClassifier:(CPButton)aSender
 {
     // Read what is selected and get the glyphs of the corresponding classifier.
@@ -157,6 +166,7 @@ was pressed.*/
                     message:@"loading a single classifier"];
     // TODO: make this function available by double clicking in the open window
 }
+
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 /* Open operation just finished: server sent us a full classifier */
 {
@@ -178,10 +188,12 @@ was pressed.*/
 
     [symbolTableDelegate initializeSymbols:theClassifier];
 }
+
 - (@action)showAreYouSureWindow:(CPButton)firstDeleteButton
 {
     [deleteClassifierWindow makeKeyAndOrderFront:null];
 }
+
 - (@action)deleteClassifier:(CPButton)secondDeleteButton
 {
     var selectedClassifier = [classifierArrayController selectedObjects];
@@ -189,6 +201,7 @@ was pressed.*/
     [selectedClassifier makeObjectsPerformSelector:@selector(ensureDeleted)];
     [deleteClassifierWindow close];
 }
+
 - (@action)writeSymbolName:(CPTextField)aSender
 /* Write the new symbol for each selected glyph */
 {
@@ -238,6 +251,7 @@ was pressed.*/
         [classifierTableViewDelegate close];
     }
 }
+
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
     console.log([[theClassifier glyphs][0] UID]);
@@ -262,7 +276,6 @@ was pressed.*/
 //         // I get a warning for the previous line, not sure why...
 //         // ends up in CPURLConnection.j
 // }
-
 @end
 
 
@@ -277,11 +290,13 @@ was pressed.*/
     classifierController = aClassifierController;
     return self;
 }
+
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     [classifierController initNewFetchClassifiersDidFinish:anAction];
 }
 @end
+
 
 @implementation InitOpenFetchClassifiersDelegate : CPObject
 {
@@ -294,6 +309,7 @@ was pressed.*/
     classifierController = aClassifierController;
     return self;
 }
+
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     [classifierController initOpenFetchClassifiersDidFinish:anAction];

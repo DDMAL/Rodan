@@ -64,8 +64,6 @@ JobItemType = @"JobItemType";
                                           name:RodanDidLoadWorkflowNotification
                                           object:nil];
 
-
-
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [runList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
@@ -133,7 +131,6 @@ JobItemType = @"JobItemType";
                     path:[[aNotification object] pk]
                     delegate:loadActiveWorkflowDelegate
                     message:"Loading Workflow Jobs"];
-
 }
 
 - (@action)selectWorkflow:(id)aSender
@@ -372,6 +369,7 @@ JobItemType = @"JobItemType";
     @outlet     CPArrayController   currentWorkflowArrayController;
     @outlet     CPArrayController   workflowPagesArrayController;
 }
+
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     // since we're initializing another model for this workflow object,
@@ -394,7 +392,6 @@ JobItemType = @"JobItemType";
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadWorkflowNotification
                                           object:nil];
 }
-
 @end
 
 
@@ -418,7 +415,6 @@ JobItemType = @"JobItemType";
 
     return YES;
 }
-
 @end
 
 @implementation PageListDelegate : CPObject
@@ -432,7 +428,6 @@ JobItemType = @"JobItemType";
 
     return aView;
 }
-
 @end
 
 @implementation PageListCellView : CPView
@@ -463,6 +458,5 @@ JobItemType = @"JobItemType";
 {
     objectValue = aValue;
 }
-
 @end
 

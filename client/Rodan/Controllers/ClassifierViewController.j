@@ -19,6 +19,7 @@
 
     @outlet ClassifierController classifierController;
 }
+
 - (CPViewController)init
 {
     // I'm overwriting init because I want to use the object in InterfaceBuilder AND
@@ -26,14 +27,17 @@
     // ClassifierViewController, it will call this init function
     return [super initWithCibName:@"classifierView" bundle:[CPBundle mainBundle]];
 }
+
 - (@action)new:(CPMenuItem)aSender
 {
     [classifierController new:aSender];
 }
+
 - (@action)open:(CPMenuItem)aSender
 {
     [classifierController open:aSender];
 }
+
 - (@action)close:(CPMenuItem)aSender
 {
     [classifierController close:aSender];

@@ -54,13 +54,9 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk];
-    }
     else
-    {
         return @"/projects/";
-    }
 }
 
 // - (CPString)remoteAction:(WLRemoteAction)anAction decodeResponseBody:(Object)aResponseBody
@@ -113,13 +109,9 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk];
-    }
     else
-    {
         return @"/projects/";
-    }
 }
 
 - (id)initWithCreator:(User)aCreator

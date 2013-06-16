@@ -3,17 +3,13 @@
 @import <RodanKit/RKDiva.j>
 @import <RodanKit/Utilities/RKNotificationTimer.j>
 
-
 @import "../Models/RunJob.j"
-
 
 @global RodanHasFocusInteractiveJobsViewNotification
 @global RodanShouldLoadInteractiveJobsNotification
 @global activeProject
 
-
 var _msLOADINTERVAL = 5.0;
-
 
 /**
  * General interactive jobs controller.
@@ -23,7 +19,6 @@ var _msLOADINTERVAL = 5.0;
     @outlet CPTableView             interactiveJobsTableView;
     @outlet CPArrayController       interactiveJobsArrayController  @accessors(readonly);
 }
-
 
 - (void)awakeFromCib
 {
@@ -38,13 +33,11 @@ var _msLOADINTERVAL = 5.0;
                                           object:nil];
 }
 
-
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
                          notification:RodanShouldLoadInteractiveJobsNotification];
 }
-
 
 /**
  * Handles the request to load interactive jobs.
@@ -62,7 +55,6 @@ var _msLOADINTERVAL = 5.0;
                     message:"Retrieving RunJobs"];
 }
 
-
 /**
  * Handles success of interactive jobs loading.
  */
@@ -75,16 +67,14 @@ var _msLOADINTERVAL = 5.0;
     }
 }
 
-
 /**
  * Loads interactive job window.
  */
 - (@action)displayInteractiveJobWindow:(id)aSender
-{;
+{
     var runJob = [[interactiveJobsArrayController selectedObjects] objectAtIndex:0];
     [self runInteractiveRunJob:runJob fromSender:aSender];
 }
-
 
 /**
  * Attempts to start interactive run job given run job.
@@ -110,7 +100,6 @@ var _msLOADINTERVAL = 5.0;
     [jobWindow makeKeyAndOrderFront:aSender];
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DELEGATE METHODS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,8 +112,6 @@ var _msLOADINTERVAL = 5.0;
 }
 
 /*
-
-
 - (@action)displayDivaWindow:(id)aSender
 {
     var divaWindow = [[CPWindow alloc] initWithContentRect:CGRectMake(0, 0, 800, 600) styleMask:CPClosableWindowMask | CPResizableWindowMask],

@@ -32,13 +32,9 @@
 - (CPString)remotePath
 {
     if ([self pk])
-    {
         return [self pk]
-    }
     else
-    {
         return @"/results/";
-    }
 }
 
 @end

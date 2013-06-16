@@ -29,7 +29,6 @@
         case @"jobsServerAdminToolbarButton":
             [preferencesContentView setSubviews:[jobsAdminView]];
             break;
-
     }
 }
 @end

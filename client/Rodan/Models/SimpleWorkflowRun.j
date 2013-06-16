@@ -49,11 +49,11 @@
             }
             else
             {
-                console.log()
                 [self setValue:jsonObject[map[1]] forKey:map[0]];
             }
         }
     }
+
     return self;
 }
 

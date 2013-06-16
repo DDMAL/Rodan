@@ -11,6 +11,7 @@
     int photoViewInset @accessors;
     @outlet CPTableView theTableView;
 }
+
 - (void)init
 {
     self = [super init];
@@ -57,6 +58,7 @@
     }
     [theTableView reloadData];
 }
+
 - (void)writeSymbolName:(CPString)newName
 {
     /// ----------------  ALGORITHM PSEUDOCODE -----------------

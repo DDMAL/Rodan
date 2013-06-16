@@ -136,7 +136,6 @@
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadProjectNotification
                                           object:selectedProject];
-
 }
 
 - (void)emptyProjectArrayController
@@ -195,8 +194,8 @@
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidCloseProjectNotification
                                           object:nil];
 }
-
 @end
+
 
 @implementation LoadActiveProjectDelegate : CPObject
 {
@@ -224,5 +223,4 @@
                                           object:nil];
 
 }
-
 @end

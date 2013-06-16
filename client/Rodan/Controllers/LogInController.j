@@ -17,9 +17,6 @@
     will trigger the client to display the login sheet.
 
     If the user is not allowed to authenticate, the handlers here will also catch this with a 403 FORBIDDEN message.
-
-
-
 */
 @implementation LogInController : CPObject
 {

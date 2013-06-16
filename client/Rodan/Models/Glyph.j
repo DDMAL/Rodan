@@ -127,5 +127,4 @@ This won't write to the server until they hit Save.
     idName = newName;
     idConfidence = @"1.000000";
 }
-
 @end

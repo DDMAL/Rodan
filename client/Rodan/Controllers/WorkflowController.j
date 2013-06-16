@@ -2,14 +2,12 @@
 @import <RodanKit/Utilities/RKNotificationTimer.j>
 @import "../Models/Workflow.j"
 
-
 @global activeProject
 @global activeUser
 @global RodanHasFocusWorkflowResultsViewNotification
 @global RodanShouldLoadWorkflowResultsWorkflowsNotification
 @global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
 @global RodanShouldLoadWorkflowResultsWorkflowResultsNotification
-
 
 var activeWorkflow = nil,
     _msLOADINTERVAL = 5.0;
@@ -28,7 +26,6 @@ var activeWorkflow = nil,
     @outlet     CPArrayController               workflowPagesArrayController;
     @outlet     CPButtonBar                     workflowAddRemoveBar;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Init Methods
@@ -65,7 +62,6 @@ var activeWorkflow = nil,
                                           object:nil];
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +79,6 @@ var activeWorkflow = nil,
     }
 }
 
-
 - (void)newWorkflow:(id)aSender
 {
     var wflow = [[Workflow alloc] init];
@@ -92,7 +87,6 @@ var activeWorkflow = nil,
     [workflowArrayController addObject:wflow];
     [wflow ensureCreated];
 }
-
 
 - (void)alertDidEnd:(CPAlert)theAlert returnCode:(int)returnCode
 {
@@ -104,12 +98,10 @@ var activeWorkflow = nil,
     }
 }
 
-
 - (void)emptyWorkflowArrayController
 {
     [workflowArrayController setContent:nil];
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Action Methods
@@ -129,7 +121,6 @@ var activeWorkflow = nil,
     }
 }
 
-
 /**
  * Tests the workflow.
  */
@@ -147,7 +138,6 @@ var activeWorkflow = nil,
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +146,6 @@ var activeWorkflow = nil,
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
                          notification:RodanShouldLoadWorkflowResultsWorkflowsNotification];
 }
-
 
 /**
  * Handles load notification and delegates loading to the associated sub-delegates.
@@ -175,7 +164,6 @@ var activeWorkflow = nil,
                                           object:nil];
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Static Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +171,6 @@ var activeWorkflow = nil,
 {
     return activeWorkflow;
 }
-
 
 + (void)setActiveWorkflow:(Workflow)aWorkflow
 {

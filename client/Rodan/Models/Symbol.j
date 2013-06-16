@@ -8,21 +8,26 @@
 {
     [self setSymbolName:aSymbolName];
     [self setCount:1];
+
     return self;
 }
+
 - (void)increment
 {
     [self setCount:[self count] + 1];
 }
+
 - (Boolean)isEqual:(Symbol)aSymbol
 {
     return [self symbolName] === [aSymbol symbolName];
 }
+
 - (CPString)stringAndCountOutput
 {
     return [[self symbolName] stringByAppendingFormat:@" (%d)", [self count]];
 }
 @end
+
     // Old way didn't work:
 
     // Hmmm... what I really want is a dict and the left column to contain the keys to the dict,
