@@ -8,6 +8,8 @@
     <string>FMWK</string>
     <key>CPPrincipalClass</key>
     <string>RodanKit</string>
+    <key>gamera.custom.border_removal.crop_border_removal</key>
+    <string>crop</string>
     <key>gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop</key>
     <string>crop</string>
     <key>gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle</key>
