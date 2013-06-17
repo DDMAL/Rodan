@@ -1,3 +1,4 @@
+
 from rodan.models.classifier import Classifier
 from rest_framework import serializers
 
@@ -11,7 +12,7 @@ class ClassifierSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("url", "project", "name", "glyphs")
 
 
-class ClassifierListSerializer(serializers.HyperlinkedModelSerializer):
+class MinimalClassifierSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
 
     class Meta:
