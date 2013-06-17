@@ -3,37 +3,28 @@ from rest_framework import permissions
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from rodan.models.classifier import Classifier
-from rodan.serializers.classifier import ClassifierSerializer, MinimalClassifierSerializer
+from rodan.models.pageglyphs import PageGlyphs
+from rodan.serializers.pageglyphs import PageGlyphsSerializer, PageGlyphsListSerializer
 
 #import ast
 
 
-class ClassifierList(generics.ListCreateAPIView):
-    model = Classifier
+class PageGlyphsList(generics.ListCreateAPIView):
+    model = PageGlyphs
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = MinimalClassifierSerializer
+    serializer_class = PageGlyphsListSerializer
     paginate_by = None
 
-    def get_queryset(self):
-        queryset = Classifier.objects.all()
-        project = self.request.QUERY_PARAMS.get('project', None)
-
-        if project:
-            queryset = queryset.filter(project__uuid=project)
-
-        return queryset
-
-    @receiver(post_save, sender=Classifier)
+    @receiver(post_save, sender=PageGlyphs)
     def create_xml(sender, instance=None, created=False, **kwargs):
         if created:
             instance._create_new_xml()
 
 
-class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
-    model = Classifier
+class PageGlyphsDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = PageGlyphs
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = ClassifierSerializer
+    serializer_class = PageGlyphsSerializer
 
     def patch(self, request, pk, *args, **kwargs):
         kwargs['partial'] = True
