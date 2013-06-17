@@ -125,6 +125,7 @@ class Migration(SchemaMigration):
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='classifiers', to=orm['rodan.Project'])),
+            ('classifier_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
         ))
         db.send_create_signal('rodan', ['Classifier'])
 
@@ -212,6 +213,7 @@ class Migration(SchemaMigration):
         },
         'rodan.classifier': {
             'Meta': {'object_name': 'Classifier'},
+            'classifier_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'classifiers'", 'to': "orm['rodan.Project']"}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
