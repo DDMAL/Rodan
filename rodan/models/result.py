@@ -2,6 +2,7 @@ import os
 from django.db import models
 from django.conf import settings
 from uuidfield import UUIDField
+from rodan.settings import ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX
 
 
 class Result(models.Model):
@@ -25,6 +26,9 @@ class Result(models.Model):
     result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=512)
     run_job = models.ForeignKey("rodan.RunJob", related_name="result")
 
+    # For now, for the sake of backwards compatibility, None/null should just mean a regular png image.
+    result_type = models.IntegerField(null=True, blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -33,7 +37,9 @@ class Result(models.Model):
 
     def save(self, *args, **kwargs):
         super(Result, self).save(*args, **kwargs)
-        if not os.path.exists(self.thumb_path):
+        # For now None is considered to be an image type for backwards compatibility.
+        image_types = [None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX]
+        if not os.path.exists(self.thumb_path) and self.result_type in image_types:
             os.makedirs(self.thumb_path)
         self.run_job.save()
 
