@@ -132,16 +132,10 @@ class Migration(SchemaMigration):
         db.create_table('rodan_pageglyphs', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('classifier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pageglyphs', to=orm['rodan.Classifier'])),
+            ('pageglyphs_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
         ))
         db.send_create_signal('rodan', ['PageGlyphs'])
-
-        # Adding M2M table for field classifier on 'PageGlyphs'
-        db.create_table('rodan_pageglyphs_classifier', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('pageglyphs', models.ForeignKey(orm['rodan.pageglyphs'], null=False)),
-            ('classifier', models.ForeignKey(orm['rodan.classifier'], null=False))
-        ))
-        db.create_unique('rodan_pageglyphs_classifier', ['pageglyphs_id', 'classifier_id'])
 
 
     def backwards(self, orm):
@@ -177,9 +171,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'PageGlyphs'
         db.delete_table('rodan_pageglyphs')
-
-        # Removing M2M table for field classifier on 'PageGlyphs'
-        db.delete_table('rodan_pageglyphs_classifier')
 
 
     models = {
@@ -253,8 +244,9 @@ class Migration(SchemaMigration):
         },
         'rodan.pageglyphs': {
             'Meta': {'object_name': 'PageGlyphs'},
-            'classifier': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'pageglyphs'", 'blank': 'True', 'to': "orm['rodan.Classifier']"}),
+            'classifier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pageglyphs'", 'to': "orm['rodan.Classifier']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'pageglyphs_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.project': {
