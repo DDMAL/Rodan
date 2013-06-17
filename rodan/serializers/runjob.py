@@ -11,7 +11,6 @@ class ResultRunJobSerializer(serializers.HyperlinkedModelSerializer):
     """
     small_thumb_url = serializers.Field(source="small_thumb_url")
     medium_thumb_url = serializers.Field(source="medium_thumb_url")
-    thumbnail_ready = serializers.Field(source="thumbnail_ready")
     result = serializers.Field(source="image_url")
     run_job_name = serializers.Field(source="run_job_name")
 
