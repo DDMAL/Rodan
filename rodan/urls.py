@@ -68,7 +68,7 @@ urlpatterns += format_suffix_patterns(
         url(r'^classifiers/$', ClassifierList.as_view(), name="classifier-list"),
         url(r'^classifier/(?P<pk>[0-9a-z\-]+)/$', ClassifierDetail.as_view(), name="classifier-detail"),
         url(r'^pageglyphs/$', PageGlyphsList.as_view(), name="pageglyphs-list"),
-        url(r'^pageglyph/(?P<pk>[0-9a-z\-]+)/$', PageGlyphsDetail.as_view(), name="pageglyphs-detail"),
+        url(r'^pageglyphs/(?P<pk>[0-9a-z\-]+)/$', PageGlyphsDetail.as_view(), name="pageglyphs-detail"),
     )
 )
 

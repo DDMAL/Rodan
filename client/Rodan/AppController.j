@@ -90,6 +90,9 @@ RodanShouldLoadWorkflowResultsWorkflowResultsNotification = @"RodanShouldLoadWor
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
 RodanHasFocusWorkflowResultsViewNotification = @"RodanHasFocusWorkflowResultsViewNotification";
 
+RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification"
+
+
 isLoggedIn = NO;
 activeUser = nil;     // URI to the currently logged-in user
 activeProject = nil;  // URI to the currently open project
@@ -218,6 +221,8 @@ activeProject = nil;  // URI to the currently open project
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanCannotLogInNotification object:nil];
     [center addObserver:self selector:@selector(cannotLogIn:) name:RodanLogInErrorNotification object:nil];
     [center addObserver:self selector:@selector(didLogOut:) name:RodanDidLogOutNotification object:nil];
+
+    [center addObserver:self selector:@selector(switchWorkspaceToClassifier:) name:RodanShouldLoadClassifierNotification object:nil];
 
     [theToolbar setVisible:NO];
 

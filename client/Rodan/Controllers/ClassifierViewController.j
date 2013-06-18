@@ -8,11 +8,13 @@
 
 @import "../Controllers/ClassifierController.j"
 
+@global RodanShouldLoadClassifierNotification
 
 @implementation ClassifierViewController : CPViewController
 {
     // This object is the bridge between MainMenu.xib and ClassifierView.xib and holds anything
-    // that needs to be accessed by both.
+    // that needs to be accessed by both.  It passes information in code from other Rodan objects
+    // to the ClassifierController.
 
     // From CPViewController it inherits a 'view' which is connected to the view defined in
     //  ClassifierView.xib.  This object is accessed by "File's Owner" in ClassifierView.xib
@@ -41,5 +43,13 @@
 - (@action)close:(CPMenuItem)aSender
 {
     [classifierController close:aSender];
+}
+
+- (void)workRunJob:(RunJob)aRunJob
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadClassifierNotification
+                                          object:nil];
+    [classifierController loadRunJob:aRunJob];
+
 }
 @end
