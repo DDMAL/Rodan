@@ -16,13 +16,6 @@ import os
 from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
 
-JOB_NAME_MANUAL = 'gamera.custom.neume_classification.manual_classification'
-
-
-def get_classifier_xml(classifier_pk):
-    classifier_model = Classifier.objects.get(pk=classifier_pk)
-    return classifier_model.file_path
-
 
 class ManualClassificationTask(Task):
     max_retries = None
@@ -37,6 +30,7 @@ class ManualClassificationTask(Task):
     def preconfigure_settings(self, page_url, settings):
         init_gamera()
         task_image = load_image(page_url)
+
         classifier_model = Classifier.objects.get(pk=settings['classifier'])
 
         classifier = gamera.knn.kNNNonInteractive(classifier_model.file_path,
