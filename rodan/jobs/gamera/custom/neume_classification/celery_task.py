@@ -4,6 +4,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.helpers.thumbnails import create_thumbnails
 from gamera.core import init_gamera, load_image
+from django.core.files import File
 from rodan.jobs.util import taskutil
 import gamera.core
 import gamera.gamera_xml
@@ -11,28 +12,79 @@ import gamera.classify
 import gamera.knn
 from gamera import classify
 
+import os
+from rodan.models.classifier import Classifier
+from rodan.models.pageglyphs import PageGlyphs
+
 JOB_NAME_MANUAL = 'gamera.custom.neume_classification.manual_classification'
+
+
+def get_classifier_xml(model_url):
+    _, pk = os.path.split(model_url)
+    classifier_model = Classifier.objects.get(pk=pk)
+    return classifier_model.file_path
 
 
 class ManualClassificationTask(Task):
     max_retries = None
     name = 'gamera.custom.neume_classification.manual_classification'
+    settings = [{'default': None,'has_default':False,'name':'classifier','type':'uuid'},
+                {'default': None,'has_default':False,'name':'pageglyphs','type':'uuid'},
+                {'default':4,'has_default':True,'rng':(-1048576,1048576),'name':'max_parts_per_group','type':'int'},
+                {'default':16,'has_default':True,'rng':(-1048576,1048576),'name':'max_graph_size','type':'int'},
+                {'default':2,'has_default':True,'rng':(-1048576,1048576),'name':'max_grouping_distance','type':'int'}]
 
+    def preconfigure_settings(page_url, settings):
+        init_gamera()
+        task_image = load_image(page_url)
+
+        classifier_xml_path = get_classifier_xml(settings['classifier'])
+
+        classifier = gamera.knn.kNNNonInteractive(classifier_xml_path,
+                                                  features='all',
+                                                  perform_splits=True,
+                                                  num_k=settings['num_k'])
+
+        func = gamera.classify.BoundingBoxGroupingFunction(settings['max_grouping_distance'])
+        ccs = task_image.cc_analysis()
+
+        grouped_glyphs = classifier.group_and_update_list_automatic(ccs,
+                                                                    grouping_function=func,
+                                                                    max_parts_per_group=4,
+                                                                    max_graph_size=16)
+
+        rdn_pageglyph = PageGlyphs(classifier=Classifier.objects.get(settings['classifier']))
+
+        temp_xml_path = taskutil.create_temp_path(ext='xml')
+        gamera.gamera_xml.glyphs_to_xml(temp_xml_path, grouped_glyphs, with_features=True)
+
+        f = open(temp_xml_path)
+        rdn_pageglyph.pageglyphs_file('page_glyphs.xml', File(f))
+        rdn_pageglyph.save()
+
+        return {'pageglyphs': rdn_pageglyph.uuid}
 
     def run(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
-        runjob.status = RunJobStatus.RUNNING
-        runjob.save()
 
         if runjob.needs_input:
-            runjob.status = RunJobStatus.WAITING_FOR_INPUT
-            runjob.save()
-            self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
+            if runjob.status == RunJobStatus.RUN_ONCE_WAITING:
+                self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
-        runjob.status = RunJobStatus.RUNNING
-        runjob.save()
+            else:
+                # This is the first time the job is running.
+                taskutil.set_running(runjob)
+                page_url = taskutil.get_page_url(runjob, result_id)
+                settings = taskutil.get_settings(runjob)
 
-        print "The job received input."
+                updates = self.preconfigure_settings(page_url, settings)
+                taskutil.apply_updates(runjob, updates)
+
+                taskutil.set_run_once_waiting(runjob)
+                self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
+
+        else:
+            print "Now we shall package the xml and the image. Not implemented yet."
 
     def on_success(self, retval, task_id, args, kwargs):
         # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
