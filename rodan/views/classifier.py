@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 from rodan.models.classifier import Classifier
-from rodan.serializers.classifier import ClassifierSerializer, MinimalClassifierSerializer
+from rodan.serializers.classifier import ClassifierSerializer, ClassifierListSerializer
 
 #import ast
 
@@ -12,7 +12,7 @@ from rodan.serializers.classifier import ClassifierSerializer, MinimalClassifier
 class ClassifierList(generics.ListCreateAPIView):
     model = Classifier
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = MinimalClassifierSerializer
+    serializer_class = ClassifierListSerializer
     paginate_by = None
 
     def get_queryset(self):
