@@ -13,6 +13,7 @@ import gamera.knn
 from gamera import classify
 
 import os
+import shutil
 from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
 
@@ -47,8 +48,11 @@ class ManualClassificationTask(Task):
         temp_xml_path = taskutil.create_temp_path(ext='xml')
         gamera.gamera_xml.glyphs_to_xml(temp_xml_path, ccs, with_features=True)
 
-        f = open(temp_xml_path)
-        rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
+        with open(temp_xml_path) as f:
+            rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
+
+        tdir = os.path.dirname(temp_xml_path)
+        shutil.rmtree(tdir)
 
         return {'pageglyphs': u"{0}".format(rdn_pageglyph.uuid)}
 
@@ -66,7 +70,6 @@ class ManualClassificationTask(Task):
                 settings = taskutil.get_settings(runjob)
 
                 updates = self.preconfigure_settings(page_url, settings)
-                print "boo"
                 taskutil.apply_updates(runjob, updates)
                 taskutil.set_run_once_waiting(runjob)
                 self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
