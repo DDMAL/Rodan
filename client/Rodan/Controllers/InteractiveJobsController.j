@@ -9,15 +9,17 @@
 @global RodanShouldLoadInteractiveJobsNotification
 @global activeProject
 
-var _msLOADINTERVAL = 5.0;
+var _LOADINTERVAL = 5.0,
+    _JOBNAME_CLASSIFIER = "gamera.custom.neume_classification.manual_classification";
 
 /**
  * General interactive jobs controller.
  */
 @implementation InteractiveJobsController : CPObject
 {
-    @outlet CPTableView             interactiveJobsTableView;
-    @outlet CPArrayController       interactiveJobsArrayController  @accessors(readonly);
+    @outlet CPTableView                 interactiveJobsTableView;
+    @outlet CPArrayController           interactiveJobsArrayController  @accessors(readonly);
+    @outlet ClassifierViewController    _classifierViewController;
 }
 
 - (void)awakeFromCib
@@ -35,7 +37,7 @@ var _msLOADINTERVAL = 5.0;
 
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
-    [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
+    [RKNotificationTimer setTimedNotification:_LOADINTERVAL
                          notification:RodanShouldLoadInteractiveJobsNotification];
 }
 
@@ -83,6 +85,13 @@ var _msLOADINTERVAL = 5.0;
 {
     if (aRunJob == nil || ![aRunJob needsInput])
     {
+        return;
+    }
+
+    // If we're dealing with special case classifier, deal with it.
+    if ([aRunJob jobName] === _JOBNAME_CLASSIFIER)
+    {
+        [_classifierViewController workRunJob:aRunJob];
         return;
     }
 
