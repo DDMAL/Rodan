@@ -47,16 +47,11 @@ class ManualClassificationTask(Task):
         func = gamera.classify.BoundingBoxGroupingFunction(settings['max_grouping_distance'])
         ccs = task_image.cc_analysis()
 
-        grouped_glyphs = classifier.group_and_update_list_automatic(ccs,
-                                                                    grouping_function=func,
-                                                                    max_parts_per_group=4,
-                                                                    max_graph_size=16)
-
         rdn_pageglyph = PageGlyphs(classifier=classifier_model)
         rdn_pageglyph.save()
 
         temp_xml_path = taskutil.create_temp_path(ext='xml')
-        gamera.gamera_xml.glyphs_to_xml(temp_xml_path, grouped_glyphs, with_features=True)
+        gamera.gamera_xml.glyphs_to_xml(temp_xml_path, ccs, with_features=True)
 
         f = open(temp_xml_path)
         rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
