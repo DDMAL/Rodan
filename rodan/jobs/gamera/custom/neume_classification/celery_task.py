@@ -30,11 +30,12 @@ class ManualClassificationTask(Task):
     name = 'gamera.custom.neume_classification.manual_classification'
     settings = [{'default': None,'has_default':False,'name':'classifier','type':'uuid'},
                 {'default': None,'has_default':False,'name':'pageglyphs','type':'uuid'},
+                {'default':1,'has_default':True,'rng':(1,1048576),'name':'num_k','type':'int'},
                 {'default':4,'has_default':True,'rng':(-1048576,1048576),'name':'max_parts_per_group','type':'int'},
                 {'default':16,'has_default':True,'rng':(-1048576,1048576),'name':'max_graph_size','type':'int'},
                 {'default':2,'has_default':True,'rng':(-1048576,1048576),'name':'max_grouping_distance','type':'int'}]
 
-    def preconfigure_settings(page_url, settings):
+    def preconfigure_settings(self, page_url, settings):
         init_gamera()
         task_image = load_image(page_url)
 
@@ -115,7 +116,7 @@ class NonInteractiveClassificationTask(Task):
         # Code borrowed from the old rodan classification job.
         
         # Is there a way to do a dropdown menu or a checkbox menu in the client instrea of using features='all'?
-        cknn = gamera.knn.kNNNonInteractive(settings.CLASSIFIER_XML, features='all', perform_splits=True, num_k=settings[num_k])
+        cknn = gamera.knn.kNNNonInteractive(settings.CLASSIFIER_XML, features='all', perform_splits=True, num_k=settings['num_k'])
         func = gamera.classify.BoundingBoxGroupingFunction(2)
         ccs = task_image.cc_analysis()
 #
