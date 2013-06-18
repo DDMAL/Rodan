@@ -227,7 +227,6 @@ JobItemType = @"JobItemType";
 
 - (BOOL)tableView:(CPTableView)aTableView writeRowsWithIndexes:(CPIndexSet)rowIndexes toPasteboard:(CPPasteboard)pboard
 {
-    console.log("write rows with indexes");
     [pboard declareTypes:[JobItemType] owner:self];
     [pboard setData:rowIndexes forType:JobItemType];
 
