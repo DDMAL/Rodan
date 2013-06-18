@@ -14,6 +14,7 @@
             CPMenuItem          _menuItemIsInteractiveNonInteractive;
             CPPredicate         _masterPredicate;
             CPPredicate         _isInteractivePredicate;
+            CPPredicate         _categoryPredicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +53,7 @@
     {
         var j = [Job objectsFromJson:[anAction result]];
         [jobArrayController addObjects:j];
+        [self _populateCategoryMenu];
         [self _applyPredicates];
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadJobsNotification
                                               object:[anAction result]];
@@ -86,12 +88,33 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_populateCategoryMenu
 {
+    // Add 'All' menu item.
+    var menuItemCategory = [[CPMenuItem alloc] initWithTitle:"All"
+                                               action:null
+                                               keyEquivalent:null];
+    [_menuCategory addItem:menuItemCategory];
 
+    // Next, enumerate through our jobs and get distinct category names.
+    var jobArrayEnumerator = [[jobArrayController content] objectEnumerator],
+        job = null;
+    while (job = [jobArrayEnumerator nextObject])
+    {
+        if ([_menuCategory itemWithTitle:[job category]] === null)
+        {
+            var menuItemCategory = [[CPMenuItem alloc] initWithTitle:[job category]
+                                                       action:null
+                                                       keyEquivalent:null];
+            [_menuCategory addItem:menuItemCategory];
+        }
+    }
+
+    // Enable 'em.
+    [_menuCategory setAutoenablesItems:YES];
 }
 
 - (void)_populateIsInteractiveMenu
 {
-    if (_menuIsInteractive != null)
+    if (_menuIsInteractive !== null)
     {
         // Create items.
         _menuItemIsInteractiveAll = [[CPMenuItem alloc] initWithTitle:"All"
@@ -105,9 +128,9 @@
                                                                    keyEquivalent:null];
 
         // Add to menu.
-        [_menuIsInteractive insertItem:_menuItemIsInteractiveAll atIndex:0];
-        [_menuIsInteractive insertItem:_menuItemIsInteractiveInteractive atIndex:1];
-        [_menuIsInteractive insertItem:_menuItemIsInteractiveNonInteractive atIndex:2];
+        [_menuIsInteractive addItem:_menuItemIsInteractiveAll];
+        [_menuIsInteractive addItem:_menuItemIsInteractiveInteractive];
+        [_menuIsInteractive addItem:_menuItemIsInteractiveNonInteractive];
         [_menuIsInteractive setAutoenablesItems:YES];
     }
 }
@@ -145,13 +168,30 @@
 
 - (void)_handleCategoryMenuDidClose:(CPMenu)aMenu
 {
-
+    var highlightedItem = [aMenu highlightedItem];
+    if ([highlightedItem title] !== "All")
+    {
+        _categoryPredicate = [CPPredicate predicateWithFormat:"category like '" + [highlightedItem title] + "'"];
+    }
+    else
+    {
+        _categoryPredicate = null;
+    }
+    [self _applyPredicates];
 }
 
 - (void)_applyPredicates
 {
-    var predicateArray = [[CPArray alloc] initWithObjects:_isInteractivePredicate],
-        masterPredicate = [CPCompoundPredicate andPredicateWithSubpredicates:predicateArray];
+    var predicateArray = [[CPArray alloc] initWithObjects:_isInteractivePredicate, _categoryPredicate];
+    if (_isInteractivePredicate !== null)
+    {
+        predicateArray.push(_isInteractivePredicate);
+    }
+    if (_categoryPredicate !== null)
+    {
+        predicateArray.push(_categoryPredicate);
+    }
+    var masterPredicate = [CPCompoundPredicate andPredicateWithSubpredicates:predicateArray];
     [jobArrayController setFilterPredicate:masterPredicate];
 }
 @end
