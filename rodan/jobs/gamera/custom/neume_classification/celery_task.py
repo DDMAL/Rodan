@@ -92,7 +92,7 @@ class ManualClassificationTask(ClassificationTaskBase):
                 {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid'},
                 {'default': 1, 'has_default': True, 'rng': (1, 1048576), 'name': 'num_k', 'type': 'int'},
                 {'default': 4, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_parts_per_group', 'type': 'int'},
-                {'default':  16, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'ty pe': 'int'},
+                {'default':  16, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'type': 'int'},
                 {'default': 2, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_grouping_distance', 'type': 'int'}]
 
     def preconfigure_settings(self, page_url, settings):
