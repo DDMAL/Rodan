@@ -23,33 +23,24 @@ from rodan.settings import PACKAGE
 class ManualClassificationTask(Task):
     max_retries = None
     name = 'gamera.custom.neume_classification.manual_classification'
-    settings = [{'default': None,'has_default':False,'name':'classifier','type':'uuid'},
-                {'default': None,'has_default':False,'name':'pageglyphs','type':'uuid'},
-                {'default':1,'has_default':True,'rng':(1,1048576),'name':'num_k','type':'int'},
-                {'default':4,'has_default':True,'rng':(-1048576,1048576),'name':'max_parts_per_group','type':'int'},
-                {'default':16,'has_default':True,'rng':(-1048576,1048576),'name':'max_graph_size','type':'int'},
-                {'default':2,'has_default':True,'rng':(-1048576,1048576),'name':'max_grouping_distance','type':'int'}]
+    settings = [{'default': None, 'has_default': False, 'name': 'classifier', 'type': 'uuid'},
+                {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid'},
+                {'default': 1, 'has_default': True, 'rng': (1, 1048576), 'name': 'num_k', 'type': 'int'},
+                {'default': 4, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_parts_per_group', 'type': 'int'},
+                {'default':  16,'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'ty pe': 'int'},
+                {'default': 2, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_grouping_distance', 'type': 'int'}]
 
     def preconfigure_settings(self, page_url, settings):
         init_gamera()
         task_image = load_image(page_url)
-
         classifier_model = Classifier.objects.get(pk=settings['classifier'])
-
-        classifier = gamera.knn.kNNNonInteractive(classifier_model.file_path,
-                                                  features='all',
-                                                  perform_splits=True,
-                                                  num_k=settings['num_k'])
-
-        func = gamera.classify.BoundingBoxGroupingFunction(settings['max_grouping_distance'])
-        ccs = task_image.cc_analysis()
-
         rdn_pageglyph = PageGlyphs(classifier=classifier_model)
         rdn_pageglyph.save()
 
         temp_xml_path = taskutil.create_temp_path(ext='xml')
-        gamera.gamera_xml.glyphs_to_xml(temp_xml_path, ccs, with_features=True)
-
+        gamera.gamera_xml.glyphs_to_xml(temp_xml_path,
+                                        task_image.cc_analysis(),
+                                        with_features=True)
         with open(temp_xml_path) as f:
             rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
 
@@ -57,6 +48,20 @@ class ManualClassificationTask(Task):
         shutil.rmtree(tdir)
 
         return {'pageglyphs': u"{0}".format(rdn_pageglyph.uuid)}
+
+    def save_result(self, page_url, glyphs, runjob):
+
+        temp_tar_path = taskutil.create_temp_path(ext='tar')
+        with tarfile.open(temp_tar_path, 'w') as tar:
+            tar.add(page_url, arcname='image.png')
+            tar.add(glyphs.file_path, arcname='glyphs.xml')
+
+        result = taskutil.init_result(runjob)
+        taskutil.save_result(result, temp_tar_path)
+        result.result_type = PACKAGE
+        result.save()
+
+        return result
 
     def run(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
@@ -77,17 +82,20 @@ class ManualClassificationTask(Task):
                 self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
         else:
-            print "Now we shall package the xml and the image. Not implemented yet."
 
+            runjob = RunJob.objects.get(pk=runjob_id)
+            taskutil.set_running(runjob)
+            page_url = taskutil.get_page_url(runjob, result_id)
+            settings = taskutil.get_settings(runjob)
+            result_glyphs = PageGlyphs.objects.get(pk=settings['pageglyphs'])
+
+            result = self.save_result(page_url, result_glyphs, runjob)
+            return str(result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):
-        # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
         result.run_job.save()
-
-        res = create_thumbnails.s(result)
-        res.apply_async()
 
     def on_failure(self, *args, **kwargs):
         runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
@@ -105,8 +113,6 @@ class AutoClassificationTask(Task):
                 {'default': None,'has_default':False,'name':'pageglyphs','type':'uuid'}]
 
     def process_image(self, task_image, settings, classifier_model):
-        # Code borrowed from the old rodan classification job.
-
        # Is there a way to do a dropdown menu or a checkbox menu in the client instrea of using features='all'?
         cknn = gamera.knn.kNNNonInteractive(classifier_model.file_path,
                                             features='all', perform_splits=True,
