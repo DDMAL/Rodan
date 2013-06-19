@@ -91,6 +91,7 @@ RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsVie
 RodanHasFocusWorkflowResultsViewNotification = @"RodanHasFocusWorkflowResultsViewNotification";
 
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification"
+RodanHasFocusClassifierViewNotification = @"RodanHasFocusClassifierViewNotification"
 
 
 isLoggedIn = NO;
@@ -415,6 +416,9 @@ activeProject = nil;  // URI to the currently open project
     [classifierView setFrame:[contentScrollView bounds]];
     [classifierView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:[classifierViewController view]];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusClassifierViewNotification
+                                          object:nil];
 }
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender

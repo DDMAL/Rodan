@@ -3,7 +3,6 @@
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/SymbolTableDelegate.j"
-@import "../Views/PhotoView.j"  // For the saved collection view
 
 @global activeProject
 
@@ -46,6 +45,13 @@
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
+}
+
+- (void)loadRunJob:(RunJob)aRunJob
+{
+    console.log("In [classifierController loadRunJob]");
+    console.log(aRunJob);
+
 }
 
 - (@action)new:(CPMenuItem)aSender

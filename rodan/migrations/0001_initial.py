@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Project'
-        db.create_table(u'rodan_project', (
+        db.create_table('rodan_project', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
@@ -20,7 +20,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Project'])
 
         # Adding model 'Job'
-        db.create_table(u'rodan_job', (
+        db.create_table('rodan_job', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('job_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('author', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
@@ -35,7 +35,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Job'])
 
         # Adding model 'Workflow'
-        db.create_table(u'rodan_workflow', (
+        db.create_table('rodan_workflow', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflows', to=orm['rodan.Project'])),
@@ -49,15 +49,15 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Workflow'])
 
         # Adding M2M table for field pages on 'Workflow'
-        db.create_table(u'rodan_workflow_pages', (
+        db.create_table('rodan_workflow_pages', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('workflow', models.ForeignKey(orm['rodan.workflow'], null=False)),
             ('page', models.ForeignKey(orm['rodan.page'], null=False))
         ))
-        db.create_unique(u'rodan_workflow_pages', ['workflow_id', 'page_id'])
+        db.create_unique('rodan_workflow_pages', ['workflow_id', 'page_id'])
 
         # Adding model 'WorkflowJob'
-        db.create_table(u'rodan_workflowjob', (
+        db.create_table('rodan_workflowjob', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='workflow_jobs', null=True, to=orm['rodan.Workflow'])),
             ('job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.Job'])),
@@ -70,7 +70,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['WorkflowJob'])
 
         # Adding model 'Result'
-        db.create_table(u'rodan_result', (
+        db.create_table('rodan_result', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('result', self.gf('django.db.models.fields.files.FileField')(max_length=512, null=True, blank=True)),
             ('run_job', self.gf('django.db.models.fields.related.ForeignKey')(related_name='result', to=orm['rodan.RunJob'])),
@@ -81,7 +81,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Result'])
 
         # Adding model 'Page'
-        db.create_table(u'rodan_page', (
+        db.create_table('rodan_page', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['rodan.Project'])),
@@ -96,7 +96,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Page'])
 
         # Adding model 'WorkflowRun'
-        db.create_table(u'rodan_workflowrun', (
+        db.create_table('rodan_workflowrun', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflow_runs', to=orm['rodan.Workflow'])),
             ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='workflow_runs', to=orm['auth.User'])),
@@ -108,7 +108,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['WorkflowRun'])
 
         # Adding model 'RunJob'
-        db.create_table(u'rodan_runjob', (
+        db.create_table('rodan_runjob', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('workflow_run', self.gf('django.db.models.fields.related.ForeignKey')(related_name='run_jobs', to=orm['rodan.WorkflowRun'])),
             ('workflow_job', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rodan.WorkflowJob'])),
@@ -122,7 +122,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['RunJob'])
 
         # Adding model 'Classifier'
-        db.create_table(u'rodan_classifier', (
+        db.create_table('rodan_classifier', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='classifiers', to=orm['rodan.Project'])),
@@ -131,93 +131,84 @@ class Migration(SchemaMigration):
         db.send_create_signal('rodan', ['Classifier'])
 
         # Adding model 'PageGlyphs'
-        db.create_table(u'rodan_pageglyphs', (
+        db.create_table('rodan_pageglyphs', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('classifier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pageglyphs', to=orm['rodan.Classifier'])),
+            ('pageglyphs_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
         ))
         db.send_create_signal('rodan', ['PageGlyphs'])
-
-        # Adding M2M table for field classifier on 'PageGlyphs'
-        db.create_table(u'rodan_pageglyphs_classifier', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('pageglyphs', models.ForeignKey(orm['rodan.pageglyphs'], null=False)),
-            ('classifier', models.ForeignKey(orm['rodan.classifier'], null=False))
-        ))
-        db.create_unique(u'rodan_pageglyphs_classifier', ['pageglyphs_id', 'classifier_id'])
 
 
     def backwards(self, orm):
         # Deleting model 'Project'
-        db.delete_table(u'rodan_project')
+        db.delete_table('rodan_project')
 
         # Deleting model 'Job'
-        db.delete_table(u'rodan_job')
+        db.delete_table('rodan_job')
 
         # Deleting model 'Workflow'
-        db.delete_table(u'rodan_workflow')
+        db.delete_table('rodan_workflow')
 
         # Removing M2M table for field pages on 'Workflow'
         db.delete_table('rodan_workflow_pages')
 
         # Deleting model 'WorkflowJob'
-        db.delete_table(u'rodan_workflowjob')
+        db.delete_table('rodan_workflowjob')
 
         # Deleting model 'Result'
-        db.delete_table(u'rodan_result')
+        db.delete_table('rodan_result')
 
         # Deleting model 'Page'
-        db.delete_table(u'rodan_page')
+        db.delete_table('rodan_page')
 
         # Deleting model 'WorkflowRun'
-        db.delete_table(u'rodan_workflowrun')
+        db.delete_table('rodan_workflowrun')
 
         # Deleting model 'RunJob'
-        db.delete_table(u'rodan_runjob')
+        db.delete_table('rodan_runjob')
 
         # Deleting model 'Classifier'
-        db.delete_table(u'rodan_classifier')
+        db.delete_table('rodan_classifier')
 
         # Deleting model 'PageGlyphs'
-        db.delete_table(u'rodan_pageglyphs')
-
-        # Removing M2M table for field classifier on 'PageGlyphs'
-        db.delete_table('rodan_pageglyphs_classifier')
+        db.delete_table('rodan_pageglyphs')
 
 
     models = {
-        u'auth.group': {
+        'auth.group': {
             'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
         },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
+        'auth.permission': {
+            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
             'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        u'auth.user': {
+        'auth.user': {
             'Meta': {'object_name': 'User'},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
-        u'contenttypes.contenttype': {
+        'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
@@ -245,7 +236,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "('page_order',)", 'object_name': 'Page'},
             'compat_page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'pages'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'pages'", 'null': 'True', 'to': "orm['auth.User']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'page_image': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'page_order': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
@@ -256,14 +247,15 @@ class Migration(SchemaMigration):
         },
         'rodan.pageglyphs': {
             'Meta': {'object_name': 'PageGlyphs'},
-            'classifier': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'pageglyphs'", 'blank': 'True', 'to': "orm['rodan.Classifier']"}),
+            'classifier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pageglyphs'", 'to': "orm['rodan.Classifier']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'pageglyphs_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.project': {
             'Meta': {'ordering': "('created',)", 'object_name': 'Project'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': u"orm['auth.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': "orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
@@ -293,7 +285,7 @@ class Migration(SchemaMigration):
         'rodan.workflow': {
             'Meta': {'ordering': "('created',)", 'object_name': 'Workflow'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': u"orm['auth.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflows'", 'to': "orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'has_started': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
@@ -317,7 +309,7 @@ class Migration(SchemaMigration):
         'rodan.workflowrun': {
             'Meta': {'object_name': 'WorkflowRun'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflow_runs'", 'to': u"orm['auth.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'workflow_runs'", 'to': "orm['auth.User']"}),
             'run': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'test_run': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),

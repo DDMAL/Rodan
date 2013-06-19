@@ -9,6 +9,7 @@
 @import "../Controllers/ClassifierController.j"
 
 @global RodanShouldLoadClassifierNotification
+@global RodanHasFocusClassifierViewNotification
 
 @implementation ClassifierViewController : CPViewController
 {
@@ -20,14 +21,29 @@
     //  ClassifierView.xib.  This object is accessed by "File's Owner" in ClassifierView.xib
 
     @outlet ClassifierController classifierController;
+    RunJob runJob @accessors;
+}
+
+- (void)awakeFromCib
+{
+    // Note: This will be called twice.  Once when MainMenu.xib loads, and secondly
+    // when ClassifierView.xib loads.
 }
 
 - (CPViewController)init
 {
     // I'm overwriting init because I want to use the object in InterfaceBuilder AND
-    // I want it to be initialized in a certain way.  When the cib instantiates
+    // I want it to be initialized using initWithCibName.  When the cib instantiates
     // ClassifierViewController, it will call this init function
-    return [super initWithCibName:@"classifierView" bundle:[CPBundle mainBundle]];
+    self = [super initWithCibName:@"classifierView" bundle:[CPBundle mainBundle]];
+    if (self)
+    {
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(loadRunJob)
+                                              name:RodanHasFocusClassifierViewNotification
+                                              object:nil];
+    }
+    return self;
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -45,11 +61,18 @@
     [classifierController close:aSender];
 }
 
-- (void)workRunJob:(RunJob)aRunJob
+- (void)workRunJob:(RunJob)aRunJob  // Called by InteractiveJobs controller
 {
+    runJob = aRunJob;
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadClassifierNotification
                                           object:nil];
-    [classifierController loadRunJob:aRunJob];
+}
 
+- (void)loadRunJob  // Called by RodanHasFocusClassifierViewNotification, which is posted AppController after ClassifierView.xib is loaded
+{
+    if (runJob && classifierController)
+    {
+        [classifierController loadRunJob:runJob];
+    }
 }
 @end
