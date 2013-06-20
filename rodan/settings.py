@@ -234,5 +234,6 @@ COMPLEX = 5
 MEI = 6
 JPEG2000 = 7
 PACKAGE = 8  # a `package` is used to produce multiple outputs from a single job.
+GAMERA_XML = 9
 
 NONIMAGE = -1
