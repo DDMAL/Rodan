@@ -119,3 +119,12 @@ try:
     module_loader.load_module()
 except ImportError as e:
     print "Custom RT Staff Removal job not installed. Skipping", e
+
+
+#Development
+try:
+    from rodan.jobs.util.devdummyjobs import load_wfjobuuid
+    load_wfjobuuid()
+except ImportError as e:
+    print "DEV: The dummy job could not be loaded properly. Skipping"
+    print e
