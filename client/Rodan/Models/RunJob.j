@@ -1,6 +1,7 @@
 @import <Ratatosk/WLRemoteObject.j>
 @import "Result.j"
 @import "Page.j"
+@import "../Transformers/RunJobSettingsTransformer.j"
 
 @implementation RunJob : WLRemoteObject
 {
@@ -27,6 +28,8 @@
         ['status', 'status'],
         ['needsInput', 'needs_input'],
         ['workflowName', 'workflow_name'],
+        ['jobSettings', 'job_settings', [[RunJobSettingsTransformer alloc] init]],
+        // ['jobSettings', 'job_settings', [[WLForeignObjectsTransformer alloc] init]],  // Hmmm, this would give me an array and I want a dictionary
         ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
         ['page', 'page', [WLForeignObjectTransformer forObjectClass:Page]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],

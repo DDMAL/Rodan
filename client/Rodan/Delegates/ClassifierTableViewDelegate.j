@@ -28,28 +28,29 @@
 
 - (void)initializeTableView:(CPArrayController)classifierGlyphsArrayController
 {
+    console.log("Initializing table view!");
     var i = 0,
         // glyphs = [aClassifier glyphs],
         glyphs = [classifierGlyphsArrayController arrangedObjects],  // I think this may break write... I need to always use the model directly
         // glyphs = [classifierGlyphsArrayController contentArray],
         glyphs_count = [glyphs count],
-        symbolCollectionArray = [[CPMutableArray alloc] init];
+        prevGlyphName = nil,
+        symbolCollectionArray = [[CPMutableArray alloc] init],
+        symbolCollection = nil;
 
-    while (i < glyphs_count)
-    // Assume the glyphs are sorted by id name.
-    // Make an array for each id name.
+    for (i = 0; i < glyphs_count; ++i)
     {
-        var symbolCollection = [[SymbolCollection alloc] init],
-            symbolName = [glyphs[i] idName];
-        [symbolCollection setSymbolName:symbolName];
-        for (; i < glyphs_count && [glyphs[i] idName] == symbolName; ++i)
+        var glyphName = [glyphs[i] idName];
+        if (prevGlyphName === nil || prevGlyphName !== glyphName)
         {
-            // console.log(glyphs[i]);
-            [symbolCollection addGlyph:glyphs[i]];  // Maybe I could BIND to a sub array instead.
+            symbolCollection = [[SymbolCollection alloc] init];
+            [symbolCollection setSymbolName:glyphName];
+            [symbolCollectionArray addObject:symbolCollection];
         }
-        // console.log([symbolCollection glyphList]);  /// Hmmm... ensure that whenever I write a glyph it's in the classifier glyph range.
-        [symbolCollectionArray addObject:symbolCollection];
+        [symbolCollection addGlyph:glyphs[i]];
+        prevGlyphName = glyphName;
     }
+
     [symbolCollectionArrayController setContent:symbolCollectionArray];
     var nSymbols = [[symbolCollectionArrayController contentArray] count];
     [cvArrayControllers initWithCapacity:nSymbols];
@@ -57,6 +58,7 @@
     {
         [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:symbolCollectionArray[j]]];  // gets added at index j
     }
+    console.log(cvArrayControllers);
 
     [theTableView reloadData];
 }

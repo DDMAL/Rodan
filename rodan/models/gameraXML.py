@@ -52,10 +52,18 @@ class GameraXML(object):
             # TODO: This only works if all of the fields are in the
             # XML.  Add support for missing fields
             #  (features or id element)
+            # Perhaps there should be an argument in the API to generate features or not.
             ids = glyph.find('ids')
             id_element = ids.find('id')
             features = glyph.find('features')  # 'features' element
-            feature_list = features.getchildren()  # list of 'feature' elements
+            #if (features):
+            #    feature_list = features.getchildren()  # list of 'feature' elements
+            #else:
+            #    feature_list = []
+            if features is not None:
+                feature_list = features.getchildren()
+            else:
+                feature_list = []
             # or: features.xpath("feature")
             glyph_dict = {
                 'ulx': float(glyph.get('ulx')),
@@ -70,11 +78,12 @@ class GameraXML(object):
                 #         'confidence': id_element.get('confidence')
                 #     }
                 # },
-                'id_state': ids.get('state'),
-                'id_name': id_element.get('name'),
-                'id_confidence': float(id_element.get('confidence')),
+                'id_state': ids.get('state'),  # When state is UNCLASSIFIED, id_name and id_confidence don't exist in the xml
+                                               # so use empty string and -1
+                'id_name': id_element.get('name') if not id_element is None else "",
+                'id_confidence': float(id_element.get('confidence')) if not id_element is None else -1,
                 'data': self._base64_png_encode(glyph),
-                'feature_scaling': float(features.get('scaling')),
+                'feature_scaling': float(features.get('scaling')) if not id_element is None else -1,
                 'features': [{
                     'name': f.get('name'),
                     'values': [float(n) for n in f.text.split()]
