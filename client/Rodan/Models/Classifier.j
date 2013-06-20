@@ -18,7 +18,7 @@
     return self;
 }
 
-+ (CPArray)remoteProperties  //Ratatosk
++ (CPArray)remoteProperties
 {
     return [
         ['pk',          'url'],
@@ -28,11 +28,11 @@
     ];
 }
 
-- (CPString)remotePath  //Ratatosk
+- (CPString)remotePath
 {
     if ([self pk])
         return [self pk];
     else
-        return @"/classifiers/";  // remotePath is /classifiers/ when pk is not yet set because that's where we POST to.
+        return @"/classifiers/";
 }
 @end

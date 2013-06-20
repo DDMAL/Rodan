@@ -3,7 +3,7 @@
 @import "../Delegates/SymbolTableDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
-@import "../Delegates/NewClassifierTextfieldDelegate.j"  // inside ClassifierController... not necessary.
+@import "../Delegates/NewClassifierTextfieldDelegate.j"
 @import "../Delegates/SymbolOutlineDelegate.j"
 
 @import "../Controllers/ClassifierController.j"

@@ -80,10 +80,10 @@ class GameraXML(object):
                 # },
                 'id_state': ids.get('state'),  # When state is UNCLASSIFIED, id_name and id_confidence don't exist in the xml
                                                # so use empty string and -1
-                'id_name': id_element.get('name') if not id_element is None else "",
-                'id_confidence': float(id_element.get('confidence')) if not id_element is None else -1,
+                'id_name': id_element.get('name') if id_element is not None else "",
+                'id_confidence': float(id_element.get('confidence')) if id_element is not None else -1,
                 'data': self._base64_png_encode(glyph),
-                'feature_scaling': float(features.get('scaling')) if not id_element is None else -1,
+                'feature_scaling': float(features.get('scaling')) if id_element is not None else -1,
                 'features': [{
                     'name': f.get('name'),
                     'values': [float(n) for n in f.text.split()]

@@ -1,4 +1,4 @@
-// The purpose of this transformer is to change the RunJob job_settings JSON
+// The purpose of this transformer is to change the RunJob job_settings JSON,
 //
 // job_settings: [
 //     {
@@ -12,7 +12,7 @@
 //     {...}...
 // ]
 //
-// into a dictionary
+// ... into a dictionary:
 //
 // { "name": "default",
 //   "name": "default", ... }
