@@ -10,7 +10,7 @@
 
 @implementation ClassifierController : CPObject
 {
-    Classifier theClassifier;  // Initialized by Open
+    Classifier theClassifier @accessors;  // accessors to help debug ClassifierTableViewDelegate
     @outlet CPArrayController classifierArrayController;
 
     @outlet CPWindow newClassifierWindow;
@@ -35,6 +35,8 @@
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
+
+    @outlet CPArrayController symbolCollectionArrayController;
 }
 
 - (void)awakeFromCib
@@ -55,12 +57,6 @@
 
 - (void)loadRunJob:(RunJob)aRunJob
 {
-    console.log("In [classifierController loadRunJob]");
-    console.log(aRunJob);
-    console.log([aRunJob jobSettings]);
-    console.log("Pageglyphs uuid:")
-    console.log([[aRunJob jobSettings] objectForKey:@"pageglyphs"]);
-
     // [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
     [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
 
@@ -89,9 +85,7 @@
 
 - (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
 {
-    console.log("fetchPageGlyphsDidFinish");
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
-    console.log(thePageGlyphs);
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -224,19 +218,19 @@
     console.log("THE CLASSIFIER!");
     console.log(theClassifier);
 
-    [classifierGlyphArrayController bind:@"contentArray"
-                                    toObject:theClassifier
-                                    withKeyPath:@"glyphs"
-                                    options:nil];
-    [classifierGlyphArrayController setSortDescriptors:[[CPArray alloc] initWithObjects:[[CPSortDescriptor alloc] initWithKey:@"idName" ascending:YES]]];
+    // [classifierGlyphArrayController bind:@"contentArray"
+    //                                 toObject:theClassifier
+    //                                 withKeyPath:@"glyphs"
+    //                                 options:nil];
+    // [classifierGlyphArrayController setSortDescriptors:[[CPArray alloc] initWithObjects:[[CPSortDescriptor alloc] initWithKey:@"idName" ascending:YES]]];
 
     // I'm not sure that the classifierGlyphArrayController gets used at all, as I
     // don't have a view for which there is one view per glyph.
     // [classifierTableViewDelegate initializeTableView:theClassifier];
-    console.log("Initializing table view with classifierGlyphArrayController:");
-    console.log(classifierGlyphArrayController);
 
-    [classifierTableViewDelegate initializeTableView:classifierGlyphArrayController];
+    [symbolCollectionArrayController setContent:[theClassifier symbolCollections]];
+
+    [classifierTableViewDelegate initializeTableView];
 
     [symbolTableDelegate initializeSymbols:theClassifier];
 }
@@ -270,16 +264,17 @@
     // [theClassifier ensureSaved];
 
     console.log(theClassifier);
-    console.log([[theClassifier glyphs][0] UID]);
-
+    console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
     [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];  // This will change the model
+    // console.log([[theClassifier glyphs][0] UID]);
 
     // Also update the symbolTable
-    [symbolTableDelegate initializeSymbols:theClassifier];
+    // [symbolTableDelegate initializeSymbols:theClassifier];  // Broke by new model
+
     // I think this algorithm also works if the user used the symbol table to select, because that will affect the selection of the classifierTable.
     // [symbolTableDelegate writeSymbolName:[aSender stringValue]];  // Shouldn't be needed at all.
 
-    [classifierGlyphArrayController rearrangeObjects];  // Hmm... probably a good idea since some writes happened.
+    // [classifierGlyphArrayController rearrangeObjects];  // Hmm... probably a good idea since some writes happened.
     console.log("Hmmm...");
     [theClassifier makeAllDirty];
     //[theClassifier makeDirtyProperty:@"id_name"];
@@ -287,7 +282,8 @@
     // TODO: instead of writing the entire classifier, try doing little patches.
     console.log("Saved classifier.");
     console.log(theClassifier);  // Same classifier as above... the indices change elsewhere...
-    console.log([[theClassifier glyphs][0] UID]);
+    // console.log([[theClassifier glyphs][0] UID]);
+    // So the classifier indices are changing and not the symbolCollections.  And they don't change on ensureSaved.
 }
 
 - (@action)close:(CPMenuItem)aSender
@@ -308,7 +304,7 @@
 
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
-    console.log([[theClassifier glyphs][0] UID]);
+    console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
 }
 @end
 

@@ -6,6 +6,7 @@
 }
 - (void)initializeSymbols:(Classifier)aClassifier
 {
+    return nil;
     // Loop through all glyphs and build an array of symbols.
 
     // The symbols are used for the left sidebar view.

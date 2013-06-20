@@ -552,7 +552,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="541740192">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -750,7 +750,6 @@
 							<reference key="NSHScroller" ref="586694063"/>
 							<reference key="NSContentView" ref="984182316"/>
 							<reference key="NSHeaderClipView" ref="501993759"/>
-							<reference key="NSCornerView" ref="656235464"/>
 							<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 							<double key="NSMinMagnification">0.25</double>
 							<double key="NSMaxMagnification">4</double>
@@ -806,7 +805,6 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{480, 270}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="76079610"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
@@ -845,7 +843,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="477811121">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -993,7 +991,6 @@
 							<reference key="NSHScroller" ref="301286314"/>
 							<reference key="NSContentView" ref="70732216"/>
 							<reference key="NSHeaderClipView" ref="1049382830"/>
-							<reference key="NSCornerView" ref="723714452"/>
 							<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 							<double key="NSMinMagnification">0.25</double>
 							<double key="NSMaxMagnification">4</double>
@@ -1001,7 +998,6 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{257, 204}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="1056763934"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
@@ -1019,7 +1015,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="787985696">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1146,7 +1142,6 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{348, 118}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="86789036"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
@@ -1179,7 +1174,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="826810219">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1252,7 +1247,6 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{348, 123}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="521703093"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
@@ -1525,6 +1519,14 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
+						<string key="label">symbolCollectionArrayController</string>
+						<reference key="source" ref="328541566"/>
+						<reference key="destination" ref="206095478"/>
+					</object>
+					<int key="connectionID">1120</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
 						<string key="label">textField</string>
 						<object class="NSTableCellView" key="source" id="521523147">
 							<nil key="NSNextResponder"/>
@@ -1701,6 +1703,14 @@
 						<reference key="destination" ref="494408971"/>
 					</object>
 					<int key="connectionID">1101</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">classifierController</string>
+						<reference key="source" ref="579469722"/>
+						<reference key="destination" ref="328541566"/>
+					</object>
+					<int key="connectionID">1119</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2599,7 +2609,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">1101</int>
+			<int key="maxID">1120</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2706,6 +2716,7 @@
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
+							<string>symbolCollectionArrayController</string>
 							<string>symbolTableDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
@@ -2724,6 +2735,7 @@
 							<string>NSTableView</string>
 							<string>OpenClassifierTableViewDelegate</string>
 							<string>NSWindow</string>
+							<string>NSArrayController</string>
 							<string>SymbolTableDelegate</string>
 						</object>
 					</object>
@@ -2745,6 +2757,7 @@
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
+							<string>symbolCollectionArrayController</string>
 							<string>symbolTableDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
@@ -2804,6 +2817,10 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">openClassifierWindow</string>
 								<string key="candidateClassName">NSWindow</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">symbolCollectionArrayController</string>
+								<string key="candidateClassName">NSArrayController</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">symbolTableDelegate</string>

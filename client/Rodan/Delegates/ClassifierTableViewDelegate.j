@@ -5,7 +5,7 @@
 
 @implementation ClassifierTableViewDelegate : CPObject
 {
-    @outlet CPArrayController   symbolCollectionArrayController;  // Debug
+    @outlet CPArrayController   symbolCollectionArrayController;
             CPMutableArray      cvArrayControllers  @accessors;
             int                 headerLabelHeight   @accessors;
             int                 photoViewInset      @accessors;
@@ -26,37 +26,38 @@
     return self;
 }
 
-- (void)initializeTableView:(CPArrayController)classifierGlyphsArrayController
+- (void)initializeTableView
 {
     console.log("Initializing table view!");
-    var i = 0,
-        // glyphs = [aClassifier glyphs],
-        glyphs = [classifierGlyphsArrayController arrangedObjects],  // I think this may break write... I need to always use the model directly
-        // glyphs = [classifierGlyphsArrayController contentArray],
-        glyphs_count = [glyphs count],
-        prevGlyphName = nil,
-        symbolCollectionArray = [[CPMutableArray alloc] init],
-        symbolCollection = nil;
+    // var i = 0,
+    //     // glyphs = [aClassifier glyphs],
+    //     glyphs = [classifierGlyphsArrayController arrangedObjects],  // I think this may break write... I need to always use the model directly
+    //     // glyphs = [classifierGlyphsArrayController contentArray],
+    //     glyphs_count = [glyphs count],
+    //     prevGlyphName = nil,
+    //     symbolCollectionArray = [[CPMutableArray alloc] init],
+    //     symbolCollection = nil;
 
-    for (i = 0; i < glyphs_count; ++i)
-    {
-        var glyphName = [glyphs[i] idName];
-        if (prevGlyphName === nil || prevGlyphName !== glyphName)
-        {
-            symbolCollection = [[SymbolCollection alloc] init];
-            [symbolCollection setSymbolName:glyphName];
-            [symbolCollectionArray addObject:symbolCollection];
-        }
-        [symbolCollection addGlyph:glyphs[i]];
-        prevGlyphName = glyphName;
-    }
+    // for (i = 0; i < glyphs_count; ++i)
+    // {
+    //     var glyphName = [glyphs[i] idName];
+    //     if (prevGlyphName === nil || prevGlyphName !== glyphName)
+    //     {
+    //         symbolCollection = [[SymbolCollection alloc] init];
+    //         [symbolCollection setSymbolName:glyphName];
+    //         [symbolCollectionArray addObject:symbolCollection];
+    //     }
+    //     [symbolCollection addGlyph:glyphs[i]];
+    //     prevGlyphName = glyphName;
+    // }
 
-    [symbolCollectionArrayController setContent:symbolCollectionArray];
+    // [symbolCollectionArrayController setContent:symbolCollectionArray];
+
     var nSymbols = [[symbolCollectionArrayController contentArray] count];
     [cvArrayControllers initWithCapacity:nSymbols];
     for (var j = 0; j < nSymbols; ++j)
     {
-        [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:symbolCollectionArray[j]]];  // gets added at index j
+        [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:[symbolCollectionArrayController contentArray][j]]];  // gets added at index j
     }
     console.log(cvArrayControllers);
 

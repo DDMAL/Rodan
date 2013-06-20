@@ -1,11 +1,11 @@
-@import "../Transformers/GlyphTransformer.j"
+@import "../Transformers/SymbolCollectionsTransformer.j"
 
 @implementation Classifier : WLRemoteObject
 {
-    CPString    pk          @accessors;
-    CPString    project     @accessors;
-    CPString    name        @accessors;
-    CPArray     glyphs      @accessors;
+    CPString       pk                @accessors;
+    CPString       project           @accessors;
+    CPString       name              @accessors;
+    CPMutableArray symbolCollections @accessors;
 }
 
 - (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
@@ -21,10 +21,10 @@
 + (CPArray)remoteProperties
 {
     return [
-        ['pk',          'url'],
-        ['project',     'project'],
-        ['name',        'name',      nil, nil],
-        ['glyphs',      'glyphs',    [[GlyphTransformer alloc] init]]
+        ['pk',                'url'],
+        ['project',           'project'],
+        ['name',              'name',     nil, nil],
+        ['symbolCollections', 'glyphs',   [[SymbolCollectionsTransformer alloc] init]]
     ];
 }
 
@@ -36,3 +36,4 @@
         return @"/classifiers/";
 }
 @end
+
