@@ -1,3 +1,5 @@
+@import "../Models/Glyph.j"
+
 @implementation SymbolCollection : CPObject
 {
     CPString        symbolName  @accessors;

@@ -1,10 +1,8 @@
-@import "../Transformers/GlyphTransformer.j"
+@import "../Transformers/SymbolCollectionsTransformer.j"
 
-@implementation PageGlyphs : WLRemoteObject
+@implementation PageGlyphs : GameraGlyphs
 {
-    CPString    pk          @accessors;
-    CPString    name        @accessors;
-    CPArray     glyphs      @accessors;
+
 }
 
 - (id)initWithName:(CPString)aName
@@ -19,9 +17,9 @@
 + (CPArray)remoteProperties
 {
     return [
-        ['pk',          'url'],
-        ['name',        'name',      nil, nil],
-        ['glyphs',      'glyphs',    [[GlyphTransformer alloc] init]]
+        ['pk',                'url'],
+        ['name',              'name',   nil, nil],
+        ['symbolCollections', 'glyphs', [[SymbolCollectionsTransformer alloc] init]]
     ];
 }
 

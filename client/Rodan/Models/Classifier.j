@@ -1,11 +1,8 @@
 @import "../Transformers/SymbolCollectionsTransformer.j"
 
-@implementation Classifier : WLRemoteObject
+@implementation Classifier : GameraGlyphs
 {
-    CPString       pk                @accessors;
     CPString       project           @accessors;
-    CPString       name              @accessors;
-    CPMutableArray symbolCollections @accessors;
 }
 
 - (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk

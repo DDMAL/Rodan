@@ -3,6 +3,7 @@
 @import "../Models/Symbol.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
+@import "../Delegates/PageGlyphsTableViewDelegate.j"
 @import "../Delegates/SymbolTableDelegate.j"
 @import "../Delegates/ClassifierControllerFetchDelegates.j"
 
@@ -10,7 +11,7 @@
 
 @implementation ClassifierController : CPObject
 {
-    Classifier theClassifier @accessors;  // accessors to help debug ClassifierTableViewDelegate
+    Classifier theClassifier;
     @outlet CPArrayController classifierArrayController;
 
     @outlet CPWindow newClassifierWindow;
@@ -26,17 +27,15 @@
     @outlet CPTableView openClassifierTableView;
     @outlet OpenClassifierTableViewDelegate openClassifierTableViewDelegate;
 
-    @outlet CPArrayController classifierGlyphArrayController;
-
-    @outlet SymbolTableDelegate symbolTableDelegate;
-
     @outlet ClassifierTableViewDelegate classifierTableViewDelegate;
-    @outlet CPTableView classifierTableView;
+    @outlet PageGlyphsTableViewDelegate pageGlyphsTableViewDelegate;
+    @outlet CPArrayController classifierSymbolCollectionArrayController;
+    @outlet CPArrayController pageGlyphsSymbolCollectionArrayController;
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
 
-    @outlet CPArrayController symbolCollectionArrayController;
+    @outlet SymbolTableDelegate symbolTableDelegate;
 }
 
 - (void)awakeFromCib
@@ -46,8 +45,6 @@
     [newClassifierWindow setDefaultButton:createButton];
     [openClassifierWindow setDefaultButton:openButton];
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
-    [classifierTableView setDelegate:classifierTableViewDelegate];
-    [classifierTableView setDataSource:classifierTableViewDelegate];
 
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
@@ -57,14 +54,8 @@
 
 - (void)loadRunJob:(RunJob)aRunJob
 {
-    // [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
     [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
-
-    // Also get the page image from the runJob
-    // [WLRemoteAction schedule:WLRemoteActionGetType
-    //                 path:[[aRunJob jobSettings]['pageglyphs'] pk]
-    //                 delegate:loadPageGlyphsDelegate
-    //                 message:@"loading a single classifier"];  // Maybe I have it already.
+    [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
 }
 
 - (void)fetchClassifier:(CPString)uuid
@@ -85,7 +76,15 @@
 
 - (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
 {
+    console.log("fetchPageGlyphsDidFinish");
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
+    console.log(classifierTableViewDelegate);
+    console.log(pageGlyphsTableViewDelegate);
+    [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
+    [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
+    [pageGlyphsTableViewDelegate initializeTableView];
+    console.log(thePageGlyphs);
+    console.log(pageGlyphsSymbolCollectionArrayController);
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -217,20 +216,10 @@
 
     console.log("THE CLASSIFIER!");
     console.log(theClassifier);
-    [classifierTableViewDelegate setTheClassifier:theClassifier];
+    console.log("Setting the gamera glyphs");
+    [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
-    // [classifierGlyphArrayController bind:@"contentArray"
-    //                                 toObject:theClassifier
-    //                                 withKeyPath:@"glyphs"
-    //                                 options:nil];
-    // [classifierGlyphArrayController setSortDescriptors:[[CPArray alloc] initWithObjects:[[CPSortDescriptor alloc] initWithKey:@"idName" ascending:YES]]];
-
-    // I'm not sure that the classifierGlyphArrayController gets used at all, as I
-    // don't have a view for which there is one view per glyph.
-    // [classifierTableViewDelegate initializeTableView:theClassifier];
-
-    // [symbolCollectionArrayController setContent:[theClassifier symbolCollections]];
-    [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
+    [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
     [classifierTableViewDelegate initializeTableView];
 
     [symbolTableDelegate initializeSymbols:theClassifier];
@@ -254,42 +243,16 @@
 */
 - (@action)writeSymbolName:(CPTextField)aSender
 {
-    // var newName = [aSender stringValue],
-    //     selectedObjects = [classifierGlyphArrayController selectedObjects];
-    // for (var i = 0; i < [selectedObjects count]; ++i)
-    // {
-    //     [selectedObjects[i] writeSymbolName:newName];
-    // }
-    // [theClassifier makeAllDirty];
-    // //[theClassifier makeDirtyProperty:@"id_name"];
-    // [theClassifier ensureSaved];
-
-    console.log(theClassifier);
-    console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
     [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];  // This will change the model
-        // Ok.  Are the selected objects the same objects that are in the model?
-    // console.log([[theClassifier glyphs][0] UID]);
 
-    // Also update the symbolTable
     // [symbolTableDelegate initializeSymbols:theClassifier];  // Broke by new model
 
-    // I think this algorithm also works if the user used the symbol table to select, because that will affect the selection of the classifierTable.
     // [symbolTableDelegate writeSymbolName:[aSender stringValue]];  // Shouldn't be needed at all.
 
-    // [classifierGlyphArrayController rearrangeObjects];  // Hmm... probably a good idea since some writes happened.
-    console.log("Hmmm...");
     [theClassifier makeAllDirty];
     //[theClassifier makeDirtyProperty:@"id_name"];
     [theClassifier ensureSaved];
-    // TODO: instead of writing the entire classifier, try doing little patches.
-    console.log("Saved classifier.");
-    console.log(theClassifier);  // Same classifier as above... the indices change elsewhere...
-    // console.log([[theClassifier glyphs][0] UID]);
-    // So the classifier indices are changing and not the symbolCollections.  And they don't change on ensureSaved.
-    // [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
-    // [classifierTableViewDelegate initializeTableView];
-    // [classifierTableView reloadData];
-
+    // TODO: instead of writing the entire classifier, try to send less JSON and just patch a bit.
 }
 
 - (@action)close:(CPMenuItem)aSender
@@ -302,7 +265,6 @@
         }
         theClassifier = null;
 
-        [classifierGlyphArrayController setContent:[]];
         [symbolTableDelegate close];
         [classifierTableViewDelegate close];
     }
