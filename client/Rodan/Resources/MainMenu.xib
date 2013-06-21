@@ -4786,7 +4786,7 @@
 													</object>
 													<object class="NSButton" id="317573596">
 														<reference key="NSNextResponder" ref="369495863"/>
-														<int key="NSvFlags">268</int>
+														<int key="NSvFlags">300</int>
 														<string key="NSFrame">{{14, 13}, {94, 32}}</string>
 														<reference key="NSSuperview" ref="369495863"/>
 														<reference key="NSWindow"/>
@@ -8060,6 +8060,30 @@
 				<int key="NSvFlags">274</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
+					<object class="NSButton" id="79432819">
+						<reference key="NSNextResponder" ref="822275761"/>
+						<int key="NSvFlags">300</int>
+						<string key="NSFrame">{{6, 13}, {123, 32}}</string>
+						<reference key="NSSuperview" ref="822275761"/>
+						<reference key="NSWindow"/>
+						<string key="NSReuseIdentifierKey">_NS:9</string>
+						<bool key="NSEnabled">YES</bool>
+						<object class="NSButtonCell" key="NSCell" id="832454904">
+							<int key="NSCellFlags">67108864</int>
+							<int key="NSCellFlags2">134217728</int>
+							<string key="NSContents">Save Settings</string>
+							<reference key="NSSupport" ref="715315636"/>
+							<string key="NSCellIdentifier">_NS:9</string>
+							<reference key="NSControlView" ref="79432819"/>
+							<int key="NSButtonFlags">-2038284288</int>
+							<int key="NSButtonFlags2">129</int>
+							<string key="NSAlternateContents"/>
+							<string key="NSKeyEquivalent"/>
+							<int key="NSPeriodicDelay">200</int>
+							<int key="NSPeriodicInterval">25</int>
+						</object>
+						<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
+					</object>
 					<object class="NSTextField" id="679029077">
 						<reference key="NSNextResponder" ref="822275761"/>
 						<int key="NSvFlags">268</int>
@@ -8097,7 +8121,7 @@
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
 										</object>
-										<string key="NSFrameSize">{287, 264}</string>
+										<string key="NSFrameSize">{287, 223}</string>
 										<reference key="NSSuperview" ref="381251494"/>
 										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="752476613"/>
@@ -8155,6 +8179,7 @@
 												<reference key="NSTableView" ref="1021635304"/>
 											</object>
 											<object class="NSTableColumn" id="924868671">
+												<string key="NSIdentifier">valueColumn</string>
 												<double key="NSWidth">101</double>
 												<double key="NSMinWidth">40</double>
 												<double key="NSMaxWidth">1000</double>
@@ -8197,7 +8222,7 @@
 										<int key="NSTableViewGroupRowStyle">1</int>
 									</object>
 								</object>
-								<string key="NSFrame">{{1, 17}, {287, 264}}</string>
+								<string key="NSFrame">{{1, 17}, {287, 223}}</string>
 								<reference key="NSSuperview" ref="557520664"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="1021635304"/>
@@ -8252,7 +8277,7 @@
 							</object>
 							<reference ref="815732624"/>
 						</object>
-						<string key="NSFrame">{{12, 20}, {289, 282}}</string>
+						<string key="NSFrame">{{12, 61}, {289, 241}}</string>
 						<reference key="NSSuperview" ref="822275761"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="440322915"/>
@@ -8699,6 +8724,9 @@
 			</object>
 			<object class="NSCustomObject" id="235580509">
 				<string key="NSClassName">ClassifierViewController</string>
+			</object>
+			<object class="NSCustomObject" id="222569809">
+				<string key="NSClassName">WorkflowDesignerJobSettingsDelegate</string>
 			</object>
 			<object class="NSArrayController" id="369495124">
 				<object class="NSMutableArray" key="NSDeclaredKeys">
@@ -10823,6 +10851,14 @@
 					<int key="connectionID">3672</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="1021635304"/>
+						<reference key="destination" ref="222569809"/>
+					</object>
+					<int key="connectionID">4670</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">value: selection.jobName</string>
 						<reference key="source" ref="178466262"/>
@@ -11020,51 +11056,6 @@
 						</object>
 					</object>
 					<int key="connectionID">3667</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: objectValue.settingDefault</string>
-						<object class="NSTextField" key="source" id="502168448">
-							<reference key="NSNextResponder" ref="189762073"/>
-							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{3, 3}, {91, 22}}</string>
-							<reference key="NSSuperview" ref="189762073"/>
-							<reference key="NSNextKeyView" ref="736002168"/>
-							<string key="NSReuseIdentifierKey">_NS:9</string>
-							<bool key="NSEnabled">YES</bool>
-							<object class="NSTextFieldCell" key="NSCell" id="345331083">
-								<int key="NSCellFlags">-1804599231</int>
-								<int key="NSCellFlags2">272630784</int>
-								<string key="NSContents"/>
-								<reference key="NSSupport" ref="715315636"/>
-								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="502168448"/>
-								<bool key="NSDrawsBackground">YES</bool>
-								<reference key="NSBackgroundColor" ref="973782441"/>
-								<reference key="NSTextColor" ref="214371641"/>
-							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
-						</object>
-						<object class="NSTableCellView" key="destination" id="189762073">
-							<nil key="NSNextResponder"/>
-							<int key="NSvFlags">274</int>
-							<object class="NSMutableArray" key="NSSubviews">
-								<bool key="EncodedWithXMLCoder">YES</bool>
-								<reference ref="502168448"/>
-							</object>
-							<string key="NSFrame">{{184, 1}, {101, 28}}</string>
-							<reference key="NSNextKeyView" ref="502168448"/>
-						</object>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="502168448"/>
-							<reference key="NSDestination" ref="189762073"/>
-							<string key="NSLabel">value: objectValue.settingDefault</string>
-							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">objectValue.settingDefault</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">3676</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -12427,6 +12418,14 @@
 						<reference key="destination" ref="360552222"/>
 					</object>
 					<int key="connectionID">4667</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">saveCurrentlySelectedWorkflowJobSettings:</string>
+						<reference key="source" ref="222569809"/>
+						<reference key="destination" ref="79432819"/>
+					</object>
+					<int key="connectionID">4675</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -15719,6 +15718,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="679029077"/>
 							<reference ref="557520664"/>
+							<reference ref="79432819"/>
 						</object>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Selected Workflow Job Settings Tab</string>
@@ -15766,7 +15766,15 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="128306905"/>
-							<reference ref="189762073"/>
+							<object class="NSTableCellView" id="189762073">
+								<nil key="NSNextResponder"/>
+								<int key="NSvFlags">274</int>
+								<object class="NSMutableArray" key="NSSubviews">
+									<bool key="EncodedWithXMLCoder">YES</bool>
+								</object>
+								<string key="NSFrame">{{184, 1}, {101, 28}}</string>
+								<reference key="NSNextKeyView" ref="736002168"/>
+							</object>
 						</object>
 						<reference key="parent" ref="1021635304"/>
 					</object>
@@ -15846,23 +15854,8 @@
 						<reference key="object" ref="189762073"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="502168448"/>
 						</object>
 						<reference key="parent" ref="924868671"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3673</int>
-						<reference key="object" ref="502168448"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="345331083"/>
-						</object>
-						<reference key="parent" ref="189762073"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3674</int>
-						<reference key="object" ref="345331083"/>
-						<reference key="parent" ref="502168448"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">3201</int>
@@ -17308,6 +17301,26 @@
 						</object>
 						<reference key="parent" ref="586231775"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">4669</int>
+						<reference key="object" ref="222569809"/>
+						<reference key="parent" ref="0"/>
+						<string key="objectName">Workflow Designer - Job Settings Delegate</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">4673</int>
+						<reference key="object" ref="79432819"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="832454904"/>
+						</object>
+						<reference key="parent" ref="822275761"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">4674</int>
+						<reference key="object" ref="832454904"/>
+						<reference key="parent" ref="79432819"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -17816,8 +17829,6 @@
 					<string>3659.IBPluginDependency</string>
 					<string>3660.IBPluginDependency</string>
 					<string>3662.IBPluginDependency</string>
-					<string>3673.IBPluginDependency</string>
-					<string>3674.IBPluginDependency</string>
 					<string>3681.IBPluginDependency</string>
 					<string>3681.isInViewBasedMode</string>
 					<string>3681.prototypeCellViews</string>
@@ -18021,6 +18032,9 @@
 					<string>4660.IBPluginDependency</string>
 					<string>4661.IBPluginDependency</string>
 					<string>4662.IBPluginDependency</string>
+					<string>4669.IBPluginDependency</string>
+					<string>4673.IBPluginDependency</string>
+					<string>4674.IBPluginDependency</string>
 					<string>56.IBPluginDependency</string>
 					<string>57.IBPluginDependency</string>
 					<string>58.IBPluginDependency</string>
@@ -18570,8 +18584,6 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
 					<object class="NSArray">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -18802,6 +18814,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -18830,7 +18845,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">4668</int>
+			<int key="maxID">4675</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -20639,6 +20654,25 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/WorkflowDesignerDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">WorkflowDesignerJobSettingsDelegate</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">saveCurrentlySelectedWorkflowJobSettings:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">saveCurrentlySelectedWorkflowJobSettings:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">saveCurrentlySelectedWorkflowJobSettings:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/WorkflowDesignerJobSettingsDelegate.h</string>
 					</object>
 				</object>
 			</object>
