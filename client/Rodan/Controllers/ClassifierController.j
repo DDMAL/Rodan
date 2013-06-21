@@ -217,6 +217,7 @@
 
     console.log("THE CLASSIFIER!");
     console.log(theClassifier);
+    [classifierTableViewDelegate setTheClassifier:theClassifier];
 
     // [classifierGlyphArrayController bind:@"contentArray"
     //                                 toObject:theClassifier
@@ -228,7 +229,8 @@
     // don't have a view for which there is one view per glyph.
     // [classifierTableViewDelegate initializeTableView:theClassifier];
 
-    [symbolCollectionArrayController setContent:[theClassifier symbolCollections]];
+    // [symbolCollectionArrayController setContent:[theClassifier symbolCollections]];
+    [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
 
     [classifierTableViewDelegate initializeTableView];
 
@@ -266,6 +268,7 @@
     console.log(theClassifier);
     console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
     [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];  // This will change the model
+        // Ok.  Are the selected objects the same objects that are in the model?
     // console.log([[theClassifier glyphs][0] UID]);
 
     // Also update the symbolTable
@@ -284,6 +287,10 @@
     console.log(theClassifier);  // Same classifier as above... the indices change elsewhere...
     // console.log([[theClassifier glyphs][0] UID]);
     // So the classifier indices are changing and not the symbolCollections.  And they don't change on ensureSaved.
+    [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
+    [classifierTableViewDelegate initializeTableView];
+    [classifierTableView reloadData];
+
 }
 
 - (@action)close:(CPMenuItem)aSender

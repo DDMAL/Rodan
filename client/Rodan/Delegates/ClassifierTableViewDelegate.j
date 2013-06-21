@@ -10,6 +10,7 @@
             int                 headerLabelHeight   @accessors;
             int                 photoViewInset      @accessors;
     @outlet CPTableView         theTableView;
+    Classifier theClassifier @accessors;  // Could help with the wrong UIDs problem
 }
 
 - (void)init
@@ -26,35 +27,24 @@
     return self;
 }
 
+// I'll do it this way (like ClassifierViewController) if it turns out that I need theClassifier to solve the write problem.
+// For now, just use setClassifier
+// - (void)initWithClassifier:(Classifer)aClassifier
+// {
+//     self = [self init];
+//     if (self)
+//     {
+//         [self setClassifier:aClassifier];
+//     }
+//     return self;
+// }
+
 - (void)initializeTableView
 {
     console.log("Initializing table view!");
-    // var i = 0,
-    //     // glyphs = [aClassifier glyphs],
-    //     glyphs = [classifierGlyphsArrayController arrangedObjects],  // I think this may break write... I need to always use the model directly
-    //     // glyphs = [classifierGlyphsArrayController contentArray],
-    //     glyphs_count = [glyphs count],
-    //     prevGlyphName = nil,
-    //     symbolCollectionArray = [[CPMutableArray alloc] init],
-    //     symbolCollection = nil;
-
-    // for (i = 0; i < glyphs_count; ++i)
-    // {
-    //     var glyphName = [glyphs[i] idName];
-    //     if (prevGlyphName === nil || prevGlyphName !== glyphName)
-    //     {
-    //         symbolCollection = [[SymbolCollection alloc] init];
-    //         [symbolCollection setSymbolName:glyphName];
-    //         [symbolCollectionArray addObject:symbolCollection];
-    //     }
-    //     [symbolCollection addGlyph:glyphs[i]];
-    //     prevGlyphName = glyphName;
-    // }
-
-    // [symbolCollectionArrayController setContent:symbolCollectionArray];
 
     var nSymbols = [[symbolCollectionArrayController contentArray] count];
-    [cvArrayControllers initWithCapacity:nSymbols];
+    cvArrayControllers = [[CPMutableArray alloc] initWithCapacity:nSymbols];
     for (var j = 0; j < nSymbols; ++j)
     {
         [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:[symbolCollectionArrayController contentArray][j]]];  // gets added at index j
@@ -78,21 +68,44 @@
     // and a bug fixed with rearrangeObjects.
     /// -------------------------------------------------------
 
-    var symbolCollectionArray = [symbolCollectionArrayController arrangedObjects],
-        symbolCollectionArray_count = [symbolCollectionArray count],
-        bin_already_exists = false,
-        newBinIndex = 0;
+    // Try doing everything with the symbolCollectionArrayController, then calling initializeTableView to make new cvArrayControllers
+    // which should bind properly just like on the first go around.  The reason is to make sure the ratatosk model gets written to.
+    // If rearrangeObjects DOES make new copies of everything, then if I reinitialize, then it shouldn't matter.  I think that since
+    // I have to use cvArrayController to do everything for the cv's to be happy means that I'm writing the wrong objects...
+    // Again, MAYBE if I set everything up in the exact same way as the first time around, then when the tableView reloads, things should
+    // still work for the same reasons.
 
+    console.log("=============== WRITESYMBOLNAME ==================");
+    // [symbolCollectionArrayController rearrangeObjects];  // Hmmm... don't do this now because we need to keep it parallel with cvArrayControllers.
+    // var symbolCollectionArray_count = [[symbolCollectionArrayController arrangedObjects] count],
+    //     bin_already_exists = false,
+    //     newBinIndex = 0;
     // TODO: Optimize, maybe with filters
     // Assume sorted
-    for (; newBinIndex < symbolCollectionArray_count; ++newBinIndex)
+    // for (; newBinIndex < symbolCollectionArray_count; ++newBinIndex)
+    // {
+    //     if ([[symbolCollectionArrayController arrangedObjects][newBinIndex] symbolName] === newName)
+    //     {
+    //         bin_already_exists = true;
+    //         break;
+    //     }
+    //     else if ([[symbolCollectionArrayController arrangedObjects][newBinIndex] symbolName] > newName)
+    //     {
+    //         break;
+    //     }
+    // }
+    var symbolCollectionsCount = [[theClassifier symbolCollections] count],
+        bin_already_exists = false,
+        newBinIndex = 0;
+    for (; newBinIndex < symbolCollectionsCount; ++newBinIndex)
     {
-        if ([symbolCollectionArray[newBinIndex] symbolName] === newName)
+        // if ([[symbolCollectionArrayController arrangedObjects][newBinIndex] symbolName] === newName)
+        if ([[theClassifier symbolCollections][newBinIndex] symbolName] === newName)
         {
             bin_already_exists = true;
             break;
         }
-        else if ([symbolCollectionArray[newBinIndex] symbolName] > newName)
+        else if ([[theClassifier symbolCollections][newBinIndex] symbolName] > newName)
         {
             break;
         }
@@ -104,8 +117,9 @@
         var newSymbolCollection = [[SymbolCollection alloc] init];
         [newSymbolCollection setSymbolName:newName];
         console.log("Adding new symbolCollection with name " + [newSymbolCollection symbolName] + ".");
-        [symbolCollectionArrayController insertObject:newSymbolCollection atArrangedObjectIndex:newBinIndex];  // Maintains sort of arrangedObjects
+        // [symbolCollectionArrayController insertObject:newSymbolCollection atArrangedObjectIndex:newBinIndex];  // Maintains sort of arrangedObjects
             // Maybe I should call rearrangeObjects on symbolCollectionArrayController more often... then I shouldn't sort on the server
+        [[theClassifier symbolCollections] insertObject:newSymbolCollection atIndex:newBinIndex];
         [cvArrayControllers insertObject:[self _makeAndBindCvArrayControllerToSymbolCollection:newSymbolCollection] atIndex:newBinIndex];
       //   // [theTableView noteNumberOfRowsChanged];  // Breaks it... and doesn't seem to be necessary as we reloadData anyway, which gets the # of rows right.
     }
@@ -115,51 +129,151 @@
     {
         var selectedObjects = [cvArrayControllers[i] selectedObjects];
         [initiallySelectedObjects addObjectsFromArray:selectedObjects];
-        // Try it as a one-shot (?)  I think it's too tough because of the moving around of glyphs.
-        // [cvArrayControllers[i] remove:self];  // Removes the controller's selected objects from the controller's collection
-        // Perhaps, for style, I should quit using symbolCollectionArrayController completely (except for updateMaxes)
-        // while([selectedObjects count] > 0)
-        while([[cvArrayControllers[i] selectedObjects] count] > 0)
+        while ([[cvArrayControllers[i] selectedObjects] count] > 0)
         {
-            // var glyph = selectedObjects[0];
             var glyph = [cvArrayControllers[i] selectedObjects][0];
+            console.log([glyph UID]);
+            console.log([[[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
+            // Assume that everything is in parallel (don't do whole comparisons,) and delete the glyphs from theClassifier instead of the ac's
+            var realGlyph = [[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
             [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
-            [cvArrayControllers[i] removeObject:glyph];  // Note that this also removes the glyph from the symbolCollection's glyphList (same model)
-                // Perhaps cvArrayControllers should be renamed to glyphArrayControllers, and glyphList to glyphArray.
-            if ([[[symbolCollectionArrayController arrangedObjects][i] glyphList] count] === 0)
-            {
-                [symbolCollectionArrayController removeObjectAtArrangedObjectIndex:i];  // will shift left everything, so [i] is now the next item
-                [cvArrayControllers removeObjectAtIndex:i];  // I'm glad that the collection view doesn't complain about this.
-                --cvArrayControllers_count;  // Used by for loop
-                --i;  // Hmmm, is --i necessary?  I don't think so***, I think I can continue with the same i (which is the next i)
-                    // I guess I did it to counteract the for loop's ++. I think the code will work either way in most cases, so I'm going to remove it.
-                    // (With the -- in, then the while loop will just iterate again in the way that the for loop normally would.)
-                    // Maybe I don't need the while... and it can be one loop.  Nah, the while is for selectedObjects, the for is for table rows
-                    // ***ACTUALLY I believe it is.  The while loop will certainly finish on this go around (this must be the last item in
-                    // selectedObjects because it was the last item in the glyphList.  The next thing we want the for loop to
-                    // do, is process selectedObjects from the SAME i, because the next row to process, will be the row with the same i.
-                if (newBinIndex > i)
-                {
-                    --newBinIndex;
-                }
-                // [theTableView noteNumberOfRowsChanged];
-            }
-            console.log("Writing glyph, old name: " + [glyph idName] + " new name: " + newName);
-            console.log(glyph);
-            [glyph writeSymbolName:newName];
-            [[symbolCollectionArrayController arrangedObjects][newBinIndex] addGlyph:glyph];
-            // [cvArrayControllers[newBinIndex] addObject:glyph];  // Alternative way... possibly be more KVC compliant
-            // [symbolCollectionArrayController arrangedObjects][newBinIndex] updateMaxes];  // Alternative way
+            // [cvArrayControllers[i] removeObject:glyph];  // Just do a reinit later.  Also, don't delete the glyph, but remove it from one array and put it into another.
+            [[[theClassifier symbolCollections][i] glyphList] removeObject:realGlyph];
+            // if ([[[symbolCollectionArrayController arrangedObjects][i] glyphList] count] === 0)  // Do this part in another loop to keep it simple.
+            // {
+            //     [symbolCollectionArrayController removeObjectAtArrangedObjectIndex:i];
+            //     [cvArrayControllers removeObjectAtIndex:i];
+            //     --cvArrayControllers_count;
+            //     --i;
+            //     if (newBinIndex > i)
+            //     {
+            //         --newBinIndex;
+            //     }
+            // }
+            // [glyph writeSymbolName:newName];
+            [realGlyph writeSymbolName:newName];
+            // [[symbolCollectionArrayController arrangedObjects][newBinIndex] addGlyph:glyph];
+            [[[theClassifier symbolCollections][newBinIndex] glyphList] addObject:realGlyph];  // Shouldn't mess up indices as it'll append to the end.
             [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
-                // Experiment with setSelectedInsertedObjects
-            // selectedObjects = [selectedObjects removeObjectAtIndex:0];  // Try going through the controller
-            // [cvArrayControllers[i] removeSelectedObjects];
         }
     }
+
+    for (var i = 0; i < [[theClassifier symbolCollections] count] ; ++i)
+    {
+        if ([[[theClassifier symbolCollections][i] glyphList] count] === 0)
+        {
+            [[theClassifier symbolCollections] removeObjectAtIndex:i];
+            --i;
+        }
+    }
+
+    [self initializeTableView];
+    [theTableView reloadData];
+    return nil;
+
+
+    //     var selectedObjects = [cvArrayControllers[i] selectedObjects];
+    //     [initiallySelectedObjects addObjectsFromArray:selectedObjects];
+    //     while ([[cvArrayControllers[i] selectedObjects] count] > 0)
+    //     {
+    //         var glyph = [cvArrayControllers[i] selectedObjects][0];
+    //         console.log([glyph UID]);
+    //         console.log([[[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
+    //         // Assume that everything is in parallel (don't do whole comparisons,) and delete the glyphs from theClassifier instead of the ac's
+    //         var realGlyph = [[[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID];
+    //         [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
+    //         // [cvArrayControllers[i] removeObject:glyph];  // Just do a reinit later.  Also, don't delete the glyph, but remove it from one array and put it into another.
+    //         [[[theClassifier symbolCollections][i] glyphList] removeObject:realGlyph];
+    //         // if ([[[symbolCollectionArrayController arrangedObjects][i] glyphList] count] === 0)  // Do this part in another loop to keep it simple.
+    //         // {
+    //         //     [symbolCollectionArrayController removeObjectAtArrangedObjectIndex:i];
+    //         //     [cvArrayControllers removeObjectAtIndex:i];
+    //         //     --cvArrayControllers_count;
+    //         //     --i;
+    //         //     if (newBinIndex > i)
+    //         //     {
+    //         //         --newBinIndex;
+    //         //     }
+    //         // }
+    //         // [glyph writeSymbolName:newName];
+    //         [realGlyph writeSymbolName:newName];
+    //         // [[symbolCollectionArrayController arrangedObjects][newBinIndex] addGlyph:glyph];
+    //         [[[theClassifier symbolCollections][newBinIndex] glyphList] addObject:realGlyph];  // Shouldn't mess up indices as it'll append to the end.
+    //         [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
+    //     }
+    // }
+
+    // for
+    // var cvArrayControllers_count = [cvArrayControllers count],
+    //     initiallySelectedObjects = [[CPMutableArray alloc] init];
+    // for (var i = 0; i < cvArrayControllers_count; ++i)
+    // {
+    //     var selectedObjects = [cvArrayControllers[i] selectedObjects];
+    //     [initiallySelectedObjects addObjectsFromArray:selectedObjects];
+    //     // Try it as a one-shot (?)  I think it's too tough because of the moving around of glyphs.
+    //     // [cvArrayControllers[i] remove:self];  // Removes the controller's selected objects from the controller's collection
+    //     // Perhaps, for style, I should quit using symbolCollectionArrayController completely (except for updateMaxes)
+    //     // while([selectedObjects count] > 0)
+    //     while([[cvArrayControllers[i] selectedObjects] count] > 0)
+    //     {
+    //         // var glyph = selectedObjects[0];
+    //         var glyph = [cvArrayControllers[i] selectedObjects][0];  // Try getting the glyph out of symbolCollections instead... then make sure to reinitialize so we don't break the collectionView
+    //           // Also, don't worry about the cvArrayControllers at all.  Just use their selections to rewrite the model, and then reinitialize at the end.
+    //           // I'm betting that this glyph is the wrong glyph.
+    //           // So, in order for this to work, I need to FIND this glyph in the symbol collection glyph list.
+    //           // Let's just confirm, print this glyph and a similar glyph from the symbolCollection and see if they're different.
+    //           // Instead of using selectedObjects, use selectionIndexes.
+    //         console.log([glyph UID]);
+    //         console.log([cvArrayControllers[i] selectionIndexes]);
+    //         console.log([[[symbolCollectionArrayController arrangedObjects][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
+    //         console.log([[[symbolCollectionArrayController contentArray][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
+    //         // Maybe this would all be cured if I went through the classifier instead of the array controller.  The print that gives the
+    //         // different number is // [[[theClassifier symbolCollections][0] glyphList][0] UID]
+    //         // Add to theClassifier symbolCollections glyphList instead of an array controller indexed/glyphList.
+    //         console.log([[[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
+
+
+
+
+
+    //         [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
+    //         [cvArrayControllers[i] removeObject:glyph];  // Note that this also removes the glyph from the symbolCollection's glyphList (same model)
+    //             // Perhaps cvArrayControllers should be renamed to glyphArrayControllers, and glyphList to glyphArray.
+    //         if ([[[symbolCollectionArrayController arrangedObjects][i] glyphList] count] === 0)
+    //         {
+    //             [symbolCollectionArrayController removeObjectAtArrangedObjectIndex:i];  // will shift left everything, so [i] is now the next item
+    //             [cvArrayControllers removeObjectAtIndex:i];  // I'm glad that the collection view doesn't complain about this.
+    //             --cvArrayControllers_count;  // Used by for loop
+    //             --i;  // Hmmm, is --i necessary?  I don't think so***, I think I can continue with the same i (which is the next i)
+    //                 // I guess I did it to counteract the for loop's ++. I think the code will work either way in most cases, so I'm going to remove it.
+    //                 // (With the -- in, then the while loop will just iterate again in the way that the for loop normally would.)
+    //                 // Maybe I don't need the while... and it can be one loop.  Nah, the while is for selectedObjects, the for is for table rows
+    //                 // ***ACTUALLY I believe it is.  The while loop will certainly finish on this go around (this must be the last item in
+    //                 // selectedObjects because it was the last item in the glyphList.  The next thing we want the for loop to
+    //                 // do, is process selectedObjects from the SAME i, because the next row to process, will be the row with the same i.
+    //             if (newBinIndex > i)
+    //             {
+    //                 --newBinIndex;
+    //             }
+    //             // [theTableView noteNumberOfRowsChanged];
+    //         }
+    //         console.log("Writing glyph, old name: " + [glyph idName] + " new name: " + newName);
+    //         console.log(glyph);
+    //         [glyph writeSymbolName:newName];
+    //         [[symbolCollectionArrayController arrangedObjects][newBinIndex] addGlyph:glyph];
+    //         // [cvArrayControllers[newBinIndex] addObject:glyph];  // Alternative way... possibly be more KVC compliant
+    //         // [symbolCollectionArrayController arrangedObjects][newBinIndex] updateMaxes];  // Alternative way
+    //         [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
+    //             // Experiment with setSelectedInsertedObjects
+    //         // selectedObjects = [selectedObjects removeObjectAtIndex:0];  // Try going through the controller
+    //         // [cvArrayControllers[i] removeSelectedObjects];
+    //     }
+    // }
 
     [cvArrayControllers[newBinIndex] rearrangeObjects];  // Makes things work. (setSelectedObjects :contentArray was not working before I did this)
     // [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
     [cvArrayControllers[newBinIndex] setSelectedObjects:initiallySelectedObjects];
+    [self initializeTableView];
     [theTableView reloadData];
 }
 
