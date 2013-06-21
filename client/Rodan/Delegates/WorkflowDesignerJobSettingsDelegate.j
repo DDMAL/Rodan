@@ -46,8 +46,6 @@
 
     // Create view based on type and format.
     var dataView = [WorkflowDesignerJobSettingsDelegate _createDataViewForWorkflowJobSetting:workflowJobSetting];
-    [dataView sizeToFit];
-    [dataView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     [aView addSubview:dataView];
     [dataView setFrame:[[dataView superview] bounds]];
 }
@@ -113,6 +111,8 @@
     [textField setObjectValue:[aSetting settingDefault]];
     [textField setStringValue:[aSetting settingDefault]];
     [aSetting bind:"settingDefault" toObject:textField withKeyPath:"objectValue" options:null];
+    [dataView sizeToFit];
+    [dataView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     return textField;
 }
 
@@ -125,7 +125,7 @@
 + (CPPopUpButton)_createWorkflowJobPopUpButton:(WorkflowJobSetting)aSetting
 {
     // Nil check.
-    var button = [[CPPopUpButton alloc] init];
+    var button = [CPPopUpButton new];
     if (aSetting === nil)
     {
         return button;
@@ -153,7 +153,7 @@
     while (job = [jobEnumerator nextObject])
     {
         // Create and add item.
-        var menuItem = [[CPMenuItem alloc] initWithTitle:[job jobName] action:null keyEquivalent:null];
+        var menuItem = [[CPMenuItem alloc] initWithTitle:[job shortJobName] action:null keyEquivalent:null];
         [menuItem setRepresentedObject:[job pk]];
         [button addItem:menuItem];
 
@@ -174,6 +174,8 @@
         [button selectItem:defaultSelection];
     }
     [aSetting bind:"settingDefault" toObject:button withKeyPath:"selectedItem.representedObject" options:null];
+    [button sizeToFit];
+    [button setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     return button;
 }
 @end

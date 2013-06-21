@@ -45,4 +45,16 @@
     [self ensureSaved];
 }
 
+- (CPString)shortJobName
+{
+    var shortName = jobName,
+        splitString = [shortName componentsSeparatedByString:"."];
+    if ([splitString count] > 1)
+    {
+        shortName = [[splitString lastObject] stringByReplacingOccurrencesOfString:@"_" withString:@" "];
+        return [shortName capitalizedString];
+    }
+    return shortName;
+}
+
 @end
