@@ -81,7 +81,8 @@
 
         case 'choice':
         {
-            dataView = [CPTextField labelWithTitle:""];
+            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+       //     dataView = [WorkflowDesignerJobSettingsDelegate _createPopUpButton:aSetting];
             break;
         }
 
@@ -114,6 +115,52 @@
     [textField sizeToFit];
     [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     return textField;
+}
+
+/**
+ * Given a workflow job setting, create a pop-up button that allows selection of the
+ * setting's associated choices.
+ */
++ (CPPopUpButton)_createPopUpButton:(WorkflowJobSetting)aSetting
+{
+    // Nil check.
+    var button = [CPPopUpButton new];
+    if (aSetting === nil || [aSetting choices] === nil || [[aSetting choices] count] === 0)
+    {
+        return button;
+    }
+
+    // Enumerate through coices and add menu items to the button.  Also, look for the current setting (if there).
+    var choiceEnumerator = [[aSetting choices] objectEnumerator],
+        choice = null,
+        defaultSelection = nil;
+    while (choice = [choiceEnumerator nextObject])
+    {
+        // Create and add item.
+        var menuItem = [[CPMenuItem alloc] initWithTitle:choice action:null keyEquivalent:null];
+        [menuItem setRepresentedObject:choice];
+        [button addItem:menuItem];
+
+        // Check if the pk matches the current setting.  If it does, THIS one should be our default item.
+        if ([aSetting settingDefault] === choice)
+        {
+            defaultSelection = menuItem;
+        }
+    }
+
+    // Initialize, bind, return.
+    if (defaultSelection === nil)
+    {
+        [button selectItemAtIndex:0];
+    }
+    else
+    {
+        [button selectItem:defaultSelection];
+    }
+    [aSetting bind:"settingDefault" toObject:button withKeyPath:"selectedItem.representedObject" options:null];
+    [button sizeToFit];
+    [button setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+    return button;
 }
 
 /**
@@ -153,7 +200,7 @@
     while (job = [jobEnumerator nextObject])
     {
         // Create and add item.
-        var menuItem = [[CPMenuItem alloc] initWithTitle:[job shortJobName] action:null keyEquivalent:null];
+        var menuItem = [[CPMenuItem alloc] initWithTitle:@"Sequence #" + [job sequence] + " - " + [job shortJobName] action:null keyEquivalent:null];
         [menuItem setRepresentedObject:[job pk]];
         [button addItem:menuItem];
 

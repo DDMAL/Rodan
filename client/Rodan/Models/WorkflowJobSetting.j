@@ -7,6 +7,7 @@
     CPArray     range          @accessors;
     CPString    settingType    @accessors;
     CPString    settingName    @accessors;
+    CPString    choices        @accessors;
 }
 
 - (id)init
@@ -26,7 +27,8 @@
         ['hasDefault', 'has_default'],
         ['range', 'rng'],
         ['settingType', 'type'],
-        ['settingName', 'name']
+        ['settingName', 'name'],
+        ['choices', 'choices']
     ];
 }
 
@@ -39,6 +41,9 @@
 
     if (setting.rng)
         [self setRange:[CPArray arrayWithArray:setting.rng]];
+
+    if (setting.choices)
+        [self setChoices:[CPArray arrayWithArray:setting.choices]];
 
     [self setSettingType:setting.type];
 
