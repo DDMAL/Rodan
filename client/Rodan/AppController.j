@@ -54,6 +54,7 @@
 @import "Delegates/ResultsViewResultsDelegate.j"
 @import "Delegates/ResultsViewRunsDelegate.j"
 @import "Delegates/ResultsViewWorkflowsDelegate.j"
+@import "Delegates/WorkflowDesignerJobSettingsDelegate.j"
 
 @import "Models/Project.j"
 @import "Models/User.j"
