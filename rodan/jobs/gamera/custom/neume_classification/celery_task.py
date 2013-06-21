@@ -16,7 +16,7 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.util import taskutil
-from rodan.settings import PACKAGE
+from rodan.settings import GAMERA_XML
 
 
 class ClassificationTaskBase(Task):
@@ -31,15 +31,11 @@ class ClassificationTaskBase(Task):
                 print "Classifier with the given uuid not found."
             print "This task will now fail with cryptic error messages."
 
-    def save_result(self, page_url, glyphs_model, runjob):
-        temp_tar_path = taskutil.create_temp_path(ext='tar')
-        with tarfile.open(temp_tar_path, 'w') as tar:
-            tar.add(page_url, arcname='image.png')
-            tar.add(glyphs_model.file_path, arcname='glyphs.xml')
-
+    def save_result(self, glyphs_model, runjob):
         result = taskutil.init_result(runjob)
-        taskutil.save_result(result, temp_tar_path)
-        result.result_type = PACKAGE
+        with open(glyphs_model.file_path) as f:
+            result.result.save('pageglyphs.xml', File(f))
+        result.result_type = GAMERA_XML
         result.save()
         return result
 
@@ -70,8 +66,8 @@ class ClassificationTaskBase(Task):
 
             init_gamera()
             task_image = load_image(page_url)
-            pageglyphs = self.process_image(task_image, settings)
-            result = self.save_result(page_url, pageglyphs, runjob)
+            pageglyphs_model = self.process_image(task_image, settings)
+            result = self.save_result(pageglyphs_model, runjob)
             return str(result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):

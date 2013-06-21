@@ -1,19 +1,17 @@
 @import "../Transformers/GlyphTransformer.j"
 
-@implementation Classifier : WLRemoteObject
+@implementation PageGlyphs : WLRemoteObject
 {
     CPString    pk          @accessors;
-    CPString    project     @accessors;
     CPString    name        @accessors;
     CPArray     glyphs      @accessors;
 }
 
-- (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
+- (id)initWithName:(CPString)aName
 {
     if (self = [self init])
     {
         [self setName:aName];
-        [self setProject:aProjectPk];
     }
     return self;
 }
@@ -22,7 +20,6 @@
 {
     return [
         ['pk',          'url'],
-        ['project',     'project'],
         ['name',        'name',      nil, nil],
         ['glyphs',      'glyphs',    [[GlyphTransformer alloc] init]]
     ];
@@ -33,6 +30,6 @@
     if ([self pk])
         return [self pk];
     else
-        return @"/classifiers/";
+        return @"/pageglyphs/";
 }
 @end

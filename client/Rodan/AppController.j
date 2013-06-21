@@ -415,7 +415,7 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController setClassifierIsActive:YES];
     var classifierView = [classifierViewController view];
     [classifierView setFrame:[contentScrollView bounds]];
-    [classifierView setAutoresizingMask:CPViewWidthSizable];
+    [classifierView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     [contentScrollView setDocumentView:[classifierViewController view]];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusClassifierViewNotification

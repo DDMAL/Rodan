@@ -1,8 +1,10 @@
 @import "../Models/Classifier.j"
+@import "../Models/PageGlyphs.j"
 @import "../Models/Symbol.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/SymbolTableDelegate.j"
+@import "../Delegates/ClassifierControllerFetchDelegates.j"
 
 @global activeProject
 
@@ -30,6 +32,9 @@
 
     @outlet ClassifierTableViewDelegate classifierTableViewDelegate;
     @outlet CPTableView classifierTableView;
+
+    PageGlyphs thePageGlyphs;
+    FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
 }
 
 - (void)awakeFromCib
@@ -45,13 +50,48 @@
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
+    fetchPageGlyphsDelegate = [[FetchPageGlyphsDelegate alloc] initWithClassifierController:self];
 }
 
 - (void)loadRunJob:(RunJob)aRunJob
 {
     console.log("In [classifierController loadRunJob]");
     console.log(aRunJob);
+    console.log([aRunJob jobSettings]);
+    console.log("Pageglyphs uuid:")
+    console.log([[aRunJob jobSettings] objectForKey:@"pageglyphs"]);
 
+    // [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
+    [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
+
+    // Also get the page image from the runJob
+    // [WLRemoteAction schedule:WLRemoteActionGetType
+    //                 path:[[aRunJob jobSettings]['pageglyphs'] pk]
+    //                 delegate:loadPageGlyphsDelegate
+    //                 message:@"loading a single classifier"];  // Maybe I have it already.
+}
+
+- (void)fetchClassifier:(CPString)uuid
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/classifier/' + uuid
+                    delegate:self
+                    message:@"loading a single classifier"];
+}
+
+- (void)fetchPageGlyphs:(CPString)uuid
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/pageglyphs/' + uuid
+                    delegate:fetchPageGlyphsDelegate  // forwards to fetchPageGlyphsDidFinish
+                    message:@"loading a single classifier"];
+}
+
+- (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
+{
+    console.log("fetchPageGlyphsDidFinish");
+    thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
+    console.log(thePageGlyphs);
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -73,10 +113,12 @@
     [newClassifierWindow makeKeyAndOrderFront:null];
 }
 
+/*
+    Comes up with a suggestion for the user to name the new classifier.
+    Default suggestion is classifier0.
+    Expects classifierArrayController to have been populated.
+*/
 - (CPString)suggestNameForNewClassifier
-// Comes up with a suggestion for the user to name the new classifier.
-// Default suggestion is classifier0.
-// Expects classifierArrayController to have been populated.
 {
     var i = 0,
         classifierCount = [[classifierArrayController contentArray] count];
@@ -91,13 +133,14 @@
     return @"classifier" + classifierCount.toString();
 }
 
+/*
+    Tells you if we have a classifier with the given name.
+    Doesn't go to the server... it relies on the previous call to fetchClassifiers.
+    Called by the newWindow when choosing a default name, or checking when create
+    was pressed.
+*/
 - (Boolean)classifierExists:(CPString)classifierName
-/* Tells you if we have a classifier with the given name.
-Doesn't go to the server... it relies on the previous call to fetchClassifiers.
-Called by the newWindow when choosing a default name, or checking when create
-was pressed.*/
 {
-    //return [self arrayContains:[classifierArrayController contentArray] :classifierName];
     var i = 0,
         classifierArray = [classifierArrayController contentArray],
         classifierCount = [classifierArray count];
@@ -112,7 +155,6 @@ was pressed.*/
 }
 
 - (void)updateNameUsedLabel
-// Gets called on every keystroke of the NewClassifier textbox
 {
     if ([self classifierExists:[newClassifierTextfield stringValue]])
     {
@@ -124,25 +166,25 @@ was pressed.*/
     }
 }
 
+/*
+    This is for the create button in the New Classifier window.
+    Check the user's classifier name then create.
+    TODO: Enter button from the textbox must call this function
+*/
 - (@action)createClassifier:(id)aSender
 {
-    // This is for the create button in the New Classifier window.
-    // Check the user's classifier name then create.
-    // TODO: Enter button from the textbox must call this function
     var newName = [newClassifierTextfield stringValue];
-    if (newName !== @"" && ! [self classifierExists:newName])
+    if (newName !== @"" && ![self classifierExists:newName])
     {
         var classifier = [[Classifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
         [classifier ensureCreated];
         [newClassifierWindow close];
     }
-    else
-    {
-        // Do nothing!
-        // The user will understand why the button did nothing because of the
-        // red text that displays when classifierExists is true.
-    }
+    return nil;
+    // Do nothing!
+    // The user will understand why the button did nothing because of the
+    // red text that displays when classifierExists is true.
 }
 
 - (@action)open:(CPMenuItem)aSender
@@ -157,7 +199,7 @@ was pressed.*/
 {
     var classifiers = [Classifier objectsFromJson:[anAction result]];
     [classifierArrayController setContent:classifiers];
-    [openClassifierWindow makeKeyAndOrderFront:null];  // Opens the window
+    [openClassifierWindow makeKeyAndOrderFront:null];
 }
 
 - (@action)openClassifier:(CPButton)aSender
@@ -174,8 +216,9 @@ was pressed.*/
 }
 
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
-/* Open operation just finished: server sent us a full classifier */
 {
+    // Open operation just finished: server sent us a full classifier
+
     theClassifier = [[Classifier alloc] initWithJson:[anAction result]];
 
     console.log("THE CLASSIFIER!");
@@ -190,6 +233,9 @@ was pressed.*/
     // I'm not sure that the classifierGlyphArrayController gets used at all, as I
     // don't have a view for which there is one view per glyph.
     // [classifierTableViewDelegate initializeTableView:theClassifier];
+    console.log("Initializing table view with classifierGlyphArrayController:");
+    console.log(classifierGlyphArrayController);
+
     [classifierTableViewDelegate initializeTableView:classifierGlyphArrayController];
 
     [symbolTableDelegate initializeSymbols:theClassifier];
@@ -208,8 +254,10 @@ was pressed.*/
     [deleteClassifierWindow close];
 }
 
+/*
+    Write the new symbol for each selected glyph
+*/
 - (@action)writeSymbolName:(CPTextField)aSender
-/* Write the new symbol for each selected glyph */
 {
     // var newName = [aSender stringValue],
     //     selectedObjects = [classifierGlyphArrayController selectedObjects];
@@ -261,64 +309,6 @@ was pressed.*/
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
     console.log([[theClassifier glyphs][0] UID]);
-}
-
-// - (void)fetchClassifiers
-// // Fetches classifiers and assigns them to classifierArrayController's content.
-// // NOTE: No longer used!
-// // I am opting for more controlled versions of this functionality.
-// // When I do a fetch, generally want control of the callback.
-// // Another way might be to post a notification.
-// {
-//     [WLRemoteAction schedule:WLRemoteActionGetType
-//                     path:'/classifiers/'
-//                     delegate:loadClassifiersDelegate  // would just call fetchClassifiersDidFinish
-//                     message:"Loading classifier list for new"];
-// }
-// - (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
-// {
-//     var classifiers = [Classifier objectsFromJson:[anAction result]];
-//     [classifierArrayController setContent:classifiers];
-//         // I get a warning for the previous line, not sure why...
-//         // ends up in CPURLConnection.j
-// }
-@end
-
-
-@implementation InitNewFetchClassifiersDelegate : CPObject
-{
-    ClassifierController classifierController;
-}
-
-- (id)initWithClassifierController:(ClassifierController)aClassifierController
-{
-    self = [super init];
-    classifierController = aClassifierController;
-    return self;
-}
-
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
-{
-    [classifierController initNewFetchClassifiersDidFinish:anAction];
-}
-@end
-
-
-@implementation InitOpenFetchClassifiersDelegate : CPObject
-{
-    ClassifierController classifierController;
-}
-
-- (id)initWithClassifierController:(ClassifierController)aClassifierController
-{
-    self = [super init];
-    classifierController = aClassifierController;
-    return self;
-}
-
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
-{
-    [classifierController initOpenFetchClassifiersDidFinish:anAction];
 }
 @end
 
