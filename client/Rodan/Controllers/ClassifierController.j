@@ -233,6 +233,7 @@
     [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
 
     [classifierTableViewDelegate initializeTableView];
+    [classifierTableView reloadData];  // TODO: initializeTableView should do this... I'm putting it outside to help debug ClassifierTableViewDelegate
 
     [symbolTableDelegate initializeSymbols:theClassifier];
 }
@@ -287,9 +288,9 @@
     console.log(theClassifier);  // Same classifier as above... the indices change elsewhere...
     // console.log([[theClassifier glyphs][0] UID]);
     // So the classifier indices are changing and not the symbolCollections.  And they don't change on ensureSaved.
-    [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
-    [classifierTableViewDelegate initializeTableView];
-    [classifierTableView reloadData];
+    // [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
+    // [classifierTableViewDelegate initializeTableView];
+    // [classifierTableView reloadData];
 
 }
 

@@ -51,7 +51,7 @@
     }
     console.log(cvArrayControllers);
 
-    [theTableView reloadData];
+    // [theTableView reloadData];
 }
 
 - (void)writeSymbolName:(CPString)newName
@@ -120,8 +120,11 @@
         // [symbolCollectionArrayController insertObject:newSymbolCollection atArrangedObjectIndex:newBinIndex];  // Maintains sort of arrangedObjects
             // Maybe I should call rearrangeObjects on symbolCollectionArrayController more often... then I shouldn't sort on the server
         [[theClassifier symbolCollections] insertObject:newSymbolCollection atIndex:newBinIndex];
+        console.log("a");
         [cvArrayControllers insertObject:[self _makeAndBindCvArrayControllerToSymbolCollection:newSymbolCollection] atIndex:newBinIndex];
-      //   // [theTableView noteNumberOfRowsChanged];  // Breaks it... and doesn't seem to be necessary as we reloadData anyway, which gets the # of rows right.
+        console.log("d");
+        // [theTableView noteNumberOfRowsChanged];  // Breaks it... and doesn't seem to be necessary as we reloadData anyway, which gets the # of rows right.
+        console.log("1");
     }
     var cvArrayControllers_count = [cvArrayControllers count],
         initiallySelectedObjects = [[CPMutableArray alloc] init];
@@ -131,6 +134,7 @@
         [initiallySelectedObjects addObjectsFromArray:selectedObjects];
         while ([[cvArrayControllers[i] selectedObjects] count] > 0)
         {
+            console.log("2");
             var glyph = [cvArrayControllers[i] selectedObjects][0];
             console.log([glyph UID]);
             console.log([[[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]] UID]);
@@ -138,7 +142,8 @@
             var realGlyph = [[theClassifier symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
             [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
             // [cvArrayControllers[i] removeObject:glyph];  // Just do a reinit later.  Also, don't delete the glyph, but remove it from one array and put it into another.
-            [[[theClassifier symbolCollections][i] glyphList] removeObject:realGlyph];
+            // [[[theClassifier symbolCollections][i] glyphList] removeObject:realGlyph];
+            [[theClassifier symbolCollections][i] removeGlyph:realGlyph];
             // if ([[[symbolCollectionArrayController arrangedObjects][i] glyphList] count] === 0)  // Do this part in another loop to keep it simple.
             // {
             //     [symbolCollectionArrayController removeObjectAtArrangedObjectIndex:i];
@@ -150,10 +155,15 @@
             //         --newBinIndex;
             //     }
             // }
+
             // [glyph writeSymbolName:newName];
             [realGlyph writeSymbolName:newName];
             // [[symbolCollectionArrayController arrangedObjects][newBinIndex] addGlyph:glyph];
-            [[[theClassifier symbolCollections][newBinIndex] glyphList] addObject:realGlyph];  // Shouldn't mess up indices as it'll append to the end.
+            // [[[theClassifier symbolCollections][newBinIndex] glyphList] addObject:realGlyph];  // Shouldn't mess up indices as it'll append to the end.
+            [[theClassifier symbolCollections][newBinIndex] addGlyph:realGlyph];  // Shouldn't mess up indices as it'll append to the end.
+            // [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theClassifier symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
+            [cvArrayControllers[newBinIndex] setContent:[[theClassifier symbolCollections][newBinIndex] glyphList]];
+            console.log(cvArrayControllers[newBinIndex]);
             [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
         }
     }
@@ -167,8 +177,13 @@
         }
     }
 
+    [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
     [self initializeTableView];
+    console.log("Reloading table view with:");
+    console.log(theClassifier);
     [theTableView reloadData];
+    console.log("Success.");
+    // Maybe it breaks because I have to reset the array controller.
     return nil;
 
 
@@ -281,7 +296,9 @@
 - (CPArrayController)_makeAndBindCvArrayControllerToSymbolCollection:(SymbolCollection)aSymbolCollection
 {
     var cvArrayController = [[CPArrayController alloc] init];
+    console.log("b");
     [cvArrayController bind:@"contentArray" toObject:aSymbolCollection withKeyPath:@"glyphList" options:nil];  // try contentArray!
+    console.log("c");
     // [cvArrayControllers[j] bind:@"content" toObject:symbolCollectionArray[j] withKeyPath:@"glyphList" options:nil];  // also works
     [cvArrayController setAvoidsEmptySelection:NO];
     [cvArrayController setPreservesSelection:YES];  // Seems important for the loop that moves (removes) glyphs one at a time
