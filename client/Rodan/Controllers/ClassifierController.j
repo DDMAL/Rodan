@@ -231,9 +231,7 @@
 
     // [symbolCollectionArrayController setContent:[theClassifier symbolCollections]];
     [symbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
-
     [classifierTableViewDelegate initializeTableView];
-    [classifierTableView reloadData];  // TODO: initializeTableView should do this... I'm putting it outside to help debug ClassifierTableViewDelegate
 
     [symbolTableDelegate initializeSymbols:theClassifier];
 }
