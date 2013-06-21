@@ -111,8 +111,8 @@
     [textField setObjectValue:[aSetting settingDefault]];
     [textField setStringValue:[aSetting settingDefault]];
     [aSetting bind:"settingDefault" toObject:textField withKeyPath:"objectValue" options:null];
-    [dataView sizeToFit];
-    [dataView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+    [textField sizeToFit];
+    [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
     return textField;
 }
 
