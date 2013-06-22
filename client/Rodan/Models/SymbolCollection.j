@@ -11,6 +11,7 @@
 - (SymbolCollection)init
 {
     self = [super init];
+
     if (self)
     {
         [self setSymbolName:@""];
@@ -25,8 +26,10 @@
 - (void)addGlyph:(Glyph)glyph
 {
     [glyphList addObject:glyph];
+
     if ([glyph nRows] > [self maxRows])
         [self setMaxRows:[glyph nRows]];
+
     if ([glyph nCols] > [self maxCols])
         [self setMaxCols:[glyph nCols]];
 }
@@ -42,10 +45,12 @@
     var glyphList_count = [glyphList count];
     [self setMaxRows:0];
     [self setMaxCols:0];
+
     for (var i = 0; i < glyphList_count; ++i)
     {
         if ([[self glyphList][i] nRows] > [self maxRows])
             [self setMaxRows:[[self glyphList][i] nRows]];
+
         if ([[self glyphList][i] nCols] > [self maxCols])
             [self setMaxCols:[[self glyphList][i] nCols]];
     }

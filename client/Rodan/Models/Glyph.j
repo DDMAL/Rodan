@@ -127,4 +127,11 @@ This won't write to the server until they hit Save.
     idName = newName;
     idConfidence = @"1.000000";
 }
+
+- (BOOL)imageIsEqualToGlyph:(Glyph)glyph
+{
+    return [self ulx] === [glyph ulx] && [self uly] === [glyph uly] &&
+           [self nRows] === [glyph nRows] && [self nCols] === [glyph nCols] &&
+           [self pngData] === [glyph pngData];
+}
 @end

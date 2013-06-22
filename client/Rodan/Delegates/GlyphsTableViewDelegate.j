@@ -54,7 +54,7 @@
     [theTableView reloadData];
 }
 
-- (void)writeSymbolName:(CPString)newName
+- (CPMutableArray)writeSymbolName:(CPString)newName
 {
     /// ----------------  ALGORITHM PSEUDOCODE -----------------
     // If there's no symbolCollection yet with that name
@@ -68,8 +68,72 @@
     // and a bug fixed with rearrangeObjects.
     // Bindings:  Every time a glyph list is changed (added or removed to,) a cvArrayController must be rebound
     //            Every time a symbolCollection is added or removed, symbolCollectionArrayController must be rebound
+
+    // Returns: an array of the glyphs that were written.
     /// -------------------------------------------------------
 
+    var newBinIndex = [self _makeSymbolCollectionForName:newName],
+        cvArrayControllers_count = [cvArrayControllers count],
+        allSelectedObjects = [[CPMutableArray alloc] init];
+
+    for (var i = 0; i < cvArrayControllers_count; ++i)
+    {
+        var selectedObjects = [cvArrayControllers[i] selectedObjects];
+
+        while ([[cvArrayControllers[i] selectedObjects] count] > 0)
+        {
+            // Assume that everything is in parallel (don't do whole comparisons,) and delete the glyphs from theGameraGlyphs instead of the ac's
+            var glyph = [[theGameraGlyphs symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
+            [allSelectedObjects addObject:glyph];
+            [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
+            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];
+
+            if ([[cvArrayControllers[i] selectedObjects] count] === 0)
+            {
+                [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
+            }  // TODO: clean this up with a removeGlyph function, and ignore that the binding would happen a few too many times.
+
+            [glyph writeSymbolName:newName];
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
+            [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
+            [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
+        }
+    }
+
+    [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
+    [cvArrayControllers[newBinIndex] setSelectedObjects:allSelectedObjects];
+
+    var a_symbol_was_removed = false;
+
+    for (var i = 0; i < [[theGameraGlyphs symbolCollections] count] ; ++i)
+    {
+        if ([[[theGameraGlyphs symbolCollections][i] glyphList] count] === 0)
+        {
+            a_symbol_was_removed = true;
+            [[theGameraGlyphs symbolCollections] removeObjectAtIndex:i];
+            [cvArrayControllers removeObjectAtIndex:i];
+            --i;
+        }
+    }
+
+    if (a_symbol_was_removed)
+        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];
+
+    [theTableView reloadData];
+    return allSelectedObjects;
+}
+
+/*
+    addGlyph:  Adds the glyph to the model and keeps the corresponding cv array controller happy
+*/
+// - (void)addGlyph:(Glyph)aGlyph toIndex:(int)anIndex
+// {
+//     [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
+//     [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
+// }
+
+- (int)_makeSymbolCollectionForName:(CPString)newName
+{
     var symbolCollectionsCount = [[theGameraGlyphs symbolCollections] count],
         bin_already_exists = false,
         newBinIndex = 0;
@@ -98,53 +162,7 @@
             // TODO: don't actually have to bind here (factor it out)
     }
 
-    var cvArrayControllers_count = [cvArrayControllers count],
-        initiallySelectedObjects = [[CPMutableArray alloc] init];
-
-    for (var i = 0; i < cvArrayControllers_count; ++i)
-    {
-        var selectedObjects = [cvArrayControllers[i] selectedObjects];
-
-        while ([[cvArrayControllers[i] selectedObjects] count] > 0)
-        {
-            // Assume that everything is in parallel (don't do whole comparisons,) and delete the glyphs from theGameraGlyphs instead of the ac's
-            var glyph = [[theGameraGlyphs symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
-            [initiallySelectedObjects addObject:glyph];
-            [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
-            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];
-
-            if ([[cvArrayControllers[i] selectedObjects] count] === 0)
-            {
-                [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
-            }
-
-            [glyph writeSymbolName:newName];
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
-            [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-            [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
-        }
-    }
-
-    [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-    [cvArrayControllers[newBinIndex] setSelectedObjects:initiallySelectedObjects];
-
-    var a_symbol_was_removed = false;
-
-    for (var i = 0; i < [[theGameraGlyphs symbolCollections] count] ; ++i)
-    {
-        if ([[[theGameraGlyphs symbolCollections][i] glyphList] count] === 0)
-        {
-            a_symbol_was_removed = true;
-            [[theGameraGlyphs symbolCollections] removeObjectAtIndex:i];
-            [cvArrayControllers removeObjectAtIndex:i];
-            --i;
-        }
-    }
-
-    if (a_symbol_was_removed)
-        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];
-
-    [theTableView reloadData];
+    return newBinIndex;
 }
 
 // - (void)          writeSymbolName                                :(CPString)        newName

@@ -243,7 +243,9 @@
 */
 - (@action)writeSymbolName:(CPTextField)aSender
 {
-    [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];  // This will change the model
+    // TODO: This should be disabled if we don't have a classifier loaded.
+    [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];
+    [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
 
     // [symbolTableDelegate initializeSymbols:theClassifier];  // Broke by new model
 
@@ -253,6 +255,9 @@
     //[theClassifier makeDirtyProperty:@"id_name"];
     [theClassifier ensureSaved];
     // TODO: instead of writing the entire classifier, try to send less JSON and just patch a bit.
+
+    [thePageGlyphs makeAllDirty];
+    [thePageGlyphs ensureSaved];
 }
 
 - (@action)close:(CPMenuItem)aSender
