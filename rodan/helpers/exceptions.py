@@ -11,3 +11,10 @@ class RodanError(Exception):
 
 class RodanJobError(RodanError):
     pass
+
+
+class InvalidFirstJobError(RodanError):
+    pass
+
+class UUIDParseError(RodanError):
+    pass
