@@ -344,9 +344,9 @@ activeProject = nil;  // URI to the currently open project
     [CPMenu setMenuBarVisible:YES];
     [theToolbar setVisible:YES];
 
-    [projectStatusView setFrame:[contentScrollView bounds]];
-    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
     [contentScrollView setDocumentView:projectStatusView];
+    [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [projectStatusView setFrame:[contentScrollView bounds]];
 }
 
 
