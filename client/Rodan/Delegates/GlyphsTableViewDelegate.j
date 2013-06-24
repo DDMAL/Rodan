@@ -16,40 +16,28 @@
 - (void)init
 {
     self = [super init];
+
     if (self)
     {
         [self setHeaderLabelHeight:20];
         [self setPhotoViewInset:10];
         // [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewContentBoundsDidChange:) name:CPViewBoundsDidChangeNotification object:self.scrollView.contentView];
+            // This is if I want to try to write the tableview to not do a complete and utter reload every time something changes, and instead to just reload the current view.
         [self setCvArrayControllers:[[CPArray alloc] init]];
     }
 
     return self;
 }
 
-// I'll do it this way (like ClassifierViewController) if it turns out that I need theGameraGlyphs to solve the write problem.
-// For now, just use setClassifier
-- (void)initWithClassifier:(Classifer)aClassifier
-{
-    self = [self init];
-    if (self)
-    {
-        [self setClassifier:aClassifier];
-    }
-    return self;
-}
-
 - (void)initializeTableView
 {
-    console.log("Initializing table view!");
-
     var nSymbols = [[symbolCollectionArrayController contentArray] count];
     cvArrayControllers = [[CPMutableArray alloc] initWithCapacity:nSymbols];
+
     for (var j = 0; j < nSymbols; ++j)
     {
-        [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:[symbolCollectionArrayController contentArray][j]]];  // gets added at index j
+        [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:[symbolCollectionArrayController contentArray][j]]];
     }
-    console.log(cvArrayControllers);
 
     [theTableView reloadData];
 }

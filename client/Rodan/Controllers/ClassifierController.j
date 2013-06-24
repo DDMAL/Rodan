@@ -41,7 +41,7 @@
 - (void)awakeFromCib
 {
     [newClassifierTextfield setDelegate:newClassifierTextfieldDelegate];
-        // (Required for red warning text if user enters a classifier name that's already used.)
+
     [newClassifierWindow setDefaultButton:createButton];
     [openClassifierWindow setDefaultButton:openButton];
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
@@ -78,13 +78,9 @@
 {
     console.log("fetchPageGlyphsDidFinish");
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
-    console.log(classifierTableViewDelegate);
-    console.log(pageGlyphsTableViewDelegate);
     [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
     [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
     [pageGlyphsTableViewDelegate initializeTableView];
-    console.log(thePageGlyphs);
-    console.log(pageGlyphsSymbolCollectionArrayController);
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -214,9 +210,6 @@
 
     theClassifier = [[Classifier alloc] initWithJson:[anAction result]];
 
-    console.log("THE CLASSIFIER!");
-    console.log(theClassifier);
-    console.log("Setting the gamera glyphs");
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
     [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];

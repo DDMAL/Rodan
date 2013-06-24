@@ -22,7 +22,7 @@
     {
         if (![self checkIfGlyph:glyphs[i] isAlreadyPresentIn:[theGameraGlyphs symbolCollections][newBinIndex]])
         {
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyphs[i]];  // Do I need to copy?  Why doesn't the image show up in the classifier view?
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyphs[i]];
         }
     }
 
