@@ -236,4 +236,7 @@ JPEG2000 = 7
 PACKAGE = 8  # a `package` is used to produce multiple outputs from a single job.
 GAMERA_XML = 9
 
+# For now None is considered to be an image type for backwards compatibility.
+IMAGE_TYPES = (None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX)
+
 NONIMAGE = -1

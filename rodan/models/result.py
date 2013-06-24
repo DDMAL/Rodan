@@ -2,7 +2,7 @@ import os
 from django.db import models
 from django.conf import settings
 from uuidfield import UUIDField
-from rodan.settings import ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX
+from rodan.settings import IMAGE_TYPES
 
 
 class Result(models.Model):
@@ -37,9 +37,7 @@ class Result(models.Model):
 
     def save(self, *args, **kwargs):
         super(Result, self).save(*args, **kwargs)
-        # For now None is considered to be an image type for backwards compatibility.
-        image_types = [None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX]
-        if not os.path.exists(self.thumb_path) and self.result_type in image_types:
+        if self.result_type in IMAGE_TYPES and not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
         self.run_job.save()
 
