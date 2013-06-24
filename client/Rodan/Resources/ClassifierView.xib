@@ -341,7 +341,7 @@
 											<bool key="EncodedWithXMLCoder">YES</bool>
 											<object class="NSScrollView" id="19407863">
 												<reference key="NSNextResponder" ref="947584638"/>
-												<int key="NSvFlags">268</int>
+												<int key="NSvFlags">256</int>
 												<object class="NSMutableArray" key="NSSubviews">
 													<bool key="EncodedWithXMLCoder">YES</bool>
 													<object class="NSClipView" id="770814464">
@@ -355,7 +355,7 @@
 																<object class="NSMutableArray" key="NSSubviews">
 																	<bool key="EncodedWithXMLCoder">YES</bool>
 																</object>
-																<string key="NSFrameSize">{441, 103}</string>
+																<string key="NSFrameSize">{441, 126}</string>
 																<reference key="NSSuperview" ref="770814464"/>
 																<reference key="NSWindow"/>
 																<reference key="NSNextKeyView" ref="57646307"/>
@@ -387,7 +387,7 @@
 																	<object class="NSTableColumn" id="556444383">
 																		<double key="NSWidth">438</double>
 																		<double key="NSMinWidth">40</double>
-																		<double key="NSMaxWidth">1000</double>
+																		<double key="NSMaxWidth">4000</double>
 																		<object class="NSTableHeaderCell" key="NSHeaderCell">
 																			<int key="NSCellFlags">75497536</int>
 																			<int key="NSCellFlags2">2048</int>
@@ -431,7 +431,7 @@
 																<int key="NSTableViewGroupRowStyle">1</int>
 															</object>
 														</object>
-														<string key="NSFrame">{{1, 17}, {441, 103}}</string>
+														<string key="NSFrame">{{1, 17}, {441, 126}}</string>
 														<reference key="NSSuperview" ref="19407863"/>
 														<reference key="NSWindow"/>
 														<reference key="NSNextKeyView" ref="494408971"/>
@@ -485,7 +485,7 @@
 													</object>
 													<reference ref="341096325"/>
 												</object>
-												<string key="NSFrameSize">{443, 121}</string>
+												<string key="NSFrameSize">{443, 144}</string>
 												<reference key="NSSuperview" ref="947584638"/>
 												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="264501374"/>
@@ -503,7 +503,7 @@
 											</object>
 											<object class="NSScrollView" id="925468118">
 												<reference key="NSNextResponder" ref="947584638"/>
-												<int key="NSvFlags">268</int>
+												<int key="NSvFlags">256</int>
 												<object class="NSMutableArray" key="NSSubviews">
 													<bool key="EncodedWithXMLCoder">YES</bool>
 													<object class="NSClipView" id="133950340">
@@ -517,7 +517,7 @@
 																<object class="NSMutableArray" key="NSSubviews">
 																	<bool key="EncodedWithXMLCoder">YES</bool>
 																</object>
-																<string key="NSFrameSize">{441, 77}</string>
+																<string key="NSFrameSize">{441, 124}</string>
 																<reference key="NSSuperview" ref="133950340"/>
 																<reference key="NSWindow"/>
 																<reference key="NSNextKeyView" ref="901802490"/>
@@ -547,9 +547,9 @@
 																<object class="NSMutableArray" key="NSTableColumns">
 																	<bool key="EncodedWithXMLCoder">YES</bool>
 																	<object class="NSTableColumn" id="1034654770">
-																		<double key="NSWidth">116</double>
+																		<double key="NSWidth">438</double>
 																		<double key="NSMinWidth">40</double>
-																		<double key="NSMaxWidth">1000</double>
+																		<double key="NSMaxWidth">4000</double>
 																		<object class="NSTableHeaderCell" key="NSHeaderCell">
 																			<int key="NSCellFlags">75497536</int>
 																			<int key="NSCellFlags2">2048</int>
@@ -592,7 +592,7 @@
 																<int key="NSTableViewGroupRowStyle">1</int>
 															</object>
 														</object>
-														<string key="NSFrame">{{1, 17}, {441, 77}}</string>
+														<string key="NSFrame">{{1, 17}, {441, 124}}</string>
 														<reference key="NSSuperview" ref="925468118"/>
 														<reference key="NSWindow"/>
 														<reference key="NSNextKeyView" ref="549798288"/>
@@ -612,8 +612,7 @@
 														<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 														<reference key="NSTarget" ref="925468118"/>
 														<string key="NSAction">_doScroller:</string>
-														<double key="NSCurValue">37</double>
-														<double key="NSPercent">0.1947367936372757</double>
+														<double key="NSPercent">0.87903225806451613</double>
 													</object>
 													<object class="NSScroller" id="901802490">
 														<reference key="NSNextResponder" ref="925468118"/>
@@ -647,7 +646,7 @@
 													</object>
 													<reference ref="574819803"/>
 												</object>
-												<string key="NSFrame">{{0, 130}, {443, 95}}</string>
+												<string key="NSFrame">{{0, 153}, {443, 142}}</string>
 												<reference key="NSSuperview" ref="947584638"/>
 												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="63486159"/>
@@ -669,7 +668,7 @@
 												<object class="NSMutableArray" key="NSSubviews">
 													<bool key="EncodedWithXMLCoder">YES</bool>
 												</object>
-												<string key="NSFrame">{{0, 234}, {443, 126}}</string>
+												<string key="NSFrame">{{0, 304}, {443, 56}}</string>
 												<reference key="NSSuperview" ref="947584638"/>
 												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView"/>
