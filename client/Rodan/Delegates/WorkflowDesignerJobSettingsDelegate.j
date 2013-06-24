@@ -68,29 +68,28 @@
     switch ([aSetting settingType])
     {
         case 'int':
-        {
             dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
             break;
-        }
 
         case 'uuid_workflowjob':
-        {
             dataView = [WorkflowDesignerJobSettingsDelegate _createWorkflowJobPopUpButton:aSetting];
             break;
-        }
 
         case 'choice':
-        {
-            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
-       //     dataView = [WorkflowDesignerJobSettingsDelegate _createPopUpButton:aSetting];
+            dataView = [WorkflowDesignerJobSettingsDelegate _createPopUpButton:aSetting];
             break;
-        }
+
+        case 'uuid_classifier':
+            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            break;
+
+        case 'uuid_pageglyphs':
+            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            break;
 
         default:
-        {
-            dataView = [CPTextField labelWithTitle:""];
+            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
             break;
-        }
     }
 
     // Initialize, bind, return.
