@@ -52,7 +52,7 @@
     if ([anAction result])
     {
         var j = [Job objectsFromJson:[anAction result]];
-        [jobArrayController addObjects:j];
+        [jobArrayController setContent:j];
         [self _populateCategoryMenu];
         [self _applyPredicates];
         [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadJobsNotification
