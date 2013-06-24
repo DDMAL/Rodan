@@ -7,7 +7,7 @@
     @outlet CPOutlineView   theOutlineView;
     @outlet CPScrollView    scrollView;
     @outlet CPTableColumn   textColumn;
-    @outlet CPArrayController symbolArrayController;
+    // @outlet CPArrayController symbolArrayController;
 }
 
 - (void)awakeFromCib

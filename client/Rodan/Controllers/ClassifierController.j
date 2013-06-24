@@ -1,10 +1,8 @@
 @import "../Models/Classifier.j"
 @import "../Models/PageGlyphs.j"
-@import "../Models/Symbol.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/PageGlyphsTableViewDelegate.j"
-@import "../Delegates/SymbolTableDelegate.j"
 @import "../Delegates/ClassifierControllerFetchDelegates.j"
 
 @global activeProject
@@ -34,8 +32,6 @@
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
-
-    @outlet SymbolTableDelegate symbolTableDelegate;
 }
 
 - (void)awakeFromCib
@@ -213,9 +209,8 @@
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
     [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
-    [classifierTableViewDelegate initializeTableView];
 
-    [symbolTableDelegate initializeSymbols:theClassifier];
+    [classifierTableViewDelegate initializeTableView];
 }
 
 - (@action)showAreYouSureWindow:(CPButton)firstDeleteButton
@@ -240,10 +235,6 @@
     [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];
     [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
 
-    // [symbolTableDelegate initializeSymbols:theClassifier];  // Broke by new model
-
-    // [symbolTableDelegate writeSymbolName:[aSender stringValue]];  // Shouldn't be needed at all.
-
     [theClassifier makeAllDirty];
     //[theClassifier makeDirtyProperty:@"id_name"];
     [theClassifier ensureSaved];
@@ -263,7 +254,6 @@
         }
         theClassifier = null;
 
-        [symbolTableDelegate close];
         [classifierTableViewDelegate close];
     }
 }

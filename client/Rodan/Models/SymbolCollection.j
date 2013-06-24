@@ -55,4 +55,9 @@
             [self setMaxCols:[[self glyphList][i] nCols]];
     }
 }
+
+- (void)stringAndCountOutput
+{
+    return [[self symbolName] stringByAppendingFormat:@" (%d)", [[self glyphList] count]];
+}
 @end

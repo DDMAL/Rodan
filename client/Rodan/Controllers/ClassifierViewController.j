@@ -1,6 +1,5 @@
 
 // Importing any classes used in ClassifierView.xib
-@import "../Delegates/SymbolTableDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/NewClassifierTextfieldDelegate.j"
