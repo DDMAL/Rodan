@@ -9,6 +9,8 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
+from rodan.settings import IMAGE_TYPES
+from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError
 
 
 def set_running(runjob):
@@ -38,6 +40,16 @@ def get_page_url(runjob, result_id):
 
     return page
 
+
+def get_input_path(runjob, result_id):
+    runjob_input_types = runjob.workflow_job.job.input_types['pixel_types']
+    if all(runjob_input_types) in IMAGE_TYPES:
+        return get_page_url(runjob, result_id)
+    elif result_id is None:
+        raise InvalidFirstJobError("This cannot be the first job. This job takes a non-image type as input.")
+    else:
+        result = Result.objects.get(pk=result_id)
+        return result.result.path
 
 
 def get_uuid_from_url(url):
