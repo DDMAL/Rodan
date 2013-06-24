@@ -1,7 +1,8 @@
 import os
-import uuid
-import tempfile
+import re
 import shutil
+import tempfile
+import uuid
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
@@ -36,6 +37,49 @@ def get_page_url(runjob, result_id):
         page = result.result.path
 
     return page
+
+
+
+def get_uuid_from_url(url):
+    """
+    This function returns the last UUID present in a url. The UUID
+    must be at the end of the url. It allows a slash at the end,
+    but any other funny trailing character will tick it off. The
+    UUID should not contain any block separator like hyphen or
+    underscore - it should be 32 adjacent characters.
+
+    Example: All of the following will return
+    12345678901234567890123456abcdef as the UUID:
+
+    asdf://idontcare.org/12345678901234567890123456abcdef
+    asdf://idontcare.org/12345678901234567890123456abcdef/
+    asdf://idontcare.org/1abc2319bc11234567890123deadbeef/blah/blah/12345678901234567890123456abcdef
+    12345678901234567890123456abcdef
+
+    The following will raise exceptions:
+
+    asdf://idontcare.org/12345678901234567890123456abcde
+    asdf://idontcare.org/12345678901234567890123456abcdeff
+    asdf://idontcare.org/12345678901234567890123456abcdef/?cooloption=true
+    asdf://idontcare.org/12345678-9012-3456-7890-123456abcdef
+    12345678-9012-3456-7890-123456abcdef
+
+    """
+
+    re_uuid = re.compile(r'^(.*)/(?P<uuid>[0-9a-f]{32})/?$', re.IGNORECASE)
+    match_object = re_uuid.match(url)
+
+    if match_object:
+        return match_object.group('uuid')
+
+    # Last try to see if a real uuid was passed in instead of an url.
+    re_no_url_uuid = re.compile(r'^(?P<uuid>[0-9a-f]{32})$', re.IGNORECASE)
+    match_object = re_no_url_uuid.match(url)
+
+    if match_object:
+        return match_object.group('uuid')
+
+    raise UUIDParseError("Unable to extract UUID from the url. Check your input or read the get_uuid_from_url function docstring.")
 
 
 def get_settings(runjob):
