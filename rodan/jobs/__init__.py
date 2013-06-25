@@ -120,6 +120,12 @@ try:
 except ImportError as e:
     print "Custom RT Staff Removal job not installed. Skipping", e
 
+try:
+    from rodan.jobs.gamera.custom.pitch_finding import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    print "Custom Pitch Finding job not installed. Skipping", e
+
 
 #Development
 try:
