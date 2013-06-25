@@ -8,6 +8,7 @@
     CPString    settingType    @accessors;
     CPString    settingName    @accessors;
     CPString    choices        @accessors;
+    BOOL        visibility     @accessors;
 }
 
 - (id)init
@@ -28,7 +29,8 @@
         ['range', 'rng'],
         ['settingType', 'type'],
         ['settingName', 'name'],
-        ['choices', 'choices']
+        ['choices', 'choices'],
+        ['visibility', 'visibility']
     ];
 }
 
@@ -38,6 +40,15 @@
 
     [self setSettingName:setting.name];
     [self setSettingDefault:setting.default];
+
+    if (setting.visibility)
+    {
+        [self setVisibility:setting.visibility];
+    }
+    else
+    {
+        [self setVisibility:YES];
+    }
 
     if (setting.rng)
         [self setRange:[CPArray arrayWithArray:setting.rng]];

@@ -55,9 +55,12 @@
     }
 
     // Create view based on type and format.
-    var dataView = [self _createDataViewForWorkflowJobSetting:workflowJobSetting];
-    [aView addSubview:dataView];
-    [dataView setFrame:[[dataView superview] bounds]];
+    if ([workflowJobSetting visibility])
+    {
+        var dataView = [self _createDataViewForWorkflowJobSetting:workflowJobSetting];
+        [aView addSubview:dataView];
+        [dataView setFrame:[[dataView superview] bounds]];
+    }
 }
 
 /**
