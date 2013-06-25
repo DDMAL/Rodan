@@ -1,7 +1,10 @@
 @import "../Controllers/WorkflowController.j"
 
+@global RodanShouldLoadClassifiersNotification
+
 @implementation WorkflowDesignerJobSettingsDelegate : CPObject
 {
+    CPArray _classifiers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -9,6 +12,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init
 {
+    if (self = [super init])
+    {
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(handleShouldLoadNotification:)
+                                              name:RodanShouldLoadClassifiersNotification
+                                              object:nil];
+    }
     return self;
 }
 
@@ -45,19 +55,43 @@
     }
 
     // Create view based on type and format.
-    var dataView = [WorkflowDesignerJobSettingsDelegate _createDataViewForWorkflowJobSetting:workflowJobSetting];
+    var dataView = [self _createDataViewForWorkflowJobSetting:workflowJobSetting];
     [aView addSubview:dataView];
     [dataView setFrame:[[dataView superview] bounds]];
 }
 
+/**
+ * Handles the request to load.
+ */
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"/classifiers/"
+                    delegate:self
+                    message:nil];
+}
+
+/**
+ * Handles remote object load.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        _classifiers = [Classifier objectsFromJson:[aAction result]];
+        [WLRemoteObject setDirtProof:NO];
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
-// Private Static Methods
+// Private Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Given a workflow job setting model, returns appropriate data view.
  * The resulting control will be created, bound, and value initialized, but not formatted.
  */
-+ (CPControl)_createDataViewForWorkflowJobSetting:(WorkflowJobSetting)aSetting
+- (CPControl)_createDataViewForWorkflowJobSetting:(WorkflowJobSetting)aSetting
 {
     if (aSetting === nil)
     {
@@ -68,27 +102,27 @@
     switch ([aSetting settingType])
     {
         case 'int':
-            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            dataView = [self _createTextField:aSetting];
             break;
 
         case 'uuid_workflowjob':
-            dataView = [WorkflowDesignerJobSettingsDelegate _createWorkflowJobPopUpButton:aSetting];
+            dataView = [self _createWorkflowJobPopUpButton:aSetting];
             break;
 
         case 'choice':
-            dataView = [WorkflowDesignerJobSettingsDelegate _createPopUpButton:aSetting];
+            dataView = [self _createPopUpButton:aSetting];
             break;
 
         case 'uuid_classifier':
-            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            dataView = [self _createClassifierPopUpButton:aSetting];
             break;
 
         case 'uuid_pageglyphs':
-            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            dataView = [self _createTextField:aSetting];
             break;
 
         default:
-            dataView = [WorkflowDesignerJobSettingsDelegate _createTextField:aSetting];
+            dataView = [self _createTextField:aSetting];
             break;
     }
 
@@ -98,12 +132,12 @@
 /**
  * Given a workflow job setting, creates a text-field and binds to the setting.
  */
-+ (CPTextField)_createTextField:(WorkflowJobSetting)aSetting
+- (CPTextField)_createTextField:(WorkflowJobSetting)aSetting
 {
     var textField = [CPTextField labelWithTitle:""];
     if (aSetting === null)
     {
-        return button;
+        return textField;
     }
     [textField setEditable:YES];
     [textField setBezeled:YES];
@@ -119,7 +153,7 @@
  * Given a workflow job setting, create a pop-up button that allows selection of the
  * setting's associated choices.
  */
-+ (CPPopUpButton)_createPopUpButton:(WorkflowJobSetting)aSetting
+- (CPPopUpButton)_createPopUpButton:(WorkflowJobSetting)aSetting
 {
     // Nil check.
     var button = [CPPopUpButton new];
@@ -165,12 +199,64 @@
 }
 
 /**
+ * Given a workflow job setting, create a pop-up button that allows selection of classifiers.
+ */
+- (CPPopUpButton)_createClassifierPopUpButton:(WorkflowJobSetting)aSetting
+{
+    // Nil check.
+    var button = [CPPopUpButton new];
+    if (aSetting === nil)
+    {
+        return button;
+    }
+
+    // Nil check.
+    if (_classifiers === nil)
+    {
+        return button;
+    }
+
+    // Enumerate through classifiers and add menu items to the button.
+    // Also, look for the current setting (if there).
+    var classifierEnumerator = [_classifiers objectEnumerator],
+        classifier = nil,
+        defaultSelection = nil;
+    while (classifier = [classifierEnumerator nextObject])
+    {
+        // Create and add item.
+        var menuItem = [[CPMenuItem alloc] initWithTitle:[classifier name] action:null keyEquivalent:null];
+        [menuItem setRepresentedObject:[classifier pk]];
+        [button addItem:menuItem];
+
+        // Check if the pk matches the current setting.  If it does, THIS one should be our default item.
+        if ([aSetting settingDefault] === [classifier pk])
+        {
+            defaultSelection = menuItem;
+        }
+    }
+
+    // Initialize, bind, return.
+    if (defaultSelection === nil)
+    {
+        [button selectItemAtIndex:0];
+    }
+    else
+    {
+        [button selectItem:defaultSelection];
+    }
+    [aSetting bind:"settingDefault" toObject:button withKeyPath:"selectedItem.representedObject" options:null];
+    [button sizeToFit];
+    [button setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+    return button;
+}
+
+/**
  * Given a workflow job setting, create a pop-up button that allows selection of workflow jobs
  * for the currently selected workflow.  The value is bound to the pk/uuid of the job.
  *
  * NOTE: It does NOT check the sequence or job name, so the user should know what they're doing.
  */
-+ (CPPopUpButton)_createWorkflowJobPopUpButton:(WorkflowJobSetting)aSetting
+- (CPPopUpButton)_createWorkflowJobPopUpButton:(WorkflowJobSetting)aSetting
 {
     // Nil check.
     var button = [CPPopUpButton new];

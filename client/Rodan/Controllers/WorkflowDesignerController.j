@@ -5,11 +5,15 @@
 @import "../Models/WorkflowJobSetting.j"
 
 @global activeUser
+@global RodanHasFocusWorkflowDesignerViewNotification
 @global RodanShouldLoadWorkflowDesignerNotification
+@global RodanShouldLoadClassifiersNotification
 @global RodanDidLoadWorkflowNotification
 @global RodanRemoveJobFromWorkflowNotification
 
 JobItemType = @"JobItemType";
+
+var _msLOADINTERVAL = 5.0;
 
 @implementation WorkflowDesignerController : CPObject
 {
@@ -63,6 +67,11 @@ JobItemType = @"JobItemType";
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(setWorkflowMenu:)
                                           name:RodanDidLoadWorkflowNotification
+                                          object:nil];
+
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(receiveHasFocusEvent:)
+                                          name:RodanHasFocusWorkflowDesignerViewNotification
                                           object:nil];
 
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
@@ -119,6 +128,12 @@ JobItemType = @"JobItemType";
                                     toObject:currentWorkflowArrayController
                                     withKeyPath:@"selection.jobDescription"
                                     options:nil];
+}
+
+- (void)receiveHasFocusEvent:(CPNotification)aNotification
+{
+    [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
+                         notification:RodanShouldLoadClassifiersNotification];
 }
 
 - (void)setWorkflowMenu:(CPNotification)aNotification

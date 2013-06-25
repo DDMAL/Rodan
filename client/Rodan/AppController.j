@@ -87,10 +87,12 @@ RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNot
 RodanShouldLoadWorkflowResultsWorkflowsNotification = @"RodanShouldLoadWorkflowResultsWorkflowsNotification";
 RodanShouldLoadWorkflowResultsWorkflowRunsNotification = @"RodanShouldLoadWorkflowResultsWorkflowRunsNotification";
 RodanShouldLoadWorkflowResultsWorkflowResultsNotification = @"RodanShouldLoadWorkflowResultsWorkflowResultsNotification";
+RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
 RodanHasFocusWorkflowResultsViewNotification = @"RodanHasFocusWorkflowResultsViewNotification";
+RodanHasFocusWorkflowDesignerViewNotification = @"RodanHasFocusWorkflowDesignerViewNotification";
 
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification"
 RodanHasFocusClassifierViewNotification = @"RodanHasFocusClassifierViewNotification"
@@ -433,6 +435,9 @@ activeProject = nil;  // URI to the currently open project
     [chooseWorkflowView setFrame:[contentScrollView bounds]];
     [chooseWorkflowView layoutIfNeeded];
     [contentScrollView setDocumentView:chooseWorkflowView];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusWorkflowDesignerViewNotification
+                                          object:nil];
 }
 
 - (IBAction)openUserPreferences:(id)aSender
