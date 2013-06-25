@@ -10,6 +10,7 @@
     CPString    result          @accessors;
     CPString    runJob          @accessors;
     CPString    runJobName      @accessors;
+    BOOL        processed       @accessors;
 }
 
 - (id)initWithJson:(JSObject)jsonObject
@@ -22,7 +23,8 @@
             ['mediumThumbURL', 'medium_thumb_url'],
             ['result', 'result'],
             ['runJob', 'run_job'],
-            ['runJobName', 'run_job_name']
+            ['runJobName', 'run_job_name'],
+            ['processed', 'processed']
             ];
 
         var i = 0,

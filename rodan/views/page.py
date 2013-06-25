@@ -12,7 +12,7 @@ from rodan.models.project import Project
 from rodan.serializers.page import PageSerializer
 from rodan.helpers.convert import ensure_compatible
 from rodan.helpers.thumbnails import create_thumbnails
-from rodan.helpers.pagedone import pagedone
+from rodan.helpers.processed import processed
 
 
 class PageList(generics.ListCreateAPIView):
@@ -72,7 +72,7 @@ class PageList(generics.ListCreateAPIView):
             # method.
             res = ensure_compatible.s(page_obj)
             res.link(create_thumbnails.s())
-            res.link(pagedone.s())
+            res.link(processed.s())
             res.apply_async()
 
             try:

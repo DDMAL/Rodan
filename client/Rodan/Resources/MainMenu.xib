@@ -4516,7 +4516,7 @@
 																		<double key="NSIntercellSpacingHeight">2</double>
 																		<reference key="NSBackgroundColor" ref="259301470"/>
 																		<reference key="NSGridColor" ref="337836353"/>
-																		<double key="NSRowHeight">23</double>
+																		<double key="NSRowHeight">20</double>
 																		<int key="NSTvFlags">381681664</int>
 																		<reference key="NSDelegate"/>
 																		<reference key="NSDataSource"/>
@@ -4594,7 +4594,7 @@
 														<reference key="NSContentView" ref="190400943"/>
 														<reference key="NSHeaderClipView" ref="640630055"/>
 														<reference key="NSCornerView" ref="584317070"/>
-														<bytes key="NSScrollAmts">QSAAAEEgAABByAAAQcgAAA</bytes>
+														<bytes key="NSScrollAmts">QSAAAEEgAABBsAAAQbAAAA</bytes>
 														<double key="NSMinMagnification">0.25</double>
 														<double key="NSMaxMagnification">4</double>
 														<double key="NSMagnification">1</double>
@@ -5660,7 +5660,7 @@
 				<reference key="NSNextKeyView" ref="1054287237"/>
 			</object>
 			<object class="NSView" id="1065263126">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">256</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -5669,6 +5669,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 269}, {71, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="934273637"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5689,6 +5690,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 244}, {71, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="162815550"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5709,6 +5711,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 219}, {105, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="627448014"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5729,6 +5732,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 194}, {73, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="787821470"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5749,6 +5753,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{132, 241}, {201, 22}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="79445193"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5770,6 +5775,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{132, 192}, {201, 22}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="921055396"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5791,6 +5797,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{132, 216}, {201, 22}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="918481214"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5812,6 +5819,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{129, 269}, {77, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="869130086"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5832,6 +5840,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 155}, {68, 17}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="508033299"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
@@ -5852,6 +5861,8 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{132, 152}, {201, 22}}</string>
 						<reference key="NSSuperview" ref="1065263126"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSSecureTextFieldCell" key="NSCell" id="506277380">
@@ -5873,6 +5884,8 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{473, 306}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="544792116"/>
 				<string key="NSReuseIdentifierKey">_NS:20</string>
 			</object>
@@ -8060,21 +8073,22 @@
 				<int key="NSvFlags">274</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<object class="NSButton" id="79432819">
+					<object class="NSButton" id="1018756922">
 						<reference key="NSNextResponder" ref="822275761"/>
 						<int key="NSvFlags">300</int>
 						<string key="NSFrame">{{6, 13}, {123, 32}}</string>
 						<reference key="NSSuperview" ref="822275761"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
-						<object class="NSButtonCell" key="NSCell" id="832454904">
+						<object class="NSButtonCell" key="NSCell" id="972596793">
 							<int key="NSCellFlags">67108864</int>
 							<int key="NSCellFlags2">134217728</int>
 							<string key="NSContents">Save Settings</string>
 							<reference key="NSSupport" ref="715315636"/>
 							<string key="NSCellIdentifier">_NS:9</string>
-							<reference key="NSControlView" ref="79432819"/>
+							<reference key="NSControlView" ref="1018756922"/>
 							<int key="NSButtonFlags">-2038284288</int>
 							<int key="NSButtonFlags2">129</int>
 							<string key="NSAlternateContents"/>
@@ -8237,7 +8251,7 @@
 								<string key="NSFrame">{{224, 17}, {15, 102}}</string>
 								<reference key="NSSuperview" ref="557520664"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
+								<reference key="NSNextKeyView" ref="1018756922"/>
 								<string key="NSReuseIdentifierKey">_NS:58</string>
 								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 								<reference key="NSTarget" ref="557520664"/>
@@ -8725,7 +8739,7 @@
 			<object class="NSCustomObject" id="235580509">
 				<string key="NSClassName">ClassifierViewController</string>
 			</object>
-			<object class="NSCustomObject" id="222569809">
+			<object class="NSCustomObject" id="409770186">
 				<string key="NSClassName">WorkflowDesignerJobSettingsDelegate</string>
 			</object>
 			<object class="NSArrayController" id="369495124">
@@ -10854,7 +10868,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="1021635304"/>
-						<reference key="destination" ref="222569809"/>
+						<reference key="destination" ref="409770186"/>
 					</object>
 					<int key="connectionID">4670</int>
 				</object>
@@ -11449,7 +11463,7 @@
 								<object class="NSTextField" id="145308364">
 									<reference key="NSNextResponder" ref="1046696382"/>
 									<int key="NSvFlags">266</int>
-									<string key="NSFrame">{{0, 3}, {228, 17}}</string>
+									<string key="NSFrameSize">{228, 17}</string>
 									<reference key="NSSuperview" ref="1046696382"/>
 									<reference key="NSNextKeyView" ref="209971206"/>
 									<string key="NSAntiCompressionPriority">{250, 750}</string>
@@ -11466,7 +11480,7 @@
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 								</object>
 							</object>
-							<string key="NSFrame">{{1, 1}, {228, 23}}</string>
+							<string key="NSFrame">{{1, 1}, {228, 20}}</string>
 							<reference key="NSNextKeyView" ref="145308364"/>
 						</object>
 						<reference key="destination" ref="145308364"/>
@@ -11686,7 +11700,7 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">valueURL: objectValue.mediumThumbURL</string>
+						<string key="label">valueURL: objectValue</string>
 						<object class="NSImageView" key="source" id="832901696">
 							<reference key="NSNextResponder" ref="224530736"/>
 							<int key="NSvFlags">274</int>
@@ -11732,17 +11746,28 @@
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="832901696"/>
 							<reference key="NSDestination" ref="224530736"/>
-							<string key="NSLabel">valueURL: objectValue.mediumThumbURL</string>
+							<string key="NSLabel">valueURL: objectValue</string>
 							<string key="NSBinding">valueURL</string>
-							<string key="NSKeyPath">objectValue.mediumThumbURL</string>
+							<string key="NSKeyPath">objectValue</string>
 							<object class="NSDictionary" key="NSOptions">
-								<string key="NS.key.0">NSAllowsEditingMultipleValuesSelection</string>
-								<boolean value="NO" key="NS.object.0"/>
+								<bool key="EncodedWithXMLCoder">YES</bool>
+								<object class="NSArray" key="dict.sortedKeys">
+									<bool key="EncodedWithXMLCoder">YES</bool>
+									<string>NSAllowsEditingMultipleValuesSelection</string>
+									<string>NSConditionallySetsEnabled</string>
+									<string>NSValueTransformerName</string>
+								</object>
+								<object class="NSArray" key="dict.values">
+									<bool key="EncodedWithXMLCoder">YES</bool>
+									<boolean value="NO"/>
+									<boolean value="NO"/>
+									<string>ResultThumbnailTransformer</string>
+								</object>
 							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">4607</int>
+					<int key="connectionID">4698</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -12422,8 +12447,8 @@
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">saveCurrentlySelectedWorkflowJobSettings:</string>
-						<reference key="source" ref="222569809"/>
-						<reference key="destination" ref="79432819"/>
+						<reference key="source" ref="409770186"/>
+						<reference key="destination" ref="1018756922"/>
 					</object>
 					<int key="connectionID">4675</int>
 				</object>
@@ -15718,7 +15743,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="679029077"/>
 							<reference ref="557520664"/>
-							<reference ref="79432819"/>
+							<reference ref="1018756922"/>
 						</object>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Selected Workflow Job Settings Tab</string>
@@ -17303,23 +17328,23 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">4669</int>
-						<reference key="object" ref="222569809"/>
+						<reference key="object" ref="409770186"/>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Workflow Designer - Job Settings Delegate</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">4673</int>
-						<reference key="object" ref="79432819"/>
+						<reference key="object" ref="1018756922"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="832454904"/>
+							<reference ref="972596793"/>
 						</object>
 						<reference key="parent" ref="822275761"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">4674</int>
-						<reference key="object" ref="832454904"/>
-						<reference key="parent" ref="79432819"/>
+						<reference key="object" ref="972596793"/>
+						<reference key="parent" ref="1018756922"/>
 					</object>
 				</object>
 			</object>
@@ -18845,7 +18870,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">4675</int>
+			<int key="maxID">4698</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -19228,8 +19253,7 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>classifierArrayController</string>
-							<string>classifierGlyphArrayController</string>
-							<string>classifierTableView</string>
+							<string>classifierSymbolCollectionArrayController</string>
 							<string>classifierTableViewDelegate</string>
 							<string>createButton</string>
 							<string>deleteClassifierWindow</string>
@@ -19241,13 +19265,14 @@
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
+							<string>pageGlyphsSymbolCollectionArrayController</string>
+							<string>pageGlyphsTableViewDelegate</string>
 							<string>symbolTableDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSArrayController</string>
 							<string>NSArrayController</string>
-							<string>NSTableView</string>
 							<string>ClassifierTableViewDelegate</string>
 							<string>NSButton</string>
 							<string>NSWindow</string>
@@ -19259,6 +19284,8 @@
 							<string>NSTableView</string>
 							<string>OpenClassifierTableViewDelegate</string>
 							<string>NSWindow</string>
+							<string>NSArrayController</string>
+							<string>PageGlyphsTableViewDelegate</string>
 							<string>SymbolTableDelegate</string>
 						</object>
 					</object>
@@ -19267,8 +19294,7 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>classifierArrayController</string>
-							<string>classifierGlyphArrayController</string>
-							<string>classifierTableView</string>
+							<string>classifierSymbolCollectionArrayController</string>
 							<string>classifierTableViewDelegate</string>
 							<string>createButton</string>
 							<string>deleteClassifierWindow</string>
@@ -19280,6 +19306,8 @@
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
+							<string>pageGlyphsSymbolCollectionArrayController</string>
+							<string>pageGlyphsTableViewDelegate</string>
 							<string>symbolTableDelegate</string>
 						</object>
 						<object class="NSArray" key="dict.values">
@@ -19289,12 +19317,8 @@
 								<string key="candidateClassName">NSArrayController</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">classifierGlyphArrayController</string>
+								<string key="name">classifierSymbolCollectionArrayController</string>
 								<string key="candidateClassName">NSArrayController</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">classifierTableView</string>
-								<string key="candidateClassName">NSTableView</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">classifierTableViewDelegate</string>
@@ -19341,6 +19365,14 @@
 								<string key="candidateClassName">NSWindow</string>
 							</object>
 							<object class="IBToOneOutletInfo">
+								<string key="name">pageGlyphsSymbolCollectionArrayController</string>
+								<string key="candidateClassName">NSArrayController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pageGlyphsTableViewDelegate</string>
+								<string key="candidateClassName">PageGlyphsTableViewDelegate</string>
+							</object>
+							<object class="IBToOneOutletInfo">
 								<string key="name">symbolTableDelegate</string>
 								<string key="candidateClassName">SymbolTableDelegate</string>
 							</object>
@@ -19353,6 +19385,33 @@
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">ClassifierTableViewDelegate</string>
+					<string key="superclassName">GlyphsTableViewDelegate</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/ClassifierTableViewDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">ClassifierViewController</string>
+					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">classifierController</string>
+						<string key="NS.object.0">ClassifierController</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">classifierController</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">classifierController</string>
+							<string key="candidateClassName">ClassifierController</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/ClassifierViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">GlyphsTableViewDelegate</string>
 					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -19388,26 +19447,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/ClassifierTableViewDelegate.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">ClassifierViewController</string>
-					<string key="superclassName">NSViewController</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">classifierController</string>
-						<string key="NS.object.0">ClassifierController</string>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">classifierController</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">classifierController</string>
-							<string key="candidateClassName">ClassifierController</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/ClassifierViewController.h</string>
+						<string key="minorKey">./Classes/GlyphsTableViewDelegate.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -19799,6 +19839,25 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/PageController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PageGlyphsTableViewDelegate</string>
+					<string key="superclassName">GlyphsTableViewDelegate</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">classifierTableViewDelegate</string>
+						<string key="NS.object.0">ClassifierTableViewDelegate</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">classifierTableViewDelegate</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">classifierTableViewDelegate</string>
+							<string key="candidateClassName">ClassifierTableViewDelegate</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PageGlyphsTableViewDelegate.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

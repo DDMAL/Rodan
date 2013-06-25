@@ -9,6 +9,7 @@
     CPDate      updated         @accessors;
     RunJob      runJob          @accessors;
     CPString    thumbURL        @accessors;
+    BOOL        processed       @accessors;
 
     // CPString    taskName        @accessors;
     // CPString    created         @accessors;
@@ -25,7 +26,8 @@
         ['resultURL', 'result', nil, true],
         ['thumbURL', 'medium_thumb_url'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
-        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true],
+        ['processed', 'processed']
     ];
 }
 

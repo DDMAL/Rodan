@@ -11,6 +11,7 @@ from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.settings import IMAGE_TYPES
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError
+from rodan.helpers.processed import processed
 
 
 def set_running(runjob):
@@ -159,6 +160,7 @@ def default_on_success(self, retval, task_id, args, kwargs):
     result.run_job.save()
 
     res = create_thumbnails.s(result)
+    res.link(processed.s())
     res.apply_async()
 
 

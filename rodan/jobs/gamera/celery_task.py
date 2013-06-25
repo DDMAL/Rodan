@@ -9,6 +9,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
+from rodan.helpers.processed import processed
 from gamera.core import init_gamera, load_image
 
 
@@ -72,6 +73,7 @@ class GameraTask(Task):
         result.run_job.save()
 
         res = create_thumbnails.s(result)
+        res.link(processed.s())
         res.apply_async()
 
     def on_failure(self, *args, **kwargs):

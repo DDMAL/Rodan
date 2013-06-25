@@ -20,4 +20,5 @@ class ResultSerializer(serializers.HyperlinkedModelSerializer):
                   "medium_thumb_url",
                   "large_thumb_url",
                   "created",
-                  "updated")
+                  "updated",
+                  "processed")

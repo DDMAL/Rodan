@@ -25,6 +25,7 @@ class Result(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     result = models.FileField(upload_to=upload_fn, null=True, blank=True, max_length=512)
     run_job = models.ForeignKey("rodan.RunJob", related_name="result")
+    processed = models.BooleanField(default=False)
 
     # For now, for the sake of backwards compatibility, None/null should just mean a regular png image.
     result_type = models.IntegerField(null=True, blank=True)
@@ -87,7 +88,6 @@ class Result(models.Model):
     def large_thumb_url(self):
         if self.result:
             return os.path.join(self.thumb_url, self.thumb_filename(size=settings.LARGE_THUMBNAIL))
-        
 
     # def delete(self, *args, **kwargs):
     #     self.result.delete()
