@@ -10,7 +10,9 @@
 @implementation ClassifierController : CPObject
 {
     Classifier theClassifier;
-    @outlet CPArrayController classifierArrayController;
+    @outlet CPArrayController classifierArrayController @accessors;
+
+    FetchClassifiersDelegate fetchClassifiersDelegate;
 
     @outlet CPWindow newClassifierWindow;
     InitNewFetchClassifiersDelegate initNewFetchClassifiersDelegate;
@@ -32,6 +34,7 @@
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
+    FetchClassifiersDelegate fetchClassifiersDelegate;
 
     @outlet CPObjectController pageImageController;
 }
@@ -45,9 +48,29 @@
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
 
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
+    fetchClassifiersDelegate  = [[FetchClassifiersDelegate alloc] initWithClassifierController:self];
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
     fetchPageGlyphsDelegate = [[FetchPageGlyphsDelegate alloc] initWithClassifierController:self];
+}
+
+- (void)fetchClassifiers
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/classifiers/'
+                    delegate:fetchClassifiersDelegate
+                    message:"Loading classifier list"];
+}
+
+- (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
+{
+    [self _updateClassifierArrayControllerWithResponse:anAction];
+}
+
+- (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
+{
+    var classifiers = [Classifier objectsFromJson:[anAction result]];
+    [classifierArrayController setContent:classifiers];
 }
 
 - (void)loadRunJob:(RunJob)aRunJob
@@ -184,8 +207,7 @@
 
 - (void)initOpenFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [self _updateClassifierArrayControllerWithResponse:anAction];
     [openClassifierWindow makeKeyAndOrderFront:null];
 }
 

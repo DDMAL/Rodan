@@ -263,6 +263,8 @@ activeProject = nil;  // URI to the currently open project
     [contentScrollView setAutohidesScrollers:YES];
 
     [contentView setSubviews:[contentScrollView]];
+
+    [classifierViewController loadView];  // Loads ClassifierView.xib and instantiates its objects
 }
 
 

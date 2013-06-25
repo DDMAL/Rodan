@@ -22,6 +22,16 @@
 @end
 
 
+@implementation FetchClassifiersDelegate : ClassifierControllerFetchDelegate
+{
+}
+
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    [classifierController fetchClassifiersDidFinish:anAction];
+}
+@end
+
 @implementation InitNewFetchClassifiersDelegate : ClassifierControllerFetchDelegate
 {
 }

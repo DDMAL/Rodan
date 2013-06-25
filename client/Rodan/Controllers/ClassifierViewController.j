@@ -21,12 +21,23 @@
 
     @outlet ClassifierController classifierController;
     RunJob runJob @accessors;
+
 }
 
 - (void)awakeFromCib
 {
     // Note: This will be called twice.  Once when MainMenu.xib loads, and secondly
     // when ClassifierView.xib loads.
+
+    if (classifierController !== null)
+    {
+        // This is true for the awakeFromCib called after ClassifierView.xib was loaded
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(loadRunJob)
+                                              name:RodanHasFocusClassifierViewNotification
+                                              object:nil];
+        [classifierController fetchClassifiers];
+    }
 }
 
 - (CPViewController)init
@@ -35,13 +46,7 @@
     // I want it to be initialized using initWithCibName.  When the cib instantiates
     // ClassifierViewController, it will call this init function
     self = [super initWithCibName:@"classifierView" bundle:[CPBundle mainBundle]];
-    if (self)
-    {
-        [[CPNotificationCenter defaultCenter] addObserver:self
-                                              selector:@selector(loadRunJob)
-                                              name:RodanHasFocusClassifierViewNotification
-                                              object:nil];
-    }
+
     return self;
 }
 
@@ -74,4 +79,10 @@
         [classifierController loadRunJob:runJob];
     }
 }
+
+- (CPArray)getClassifierArrayController
+{
+    return [classifierController classifierArrayController];
+}
+
 @end
