@@ -32,6 +32,8 @@
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
+
+    @outlet CPObjectController pageImageController;
 }
 
 - (void)awakeFromCib
@@ -52,6 +54,7 @@
 {
     [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
     [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
+    [pageImageController setContent:[aRunJob page]];
 }
 
 - (void)fetchClassifier:(CPString)uuid
@@ -72,7 +75,6 @@
 
 - (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
 {
-    console.log("fetchPageGlyphsDidFinish");
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
     [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
     [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
@@ -211,6 +213,7 @@
     [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
 
     [classifierTableViewDelegate initializeTableView];
+
 }
 
 - (@action)showAreYouSureWindow:(CPButton)firstDeleteButton
