@@ -92,7 +92,6 @@
             break;
     }
 
-    // Initialize, bind, return.
     return dataView;
 }
 
@@ -102,7 +101,7 @@
 + (CPTextField)_createTextField:(WorkflowJobSetting)aSetting
 {
     var textField = [CPTextField labelWithTitle:""];
-    if (aSetting === nil)
+    if (aSetting === null)
     {
         return button;
     }
@@ -124,7 +123,7 @@
 {
     // Nil check.
     var button = [CPPopUpButton new];
-    if (aSetting === nil || [aSetting choices] === nil || [[aSetting choices] count] === 0)
+    if (aSetting === null || [aSetting choices] === null || [[aSetting choices] count] === 0)
     {
         return button;
     }
@@ -132,23 +131,26 @@
     // Enumerate through coices and add menu items to the button.  Also, look for the current setting (if there).
     var choiceEnumerator = [[aSetting choices] objectEnumerator],
         choice = null,
-        defaultSelection = nil;
+        defaultSelection = null;
+    var index = 0;
     while (choice = [choiceEnumerator nextObject])
     {
         // Create and add item.
         var menuItem = [[CPMenuItem alloc] initWithTitle:choice action:null keyEquivalent:null];
-        [menuItem setRepresentedObject:choice];
+        [menuItem setRepresentedObject:index];
         [button addItem:menuItem];
 
         // Check if the pk matches the current setting.  If it does, THIS one should be our default item.
-        if ([aSetting settingDefault] === choice)
+        if ([aSetting settingDefault] === index)
         {
             defaultSelection = menuItem;
         }
+
+        index++;
     }
 
     // Initialize, bind, return.
-    if (defaultSelection === nil)
+    if (defaultSelection === null)
     {
         [button selectItemAtIndex:0];
     }
