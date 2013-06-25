@@ -326,6 +326,7 @@ activeProject = nil;  // URI to the currently open project
 
     [projectController fetchProjects];
     [jobController fetchJobs];
+    [classifierViewController fetchClassifiers];
 }
 
 - (void)didLogOut:(id)aNotification

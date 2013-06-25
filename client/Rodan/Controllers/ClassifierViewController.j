@@ -36,7 +36,6 @@
                                               selector:@selector(loadRunJob)
                                               name:RodanHasFocusClassifierViewNotification
                                               object:nil];
-        [classifierController fetchClassifiers];
     }
 }
 
@@ -78,6 +77,11 @@
     {
         [classifierController loadRunJob:runJob];
     }
+}
+
+- (void)fetchClassifiers
+{
+    [classifierController fetchClassifiers];
 }
 
 - (CPArray)getClassifierArrayController
