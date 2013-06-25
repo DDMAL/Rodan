@@ -358,8 +358,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setStatusIsActive:YES];
 
-    [projectStatusView setFrame:[contentScrollView bounds]];
     [projectStatusView setAutoresizingMask:CPViewWidthSizable];
+    [projectStatusView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:projectStatusView];
 }
 
@@ -368,8 +368,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setPagesIsActive:YES];
 
-    [managePagesView setFrame:[contentScrollView bounds]];
     [managePagesView setAutoresizingMask:CPViewWidthSizable];
+    [managePagesView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:managePagesView];
 }
 
@@ -378,8 +378,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setResultsIsActive:YES];
 
-    [workflowResultsView setFrame:[contentScrollView bounds]];
     [workflowResultsView setAutoresizingMask:CPViewWidthSizable];
+    [workflowResultsView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:workflowResultsView];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusWorkflowResultsViewNotification
@@ -391,8 +391,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setJobsIsActive:YES];
 
-    [interactiveJobsView setFrame:[contentScrollView bounds]];
     [interactiveJobsView setAutoresizingMask:CPViewWidthSizable];
+    [interactiveJobsView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:interactiveJobsView];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusInteractiveJobsViewNotification
@@ -404,8 +404,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setUsersIsActive:YES];
 
-    [usersGroupsView setFrame:[contentScrollView bounds]];
     [usersGroupsView setAutoresizingMask:CPViewWidthSizable];
+    [usersGroupsView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:usersGroupsView];
 }
 
@@ -414,8 +414,8 @@ activeProject = nil;  // URI to the currently open project
     [menuItemsController reset];
     [menuItemsController setClassifierIsActive:YES];
     var classifierView = [classifierViewController view];
-    [classifierView setFrame:[contentScrollView bounds]];
     [classifierView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+    [classifierView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:[classifierViewController view]];
 
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusClassifierViewNotification
