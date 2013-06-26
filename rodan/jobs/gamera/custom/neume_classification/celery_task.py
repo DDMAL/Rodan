@@ -108,7 +108,7 @@ class ManualClassificationTask(ClassificationTaskBase):
 
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
-        return {'pageglyphs': u"{0}".format(rdn_pageglyph.uuid)}
+        return {'pageglyphs': u"{0}".format(rdn_pageglyph.get_absolute_url())}
 
     def process_image(self, task_image, settings):
         return PageGlyphs.objects.get(pk=settings['pageglyphs'])

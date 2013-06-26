@@ -240,3 +240,12 @@ GAMERA_XML = 9
 IMAGE_TYPES = (None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX)
 
 NONIMAGE = -1
+
+# The base_url below is hardcoded. This setting needs to be properly configured when you deploy Rodan.
+# Here is a list of places where this variable is used:
+#
+#    rodan.models.pageglyphs.PageGlyphs.get_absolute_url()
+#
+# When you find a better solution for returning the absolute url from a celery job,
+# go clean up the code in these places.
+BASE_URL = 'http://localhost:8000'

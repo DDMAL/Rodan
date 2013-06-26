@@ -1,11 +1,12 @@
-
-from django.db import models
+import os
 from uuidfield import UUIDField
 
-import os
+from django.db import models
+from django.core.urlresolvers import reverse
 
 from rodan.models.gameraXML import GameraXML
 from rodan.models.classifier import Classifier
+from rodan.settings import BASE_URL
 
 
 class PageGlyphs(models.Model, GameraXML):
@@ -28,6 +29,10 @@ class PageGlyphs(models.Model, GameraXML):
     class Meta:
         app_label = 'rodan'
         verbose_name_plural = "page glyphs"
+
+    def get_absolute_url(self):
+        rel_path = reverse('pageglyphs-detail', kwargs={'pk': str(self.uuid)})
+        return BASE_URL + rel_path
 
     def __unicode__(self):
         return u"pageglyphs" + str(self.uuid)
