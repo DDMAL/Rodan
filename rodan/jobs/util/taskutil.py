@@ -78,7 +78,7 @@ def get_uuid_from_url(url):
     12345678-9012-3456-7890-123456abcdef
 
     """
-
+    url = str(url)
     re_uuid = re.compile(r'^(.*)/(?P<uuid>[0-9a-f]{32})/?$', re.IGNORECASE)
     match_object = re_uuid.match(url)
 
