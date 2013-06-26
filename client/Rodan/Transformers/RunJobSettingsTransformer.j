@@ -33,8 +33,6 @@
     var settingsCount = [jsonArrayOfJobSettings count],
         settingsDict = [[CPMutableDictionary alloc] init],
         i = 0;
-    console.log("In RunJobSettingsTransformer");
-    console.log(jsonArrayOfJobSettings);
     for (; i < settingsCount; ++i)
     {
         [settingsDict setObject:jsonArrayOfJobSettings[i]['default'] forKey:jsonArrayOfJobSettings[i]['name']];
