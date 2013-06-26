@@ -21,7 +21,7 @@ BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
 CELERY_IMPORTS = ("rodan.helpers.thumbnails",
                   "rodan.helpers.convert",
                   "rodan.helpers.processed",
-                  "rodan.jobs.gamera.celery_task")
+                  "rodan.jobs")
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
