@@ -120,8 +120,8 @@ class AutoClassificationTask(ClassificationTaskBase):
     settings = [{'default': 1, 'has_default': True, 'rng': (1, 1048576), 'name': 'num_k', 'type': 'int'},
                 {'default': 4, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_parts_per_group', 'type': 'int'},
                 {'default': 16, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'type': 'int'},
-                {'default':  None, 'has_default': False, 'name': 'classifier', 'type': 'uuid'},
-                {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid', 'visibility': False}]
+                {'default':  None, 'has_default': False, 'name': 'classifier', 'type': 'uuid_classifier'},
+                {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid_pageglyphs', 'visibility': False}]
 
     def save_glyphs(self, glyphs, classifier):
         pageglyphs_model = PageGlyphs(classifier=classifier)
