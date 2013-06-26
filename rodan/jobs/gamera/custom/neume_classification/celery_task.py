@@ -21,7 +21,8 @@ from rodan.settings import GAMERA_XML
 
 class ClassificationTaskBase(Task):
 
-    def get_classifier(self, uuid):
+    def get_classifier(self, url):
+        uuid = taskutil.get_uuid_from_url(url)
         try:
             return Classifier.objects.get(pk=uuid)
         except Classifier.DoesNotExist:
