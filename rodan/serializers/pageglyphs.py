@@ -1,7 +1,6 @@
 
 from rodan.models.pageglyphs import PageGlyphs
 from rest_framework import serializers
-#from rodan.serializers.classifier import MinimalClassifierSerializer
 
 
 class PageGlyphsSerializer(serializers.HyperlinkedModelSerializer):
@@ -11,16 +10,16 @@ class PageGlyphsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PageGlyphs
-        fields = ("uuid", "url", "classifier", "name", "file_path", "glyphs")
+        fields = ("uuid", "url", "classifier", "file_path", "glyphs")
 
 
 class PageGlyphsListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PageGlyphs
-        fields = ("url", "classifier", "name")
+        fields = ("url", "classifier")
 
 
 class MinimalPageGlyphsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PageGlyphs
-        fields = ("url", "name")
+        fields = ("url",)

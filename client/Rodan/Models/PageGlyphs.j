@@ -5,20 +5,10 @@
 
 }
 
-- (id)initWithName:(CPString)aName
-{
-    if (self = [self init])
-    {
-        [self setName:aName];
-    }
-    return self;
-}
-
 + (CPArray)remoteProperties
 {
     return [
         ['pk',                'url'],
-        ['name',              'name',   nil, nil],
         ['symbolCollections', 'glyphs', [[SymbolCollectionsTransformer alloc] init]]
     ];
 }

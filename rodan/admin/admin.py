@@ -54,7 +54,7 @@ class ClassifierAdmin(admin.ModelAdmin):
 
 
 class PageGlyphsAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('uuid', 'classifier')
 
 
 # class UserProfileInline(admin.StackedInline):

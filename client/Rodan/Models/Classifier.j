@@ -3,6 +3,7 @@
 @implementation Classifier : GameraGlyphs
 {
     CPString       project           @accessors;
+    CPString       name              @accessors;
 }
 
 - (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk

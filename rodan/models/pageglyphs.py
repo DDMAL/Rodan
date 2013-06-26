@@ -19,7 +19,6 @@ class PageGlyphs(models.Model, GameraXML):
         return self.file_path
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=255)
     classifier = models.ForeignKey(Classifier, related_name="pageglyphs")
     #classifiers = models.ManyToManyField(Classifier, related_name="pageglyphs", blank=False)
     # TODO: this should be many to many when implementing 'Open page glyphs into editor'
