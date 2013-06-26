@@ -93,7 +93,7 @@
     [WLRemoteAction schedule:WLRemoteActionGetType
                     path:pk
                     delegate:fetchPageGlyphsDelegate
-                    message:@"loading a single classifier"];
+                    message:@"loading a single set of page glyphs"];
 }
 
 - (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
