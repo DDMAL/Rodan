@@ -80,19 +80,19 @@
     [pageImageController setContent:[aRunJob page]];
 }
 
-- (void)fetchClassifier:(CPString)uuid
+- (void)fetchClassifier:(CPString)pk
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:'/classifier/' + uuid
+                    path:pk
                     delegate:self
                     message:@"loading a single classifier"];
 }
 
-- (void)fetchPageGlyphs:(CPString)uuid
+- (void)fetchPageGlyphs:(CPString)pk
 {
     [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:'/pageglyphs/' + uuid
-                    delegate:fetchPageGlyphsDelegate  // forwards to fetchPageGlyphsDidFinish
+                    path:pk
+                    delegate:fetchPageGlyphsDelegate
                     message:@"loading a single classifier"];
 }
 

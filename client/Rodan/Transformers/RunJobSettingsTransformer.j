@@ -35,7 +35,16 @@
         i = 0;
     for (; i < settingsCount; ++i)
     {
-        [settingsDict setObject:jsonArrayOfJobSettings[i]['default'] forKey:jsonArrayOfJobSettings[i]['name']];
+        if (jsonArrayOfJobSettings[i]['name'] === @"pageglyphs")
+        {
+            // Special case for pageglyphs which are a UUID and not a URL, see issue #
+            [settingsDict setObject:'/pageglyphs/' + jsonArrayOfJobSettings[i]['default'] forKey:@"pageglyphs"];
+        }
+        else
+        {
+            // Normal case
+            [settingsDict setObject:jsonArrayOfJobSettings[i]['default'] forKey:jsonArrayOfJobSettings[i]['name']];
+        }
     }
     return settingsDict;
 }
