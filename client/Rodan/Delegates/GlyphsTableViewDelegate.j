@@ -66,25 +66,41 @@
 
     for (var i = 0; i < cvArrayControllers_count; ++i)
     {
-        var selectedObjects = [cvArrayControllers[i] selectedObjects];
+        if (i === newBinIndex)
+        {
+            // We don't need to do any writes to glyphs already in the new bin
+            // Well, maybe we do.  What if we rewrite a glyph with the same name?
+            // Doesn't do anything.  Shouldn't do anything.  We should to keep the selection though.
+            // Maybe we can take the allSelectedObjects part out of the loop.  (X)Nope, needs to be
+            // done for each array controller.  I know, I still would be.  The while loop goes through
+            // each selected object, but there's no reason why at the beginning I can't add that list
+            // to allSelectedObjects, then continue with my business.  Do I need the while loop?
+            // Instead, go through each selected object.  Why am I doing this?  So that I can
+            // preserve selection when a glyph is written to the same name.  Nevermind the rewrite,
+            // just start with allSelected.
+            continue;
+        }
+
+        var selectedObjects = [cvArrayControllers[i] selectedObjects],
+            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayControllers[i] selectionIndexes]];
+        [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
 
         while ([[cvArrayControllers[i] selectedObjects] count] > 0)
         {
-            // Assume that everything is in parallel (don't do whole comparisons,) and delete the glyphs from theGameraGlyphs instead of the ac's
+            // Loop through the selected objects in this row and move each of them to the new bin
             var glyph = [[theGameraGlyphs symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
-            [allSelectedObjects addObject:glyph];
-            [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];
-            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];
+            // [allSelectedObjects addObject:glyph];  // Extracted
+            [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];  // Remove one from selection
+            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Must be in a loop but could be loop through selectedGlyphsInRow
 
             if ([[cvArrayControllers[i] selectedObjects] count] === 0)
             {
+                // Rebind on the last iteration of the loop
                 [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
             }  // TODO: clean this up with a removeGlyph function, and ignore that the binding would happen a few too many times.
 
-            [glyph writeSymbolName:newName];
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
-            [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-            [cvArrayControllers[newBinIndex] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Gets set later (TODO: don't bother)
+            [glyph writeSymbolName:newName];  // Could be done with makeObjectsPerformSelector
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Could be done in a loop through selectedGlyphsInRow
         }
     }
 
