@@ -1,4 +1,5 @@
 @import "../Controllers/WorkflowController.j"
+@import "../Frameworks/RodanKit/RKIntegerFormatter.j"
 
 @global RodanShouldLoadClassifiersNotification
 
@@ -105,7 +106,7 @@
     switch ([aSetting settingType])
     {
         case 'int':
-            dataView = [self _createTextField:aSetting];
+            dataView = [self _createIntField:aSetting];
             break;
 
         case 'uuid_workflowjob':
@@ -142,13 +143,46 @@
     {
         return textField;
     }
+
+    // Format.
     [textField setEditable:YES];
     [textField setBezeled:YES];
-    [textField setObjectValue:[aSetting settingDefault]];
-    [textField setStringValue:[aSetting settingDefault]];
-    [aSetting bind:"settingDefault" toObject:textField withKeyPath:"objectValue" options:null];
     [textField sizeToFit];
     [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+
+    // Set value.
+    var currentSettingNumber = [aSetting settingDefault];
+    [textField setObjectValue:currentSettingNumber];
+    [aSetting bind:"settingDefault" toObject:textField withKeyPath:"objectValue" options:null];
+    return textField;
+}
+
+/**
+ * Given a workflow job setting, creates a text-field and binds to the setting.
+ * In addition, it adds an integer formatter.
+ */
+- (CPTextField)_createIntField:(WorkflowJobSetting)aSetting
+{
+    var textField = [CPTextField labelWithTitle:""];
+    if (aSetting === null)
+    {
+        return textField;
+    }
+
+    // Format.
+    [textField setEditable:YES];
+    [textField setBezeled:YES];
+    [textField sizeToFit];
+    [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+
+    // Set formatter.
+    var integerFormatter = [[RKIntegerFormatter alloc] init];
+    [textField setFormatter:integerFormatter];
+
+    // Set value.
+    var currentSettingNumber = [aSetting settingDefault];
+    [textField setObjectValue:currentSettingNumber];
+    [aSetting bind:"settingDefault" toObject:textField withKeyPath:"objectValue" options:null];
     return textField;
 }
 
