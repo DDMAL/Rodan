@@ -103,6 +103,29 @@ var activeWorkflow = nil,
     [workflowArrayController setContent:nil];
 }
 
+- (Workflow)updateWorkflowWithJson:(id)aJson
+{
+    // Create a temp workflow (so we don't have to deal with JSON).
+    [WLRemoteObject setDirtProof:YES];
+    var tempWorkflow = [[Workflow alloc] initWithJson:aJson];
+    [WLRemoteObject setDirtProof:NO];
+
+    // Go through workflow array and update the workflow.
+    var workflowEnumerator = [[workflowArrayController arrangedObjects] objectEnumerator],
+        workflow = nil;
+    while (workflow = [workflowEnumerator nextObject])
+    {
+        if ([workflow pk] === [tempWorkflow pk])
+        {
+            [WLRemoteObject setDirtProof:YES];
+            workflow = [workflow initWithJson:aJson];
+            [WLRemoteObject setDirtProof:NO];
+            return workflow;
+        }
+    }
+    return nil;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Action Methods
 ////////////////////////////////////////////////////////////////////////////////////////////

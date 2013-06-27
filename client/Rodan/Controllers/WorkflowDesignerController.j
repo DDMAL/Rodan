@@ -153,7 +153,7 @@ var _msLOADINTERVAL = 5.0;
 - (@action)selectWorkflow:(id)aSender
 {
     var selectedWorkflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
-
+    [WorkflowController setActiveWorkflow:selectedWorkflow];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowDesignerNotification
                                           object:selectedWorkflow];
 }

@@ -7273,7 +7273,7 @@
 				<string key="NSReuseIdentifierKey">_NS:20</string>
 			</object>
 			<object class="NSView" id="865188463">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">274</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -7282,6 +7282,7 @@
 						<int key="NSvFlags">258</int>
 						<string key="NSFrame">{{20, 61}, {741, 26}}</string>
 						<reference key="NSSuperview" ref="865188463"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="986769715"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<string key="NSClassName">CPButtonBar</string>
@@ -7301,7 +7302,8 @@
 										<int key="NSvFlags">256</int>
 										<string key="NSFrameSize">{741, 381}</string>
 										<reference key="NSSuperview" ref="862172812"/>
-										<reference key="NSNextKeyView" ref="349986506"/>
+										<reference key="NSWindow"/>
+										<reference key="NSNextKeyView" ref="904795741"/>
 										<string key="NSReuseIdentifierKey">_NS:13</string>
 										<bool key="NSEnabled">YES</bool>
 										<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -7311,6 +7313,7 @@
 											<int key="NSvFlags">256</int>
 											<string key="NSFrameSize">{741, 17}</string>
 											<reference key="NSSuperview" ref="349986506"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="1069777507"/>
 											<reference key="NSTableView" ref="531448911"/>
 										</object>
@@ -7319,6 +7322,7 @@
 											<int key="NSvFlags">-2147483392</int>
 											<string key="NSFrame">{{224, 0}, {16, 17}}</string>
 											<reference key="NSSuperview" ref="1060279985"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="862172812"/>
 											<string key="NSReuseIdentifierKey">_NS:19</string>
 										</object>
@@ -7392,6 +7396,7 @@
 								</object>
 								<string key="NSFrame">{{0, 17}, {741, 381}}</string>
 								<reference key="NSSuperview" ref="1060279985"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="531448911"/>
 								<string key="NSReuseIdentifierKey">_NS:11</string>
 								<reference key="NSDocView" ref="531448911"/>
@@ -7403,6 +7408,7 @@
 								<int key="NSvFlags">-2147483392</int>
 								<string key="NSFrame">{{224, 17}, {15, 102}}</string>
 								<reference key="NSSuperview" ref="1060279985"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="230751207"/>
 								<string key="NSReuseIdentifierKey">_NS:58</string>
 								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -7415,6 +7421,7 @@
 								<int key="NSvFlags">-2147483392</int>
 								<string key="NSFrame">{{1, 348}, {218, 16}}</string>
 								<reference key="NSSuperview" ref="1060279985"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="195870385"/>
 								<string key="NSReuseIdentifierKey">_NS:60</string>
 								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -7432,6 +7439,7 @@
 								</object>
 								<string key="NSFrameSize">{741, 17}</string>
 								<reference key="NSSuperview" ref="1060279985"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="551185572"/>
 								<reference key="NSDocView" ref="551185572"/>
 								<reference key="NSBGColor" ref="261822172"/>
@@ -7441,13 +7449,15 @@
 						</object>
 						<string key="NSFrame">{{20, 87}, {741, 398}}</string>
 						<reference key="NSSuperview" ref="865188463"/>
-						<reference key="NSNextKeyView" ref="862172812"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView" ref="349986506"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<int key="NSsFlags">133680</int>
 						<reference key="NSVScroller" ref="904795741"/>
 						<reference key="NSHScroller" ref="230751207"/>
 						<reference key="NSContentView" ref="862172812"/>
 						<reference key="NSHeaderClipView" ref="349986506"/>
+						<reference key="NSCornerView" ref="1069777507"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 						<double key="NSMinMagnification">0.25</double>
 						<double key="NSMaxMagnification">4</double>
@@ -7458,6 +7468,8 @@
 						<int key="NSvFlags">289</int>
 						<string key="NSFrame">{{693, 13}, {74, 32}}</string>
 						<reference key="NSSuperview" ref="865188463"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="900397532">
@@ -7478,6 +7490,8 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{781, 505}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="1060279985"/>
 			</object>
 			<object class="NSView" id="411648845">
@@ -10366,6 +10380,14 @@
 						<reference key="destination" ref="232359807"/>
 					</object>
 					<int key="connectionID">3301</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">workflowController</string>
+						<reference key="source" ref="523283544"/>
+						<reference key="destination" ref="606711763"/>
+					</object>
+					<int key="connectionID">4699</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -18870,7 +18892,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">4698</int>
+			<int key="maxID">4699</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -19267,7 +19289,7 @@
 							<string>openClassifierWindow</string>
 							<string>pageGlyphsSymbolCollectionArrayController</string>
 							<string>pageGlyphsTableViewDelegate</string>
-							<string>symbolTableDelegate</string>
+							<string>pageImageController</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -19286,7 +19308,7 @@
 							<string>NSWindow</string>
 							<string>NSArrayController</string>
 							<string>PageGlyphsTableViewDelegate</string>
-							<string>SymbolTableDelegate</string>
+							<string>NSObjectController</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
@@ -19308,7 +19330,7 @@
 							<string>openClassifierWindow</string>
 							<string>pageGlyphsSymbolCollectionArrayController</string>
 							<string>pageGlyphsTableViewDelegate</string>
-							<string>symbolTableDelegate</string>
+							<string>pageImageController</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -19373,8 +19395,8 @@
 								<string key="candidateClassName">PageGlyphsTableViewDelegate</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">symbolTableDelegate</string>
-								<string key="candidateClassName">SymbolTableDelegate</string>
+								<string key="name">pageImageController</string>
+								<string key="candidateClassName">NSObjectController</string>
 							</object>
 						</object>
 					</object>
@@ -19611,11 +19633,13 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>currentWorkflowArrayController</string>
+							<string>workflowController</string>
 							<string>workflowPagesArrayController</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSArrayController</string>
+							<string>WorkflowController</string>
 							<string>NSArrayController</string>
 						</object>
 					</object>
@@ -19624,6 +19648,7 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>currentWorkflowArrayController</string>
+							<string>workflowController</string>
 							<string>workflowPagesArrayController</string>
 						</object>
 						<object class="NSArray" key="dict.values">
@@ -19631,6 +19656,10 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">currentWorkflowArrayController</string>
 								<string key="candidateClassName">NSArrayController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">workflowController</string>
+								<string key="candidateClassName">WorkflowController</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">workflowPagesArrayController</string>
@@ -20263,25 +20292,6 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ServerAdminController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">SymbolTableDelegate</string>
-					<string key="superclassName">NSObject</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">symbolArrayController</string>
-						<string key="NS.object.0">NSArrayController</string>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">symbolArrayController</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">symbolArrayController</string>
-							<string key="candidateClassName">NSArrayController</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/SymbolTableDelegate.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
