@@ -132,6 +132,6 @@ This won't write to the server until they hit Save.
 {
     return [self ulx] === [glyph ulx] && [self uly] === [glyph uly] &&
            [self nRows] === [glyph nRows] && [self nCols] === [glyph nCols] &&
-           [self pngData] === [glyph pngData];
+           [[self pngData] data] === [[glyph pngData] data];
 }
 @end
