@@ -1,4 +1,5 @@
 @import <Foundation/CPObject.j>
+@import "../Controllers/WorkflowController.j"
 @import "../Delegates/ResultsViewRunsDelegate.j"
 @import "../Models/Workflow.j"
 
@@ -38,12 +39,14 @@
 {
     [_resultsViewRunsDelegate setArrayContents:nil];
     _currentlySelectedWorkflow = nil;
+    [WorkflowController setActiveWorkflow:_currentlySelectedWorkflow];
 }
 
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
     _currentlySelectedWorkflow = [[_workflowArrayController contentArray] objectAtIndex:rowIndex];
+    [WorkflowController setActiveWorkflow:_currentlySelectedWorkflow];
     [_resultsViewRunsDelegate setArrayContents:nil];
     [self handleShouldLoadNotification:nil];
     return YES;

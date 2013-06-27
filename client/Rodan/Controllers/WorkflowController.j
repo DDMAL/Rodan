@@ -1,5 +1,5 @@
 @import <Foundation/CPObject.j>
-@import <RodanKit/Utilities/RKNotificationTimer.j>
+@import <RodanKit/RKNotificationTimer.j>
 @import "../Models/Workflow.j"
 
 @global activeProject
@@ -111,7 +111,7 @@ var activeWorkflow = nil,
  */
 - (@action)runWorkflow:(id)aSender
 {
-    var workflow = [[workflowArrayController selectedObjects] objectAtIndex:0];
+    var workflow = [WorkflowController activeWorkflow];
     if (workflow != nil)
     {
         [workflow touchWorkflowJobs];

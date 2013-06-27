@@ -1,7 +1,7 @@
 @import <Foundation/CPTimer.j>
 @import <RodanKit/RKInteractiveJob.j>
 @import <RodanKit/RKDiva.j>
-@import <RodanKit/Utilities/RKNotificationTimer.j>
+@import <RodanKit/RKNotificationTimer.j>
 
 @import "../Models/RunJob.j"
 
