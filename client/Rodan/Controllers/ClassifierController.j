@@ -313,6 +313,7 @@
     // [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadInteractiveJobsNotification
     //                                       object:nil];  // TODO: Find another way to change the view...
                                                            // this is a data loading notification
+}
 
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
