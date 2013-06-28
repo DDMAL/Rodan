@@ -64,6 +64,11 @@
     [classifierController close:aSender];
 }
 
+- (@action)finishJob:(CPMenuItem)aSender
+{
+    [classifierController finishJob:aSender];
+}
+
 - (void)workRunJob:(RunJob)aRunJob  // Called by InteractiveJobs controller
 {
     runJob = aRunJob;

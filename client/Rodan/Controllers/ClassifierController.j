@@ -290,6 +290,11 @@
     }
 }
 
+- (@action)finishJob:(CPMenuItem)aSender
+{
+    console.log("FinishJob button.");
+}
+
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
     console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
