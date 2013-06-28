@@ -267,9 +267,8 @@
 - (void)observeValueForKeyPath:(CPString)aKeyPath ofObject:(CPCollectionView)aCollectionView change:(CPDictionary)aChange context:(id)aContext
 {
 
-    var theClickedRow = aContext;
-    // Check if the new indexSet is empty.
-    var newIndexSet = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
+    var theClickedRow = aContext,
+        newIndexSet = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
     if (([newIndexSet firstIndex] !== CPNotFound))
     {
         [theOtherTableViewDelegate nullifySelection];   // Works except for the part where I add a selection to sync the two tables.  I only want to nullify
@@ -323,6 +322,21 @@
     {
         [cvArrayControllers[i] setSelectionIndexes:emptyIndexSet];
     }
+}
+
+- (BOOL)hasSelection
+{
+    var cvArrayControllersCount = [cvArrayControllers count];
+    for (var i = 0; i < cvArrayControllersCount; ++i)
+    {
+        if ([[cvArrayControllers[i] selectionIndexes] firstIndex] !== CPNotFound)
+        {
+            console.log("hasSelection returning true.");
+            return true
+        }
+    }
+    console.log("hasSelection returning false.");
+    return false;
 }
 
 - (void)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow

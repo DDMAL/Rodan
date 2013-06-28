@@ -258,8 +258,14 @@
 {
     // TODO: This should be disabled if we don't have a classifier loaded.
 
-    [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];
-    [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
+    if ([classifierTableViewDelegate hasSelection])
+    {
+        [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];
+    }
+    else
+    {
+        [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
+    }
 
     [theClassifier makeAllDirty];
     //[theClassifier makeDirtyProperty:@"id_name"];
