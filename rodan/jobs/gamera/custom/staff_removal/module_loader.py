@@ -14,7 +14,7 @@ def load_rt_staff_removal():
                 output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [ONEBIT,], "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
-                category="Staffline Removal",
+                category="Staff Removal",
                 interactive=False
                 )
 
