@@ -120,6 +120,7 @@ class AutoClassificationTask(ClassificationTaskBase):
     settings = [{'default': 1, 'has_default': True, 'rng': (1, 1048576), 'name': 'num_k', 'type': 'int'},
                 {'default': 4, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_parts_per_group', 'type': 'int'},
                 {'default': 16, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'type': 'int'},
+                {'default': 16, 'has_default': True, 'rng': (1, 1048576), 'name': 'distance_threshold', 'type': 'int'},
                 {'default':  None, 'has_default': False, 'name': 'classifier', 'type': 'uuid_classifier'},
                 {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid_pageglyphs', 'visibility': False}]
 
@@ -141,7 +142,7 @@ class AutoClassificationTask(ClassificationTaskBase):
         cknn = gamera.knn.kNNNonInteractive(classifier_model.file_path,
                                             features='all', perform_splits=True,
                                             num_k=settings['num_k'])
-        func = gamera.classify.BoundingBoxGroupingFunction(2)
+        func = gamera.classify.BoundingBoxGroupingFunction(settings['distance_threshold'])
         ccs = task_image.cc_analysis()
         grouped_glyphs = cknn.group_and_update_list_automatic(ccs,
                                                               grouping_function=func,
