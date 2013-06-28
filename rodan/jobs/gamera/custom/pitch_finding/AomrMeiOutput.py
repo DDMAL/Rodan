@@ -1,7 +1,7 @@
 from gamera.plugin import *
 import AomrExceptions
 
-
+from AomrExceptions import AomrMeiNoteIntervalMismatchError, AomrMeiPitchNotFoundError
 # from pymei import MeiDocument
 # from pymei import MeiElement 
 # from pymei import Modules as mod
@@ -366,7 +366,7 @@ class AomrMeiOutput(object):
         return system
     
     def _create_episema_element(self):
-        epi = MeiElement("epi")
+        epi = MeiElement("episema")
         # epi = mod.episema_()
         # epi.id = self._idgen()
         return epi
@@ -462,7 +462,7 @@ class AomrMeiOutput(object):
                     this_neume_form.extend(diffr * 'u')
                 else:
                     raise AomrMeiNoteIntervalMismatchError("There is a mismatch between the number of notes and number of intervals.")
-            
+                
             # note elements = torculus.2.2.he.ve
             # ivals = [2,2]
             # torculus = ['u','d']
