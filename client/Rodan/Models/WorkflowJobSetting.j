@@ -41,7 +41,7 @@
     [self setSettingName:setting.name];
     [self setSettingDefault:setting.default];
 
-    if (setting.visibility)
+    if ("visibility" in setting)
     {
         [self setVisibility:setting.visibility];
     }

@@ -40,6 +40,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableView:(CPTableView)aTableView willDisplayView:(id)aView forTableColumn:(CPTableColumn)aTableColumn row:(int)rowIndex;
 {
+    // Get job settings.
+    var workflowJobSetting = [aView objectValue];
+    if (workflowJobSetting === nil)
+    {
+        return;
+    }
+
+    // We only want to create data views.
     if ([aTableColumn identifier] !== 'valueColumn')
     {
         return;
@@ -48,20 +56,18 @@
     // Remove current subviews.
     [aView setSubviews:[[CPArray alloc] init]];
 
-    // Get job settings.
-    var workflowJobSetting = [aView objectValue];
-    if (workflowJobSetting === nil)
-    {
-        return;
-    }
-
     // Create view based on type and format.
+    var dataView = nil;
     if ([workflowJobSetting visibility])
     {
-        var dataView = [self _createDataViewForWorkflowJobSetting:workflowJobSetting];
-        [aView addSubview:dataView];
-        [dataView setFrame:[[dataView superview] bounds]];
+        dataView = [self _createDataViewForWorkflowJobSetting:workflowJobSetting];
     }
+    else
+    {
+        dataView = [self _createDisabledTextField];
+    }
+    [aView addSubview:dataView];
+    [dataView setFrame:[[dataView superview] bounds]];
 }
 
 /**
@@ -131,6 +137,20 @@
     }
 
     return dataView;
+}
+
+/**
+ * Given a disabled text field.
+ */
+- (CPTextField)_createDisabledTextField
+{
+    var textField = [CPTextField labelWithTitle:"disabled"];
+    [textField setEditable:NO];
+    [textField setEnabled:NO];
+    [textField setBezeled:YES];
+    [textField sizeToFit];
+    [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+    return textField;
 }
 
 /**

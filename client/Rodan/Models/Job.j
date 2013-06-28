@@ -1,5 +1,3 @@
-@import "../Transformers/JobArgumentsTransformer.j"
-
 @implementation Job : WLRemoteObject
 {
     CPString    pk              @accessors;
