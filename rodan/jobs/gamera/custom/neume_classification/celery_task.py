@@ -146,8 +146,8 @@ class AutoClassificationTask(ClassificationTaskBase):
         ccs = task_image.cc_analysis()
         grouped_glyphs = cknn.group_and_update_list_automatic(ccs,
                                                               grouping_function=func,
-                                                              max_parts_per_group=4,
-                                                              max_graph_size=16)
+                                                              max_parts_per_group=settings['max_parts_per_group'],
+                                                              max_graph_size=settings['max_graph_size'])
         cknn.generate_features_on_glyphs(grouped_glyphs)
         glyph_model = self.save_glyphs(grouped_glyphs, classifier_model)
 
