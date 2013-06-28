@@ -6,6 +6,7 @@
 @import "../Delegates/ClassifierControllerFetchDelegates.j"
 
 @global activeProject
+@global RodanShouldLoadInteractiveJobsNotification
 
 @implementation ClassifierController : CPObject
 {
@@ -37,6 +38,8 @@
     FetchClassifiersDelegate fetchClassifiersDelegate;
 
     @outlet CPObjectController pageImageController;
+
+    Runjob theRunJob;
 }
 
 - (void)awakeFromCib
@@ -75,6 +78,7 @@
 
 - (void)loadRunJob:(RunJob)aRunJob
 {
+    theRunJob = aRunJob;
     [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
     [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
     [pageImageController setContent:[aRunJob page]];
@@ -285,15 +289,30 @@
             [theClassifier ensureSaved];
         }
         theClassifier = null;
-
-        [classifierTableViewDelegate close];
     }
+
+    if (thePageGlyphs)
+    {
+        if ([thePageGlyphs isDirty])
+        {
+            [thePageGlyphs ensureSaved];
+        }
+        thePageGlyphs = null;
+    }
+
+    [classifierTableViewDelegate close];
+    [pageGlyphsTableViewDelegate close];
+    [pageImageController setContent:null];
 }
 
 - (@action)finishJob:(CPMenuItem)aSender
 {
-    console.log("FinishJob button.");
-}
+    [self close:null];
+    [theRunJob setNeedsInput:false];
+    [theRunJob ensureSaved];
+    // [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadInteractiveJobsNotification
+    //                                       object:nil];  // TODO: Find another way to change the view...
+                                                           // this is a data loading notification
 
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
