@@ -5,12 +5,13 @@
 
 @implementation GlyphsTableViewDelegate : CPObject
 {
-    @outlet CPArrayController   symbolCollectionArrayController;
-            CPMutableArray      cvArrayControllers  @accessors;
-            int                 headerLabelHeight   @accessors;
-            int                 photoViewInset      @accessors;
-    @outlet CPTableView         theTableView;
-            GameraGlyphs        theGameraGlyphs     @accessors;
+    @outlet CPArrayController       symbolCollectionArrayController;
+            CPMutableArray          cvArrayControllers  @accessors;
+            int                     headerLabelHeight   @accessors;
+            int                     photoViewInset      @accessors;
+    @outlet CPTableView             theTableView;
+    @outlet GlyphsTableViewDelegate theOtherTableViewDelegate;
+            GameraGlyphs            theGameraGlyphs     @accessors;
 }
 
 - (void)init
@@ -66,42 +67,27 @@
 
     for (var i = 0; i < cvArrayControllers_count; ++i)
     {
+        var selectedObjects = [cvArrayControllers[i] selectedObjects],
+            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayControllers[i] selectionIndexes]],
+            selectedGlyphsInRowCount = [selectedGlyphsInRow count];
+        [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
+
         if (i === newBinIndex)
         {
             // We don't need to do any writes to glyphs already in the new bin
-            // Well, maybe we do.  What if we rewrite a glyph with the same name?
-            // Doesn't do anything.  Shouldn't do anything.  We should to keep the selection though.
-            // Maybe we can take the allSelectedObjects part out of the loop.  (X)Nope, needs to be
-            // done for each array controller.  I know, I still would be.  The while loop goes through
-            // each selected object, but there's no reason why at the beginning I can't add that list
-            // to allSelectedObjects, then continue with my business.  Do I need the while loop?
-            // Instead, go through each selected object.  Why am I doing this?  So that I can
-            // preserve selection when a glyph is written to the same name.  Nevermind the rewrite,
-            // just start with allSelected.
             continue;
         }
 
-        var selectedObjects = [cvArrayControllers[i] selectedObjects],
-            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayControllers[i] selectionIndexes]];
-        [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
-
-        while ([[cvArrayControllers[i] selectedObjects] count] > 0)
+        for (var j = 0; j < selectedGlyphsInRowCount; j++)
         {
-            // Loop through the selected objects in this row and move each of them to the new bin
-            var glyph = [[theGameraGlyphs symbolCollections][i] glyphList][[[cvArrayControllers[i] selectionIndexes] firstIndex]];
-            // [allSelectedObjects addObject:glyph];  // Extracted
-            [cvArrayControllers[i] setSelectedObjects:[[cvArrayControllers[i] selectedObjects] removeObjectAtIndex:0]];  // Remove one from selection
-            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Must be in a loop but could be loop through selectedGlyphsInRow
-
-            if ([[cvArrayControllers[i] selectedObjects] count] === 0)
-            {
-                // Rebind on the last iteration of the loop
-                [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
-            }  // TODO: clean this up with a removeGlyph function, and ignore that the binding would happen a few too many times.
-
-            [glyph writeSymbolName:newName];  // Could be done with makeObjectsPerformSelector
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Could be done in a loop through selectedGlyphsInRow
+            var glyph = selectedGlyphsInRow[j];
+            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];
+            [glyph writeSymbolName:newName];
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
         }
+
+        [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
+        [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
     }
 
     [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
@@ -269,40 +255,46 @@
     [cv addObserver:self forKeyPath:@"selectionIndexes" options:nil context:aRow];  // allows observeValueForKeyPath function
 }
 
+/*
+    KVO (Key Value Observing) method.  This is how I trigger code when the collection view changes selection.
+    References:
+    1. NSKeyValueObserving Protocol Reference
+    2. http://www.cocoabuilder.com/archive/cocoa/220039-nscollectionview-getting-notified-of-selection-change.html
+    addObserver and implement the right method on the observer (use a new class: collectionViewObserver)
+    aChange is a neato dictionary.
+    aContext is the row that got clicked.
+*/
 - (void)observeValueForKeyPath:(CPString)aKeyPath ofObject:(CPCollectionView)aCollectionView change:(CPDictionary)aChange context:(id)aContext
-// KVO (Key Value Observing) method.  This is how I trigger code when the collection view changes selection.
-// References:
-// 1. NSKeyValueObserving Protocol Reference
-// 2. http://www.cocoabuilder.com/archive/cocoa/220039-nscollectionview-getting-notified-of-selection-change.html
-// addObserver and implement the right method on the observer (use a new class: collectionViewObserver)
-// aChange is a neato dictionary.
-// aContext is the row that got clicked.
 {
-    // console.log("observeValueForKeyPath");
 
     var theClickedRow = aContext;
     // Check if the new indexSet is empty.
     var newIndexSet = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
-    if (([newIndexSet firstIndex] !== CPNotFound) && ! ([[CPApp currentEvent] modifierFlags] & (CPShiftKeyMask | CPCommandKeyMask)))  //http://stackoverflow.com/questions/9268045
+    if (([newIndexSet firstIndex] !== CPNotFound))
     {
-        // console.log("Nullifying the selection on all other rows.");
-        var i = 0,
-            nArrayControllers = [cvArrayControllers count];
-        for (; i < nArrayControllers; ++i)
+        [theOtherTableViewDelegate nullifySelection];   // Works except for the part where I add a selection to sync the two tables.  I only want to nullify
+                                                        // on mouse click.  So, how do I handle that case.  Do I handle it here?  Maybe I can do that
+                                                        // part without selecting.  Find the other glyph and just do the write on it!
+        if (! ([[CPApp currentEvent] modifierFlags] & (CPShiftKeyMask | CPCommandKeyMask)))  //http://stackoverflow.com/questions/9268045
         {
-            if (i !== theClickedRow)
+            var i = 0,
+                nArrayControllers = [cvArrayControllers count];
+            for (; i < nArrayControllers; ++i)
             {
-                [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
-                // The reason that we ensure that firstIndex != CPNotFound is because this line of code causes ANOTHER call to observeValueForKeyPath.
-                // So we break an infinite loop by only nullifying other views' selections if the newIndexSet has a firstIndex (which isn't true for
-                // this line's change of selection)
-                // This might cause a problem when I change the indices from the SymbolTable.  Maybe I will unbind and rebind the cv as I do that.
-                // However, I'm leaving that function till later.
+                if (i !== theClickedRow)
+                {
+                    [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+                    // The reason that we ensure that firstIndex != CPNotFound is because this line of code causes ANOTHER call to observeValueForKeyPath.
+                    // So we break an infinite loop by only nullifying other views' selections if the newIndexSet has a firstIndex (which isn't true for
+                    // this line's change of selection)
+                    // This might cause a problem when I change the indices from the SymbolTable.  Maybe I will unbind and rebind the cv as I do that.
+                    // However, I'm leaving that function till later.
+                }
             }
+            // This part actually gets called TWICE when once would be enough.
+            // For some reason observeValueForKeyPath gets called twice when you click a new collection view.  The first aChange doesn't make sense:
+            // both 'old' and 'new' contain the same indexSet.  I don't feel the need to figure what why the first change happens.
         }
-        // This part actually gets called TWICE when once would be enough.
-        // For some reason observeValueForKeyPath gets called twice when you click a new collection view.  The first aChange doesn't make sense:
-        // both 'old' and 'new' contain the same indexSet.  I don't feel the need to figure what why the first change happens.
     }
     // Ok, so what do?
     // if not shift*
@@ -320,6 +312,17 @@
 
     // Another task for this function: maintain the selection indexes of a global array controller.  OR just loop through the ones I have
     // each time someone hits enter on the text box.  If the models are looking at the same data, that SHOULD work.
+}
+
+- (void)nullifySelection
+{
+    var emptyIndexSet = [CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)],
+        cvArrayControllersCount = [cvArrayControllers count];
+
+    for (var i = 0; i < cvArrayControllersCount; ++i)
+    {
+        [cvArrayControllers[i] setSelectionIndexes:emptyIndexSet];
+    }
 }
 
 - (void)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow

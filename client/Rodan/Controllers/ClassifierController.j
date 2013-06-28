@@ -257,6 +257,7 @@
 - (@action)writeSymbolName:(CPTextField)aSender
 {
     // TODO: This should be disabled if we don't have a classifier loaded.
+
     [classifierTableViewDelegate writeSymbolName:[aSender stringValue]];
     [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
 

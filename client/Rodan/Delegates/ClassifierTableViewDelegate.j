@@ -43,4 +43,13 @@
     return false;
 }
 
+- (void)writeSymbolName:(CPString)newName
+{
+    // Look for the glyph in the page glyph view and write it
+
+    // Write the glyph in classifier view
+    var writtenGlyphs = [super writeSymbolName:newName];
+
+}
+
 @end
