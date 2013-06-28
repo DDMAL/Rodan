@@ -57,57 +57,6 @@
     fetchPageGlyphsDelegate = [[FetchPageGlyphsDelegate alloc] initWithClassifierController:self];
 }
 
-- (void)fetchClassifiers
-{
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:'/classifiers/'
-                    delegate:fetchClassifiersDelegate
-                    message:"Loading classifier list"];
-}
-
-- (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
-{
-    [self _updateClassifierArrayControllerWithResponse:anAction];
-}
-
-- (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
-{
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
-}
-
-- (void)loadRunJob:(RunJob)aRunJob
-{
-    theRunJob = aRunJob;
-    [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
-    [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
-    [pageImageController setContent:[aRunJob page]];
-}
-
-- (void)fetchClassifier:(CPString)pk
-{
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:pk
-                    delegate:self
-                    message:@"loading a single classifier"];
-}
-
-- (void)fetchPageGlyphs:(CPString)pk
-{
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:pk
-                    delegate:fetchPageGlyphsDelegate
-                    message:@"loading a single set of page glyphs"];
-}
-
-- (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
-{
-    thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
-    [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
-    [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
-    [pageGlyphsTableViewDelegate initializeTableView];
-}
-
 - (@action)new:(CPMenuItem)aSender
 {
     // TODO: consider displaying the classifier list in the New window.
@@ -149,7 +98,7 @@
 
 /*
     Tells you if we have a classifier with the given name.
-    Doesn't go to the server... it relies on the previous call to fetchClassifiers.
+    Doesn't go to the server... it relies on a previous fetch (like initNewFetchClassifiersDidFinish).
     Called by the newWindow when choosing a default name, or checking when create
     was pressed.
 */
@@ -199,6 +148,63 @@
     // Do nothing!
     // The user will understand why the button did nothing because of the
     // red text that displays when classifierExists is true.
+}
+
+- (@action)importFromXML:(CPMenuItem)aSender
+{
+    console.log("importFromXML...");
+    // [openClassifierWindow makeKeyAndOrderFront:null];
+}
+
+- (void)fetchClassifiers
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/classifiers/'
+                    delegate:fetchClassifiersDelegate
+                    message:"Loading classifier list"];
+}
+
+- (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
+{
+    [self _updateClassifierArrayControllerWithResponse:anAction];
+}
+
+- (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
+{
+    var classifiers = [Classifier objectsFromJson:[anAction result]];
+    [classifierArrayController setContent:classifiers];
+}
+
+- (void)loadRunJob:(RunJob)aRunJob
+{
+    theRunJob = aRunJob;
+    [self fetchClassifier:[[aRunJob jobSettings] objectForKey:@"classifier"]];
+    [self fetchPageGlyphs:[[aRunJob jobSettings] objectForKey:@"pageglyphs"]];
+    [pageImageController setContent:[aRunJob page]];
+}
+
+- (void)fetchClassifier:(CPString)pk
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:pk
+                    delegate:self
+                    message:@"loading a single classifier"];
+}
+
+- (void)fetchPageGlyphs:(CPString)pk
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:pk
+                    delegate:fetchPageGlyphsDelegate
+                    message:@"loading a single set of page glyphs"];
+}
+
+- (void)fetchPageGlyphsDidFinish:(WLRemoteAction)anAction
+{
+    thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
+    [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
+    [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
+    [pageGlyphsTableViewDelegate initializeTableView];
 }
 
 - (@action)open:(CPMenuItem)aSender
@@ -282,6 +288,8 @@
 
 - (@action)close:(CPMenuItem)aSender
 {
+    // TODO: I don't think that we'll need Open and Close in the menu at all
+
     if (theClassifier)
     {
         if ([theClassifier isDirty])
@@ -290,6 +298,13 @@
         }
         theClassifier = null;
     }
+
+    [classifierTableViewDelegate close];
+}
+
+- (@action)finishJob:(CPMenuItem)aSender
+{
+    [self close:null];
 
     if (thePageGlyphs)
     {
@@ -300,14 +315,8 @@
         thePageGlyphs = null;
     }
 
-    [classifierTableViewDelegate close];
     [pageGlyphsTableViewDelegate close];
     [pageImageController setContent:null];
-}
-
-- (@action)finishJob:(CPMenuItem)aSender
-{
-    [self close:null];
     [theRunJob setNeedsInput:false];
     [theRunJob ensureSaved];
     // [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadInteractiveJobsNotification

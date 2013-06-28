@@ -54,6 +54,11 @@
     [classifierController new:aSender];
 }
 
+- (@action)importFromXML:(CPMenuItem)aSender
+{
+    [classifierController importFromXML:aSender];
+}
+
 - (@action)open:(CPMenuItem)aSender
 {
     [classifierController open:aSender];
