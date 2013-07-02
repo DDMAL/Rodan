@@ -43,6 +43,17 @@
 @end
 
 
+@implementation InitImportFetchClassifiersDelegate : ClassifierControllerFetchDelegate
+{
+}
+
+- (void)remoteActionDidFinish:(WLRemoteAction)anAction
+{
+    [classifierController initImportFetchClassifiersDidFinish:anAction];
+}
+@end
+
+
 @implementation InitOpenFetchClassifiersDelegate : ClassifierControllerFetchDelegate
 {
 }

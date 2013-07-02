@@ -3,6 +3,7 @@
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/NewClassifierTextfieldDelegate.j"
+@import "../Delegates/ImportClassifierTextfieldDelegate.j"
 @import "../Delegates/SymbolOutlineDelegate.j"
 
 @import "../Controllers/ClassifierController.j"
@@ -21,7 +22,8 @@
 
     @outlet ClassifierController classifierController;
     RunJob runJob @accessors;
-
+    CPCookie CSRFToken @accessors;
+    @outlet UploadButton classifierUploadButton;
 }
 
 - (void)awakeFromCib
@@ -36,6 +38,13 @@
                                               selector:@selector(loadRunJob)
                                               name:RodanHasFocusClassifierViewNotification
                                               object:nil];
+
+        [classifierUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"];
+        [classifierUploadButton setBordered:YES];
+        [classifierUploadButton setFileKey:@"files"];
+        [classifierUploadButton allowsMultipleFiles:NO];
+        [classifierUploadButton setDelegate:classifierController];
+        [classifierUploadButton setURL:@"/classifiers/"];
     }
 }
 

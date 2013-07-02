@@ -1,3 +1,4 @@
+import os
 from rest_framework import generics
 from rest_framework import permissions
 from django.dispatch import receiver
@@ -26,8 +27,33 @@ class ClassifierList(generics.ListCreateAPIView):
 
     @receiver(post_save, sender=Classifier)
     def create_xml(sender, instance=None, created=False, **kwargs):
+        print 'create_xml'
         if created:
             instance._create_new_xml()
+
+    def post(self, request, *args, **kwargs):
+        print 'post'
+        response = self.create(request, *args, **kwargs)  # Try using super
+          # I think that (create) will actually call create_xml and therefore _create_new_xml
+        if request.FILES:
+            # # Making dirs should be done by 'save,' which is done in 'create'
+            # if not os.path.exists(self.directory_path):
+            #     os.makedirs(self.directory_path)
+
+            # page_obj.page_image.save(page_obj.upload_path(fileobj.name), fileobj)
+                # Hmmm, super does the django save... I haven't overwritten save on the classifier object...
+                # maybe that's the best way?  The alternative I'm thinking of is to do it all here (in the view.)  That seems fine.
+            # I believe that there's a better, Django-y way to do this... (call save and give the file as an argument, and set the path
+            # variables properly)
+            # f = open(self.object.file_path, 'w')
+            # f.write(request.FILES['files'])
+
+            # Write to filesystem (reference: https://docs.djangoproject.com/en/dev/topics/http/file-uploads/)
+            uploaded_xml_file = request.FILES['files']
+            with open(self.object.file_path, 'w') as destination:
+                for chunk in uploaded_xml_file.chunks():
+                    destination.write(chunk)
+        return response
 
 
 class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -106,6 +106,7 @@ class GameraXML(object):
 
         f = open(self.file_path, 'w')
         f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+        f.close()
         return True
 
     def write_xml(self, glyphs):
@@ -139,6 +140,7 @@ class GameraXML(object):
                 f_element.text = ' '.join([str(v) for v in feature['values']])
         f = open(self.file_path, 'w')
         f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+        f.close()
         return True
 
     def delete_xml(self):

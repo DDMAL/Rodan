@@ -6,7 +6,6 @@
 @import "../Delegates/ClassifierControllerFetchDelegates.j"
 
 @global activeProject
-@global RodanShouldLoadInteractiveJobsNotification
 
 @implementation ClassifierController : CPObject
 {
@@ -17,10 +16,18 @@
 
     @outlet CPWindow newClassifierWindow;
     InitNewFetchClassifiersDelegate initNewFetchClassifiersDelegate;
-    @outlet NewClassifierTextfieldDelegate newClassifierTextfieldDelegate;
     @outlet CPButton createButton;
     @outlet CPTextField newClassifierTextfield;
     @outlet CPTextField nameUsedLabel;
+
+    @outlet CPWindow importClassifierWindow;
+    InitImportFetchClassifiersDelegate initImportFetchClassifiersDelegate;
+    @outlet UploadButton importClassifierChooseFileButton;
+    @outlet CPButton importCreateButton;  // Not implemented yet.
+    @outlet CPTextField importClassifierNameTextfield;
+    @outlet CPTextField importClassifierFileTextfield;
+    @outlet CPTextField nameUsedLabelInImportWindow;
+
     @outlet CPWindow openClassifierWindow;
     InitOpenFetchClassifiersDelegate initOpenFetchClassifiersDelegate;
     @outlet CPButton openButton;
@@ -44,8 +51,6 @@
 
 - (void)awakeFromCib
 {
-    [newClassifierTextfield setDelegate:newClassifierTextfieldDelegate];
-
     [newClassifierWindow setDefaultButton:createButton];
     [openClassifierWindow setDefaultButton:openButton];
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
@@ -53,6 +58,7 @@
     // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
     fetchClassifiersDelegate  = [[FetchClassifiersDelegate alloc] initWithClassifierController:self];
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
+    initImportFetchClassifiersDelegate  = [[InitImportFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
     fetchPageGlyphsDelegate = [[FetchPageGlyphsDelegate alloc] initWithClassifierController:self];
 }
@@ -152,8 +158,112 @@
 
 - (@action)importFromXML:(CPMenuItem)aSender
 {
-    console.log("importFromXML...");
-    // [openClassifierWindow makeKeyAndOrderFront:null];
+    // TODO: Hmmm, having to copy code from 'new:'
+    // I think the ideal implementation would be to use all of the same objects
+    // and use a field from aSender to change the behavior... just so there's not copied code.
+    // That wouldn't do it, maybe there's a Ratatosk way to send information to the delegate,
+    // or to tell it to call a different function than 'remoteActionDidFinish'
+    // I doubt it, just copy the code.
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/classifiers/'
+                    delegate:initImportFetchClassifiersDelegate
+                    message:"Loading classifier list"];
+}
+
+- (void)initImportFetchClassifiersDidFinish:(WLRemoteAction)anAction
+{
+    console.log([anAction result]);
+    var classifiers = [Classifier objectsFromJson:[anAction result]];
+    console.log("classifiers:");
+    console.log(classifiers);
+    [classifierArrayController setContent:classifiers];
+    console.log([self suggestNameForNewClassifier]);
+    console.log(importClassifierNameTextfield);
+    [importClassifierNameTextfield setStringValue:[self suggestNameForNewClassifier]];
+    [self updateNameUsedLabel];
+    [importClassifierWindow makeKeyAndOrderFront:null];
+}
+
+- (void)updateNameUsedLabelInImportWindow
+{
+    // This feels like copied code from updateNameUsedLabel and should be done better.
+    if ([self classifierExists:[importClassifierNameTextfield stringValue]])
+    {
+        [nameUsedLabelInImportWindow setHidden:NO];
+    }
+    else
+    {
+        [nameUsedLabelInImportWindow setHidden:YES];
+    }
+}
+
+- (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection  // Delegate method for uploading XML
+{
+    console.log("didChangeSelection.");
+
+    var newName = [importClassifierNameTextfield stringValue];
+
+    if (newName !== @"" && ![self classifierExists:newName])
+    {
+        [button setValue:[activeProject pk] forParameter:@"project"];
+        [button setValue:[importClassifierNameTextfield stringValue] forParameter:@"name"];
+        // [button submit];
+        [importClassifierFileTextfield setStringValue:selection];
+    }
+    else
+    {
+        // Stop
+        return nil;
+    }
+
+    return nil;
+}
+
+- (void)uploadButtonDidBeginUpload:(UploadButton)button  // Delegate method for uploading XML
+{
+    // This function is called when submit is pressed.
+    console.log("uploadButtonDidBeginUpload.");
+}
+
+- (void)uploadButton:(UploadButton)button didFailWithError:(CPString)anError  // Delegate method for uploading XML
+{
+    console.log("didFailWithError.");
+    console.log(anError);
+
+    // CPLog.error(anError);
+}
+
+- (void)uploadButton:(UploadButton)button didFinishUploadWithData:(CPString)response  // Delegate method for uploading XML
+{
+    console.log("didFinishUploadWithData.");
+
+    [button resetSelection];
+    console.log(response);
+    var data = JSON.parse(response);
+    console.log(data);
+    // [self createObjectsWithJSONResponse:data];
+    [self createObjectsWithJSONResponse:data];
+    [importClassifierWindow close];
+}
+
+- (void)createObjectsWithJSONResponse:(id)aResponse
+{
+    [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
+    // var newClassifier = [Classifier objectsFromJson:aResponse];  // No... this is just a 'listed' classifier (minimal, without the glyphs)
+    var newClassifiers = [Classifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
+    console.log("newClassifiers");
+    console.log(newClassifiers);
+    console.log(aResponse);
+    // console.log(JSON.parse(aResponse));
+    console.log([[classifierArrayController contentArray] objectAtIndex:0]);
+    [classifierArrayController addObjects:newClassifiers];
+    [WLRemoteObject setDirtProof:NO];
+    console.log(classifierArrayController);
+}
+
+- (@action)uploadClassifier:(id)aSender
+{
+    [importClassifierChooseFileButton submit];  // Sends a POST to /classifiers/ (was set up in ClassifierViewController's awakeFromCib)
 }
 
 - (void)fetchClassifiers

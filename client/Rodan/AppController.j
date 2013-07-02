@@ -264,6 +264,7 @@ activeProject = nil;  // URI to the currently open project
 
     [contentView setSubviews:[contentScrollView]];
 
+    [classifierViewController setCSRFToken:CSRFToken];
     [classifierViewController loadView];  // Loads ClassifierView.xib and instantiates its objects
 }
 

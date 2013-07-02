@@ -22,5 +22,10 @@ class Classifier(models.Model, GameraXML):
     project = models.ForeignKey(Project, related_name="classifiers")  # workflows.py does it differently.
     classifier_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
 
+    def save(self, *args, **kwargs):
+        super(Classifier, self).save(*args, **kwargs)
+        if not os.path.exists(self.directory_path):
+            os.makedirs(self.directory_path)
+
     def __unicode__(self):
         return u"classifier" + str(self.uuid)
