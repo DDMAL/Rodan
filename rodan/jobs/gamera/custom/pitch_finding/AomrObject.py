@@ -648,10 +648,7 @@ class AomrObject(object):
             elif stf[miyao_line][1] + 4*diff/4 > glyph.offset_y + center_of_mass:
                 line_or_space = 0
                 return line_or_space, i+1
-            else:
-                line_or_space = 0
-                return line_or_space, i
-                
+
     def glyph_classification(self):
         """ Glyph classification.
             Returns a list of the classified glyphs with its position and size.
