@@ -34,6 +34,7 @@
             [symbolCollectionArray addObject:symbolCollection];
         }
         [symbolCollection addGlyph:glyphs[i]];
+        [glyphs[i] addObserver:symbolCollection forKeyPath:@"idName" options:nil context:nil];
         prevGlyphName = glyphName;
     }
     return symbolCollectionArray;

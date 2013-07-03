@@ -123,9 +123,9 @@ write the symbol name of a glyph.  It updates the glyph with the new info:
 This won't write to the server until they hit Save.
 */
 {
-    idState = @"MANUAL";
-    idName = newName;
-    idConfidence = @"1.000000";
+    [self setIdState:@"Manual"];
+    [self setIdName:newName];
+    [self setIdConfidence:@"1.000000"];
 }
 
 - (BOOL)imageIsEqualToGlyph:(Glyph)glyph

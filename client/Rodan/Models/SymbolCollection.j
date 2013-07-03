@@ -2,10 +2,11 @@
 
 @implementation SymbolCollection : CPObject
 {
-    CPString        symbolName  @accessors;
-    CPMutableArray  glyphList   @accessors;
-    int             maxRows     @accessors;
-    int             maxCols     @accessors;
+    CPString          symbolName  @accessors;
+    CPMutableArray    glyphList   @accessors;
+    int               maxRows     @accessors;
+    int               maxCols     @accessors;
+    // CPArrayController cvArrayController;
 }
 
 - (SymbolCollection)init
@@ -60,4 +61,11 @@
 {
     return [[self symbolName] stringByAppendingFormat:@" (%d)", [[self glyphList] count]];
 }
+
+- (void)observeValueForKeyPath:(CPString)aKeyPath ofObject:(id)aGlyph change:(CPDictionary)aChange context:(id)aContext
+{
+    console.log("SymbolCollection observered a change to a the " + aKeyPath + " of a glyph:");
+    console.log(aChange);
+}
+
 @end
