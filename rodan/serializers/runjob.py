@@ -49,4 +49,6 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'page',
                   'job_settings',
                   'needs_input',
-                  'status')
+                  'status',
+                  'error_summary',
+                  'error_details')

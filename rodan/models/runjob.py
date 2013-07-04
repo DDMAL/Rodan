@@ -51,6 +51,9 @@ class RunJob(models.Model):
     needs_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
 
+    error_summary = models.TextField(default="")
+    error_details = models.TextField(default="")
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
