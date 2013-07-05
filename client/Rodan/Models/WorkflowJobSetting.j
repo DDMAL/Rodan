@@ -37,10 +37,21 @@
 + (id)initWithSetting:(JSObject)setting
 {
     var self = [[WorkflowJobSetting alloc] init];
-
     [self setSettingName:setting.name];
-    [self setSettingDefault:setting.default];
+    [self setSettingType:setting.type];
 
+    // Ugly hack to overcome JSON poorly handling floats.
+    if (setting.type == 'float' || setting.type == 'real')
+    {
+        var floatString = setting.default;
+        [self setSettingDefault:[floatString floatValue]];
+    }
+    else
+    {
+        [self setSettingDefault:setting.default];
+    }
+
+    // Determine visibility.
     if ("visibility" in setting)
     {
         [self setVisibility:setting.visibility];
@@ -56,7 +67,6 @@
     if (setting.choices)
         [self setChoices:[CPArray arrayWithArray:setting.choices]];
 
-    [self setSettingType:setting.type];
 
     return self;
 }

@@ -17,6 +17,8 @@
     JSObject    page            @accessors;
     CPDate      created         @accessors;
     CPDate      updated         @accessors;
+    CPString    errorSummary    @accessors;
+    CPString    errorDetails    @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -32,7 +34,9 @@
         ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
         ['page', 'page', [WLForeignObjectTransformer forObjectClass:Page]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
-        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true],
+        ['errorSummary', 'error_summary'],
+        ['errorDetails', 'error_details']
     ];
 }
 
@@ -48,6 +52,14 @@
         runJobUUID = [pk lastPathComponent];
     }
     return runJobUUID;
+}
+
+/**
+ * Convenience method for enabling/disabling "View Error Details" button.
+ */
+- (BOOL)didFail
+{
+    return [self status] == -1;
 }
 
 - (CPString)remotePath
