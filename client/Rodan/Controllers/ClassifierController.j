@@ -292,7 +292,10 @@
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
     [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
     [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
+
     [pageGlyphsTableViewDelegate initializeTableView];
+    console.log("Finished initializing pageGlyphsTableView");
+    console.log(pageGlyphsSymbolCollectionArrayController);
 }
 
 - (@action)open:(CPMenuItem)aSender
@@ -372,6 +375,10 @@
 
     [thePageGlyphs makeAllDirty];
     [thePageGlyphs ensureSaved];
+
+    // [classifierTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
+    // [pageGlyphsTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
+
 }
 
 - (@action)close:(CPMenuItem)aSender

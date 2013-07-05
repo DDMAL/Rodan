@@ -6,7 +6,6 @@
 @implementation GlyphsTableViewDelegate : CPObject
 {
     @outlet CPArrayController       symbolCollectionArrayController;
-            CPMutableArray          cvArrayControllers  @accessors;
             int                     headerLabelHeight   @accessors;
             int                     photoViewInset      @accessors;
     @outlet CPTableView             theTableView;
@@ -24,7 +23,6 @@
         [self setPhotoViewInset:10];
         // [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewContentBoundsDidChange:) name:CPViewBoundsDidChangeNotification object:self.scrollView.contentView];
             // This is if I want to try to write the tableview to not do a complete and utter reload every time something changes, and instead to just reload the current view.
-        [self setCvArrayControllers:[[CPArray alloc] init]];
     }
 
     return self;
@@ -32,14 +30,7 @@
 
 - (void)initializeTableView
 {
-    var nSymbols = [[symbolCollectionArrayController contentArray] count];
-    cvArrayControllers = [[CPMutableArray alloc] initWithCapacity:nSymbols];
-
-    for (var j = 0; j < nSymbols; ++j)
-    {
-        [cvArrayControllers addObject:[self _makeAndBindCvArrayControllerToSymbolCollection:[symbolCollectionArrayController contentArray][j]]];
-    }
-
+    // Perhaps we don't need this initialize function any more
     [theTableView reloadData];
 }
 
@@ -62,13 +53,17 @@
     /// -------------------------------------------------------
 
     var newBinIndex = [self _makeSymbolCollectionForName:newName],
-        cvArrayControllers_count = [cvArrayControllers count],
+        symbolCollections = [theGameraGlyphs symbolCollections],
+        symbolCollectionsCount = [symbolCollections count],
         allSelectedObjects = [[CPMutableArray alloc] init];
 
-    for (var i = 0; i < cvArrayControllers_count; ++i)
+    for (var i = 0; i < symbolCollectionsCount; ++i)
     {
-        var selectedObjects = [cvArrayControllers[i] selectedObjects],
-            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayControllers[i] selectionIndexes]],
+        var cvArrayController = [symbolCollections[i] cvArrayController],
+            selectedObjects = [cvArrayController selectedObjects],
+            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayController selectionIndexes]],
+            // Confirm again that [cvArrayController selectedObjects] wouldn't do the trick... I believe it would now because the transformer's addGlyph
+            // now touches the cvArrayController
             selectedGlyphsInRowCount = [selectedGlyphsInRow count];
         [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
 
@@ -81,34 +76,36 @@
         for (var j = 0; j < selectedGlyphsInRowCount; j++)
         {
             var glyph = selectedGlyphsInRow[j];
-            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];
+            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Do this with KVO (SC -> Glyph)
             [glyph writeSymbolName:newName];
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Do this with KVO (GG -> Glyph)... however the SC MUST get notified... so hopefuly when GG->Glyph removes the observer it's not too early.
+                                                                                // This is where the OO model might be better, but I bet the KVO is robust enough that all observers will get notified.
         }
 
-        [cvArrayControllers[i] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];
-        [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+        [cvArrayController bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];  // Do this with model (removeGlyph)
+        [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Samesies
     }
 
-    [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-    [cvArrayControllers[newBinIndex] setSelectedObjects:allSelectedObjects];
+    [[symbolCollections[newBinIndex] cvArrayController] bind:@"contentArray" toObject:symbolCollections[newBinIndex] withKeyPath:@"glyphList" options:nil];  // Do this with model (addGlyph)
+    [[symbolCollections[newBinIndex] cvArrayController] setSelectedObjects:allSelectedObjects];  // Keep this right here, not with a notification
 
     var a_symbol_was_removed = false;
 
-    for (var i = 0; i < [[theGameraGlyphs symbolCollections] count] ; ++i)
+    for (var i = 0; i < [symbolCollections count] ; ++i)
     {
-        if ([[[theGameraGlyphs symbolCollections][i] glyphList] count] === 0)
+        if ([[symbolCollections[i] glyphList] count] === 0)
         {
             a_symbol_was_removed = true;
-            [[theGameraGlyphs symbolCollections] removeObjectAtIndex:i];
-            [cvArrayControllers removeObjectAtIndex:i];
+            [symbolCollections removeObjectAtIndex:i];  // Do this with KVO (GG -> SC)
+            // [cvArrayControllers removeObjectAtIndex:i];  // Won't be necessary since the parallel arrays are no longer needed (removing the symbolCollection is all)
             --i;
         }
     }
 
     if (a_symbol_was_removed)
-        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];
+        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // Do this with KVO (GG -> SC)
 
+    console.log("Finished write, reloading data.");
     [theTableView reloadData];
     return allSelectedObjects;
 }
@@ -124,19 +121,20 @@
 
 - (int)_makeSymbolCollectionForName:(CPString)newName
 {
-    var symbolCollectionsCount = [[theGameraGlyphs symbolCollections] count],
+    var symbolCollections = [theGameraGlyphs symbolCollections],
+        symbolCollectionsCount = [symbolCollections count],
         bin_already_exists = false,
         newBinIndex = 0;
 
     for (var i = 0; i < symbolCollectionsCount; ++i)
     {
         newBinIndex = i;
-        if ([[theGameraGlyphs symbolCollections][i] symbolName] === newName)
+        if ([symbolCollections[i] symbolName] === newName)
         {
             bin_already_exists = true;
             break;
         }
-        else if ([[theGameraGlyphs symbolCollections][i] symbolName] > newName)
+        else if ([symbolCollections[i] symbolName] > newName)
         {
             break;
         }
@@ -146,55 +144,22 @@
     {
         var newSymbolCollection = [[SymbolCollection alloc] init];
         [newSymbolCollection setSymbolName:newName];
-        [[theGameraGlyphs symbolCollections] insertObject:newSymbolCollection atIndex:newBinIndex];
+        [symbolCollections insertObject:newSymbolCollection atIndex:newBinIndex];  // Do it without referencing theGameraGlyphs(?)
         [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
-        [cvArrayControllers insertObject:[self _makeAndBindCvArrayControllerToSymbolCollection:newSymbolCollection] atIndex:newBinIndex];
-            // TODO: don't actually have to bind here (factor it out)
     }
 
     return newBinIndex;
 }
 
-// - (void)          writeSymbolName                                :(CPString)        newName
-- (CPArrayController)_makeAndBindCvArrayControllerToSymbolCollection:(SymbolCollection)aSymbolCollection
-{
-    var cvArrayController = [[CPArrayController alloc] init];
-    [cvArrayController bind:@"contentArray" toObject:aSymbolCollection withKeyPath:@"glyphList" options:nil];
-    // [cvArrayControllers[j] bind:@"content" toObject:symbolCollectionArray[j] withKeyPath:@"glyphList" options:nil];  // also works
-    [cvArrayController setAvoidsEmptySelection:NO];
-    [cvArrayController setPreservesSelection:YES];  // Seems important for the loop that moves (removes) glyphs one at a time
-    [cvArrayController rearrangeObjects];
-    // rearrangeObjects is just a good thing to do.  (I do it later, and doing it now makes it so that things don't get all rearranged.)
-    // It kills the selection though.
-    [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
-    return cvArrayController;
-}
-
 - (void)close
 {
-    [symbolCollectionArrayController setContent:[]];  // Also need to kill all of the subArrays.
-      // Also need to unset all of the symbolCollections... the labels are bound to that model, and not through the array controller
-      // Maybe the label ought to be bound through the array controller... like with objectValue (via the table's binding)
-        // Use a dict of arrays keyed by symbol name.
-    // var enumerator = [cvArrayControllerDict objectEnumerator],
-    //     cvArrayController;
-    // while (cvArrayController = [enumerator nextObject])
-    // {
-    //     [cvArrayController setContent:[]];
-    // }
-    // [cvArrayControllerDict removeAllObjects];
-    [theTableView noteNumberOfRowsChanged];
+    [symbolCollectionArrayController setContent:[]];
+    [theTableView noteNumberOfRowsChanged];  // Seems unnecessary
     [theTableView reloadData];
-    // Ok.  I didn't even need the cvArrayControllerDict for this.  Wow.
-    // So my first approach was sort of a 'binding' style approach in which I was hoping that the table view would
-    // empty when I killed the content of the array controller.  However, I'm not using binding, I'm using a coded
-    // approach, because of all of the hooplah with the collection view and the row height.  So the best binding
-    // could do would be to empty the coll views and labels, but the tableView would still sort of be there (and the
-    // scroll bar,) so it's much better to just tell the tableView what to do explicitly (reloadData... after erasing
-    // the data).  Side note: the SymbolOutline uses the former approach (binding.)
 }
 
 // ------------------------------------- DELEGATE METHODS ----------------------------------------------
+
 - (CPView)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 // Return a view for the TableView to use a cell of the table.
 {
@@ -218,6 +183,7 @@
 {
     console.log("---willDisplayView--- row " + aRow);
     var symbolCollection = [[aTableView dataSource] tableView:aTableView objectValueForTableColumn:aTableColumn row:aRow],
+        cvArrayController = [symbolCollection cvArrayController],
         symbolName = [symbolCollection symbolName],  // If I use binding, I don't need this variable
         label = [[CPTextField alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth([aView bounds]), [self headerLabelHeight])];
     [label setStringValue:symbolName];
@@ -234,12 +200,12 @@
     [parentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMaxYMargin];
     [aView addSubview:parentView];
     [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight([aView bounds]) - [self headerLabelHeight])];
-    var cv = [self _makeCollectionViewForTableView:aTableView arrayController:cvArrayControllers[aRow] parentView:parentView row:aRow];
+    var cv = [self _makeCollectionViewForTableView:aTableView arrayController:cvArrayController parentView:parentView row:aRow];
     // [cv bind:@"selectionIndexes" toObject:cvArrayControllers[aRow] withKeyPath:@"selectionIndexes" options:nil];
-    [cv setSelectionIndexes:[cvArrayControllers[aRow] selectionIndexes]];  // This should allow you to scroll down and back and have the selection persist
+    [cv setSelectionIndexes:[cvArrayController selectionIndexes]];  // This should allow you to scroll down and back and have the selection persist
         // Now... when did cvArrayControllers[aRow] selectionIndexes get erased!
         // Maybe the binding isn't working... or maybe the array controller
-    [cvArrayControllers[aRow] bind:@"selectionIndexes" toObject:cv withKeyPath:@"selectionIndexes" options:nil];
+    [cvArrayController bind:@"selectionIndexes" toObject:cv withKeyPath:@"selectionIndexes" options:nil];
         // Note: this is a clever binding.  We don't want to bind the view to the array controller because the view is transitory
         // and we'd end up with an accumulation of bindings.
         // Gweh.  Problem: rename a couple of symbols, and then you can't select a symbol that has been renamed.  Maybe the array controller
@@ -266,7 +232,6 @@
 */
 - (void)observeValueForKeyPath:(CPString)aKeyPath ofObject:(CPCollectionView)aCollectionView change:(CPDictionary)aChange context:(id)aContext
 {
-
     var theClickedRow = aContext,
         newIndexSet = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
     if (([newIndexSet firstIndex] !== CPNotFound))
@@ -277,12 +242,14 @@
         if (! ([[CPApp currentEvent] modifierFlags] & (CPShiftKeyMask | CPCommandKeyMask)))  //http://stackoverflow.com/questions/9268045
         {
             var i = 0,
-                nArrayControllers = [cvArrayControllers count];
-            for (; i < nArrayControllers; ++i)
+                symbolCollections = [theGameraGlyphs symbolCollections],
+                symbolCollectionsCount = [symbolCollections count];
+            for (; i < symbolCollectionsCount; ++i)
             {
                 if (i !== theClickedRow)
                 {
-                    [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+                    // [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+                    [[symbolCollections[i] cvArrayController] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
                     // The reason that we ensure that firstIndex != CPNotFound is because this line of code causes ANOTHER call to observeValueForKeyPath.
                     // So we break an infinite loop by only nullifying other views' selections if the newIndexSet has a firstIndex (which isn't true for
                     // this line's change of selection)
@@ -316,20 +283,22 @@
 - (void)nullifySelection
 {
     var emptyIndexSet = [CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)],
-        cvArrayControllersCount = [cvArrayControllers count];
+        symbolCollections = [theGameraGlyphs symbolCollections],
+        symbolCollectionsCount = [symbolCollections count];
 
-    for (var i = 0; i < cvArrayControllersCount; ++i)
+    for (var i = 0; i < symbolCollectionsCount; ++i)
     {
-        [cvArrayControllers[i] setSelectionIndexes:emptyIndexSet];
+        [[symbolCollections[i] cvArrayController] setSelectionIndexes:emptyIndexSet];
     }
 }
 
 - (BOOL)hasSelection
 {
-    var cvArrayControllersCount = [cvArrayControllers count];
-    for (var i = 0; i < cvArrayControllersCount; ++i)
+    var symbolCollections = [theGameraGlyphs symbolCollections],
+        symbolCollectionsCount = [symbolCollections count];
+    for (var i = 0; i < symbolCollectionsCount; ++i)
     {
-        if ([[cvArrayControllers[i] selectionIndexes] firstIndex] !== CPNotFound)
+        if ([[[symbolCollections[i] cvArrayController] selectionIndexes] firstIndex] !== CPNotFound)
         {
             console.log("hasSelection returning true.");
             return true
@@ -386,17 +355,6 @@
     // There seems to be a minor width issue.  See if the coll view's width is actually wider than it should be... Consider building it in a smaller view (?)
     //   (?) because that never worked for me before, I think it must be laid out inside the tableView's aView... which I don't think gives me leeway...
     //   unless I call setFrame on the collView.  Worth a shot.
-}
-
-- (void)recheck_heights:(CPView)aCvParentView
-{
-    var _cv = [aCvParentView subviews][0];
-    console.log("---In recheck_heights!---");
-    console.log("parent view height: " + CGRectGetHeight([aCvParentView frame]));
-    console.log("cv height: " + CGRectGetHeight([_cv frame]));
-    console.log("calculate from last image: " + CGRectGetMaxY([[_cv subviews][[[_cv subviews] count] - 1] frame]));
-    console.log("---Out recheck_heights!---");
-    return;
 }
 
 - (CPCollectionView)_makeCollectionViewForTableView:(CPTableView)aTableView arrayController:(CPArrayController)cvArrayController parentView:(CPView)aView  row:(int)aRow
@@ -474,21 +432,23 @@
 - (void)tableView:(CPTableView)aTableView shouldSelectRow:(int)aRow
 // Returns the height of a specified row
 {
-    console.log("ShouldSelectRow: [[cvArrayControllers[aRow] selectionIndexes] count] is " + [[cvArrayControllers[aRow] selectionIndexes] count] +
-        ", [[cvArrayControllers[aRow] contentArray] count] is " + [[cvArrayControllers[aRow] contentArray] count]);
-    if ([[cvArrayControllers[aRow] selectionIndexes] count] === [[cvArrayControllers[aRow] contentArray] count])
+    var cvArrayController = [[theGameraGlyphs symbolCollections][aRow] cvArrayController];
+
+    console.log("ShouldSelectRow: [cvArrayController selectionIndexes] count] is " + [[cvArrayController selectionIndexes] count] +
+        ", [cvArrayController contentArray] count] is " + [[cvArrayController contentArray] count]);
+    if ([[cvArrayController selectionIndexes] count] === [[cvArrayController contentArray] count])
     {
         // all are selected
         console.log("ShouldSelectRow: deselecting items.");
-        [cvArrayControllers[aRow] setSelectedObjects:[]];
+        [cvArrayController setSelectedObjects:[]];
     }
     else
     {
-        console.log("ShouldSelectRow: selecting " + [[cvArrayControllers[aRow] contentArray] count] + " items.");
-        [cvArrayControllers[aRow] setSelectedObjects:[cvArrayControllers[aRow] contentArray]];
+        console.log("ShouldSelectRow: selecting " + [[cvArrayController contentArray] count] + " items.");
+        [cvArrayController setSelectedObjects:[cvArrayController contentArray]];
         // Not setting all four... hmmm.  Print selectedObjects and contentArray... try to determine why the fourth isn't set.
-        console.log([cvArrayControllers[aRow] selectedObjects]);
-        console.log([cvArrayControllers[aRow] contentArray]);  // Maybe KVC doesn't get notified by addGlyph?  But content array's count goes up I think.
+        console.log([cvArrayController selectedObjects]);
+        console.log([cvArrayController contentArray]);  // Maybe KVC doesn't get notified by addGlyph?  But content array's count goes up I think.
     }
     return NO;
 }

@@ -16,18 +16,19 @@
     if ([glyphs count] === 0)
         return;
 
-    var newBinIndex = [self _makeSymbolCollectionForName:[glyphs[0] idName]];
+    var newBinIndex = [self _makeSymbolCollectionForName:[glyphs[0] idName]],
+        symbolCollection = [theGameraGlyphs symbolCollections][newBinIndex],
+        cvArrayController = [symbolCollection cvArrayController];
 
     for (var i = 0; i < [glyphs count]; ++i)
     {
         if (![self checkIfGlyph:glyphs[i] isAlreadyPresentIn:[theGameraGlyphs symbolCollections][newBinIndex]])
         {
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyphs[i]];
+            [symbolCollection addGlyph:glyphs[i]];
         }
     }
 
-    [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-    [cvArrayControllers[newBinIndex] setSelectedObjects:glyphs];
+    [cvArrayController setSelectedObjects:glyphs];
     [theTableView reloadData];
 }
 
