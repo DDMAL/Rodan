@@ -26,7 +26,7 @@
 
 - (void)observeValueForKeyPath:(CPString)aKeyPath ofObject:(id)aSymbolCollection change:(CPDictionary)aChange context:(id)aContext
 {
-    console.log("GameraGlyphs observered a change to a symbol collection glyph list.");
+    console.log("GameraGlyphs observered a change to a symbol collection glyph list.");  // Works
     console.log(aChange);
 }
 

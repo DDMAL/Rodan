@@ -110,7 +110,7 @@ class GameraXML(object):
         return True
 
     def write_xml(self, glyphs):
-        """ Intended to receive a PUT containing a Glyph in JSON.
+        """ Intended to receive a PUT containing Glyphs in JSON.
         Writes XML.  Assume that I have a whole glyphs (array of
         glyph dictionaries) object as defined in the footnote. """
 
@@ -209,7 +209,7 @@ class GameraXML(object):
             xml = etree.parse(f, parser)
 
         for glyph in xml.xpath("//glyph"):
-            if 'xml:id' not in glyph.keys():
+            if 'uuid' not in glyph.keys():
                 glyph.set('uuid', "{0}{1}".format('g', uuid4().hex))
 
         with open(self.file_path, 'wb') as f:

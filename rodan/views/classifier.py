@@ -33,15 +33,19 @@ class ClassifierList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         response = super(ClassifierList, self).post(request, *args, **kwargs)
-        if request.FILES:
-            # The directories have been made already because super.post calls 'create' and 'save' which, in the classifier model,
-            # is overwritten to make the directory
 
+        if request.FILES:
             # Write to filesystem (reference: https://docs.djangoproject.com/en/dev/topics/http/file-uploads/)
+            # (The directories have been made already because super.post calls 'create' and 'save' which, in the classifier model,
+            # is overwritten to make the directory)
             uploaded_xml_file = request.FILES['files']
             with open(self.object.file_path, 'w') as destination:
                 for chunk in uploaded_xml_file.chunks():
                     destination.write(chunk)
+
+            # Edit the new XML and ensure that all glyphs have UUIDs
+            self.object.add_uuids_to_glyphs()
+
         return response
 
 
