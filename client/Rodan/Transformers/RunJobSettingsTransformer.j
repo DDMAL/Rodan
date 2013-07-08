@@ -35,7 +35,10 @@
         i = 0;
     for (; i < settingsCount; ++i)
     {
-        [settingsDict setObject:jsonArrayOfJobSettings[i]['default'] forKey:jsonArrayOfJobSettings[i]['name']];
+        if (jsonArrayOfJobSettings[i]['default'])
+        {
+            [settingsDict setObject:jsonArrayOfJobSettings[i]['default'] forKey:jsonArrayOfJobSettings[i]['name']];
+        }
     }
     return settingsDict;
 }
