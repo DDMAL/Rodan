@@ -200,9 +200,13 @@
 
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection  // Delegate method for uploading XML
 {
-    // Set up the upload button to do a POST
-    [button setValue:[activeProject pk] forParameter:@"project"];
-    [button setValue:[importClassifierNameTextfield stringValue] forParameter:@"name"];
+    // Use the uploaded file name to suggest a name for the classifier
+    var fileExtensionRe = /^(.+)\..+?$/,
+        // (firstPartOfFilename) dot fileExtension
+        // ... and the fileExtension part is non-greedy
+        classifierName = fileExtensionRe.exec(selection)[1];
+        // Element 1 of the output array is the capturing parenthesis match (firstPartOfFilename)
+    [importClassifierNameTextfield setStringValue:classifierName];
     [importClassifierFileTextfield setStringValue:selection];
 }
 
@@ -211,8 +215,9 @@
     var newName = [importClassifierNameTextfield stringValue];
     if (newName !== @"" && ![self classifierExists:newName])
     {
-        // TODO: Add to if statement checks for @"project" and @"name".  Ensure that the user has chosen a selection,
-        // indicated by didChangeSelection having been called, before submitting.
+        // TODO: Add to if statement checks to ensure that a selection has been made.
+        [importClassifierChooseFileButton setValue:[activeProject pk] forParameter:@"project"];
+        [importClassifierChooseFileButton setValue:[importClassifierNameTextfield stringValue] forParameter:@"name"];
         [importClassifierChooseFileButton submit];  // Sends a POST to /classifiers/ (see setup in ClassifierViewController's awakeFromCib)
     }
 }
