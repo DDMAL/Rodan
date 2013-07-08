@@ -5,6 +5,8 @@ import StringIO
 import base64
 
 from lxml import etree
+from uuid import uuid4
+
 
 # Note about class structure:  I'd like GameraXML to
 # - inherit Model
@@ -42,29 +44,26 @@ class GameraXML(object):
         converted from Gamera's runlength encoding to PNG."""
 
         parser = etree.XMLParser(resolve_entities=True)
-        xml = etree.parse(open(self.file_path, 'r'), parser)
+
+        with open(self.file_path, 'r') as f:
+            xml = etree.parse(f, parser)
+
         glyphs = []
 
         for glyph in xml.xpath("//glyph"):
             # Keep values as strings, they'll just need to be
             # displayed anyway.
 
-            # TODO: This only works if all of the fields are in the
-            # XML.  Add support for missing fields
-            #  (features or id element)
-            # Perhaps there should be an argument in the API to generate features or not.
             ids = glyph.find('ids')
             id_element = ids.find('id')
             features = glyph.find('features')  # 'features' element
-            #if (features):
-            #    feature_list = features.getchildren()  # list of 'feature' elements
-            #else:
-            #    feature_list = []
+
             if features is not None:
                 feature_list = features.getchildren()
+                # alternative: feature_list = features.xpath("feature")
             else:
                 feature_list = []
-            # or: features.xpath("feature")
+
             glyph_dict = {
                 'ulx': float(glyph.get('ulx')),
                 'uly': float(glyph.get('uly')),
@@ -90,6 +89,7 @@ class GameraXML(object):
                 } for f in feature_list]
             }
             glyphs.append(glyph_dict)
+
         glyphs.sort(key=lambda glyph: glyph['id_name'])
             # Note: The client assumes that the glyphs are sorted.
             # It needs to do so to assign array controllers to each symbol.
@@ -104,9 +104,9 @@ class GameraXML(object):
         if not os.path.exists(self.directory_path):
             os.makedirs(self.directory_path)
 
-        f = open(self.file_path, 'w')
-        f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
-        f.close()
+        with open(self.file_path, 'wb') as f:
+            f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+
         return True
 
     def write_xml(self, glyphs):
@@ -131,16 +131,15 @@ class GameraXML(object):
             data_element.text = self._runlength_encode(json_glyph['data'])
             features_element = etree.SubElement(glyph_element, "features",
                                                 scaling=str(json_glyph['feature_scaling']))
+
             for feature in json_glyph['features']:
                 f_element = etree.SubElement(features_element, "feature",
                                              name=feature['name'])
-                                             #text=feature['values'])  # bad: need a string
-                                             #text=''.join([val.append(' ') for val in feature['values']]) # Not understanding how awesome join is
-                                             #text=' '.join(feature['values']) # bad: assigns an attribute called 'text'
                 f_element.text = ' '.join([str(v) for v in feature['values']])
-        f = open(self.file_path, 'w')
-        f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
-        f.close()
+
+        with open(self.file_path, 'wb') as f:
+            f.write(etree.tostring(gamera_database, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+
         return True
 
     def delete_xml(self):
@@ -157,13 +156,17 @@ class GameraXML(object):
         # length ncols.
         pixels = []
         white_or_black = 255  # 255 is white
+
         for n in re.findall("\d+", glyph.find('data').text):
             pixels.extend([white_or_black] * int(n))
             white_or_black = white_or_black ^ 255  # Toggle between 0 and 255
+
         png_writer = png.Writer(width=ncols, height=nrows, greyscale=True)
         pixels_2D = []
+
         for i in xrange(nrows):
             pixels_2D.append(pixels[i*ncols: (i+1)*ncols])  # Index one row of pixels
+
         # StringIO.StringIO lets you write to strings as files: it gives you a file descriptor.
         # (pypng expects a file descriptor)
         buf = StringIO.StringIO()
@@ -186,7 +189,9 @@ class GameraXML(object):
                 runlength_array.append(runlength)
                 runlength = 1
                 previous_pixel = previous_pixel ^ 255  # Toggle between 0 and 255
+
         runlength_array.append(runlength)
+
         if (pixel == 255):
             runlength_array.append(0)
             # the last number must be the runlength of black pixels
@@ -196,6 +201,21 @@ class GameraXML(object):
         # Returns a string containing each integer separated by spaces:
         # The 'map' call converts to an array of strings, then 'join' into one string
 
+    def add_uuids_to_glyphs(self):
+        # This function gives ids to all of the glyphs in the XML file
+        parser = etree.XMLParser(resolve_entities=True)
+
+        with open(self.file_path, 'r') as f:
+            xml = etree.parse(f, parser)
+
+        for glyph in xml.xpath("//glyph"):
+            if 'xml:id' not in glyph.keys():
+                glyph.set('uuid', "{0}{1}".format('g', uuid4().hex))
+
+        with open(self.file_path, 'wb') as f:
+            f.write(etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+
+        return True
 
 
 ### GAMERA XML AS A DICTIONARY ###

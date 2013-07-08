@@ -1,6 +1,5 @@
 import os
 import shutil
-import tarfile
 
 import gamera.core
 import gamera.gamera_xml
@@ -105,8 +104,9 @@ class ManualClassificationTask(ClassificationTaskBase):
                                         with_features=True)
         with open(temp_xml_path) as f:
             rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
-
         shutil.rmtree(os.path.dirname(temp_xml_path))
+
+        rdn_pageglyph.add_uuids_to_glyphs()
 
         return {'pageglyphs': u"{0}".format(rdn_pageglyph.get_absolute_url())}
 
@@ -121,7 +121,7 @@ class AutoClassificationTask(ClassificationTaskBase):
                 {'default': 4, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_parts_per_group', 'type': 'int'},
                 {'default': 16, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'max_graph_size', 'type': 'int'},
                 {'default': 16, 'has_default': True, 'rng': (1, 1048576), 'name': 'distance_threshold', 'type': 'int'},
-                {'default':  None, 'has_default': False, 'name': 'classifier', 'type': 'uuid_classifier'},
+                {'default': None, 'has_default': False, 'name': 'classifier', 'type': 'uuid_classifier'},
                 {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid_pageglyphs', 'visibility': False}]
 
     def save_glyphs(self, glyphs, classifier):
@@ -133,6 +133,8 @@ class AutoClassificationTask(ClassificationTaskBase):
         with open(temp_xml_path) as f:
             pageglyphs_model.pageglyphs_file.save('page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
+
+        pageglyphs_model.add_uuids_to_glyphs()
 
         return pageglyphs_model
 
@@ -149,6 +151,6 @@ class AutoClassificationTask(ClassificationTaskBase):
                                                               max_parts_per_group=settings['max_parts_per_group'],
                                                               max_graph_size=settings['max_graph_size'])
         cknn.generate_features_on_glyphs(grouped_glyphs)
-        glyph_model = self.save_glyphs(grouped_glyphs, classifier_model)
+        pageglyphs_model = self.save_glyphs(grouped_glyphs, classifier_model)
 
-        return glyph_model
+        return pageglyphs_model
