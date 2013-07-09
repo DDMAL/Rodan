@@ -145,7 +145,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         if isinstance(data, dict):
             for field in fields:
                 if field in data.keys():
-                    data[field] = request.build_absolute_uri(data['url'])
+                    data[field] = request.build_absolute_uri(data[field])
             for item in data.values():
                     self._make_abs_uri_recursively(request, item)
 
