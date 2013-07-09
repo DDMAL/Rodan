@@ -46,6 +46,6 @@ class WorkflowRun(models.Model):
         return u"/workflowrun/{0}/".format(self.pk)
 
     @property
-    def backup_directory(self):
+    def retry_backup_directory(self):
         project_path = self.workflow.project.project_path
-        return os.path.join(str(project_path), 'deleted_workflowruns')
+        return os.path.join(str(project_path), 'workflowrun_retry_backup')

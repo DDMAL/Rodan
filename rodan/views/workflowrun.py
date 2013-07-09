@@ -161,7 +161,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def _backup_workflowrun(self, wf_run):
         source = wf_run.workflow_run_path
-        wf_backup_dir = wf_run.backup_directory
+        wf_backup_dir = wf_run.retry_backup_directory
         dir_name_base = str(wf_run.uuid)
         for i in range(1, 1000):
             test_dir_name = "%s_%d" % (dir_name_base, i)
