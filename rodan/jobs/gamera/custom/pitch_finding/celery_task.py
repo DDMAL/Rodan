@@ -93,3 +93,10 @@ class PitchFindingTask(Task):
         result.run_job.save()
 
     on_failure = taskutil.default_on_failure
+
+    def error_mapping(self, exc, traceback):
+        from rodan.models.runjob import RunJob
+        if isinstance(exc, RunJob.DoesNotExist):
+            return {'error_summary': "Cannot get segmented image",
+                    'error_details': "Did you delete and re-add any of the jobs in the workflow?"}
+
