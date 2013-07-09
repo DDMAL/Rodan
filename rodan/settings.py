@@ -241,6 +241,9 @@ IMAGE_TYPES = (None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX)
 
 NONIMAGE = -1
 
+BACKUP_WORKFLOWRUN_ON_RETRY = True
+TRACEBACK_IN_ERROR_DETAIL = True
+
 # The base_url below is hardcoded. This setting needs to be properly configured when you deploy Rodan.
 # Here is a list of places where this variable is used:
 #

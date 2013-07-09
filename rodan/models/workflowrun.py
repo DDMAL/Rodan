@@ -44,3 +44,8 @@ class WorkflowRun(models.Model):
     def get_absolute_url(self):
         """ NOTE: This is a hack. We should come up with a more flexible way of doing this. """
         return u"/workflowrun/{0}/".format(self.pk)
+
+    @property
+    def backup_directory(self):
+        project_path = self.workflow.project.project_path
+        return os.path.join(str(project_path), 'deleted_workflowruns')

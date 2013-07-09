@@ -18,3 +18,6 @@ class InvalidFirstJobError(RodanError):
 
 class UUIDParseError(RodanError):
     pass
+
+class WorkFlowTriedTooManyTimesError(RodanError):
+    pass
