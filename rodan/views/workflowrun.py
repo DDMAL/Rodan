@@ -133,6 +133,26 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
 
+    def _make_abs_uri_recursively(self, request, data,
+                                  fields=['url', 'workflow', 'run_job',
+                                          'workflow_run', 'result', 'page',
+                                          'workflow_job', 'project', 'creator']):
+        """
+        Recursively traverses through serialized data and for every field in
+        fields and tries to builds an absolute uri with its value using the django
+        HttpRequest.build_absolute_uri method.
+        """
+        if isinstance(data, dict):
+            for field in fields:
+                if field in data.keys():
+                    data[field] = request.build_absolute_uri(data['url'])
+            for item in data.values():
+                    self._make_abs_uri_recursively(request, item)
+
+        if isinstance(data, list):
+            for item in data:
+                self._make_abs_uri_recursively(request, item)
+
     def get(self, request, pk, *args, **kwargs):
         by_page = self.request.QUERY_PARAMS.get('by_page', None)
         if not by_page:
@@ -156,7 +176,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
 
         workflow_run = WorkflowRunByPageSerializer(workflow_run).data[0]
         workflow_run['pages'] = sorted(pages.values(), key=itemgetter('page_order'))
-
+        self._make_abs_uri_recursively(request, workflow_run)
         return Response(workflow_run)
 
     def _backup_workflowrun(self, wf_run):
