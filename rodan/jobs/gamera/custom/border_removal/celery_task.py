@@ -13,10 +13,27 @@ class AutoBorderRemovalTask(GameraCustomTask):
     settings = argconvert.convert_arg_list(border_removal.args.list)
 
     def process_image(self, task_image, settings):
+        """
+        Note that if the incoming image is onebit, it will convert it to greyscale,
+        do the cropping, and then convert it back to onebit. This can sometimes
+        lead to unexpected behavior, especially because converting to greyscale
+        can do some interpolation, and converting back to onebit uses a default
+        binarizaiton algorithm (the otsu threshold). These can change the image.
+        """
+
         init_gamera()
         grey_image = task_image.to_greyscale()
         crop_mask = grey_image.border_removal(**settings)
+
+        need_to_change_back = False
+        if task_image.data.pixel_type == 0:
+            task_image = task_image.to_greyscale()
+            need_to_change_back = True
+
         result_image = task_image.mask(crop_mask)
+
+        if need_to_change_back:
+            result_image = result_image.to_onebit()
 
         return result_image
 
