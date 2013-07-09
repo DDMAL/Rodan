@@ -4,9 +4,10 @@ import png
 import StringIO
 import base64
 
+from django.db import models
 from lxml import etree
 from uuid import uuid4
-
+from uuidfield import UUIDField
 
 # Note about class structure:  I'd like GameraXML to
 # - inherit Model
@@ -16,20 +17,23 @@ from uuid import uuid4
 # Cannot create a consistent method resolution
 
 
-class GameraXML(object):
+class GameraXML(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        abstract = True
+
+    def upload_path(self, filename):
+        return self.file_path
+
+    uuid = UUIDField(primary_key=True, auto=True)
+    xml_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
 
     #(ABSTRACT)
     #@property
     #def directory_path(self):
 
-    # GameraXML is expected to be subclassed and 'directory_path' is expected to be implemented
-    # in the subclass.
-
-    # I don't know the python-y way to communicate that.  Since python is keen on
-    # gentlemanly agreements about scope, I'm going to let the above comment suffice.
+    # 'directory_path' is expected to be implemented in the subclass.
 
     @property
     def file_path(self):

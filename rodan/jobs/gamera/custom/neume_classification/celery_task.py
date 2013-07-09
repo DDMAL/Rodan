@@ -103,7 +103,7 @@ class ManualClassificationTask(ClassificationTaskBase):
                                         task_image.cc_analysis(),
                                         with_features=True)
         with open(temp_xml_path) as f:
-            rdn_pageglyph.pageglyphs_file.save('page_glyphs.xml', File(f))
+            rdn_pageglyph.xml_file.save('page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
         rdn_pageglyph.add_uuids_to_glyphs()
@@ -131,7 +131,7 @@ class AutoClassificationTask(ClassificationTaskBase):
         gamera.gamera_xml.glyphs_to_xml(temp_xml_path, glyphs, with_features=True)
 
         with open(temp_xml_path) as f:
-            pageglyphs_model.pageglyphs_file.save('page_glyphs.xml', File(f))
+            pageglyphs_model.xml_file.save('page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
         pageglyphs_model.add_uuids_to_glyphs()
