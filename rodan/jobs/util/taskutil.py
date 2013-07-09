@@ -181,6 +181,9 @@ def default_on_failure(self, exc, task_id, args, kwargs, einfo):
         err_info = self.error_mapping(exc, einfo.traceback)
         err_summary = err_info['error_summary']
         err_detail = err_info['error_details']
+        from rodan.settings import TRACEBACK_IN_ERROR_DETAIL
+        if TRACEBACK_IN_ERROR_DETAIL:
+            err_detail = str(err_detail) + "\n\n" + str(einfo.traceback)
     except StandardError as e:
         print "The error_mapping method is not implemented properly (or not implemented at all). Exception: "
         print "%s: %s" % (e.__class__.__name__, e.__str__())
