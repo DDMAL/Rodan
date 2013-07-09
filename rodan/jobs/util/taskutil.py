@@ -157,6 +157,8 @@ def default_on_success(self, retval, task_id, args, kwargs):
     # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
     result = Result.objects.get(pk=retval)
     result.run_job.status = RunJobStatus.HAS_FINISHED
+    result.run_job.error_summary = ""
+    result.run_job.error_details = ""
     result.run_job.save()
 
     res = create_thumbnails.s(result)
