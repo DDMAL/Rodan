@@ -89,7 +89,7 @@
     if ([aAction result])
     {
         [WLRemoteObject setDirtProof:YES];
-        _classifiers = [Classifier objectsFromJson:[aAction result]];
+        _classifiers = [MinimalClassifier objectsFromJson:[aAction result]];
         [WLRemoteObject setDirtProof:NO];
     }
 }

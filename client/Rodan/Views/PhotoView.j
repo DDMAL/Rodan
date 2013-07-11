@@ -1,26 +1,43 @@
-@implementation PhotoView : CPImageView
+@implementation PhotoView : CPView
 /*
-PhotoView implements functions required by the collection view
-(setSelected and setRepresented)
-see http://280north.com/learn/tutorials/scrapbook-tutorial-2/
+    PhotoView implements functions required by the collection view
+    (setSelected and setRepresented)
+    see http://280north.com/learn/tutorials/scrapbook-tutorial-2/
 */
 {
     CPImageView _imageView;
-    int inset @accessors;
 }
-- (id)initWithFrame:(id)aFrame andInset:(int)anInset
+
+// The collection view doesn't call 'init' on its PhotoViews... maybe because they're views and not a models,
+// so don't bother trying to implement init.  Also, even though the GlyphsTableViewDelegate
+// calls init, the collection view ends up not using the view given to it, it makes its own.  (The GlyphsTableView
+// one is a prototype.  (My first instinct was to make 'inset' a field, but making it a class method has the
+// benefit of actually working.)
+
+/*
+    [PhotoView inset] returns the number of cells that border the imageView.  So the PhotoView is 10 cells
+    larger than the imageView on all four sides.  The PhotoView darkens upon selection, and this margin is
+    necessary in order for the user to see that a cell has been selected.
+*/
++ (id)inset
 {
-    self = [super initWithFrame:aFrame];
-    [self setInset:anInset];
-    // console.log("[self inset] from initWithFrame: " + [self inset]);  // Works... but inset is null later
-    return self;
+    return 10;
 }
+
 - (void)setSelected:(BOOL)isSelected
 {
     [self setBackgroundColor:isSelected ? [CPColor grayColor] : nil];
 }
-- (void)setRepresentedObject:(id)anObject
+
+/*
+    setRepresentedObject is called by the collection view and is telling us (the view) to display
+    the object.  The object is of course a glyph, because the collection view's content is bound
+    to glyphList.  Our task is to be a view for that glyph.
+*/
+- (void)setRepresentedObject:(id)aGlyph
 {
+    var inset = [[self class] inset];
+
     if (!_imageView)
     {
         _imageView = [[CPImageView alloc] initWithFrame:CGRectMakeZero()];  // set the frame later (images don't seem to get added if I do it here)
@@ -31,16 +48,12 @@ see http://280north.com/learn/tutorials/scrapbook-tutorial-2/
         [_imageView setBackgroundColor:[CPColor redColor]];
         [self addSubview:_imageView];
     }
-    [_imageView setImage:[[CPImage alloc] initWithData:[anObject pngData]]];
-    // Commented code: trying to get autosizing to work.  This might allow me to resize more efficiently.
-    // [_imageView setFrame:CGRectMake(10,10,[anObject nCols],[anObject nRows])];  // inset by 10 (half of 20... which is harcoded elsewhere)
-    // [_imageView setFrame:CGRectMake(0,0,[anObject nCols], [anObject nRows])];
-    // console.log("self inset (in setRepresented): " + [self inset]);  //null
-    // [_imageView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin ];  // Well, Y looks okay.  It might work better I do it manually.
-    // console.log("self inset: " + [self inset]);  // TODO: null!  Why is inset null!
-    // [_imageView setFrame:CGRectMake([self inset],[self inset],[anObject nCols],[anObject nRows])];
-    [_imageView setFrame:CGRectMake(10,10,[anObject nCols],[anObject nRows])];
+    [_imageView setImage:[[CPImage alloc] initWithData:[aGlyph pngData]]];
+    // [_imageView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin ];  // Well, Y looks okay.  But I can't quite get autosizing to work right.
+    [_imageView setFrame:CGRectMake(inset, inset, [aGlyph nCols], [aGlyph nRows])];
     [_imageView setAutoresizesSubviews:NO];
     [_imageView setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
+
 }
+
 @end

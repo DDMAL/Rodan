@@ -79,8 +79,7 @@
 
 - (void)initNewFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [self _updateClassifierArrayControllerWithResponse:anAction];
     [newClassifierTextfield setStringValue:[self suggestNameForNewClassifier]];
     [self updateNameUsedLabel];
     [newClassifierWindow makeKeyAndOrderFront:null];
@@ -149,7 +148,7 @@
     var newName = [newClassifierTextfield stringValue];
     if (newName !== @"" && ![self classifierExists:newName])
     {
-        var classifier = [[Classifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
+        var classifier = [[MinimalClassifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
         [classifier ensureCreated];
         [newClassifierWindow close];
@@ -178,8 +177,7 @@
 
 - (void)initImportFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [self _updateClassifierArrayControllerWithResponse:anAction];
     [importClassifierNameTextfield setStringValue:[self suggestNameForNewClassifier]];
     [importClassifierFileTextfield setStringValue:@""];
     [self updateNameUsedLabelInImportWindow];
@@ -244,7 +242,7 @@
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
     [WLRemoteObject setDirtProof:YES];
-    var newClassifiers = [Classifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
+    var newClassifiers = [MinimalClassifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
     [classifierArrayController addObjects:newClassifiers];
     [WLRemoteObject setDirtProof:NO];
 }
@@ -264,10 +262,15 @@
 
 - (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
+    var classifiers = [MinimalClassifier objectsFromJson:[anAction result]];
     [classifierArrayController setContent:classifiers];
 }
 
+/*
+    loadRunJob is called when Rodan has displayed the Classifier interface
+    and it's time to get the data using the RunJob settings and populate the
+    displays.
+*/
 - (void)loadRunJob:(RunJob)aRunJob
 {
     theRunJob = aRunJob;
@@ -297,7 +300,10 @@
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
     [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
     [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
+
     [pageGlyphsTableViewDelegate initializeTableView];
+    console.log("Finished initializing pageGlyphsTableView");
+    console.log(pageGlyphsSymbolCollectionArrayController);
 }
 
 - (@action)open:(CPMenuItem)aSender
@@ -331,7 +337,12 @@
 {
     // Open operation just finished: server sent us a full classifier
 
+    console.log("remoteActionDidFinish");
+    console.log([anAction result]);
     theClassifier = [[Classifier alloc] initWithJson:[anAction result]];
+
+    console.log("remoteActionDidFinish: theClassifier:");
+    console.log(theClassifier);
 
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
@@ -370,13 +381,17 @@
         [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
     }
 
-    [theClassifier makeAllDirty];
-    //[theClassifier makeDirtyProperty:@"id_name"];
-    [theClassifier ensureSaved];
-    // TODO: instead of writing the entire classifier, try to send less JSON and just patch a bit.
+    // [theClassifier makeAllDirty];
+    // //[theClassifier makeDirtyProperty:@"id_name"];
+    // [theClassifier ensureSaved];
+    // // TODO: instead of writing the entire classifier, try to send less JSON and just patch a bit.
 
-    [thePageGlyphs makeAllDirty];
-    [thePageGlyphs ensureSaved];
+    // [thePageGlyphs makeAllDirty];
+    // [thePageGlyphs ensureSaved];
+
+    // [classifierTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
+    // [pageGlyphsTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
+
 }
 
 - (@action)close:(CPMenuItem)aSender

@@ -2,16 +2,25 @@
 {
 
 }
+
 + (BOOL)allowsReverseTransformation
 {
-    return NO;
+    return YES;
 }
+
 + (Class)transformedValueClass
 {
     return [CPData class];
 }
-- (id)transformedValue:(id)value
+
+- (id)transformedValue:(id)base64
 {
-    return [CPData dataWithBase64:value];
+    return [CPData dataWithBase64:base64];
 }
+
+- (id)reverseTransformedValue:(CPData)aCPData
+{
+    return [aCPData base64];
+}
+
 @end

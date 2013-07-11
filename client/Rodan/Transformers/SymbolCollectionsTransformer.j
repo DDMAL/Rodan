@@ -17,6 +17,7 @@
 
 - (CPArray)transformedValue:(CPArray)jsonArrayOfGlyphs
 {
+    console.log("Ratatosk is making new objects.");
     var i = 0,
         glyphs = [Glyph objectsFromJson:jsonArrayOfGlyphs],
         glyphs_count = [glyphs count],
@@ -37,6 +38,7 @@
         [glyphs[i] addObserver:symbolCollection forKeyPath:@"idName" options:nil context:nil];
         prevGlyphName = glyphName;
     }
+
     return symbolCollectionArray;
 }
 
