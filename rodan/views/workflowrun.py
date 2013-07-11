@@ -216,10 +216,10 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         os.makedirs(runjob.runjob_path)
 
     def _update_settings(self, runjob):
+        runjob.needs_input = runjob.workflow_job.job.interactive
         if runjob.workflow_job.workflow is not None:
             # i.e. if the workflow job was never deleted from the workflow
             runjob.job_settings = runjob.workflow_job.job_settings
-            runjob.save()
         else:
             # We're trying to find a new workflow_job with the job_name.
             new_workflowjobs = runjob.workflow_run.workflow.workflow_jobs.filter(job__job_name=runjob.job_name)
@@ -227,9 +227,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                 runjob.job_settings = new_workflowjobs[0].job_settings  # We just grab the first matching one.
                 runjob.workflowjob = new_workflowjobs[0]  # And also set the new workflow_job.
                                                           # I'm not too sure about this one.
-
-                runjob.save()
-
+        runjob.save()
 
     def patch(self, request, pk, *args, **kwargs):
         try:
@@ -285,10 +283,6 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
 
             first_job = runjobs_list[failed_index]
             self._update_settings(first_job)
-            if first_job.workflow_job.workflow is not None:
-                # i.e. if the workflow job was not deleted from the workflow
-                first_job.job_settings = first_job.workflow_job.job_settings
-                first_job.save()
             first_task = registry.tasks[str(first_job.job_name)]
             task_chain = [first_task.si(result_id, str(first_job.uuid))]
 
