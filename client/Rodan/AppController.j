@@ -38,6 +38,7 @@
 @import "Transformers/RunJobStatusTransformer.j"
 @import "Transformers/UsernameTransformer.j"
 @import "Transformers/ResultThumbnailTransformer.j"
+@import "Transformers/RetryFailedRunJobsTransformer.j"
 
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
@@ -190,6 +191,10 @@ activeProject = nil;  // URI to the currently open project
     resultThumbnailTransformer = [[ResultThumbnailTransformer alloc] init];
     [ResultThumbnailTransformer setValueTransformer:resultThumbnailTransformer
                                 forName:@"ResultThumbnailTransformer"];
+
+    retryFailedRunJobsTransformer = [[RetryFailedRunJobsTransformer alloc] init];
+    [RetryFailedRunJobsTransformer setValueTransformer:retryFailedRunJobsTransformer
+                                forName:@"RetryFailedRunJobsTransformer"];
 
 }
 

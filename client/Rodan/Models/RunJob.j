@@ -3,6 +3,14 @@
 @import "Page.j"
 @import "../Transformers/RunJobSettingsTransformer.j"
 
+RUNJOB_STATUS_FAILED = -1,
+RUNJOB_STATUS_NOTRUNNING = 0,
+RUNJOB_STATUS_RUNNING = 1,
+RUNJOB_STATUS_WAITINGFORINPUT = 2,
+RUNJOB_STATUS_RUNONCEWAITING = 3,
+RUNJOB_STATUS_HASFINISHED = 4,
+RUNJOB_STATUS_CANCELLED = 9;
+
 @implementation RunJob : WLRemoteObject
 {
     CPString    pk              @accessors;

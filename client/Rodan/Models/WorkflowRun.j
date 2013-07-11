@@ -1,6 +1,15 @@
 @import <Ratatosk/WLRemoteObject.j>
+@import "../Transformers/RunJobStatusTransformer.j"
 @import "RunJob.j"
 @import "User.j"
+
+@global RUNJOB_STATUS_FAILED
+@global RUNJOB_STATUS_NOTRUNNING
+@global RUNJOB_STATUS_RUNNING
+@global RUNJOB_STATUS_WAITINGFORINPUT
+@global RUNJOB_STATUS_RUNONCEWAITING
+@global RUNJOB_STATUS_HASFINISHED
+@global RUNJOB_STATUS_CANCELLED
 
 @implementation WorkflowRun : WLRemoteObject
 {
@@ -53,6 +62,23 @@
     }
 }
 
+/**
+ * Returns number of run jobs that failed.
+ */
+- (int)getRunJobFailCount
+{
+    var runJobEnumerator = [runJobs objectEnumerator],
+        runJob = null,
+        runJobFailCount = 0;
+    while (runJob = [runJobEnumerator nextObject])
+    {
+        if ([runJob status] == RUNJOB_STATUS_FAILED)
+        {
+            runJobFailCount++;
+        }
+    }
+    return runJobFailCount;
+}
 
 /**
  * We override WLRemoteObject::isEqual to make sure that other WLRemoteObjects that have this class as a member (e.g. Workflow)
