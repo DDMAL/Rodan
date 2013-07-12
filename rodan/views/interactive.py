@@ -155,8 +155,8 @@ class NeonView(RodanInteractiveBaseView):
                 }
 
         def runjob_context(self, runjob, request):
-            return {'live_mei_url': os.path.join(request.get_host(), self.live_mei_url(runjob)),
+            return {'live_mei_url': "http://" + os.path.join(request.get_host(), self.live_mei_url(runjob)),
                     'neon_handler_path': 'edit/' + str(runjob.uuid),
                     'edit_title': 'Runjob ' + str(runjob.uuid),
-                    'neon_image': os.path.join(request.get_host(),
+                    'neon_image': "http://" + os.path.join(request.get_host(),
                                                            self.compressed_image_url(runjob))}
