@@ -1,0 +1,19 @@
+body {
+    padding-bottom: 40px;
+    padding-top: 60px;
+}
+
+.sidebar-nav-fixed {
+    position: fixed;
+    left: 20px;
+    top: 60px;
+    width: 300px;
+}
+
+.sidebar-inner {
+    padding-bottom: 5px;
+}
+
+.row-fluid > .span-fixed-sidebar {
+    margin-left: 320px;
+}
