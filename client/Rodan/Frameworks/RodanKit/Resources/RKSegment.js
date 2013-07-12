@@ -146,7 +146,7 @@
                         groupAnchors = group.attrs.anchors,
                         offsetX = (group.attrs.x) ? Math.abs(event.layerX - group.attrs.x) : event.layerX,
                         offsetY = (group.attrs.y) ? Math.abs(event.layerY - group.attrs.y) : event.layerY,
-                        hitPoint = {x: offsetX, y: offsetY},
+                        hitPoint = {x: event.layerX, y: event.layerY},
                         indices = _getIndicesOfNeighbourAnchorsForNewAnchor(groupAnchors, hitPoint, "outside");
 
                     _addAnchor(offsetX, offsetY, group, indices[1]);
@@ -231,7 +231,7 @@
                         groupAnchors = group.attrs.anchors,
                         offsetX = (group.attrs.x) ? Math.abs(event.layerX - group.attrs.x) : event.layerX,
                         offsetY = (group.attrs.y) ? Math.abs(event.layerY - group.attrs.y) : event.layerY,
-                        hitPoint = {x: offsetX, y: offsetY},
+                        hitPoint = {x: event.layerX, y: event.layerY},
                         indices = _getIndicesOfNeighbourAnchorsForNewAnchor(groupAnchors, hitPoint, "inside");
 
                     _addAnchor(offsetX, offsetY, group, indices[1]);
@@ -401,6 +401,10 @@
             if(aLinePointA.x == aLinePointB.x)
             {
                 return {x: aLinePointA.x, y: aPoint.y};
+            }
+            else if(aLinePointA.y == aLinePointB.y)
+            {
+                return {x: aPoint.x, y: aLinePointA.y};
             }
             var slope = (aLinePointA.y - aLinePointB.y) / (aLinePointA.x - aLinePointB.x),
                 xIntercept = aLinePointA.y - (slope * aLinePointA.x),
