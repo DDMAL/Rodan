@@ -1,5 +1,7 @@
+import os
 from django.shortcuts import render
 from django.views.generic.base import View
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 
 from rodan.models import RunJob
@@ -11,47 +13,56 @@ class RodanInteractiveBaseView(View):
     template_name = ""
     data = {}
 
+    def runjob_context(self, runjob, request):
+        """
+        Provide this method in a subclass to provide extra context
+        about the runjob to the template. Must return a dictionary.
+        """
+        return {}
+
     def get(self, request, *args, **kwargs):
         if 'runjob' not in request.GET:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
         rj_uuid = request.GET['runjob']
-        run_job = RunJob.objects.get(uuid=rj_uuid)
+        runjob = get_object_or_404(RunJob, pk=(rj_uuid))
 
-        sequence = run_job.workflow_job.sequence
-        page = run_job.page
+        sequence = runjob.workflow_job.sequence
+        page = runjob.page
 
         # if this is the first job in the sequence, the file path is just the original image
         if sequence == 1:
-            image_source = run_job.page
+            image_source = runjob.page
         else:
             previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1),
-                                                  workflow_run__uuid=run_job.workflow_run.uuid,
+                                                  workflow_run__uuid=runjob.workflow_run.uuid,
                                                   page = page.uuid)
             image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
 
-        data = {'form_url': self.view_url,
-                'run_job_uuid': rj_uuid,
-                'image_source': image_source}
+        self.data.update({'form_url': self.view_url,
+                      'run_job_uuid': rj_uuid,
+                      'image_source': image_source})
 
-        for setting in run_job.job_settings:
-            data[setting['name']] = setting['default']
-        
-        return render(request, "{0}/{1}".format('jobs', self.template_name), data)
+        self.data.update(self.runjob_context(runjob, request))
+
+        for setting in runjob.job_settings:
+            self.data[setting['name']] = setting['default']
+
+        return render(request, "{0}/{1}".format('jobs', self.template_name), self.data)
 
     def post(self, request, *args, **kwargs):
         if 'run_job_uuid' not in request.POST:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
         rj_uuid = request.POST['run_job_uuid']
-        run_job = RunJob.objects.get(uuid=rj_uuid)
+        runjob = RunJob.objects.get(uuid=rj_uuid)
 
-        for job_setting in run_job.job_settings:
+        for job_setting in runjob.job_settings:
             if job_setting['name'] in request.POST:
                 job_setting['default'] = request.POST[job_setting['name']]
 
-        run_job.needs_input = False
-        run_job.save()
+        runjob.needs_input = False
+        runjob.save()
 
         return render(request, 'jobs/job_input_done.html')
 
@@ -124,3 +135,28 @@ class BarlineCorrectionView(RodanInteractiveBaseView):
 
     def post(self, request, *args, **kwargs):
         return super(BarlineCorrectionView, self).post(request, *args, **kwargs)
+
+class NeonView(RodanInteractiveBaseView):
+    try:
+        from rodan.jobs.neon.utils import live_mei_url, compressed_image_url
+        from rodan.jobs.neon import neon_handler
+    except ImportError as e:
+        from rodan.settings import DEBUG
+        if DEBUG:
+            print "Neon is not installed. Skipping interactive neon view."
+            print "Exception:", e
+    else:
+        view_url = "/interactive/neon/"
+        template_name = "neon.html"
+        live_mei_url = staticmethod(live_mei_url)
+        compressed_image_url = staticmethod(compressed_image_url)
+
+        data = {'force_width': 1000, 'neume_library': 'salzinnes'  # This can be a setting
+                }
+
+        def runjob_context(self, runjob, request):
+            return {'live_mei_url': "http://" + os.path.join(request.get_host(), self.live_mei_url(runjob)),
+                    'neon_handler_path': 'edit/' + str(runjob.uuid),
+                    'edit_title': 'Runjob ' + str(runjob.uuid),
+                    'neon_image': "http://" + os.path.join(request.get_host(),
+                                                           self.compressed_image_url(runjob))}
