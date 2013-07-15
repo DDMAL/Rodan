@@ -1,6 +1,6 @@
 @import "../Models/Glyph.j"
 
-@implementation GlyphTransformer : CPObject //See WLRemoteTransformers.j in Ratatosk
+@implementation GlyphsTransformer : CPObject //See WLRemoteTransformers.j in Ratatosk
 {
 
 }
@@ -17,6 +17,10 @@
 
 - (CPArray)transformedValue:(CPArray)jsonArrayOfGlyphs
 {
+    // console.log("GlyphsTransformer calling Glyph objectsFromJson!");
+    // console.log(jsonArrayOfGlyphs);
+    // var retval = [Glyph objectsFromJson:jsonArrayOfGlyphs];
+    // console.log("GlyphsTransformer returning " + retval);
     return [Glyph objectsFromJson:jsonArrayOfGlyphs];
 }
 

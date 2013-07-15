@@ -1,4 +1,4 @@
-@import "../Models/Glyph.j"
+@import "Glyph.j"
 
 /*
     The symbol collection has two important field:

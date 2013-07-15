@@ -106,7 +106,7 @@ class ManualClassificationTask(ClassificationTaskBase):
             rdn_pageglyph.xml_file.save('page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
-        rdn_pageglyph.add_uuids_to_glyphs()
+        rdn_pageglyph.add_uuids_and_sort_glyphs()
 
         return {'pageglyphs': u"{0}".format(rdn_pageglyph.get_absolute_url())}
 
@@ -134,7 +134,7 @@ class AutoClassificationTask(ClassificationTaskBase):
             pageglyphs_model.xml_file.save('page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
-        pageglyphs_model.add_uuids_to_glyphs()
+        pageglyphs_model.add_uuids_and_sort_glyphs()
 
         return pageglyphs_model
 

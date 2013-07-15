@@ -1,16 +1,8 @@
-@import "../Transformers/SymbolCollectionsTransformer.j"
+@import "GameraGlyphs.j"
 
 @implementation PageGlyphs : GameraGlyphs
 {
 
-}
-
-+ (CPArray)remoteProperties
-{
-    return [
-        ['pk',                'url'],
-        ['symbolCollections', 'glyphs', [[SymbolCollectionsTransformer alloc] init]]
-    ];
 }
 
 - (CPString)remotePath
@@ -20,4 +12,15 @@
     else
         return @"/pageglyphs/";
 }
+
+- (id)initWithJson:(id)jsonGameraGlyphs
+{
+    if (self = [super initWithJson:jsonGameraGlyphs])
+    {
+        [glyphs makeObjectsPerformSelector:@"setPageGlyphs" withObject:self];
+    }
+
+    return self;
+}
+
 @end

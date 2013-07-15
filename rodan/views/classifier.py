@@ -1,4 +1,3 @@
-import os
 from rest_framework import generics
 from rest_framework import permissions
 from django.dispatch import receiver
@@ -27,7 +26,6 @@ class ClassifierList(generics.ListCreateAPIView):
 
     @receiver(post_save, sender=Classifier)
     def create_xml(sender, instance=None, created=False, **kwargs):
-        print 'create_xml'
         if created:
             instance._create_new_xml()
 
@@ -44,7 +42,7 @@ class ClassifierList(generics.ListCreateAPIView):
                     destination.write(chunk)
 
             # Edit the new XML and ensure that all glyphs have UUIDs
-            self.object.add_uuids_to_glyphs()
+            self.object.add_uuids_and_sort_glyphs()
 
         return response
 
@@ -58,7 +56,7 @@ class ClassifierDetail(generics.RetrieveUpdateDestroyAPIView):
         kwargs['partial'] = True
         glyphs = request.DATA.get('glyphs', None)
         if glyphs:
-            self.get_object().write_xml(glyphs)
+            self.get_object().write_json_glyphs_to_xml(glyphs)
 
         return self.update(request, *args, **kwargs)
 

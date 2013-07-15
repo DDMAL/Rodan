@@ -36,7 +36,7 @@
 {
     for (var i = 0; i < [[aSymbolCollection glyphList] count]; ++i)
     {
-        if ([[aSymbolCollection glyphList][i] imageIsEqualToGlyph:aGlyph])
+        if ([[aSymbolCollection glyphList][i] isEqualTo:aGlyph])
         {
             return true;
         }

@@ -1,0 +1,60 @@
+/*
+    Glyphs have features.
+    I'd rather have the features field as a CPDictionary or a javascript object, but I keep getting
+    - Uncaught TypeError: Cannot read property 'info' of undefined.
+    when I do [glyph setValue:x forKey:features].  Defining a Features class solves that issue.
+*/
+
+@implementation Features : CPObject
+{
+    CPArray  volume            @accessors;
+    CPArray  ncolsFeature      @accessors;
+    CPArray  area              @accessors;
+    CPArray  moments           @accessors;
+    CPArray  volume16regions   @accessors;
+    CPArray  nholesExtended    @accessors;
+    CPArray  nrowsFeature      @accessors;
+    CPArray  topBottom         @accessors;
+    CPArray  volume64regions   @accessors;
+    CPArray  zernikeMoments    @accessors;
+    CPArray  skeletonFeatures  @accessors;
+    CPArray  compactness       @accessors;
+    CPArray  aspectRatio       @accessors;
+    CPArray  blackArea         @accessors;
+    CPArray  nholes            @accessors;
+}
+
++ (CPArray)remoteProperties
+{
+    return [
+        ['volume', 'volume'],
+        ['ncolsFeature', 'ncols_feature'],
+        ['area', 'area'],
+        ['moments', 'moments'],
+        ['volume16regions', 'volume16regions'],
+        ['nholesExtended', 'nholes_extended'],
+        ['nrowsFeature', 'nrows_feature'],
+        ['topBottom', 'top_bottom'],
+        ['volume64regions', 'volume64regions'],
+        ['zernikeMoments', 'zernike_moments'],
+        ['skeletonFeatures', 'skeleton_features'],
+        ['compactness', 'compactness'],
+        ['aspectRatio', 'aspect_ratio'],
+        ['blackArea', 'black_area'],
+        ['nholes', 'nholes']];
+}
+
+- (Features)initWithJson:(JSObject)jsonObject
+{
+    var remoteProperties = [Features remoteProperties],
+        remotePropertiesCount = [remoteProperties count];
+
+    for (var i = 0; i < remotePropertiesCount; i++)
+    {
+        [self setValue:jsonObject[remoteProperties[i][1]] forKey:remoteProperties[i][0]];
+    }
+
+    return self;
+}
+
+@end

@@ -1,20 +1,31 @@
-@implementation Glyph : CPObject
+// @import <Ratatosk/WLRemoteObject.j>
+@import "Classifier.j"
+@import "PageGlyphs.j"
+@import "Features.j"
+
+@implementation Glyph : WLRemoteObject
 {
-    CPString    ulx             @accessors;
-    CPString    uly             @accessors;
-    CPString    nRows           @accessors;
-    CPString    nCols           @accessors;
-    CPString    idState         @accessors;
-    CPString    idName          @accessors;
-    CPString    idConfidence    @accessors;
-    CPString    featureScaling  @accessors;
-    CPArray     features        @accessors;
-    CPData      pngData         @accessors;
+    CPString      pk              @accessors;
+    CPString      uuid            @accessors;
+    CPString      ulx             @accessors;
+    CPString      uly             @accessors;
+    CPString      nRows           @accessors;
+    CPString      nCols           @accessors;
+    CPString      idState         @accessors;
+    CPString      idName          @accessors;
+    CPString      idConfidence    @accessors;
+    CPString      featureScaling  @accessors;
+    Features      features        @accessors;
+    CPData        pngData         @accessors;
+    Classifier    classifier      @accessors;
+    PageGlyphs    pageGlyphs      @accessors;
 }
 
-+ (CPArray)glyphProperties
++ (CPArray)remoteProperties
 {
     return [
+        ['pk', 'url'],
+        ['uuid', 'uuid'],
         ['ulx', 'ulx'],
         ['uly', 'uly'],
         ['nRows', 'nrows'],
@@ -28,20 +39,28 @@
     ];
 }
 
+- (CPString)remotePath
+{
+    return [self pk];
+    // Note: you can't POST a new glyph.
+    // Glyphs are made by connected component analysis on the server.
+}
+
 - (id)initWithJson:(JSObject)jsonObject
 {
-    // Takes JSON and makes a glyph object.  Uses glyphProperties to
+    // Takes JSON and makes a glyph object.  Uses remoteProperties to
     // index the values out of the JSON dictionary.
-    // Usage: foo = [[Glyph alloc] initWithJson:serverResponse];
     var self = [self init];
 
     if (self)
     {
-        var i = 0,
-            count = [[Glyph glyphProperties] count],
-            map = [Glyph glyphProperties];
+        [self setClassifier:nil];
+        [self setPageGlyphs:nil];
 
-        for (; i < count; i++)
+        var remotePropertiesCount = [[Glyph remoteProperties] count],
+            map = [Glyph remoteProperties];
+
+        for (var i = 0; i < remotePropertiesCount; i++)
         {
             var objectKey = map[i][0],
                 serverKey = map[i][1];
@@ -49,18 +68,11 @@
             if (objectKey === 'pngData')
             {
                 [self setValue:[CPData dataWithBase64:jsonObject[serverKey]] forKey:objectKey];
-
-                //console.log("How is the data represented anyway.  Do I need to decode AND encode?");
-                //console.log(jsonObject[serverKey]);  // data field of Json (base64)
-                //console.log([CPData dataWithBase64:jsonObject[serverKey]]);  // decoded Json
             }
-            // Comment out: type changing now done on server side.
-            // else if (objectKey === 'ulx' || objectKey === 'uly' ||
-            //          objectKey === 'nRows' || objectKey === 'nCols' ||
-            //          objectKey === 'featureScaling' || objectKey === 'idConfidence')
-            // {
-            //     [self setValue:parseInt(jsonObject[serverKey]) forKey:objectKey];
-            // }
+            else if (objectKey === 'features')
+            {
+                [self setValue:[[Features alloc] initWithJson:jsonObject[serverKey]] forKey:objectKey];
+            }
             else
             {
                 [self setValue:jsonObject[serverKey] forKey:objectKey];
@@ -71,15 +83,14 @@
     return self;
 }
 
-+ (CPArray)objectsFromJson:(CPArray)aJsonArray
++ (CPArray)objectsFromJson:(CPArray)jsonArrayOfGlyphs
 {
-    var i = 0,
-        count = [aJsonArray count],
+    var glyphsCount = [jsonArrayOfGlyphs count],
         outArray = [];
 
-    for (; i < count; ++i)
+    for (var i = 0; i < glyphsCount; ++i)
     {
-        var glyph = [[Glyph alloc] initWithJson:[aJsonArray objectAtIndex:i]];
+        var glyph = [[Glyph alloc] initWithJson:[jsonArrayOfGlyphs objectAtIndex:i]];
         [outArray addObject:glyph];
     };
 
@@ -89,14 +100,15 @@
 + (CPArray)objectsToJson:(CPArray)aGlyphArray
 {
     var outArray = [],
-        aGlyphArray_count = [aGlyphArray count],
-        map = [Glyph glyphProperties],
-        map_count = [map count];
-    for (var i = 0; i < aGlyphArray_count; ++i)
+        glyphsCount = [aGlyphArray count],
+        map = [Glyph remoteProperties],
+        mapCount = [map count];
+
+    for (var i = 0; i < glyphsCount; ++i)
     {
         var JsonObject = new Object();
         // Dynamically add properties to the object using the server names
-        for (var j = 0; j < map_count; ++j)
+        for (var j = 0; j < mapCount; ++j)
         {
             var objectKey = map[j][0],
                 serverKey = map[j][1];
@@ -111,27 +123,22 @@
         }
         [outArray addObject:JsonObject];
     }
+
     return outArray;
 }
 
 - (void)writeSymbolName:(CPString)newName
-/* This function is intended to be called by the text box that allows the user to
-write the symbol name of a glyph.  It updates the glyph with the new info:
-    idState -> "MANUAL"
-    idName ->  newName
-    idConfidence -> "1.000000"
-This won't write to the server until they hit Save.
-*/
 {
     [self setIdState:@"Manual"];
     [self setIdName:newName];
     [self setIdConfidence:@"1.000000"];
 }
 
-- (BOOL)imageIsEqualToGlyph:(Glyph)glyph
+- (BOOL)isEqualTo:(Glyph)glyph
 {
     return [self ulx] === [glyph ulx] && [self uly] === [glyph uly] &&
            [self nRows] === [glyph nRows] && [self nCols] === [glyph nCols] &&
            [[self pngData] data] === [[glyph pngData] data];
 }
+
 @end

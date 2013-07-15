@@ -79,8 +79,7 @@
 
 - (void)initNewFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [self _updateClassifierArrayControllerWithResponse:anAction];
     [newClassifierTextfield setStringValue:[self suggestNameForNewClassifier]];
     [self updateNameUsedLabel];
     [newClassifierWindow makeKeyAndOrderFront:null];
@@ -149,7 +148,7 @@
     var newName = [newClassifierTextfield stringValue];
     if (newName !== @"" && ![self classifierExists:newName])
     {
-        var classifier = [[Classifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
+        var classifier = [[MinimalClassifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
         [classifier ensureCreated];
         [newClassifierWindow close];
@@ -178,8 +177,7 @@
 
 - (void)initImportFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [self _updateClassifierArrayControllerWithResponse:anAction];
     [importClassifierNameTextfield setStringValue:[self suggestNameForNewClassifier]];
     [importClassifierFileTextfield setStringValue:@""];
     [self updateNameUsedLabelInImportWindow];
@@ -239,7 +237,7 @@
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
     [WLRemoteObject setDirtProof:YES];
-    var newClassifiers = [Classifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
+    var newClassifiers = [MinimalClassifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
     [classifierArrayController addObjects:newClassifiers];
     [WLRemoteObject setDirtProof:NO];
 }
@@ -259,7 +257,7 @@
 
 - (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
 {
-    var classifiers = [Classifier objectsFromJson:[anAction result]];
+    var classifiers = [MinimalClassifier objectsFromJson:[anAction result]];
     [classifierArrayController setContent:classifiers];
 }
 
@@ -330,6 +328,9 @@
     // Open operation just finished: server sent us a full classifier
 
     theClassifier = [[Classifier alloc] initWithJson:[anAction result]];
+
+    console.log("theClassifier:");
+    console.log(theClassifier);
 
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
