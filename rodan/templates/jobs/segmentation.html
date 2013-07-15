@@ -48,28 +48,16 @@
             $('#JSON-input').val(function() 
             {
                 var points = rks.getPolyPoints();
-             /*   console.log(points);
-                exit;
-                quit;
-                var staves = stage.get(".group");
-                var oCoords = [];
-                var i, j;
-                for (i = staves.length - 1; i >= 0; i--) {
-                    var group = staves[i];
-                    var poly = group.get(".poly")[0];
-                    oCoords[i] = [];
-                    for (j in poly.attrs.points) {
-                        if (poly.attrs.points[j] !== undefined) {
-                            oCoords[i][j] = [];
-                            var point = poly.attrs.points[j];
-                            oCoords[i][j][0] = Math.round((point.x + group.getX() - margin) / scaleVal);
-                            oCoords[i][j][1] = Math.round((point.y + group.getY() - margin) / scaleVal);
-                        }
-                    }
-                }*/
                 return JSON.stringify(rks.getPolyPoints());
             });
         });
+
+        /*
+        $("#submit").on("click", function(evnt) 
+        {
+            $.post('{{ form_url }}', JSON.stringify(rks.getPolyPoints()));
+        });
+        */
     });
 </script>
 {% endblock %}

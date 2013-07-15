@@ -95,14 +95,28 @@
                 while (i--)
                 {
                     var polys = [],
-                        j = settings.polyPoints[i].length;
+                        numberOfPoints = settings.polyPoints[i].length;
 
-                    while (j--)
+                    // Make sure we reduce to a rectangle
+                    var xMinimum = settings.polyPoints[i][0][0] * settings.scalingFactor,
+                        xMaximum = settings.polyPoints[i][0][0] * settings.scalingFactor,
+                        yMinimum = settings.polyPoints[i][0][1] * settings.scalingFactor,
+                        yMaximum = settings.polyPoints[i][0][1] * settings.scalingFactor;
+                    for (var j = 0; j < numberOfPoints; j++)
                     {
                         var x = settings.polyPoints[i][j][0] * settings.scalingFactor,
                             y = settings.polyPoints[i][j][1] * settings.scalingFactor;
-                        polys.push([x, y]);
+                        xMinimum = x < xMinimum ? x : xMinimum;
+                        xMaximum = x > xMaximum ? x : xMaximum;
+                        yMinimum = y < yMinimum ? y : yMinimum;
+                        yMaximum = y > yMaximum ? y : yMaximum;
                     }
+
+                    // Add rect. points.
+                    polys.push([xMinimum, yMaximum]);
+                    polys.push([xMaximum, yMaximum]);
+                    polys.push([xMaximum, yMinimum]);
+                    polys.push([xMinimum, yMinimum]);
 
                     var group = _createGroup(),
                         layer = new Kinetic.Layer(),
@@ -355,7 +369,7 @@
                 settings.selectedAnchor.getLayer().draw();
                 settings.selectedAnchor = null;
             }
-        }
+        };
 
         /*
             Deletes the currently selected anchor.
@@ -378,7 +392,7 @@
                 group.getLayer().clear();
                 group.getLayer().draw();
             }
-        }
+        };
 
         /**
          * This contains a collection of geometrical functions intended to help Kinetic.
