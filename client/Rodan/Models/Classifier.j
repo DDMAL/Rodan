@@ -82,10 +82,8 @@
         console.log("(Classifier model) name is " + name + "!");
         console.log(glyphs[0]);
         console.log([glyphs[0] setClassifier:self])
-        // if (glyphs)
-        // {
-            [glyphs makeObjectsPerformSelector:@"setClassifier:" withObject:self];
-        // }
+
+        [glyphs makeObjectsPerformSelector:@"setClassifier:" withObject:self];
     }
 
     return self;

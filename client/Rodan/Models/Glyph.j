@@ -1,4 +1,3 @@
-// @import <Ratatosk/WLRemoteObject.j>
 @import "Classifier.j"
 @import "PageGlyphs.j"
 @import "Features.j"

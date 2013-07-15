@@ -17,7 +17,7 @@
 {
     if (self = [super initWithJson:jsonGameraGlyphs])
     {
-        [glyphs makeObjectsPerformSelector:@"setPageGlyphs" withObject:self];
+        [glyphs makeObjectsPerformSelector:@"setPageGlyphs:" withObject:self];
     }
 
     return self;
