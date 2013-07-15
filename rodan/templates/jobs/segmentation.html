@@ -11,8 +11,8 @@
 {% block body %}
 {% csrf_token %}    
 <input type="hidden" name="polygon_outer_points" value="" id="JSON-input" />
-<div style="padding: 1em; overflow: hidden;">
-    <div style="float: left; width: 350px;">
+<div style="padding: 1em; overflow: hidden; min-width: 1450px">
+    <div style="float: left; width: 350px; margin: 1em">
         <h2>Segmentation Interface</h2>
         <p>Select a polygon or anchor by clicking on it, then use the mouse to drag it to a new position.<br/>
         <br/>
@@ -29,7 +29,7 @@
             <input type="submit" name="submit" value="Segment" class="submit" />
         </div>
     </div>
-    <div id="segment-view" style="border: 2px solid; margin: 1em; float: left;">
+    <div id="segment-view" style="border: 2px solid; margin: 1em; float: left">
     </div>
 </div>
 <script type="text/javascript">
@@ -52,10 +52,10 @@
             });
         });
 
-        /*
+    /*    
         $("#submit").on("click", function(evnt) 
         {
-            $.post('{{ form_url }}', JSON.stringify(rks.getPolyPoints()));
+            $.post('{{ form_url }}', 'polygon_outer_points=' + rks.getPolyPoints());
         });
         */
     });
