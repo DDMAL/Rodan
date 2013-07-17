@@ -20,7 +20,7 @@ class Glyph(object):
         else:
             feature_list = []
 
-        self.uuid = xml_glyph.get('uuid')
+        self.uuid = xml_glyph.get('uuid')[1:]
         self.ulx = float(xml_glyph.get('ulx'))
         self.uly = float(xml_glyph.get('uly'))
         self.nrows = float(xml_glyph.get('nrows'))
@@ -36,8 +36,9 @@ class Glyph(object):
         for f in feature_list:
             self.features[f.get('name')] = [float(n) for n in f.text.split()]
 
-    @property
-    def url(self):
+        self.url = self.make_url()
+
+    def make_url(self):
         return "{0}/glyph/{1}".format(settings.BASE_URL, self.uuid)
 
     @classmethod

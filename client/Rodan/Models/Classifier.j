@@ -60,7 +60,7 @@
     var remoteProperties = [super remoteProperties];
     [remoteProperties addObjectsFromArray:[
         ['project',           'project'],
-        ['name',              'name',     nil, nil]
+        ['name',              'name']
         ]];
     return remoteProperties;
 }
@@ -77,19 +77,17 @@
 {
     if (self = [super initWithJson:jsonGameraGlyphs])
     {
-        // console.log("(Classifier model) glyphs is " + glyphs + "!");
-        console.log("(Classifier model) project is " + project + "!");
-        console.log("(Classifier model) name is " + name + "!");
-        console.log(glyphs[0]);
-        console.log([glyphs[0] setClassifier:self])
-
         [glyphs makeObjectsPerformSelector:@"setClassifier:" withObject:self];
     }
+
+    // console.log("Try to get a glyph patch working.");
+    // var glyph = glyphs[0];
+    // // console.log(glyph);
+    // [glyph writeSymbolName:"_a_special"];
+    // [glyph makeAllDirty];
+    // [glyph ensureSaved];
 
     return self;
 }
 
 @end
-
-
-

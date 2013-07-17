@@ -78,6 +78,8 @@
             var glyph = selectedGlyphsInRow[j];
             [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Do this with KVO (SC -> Glyph)
             [glyph writeSymbolName:newName];
+            [glyph makeAllDirty];
+            [glyph ensureSaved];
             [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Do this with KVO (GG -> Glyph)... however the SC MUST get notified... so hopefuly when GG->Glyph removes the observer it's not too early.
                                                                                 // This is where the OO model might be better, but I bet the KVO is robust enough that all observers will get notified.
         }

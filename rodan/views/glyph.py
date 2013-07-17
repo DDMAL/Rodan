@@ -14,6 +14,7 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
     # serializer_class = GlyphSerializer  # May be easier to implement it all by hand
 
     def get(self, request, pk, *args, **kwargs):
+        print "Glyph Get!"
         glyph_id = pk
         classifier_pk = request.DATA.get('classifier')
         pageglyphs_pk = request.DATA.get('pageglyphs')
@@ -31,6 +32,7 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
         return JsonResponse(g.__dict__)  # Also try the glyph serializer.  (Try using super... although that wouldn't quite do it)
 
     def post(self, request, *args, **kwargs):
+        print "Glyph Post!"
         classifier_pk = request.DATA.get('classifier')
         pageglyphs_pk = request.DATA.get('pageglyphs')
 
@@ -52,6 +54,7 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
             return super(GlyphDetail, self).post(self, request, *args, **kwargs)
 
     def patch(self, request, pk, *args, **kwargs):
+        print "Glyph Patch!"
         glyph_id = pk
         classifier_pk = request.DATA.get('classifier')
         pageglyphs_pk = request.DATA.get('pageglyphs')
@@ -77,6 +80,7 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, pk, *args, **kwargs):
         # delete a glyph from a classifier and/or pageglyphs
+        print "Glyph Delete!"
         glyph_id = pk
         classifier_pk = request.DATA.get('classifier')
         pageglyphs_pk = request.DATA.get('pageglyphs')

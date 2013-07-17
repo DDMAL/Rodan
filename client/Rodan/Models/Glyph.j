@@ -56,13 +56,13 @@
         [self setClassifier:nil];
         [self setPageGlyphs:nil];
 
-        var remotePropertiesCount = [[Glyph remoteProperties] count],
-            map = [Glyph remoteProperties];
+        var remoteProperties = [Glyph remoteProperties],
+            remotePropertiesCount = [remoteProperties count];
 
         for (var i = 0; i < remotePropertiesCount; i++)
         {
-            var objectKey = map[i][0],
-                serverKey = map[i][1];
+            var objectKey = remoteProperties[i][0],
+                serverKey = remoteProperties[i][1];
 
             if (objectKey === 'pngData')
             {
@@ -82,19 +82,21 @@
     return self;
 }
 
-+ (CPArray)objectsFromJson:(CPArray)jsonArrayOfGlyphs
-{
-    var glyphsCount = [jsonArrayOfGlyphs count],
-        outArray = [];
+// I think that this definition can be removed... WLRemoteObject implements objectsFromJson
+// Either remove this or call super in it.
+// + (CPArray)objectsFromJson:(CPArray)jsonArrayOfGlyphs
+// {
+//     var glyphsCount = [jsonArrayOfGlyphs count],
+//         outArray = [];
 
-    for (var i = 0; i < glyphsCount; ++i)
-    {
-        var glyph = [[Glyph alloc] initWithJson:[jsonArrayOfGlyphs objectAtIndex:i]];
-        [outArray addObject:glyph];
-    };
+//     for (var i = 0; i < glyphsCount; ++i)
+//     {
+//         var glyph = [[Glyph alloc] initWithJson:[jsonArrayOfGlyphs objectAtIndex:i]];
+//         [outArray addObject:glyph];
+//     };
 
-    return outArray;
-}
+//     return outArray;
+// }
 
 + (CPArray)objectsToJson:(CPArray)aGlyphArray
 {
@@ -106,18 +108,23 @@
     for (var i = 0; i < glyphsCount; ++i)
     {
         var JsonObject = new Object();
-        // Dynamically add properties to the object using the server names
+
         for (var j = 0; j < mapCount; ++j)
         {
             var objectKey = map[j][0],
                 serverKey = map[j][1];
-            if (serverKey !== 'data')
-            {
-                JsonObject[serverKey] = aGlyphArray[i][objectKey];
-            }
-            else  //TODO: ensure that 'save' doesn't require the members to be converted to strings.
+
+            if (objectKey === 'pngData')
             {
                 JsonObject[serverKey] = [aGlyphArray[i][objectKey] base64];
+            }
+            else if (objectKey === 'features')
+            {
+                JsonObject[serverKey] = [aGlyphArray[i][objectKey] toJson];
+            }
+            else
+            {
+                JsonObject[serverKey] = aGlyphArray[i][objectKey];
             }
         }
         [outArray addObject:JsonObject];
