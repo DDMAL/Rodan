@@ -41,8 +41,8 @@
 - (CPString)remotePath
 {
     return [self pk];
-    // Note: you can't POST a new glyph.
-    // Glyphs are made by connected component analysis on the server.
+    // Note: you can't make a glyph on the client and post it.
+    // Glyphs are made solely by connected component analysis on the server.
 }
 
 - (id)initWithJson:(JSObject)jsonObject
@@ -81,22 +81,6 @@
 
     return self;
 }
-
-// I think that this definition can be removed... WLRemoteObject implements objectsFromJson
-// Either remove this or call super in it.
-// + (CPArray)objectsFromJson:(CPArray)jsonArrayOfGlyphs
-// {
-//     var glyphsCount = [jsonArrayOfGlyphs count],
-//         outArray = [];
-
-//     for (var i = 0; i < glyphsCount; ++i)
-//     {
-//         var glyph = [[Glyph alloc] initWithJson:[jsonArrayOfGlyphs objectAtIndex:i]];
-//         [outArray addObject:glyph];
-//     };
-
-//     return outArray;
-// }
 
 + (CPArray)objectsToJson:(CPArray)aGlyphArray
 {
