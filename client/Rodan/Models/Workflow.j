@@ -37,17 +37,17 @@
 + (CPArray)remoteProperties
 {
     return [
-        ['pk', 'url'],
-        ['uuid', 'uuid'],
-        ['runs', 'runs', nil, true],
-        ['workflowName', 'name'],
-        ['projectURL', 'project'],
-        ['workflowJobs', 'workflow_jobs', [WLForeignObjectsTransformer forObjectClass:WorkflowJob]],
-        ['workflowRuns', 'workflow_runs', [WLForeignObjectsTransformer forObjectClass:WorkflowRun]],
-        ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
-        ['description', 'description'],
-        ['hasStarted', 'has_started'],
-        ['workflowCreator', 'creator']
+        ['pk',              'url'             ],
+        ['uuid',            'uuid'            ],
+        ['runs',            'runs',           nil, true],
+        ['workflowName',    'name'            ],
+        ['projectURL',      'project'         ],
+        ['workflowJobs',    'workflow_jobs',  [WLForeignObjectsTransformer forObjectClass:WorkflowJob]],
+        ['workflowRuns',    'workflow_runs',  [WLForeignObjectsTransformer forObjectClass:WorkflowRun]],
+        ['pages',           'pages',          [WLForeignObjectsTransformer forObjectClass:Page]],
+        ['description',     'description'     ],
+        ['hasStarted',      'has_started'     ],
+        ['workflowCreator', 'creator'         ]
     ];
 }
 

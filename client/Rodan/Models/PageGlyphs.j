@@ -17,7 +17,9 @@
 {
     if (self = [super initWithJson:jsonGameraGlyphs])
     {
-        [glyphs makeObjectsPerformSelector:@"setPageGlyphs:" withObject:self];
+        [WLRemoteObject setDirtProof:YES];
+        [glyphs makeObjectsPerformSelector:@"setPageGlyphsPk:" withObject:[self pk]];
+        [WLRemoteObject setDirtProof:NO];
     }
 
     return self;

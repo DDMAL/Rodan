@@ -1,3 +1,5 @@
+@import <Ratatosk/WLRemoteObject.j>
+
 @import "GameraGlyphs.j"
 
 /*
@@ -51,17 +53,17 @@
 */
 @implementation Classifier : GameraGlyphs
 {
-    CPString       project           @accessors;
-    CPString       name              @accessors;
+    CPString   project   @accessors;
+    CPString   name      @accessors;
 }
 
 + (CPArray)remoteProperties
 {
     var remoteProperties = [super remoteProperties];
     [remoteProperties addObjectsFromArray:[
-        ['project',           'project'],
-        ['name',              'name']
-        ]];
+        ['project',   'project'],
+        ['name',      'name']
+    ]];
     return remoteProperties;
 }
 
@@ -77,15 +79,10 @@
 {
     if (self = [super initWithJson:jsonGameraGlyphs])
     {
-        [glyphs makeObjectsPerformSelector:@"setClassifier:" withObject:self];
+        [WLRemoteObject setDirtProof:YES];
+        [glyphs makeObjectsPerformSelector:@"setClassifierPk:" withObject:[self pk]];
+        [WLRemoteObject setDirtProof:NO];
     }
-
-    // console.log("Try to get a glyph patch working.");
-    // var glyph = glyphs[0];
-    // // console.log(glyph);
-    // [glyph writeSymbolName:"_a_special"];
-    // [glyph makeAllDirty];
-    // [glyph ensureSaved];
 
     return self;
 }

@@ -1,40 +1,46 @@
+@import <Ratatosk/WLRemoteTransformers.j>
+@import <Ratatosk/WLRemoteObject.j>
+
 @import "Classifier.j"
 @import "PageGlyphs.j"
 @import "Features.j"
+@import "../Transformers/PngTransformer.j"
 
 @implementation Glyph : WLRemoteObject
 {
-    CPString      pk              @accessors;
-    CPString      uuid            @accessors;
-    CPString      ulx             @accessors;
-    CPString      uly             @accessors;
-    CPString      nRows           @accessors;
-    CPString      nCols           @accessors;
-    CPString      idState         @accessors;
-    CPString      idName          @accessors;
-    CPString      idConfidence    @accessors;
-    CPString      featureScaling  @accessors;
-    Features      features        @accessors;
-    CPData        pngData         @accessors;
-    Classifier    classifier      @accessors;
-    PageGlyphs    pageGlyphs      @accessors;
+    CPString        pk              @accessors;
+    CPString        uuid            @accessors;
+    CPString        ulx             @accessors;
+    CPString        uly             @accessors;
+    CPString        nRows           @accessors;
+    CPString        nCols           @accessors;
+    CPString        idState         @accessors;
+    CPString        idName          @accessors;
+    CPString        idConfidence    @accessors;
+    CPString        featureScaling  @accessors;
+    Features        features        @accessors;
+    CPData          pngData         @accessors;
+    CPString        classifierPk    @accessors;
+    CPString        pageGlyphsPk    @accessors;
 }
 
 + (CPArray)remoteProperties
 {
     return [
-        ['pk', 'url'],
-        ['uuid', 'uuid'],
-        ['ulx', 'ulx'],
-        ['uly', 'uly'],
-        ['nRows', 'nrows'],
-        ['nCols', 'ncols'],
-        ['idState', 'id_state'],
-        ['idName', 'id_name'],
-        ['idConfidence', 'id_confidence'],
-        ['featureScaling', 'feature_scaling'],
-        ['features', 'features'],
-        ['pngData', 'data']
+        ['pk',             'url'             ],
+        ['uuid',           'uuid'            ],
+        ['ulx',            'ulx'             ],
+        ['uly',            'uly'             ],
+        ['nRows',          'nrows'           ],
+        ['nCols',          'ncols'           ],
+        ['idState',        'id_state'        ],
+        ['idName',         'id_name'         ],
+        ['idConfidence',   'id_confidence'   ],
+        ['featureScaling', 'feature_scaling' ],
+        ['features',       'features',       [WLForeignObjectTransformer forObjectClass:Features]],
+        ['pngData',        'data',           [[PngTransformer alloc] init]],
+        ['classifierPk',   'classifier_url'  ],
+        ['pageGlyphsPk',   'pageglyphs_url'  ]
     ];
 }
 
@@ -47,41 +53,17 @@
 
 - (id)initWithJson:(JSObject)jsonObject
 {
-    // Takes JSON and makes a glyph object.  Uses remoteProperties to
-    // index the values out of the JSON dictionary.
-    var self = [self init];
+    [WLRemoteObject setDirtProof:YES];
 
-    if (self)
+    if (self = [super initWithJson:jsonObject])
     {
-        [self setClassifier:nil];
-        [self setPageGlyphs:nil];
-
-        var remoteProperties = [Glyph remoteProperties],
-            remotePropertiesCount = [remoteProperties count];
-
-        for (var i = 0; i < remotePropertiesCount; i++)
-        {
-            var objectKey = remoteProperties[i][0],
-                serverKey = remoteProperties[i][1];
-
-            if (objectKey === 'pngData')
-            {
-                [self setValue:[CPData dataWithBase64:jsonObject[serverKey]] forKey:objectKey];
-            }
-            else if (objectKey === 'features')
-            {
-                [self setValue:[[Features alloc] initWithJson:jsonObject[serverKey]] forKey:objectKey];
-            }
-            else
-            {
-                [self setValue:jsonObject[serverKey] forKey:objectKey];
-            }
-        }
+        [WLRemoteObject setDirtProof:NO];
     }
 
     return self;
 }
 
+// Maybe I won't need objectsToJson if I use the transformers right.
 + (CPArray)objectsToJson:(CPArray)aGlyphArray
 {
     var outArray = [],

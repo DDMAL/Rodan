@@ -5,7 +5,7 @@
     when I do [glyph setValue:x forKey:features].  Defining a Features class solves that issue.
 */
 
-@implementation Features : CPObject
+@implementation Features : WLRemoteObject
 {
     CPArray  volume            @accessors;
     CPArray  ncolsFeature      @accessors;
@@ -27,35 +27,36 @@
 + (CPArray)remoteProperties
 {
     return [
-        ['volume', 'volume'],
-        ['ncolsFeature', 'ncols_feature'],
-        ['area', 'area'],
-        ['moments', 'moments'],
-        ['volume16regions', 'volume16regions'],
-        ['nholesExtended', 'nholes_extended'],
-        ['nrowsFeature', 'nrows_feature'],
-        ['topBottom', 'top_bottom'],
-        ['volume64regions', 'volume64regions'],
-        ['zernikeMoments', 'zernike_moments'],
-        ['skeletonFeatures', 'skeleton_features'],
-        ['compactness', 'compactness'],
-        ['aspectRatio', 'aspect_ratio'],
-        ['blackArea', 'black_area'],
-        ['nholes', 'nholes']];
+        ['volume',            'volume'            ],
+        ['ncolsFeature',      'ncols_feature'     ],
+        ['area',              'area'              ],
+        ['moments',           'moments'           ],
+        ['volume16regions',   'volume16regions'   ],
+        ['nholesExtended',    'nholes_extended'   ],
+        ['nrowsFeature',      'nrows_feature'     ],
+        ['topBottom',         'top_bottom'        ],
+        ['volume64regions',   'volume64regions'   ],
+        ['zernikeMoments',    'zernike_moments'   ],
+        ['skeletonFeatures',  'skeleton_features' ],
+        ['compactness',       'compactness'       ],
+        ['aspectRatio',       'aspect_ratio'      ],
+        ['blackArea',         'black_area'        ],
+        ['nholes',            'nholes'            ]
+        ];
 }
 
-- (Features)initWithJson:(JSObject)jsonObject
-{
-    var remoteProperties = [[self class] remoteProperties],
-        remotePropertiesCount = [remoteProperties count];
+// - (Features)initWithJson:(JSObject)jsonObject
+// {
+//     var remoteProperties = [[self class] remoteProperties],
+//         remotePropertiesCount = [remoteProperties count];
 
-    for (var i = 0; i < remotePropertiesCount; i++)
-    {
-        [self setValue:jsonObject[remoteProperties[i][1]] forKey:remoteProperties[i][0]];
-    }
+//     for (var i = 0; i < remotePropertiesCount; i++)
+//     {
+//         [self setValue:jsonObject[remoteProperties[i][1]] forKey:remoteProperties[i][0]];
+//     }
 
-    return self;
-}
+//     return self;
+// }
 
 - (Object)toJson
 {

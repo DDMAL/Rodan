@@ -1,3 +1,5 @@
+@import <Ratatosk/WLRemoteObject.j>
+
 @import "../Transformers/GlyphsTransformer.j"
 @import "Glyph.j"
 @import "SymbolCollection.j"

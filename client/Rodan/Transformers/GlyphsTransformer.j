@@ -7,7 +7,7 @@
 
 + (BOOL)allowsReverseTransformation
 {
-    return YES;  // Change to YES to save glyphs
+    return YES;
 }
 
 + (Class)transformedValueClass
@@ -17,15 +17,13 @@
 
 - (CPArray)transformedValue:(CPArray)jsonArrayOfGlyphs
 {
-    // console.log("GlyphsTransformer calling Glyph objectsFromJson!");
-    // console.log(jsonArrayOfGlyphs);
-    // var retval = [Glyph objectsFromJson:jsonArrayOfGlyphs];
-    // console.log("GlyphsTransformer returning " + retval);
+    console.log("[GlyphsTransformer transformedValue].");
     return [Glyph objectsFromJson:jsonArrayOfGlyphs];
 }
 
 - (id)reverseTransformedValue:(CPArray)glyphs
 {
+    console.log("GlyphsTransformer reverseTransformedValue, calling [Glyph objectsToJson]");
     return [Glyph objectsToJson:glyphs];
 }
 
