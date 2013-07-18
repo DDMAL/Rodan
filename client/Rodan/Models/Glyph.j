@@ -101,7 +101,7 @@
 
 - (void)writeSymbolName:(CPString)newName
 {
-    [self setIdState:@"Manual"];
+    [self setIdState:@"MANUAL"];
     [self setIdName:newName];
     [self setIdConfidence:@"1.000000"];
 }

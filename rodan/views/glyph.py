@@ -7,21 +7,28 @@ from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
 from rodan.models.glyph import Glyph
 from rodan.helpers.json_response import JsonResponse
+from rodan.jobs.util.taskutil import get_uuid_from_url  # TODO: perhaps this should be moved into helpers.
 
+
+# TODO: All four of get/post/patch/delete have the same preprocessing and logic on the
+# classifier and pageglyphs urls... this MUST be refactored.
 
 class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
+    # model = Glyph
     permission_classes = (permissions.IsAuthenticated, )
     # serializer_class = GlyphSerializer  # May be easier to implement it all by hand
 
     def get(self, request, pk, *args, **kwargs):
         print "Glyph Get!"
         glyph_id = pk
-        classifier_pk = request.DATA.get('classifier')
-        pageglyphs_pk = request.DATA.get('pageglyphs')
+        classifier_url = request.DATA.get('classifier_url')
+        pageglyphs_url = request.DATA.get('pageglyphs_url')
 
-        if classifier_pk is not None:
+        if classifier_url is not None:
+            classifier_pk = get_uuid_from_url(classifier_url)
             gameraXML = Classifier.objects.get(pk=classifier_pk)
-        elif pageglyphs_pk is not None:
+        elif pageglyphs_url is not None:
+            pageglyphs_pk = get_uuid_from_url(pageglyphs_url)
             gameraXML = PageGlyphs.objects.get(pk=pageglyphs_pk)
         else:
             return Response({"message": "You must supply a url for a classifier or pageglyphs model that contains the glyph."}, status=status.HTTP_400_BAD_REQUEST)
@@ -30,24 +37,27 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
         g = Glyph.from_file_with_id(xml_file, glyph_id)
 
         return JsonResponse(g.__dict__)  # Also try the glyph serializer.  (Try using super... although that wouldn't quite do it)
+                                         # maybe I can manually call the serializer on with g.
 
     def post(self, request, *args, **kwargs):
         print "Glyph Post!"
-        classifier_pk = request.DATA.get('classifier')
-        pageglyphs_pk = request.DATA.get('pageglyphs')
+        classifier_url = request.DATA.get('classifier_url')
+        pageglyphs_url = request.DATA.get('pageglyphs_url')
 
-        if classifier_pk is None and pageglyphs_pk is None:
+        if classifier_url is None and pageglyphs_url is None:
             return Response({"message": "You must supply a url for a classifier or pageglyphs model to which the glyph should be added."}, status=status.HTTP_400_BAD_REQUEST)
         else:
             json_glyph = request.DATA.get('glyph')
 
-            if classifier_pk is not None:
+            if classifier_url is not None:
+                classifier_pk = get_uuid_from_url(classifier_url)
                 classifier = Classifier.objects.get(pk=classifier_pk)
                 xml_file = classifier.file_path
                 Glyph.create(json_glyph, xml_file)
 
-            if pageglyphs_pk is not None:
-                pageglyphs = PageGlyphs.objects.get(pk=classifier_pk)
+            if pageglyphs_url is not None:
+                pageglyphs_pk = get_uuid_from_url(pageglyphs_url)
+                pageglyphs = PageGlyphs.objects.get(pk=pageglyphs_pk)
                 xml_file = pageglyphs.file_path
                 Glyph.create(json_glyph, xml_file)
 
@@ -56,45 +66,45 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
     def patch(self, request, pk, *args, **kwargs):
         print "Glyph Patch!"
         glyph_id = pk
-        classifier_pk = request.DATA.get('classifier')
-        pageglyphs_pk = request.DATA.get('pageglyphs')
+        classifier_url = request.DATA.get('classifier_url')
+        pageglyphs_url = request.DATA.get('pageglyphs_url')
 
-        if classifier_pk is None and pageglyphs_pk is None:
+        if classifier_url is None and pageglyphs_url is None:
             return Response({"message": "You must supply a url for a classifier or pageglyphs model that contains the glyph."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            if classifier_pk is not None:
+            if classifier_url is not None:
+                classifier_pk = get_uuid_from_url(classifier_url)
                 classifier = Classifier.objects.get(pk=classifier_pk)
                 xml_file = classifier.file_path
-                Glyph.update(request.DATA, xml_file, glyph_id)
+                g = Glyph.update(request.DATA, xml_file, glyph_id)
 
-            if pageglyphs_pk is not None:
-                pageglyphs = PageGlyphs.objects.get(pk=classifier_pk)
+            if pageglyphs_url is not None:
+                pageglyphs_pk = get_uuid_from_url(pageglyphs_url)
+                pageglyphs = PageGlyphs.objects.get(pk=pageglyphs_pk)
                 xml_file = pageglyphs.file_path
-                Glyph.update(request.DATA, xml_file, glyph_id)
+                g = Glyph.update(request.DATA, xml_file, glyph_id)
 
-            # What do I return??
-            # Not using Django, but maybe the Rest framework will do all the work for me
-            # From what I know about theClassifier ensureSaved... I think Ratatosk expects the
-            # new object back.  Maybe Rest will use my serializer
-            return super(GlyphDetail, self).patch(self, request, pk, *args, **kwargs)
+            return JsonResponse(g.__dict__)  # Also try the glyph serializer.  (Try using super... although that wouldn't quite do it)
 
     def delete(self, request, pk, *args, **kwargs):
         # delete a glyph from a classifier and/or pageglyphs
         print "Glyph Delete!"
         glyph_id = pk
-        classifier_pk = request.DATA.get('classifier')
-        pageglyphs_pk = request.DATA.get('pageglyphs')
+        classifier_url = request.DATA.get('classifier_url')
+        pageglyphs_url = request.DATA.get('pageglyphs_url')
 
-        if classifier_pk is None and pageglyphs_pk is None:
+        if classifier_url is None and pageglyphs_pk is None:
             return Response({"message": "You must supply a url for a classifier or pageglyphs model that contains the glyph."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            if classifier_pk is not None:
+            if classifier_url is not None:
+                classifier_pk = get_uuid_from_url(classifier_url)
                 classifier = Classifier.objects.get(pk=classifier_pk)
                 xml_file = classifier.file_path
                 Glyph.destroy(xml_file, glyph_id)
 
-            if pageglyphs_pk is not None:
-                pageglyphs = PageGlyphs.objects.get(pk=classifier_pk)
+            if pageglyphs_url is not None:
+                pageglyphs_pk = get_uuid_from_url(pageglyphs_url)
+                pageglyphs = PageGlyphs.objects.get(pk=pageglyphs_pk)
                 xml_file = pageglyphs.file_path
                 Glyph.destroy(xml_file, glyph_id)
 

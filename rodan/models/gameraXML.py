@@ -5,7 +5,6 @@ from lxml import etree
 from uuidfield import UUIDField
 
 from rodan.models.glyph import Glyph
-from rodan.helpers.json_response import JsonResponse
 
 
 class GameraXML(models.Model):

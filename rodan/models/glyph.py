@@ -89,15 +89,12 @@ class Glyph(object):
 
     @classmethod
     def name_from_xml(cls, xml_glyph):
-        try:
-            print xml_glyph
-            print xml_glyph.find('ids')
-            print xml_glyph.find('ids').find('id')
-            print xml_glyph.find('ids').find('id').get('name')
-            return xml_glyph.find('ids').find('id').get('name')
-        except:
-            print "name_from_xml returning __unclassified"
-            return "__unclassified"
+        id_element = xml_glyph.find('ids').find('id')
+
+        if(id_element is None):
+            return "____unclassified"
+        else:
+            return id_element.get('name')
 
     @classmethod
     def create(cls, json_glyph, xml_file):
@@ -105,7 +102,7 @@ class Glyph(object):
         parser = etree.XMLParser(resolve_entities=True)
         glyph_element = Glyph.xml_from_json(json_glyph)
 
-        with open(xml_file, 'rwb') as f:
+        with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
             glyphs = xml.xpath('//glyphs')
             glyphs.append(glyph_element)
@@ -117,42 +114,41 @@ class Glyph(object):
         """ Writes a glyph in a file given new data (id_state, id_name, id_confidence)."""
         parser = etree.XMLParser(resolve_entities=True)
 
-        with open(xml_file, 'rwb') as f:
+        with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
-            glyph = xml.xpath("//glyph[@uuid={0}]".format(glyph_id))
+
+            glyph = xml.xpath("//glyph[@uuid='g{0}']".format(glyph_id))[0]
+            # TODO: error checking for glyph not found... This code gives 'index out of range'
             ids_element = glyph.find('ids')
             id_element = ids_element.find('id')
 
+            if(id_element is None):
+                id_element = etree.SubElement(ids_element, "id")  # Hmmm, the whitespace isn't consistent.  No biggie.
+                id_element.set("name", "temp")  # (Setting 'name' first simply so it's the first attribute.)
+
             for key, value in request_data.iteritems():
-                if key is 'id_state':
-                    ids_element.set(key, value)
-                elif key in ['id_name, id_confidence']:
-                    id_element.set(key, value)
+                # TODO: validation.  Return a message saying that id_state must be
+                # "UNCLASSIFIED", "HEURISTIC", or "MANUAL", I believe.
+                # Similarly, id_confidence must be a number.
+                # I don't know the constraints on id_name, maybe Gamera does.  (Raarr!)
+                if str(key) == "id_state":
+                    ids_element.set(key[3:], value)
+                elif key in ["id_name", "id_confidence"]:
+                    id_element.set(key[3:], value)
 
-            glyphs = xml.xpath("//glyphs")
-            glyphs[:] = sorted(glyphs, key=lambda glyph: Glyph.name_from_xml(glyph))
-
+            glyphs = xml.xpath("//glyphs")[0]
+            glyphs[:] = sorted(glyphs, key=Glyph.name_from_xml)
+            f.seek(0)
             f.write(etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+            f.truncate()
 
-        # Hmmm... first time I did it I did separate read/writes
-        # xml = Glyph.xml_from_file(xml_file)
-        # g = xml.xpath("//glyph[@uuid={0}]".format(glyph_id))
-        # ids_element = g.find('ids')
-        # id_element = ids_element.find('id')
-
-        # for k, v in request_data.iteritems():
-        #     if k is 'id_state':
-        #         ids_element.set(k, v)
-        #     elif k in ['id_name, id_confidence']:
-        #         id_element.set(k, v)
-
-        # Glyph.write_xml_to_file(xml, xml_file)
+        return Glyph(glyph)
 
     @classmethod
     def destroy(cls, xml_file, glyph_id):
         parser = etree.XMLParser(resolve_entities=True)
 
-        with open(xml_file, 'rwb') as f:
+        with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
             g = xml.xpath("//glyph[@uuid={0}]".format(glyph_id))
             #g.strip_elements('glyph')  # I think it'll detect its parent and remove itself.
