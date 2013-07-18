@@ -42,6 +42,10 @@ class Glyph(object):
         return "{0}/glyph/{1}".format(settings.BASE_URL, self.uuid)
 
     @classmethod
+    def make_uuid(cls):
+        return "{0}{1}".format('g', uuid4().hex)
+
+    @classmethod
     def from_file_with_id(cls, xml_file, glyph_id):
         xml = Glyph.xml_from_file(xml_file)
 
@@ -49,10 +53,6 @@ class Glyph(object):
         g = xml.xpath("//glyph[@uuid={0}]".format(glyph_id))
 
         return Glyph(g)
-
-    @classmethod
-    def make_uuid(cls):
-        return "{0}{1}".format('g', uuid4().hex)
 
     @classmethod
     def xml_from_file(cls, xml_file):
@@ -88,15 +88,6 @@ class Glyph(object):
         return glyph_element
 
     @classmethod
-    def name_from_xml(cls, xml_glyph):
-        id_element = xml_glyph.find('ids').find('id')
-
-        if(id_element is None):
-            return "____unclassified"
-        else:
-            return id_element.get('name')
-
-    @classmethod
     def create(cls, json_glyph, xml_file):
         """ Adds a glyph to a file."""
         parser = etree.XMLParser(resolve_entities=True)
@@ -104,10 +95,14 @@ class Glyph(object):
 
         with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
-            glyphs = xml.xpath('//glyphs')
-            glyphs.append(glyph_element)
-            glyphs[:] = sorted(glyphs, key=lambda glyph: Glyph.name_from_xml(glyph))
+            glyphs = xml.xpath("//glyphs")[0]
+            glyphs.SubElement(glyph_element, "glyph")
+            glyphs[:] = sorted(glyphs, key=Glyph.name_from_xml)
+            f.seek(0)
             f.write(etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+            f.truncate()
+
+        return Glyph(glyph_element)
 
     @classmethod
     def update(cls, request_data, xml_file, glyph_id):
@@ -146,21 +141,33 @@ class Glyph(object):
 
     @classmethod
     def destroy(cls, xml_file, glyph_id):
+        """ Deletes a glyph from a file. """
         parser = etree.XMLParser(resolve_entities=True)
 
         with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
-            g = xml.xpath("//glyph[@uuid={0}]".format(glyph_id))
+            glyph = xml.xpath("//glyph[@uuid='g{0}']".format(glyph_id))[0]
             #g.strip_elements('glyph')  # I think it'll detect its parent and remove itself.
                 # Try also calling it on the parent and specifying... or just remove the object from the list (xml is a list)
-            xml.remove(g)
-
+            glyph.getparent().remove(glyph)
+            f.seek(0)
             f.write(etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8"))
+            f.truncate()
+
+        return Glyph(glyph)
+
+    @classmethod
+    def name_from_xml(cls, xml_glyph):
+        id_element = xml_glyph.find('ids').find('id')
+
+        if(id_element is None):
+            return "____unclassified"
+        else:
+            return id_element.get('name')
 
     @classmethod
     def base64_png_encode(cls, glyph):
-        """ Takes an xpath glyph element and returns a png image of the
-        glyph. """
+        """ Takes an xml glyph element and returns a png image of the glyph. """
         nrows = int(glyph.get('nrows'))
         ncols = int(glyph.get('ncols'))
         # Make an iterable that yields each row in boxed row flat pixel format:
@@ -188,6 +195,7 @@ class Glyph(object):
 
     @classmethod
     def runlength_encode(cls, base64_encoded_png):
+        """ The inverse of base64_png_encode: takes a png and make xml data """
         my_png = base64.b64decode(base64_encoded_png)
         buf = StringIO.StringIO(my_png)
         r = png.Reader(file=buf)  # Note: it gets confused if you don't name the argument
