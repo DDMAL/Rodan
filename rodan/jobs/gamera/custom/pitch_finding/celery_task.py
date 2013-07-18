@@ -11,8 +11,8 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.models.workflowjob import WorkflowJob
-from rodan.settings import MEI
 from rodan.helpers.exceptions import UUIDParseError
+from django.conf import settings
 from rodan.jobs.util import taskutil
 from rodan.jobs.gamera.custom.pitch_finding.AomrObject import AomrObject
 from rodan.jobs.gamera.custom.pitch_finding.AomrMeiOutput import AomrMeiOutput
@@ -60,7 +60,7 @@ class PitchFindingTask(RodanJob):
         pymei.write(mei_document, temp_mei_path)
         taskutil.save_result(result, temp_mei_path)
 
-        result.result_type = MEI
+        result.result_type = settings.MEI
         taskutil.save_instance(result)
         return result
 

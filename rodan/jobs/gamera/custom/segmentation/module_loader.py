@@ -1,7 +1,9 @@
 from rodan.models.job import Job
-from rodan.settings import ONEBIT
+from django.conf import settings
 
 from rodan.jobs.gamera.custom.segmentation.celery_task import SegmentationTask
+
+ONEBIT = settings.ONEBIT
 
 
 def load_segmentation():

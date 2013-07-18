@@ -1,6 +1,8 @@
 from rodan.models.job import Job
-from rodan.settings import ONEBIT, GREYSCALE, RGB
+from django.conf import settings
 from rodan.jobs.gamera.custom.border_removal.celery_task import AutoBorderRemovalTask, CropBorderRemovalTask
+
+ONEBIT, GREYSCALE, RGB = settings.ONEBIT, settings.GREYSCALE, settings.RGB
 
 
 def load_auto_border_removal():

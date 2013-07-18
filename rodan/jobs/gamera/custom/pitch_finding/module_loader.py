@@ -1,6 +1,8 @@
 from rodan.models.job import Job
 from rodan.jobs.gamera.custom.pitch_finding.celery_task import PitchFindingTask
-from rodan.settings import GAMERA_XML, MEI
+from django.conf import settings
+
+GAMERA_XML, MEI = settings.GAMERA_XML, settings.MEI
 
 
 def load_pitch_finder():

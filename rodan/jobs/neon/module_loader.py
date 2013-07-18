@@ -1,7 +1,9 @@
 from rodan.models.job import Job
-from rodan.settings import MEI
+from django.conf import settings
 
 from rodan.jobs.neon.celery_task import PitchCorrectionTask
+
+MEI = settings.MEI
 
 
 def load_segmentation():

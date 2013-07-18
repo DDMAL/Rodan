@@ -7,6 +7,7 @@ import gamera.classify
 import gamera.knn
 from gamera.core import init_gamera, load_image
 from django.core.files import File
+from django.conf import settings
 
 from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
@@ -14,7 +15,6 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.util import taskutil
-from rodan.settings import GAMERA_XML
 from rodan.helpers.exceptions import UnknownClassifierError
 from rodan.jobs.base import RodanJob
 
@@ -32,7 +32,7 @@ class ClassificationTaskBase(RodanJob):
         result = taskutil.init_result(runjob)
         with open(glyphs_model.file_path) as f:
             taskutil.save_file_field(result.result, 'pageglyphs.xml', File(f))
-        result.result_type = GAMERA_XML
+        result.result_type = settings.GAMERA_XML
         taskutil.save_instance(result)
         return result
 

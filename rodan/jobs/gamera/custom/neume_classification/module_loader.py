@@ -1,6 +1,8 @@
 from rodan.models.job import Job
 from rodan.jobs.gamera.custom.neume_classification.celery_task import ManualClassificationTask, AutoClassificationTask
-from rodan.settings import ONEBIT, GAMERA_XML
+from django.conf import settings
+
+ONEBIT, GAMERA_XML = settings.ONEBIT, settings.GAMERA_XML
 
 
 def load_manual_classification():

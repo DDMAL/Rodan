@@ -20,7 +20,6 @@ from rodan.models.runjob import RunJobStatus
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
-from rodan.settings import BACKUP_WORKFLOWRUN_ON_RETRY
 
 
 class WorkflowRunList(generics.ListCreateAPIView):

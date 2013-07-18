@@ -2,9 +2,9 @@ import os
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.conf import settings
 
 from rodan.models.gameraXML import GameraXML
-from rodan.settings import BASE_URL
 
 
 class PageGlyphs(GameraXML):
@@ -23,7 +23,7 @@ class PageGlyphs(GameraXML):
 
     def get_absolute_url(self):
         rel_path = reverse('pageglyphs-detail', kwargs={'pk': str(self.uuid)})
-        return BASE_URL + rel_path
+        return settings.BASE_URL + rel_path
 
     def __unicode__(self):
         return u"pageglyphs" + str(self.uuid)

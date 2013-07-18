@@ -1,6 +1,8 @@
 from rodan.models.job import Job
 from rodan.jobs.gamera.custom.staff_removal.celery_task import RTStafflineRemovalTask
-from rodan.settings import ONEBIT
+from django.conf import settings
+
+ONEBIT = settings.ONEBIT
 
 
 def load_rt_staff_removal():

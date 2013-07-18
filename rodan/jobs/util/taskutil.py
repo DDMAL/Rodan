@@ -13,11 +13,11 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
-from rodan.settings import IMAGE_TYPES
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.processed import processed
 from rodan.helpers.dbmanagement import exists_in_db
 
+IMAGE_TYPES = rodan_settings.IMAGE_TYPES
 
 def execute_unless_deleted(db_object, partial_func):
     if db_object.pk:

@@ -99,8 +99,7 @@ urlpatterns += patterns('rodan.views.diva',
 try:
     from rodan.jobs.neon import urls
 except ImportError as e:
-    from rodan.settings import DEBUG
-    if DEBUG:
+    if settings.DEBUG:
         print "No neon job is installed. Neon urls will not be handled."
         print "The following exception was raised: ", e
 else:
