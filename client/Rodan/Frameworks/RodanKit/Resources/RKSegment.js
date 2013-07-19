@@ -285,6 +285,11 @@
                 settings.selectedPoly = null;
             }
 
+            if (settings.selectedAnchor !== null)
+            {
+                _deselectAnchor();
+            }
+
             settings.selectedPoly = poly;
             settings.selectedPoly.setFill(settings.selectedColour);
             settings.selectedPoly.getLayer().draw();
