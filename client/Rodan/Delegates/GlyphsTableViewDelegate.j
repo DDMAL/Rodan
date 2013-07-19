@@ -7,7 +7,6 @@
 {
     @outlet CPArrayController       symbolCollectionArrayController;
             int                     headerLabelHeight   @accessors;
-            int                     photoViewInset      @accessors;
     @outlet CPTableView             theTableView;
     @outlet GlyphsTableViewDelegate theOtherTableViewDelegate;
             GameraGlyphs            theGameraGlyphs     @accessors;
@@ -15,12 +14,9 @@
 
 - (void)init
 {
-    self = [super init];
-
-    if (self)
+    if (self = [super init])
     {
         [self setHeaderLabelHeight:20];
-        [self setPhotoViewInset:10];
         // [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewContentBoundsDidChange:) name:CPViewBoundsDidChangeNotification object:self.scrollView.contentView];
             // This is if I want to try to write the tableview to not do a complete and utter reload every time something changes, and instead to just reload the current view.
     }
@@ -329,7 +325,7 @@
         dummyView = [[CPView alloc] initWithFrame:CGRectMake(1,1,CGRectGetWidth([aTableView bounds]),1)],
         _cv = [self _makeCollectionViewForTableView:aTableView arrayController:ac parentView:dummyView row:aRow],
         symbolCollection = [[aTableView dataSource] tableView:aTableView objectValueForTableColumn:nil row:aRow],
-        glyphWidth = [symbolCollection maxCols] + (2 * [self photoViewInset]),
+        glyphWidth = [symbolCollection maxCols] + (2 * [PhotoView inset]),
         glyphCount = [[symbolCollection glyphList] count],
         tableWidth = CGRectGetWidth([aTableView bounds]),
         number_of_rows_in_collection_view = Math.ceil((glyphWidth * glyphCount) / tableWidth),
@@ -364,6 +360,7 @@
     // console.log("_make for row " + aRow);
     var model = [[aTableView dataSource] tableView:aTableView objectValueForTableColumn:nil row:aRow],
         cv = [[CPCollectionView alloc] initWithFrame:CGRectMakeZero()];
+
     [cv setAutoresizesSubviews:NO];
     [cv setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMaxYMargin];
     [cv setMinItemSize:CGSizeMake(0,0)];  // Aha!  Now that the PhotoView has a frame, this works.  (the size isn't determined by this.)
@@ -371,49 +368,31 @@
     [cv setDelegate:self];
     [cv setSelectable:YES];
     [cv setAllowsMultipleSelection:YES];
+
     var itemPrototype = [[CPCollectionViewItem alloc] init],
-        photoView = [[PhotoView alloc] initWithFrame:CGRectMakeZero() andInset:[self photoViewInset]];
+        photoView = [[PhotoView alloc] initWithFrame:CGRectMakeZero()];
+
     [photoView setBounds:CGRectMake(0,0,[model maxCols],[model maxRows])];
-    [photoView setFrame:CGRectMake(0,0,[model maxCols] + (2 * [photoView inset]), [model maxRows] + (2 * [photoView inset]))];
+    [photoView setFrame: CGRectMake(0,0,[model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
+    // [photoView setBounds:CGRectMake(0,0,50,50)];
+    // [photoView setFrame: CGRectMake(0,0,50 + (2 * [photoView inset]), 50 + (2 * [photoView inset]))];
+    // Hmmm... each photoView is given the same Bounds here.
+    // Maybe each can set its own bounds.  Maybe I can use itemPrototype for that. Well, I DO have the Glyph inside photoView!  Hmmm, I hope this works out.
+    // Maybe there's a middle step I can do, to get it 'sort of' working, and then tweak.  How about I hardcode the frame here so I don't need maxCols (which is
+    // the error I'm currently getting...)  Well, the photoView is a prototype view for the collectionView, so setRepresentedObject needs to be in charge of
+    // setting the bounds if I'm going to have differing cell sizes.
     [photoView setAutoresizesSubviews:NO];
     [photoView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin | CPViewMaxXMargin | CPViewMaxYMargin];
-    // var glyphListArrayController = [[[CPArrayController alloc] init] setContent:[model glyphList]];
-    // [photoView bind:@"toolTip" toObject:glyphListArrayController withKeyPath:@"arrangedObjects" options:nil];  // doesn't work.
     [itemPrototype setView:photoView];
     [cv setItemPrototype:itemPrototype];
-    // [cv bind:@"content" toObject:cvArrayController withKeyPath:@"arrangedObjects" options:nil];
     [cv bind:@"content" toObject:cvArrayController withKeyPath:@"contentArray" options:nil];
-        // I'm having an issue where selecting a moved glyph doesn't work.
-        // I thought it was because the collection view was binding to arrangedObjects, which wasn't getting added to while
-        // contentArray was.  For now, I'm going to rule that out by binding to contentArray.  contentArray is the glyphList.
 
     [aView addSubview:cv];
-    // [cvArrayController setContent:[model glyphList]];
-        // I think this erases my selection indexes... but I do it to kick the collection view to display...
-        // I think that I'll start a pattern of BINDING LATER (after content is set,) and just kicking the view with setContent
-        // The binding handles CHANGES, but doesn't need to handle the initialization, because it constrains the order of operation too much.
-        // Careful about changing this though... it'll affect the row height calculation.
-        // That will be fixed by using the same array controller from the row height (in fact, just delete that argument.)
-    [cv setContent:[model glyphList]];  // Hopefully the binding still works, I'll have to test that later.
-    // [cv bind:@"content" toObject:cvArrayController withKeyPath:@"contentArray" options:nil];  // Tried kicking the collectionView by binding again, doesn't work.
-        // Recall: I had to interrupt the pattern of ONLY BINDING and NOT CALLING SetContent because that required that
-        // I setContent of the array controller AFTER the view has been bound.  However, the view has to be rebuilt whenever you
-        // scroll past it, so I cannot setContent of the array controller that often!  It erases the selection!  That, in short,
-        // is why I need to both BIND and setContent.
-        // Ack... I think this causes write to work only once, I end up writing to this copied glyph!!!
-        // Ideas:  Make sure to use the array controller's 'selectionIndexes' instead of 'selectedObjects'
-        //  ... well, that doesn't fix anything... I'd still be writing the wrong glyph.
-        //  Hmmm, the selectedObjects are those of the cv, but maybe I can query the ac's contentArray with selectionIndexes.
-        //  (Hopefully, the ac's contentArray remains the right objects while the selectedObjects end up being this copy, which is
-        //  is why write stops getting to the server.  TODO.)
-        // Another idea is to search for the right glyph by comparing pngData.
-        // Actually, this doesn't even make a copy, I'm not getting this yet.  I still need to find where the glyphs with different UIDs
-        // from the classifier come from.
-        // Remember, the problem is that theGameraGlyphs gets new glyphs, which the array controllers keep the same glyphs!
-        // Maybe there's a way to get the cv to work without calling setContent... try reading CollectionView docs to look for alternatives.
-    // console.log("New glyph UID range: " = )
 
-    // console.log("_make returning cv for row: " + aRow + " of height: " + CGRectGetHeight([cv frame]));
+    [cv setContent:[model glyphList]];
+    // [cv setContent:[model allValues]]; // makes anObject null in the photoview... probably better to stick with symbolCollection and then get the sizing I want.
+                                       // ... the CPDictionary isn't ordered.  I guess I don't need an ordering, although the collection view might.
+
     return cv;
 }
 

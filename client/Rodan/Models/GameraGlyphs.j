@@ -12,10 +12,10 @@
 
 @implementation GameraGlyphs : WLRemoteObject
 {
-    CPString        pk                 @accessors;  //remote
-    CPArray         glyphs             @accessors;  //remote
-    CPMutableArray  symbolCollections  @accessors;  //not remote, but will get clobbered if we do an update
-    CPString        _observingContext;
+    CPString              pk                  @accessors;  //remote
+    CPArray               glyphs              @accessors;  //remote
+    SymbolCollection      symbolCollections   @accessors;  //not remote, but does get clobbered when glyphs gets updated
+    CPString              _observingContext;
 }
 
 + (CPArray)remoteProperties
@@ -73,7 +73,7 @@
 
     return self;
 
-    // COMMENTED: Classless symbolCollection... I want to try this later (see if I can get collectionViews to look at a JSObject, not a classed symbolCollection)
+    // In this code block, I make symbolCollections a CPMutableDictionary.  JSObject didn't do what I needed.
     // [WLRemoteObject setDirtProof:YES];
 
     // if (self = [super initWithJson:jsonGameraGlyphs])
@@ -113,6 +113,31 @@
     //     [self setSymbolCollections:newSymbolCollections];
     //     console.log("newSymbolCollections");
     //     console.log(newSymbolCollections);
+    // }
+
+    // return self;
+
+    // Hmmm, using an Object doesn't work for what I need symbolCollections to do.
+    // [WLRemoteObject setDirtProof:YES];
+
+    // if (self = [super initWithJson:jsonGameraGlyphs])
+    // {
+    //     [WLRemoteObject setDirtProof:NO];
+    //     symbolCollections = new Object();
+
+    //     for (var i = 0; i < [glyphs count]; ++i)
+    //     {
+    //         var glyphName = [glyphs[i] idName];
+
+    //         if (! symbolCollections.hasOwnProperty(glyphName))
+    //         {
+    //             var newGlyphList = [];
+    //             symbolCollections[glyphName] = newGlyphList;
+    //         }
+
+    //         [symbolCollections[glyphName] addObject:glyphs[i]];
+    //         [glyphs[i] addObserver:self forKeyPath:@"idName" options:nil context:_observingContext];
+    //     }
     // }
 
     // return self;
