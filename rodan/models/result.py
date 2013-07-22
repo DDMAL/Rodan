@@ -63,7 +63,7 @@ class Result(models.Model):
     @property
     def image_url(self):
         if self.result:
-            return os.path.join(settings.MEDIA_URL, (self.result.path, settings.MEDIA_ROOT))
+            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.result.path, settings.MEDIA_ROOT))
 
     @property
     def thumb_path(self):
