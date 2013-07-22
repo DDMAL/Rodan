@@ -199,15 +199,6 @@
 
     [aView addSubview:parentView];
     [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight([aView bounds]) - [self headerLabelHeight])];
-        // So... what about making this view SMALLER.  Then, the collection view will try to fit a smaller space.  Make aView big enough to handle the spill.
-        // Then, that difference amount, will just be 1x not (number_of_rows_in_collection_view)x
-    // console.log("parentView's old frame height: " + String(CGRectGetHeight([aView bounds]) - [self headerLabelHeight]));
-    // console.log("parentView's new frame height: " + CGRectGetHeight(_collectionViewBoundsForRow[aRow]));
-    // [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight(_collectionViewBoundsForRow[aRow]))];
-        // Ok, some success.  What I'm doing is giving the collection view a parent view and setting that view's height.  (Before I would set that view's height very large,
-        // to a large, calculated, height where there'd be no cutoff.  That caused the cells to be enormous in the pageglyphs view.)  Now I set the parent view's height
-        // smaller... but there's cutoff... so I will try to get the coll. view to draw like this, and then grow the parent view without causing the coll. view to redraw.
-        // (Crosses fingers.)  I believe that the parentView is causing the cutoff and not the tableView's rowHeight.
 
     var cv = [self _makeCollectionViewForTableView:aTableView arrayController:cvArrayController parentView:parentView row:aRow];
     // [cv bind:@"selectionIndexes" toObject:cvArrayControllers[aRow] withKeyPath:@"selectionIndexes" options:nil];
@@ -228,10 +219,6 @@
     console.log("Binding cvArrayController " + aRow + " selectionIndexes to new cv with " + [[cv content] count] + " items");
         // This is just selection indexes... what about content?  Content goes the other way: the cv binds to the ac arranged objects.
     [cv addObserver:self forKeyPath:@"selectionIndexes" options:nil context:aRow];  // allows observeValueForKeyPath function
-    // [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight([aView bounds]) - [self headerLabelHeight])];  // Needs to happen later.
-        // I don't know if it'll even work.  But if it does, I could write a loop to go through each 'parentView' and grow it a little.
-        // But it makes sense that willDisplayView needs to return before I grow parentView.  Could I override reloadData?  I'd have to subclass CPTableView, but I could
-        // easily do it in the delegate.
 }
 
 /*
@@ -338,38 +325,9 @@
 {
     var ac = [[CPArrayController alloc] init],
         dummyView = [[CPView alloc] initWithFrame:CGRectMake(1,1,CGRectGetWidth([aTableView bounds]),1)],
-        _cv = [self _makeCollectionViewForTableView:aTableView arrayController:ac parentView:dummyView row:aRow],
-        symbolCollection = [[aTableView dataSource] tableView:aTableView objectValueForTableColumn:nil row:aRow],
-        glyphWidth = [symbolCollection maxCols] + (2 * [PhotoView inset]),
-        glyphCount = [[symbolCollection glyphList] count],
-        tableWidth = CGRectGetWidth([aTableView bounds]),
-        number_of_rows_in_collection_view = Math.ceil((glyphWidth * glyphCount) / tableWidth),  // Try [_cv numberOfRows]
-        bottom_image_frame = [[_cv subviews][[[_cv subviews] count] - 1] frame],
-        bottom_of_last_image = CGRectGetMaxY(bottom_image_frame),
-        cell_spacing_neglected_by_collection_view = bottom_of_last_image - CGRectGetHeight([_cv bounds]);
+        _cv = [self _makeCollectionViewForTableView:aTableView arrayController:ac parentView:dummyView row:aRow];
 
-    return CGRectGetHeight([_cv bounds]) + cell_spacing_neglected_by_collection_view + [self headerLabelHeight];
-
-    // Let me explain the ridiculousness here.
-    // First, read http://stackoverflow.com/questions/7504546 and understand that we need to build a dummy collection
-    // view to solve the chicken&egg problem: we need to build a dummy coll view so that we can assign a row height,
-    // which we need to do before building the coll view that goes in the table, because that view needs the row height
-    // to render itself.
-    // Now, that approach ALMOST worked, but it seems that when the coll. view underestimates its size (fogetting about the
-    // space between cells, and if there is more than one row, then there is cutoff.  If there are a lot of rows, there is a
-    // lot of cutoff.)
-    // This problem is partly solved by reading the max y coordinate of the last image in the collection view, and using that
-    // in the row height.  Unfortunately, you need to repeat that algorithm for each row in the collection view, because the
-    // view rearranges itself and continues to spill out to be larger than the row.  You need to calculate the number of rows
-    // in the collection view, and iterate the correction that number of times.
-    // Now, it turns out each such iteration adds the SAME amount, so instead of iterating, I'll do it once, and then add
-    // according to how much height was added.  Again, that amount is the difference between the cv's reported height and
-    // the height found by looking at the bottom of the last image.
-    // I can't think of another algorithm that solves this problem, so that's what I implemented
-
-    // There seems to be a minor width issue.  See if the coll view's width is actually wider than it should be... Consider building it in a smaller view (?)
-    //   (?) because that never worked for me before, I think it must be laid out inside the tableView's aView... which I don't think gives me leeway...
-    //   unless I call setFrame on the collView.  Worth a shot.
+    return CGRectGetHeight([_cv bounds]) + [self headerLabelHeight];
 }
 
 - (CPCollectionView)_makeCollectionViewForTableView:(CPTableView)aTableView arrayController:(CPArrayController)cvArrayController parentView:(CPView)aView  row:(int)aRow
@@ -385,8 +343,8 @@
         // Rock on: setting min and max to the same value allows me to set the itemSize exactly what I need it.
         // (Before, itemSize was getting set too large and the collectionView was always a little bit larger than its superView.
         // See CPCollectionView._computeGridWithSize.... height = MAX(aSuperviewSize.height, numberOfRows * (_minItemSize.height + _verticalMargin))
-        // My collection view was getting cut off because it was larger than the superView.  Thankfully I didn't have to change CPCollectionView,
-        // I just set the itemSize from here.
+        // My collection view was getting cut off because it was larger than its superview.  Thankfully I didn't have to change CPCollectionView,
+        // I just set the itemSize from here.  This way awesomely makes tableView:heightOfRow actually make sense!
     [cv setDelegate:self];
     [cv setSelectable:YES];
     [cv setAllowsMultipleSelection:YES];
@@ -398,7 +356,6 @@
     [photoView setBounds:CGRectMake(0, 0, [model maxCols], [model maxRows])];
     [photoView setFrame: CGRectMake(0, 0, [model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
 
-    // Hmmm... each photoView is given the same Bounds here.  I might need autosizing to accomplish what I want.
     [photoView setAutoresizesSubviews:NO];
     [photoView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin | CPViewMaxXMargin | CPViewMaxYMargin];
     [itemPrototype setView:photoView];
