@@ -98,7 +98,7 @@ class Page(models.Model):
 
     @property
     def thumb_url(self):
-        return "/" + os.path.join(os.path.relpath(self.page_path, settings.PROJECT_DIR), "thumbnails")
+        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.page_path, settings.MEDIA_ROOT), "thumbnails")
 
     @property
     def image_path(self):
@@ -108,7 +108,7 @@ class Page(models.Model):
     @property
     def image_url(self):
         if self.page_image:
-            return "/" + os.path.relpath(self.page_image.url, settings.PROJECT_DIR)
+            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.page_image.url, settings.MEDIA_ROOT))
 
     @property
     def filename(self):
@@ -123,7 +123,7 @@ class Page(models.Model):
     @property
     def compat_file_url(self):
         if self.compat_page_image:
-            return "/" + os.path.relpath(self.compat_page_image.url, settings.PROJECT_DIR)
+            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_page_image.url, settings.MEDIA_ROOT))
 
     @property
     def small_thumb_url(self):
