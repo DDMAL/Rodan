@@ -1,8 +1,8 @@
 import os
 import json
 from functools import wraps
+from django.conf import settings
 from django.http.response import HttpResponse
-from rodan.settings import PROJECT_DIR
 
 
 def render_to_json(**jsonargs):
@@ -48,8 +48,8 @@ def live_mei_path(runjob):
 
 
 def live_mei_url(runjob):
-    runjob_rel_path = os.path.relpath(runjob.runjob_path, PROJECT_DIR)
-    return os.path.join(runjob_rel_path, neon_backup_directory, live_mei_filename)
+    runjob_rel_path = os.path.relpath(runjob.runjob_path, settings.MEDIA_ROOT)
+    return os.path.join(settings.MEDIA_URL, runjob_rel_path, neon_backup_directory, live_mei_filename)
 
 
 def backup_mei_path(runjob):
@@ -61,5 +61,5 @@ def compressed_image_path(runjob):
 
 
 def compressed_image_url(runjob):
-    runjob_rel_path = os.path.relpath(runjob.runjob_path, PROJECT_DIR)
-    return os.path.join(runjob_rel_path, neon_backup_directory, compressed_image_name)
+    runjob_rel_path = os.path.relpath(runjob.runjob_path, settings.MEDIA_ROOT)
+    return os.path.join(settings.MEDIA_URL, runjob_rel_path, neon_backup_directory, compressed_image_name)
