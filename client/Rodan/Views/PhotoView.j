@@ -1,4 +1,4 @@
-@implementation PhotoView : CPImageView  // Why is it a CPImageView??? _imageView is the imageView
+@implementation PhotoView : CPView
 /*
     PhotoView implements functions required by the collection view
     (setSelected and setRepresented)
@@ -29,7 +29,12 @@
     [self setBackgroundColor:isSelected ? [CPColor grayColor] : nil];
 }
 
-- (void)setRepresentedObject:(id)anObject
+/*
+    setRepresentedObject is called by the collection view and is telling us (the view) to display
+    the object.  The object is of course a glyph, because the collection view's content is bound
+    to glyphList.  Our task is to be a view for that glyph.
+*/
+- (void)setRepresentedObject:(id)aGlyph
 {
     var inset = [[self class] inset];
 
@@ -43,11 +48,12 @@
         [_imageView setBackgroundColor:[CPColor redColor]];
         [self addSubview:_imageView];
     }
-    [_imageView setImage:[[CPImage alloc] initWithData:[anObject pngData]]];
+    [_imageView setImage:[[CPImage alloc] initWithData:[aGlyph pngData]]];
     // [_imageView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin ];  // Well, Y looks okay.  But I can't quite get autosizing to work right.
-    [_imageView setFrame:CGRectMake(inset, inset, [anObject nCols], [anObject nRows])];
+    [_imageView setFrame:CGRectMake(inset, inset, [aGlyph nCols], [aGlyph nRows])];
     [_imageView setAutoresizesSubviews:NO];
     [_imageView setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
+
 }
 
 @end
