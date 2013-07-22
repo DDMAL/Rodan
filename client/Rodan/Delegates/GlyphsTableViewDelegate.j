@@ -182,7 +182,7 @@
     console.log("---willDisplayView--- row " + aRow);
     var symbolCollection = [[aTableView dataSource] tableView:aTableView objectValueForTableColumn:aTableColumn row:aRow],
         cvArrayController = [symbolCollection cvArrayController],
-        symbolName = [symbolCollection symbolName],  // If I use binding, I don't need this variable
+        symbolName = [symbolCollection symbolName],  // If I use binding for the label stringValue, I don't need this variable
         label = [[CPTextField alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth([aView bounds]), [self headerLabelHeight])];
     [label setStringValue:symbolName];
     [label setFont:[CPFont boldSystemFontOfSize:16]];
@@ -195,9 +195,20 @@
         //It's driving me bonkers: why doesn't the label get pinned to the top of aView upon resize???  (Not using Autosize!)
     [aView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
     [parentView setAutoresizesSubviews:NO];
-    [parentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMaxYMargin];
+    [parentView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMaxYMargin];  // Shouldn't be Y sizable since I'm forcing the collection view into a small space
+
     [aView addSubview:parentView];
     [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight([aView bounds]) - [self headerLabelHeight])];
+        // So... what about making this view SMALLER.  Then, the collection view will try to fit a smaller space.  Make aView big enough to handle the spill.
+        // Then, that difference amount, will just be 1x not (number_of_rows_in_collection_view)x
+    // console.log("parentView's old frame height: " + String(CGRectGetHeight([aView bounds]) - [self headerLabelHeight]));
+    // console.log("parentView's new frame height: " + CGRectGetHeight(_collectionViewBoundsForRow[aRow]));
+    // [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight(_collectionViewBoundsForRow[aRow]))];
+        // Ok, some success.  What I'm doing is giving the collection view a parent view and setting that view's height.  (Before I would set that view's height very large,
+        // to a large, calculated, height where there'd be no cutoff.  That caused the cells to be enormous in the pageglyphs view.)  Now I set the parent view's height
+        // smaller... but there's cutoff... so I will try to get the coll. view to draw like this, and then grow the parent view without causing the coll. view to redraw.
+        // (Crosses fingers.)  I believe that the parentView is causing the cutoff and not the tableView's rowHeight.
+
     var cv = [self _makeCollectionViewForTableView:aTableView arrayController:cvArrayController parentView:parentView row:aRow];
     // [cv bind:@"selectionIndexes" toObject:cvArrayControllers[aRow] withKeyPath:@"selectionIndexes" options:nil];
     [cv setSelectionIndexes:[cvArrayController selectionIndexes]];  // This should allow you to scroll down and back and have the selection persist
@@ -217,6 +228,10 @@
     console.log("Binding cvArrayController " + aRow + " selectionIndexes to new cv with " + [[cv content] count] + " items");
         // This is just selection indexes... what about content?  Content goes the other way: the cv binds to the ac arranged objects.
     [cv addObserver:self forKeyPath:@"selectionIndexes" options:nil context:aRow];  // allows observeValueForKeyPath function
+    // [parentView setFrame:CGRectMake(0, [self headerLabelHeight], CGRectGetWidth([aView bounds]), CGRectGetHeight([aView bounds]) - [self headerLabelHeight])];  // Needs to happen later.
+        // I don't know if it'll even work.  But if it does, I could write a loop to go through each 'parentView' and grow it a little.
+        // But it makes sense that willDisplayView needs to return before I grow parentView.  Could I override reloadData?  I'd have to subclass CPTableView, but I could
+        // easily do it in the delegate.
 }
 
 /*
@@ -328,11 +343,13 @@
         glyphWidth = [symbolCollection maxCols] + (2 * [PhotoView inset]),
         glyphCount = [[symbolCollection glyphList] count],
         tableWidth = CGRectGetWidth([aTableView bounds]),
-        number_of_rows_in_collection_view = Math.ceil((glyphWidth * glyphCount) / tableWidth),
+        number_of_rows_in_collection_view = Math.ceil((glyphWidth * glyphCount) / tableWidth),  // Try [_cv numberOfRows]
         bottom_image_frame = [[_cv subviews][[[_cv subviews] count] - 1] frame],
         bottom_of_last_image = CGRectGetMaxY(bottom_image_frame),
         cell_spacing_neglected_by_collection_view = bottom_of_last_image - CGRectGetHeight([_cv bounds]);
-    return CGRectGetHeight([_cv bounds]) + cell_spacing_neglected_by_collection_view * number_of_rows_in_collection_view + [self headerLabelHeight];
+
+    return CGRectGetHeight([_cv bounds]) + cell_spacing_neglected_by_collection_view + [self headerLabelHeight];
+
     // Let me explain the ridiculousness here.
     // First, read http://stackoverflow.com/questions/7504546 and understand that we need to build a dummy collection
     // view to solve the chicken&egg problem: we need to build a dummy coll view so that we can assign a row height,
@@ -363,24 +380,25 @@
 
     [cv setAutoresizesSubviews:NO];
     [cv setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable | CPViewMinXMargin | CPViewMaxXMargin | CPViewMaxYMargin];
-    [cv setMinItemSize:CGSizeMake(0,0)];  // Aha!  Now that the PhotoView has a frame, this works.  (the size isn't determined by this.)
-    [cv setMaxItemSize:CGSizeMake(10000, 10000)];
+    [cv setMinItemSize:CGSizeMake([model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
+    [cv setMaxItemSize:CGSizeMake([model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
+        // Rock on: setting min and max to the same value allows me to set the itemSize exactly what I need it.
+        // (Before, itemSize was getting set too large and the collectionView was always a little bit larger than its superView.
+        // See CPCollectionView._computeGridWithSize.... height = MAX(aSuperviewSize.height, numberOfRows * (_minItemSize.height + _verticalMargin))
+        // My collection view was getting cut off because it was larger than the superView.  Thankfully I didn't have to change CPCollectionView,
+        // I just set the itemSize from here.
     [cv setDelegate:self];
     [cv setSelectable:YES];
     [cv setAllowsMultipleSelection:YES];
+    [cv setVerticalMargin:2];
 
     var itemPrototype = [[CPCollectionViewItem alloc] init],
         photoView = [[PhotoView alloc] initWithFrame:CGRectMakeZero()];
 
-    [photoView setBounds:CGRectMake(0,0,[model maxCols],[model maxRows])];
-    [photoView setFrame: CGRectMake(0,0,[model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
-    // [photoView setBounds:CGRectMake(0,0,50,50)];
-    // [photoView setFrame: CGRectMake(0,0,50 + (2 * [photoView inset]), 50 + (2 * [photoView inset]))];
-    // Hmmm... each photoView is given the same Bounds here.
-    // Maybe each can set its own bounds.  Maybe I can use itemPrototype for that. Well, I DO have the Glyph inside photoView!  Hmmm, I hope this works out.
-    // Maybe there's a middle step I can do, to get it 'sort of' working, and then tweak.  How about I hardcode the frame here so I don't need maxCols (which is
-    // the error I'm currently getting...)  Well, the photoView is a prototype view for the collectionView, so setRepresentedObject needs to be in charge of
-    // setting the bounds if I'm going to have differing cell sizes.
+    [photoView setBounds:CGRectMake(0, 0, [model maxCols], [model maxRows])];
+    [photoView setFrame: CGRectMake(0, 0, [model maxCols] + (2 * [PhotoView inset]), [model maxRows] + (2 * [PhotoView inset]))];
+
+    // Hmmm... each photoView is given the same Bounds here.  I might need autosizing to accomplish what I want.
     [photoView setAutoresizesSubviews:NO];
     [photoView setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin | CPViewMaxXMargin | CPViewMaxYMargin];
     [itemPrototype setView:photoView];
@@ -390,8 +408,6 @@
     [aView addSubview:cv];
 
     [cv setContent:[model glyphList]];
-    // [cv setContent:[model allValues]]; // makes anObject null in the photoview... probably better to stick with symbolCollection and then get the sizing I want.
-                                       // ... the CPDictionary isn't ordered.  I guess I don't need an ordering, although the collection view might.
 
     return cv;
 }
