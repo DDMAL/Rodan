@@ -75,10 +75,7 @@ class ClassificationTaskBase(Task):
         result.run_job.status = RunJobStatus.HAS_FINISHED
         result.run_job.save()
 
-    def on_failure(self, *args, **kwargs):
-        runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
-        runjob.status = RunJobStatus.FAILED
-        runjob.save()
+    on_failure = taskutil.default_on_failure
 
 
 class ManualClassificationTask(ClassificationTaskBase):

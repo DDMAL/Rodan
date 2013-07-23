@@ -10,7 +10,7 @@ class RTStafflineRemovalTask(GameraCustomTask):
     settings = [{'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'staffline_height','type':'int'},
                     {'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'staffspace_height','type':'int'},
                     {'default':0,'has_default':True,'rng':(-1048576,1048576),'name':'num_lines','type':'int'},
-                    {'default': 3.0,'has_default':True,'rng':(-1048576,1048576),'name':'resolution','type':'real'}]
+                    {'default': 3,'has_default':True,'rng':(-1048576,1048576),'name':'resolution','type':'real'}]
 
     def process_image(self, task_image, settings):
         clsss_init_settings = dict( [(k, settings[k]) for k in ('staffline_height', 'staffspace_height')] )

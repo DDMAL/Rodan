@@ -12,6 +12,7 @@ class RunJobStatus(object):
     RUN_ONCE_WAITING = 3
     HAS_FINISHED = 4
     FAILED = -1
+    CANCELLED = 9
 
 
 class RunJob(models.Model):
@@ -32,7 +33,8 @@ class RunJob(models.Model):
                       (RunJobStatus.WAITING_FOR_INPUT, "Waiting for input"),
                       (RunJobStatus.RUN_ONCE_WAITING, "Run once, waiting for input"),
                       (RunJobStatus.HAS_FINISHED, "Has finished"),
-                      (RunJobStatus.FAILED, "Failed, ZOMG")]
+                      (RunJobStatus.FAILED, "Failed, ZOMG"),
+                      (RunJobStatus.CANCELLED, "Cancelled")]
 
     @property
     def runjob_path(self):
@@ -50,6 +52,9 @@ class RunJob(models.Model):
     job_settings = json.JSONField(blank=True, null=True)
     needs_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+
+    error_summary = models.TextField(default="", blank=True, null=True)
+    error_details = models.TextField(default="", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

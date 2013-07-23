@@ -63,11 +63,11 @@ class PitchFindingTask(Task):
         result.save()
         return result
 
-    def _get_segmented_image_path(self, wfrun, wfjob_url):
+    def _get_segmented_image_path(self, wfrun, wfjob_url, page):
         wfjob_uuid = taskutil.get_uuid_from_url(wfjob_url)
         wfjob = WorkflowJob.objects.get(pk=wfjob_uuid)
 
-        source_runjob = RunJob.objects.get(workflow_run=wfrun, workflow_job=wfjob)
+        source_runjob = RunJob.objects.get(workflow_run=wfrun, workflow_job=wfjob, page=page)
         source_result = source_runjob.result.get()
 
         return source_result.result.path
@@ -78,8 +78,9 @@ class PitchFindingTask(Task):
         xml_filepath = taskutil.get_input_path(runjob, result_id)   # Trouble
         settings = taskutil.get_settings(runjob)
 
-        wfrun = runjob.workflow_run
-        segmented_image_path = self._get_segmented_image_path(wfrun, settings['segmented_image_source'])
+        segmented_image_path = self._get_segmented_image_path(runjob.workflow_run,
+                                                              settings['segmented_image_source'],
+                                                              runjob.page)
         page_order = runjob.page.page_order
 
         mei_document = self.process_image(segmented_image_path, xml_filepath, settings, page_order)
@@ -91,7 +92,11 @@ class PitchFindingTask(Task):
         result.run_job.status = RunJobStatus.HAS_FINISHED
         result.run_job.save()
 
-    def on_failure(self, *args, **kwargs):
-        runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
-        runjob.status = RunJobStatus.FAILED
-        runjob.save()
+    on_failure = taskutil.default_on_failure
+
+    def error_mapping(self, exc, traceback):
+        from rodan.models.runjob import RunJob
+        if isinstance(exc, RunJob.DoesNotExist):
+            return {'error_summary': "Cannot get segmented image",
+                    'error_details': "Did you delete and re-add any of the jobs in the workflow?"}
+

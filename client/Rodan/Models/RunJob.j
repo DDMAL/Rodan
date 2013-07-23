@@ -3,6 +3,14 @@
 @import "Page.j"
 @import "../Transformers/RunJobSettingsTransformer.j"
 
+RUNJOB_STATUS_FAILED = -1,
+RUNJOB_STATUS_NOTRUNNING = 0,
+RUNJOB_STATUS_RUNNING = 1,
+RUNJOB_STATUS_WAITINGFORINPUT = 2,
+RUNJOB_STATUS_RUNONCEWAITING = 3,
+RUNJOB_STATUS_HASFINISHED = 4,
+RUNJOB_STATUS_CANCELLED = 9;
+
 @implementation RunJob : WLRemoteObject
 {
     CPString    pk              @accessors;
@@ -17,6 +25,8 @@
     JSObject    page            @accessors;
     CPDate      created         @accessors;
     CPDate      updated         @accessors;
+    CPString    errorSummary    @accessors;
+    CPString    errorDetails    @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -32,7 +42,9 @@
         ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
         ['page', 'page', [WLForeignObjectTransformer forObjectClass:Page]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
-        ['updated', 'updated', [[WLDateTransformer alloc] init], true]
+        ['updated', 'updated', [[WLDateTransformer alloc] init], true],
+        ['errorSummary', 'error_summary'],
+        ['errorDetails', 'error_details']
     ];
 }
 
@@ -48,6 +60,14 @@
         runJobUUID = [pk lastPathComponent];
     }
     return runJobUUID;
+}
+
+/**
+ * Convenience method for enabling/disabling "View Error Details" button.
+ */
+- (BOOL)didFail
+{
+    return [self status] == -1;
 }
 
 - (CPString)remotePath

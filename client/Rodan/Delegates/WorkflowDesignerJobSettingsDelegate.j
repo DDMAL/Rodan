@@ -1,5 +1,5 @@
 @import "../Controllers/WorkflowController.j"
-@import "../Frameworks/RodanKit/RKIntegerFormatter.j"
+@import "../Frameworks/RodanKit/RKNumberFormatter.j"
 
 @global RodanShouldLoadClassifiersNotification
 
@@ -112,7 +112,11 @@
     switch ([aSetting settingType])
     {
         case 'int':
-            dataView = [self _createIntField:aSetting];
+            dataView = [self _createDigitField:aSetting decimalPlaces:NO];
+            break;
+
+        case 'real':
+            dataView = [self _createDigitField:aSetting decimalPlaces:YES];
             break;
 
         case 'uuid_workflowjob':
@@ -125,10 +129,6 @@
 
         case 'uuid_classifier':
             dataView = [self _createClassifierPopUpButton:aSetting];
-            break;
-
-        case 'uuid_pageglyphs':
-            dataView = [self _createTextField:aSetting];
             break;
 
         default:
@@ -179,9 +179,9 @@
 
 /**
  * Given a workflow job setting, creates a text-field and binds to the setting.
- * In addition, it adds an integer formatter.
+ * You can specify if decimal places allowed or not.
  */
-- (CPTextField)_createIntField:(WorkflowJobSetting)aSetting
+- (CPTextField)_createDigitField:(WorkflowJobSetting)aSetting decimalPlaces:(BOOL)aDecimalPlaces
 {
     var textField = [CPTextField labelWithTitle:""];
     if (aSetting === null)
@@ -196,8 +196,17 @@
     [textField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 
     // Set formatter.
-    var integerFormatter = [[RKIntegerFormatter alloc] init];
-    [textField setFormatter:integerFormatter];
+    var formatter = [[RKNumberFormatter alloc] init];
+    [textField setFormatter:formatter];
+    if (!aDecimalPlaces)
+    {
+        [formatter setMaximumFractionDigits:0];
+    }
+    if ("range" in aSetting && aSetting.range.length == 2)
+    {
+        [formatter setMinimum:aSetting.range[0]];
+        [formatter setMaximum:aSetting.range[1]];
+    }
 
     // Set value.
     var currentSettingNumber = [aSetting settingDefault];

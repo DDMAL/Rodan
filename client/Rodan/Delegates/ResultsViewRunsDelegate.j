@@ -70,6 +70,25 @@
     [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
 }
 
+- (@action)displayErrorDetails:(id)aSender
+{
+    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0],
+        alert = [[CPAlert alloc] init];
+    [alert setMessageText:[runJob errorDetails]];
+    [alert runModal];
+}
+
+/**
+ * Attempts retry of failed runjobs for selected run.
+ */
+- (@action)retryFailedRunJobs:(id)aSender
+{
+    [WLRemoteAction schedule:WLRemoteActionPatchType
+                    path:[_currentlySelectedWorkflowRun pk]
+                    delegate:null
+                    message:null];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Private Methods
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,10 +11,13 @@ from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.processed import processed
 from gamera.core import init_gamera, load_image
+from rodan.jobs.util import taskutil
 
 
 class GameraTask(Task):
     max_retries = None
+    on_success = taskutil.default_on_success
+    on_failure = taskutil.default_on_failure
 
     def run(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
@@ -66,17 +69,3 @@ class GameraTask(Task):
 
         return str(new_result.uuid)
 
-    def on_success(self, retval, task_id, args, kwargs):
-        # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
-        result = Result.objects.get(pk=retval)
-        result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.run_job.save()
-
-        res = create_thumbnails.s(result)
-        res.link(processed.s())
-        res.apply_async()
-
-    def on_failure(self, *args, **kwargs):
-        runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
-        runjob.status = RunJobStatus.FAILED
-        runjob.save()

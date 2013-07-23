@@ -3,7 +3,7 @@
 /**
  * Per instructions of CPNumberFormatter, subclassed for implementation.
  */
-@implementation RKIntegerFormatter:CPNumberFormatter
+@implementation RKNumberFormatter:CPNumberFormatter
 {
 }
 
@@ -23,7 +23,19 @@
 {
     if (aString !== null)
     {
-        @deref(aObject) = [aString intValue];
+        var value = [aString intValue];
+        if ([self minimum] != nil && [aString intValue] < [self minimum])
+        {
+            @deref(aObject) = [self minimum];
+        }
+        else if ([self maximum] != nil && [aString intValue] > [self maximum])
+        {
+            @deref(aObject) = [self maximum];
+        }
+        else
+        {
+            @deref(aObject) = [aString intValue];
+        }
         return YES;
     }
 

@@ -1,6 +1,7 @@
 @import <Foundation/CPObject.j>
 @import <RodanKit/RKNotificationTimer.j>
 @import "../Models/Workflow.j"
+@import "../Delegates/ResultsViewWorkflowsDelegate.j"
 
 @global activeProject
 @global activeUser
@@ -12,10 +13,6 @@
 var activeWorkflow = nil,
     _msLOADINTERVAL = 5.0;
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONTROLLERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * General workflow controller that exists with the Workflow Results View.
  * It's purpose is to do a lot of reload handling.
@@ -25,6 +22,7 @@ var activeWorkflow = nil,
     @outlet     CPArrayController               workflowArrayController;
     @outlet     CPArrayController               workflowPagesArrayController;
     @outlet     CPButtonBar                     workflowAddRemoveBar;
+    @outlet     ResultsViewWorkflowsDelegate    resultsViewWorkflowsDelegate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +164,7 @@ var activeWorkflow = nil,
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
+    [resultsViewWorkflowsDelegate reset];
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
                          notification:RodanShouldLoadWorkflowResultsWorkflowsNotification];
 }

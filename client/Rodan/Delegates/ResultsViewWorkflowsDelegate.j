@@ -5,6 +5,7 @@
 
 
 @global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+@class WorkflowController
 
 
 /**
@@ -29,6 +30,12 @@
                                           name:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
                                           object:nil];
     return self;
+}
+
+- (void)reset
+{
+    [_resultsViewRunsDelegate setArrayContents:nil];
+    _currentlySelectedWorkflow = [WorkflowController activeWorkflow];
 }
 
 

@@ -16,5 +16,14 @@ class RodanJobError(RodanError):
 class InvalidFirstJobError(RodanError):
     pass
 
+
 class UUIDParseError(RodanError):
+    pass
+
+
+class WorkFlowTriedTooManyTimesError(RodanError):
+    pass
+
+
+class NeonTempDirectoryError(RodanError):
     pass

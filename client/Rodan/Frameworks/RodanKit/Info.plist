@@ -18,5 +18,7 @@
     <string>binarise</string>
     <key>gamera.custom.segmentation.segmentation</key>
     <string>segment</string>
+    <key>neon.pitch_correction</key>
+    <string>neon</string>
 </dict>
 </plist>

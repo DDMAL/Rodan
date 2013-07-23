@@ -157,6 +157,8 @@ def default_on_success(self, retval, task_id, args, kwargs):
     # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
     result = Result.objects.get(pk=retval)
     result.run_job.status = RunJobStatus.HAS_FINISHED
+    result.run_job.error_summary = ""
+    result.run_job.error_details = ""
     result.run_job.save()
 
     res = create_thumbnails.s(result)
@@ -164,7 +166,56 @@ def default_on_success(self, retval, task_id, args, kwargs):
     res.apply_async()
 
 
-def default_on_failure(self, *args, **kwargs):
-    runjob = RunJob.objects.get(pk=args[2][1])  # index into args to fetch the failed runjob instance
+def default_on_failure(self, exc, task_id, args, kwargs, einfo):
+    runjob_id = args[1]
+    runjob = RunJob.objects.get(pk=runjob_id)
     runjob.status = RunJobStatus.FAILED
+
+    # Any job using the default_on_failure method can define an error_mapping
+    # method, which will take in an exception and a traceback string,
+    # and return a dictionary containing 'error_summary' and 'error_details'.
+    # This is to allow pretty formatting of error messages in the client.
+    # If any StandardError is raised in the process of retrieving the
+    # values, the default values are used for both fields.
+    try:
+        err_info = self.error_mapping(exc, einfo.traceback)
+        err_summary = err_info['error_summary']
+        err_detail = err_info['error_details']
+        from rodan.settings import TRACEBACK_IN_ERROR_DETAIL
+        if TRACEBACK_IN_ERROR_DETAIL:
+            err_detail = str(err_detail) + "\n\n" + str(einfo.traceback)
+    except StandardError as e:
+        print "The error_mapping method is not implemented properly (or not implemented at all). Exception: "
+        print "%s: %s" % (e.__class__.__name__, e.__str__())
+        print "Using default sources for error information."
+        err_summary = exc.__class__.__name__
+        err_detail = einfo.traceback
+
+    runjob.error_summary = err_summary
+    runjob.error_details = err_detail
     runjob.save()
+
+# More flexible error checking code, but this will be far more painful to maintain:
+#
+#    try:
+#        self.error_mapping
+#    except NameError as e:
+#        print "No error mapping defined. Using default values."
+#    else:
+#        try:
+#            err_info = self.error_mapping(exc, einfo)
+#        except StandardError as e:
+#            print "Unhandled exception in error mapping function. Exception: "
+#            print "%s: %s" % (e.__class__.__name__, e.__str__())
+#            print "Using default values instead."
+#        else:
+#            try:
+#                err_summary = err_info['error_summary']
+#            except KeyError:
+#                print "No Error summary defined by error_mapping."
+#                print "Using default values."
+#            try:
+#                err_detail = err_info['error_details']
+#            except KeyError:
+#                print "No Error details defined by error_mapping."
+#                print "Using default values."

@@ -53,7 +53,7 @@
     // I'm overwriting init because I want to use the object in InterfaceBuilder AND
     // I want it to be initialized using initWithCibName.  When the cib instantiates
     // ClassifierViewController, it will call this init function
-    self = [super initWithCibName:@"classifierView" bundle:[CPBundle mainBundle]];
+    self = [super initWithCibName:@"ClassifierView" bundle:[CPBundle mainBundle]];
 
     return self;
 }
