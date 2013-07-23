@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">12E55</string>
+		<string key="IBDocument.SystemVersion">12D78</string>
 		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
-		<string key="IBDocument.AppKitVersion">1187.39</string>
+		<string key="IBDocument.AppKitVersion">1187.37</string>
 		<string key="IBDocument.HIToolboxVersion">626.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1313,7 +1313,7 @@
 							<string key="NSFrame">{{14, 13}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="706142961"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="757178613"/>
+							<reference key="NSNextKeyView" ref="100903249"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="611522680">
@@ -1402,7 +1402,7 @@
 							<string key="NSFrame">{{127, 111}, {201, 22}}</string>
 							<reference key="NSSuperview" ref="706142961"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="100903249"/>
+							<reference key="NSNextKeyView" ref="523379265"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="480509595">
@@ -1446,7 +1446,7 @@
 							<string key="NSFrame">{{121, 75}, {100, 32}}</string>
 							<reference key="NSSuperview" ref="706142961"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="862462208"/>
+							<reference key="NSNextKeyView" ref="757178613"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="511799948">
@@ -1471,7 +1471,6 @@
 							<string key="NSFrame">{{12, 59}, {324, 5}}</string>
 							<reference key="NSSuperview" ref="706142961"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="523379265"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<string key="NSOffsets">{0, 0}</string>
 							<object class="NSTextFieldCell" key="NSTitleCell">
@@ -2182,22 +2181,6 @@
 						<reference key="destination" ref="823080226"/>
 					</object>
 					<int key="connectionID">800</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">enabled: selection</string>
-						<reference key="source" ref="474018668"/>
-						<reference key="destination" ref="418597913"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="474018668"/>
-							<reference key="NSDestination" ref="418597913"/>
-							<string key="NSLabel">enabled: selection</string>
-							<string key="NSBinding">enabled</string>
-							<string key="NSKeyPath">selection</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">1235</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -3652,7 +3635,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">1235</int>
+			<int key="maxID">1234</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4104,25 +4087,6 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ImportClassifierTextfieldDelegate.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NewClassifierTextfieldDelegate</string>
-					<string key="superclassName">NSObject</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">classifierController</string>
-						<string key="NS.object.0">ClassifierController</string>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">classifierController</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">classifierController</string>
-							<string key="candidateClassName">ClassifierController</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/NewClassifierTextfieldDelegate.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

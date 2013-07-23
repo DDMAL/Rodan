@@ -16,19 +16,18 @@
     if ([glyphs count] === 0)
         return;
 
-    var newBinIndex = [self _makeSymbolCollectionForName:[glyphs[0] idName]],
-        symbolCollection = [theGameraGlyphs symbolCollections][newBinIndex],
-        cvArrayController = [symbolCollection cvArrayController];
+    var newBinIndex = [self _makeSymbolCollectionForName:[glyphs[0] idName]];
 
     for (var i = 0; i < [glyphs count]; ++i)
     {
         if (![self checkIfGlyph:glyphs[i] isAlreadyPresentIn:[theGameraGlyphs symbolCollections][newBinIndex]])
         {
-            [symbolCollection addGlyph:glyphs[i]];
+            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyphs[i]];
         }
     }
 
-    [cvArrayController setSelectedObjects:glyphs];
+    [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
+    [cvArrayControllers[newBinIndex] setSelectedObjects:glyphs];
     [theTableView reloadData];
 }
 
@@ -36,7 +35,7 @@
 {
     for (var i = 0; i < [[aSymbolCollection glyphList] count]; ++i)
     {
-        if ([[aSymbolCollection glyphList][i] isEqualTo:aGlyph])
+        if ([[aSymbolCollection glyphList][i] imageIsEqualToGlyph:aGlyph])
         {
             return true;
         }

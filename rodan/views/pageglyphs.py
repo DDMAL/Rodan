@@ -30,7 +30,7 @@ class PageGlyphsDetail(generics.RetrieveUpdateDestroyAPIView):
         kwargs['partial'] = True
         glyphs = request.DATA.get('glyphs', None)
         if glyphs:
-            self.get_object().write_json_glyphs_to_xml(glyphs)
+            self.get_object().write_xml(glyphs)
 
         return self.update(request, *args, **kwargs)
 

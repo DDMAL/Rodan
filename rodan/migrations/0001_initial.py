@@ -117,8 +117,6 @@ class Migration(SchemaMigration):
             ('job_settings', self.gf('django.db.models.fields.TextField')(default='{}', null=True, blank=True)),
             ('needs_input', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('status', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('error_summary', self.gf('django.db.models.fields.TextField')(default='', null=True, blank=True)),
-            ('error_details', self.gf('django.db.models.fields.TextField')(default='', null=True, blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -127,17 +125,17 @@ class Migration(SchemaMigration):
         # Adding model 'Classifier'
         db.create_table('rodan_classifier', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
-            ('xml_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='classifiers', to=orm['rodan.Project'])),
+            ('classifier_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
         ))
         db.send_create_signal('rodan', ['Classifier'])
 
         # Adding model 'PageGlyphs'
         db.create_table('rodan_pageglyphs', (
             ('uuid', self.gf('uuidfield.fields.UUIDField')(unique=True, max_length=32, primary_key=True)),
-            ('xml_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
             ('classifier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pageglyphs', to=orm['rodan.Classifier'])),
+            ('pageglyphs_file', self.gf('django.db.models.fields.files.FileField')(max_length=255, null=True)),
         ))
         db.send_create_signal('rodan', ['PageGlyphs'])
 
@@ -216,10 +214,10 @@ class Migration(SchemaMigration):
         },
         'rodan.classifier': {
             'Meta': {'object_name': 'Classifier'},
+            'classifier_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'classifiers'", 'to': "orm['rodan.Project']"}),
-            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
-            'xml_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'})
+            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.job': {
             'Meta': {'ordering': "['category']", 'object_name': 'Job'},
@@ -250,8 +248,8 @@ class Migration(SchemaMigration):
         'rodan.pageglyphs': {
             'Meta': {'object_name': 'PageGlyphs'},
             'classifier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pageglyphs'", 'to': "orm['rodan.Classifier']"}),
-            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'}),
-            'xml_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'})
+            'pageglyphs_file': ('django.db.models.fields.files.FileField', [], {'max_length': '255', 'null': 'True'}),
+            'uuid': ('uuidfield.fields.UUIDField', [], {'unique': 'True', 'max_length': '32', 'primary_key': 'True'})
         },
         'rodan.project': {
             'Meta': {'ordering': "('created',)", 'object_name': 'Project'},
@@ -275,8 +273,6 @@ class Migration(SchemaMigration):
         'rodan.runjob': {
             'Meta': {'ordering': "['workflow_job__sequence']", 'object_name': 'RunJob'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'error_details': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
-            'error_summary': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'job_settings': ('django.db.models.fields.TextField', [], {'default': "'{}'", 'null': 'True', 'blank': 'True'}),
             'needs_input': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rodan.Page']"}),
