@@ -9,8 +9,10 @@
 @global RodanHasFocusWorkflowDesignerViewNotification
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanShouldLoadClassifiersNotification
+@global RodanShouldLoadPagesNotification
 @global RodanDidLoadWorkflowNotification
 @global RodanRemoveJobFromWorkflowNotification
+@global RodanShouldLoadWorkflowDesignerDataNotification
 
 JobItemType = @"JobItemType";
 
@@ -75,6 +77,11 @@ var _msLOADINTERVAL = 5.0;
                                           name:RodanHasFocusWorkflowDesignerViewNotification
                                           object:nil];
 
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleShouldLoadWorkflowDesignerData:)
+                                          name:RodanShouldLoadWorkflowDesignerDataNotification
+                                          object:nil];
+
     [jobList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [pageList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
     [runList setBackgroundColor:[CPColor colorWithHexString:@"DEE3E9"]];
@@ -134,7 +141,7 @@ var _msLOADINTERVAL = 5.0;
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
-                         notification:RodanShouldLoadClassifiersNotification];
+                         notification:RodanShouldLoadWorkflowDesignerDataNotification];
 }
 
 - (void)setWorkflowMenu:(CPNotification)aNotification
@@ -148,6 +155,17 @@ var _msLOADINTERVAL = 5.0;
                     path:[[aNotification object] pk]
                     delegate:loadActiveWorkflowDelegate
                     message:"Loading Workflow Jobs"];
+}
+
+/**
+ * Start notification cycle.
+ */
+- (void)handleShouldLoadWorkflowDesignerData:(CPNotification)aNotification
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadClassifiersNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadPagesNotification
+                                          object:nil];
 }
 
 - (@action)selectWorkflow:(id)aSender

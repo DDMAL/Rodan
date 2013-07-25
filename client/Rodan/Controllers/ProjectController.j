@@ -209,11 +209,6 @@
     activeProject = [[Project alloc] initWithJson:[anAction result]];
     [WLRemoteObject setDirtProof:NO];
 
-    [pageArrayController bind:@"contentArray"
-                         toObject:activeProject
-                         withKeyPath:@"pages"
-                         options:nil];
-
     [workflowArrayController bind:@"contentArray"
                              toObject:activeProject
                              withKeyPath:@"workflows"

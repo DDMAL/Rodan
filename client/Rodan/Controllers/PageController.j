@@ -4,6 +4,10 @@
 @import "../Models/Page.j"
 
 @global activeProject
+@global RodanHasFocusPagesViewNotification
+@global RodanShouldLoadPagesNotification
+
+var _msLOADINTERVAL = 5.0;
 
 @implementation PageController : CPObject
 {
@@ -15,6 +19,9 @@
     @outlet     CPTextField         addedByField;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Init Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)awakeFromCib
 {
     // var formatter = [[CPDateFormatter alloc] init];
@@ -22,6 +29,16 @@
     // [dateAddedField setFormatter:formatter];
     var byteCountFormatter = [[CPByteCountFormatter alloc] init];
     [sizeField setFormatter:byteCountFormatter];
+
+    // Subscriptions for self.
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(receiveHasFocusEvent:)
+                                          name:RodanHasFocusPagesViewNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleShouldLoadNotification:)
+                                          name:RodanShouldLoadPagesNotification
+                                          object:nil];
 }
 
 - (id)initWithCoder:(CPCoder)aCoder
@@ -34,6 +51,9 @@
     return self;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
     [WLRemoteObject setDirtProof:YES];  // turn off auto-creation of pages since we've already done it.
@@ -71,12 +91,54 @@
 - (IBAction)removePage:(id)aSender
 {
     var selectedObjects = [pageArrayController selectedObjects];
-    [pageArrayController removeObjects:selectedObjects];
     [selectedObjects makeObjectsPerformSelector:@selector(ensureDeleted)];
+    [self handleShouldLoadNotification:null];
 }
 
 - (void)emptyPageArrayController
 {
     [pageArrayController setContent:nil];
+}
+
+/**
+ * Does a page load request.
+ */
+- (void)sendLoadRequest
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"pages?project=" + [activeProject uuid]
+                    delegate:self
+                    message:"Loading Workflow Run Results"];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Handler Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (void)receiveHasFocusEvent:(CPNotification)aNotification
+{
+    [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
+                         notification:RodanShouldLoadPagesNotification];
+}
+
+/**
+ * Handles load notification
+ */
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
+{
+    [self sendLoadRequest];
+}
+
+/**
+ * Handles remote object load.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        var pageArray = [Page objectsFromJson:[aAction result]];
+        [pageArrayController setContent:pageArray];
+        [WLRemoteObject setDirtProof:NO];
+    }
 }
 @end

@@ -89,14 +89,16 @@ RodanShouldLoadWorkflowResultsWorkflowsNotification = @"RodanShouldLoadWorkflowR
 RodanShouldLoadWorkflowResultsWorkflowRunsNotification = @"RodanShouldLoadWorkflowResultsWorkflowRunsNotification";
 RodanShouldLoadWorkflowResultsWorkflowResultsNotification = @"RodanShouldLoadWorkflowResultsWorkflowResultsNotification";
 RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotification";
+RodanShouldLoadPagesNotification = @"RodanShouldLoadPagesNotification";
+RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification";
+RodanShouldLoadWorkflowDesignerDataNotification = @"RodanShouldLoadWorkflowDesignerDataNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
 RodanHasFocusWorkflowResultsViewNotification = @"RodanHasFocusWorkflowResultsViewNotification";
 RodanHasFocusWorkflowDesignerViewNotification = @"RodanHasFocusWorkflowDesignerViewNotification";
-
-RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification"
-RodanHasFocusClassifierViewNotification = @"RodanHasFocusClassifierViewNotification"
+RodanHasFocusPagesViewNotification = @"RodanHasFocusPagesViewNotification";
+RodanHasFocusClassifierViewNotification = @"RodanHasFocusClassifierViewNotification";
 
 
 isLoggedIn = NO;
@@ -387,6 +389,9 @@ activeProject = nil;  // URI to the currently open project
     [managePagesView setAutoresizingMask:CPViewWidthSizable];
     [managePagesView setFrame:[contentScrollView bounds]];
     [contentScrollView setDocumentView:managePagesView];
+
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanHasFocusPagesViewNotification
+                                          object:nil];
 }
 
 - (IBAction)switchWorkspaceToWorkflowResults:(id)aSender
