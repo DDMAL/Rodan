@@ -3,10 +3,12 @@ from celery import task
 from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
+from rodan.helpers.dbmanagement import refetch_from_db
 
 
 @task(name="rodan.helpers.thumbnails.create_thumbnails")
 def create_thumbnails(database_object):
+    database_object = refetch_from_db(database_object)
     image = PIL.Image.open(database_object.page_image.path).convert('RGB')
     width = float(image.size[0])
     height = float(image.size[1])

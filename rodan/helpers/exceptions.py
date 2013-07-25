@@ -27,3 +27,7 @@ class WorkFlowTriedTooManyTimesError(RodanError):
 
 class NeonTempDirectoryError(RodanError):
     pass
+
+
+class ObjectDeletedError(RodanError):
+    pass
