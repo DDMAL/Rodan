@@ -14,7 +14,6 @@
     CPObject    projectOwner        @accessors;
     CPString    resourceURI         @accessors;
     CPArray     pages               @accessors;
-    CPArray     workflows           @accessors;
     CPDate      created             @accessors;
     CPDate      updated             @accessors;
 }
@@ -45,7 +44,6 @@
         ['projectDescription', 'description'],
         ['projectCreator', 'creator'],
         ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
-        ['workflows', 'workflows', [WLForeignObjectsTransformer forObjectClass:Workflow]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true]
     ];

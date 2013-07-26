@@ -92,6 +92,7 @@ RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotificatio
 RodanShouldLoadPagesNotification = @"RodanShouldLoadPagesNotification";
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification";
 RodanShouldLoadWorkflowDesignerDataNotification = @"RodanShouldLoadWorkflowDesignerDataNotification";
+RodanShouldLoadWorkflowsNotification = @"RodanShouldLoadWorkflowsNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";

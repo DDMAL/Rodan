@@ -13,6 +13,7 @@
 @global RodanDidLoadWorkflowNotification
 @global RodanRemoveJobFromWorkflowNotification
 @global RodanShouldLoadWorkflowDesignerDataNotification
+@global RodanShouldLoadWorkflowsNotification
 
 JobItemType = @"JobItemType";
 
@@ -52,7 +53,6 @@ var _msLOADINTERVAL = 5.0;
     @outlet     CPView                  selectedWorkflowJobSettingsTab;
     @outlet     CPView                  selectedWorkflowJobDescriptionTab;
     @outlet     LPMultiLineTextField    selectedWorkflowJobDescription;
-
 }
 
 - (void)awakeFromCib
@@ -140,6 +140,8 @@ var _msLOADINTERVAL = 5.0;
 
 - (void)receiveHasFocusEvent:(CPNotification)aNotification
 {
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowsNotification
+                                          object:nil];
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
                          notification:RodanShouldLoadWorkflowDesignerDataNotification];
 }

@@ -9,6 +9,7 @@
 @global RodanShouldLoadWorkflowResultsWorkflowsNotification
 @global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
 @global RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+@global RodanShouldLoadWorkflowsNotification
 
 var activeWorkflow = nil,
     _msLOADINTERVAL = 5.0;
@@ -57,6 +58,10 @@ var activeWorkflow = nil,
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(handleShouldLoadNotification:)
                                           name:RodanShouldLoadWorkflowResultsWorkflowsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleShouldLoadWorkflowsNotification:)
+                                          name:RodanShouldLoadWorkflowsNotification
                                           object:nil];
 }
 
@@ -124,6 +129,17 @@ var activeWorkflow = nil,
     return nil;
 }
 
+/**
+ * Does a workflow load request.
+ */
+- (void)sendLoadRequest
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"/workflows/?project=" + [activeProject uuid]
+                    delegate:self
+                    message:nil];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Action Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +191,7 @@ var activeWorkflow = nil,
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
     // We need to refresh the known workflows.
-    //...
+    [self sendLoadRequest];
 
     // Next, tell the workflow status delegate to update the currently selected workflow.
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
@@ -184,6 +200,28 @@ var activeWorkflow = nil,
     // Finally, tell the runs status delegate to update.
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
                                           object:nil];
+}
+
+/**
+ * Handles workflows load notification.
+ */
+- (void)handleShouldLoadWorkflowsNotification:(CPNotification)aNotification
+{
+    [self sendLoadRequest];
+}
+
+/**
+ * Handles remote object load.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        var workflowArray = [Workflow objectsFromJson:[aAction result]];
+        [workflowArrayController setContent:workflowArray];
+        [WLRemoteObject setDirtProof:NO];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

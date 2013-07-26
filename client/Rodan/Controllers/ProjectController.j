@@ -208,12 +208,6 @@
     [WLRemoteObject setDirtProof:YES];
     activeProject = [[Project alloc] initWithJson:[anAction result]];
     [WLRemoteObject setDirtProof:NO];
-
-    [workflowArrayController bind:@"contentArray"
-                             toObject:activeProject
-                             withKeyPath:@"workflows"
-                             options:nil];
-
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanDidLoadProjectNotification
                                           object:nil];
 
