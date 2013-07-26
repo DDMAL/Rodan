@@ -37,76 +37,16 @@
 
 - (CPMutableArray)writeSymbolName:(CPString)newName
 {
-    /// ----------------  ALGORITHM PSEUDOCODE -----------------
-    // If there's no symbolCollection yet with that name
-    //   Make one, and an array controller for it
-    // For each array controller's selection
-    //   Remove the glyph from its current place
-    //   Change its name
-    //   Add it to its new place
-
-    // That's basically all that happens... in addition to some cleanup of the selections, and some simple stuff with the table view,
-    // and a bug fixed with rearrangeObjects.
-    // Bindings:  Every time a glyph list is changed (added or removed to,) a cvArrayController must be rebound
-    //            Every time a symbolCollection is added or removed, symbolCollectionArrayController must be rebound
-
-    // Returns: an array of the glyphs that were written.
-    /// -------------------------------------------------------
-
-    // // var newBinIndex = [self _makeSymbolCollectionForName:newName],  // Done by [GameraGlyphs addGlyph]
-    // var symbolCollections = [theGameraGlyphs symbolCollections],
-    //     symbolCollectionsCount = [symbolCollections count],
-    //     allSelectedObjects = [[CPMutableArray alloc] init];
-
-    // for (var i = 0; i < symbolCollectionsCount; ++i)
-    // {
-    //     var cvArrayController = [symbolCollections[i] cvArrayController],
-    //         selectedObjects = [cvArrayController selectedObjects],
-    //         selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayController selectionIndexes]],
-    //         // Confirm again that [cvArrayController selectedObjects] wouldn't do the trick... I believe it would now because the transformer's addGlyph
-    //         // now touches the cvArrayController
-    //         selectedGlyphsInRowCount = [selectedGlyphsInRow count];
-    //     [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
-
-    //     // if (i === newBinIndex)
-    //     // {
-    //     //     // We don't need to do any writes to glyphs already in the new bin
-    //     //     continue;
-    //     // }
-
-    //     for (var j = 0; j < selectedGlyphsInRowCount; j++)
-    //     {
-    //         var glyph = selectedGlyphsInRow[j];
-    //         // [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Done with KVO (SC -> Glyph)
-    //         [glyph makeDirtyProperty:@"classifierPk"];
-    //         [glyph makeDirtyProperty:@"pageGlyphsPk"];
-    //         // [WLRemoteObject setDirtProof:YES];
-    //         [glyph writeSymbolName:newName];
-    //         // [WLRemoteObject setDirtProof:NO];
-    //         // [glyph ensureSaved];
-
-    //         // [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Do this with KVO (GG -> Glyph)... however the SC MUST get notified... so hopefuly when GG->Glyph removes the observer it's not too early.
-    //                                                                             // This is where the OO model might be better, but I bet the KVO is robust enough that all observers will get notified.
-    //     }
-
-    //     // [cvArrayController bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];  // Do this with model (removeGlyph)
-    //     // [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Samesies
-    // }
-
-    // // [[symbolCollections[newBinIndex] cvArrayController] bind:@"contentArray" toObject:symbolCollections[newBinIndex] withKeyPath:@"glyphList" options:nil];  // Do this with model (addGlyph)
-    // // [[symbolCollections[newBinIndex] cvArrayController] setSelectedObjects:allSelectedObjects];  // Keep this right here, not with a notification
-
-    // var newBinIndex = [self _makeSymbolCollectionForName:newName],  // Done by [GameraGlyphs addGlyph]
     var symbolCollections = [theGameraGlyphs symbolCollections],
         symbolCollectionsCount = [symbolCollections count],
-        allSelectedObjects = [[CPMutableArray alloc] init];
+        allWrittenGlyphs = [[CPMutableArray alloc] init];
 
     for (var i = 0; i < symbolCollectionsCount; ++i)
     {
         var cvArrayController = [symbolCollections[i] cvArrayController],
             selectedObjects = [cvArrayController selectedObjects];
 
-        [allSelectedObjects addObjectsFromArray:selectedObjects];
+        [allWrittenGlyphs addObjectsFromArray:selectedObjects];
     }
 
     var emptyIndexSet = [CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)];
@@ -116,46 +56,16 @@
         [[symbolCollections[i] cvArrayController] setSelectionIndexes:emptyIndexSet];
     }
 
-    [allSelectedObjects makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"classifierPk"];
-    [allSelectedObjects makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"pageGlyphsPk"];
-    [allSelectedObjects makeObjectsPerformSelector:@"writeSymbolName:" withObject:newName];
+    console.log("GlyphsTableView starting to change glyphs (" + [self class] + ".)");
+    [allWrittenGlyphs makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"classifierPk"];
+    [allWrittenGlyphs makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"pageGlyphsPk"];
+    [allWrittenGlyphs makeObjectsPerformSelector:@"writeSymbolName:" withObject:newName];
+    [allWrittenGlyphs makeObjectsPerformSelector:@"ensureSaved"];
+    console.log("GlyphsTableView ensureSaved done on all glyphs (" + [self class] + ".)");
 
-    console.log("Finished write, reloading data.");
     [theTableView reloadData];
-    return allSelectedObjects;
-}
 
-- (int)_makeSymbolCollectionForName:(CPString)newName
-{
-    // Unneeded (smarter model)
-    var symbolCollections = [theGameraGlyphs symbolCollections],
-        symbolCollectionsCount = [symbolCollections count],
-        bin_already_exists = false,
-        newBinIndex = 0;
-
-    for (var i = 0; i < symbolCollectionsCount; ++i)
-    {
-        newBinIndex = i;
-        if ([symbolCollections[i] symbolName] === newName)
-        {
-            bin_already_exists = true;
-            break;
-        }
-        else if ([symbolCollections[i] symbolName] > newName)
-        {
-            break;
-        }
-    }
-
-    if (! bin_already_exists)
-    {
-        var newSymbolCollection = [[SymbolCollection alloc] init];
-        [newSymbolCollection setSymbolName:newName];
-        [symbolCollections insertObject:newSymbolCollection atIndex:newBinIndex];  // Do it without referencing theGameraGlyphs(?)
-        [[theGameraGlyphs symbolCollectionsArrayController] bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
-    }
-
-    return newBinIndex;
+    return allWrittenGlyphs;
 }
 
 - (void)close
@@ -259,7 +169,6 @@
             {
                 if (i !== theClickedRow)
                 {
-                    console.log("Nullifiying all but row " + theClickedRow);
                     // [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
                     [[symbolCollections[i] cvArrayController] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
                     // The reason that we ensure that firstIndex != CPNotFound is because this line of code causes ANOTHER call to observeValueForKeyPath.
@@ -329,12 +238,6 @@
 - (void)numberOfRowsInTableView:(CPTableView)aTableView
 // (Data source method)
 {
-    // console.log("numberOfRowsInTableView: " + [[[theGameraGlyphs symbolCollectionsArrayController] contentArray] count]);
-    console.log([theGameraGlyphs UID]);
-    console.log([[theGameraGlyphs symbolCollectionsArrayController] UID]);
-    console.log([[[theGameraGlyphs symbolCollectionsArrayController] contentArray] UID]);
-    console.log([[theGameraGlyphs symbolCollectionsArrayController] contentArray]);
-    console.log([[theGameraGlyphs symbolCollections] count]);
     return [[[theGameraGlyphs symbolCollectionsArrayController] contentArray] count];
 }
 

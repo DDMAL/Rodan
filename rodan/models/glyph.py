@@ -113,7 +113,7 @@ class Glyph(object):
             xml = etree.parse(f, parser)
 
             glyph = xml.xpath("//glyph[@uuid='g{0}']".format(glyph_id))[0]
-            # TODO: error checking for glyph not found... This code gives 'index out of range'
+            # TODO: error checking for glyph not found... This code gives 'list index out of range'
             ids_element = glyph.find('ids')
             id_element = ids_element.find('id')
 

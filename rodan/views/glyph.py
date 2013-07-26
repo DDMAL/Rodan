@@ -56,6 +56,9 @@ class GlyphDetail(generics.RetrieveUpdateDestroyAPIView):
         glyph_id = pk
         classifier_url = request.DATA.get('classifier_url')
         pageglyphs_url = request.DATA.get('pageglyphs_url')
+        # print "glyph_id: " + glyph_id
+        # print "classifier_url: " + classifier_url
+        # print "pageglyphs_url: " + pageglyphs_url
 
         if classifier_url is None and pageglyphs_url is None:
             return Response({"message": "You must supply a url for a classifier or pageglyphs model that contains the glyph."}, status=status.HTTP_400_BAD_REQUEST)

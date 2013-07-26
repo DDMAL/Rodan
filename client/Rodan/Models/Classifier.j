@@ -41,27 +41,30 @@
     return self;
 }
 
-- (id)addGlyph:(id)aGlyph withName:(CPString)newName
+- (void)addGlyph:(Glyph)aGlyph
 {
-    [super addGlyph:aGlyph withName:newName];
-    [aGlyph setClassifierPk:[self pk]];
-    [aGlyph ensureCreated];
+    console.log("[theClassifier addGlyph]");
 
-    // var index;
+    [self putGlyph:aGlyph intoSymbolCollection:[aGlyph idName]];
+    [aGlyph addObserver:self forKeyPath:@"idName" options:nil context:_observingContext];
 
-    // if (index = [self findSymbolCollectionWithName:[aGlyph idName]] && ! [[[self symbolCollections] objectAtIndex:index] containsObject:aGlyph])
-    // {
-    //     // Hmmm, could save some computations by simply checking classifierPk of the glyph instead of actually looking for it.
-    //     [[[self symbolCollections] objectAtIndex:index] addGlyph:aGlyph];
-    // }
-    // else
-    // {
-    //     var newSymbolCollection = [[SymbolCollection alloc] init];
-    //     [newSymbolCollection setSymbolName:newName];
-    //     [symbolCollections insertObject:newSymbolCollection atIndex:newBinIndex];  // Do it without referencing theGameraGlyphs(?)
-    //     [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
+    return;
 
-    // }
+    // TODO: Implement server side API to add the glyph to the classifier.
+
+    [WLRemoteObject setDirtProof:YES];
+
+    [aGlyph setClassifierPk:[self pk]];  // must be done after the glyph gets Patched.
+    [aGlyph setEnablePost:YES];
+    [aGlyph ensureCreated];  // Gweh, it's not POSTing.  Ratatosk must need pk to be unset.  Arrgghg.
+                             // Well, how I about I unset pk and post to /glyphs.
+    [aGlyph setEnablePost:NO];
+
+    [WLRemoteObject setDirtProof:NO];
+
+
+    console.log("____theClassifier addGlyph:withName: finished!!!")
+
 }
 
 @end

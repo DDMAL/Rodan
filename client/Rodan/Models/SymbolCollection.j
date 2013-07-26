@@ -42,6 +42,9 @@
 
 - (void)addGlyph:(Glyph)glyph
 {
+    if ([glyphList containsObject:glyph])
+        return;
+
     [glyphList addObject:glyph];
 
     if ([glyph nRows] > [self maxRows])
@@ -51,11 +54,8 @@
         [self setMaxCols:[glyph nCols]];
 
     [cvArrayController bind:@"contentArray" toObject:self withKeyPath:@"glyphList" options:nil];
-    // [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
-    // [cvArrayController setSelectedObjects:[]];
 
     [glyph addObserver:self forKeyPath:@"idName" options:nil context:nil];
-    console.log("Finished adding glyph to symbolCollection");
 }
 
 - (void)removeGlyph:(Glyph)glyph
@@ -69,11 +69,10 @@
 
 - (void)updateMaxes
 {
-    var glyphList_count = [glyphList count];
     [self setMaxRows:0];
     [self setMaxCols:0];
 
-    for (var i = 0; i < glyphList_count; ++i)
+    for (var i = 0; i < [glyphList count]; ++i)
     {
         if ([[self glyphList][i] nRows] > [self maxRows])
             [self setMaxRows:[[self glyphList][i] nRows]];

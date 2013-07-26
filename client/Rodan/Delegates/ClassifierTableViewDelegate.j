@@ -47,14 +47,29 @@
 //     return false;
 // }
 
+- (void)addGlyphsToClassifier:(CPMutableArray)glyphs
+{
+    // [WLRemoteObject setDirtProof:YES];
+    // [glyphs makeObjectsPerformSelector:@"setClassifierPk:" withObject:[theGameraGlyphs pk]];
+    console.log("classifierTableViewDelegate done setting classifier pks");
+
+    for (var i = 0; i < [glyphs count]; i++)
+    {
+        // [theGameraGlyphs putGlyph:glyphs[i] intoSymbolCollection:[glyphs[i] idName]];
+        [theGameraGlyphs addGlyph:glyphs[i]];  // Classifier.j
+    }
+
+    // [glyphs makeObjectsPerformSelector:@"ensureCreated"];
+    // [WLRemoteObject setDirtProof:NO];
+}
+
 - (void)writeSymbolName:(CPString)newName
 {
     // Look for the glyph in the page glyph view and write it (... old algorithm)
 
     // Write the glyph in classifier view
-    var writtenGlyphs = [super writeSymbolName:newName];
+    [super writeSymbolName:newName];
     [theOtherTableViewDelegate reloadData];  // Ideally, only happens if the glyph were in the other table view (perhaps that could be done by observing... Delegates observing all the glyphs... not sure I want that.)
-
 }
 
 @end

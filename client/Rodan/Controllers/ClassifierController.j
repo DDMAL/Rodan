@@ -303,6 +303,7 @@
     // [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
 
     [pageGlyphsTableViewDelegate initializeTableView];
+    [thePageGlyphs setTheClassifier:theClassifier];
     console.log("Finished initializing pageGlyphsTableView");
     // console.log(pageGlyphsSymbolCollectionArrayController);
 }
