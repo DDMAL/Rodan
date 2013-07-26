@@ -1,5 +1,6 @@
 @import "../Controllers/WorkflowController.j"
 @import "../Frameworks/RodanKit/RKNumberFormatter.j"
+@import "../Models/MinimalClassifier.j"
 
 @global RodanShouldLoadClassifiersNotification
 

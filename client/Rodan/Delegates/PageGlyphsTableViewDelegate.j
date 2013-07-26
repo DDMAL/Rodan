@@ -34,8 +34,14 @@
 
     // classifierTableViewDelegate
 
-    //
-    var writtenGlyphs = [super writeSymbolName:newName];
-    [classifierTableViewDelegate addGlyphsToClassifier:writtenGlyphs];
+    // var writtenGlyphs = [super writeSymbolName:newName];
+    // [classifierTableViewDelegate addGlyphsToClassifier:writtenGlyphs];
+
+    [super writeSymbolName:newName];
+    [classifierTableViewDelegate reloadData];  // Aha... the classifierTableViewDelegate must do the same thing.
+        // heheheh, this part can be generic too... just call theOtherTableViewDelegate from the parent!
+
+    // Ok, just need to POST... that's done by the model too.
 }
+
 @end

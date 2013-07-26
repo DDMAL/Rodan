@@ -5,7 +5,7 @@
 
 @implementation GlyphsTableViewDelegate : CPObject
 {
-    @outlet CPArrayController       symbolCollectionArrayController;
+    // @outlet CPArrayController       symbolCollectionArrayController;
             int                     headerLabelHeight   @accessors;
     @outlet CPTableView             theTableView;
     @outlet GlyphsTableViewDelegate theOtherTableViewDelegate;
@@ -26,7 +26,12 @@
 
 - (void)initializeTableView
 {
-    // Perhaps we don't need this initialize function any more
+    // Deprecated.
+    [theTableView reloadData];
+}
+
+- (void)reloadData
+{
     [theTableView reloadData];
 }
 
@@ -48,77 +53,81 @@
     // Returns: an array of the glyphs that were written.
     /// -------------------------------------------------------
 
-    var newBinIndex = [self _makeSymbolCollectionForName:newName],
-        symbolCollections = [theGameraGlyphs symbolCollections],
+    // // var newBinIndex = [self _makeSymbolCollectionForName:newName],  // Done by [GameraGlyphs addGlyph]
+    // var symbolCollections = [theGameraGlyphs symbolCollections],
+    //     symbolCollectionsCount = [symbolCollections count],
+    //     allSelectedObjects = [[CPMutableArray alloc] init];
+
+    // for (var i = 0; i < symbolCollectionsCount; ++i)
+    // {
+    //     var cvArrayController = [symbolCollections[i] cvArrayController],
+    //         selectedObjects = [cvArrayController selectedObjects],
+    //         selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayController selectionIndexes]],
+    //         // Confirm again that [cvArrayController selectedObjects] wouldn't do the trick... I believe it would now because the transformer's addGlyph
+    //         // now touches the cvArrayController
+    //         selectedGlyphsInRowCount = [selectedGlyphsInRow count];
+    //     [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
+
+    //     // if (i === newBinIndex)
+    //     // {
+    //     //     // We don't need to do any writes to glyphs already in the new bin
+    //     //     continue;
+    //     // }
+
+    //     for (var j = 0; j < selectedGlyphsInRowCount; j++)
+    //     {
+    //         var glyph = selectedGlyphsInRow[j];
+    //         // [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Done with KVO (SC -> Glyph)
+    //         [glyph makeDirtyProperty:@"classifierPk"];
+    //         [glyph makeDirtyProperty:@"pageGlyphsPk"];
+    //         // [WLRemoteObject setDirtProof:YES];
+    //         [glyph writeSymbolName:newName];
+    //         // [WLRemoteObject setDirtProof:NO];
+    //         // [glyph ensureSaved];
+
+    //         // [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Do this with KVO (GG -> Glyph)... however the SC MUST get notified... so hopefuly when GG->Glyph removes the observer it's not too early.
+    //                                                                             // This is where the OO model might be better, but I bet the KVO is robust enough that all observers will get notified.
+    //     }
+
+    //     // [cvArrayController bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];  // Do this with model (removeGlyph)
+    //     // [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Samesies
+    // }
+
+    // // [[symbolCollections[newBinIndex] cvArrayController] bind:@"contentArray" toObject:symbolCollections[newBinIndex] withKeyPath:@"glyphList" options:nil];  // Do this with model (addGlyph)
+    // // [[symbolCollections[newBinIndex] cvArrayController] setSelectedObjects:allSelectedObjects];  // Keep this right here, not with a notification
+
+    // var newBinIndex = [self _makeSymbolCollectionForName:newName],  // Done by [GameraGlyphs addGlyph]
+    var symbolCollections = [theGameraGlyphs symbolCollections],
         symbolCollectionsCount = [symbolCollections count],
         allSelectedObjects = [[CPMutableArray alloc] init];
 
     for (var i = 0; i < symbolCollectionsCount; ++i)
     {
         var cvArrayController = [symbolCollections[i] cvArrayController],
-            selectedObjects = [cvArrayController selectedObjects],
-            selectedGlyphsInRow = [[[theGameraGlyphs symbolCollections][i] glyphList] objectsAtIndexes:[cvArrayController selectionIndexes]],
-            // Confirm again that [cvArrayController selectedObjects] wouldn't do the trick... I believe it would now because the transformer's addGlyph
-            // now touches the cvArrayController
-            selectedGlyphsInRowCount = [selectedGlyphsInRow count];
-        [allSelectedObjects addObjectsFromArray:selectedGlyphsInRow];
+            selectedObjects = [cvArrayController selectedObjects];
 
-        if (i === newBinIndex)
-        {
-            // We don't need to do any writes to glyphs already in the new bin
-            continue;
-        }
-
-        for (var j = 0; j < selectedGlyphsInRowCount; j++)
-        {
-            var glyph = selectedGlyphsInRow[j];
-            [[theGameraGlyphs symbolCollections][i] removeGlyph:glyph];  // Do this with KVO (SC -> Glyph)
-            [glyph writeSymbolName:newName];
-            [glyph makeAllDirty];
-            [glyph ensureSaved];
-            [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];  // Do this with KVO (GG -> Glyph)... however the SC MUST get notified... so hopefuly when GG->Glyph removes the observer it's not too early.
-                                                                                // This is where the OO model might be better, but I bet the KVO is robust enough that all observers will get notified.
-        }
-
-        [cvArrayController bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][i] withKeyPath:@"glyphList" options:nil];  // Do this with model (removeGlyph)
-        [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];  // Samesies
+        [allSelectedObjects addObjectsFromArray:selectedObjects];
     }
 
-    [[symbolCollections[newBinIndex] cvArrayController] bind:@"contentArray" toObject:symbolCollections[newBinIndex] withKeyPath:@"glyphList" options:nil];  // Do this with model (addGlyph)
-    [[symbolCollections[newBinIndex] cvArrayController] setSelectedObjects:allSelectedObjects];  // Keep this right here, not with a notification
+    var emptyIndexSet = [CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)];
 
-    var a_symbol_was_removed = false;
-
-    for (var i = 0; i < [symbolCollections count] ; ++i)
+    for (var i = 0; i < symbolCollectionsCount; ++i)
     {
-        if ([[symbolCollections[i] glyphList] count] === 0)
-        {
-            a_symbol_was_removed = true;
-            [symbolCollections removeObjectAtIndex:i];  // Do this with KVO (GG -> SC)
-            // [cvArrayControllers removeObjectAtIndex:i];  // Won't be necessary since the parallel arrays are no longer needed (removing the symbolCollection is all)
-            --i;
-        }
+        [[symbolCollections[i] cvArrayController] setSelectionIndexes:emptyIndexSet];
     }
 
-    if (a_symbol_was_removed)
-        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // Do this with KVO (GG -> SC)
+    [allSelectedObjects makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"classifierPk"];
+    [allSelectedObjects makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"pageGlyphsPk"];
+    [allSelectedObjects makeObjectsPerformSelector:@"writeSymbolName:" withObject:newName];
 
     console.log("Finished write, reloading data.");
     [theTableView reloadData];
     return allSelectedObjects;
 }
 
-/*
-    addGlyph:  Adds the glyph to the model and keeps the corresponding cv array controller happy
-*/
-// - (void)addGlyph:(Glyph)aGlyph toIndex:(int)anIndex
-// {
-//     [[theGameraGlyphs symbolCollections][newBinIndex] addGlyph:glyph];
-//     [cvArrayControllers[newBinIndex] bind:@"contentArray" toObject:[theGameraGlyphs symbolCollections][newBinIndex] withKeyPath:@"glyphList" options:nil];
-// }
-
 - (int)_makeSymbolCollectionForName:(CPString)newName
 {
+    // Unneeded (smarter model)
     var symbolCollections = [theGameraGlyphs symbolCollections],
         symbolCollectionsCount = [symbolCollections count],
         bin_already_exists = false,
@@ -143,7 +152,7 @@
         var newSymbolCollection = [[SymbolCollection alloc] init];
         [newSymbolCollection setSymbolName:newName];
         [symbolCollections insertObject:newSymbolCollection atIndex:newBinIndex];  // Do it without referencing theGameraGlyphs(?)
-        [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
+        [[theGameraGlyphs symbolCollectionsArrayController] bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
     }
 
     return newBinIndex;
@@ -151,7 +160,7 @@
 
 - (void)close
 {
-    [symbolCollectionArrayController setContent:[]];
+    [[theGameraGlyphs symbolCollectionsArrayController] setContent:[]];
     [theTableView noteNumberOfRowsChanged];  // Seems unnecessary
     [theTableView reloadData];
 }
@@ -215,7 +224,7 @@
         // Well is that even true... I think so... it would explain the behavior anyway (not all things being selected.)
         // Well NO, the reason not all things are selected is because of shouldSelectRow and that the ac CONTENT MUST get the new item!
         // Rodan:     [runsArrayController bind:@"contentArray" toObject:workflowObject withKeyPath:@"workflowRuns" options:nil];
-        //
+        // I think the problem was that it was a handshake issue and was solved by using the selection INDEXES from the coll view on the array controller.
     console.log("Binding cvArrayController " + aRow + " selectionIndexes to new cv with " + [[cv content] count] + " items");
         // This is just selection indexes... what about content?  Content goes the other way: the cv binds to the ac arranged objects.
     [cv addObserver:self forKeyPath:@"selectionIndexes" options:nil context:aRow];  // allows observeValueForKeyPath function
@@ -234,6 +243,7 @@
 {
     var theClickedRow = aContext,
         newIndexSet = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
+
     if (([newIndexSet firstIndex] !== CPNotFound))
     {
         [theOtherTableViewDelegate nullifySelection];   // Works except for the part where I add a selection to sync the two tables.  I only want to nullify
@@ -244,10 +254,12 @@
             var i = 0,
                 symbolCollections = [theGameraGlyphs symbolCollections],
                 symbolCollectionsCount = [symbolCollections count];
+
             for (; i < symbolCollectionsCount; ++i)
             {
                 if (i !== theClickedRow)
                 {
+                    console.log("Nullifiying all but row " + theClickedRow);
                     // [cvArrayControllers[i] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
                     [[symbolCollections[i] cvArrayController] setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
                     // The reason that we ensure that firstIndex != CPNotFound is because this line of code causes ANOTHER call to observeValueForKeyPath.
@@ -311,13 +323,19 @@
 - (void)tableView:(CPTableView)aTableView objectValueForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
 // (Data source method)
 {
-    return [symbolCollectionArrayController arrangedObjects][aRow]; // (Ignoring the column... the table has only one column)
+    return [[theGameraGlyphs symbolCollectionsArrayController] arrangedObjects][aRow]; // (Ignoring the column... the table has only one column)
 }
 
 - (void)numberOfRowsInTableView:(CPTableView)aTableView
 // (Data source method)
 {
-    return [[symbolCollectionArrayController contentArray] count];
+    // console.log("numberOfRowsInTableView: " + [[[theGameraGlyphs symbolCollectionsArrayController] contentArray] count]);
+    console.log([theGameraGlyphs UID]);
+    console.log([[theGameraGlyphs symbolCollectionsArrayController] UID]);
+    console.log([[[theGameraGlyphs symbolCollectionsArrayController] contentArray] UID]);
+    console.log([[theGameraGlyphs symbolCollectionsArrayController] contentArray]);
+    console.log([[theGameraGlyphs symbolCollections] count]);
+    return [[[theGameraGlyphs symbolCollectionsArrayController] contentArray] count];
 }
 
 - (void)tableView:(CPTableView)aTableView heightOfRow:(int)aRow

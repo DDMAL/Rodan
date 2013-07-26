@@ -51,7 +51,11 @@
         [self setMaxCols:[glyph nCols]];
 
     [cvArrayController bind:@"contentArray" toObject:self withKeyPath:@"glyphList" options:nil];
-    [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+    // [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+    // [cvArrayController setSelectedObjects:[]];
+
+    [glyph addObserver:self forKeyPath:@"idName" options:nil context:nil];
+    console.log("Finished adding glyph to symbolCollection");
 }
 
 - (void)removeGlyph:(Glyph)glyph
@@ -60,6 +64,7 @@
     [self updateMaxes];
     [cvArrayController bind:@"contentArray" toObject:self withKeyPath:@"glyphList" options:nil];
     [cvArrayController setSelectionIndexes:[CPIndexSet indexSetWithIndexesInRange:CPMakeRange(0,0)]];
+    [glyph removeObserver:self forKeyPath:@"idName"];
 }
 
 - (void)updateMaxes
@@ -87,6 +92,15 @@
 {
     console.log("SymbolCollection observered a change to a the " + aKeyPath + " of a glyph:");
     console.log(aChange);
+
+    var newName = [aChange valueForKey:@"CPKeyValueChangeNewKey"];
+
+    // Remove the glyph from myself
+    if (newName !== [self symbolName])
+    {
+        console.log("SymbolCollection removed glyph with newName: " + newName + " from symbolCollection: " + [self symbolName] + ".");
+        [self removeGlyph:aGlyph];
+    }
 }
 
 @end

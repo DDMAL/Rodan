@@ -45,19 +45,6 @@
         ];
 }
 
-// - (Features)initWithJson:(JSObject)jsonObject
-// {
-//     var remoteProperties = [[self class] remoteProperties],
-//         remotePropertiesCount = [remoteProperties count];
-
-//     for (var i = 0; i < remotePropertiesCount; i++)
-//     {
-//         [self setValue:jsonObject[remoteProperties[i][1]] forKey:remoteProperties[i][0]];
-//     }
-
-//     return self;
-// }
-
 - (Object)toJson
 {
     // This is pretty generic and a parent class between WLRemoteObject and Features could probably be added.

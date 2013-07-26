@@ -1,4 +1,5 @@
 @import "../Models/Classifier.j"
+@import "../Models/MinimalClassifier.j"
 @import "../Models/PageGlyphs.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/ClassifierTableViewDelegate.j"
@@ -37,8 +38,8 @@
 
     @outlet ClassifierTableViewDelegate classifierTableViewDelegate;
     @outlet PageGlyphsTableViewDelegate pageGlyphsTableViewDelegate;
-    @outlet CPArrayController classifierSymbolCollectionArrayController;
-    @outlet CPArrayController pageGlyphsSymbolCollectionArrayController;
+    // @outlet CPArrayController classifierSymbolCollectionArrayController;
+    // @outlet CPArrayController pageGlyphsSymbolCollectionArrayController;
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
@@ -299,11 +300,11 @@
 {
     thePageGlyphs = [[PageGlyphs alloc] initWithJson:[anAction result]];
     [pageGlyphsTableViewDelegate setTheGameraGlyphs:thePageGlyphs];
-    [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
+    // [pageGlyphsSymbolCollectionArrayController bind:@"content" toObject:thePageGlyphs withKeyPath:@"symbolCollections" options:nil];
 
     [pageGlyphsTableViewDelegate initializeTableView];
     console.log("Finished initializing pageGlyphsTableView");
-    console.log(pageGlyphsSymbolCollectionArrayController);
+    // console.log(pageGlyphsSymbolCollectionArrayController);
 }
 
 - (@action)open:(CPMenuItem)aSender
@@ -346,7 +347,7 @@
 
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
-    [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
+    // [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
 
     [classifierTableViewDelegate initializeTableView];
 
@@ -435,6 +436,8 @@
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
 {
     console.log([[[theClassifier symbolCollections][0] glyphList][0] UID]);
+    [classifierTableViewDelegate reloadData];
+    [pageGlyphsTableViewDelegate reloadData];
 }
 @end
 

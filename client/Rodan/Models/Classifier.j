@@ -1,50 +1,4 @@
-@import <Ratatosk/WLRemoteObject.j>
-
 @import "GameraGlyphs.j"
-
-/*
-    MinimalClassifier
-    - Doesn't have glyphs
-    - initialized with a GET to /classifiers/, or on the client and POSTed to /classifiers/
-*/
-
-@implementation MinimalClassifier : WLRemoteObject
-{
-    CPString  pk          @accessors;
-    CPString  project     @accessors;
-    CPString  name        @accessors;
-    CPString  pageglyphs  @accessors;
-}
-
-+ (CPArray)remoteProperties
-{
-    return [
-        ['pk', 'url'],
-        ['project', 'project'],
-        ['name', 'name'],
-        ['pageglyphs', 'pageglyphs']
-    ];
-}
-
-- (CPString)remotePath
-{
-    if ([self pk])
-        return [self pk];
-    else
-        return @"/classifiers/";
-}
-
-- (id)initWithName:(CPString)aName andProjectPk:(CPString)aProjectPk
-{
-    if (self = [self init])
-    {
-        [self setName:aName];
-        [self setProject:aProjectPk];
-    }
-    return self;
-}
-
-@end
 
 /*
     The real classifier:
@@ -85,6 +39,29 @@
     }
 
     return self;
+}
+
+- (id)addGlyph:(id)aGlyph withName:(CPString)newName
+{
+    [super addGlyph:aGlyph withName:newName];
+    [aGlyph setClassifierPk:[self pk]];
+    [aGlyph ensureCreated];
+
+    // var index;
+
+    // if (index = [self findSymbolCollectionWithName:[aGlyph idName]] && ! [[[self symbolCollections] objectAtIndex:index] containsObject:aGlyph])
+    // {
+    //     // Hmmm, could save some computations by simply checking classifierPk of the glyph instead of actually looking for it.
+    //     [[[self symbolCollections] objectAtIndex:index] addGlyph:aGlyph];
+    // }
+    // else
+    // {
+    //     var newSymbolCollection = [[SymbolCollection alloc] init];
+    //     [newSymbolCollection setSymbolName:newName];
+    //     [symbolCollections insertObject:newSymbolCollection atIndex:newBinIndex];  // Do it without referencing theGameraGlyphs(?)
+    //     [symbolCollectionArrayController bind:@"content" toObject:theGameraGlyphs withKeyPath:@"symbolCollections" options:nil];  // doesn't actually need to be bound yet
+
+    // }
 }
 
 @end
