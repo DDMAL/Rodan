@@ -5,7 +5,6 @@
 
 @implementation GlyphsTableViewDelegate : CPObject
 {
-    // @outlet CPArrayController       symbolCollectionArrayController;
             int                     headerLabelHeight   @accessors;
     @outlet CPTableView             theTableView;
     @outlet GlyphsTableViewDelegate theOtherTableViewDelegate;
@@ -56,12 +55,10 @@
         [[symbolCollections[i] cvArrayController] setSelectionIndexes:emptyIndexSet];
     }
 
-    console.log("GlyphsTableView starting to change glyphs (" + [self class] + ".)");
     [allWrittenGlyphs makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"classifierPk"];
     [allWrittenGlyphs makeObjectsPerformSelector:@"makeDirtyProperty:" withObject:@"pageGlyphsPk"];
     [allWrittenGlyphs makeObjectsPerformSelector:@"writeSymbolName:" withObject:newName];
     [allWrittenGlyphs makeObjectsPerformSelector:@"ensureSaved"];
-    console.log("GlyphsTableView ensureSaved done on all glyphs (" + [self class] + ".)");
 
     [theTableView reloadData];
 

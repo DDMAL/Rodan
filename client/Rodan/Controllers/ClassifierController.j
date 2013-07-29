@@ -38,8 +38,6 @@
 
     @outlet ClassifierTableViewDelegate classifierTableViewDelegate;
     @outlet PageGlyphsTableViewDelegate pageGlyphsTableViewDelegate;
-    // @outlet CPArrayController classifierSymbolCollectionArrayController;
-    // @outlet CPArrayController pageGlyphsSymbolCollectionArrayController;
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
@@ -48,6 +46,8 @@
     @outlet CPObjectController pageImageController;
 
     Runjob theRunJob;
+
+    @outlet CPTableColumn symbolTableColumn;
 }
 
 - (void)awakeFromCib
@@ -348,7 +348,8 @@
 
     [classifierTableViewDelegate setTheGameraGlyphs:theClassifier];
 
-    // [classifierSymbolCollectionArrayController bind:@"content" toObject:theClassifier withKeyPath:@"symbolCollections" options:nil];
+    [symbolTableColumn bind:@"value" toObject:[theClassifier symbolCollectionsArrayController] withKeyPath:@"arrangedObjects.stringAndCountOutput" options:nil];
+
 
     [classifierTableViewDelegate initializeTableView];
 

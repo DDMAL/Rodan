@@ -122,7 +122,6 @@ class Glyph(object):
             glyphs = xml.xpath("//glyphs")[0]
 
             if len(glyph_xpath) is 0:
-                #glyphs = xml.xpath("//glyphs")[0]
                 glyph = Glyph.xml_from_json(request_data)
                 glyphs.append(glyph)
 
