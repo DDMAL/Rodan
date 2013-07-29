@@ -29,5 +29,13 @@ class NeonTempDirectoryError(RodanError):
     pass
 
 
+class BagNotValidError(RodanError):
+    pass
+
+
 class ObjectDeletedError(RodanError):
+    pass
+
+
+class PackageCancelledError(RodanError):
     pass

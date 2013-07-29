@@ -11,6 +11,7 @@ from rodan.models.job import Job
 from rodan.models.result import Result
 from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
+from rodan.models.resultspackage import ResultsPackage
 
 # from rodan.models.rodanuser import RodanUser
 
@@ -57,6 +58,10 @@ class PageGlyphsAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'classifier')
 
 
+class ResultsPackageAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'workflow_run', 'created')
+
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -80,3 +85,4 @@ admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(Result)
 admin.site.register(Classifier, ClassifierAdmin)
 admin.site.register(PageGlyphs, PageGlyphsAdmin)
+admin.site.register(ResultsPackage, ResultsPackageAdmin)
