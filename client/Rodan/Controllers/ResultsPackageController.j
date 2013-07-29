@@ -36,6 +36,14 @@
            didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
+/**
+ * Closes the results package window.
+ */
+- (@action)closeResultsPackageWindow:(id)aSender
+{
+    [CPApp endSheet:_resultsPackageWindow returnCode:[aSender tag]];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
