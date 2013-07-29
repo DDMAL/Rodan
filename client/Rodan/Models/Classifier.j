@@ -43,28 +43,13 @@
 
 - (void)addGlyph:(Glyph)aGlyph
 {
-    console.log("[theClassifier addGlyph]");
-
     [self putGlyph:aGlyph intoSymbolCollection:[aGlyph idName]];
     [aGlyph addObserver:self forKeyPath:@"idName" options:nil context:_observingContext];
+    [aGlyph setClassifierPk:[self pk]];
+    [aGlyph makeAllDirty];
+    [aGlyph ensureSaved];
 
     return;
-
-    // TODO: Implement server side API to add the glyph to the classifier.
-
-    [WLRemoteObject setDirtProof:YES];
-
-    [aGlyph setClassifierPk:[self pk]];  // must be done after the glyph gets Patched.
-    [aGlyph setEnablePost:YES];
-    [aGlyph ensureCreated];  // Gweh, it's not POSTing.  Ratatosk must need pk to be unset.  Arrgghg.
-                             // Well, how I about I unset pk and post to /glyphs.
-    [aGlyph setEnablePost:NO];
-
-    [WLRemoteObject setDirtProof:NO];
-
-
-    console.log("____theClassifier addGlyph:withName: finished!!!")
-
 }
 
 @end

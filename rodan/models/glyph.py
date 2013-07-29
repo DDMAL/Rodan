@@ -69,7 +69,8 @@ class Glyph(object):
                                       uly=str(json_glyph['uly']),
                                       ulx=str(json_glyph['ulx']),
                                       nrows=str(json_glyph['nrows']),
-                                      ncols=str(json_glyph['ncols']))
+                                      ncols=str(json_glyph['ncols']),
+                                      uuid=str('g{0}'.format(json_glyph['uuid'])))
         ids_element = etree.SubElement(glyph_element, "ids",
                                        state=json_glyph['id_state'])
         etree.SubElement(ids_element, "id",
@@ -80,10 +81,15 @@ class Glyph(object):
         features_element = etree.SubElement(glyph_element, "features",
                                             scaling=str(json_glyph['feature_scaling']))
 
-        for feature in json_glyph['features']:
-            f_element = etree.SubElement(features_element, "feature",
-                                         name=feature['name'])
-            f_element.text = ' '.join([str(v) for v in feature['values']])
+        if json_glyph['features'] is not None:
+            # TODO: flesh out 'features' requirements in api...  (Always use them?  implement it optionally?)
+            # It would really speed things up if you didn't have to download them with a classifier.
+            # However, this code right here allows glyphs without features to be written into a classifier,
+            # so we're losing consistency.
+            for feature in json_glyph['features']:
+                f_element = etree.SubElement(features_element, "feature",
+                                             name=feature['name'])
+                f_element.text = ' '.join([str(v) for v in feature['values']])
 
         return glyph_element
 
@@ -112,26 +118,34 @@ class Glyph(object):
         with open(xml_file, 'r+b') as f:
             xml = etree.parse(f, parser)
 
-            glyph = xml.xpath("//glyph[@uuid='g{0}']".format(glyph_id))[0]
-            # TODO: error checking for glyph not found... This code gives 'list index out of range'
-            ids_element = glyph.find('ids')
-            id_element = ids_element.find('id')
-
-            if(id_element is None):
-                id_element = etree.SubElement(ids_element, "id")  # Hmmm, the whitespace isn't consistent.  No biggie.
-                id_element.set("name", "temp")  # (Setting 'name' first simply so it's the first attribute.)
-
-            for key, value in request_data.iteritems():
-                # TODO: validation.  Return a message saying that id_state must be
-                # "UNCLASSIFIED", "HEURISTIC", or "MANUAL", I believe.
-                # Similarly, id_confidence must be a number.
-                # I don't know the constraints on id_name, maybe Gamera does.  (Raarr!)
-                if str(key) == "id_state":
-                    ids_element.set(key[3:], value)
-                elif key in ["id_name", "id_confidence"]:
-                    id_element.set(key[3:], value)
-
+            glyph_xpath = xml.xpath("//glyph[@uuid='g{0}']".format(glyph_id))
             glyphs = xml.xpath("//glyphs")[0]
+
+            if len(glyph_xpath) is 0:
+                #glyphs = xml.xpath("//glyphs")[0]
+                glyph = Glyph.xml_from_json(request_data)
+                glyphs.append(glyph)
+
+            else:
+                glyph = glyph_xpath[0]
+                ids_element = glyph.find('ids')
+                id_element = ids_element.find('id')
+
+                if(id_element is None):
+                    id_element = etree.SubElement(ids_element, "id")  # Hmmm, the whitespace isn't consistent.  No biggie.
+                    id_element.set("name", "temp")  # (Setting 'name' first simply so it's the first attribute.)
+
+                for key, value in request_data.iteritems():
+                    # TODO: validation.  Return a message saying that id_state must be
+                    # "UNCLASSIFIED", "HEURISTIC", or "MANUAL", I believe.
+                    # Similarly, id_confidence must be a number.
+                    # I don't know the constraints on id_name, maybe Gamera does.  (Raarr!)
+                    if str(key) == "id_state":
+                        ids_element.set(key[3:], value)
+                    elif key in ["id_name", "id_confidence"]:
+                        id_element.set(key[3:], value)
+
+
             glyphs[:] = sorted(glyphs, key=Glyph.name_from_xml)
             f.seek(0)
             f.write(etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8"))
@@ -160,7 +174,7 @@ class Glyph(object):
     def name_from_xml(cls, xml_glyph):
         id_element = xml_glyph.find('ids').find('id')
 
-        if(id_element is None):
+        if id_element is None:
             return "____unclassified"
         else:
             return id_element.get('name')
@@ -204,8 +218,9 @@ class Glyph(object):
         runlength_array = []
         previous_pixel = 255
         runlength = 0
+
         for pixel in r_out[2]:
-            if (pixel == previous_pixel):
+            if pixel == previous_pixel:
                 runlength += 1
             else:
                 runlength_array.append(runlength)
@@ -214,7 +229,7 @@ class Glyph(object):
 
         runlength_array.append(runlength)
 
-        if (pixel == 255):
+        if pixel == 255:
             runlength_array.append(0)
             # the last number must be the runlength of black pixels
             # so this case adds a zero if the bottom right pixel was white
