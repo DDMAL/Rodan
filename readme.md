@@ -143,7 +143,7 @@ Finally, you should install the [Rodan plugins module](http://github.com/DDMAL/r
 
 The pybagit module is needed for packaging results. Clone it from https://github.com/ahankinson/pybagit to somewhere and run python setup.py install. Make sure you're in the rodan virtual environment.
 
-    $> git clone git@github.com:ahankinson/pybagit.git
+    $> git clone https://github.com/ahankinson/pybagit
     $> cd pybagit
     $> python setup.py install
 
