@@ -1,7 +1,10 @@
 @import <Foundation/CPObject.j>
 @import "../Delegates/ResultsViewResultsDelegate.j"
-@import "../Models/SimplePage.j"
+@import "../Delegates/ResultsViewRunJobsDelegate.j"
 
+@global RodanShouldLoadWorkflowPagesNotification
+@global RodanShouldLoadRunJobsNotification
+@global RodanShouldLoadWorkflowPageResultsNotification
 
 /**
  * Delegate to handle the pages table in the Results view.
@@ -9,58 +12,36 @@
 @implementation ResultsViewPagesDelegate : CPObject
 {
     @outlet ResultsViewResultsDelegate  _resultsViewResultsDelegate;
+    @outlet ResultsViewRunJobsDelegate  _resultsViewRunJobsDelegate;
     @outlet CPArrayController           _pageArrayController;
-            SimplePage                  _currentlySelectedPage;
-            int                         _currentlySelectedRowIndex;
+            Page                        _currentlySelectedPage;
+            WorkflowRun                 _associatedWorkflowRun;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
-- (void)setArrayContents:(CPArray)aContents
-{
-    [_pageArrayController setContent:aContents];
-    if ([[_pageArrayController content] count] == 0)
-    {
-        _currentlySelectedRowIndex = -1;
-        [_resultsViewResultsDelegate setArrayContents:nil];
-    }
-    [self _repointCurrentlySelectedObject];
-
-    // If something is currently selected, we should updated results.
-    if (_currentlySelectedRowIndex >= 0)
-    {
-        [_resultsViewResultsDelegate setArrayContents:[_currentlySelectedPage results]];
-    }
-}
-
 - (id)init
 {
     self = [super init];
     if (self)
     {
-        _currentlySelectedRowIndex = -1;
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(handleShouldLoadNotification:)
+                                              name:RodanShouldLoadWorkflowPagesNotification
+                                              object:nil];
     }
 
     return self;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-// Private Methods
-////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Repoints the currently selected object.
- */
-- (void)_repointCurrentlySelectedObject
+- (void)reset
 {
-    if (_currentlySelectedRowIndex >= 0)
-    {
-        _currentlySelectedPage = [[_pageArrayController contentArray] objectAtIndex:_currentlySelectedRowIndex];
-    }
-    else
-    {
-        _currentlySelectedPage = nil;
-    }
+    _currentlySelectedPage = nil;
+    _associatedWorkflowRun = nil;
+    [_pageArrayController setContent:nil];
+    [_resultsViewResultsDelegate reset];
+    [_resultsViewRunJobsDelegate reset];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,19 +49,48 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
-    // Update ourselves.
-    _currentlySelectedRowIndex = -1;
-    [self _repointCurrentlySelectedObject];
-
-    // Inform others.
-    [_resultsViewResultsDelegate setArrayContents:nil];
+    _currentlySelectedPage = nil;
 }
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    _currentlySelectedRowIndex = rowIndex;
-    [self _repointCurrentlySelectedObject];
-    [_resultsViewResultsDelegate setArrayContents:[_currentlySelectedPage results]];
+    _currentlySelectedPage = [[_pageArrayController contentArray] objectAtIndex:rowIndex];
+    var objectToPass = [[CPObject alloc] init];
+    objectToPass.page = _currentlySelectedPage;
+    objectToPass.workflowRun = _associatedWorkflowRun;
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadRunJobsNotification
+                                          object:objectToPass];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowPageResultsNotification
+                                          object:objectToPass];
     return YES;
+}
+
+/**
+ * Handles the request to load.
+ */
+- (void)handleShouldLoadNotification:(CPNotification)aNotification
+{
+    _associatedWorkflowRun = [aNotification object];
+    if (_associatedWorkflowRun != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:[_associatedWorkflowRun pk] + "/?by_page=true"
+                        delegate:self
+                        message:nil];
+    }
+}
+
+/**
+ * Handles success of loading.
+ */
+- (void)remoteActionDidFinish:(WLRemoteAction)aAction
+{
+    if ([aAction result])
+    {
+        [WLRemoteObject setDirtProof:YES];
+        var workflowRun = [[WorkflowRun alloc] initWithJson:[aAction result]];
+        [_pageArrayController setContent:[workflowRun pages]];
+        [WLRemoteObject setDirtProof:NO];
+    }
 }
 @end

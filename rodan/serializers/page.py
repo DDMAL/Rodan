@@ -10,6 +10,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
     page_order = serializers.IntegerField()
     # image_file_size = serializers.IntegerField()
     creator = UserListSerializer(read_only=True)
+    uuid = serializers.Field(source='uuid')
 
     image_file_size = serializers.Field(source="image_file_size")
     compat_image_file_size = serializers.Field(source="compat_image_file_size")
@@ -21,6 +22,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
         model = Page
         read_only_fields = ('created', 'updated', 'creator')
         fields = ("url",
+                  "uuid",
                   "project",
                   "name",
                   "page_image",
@@ -45,11 +47,13 @@ class MinimalPageSerializer(serializers.HyperlinkedModelSerializer):
     image_file_size = serializers.Field(source="image_file_size")
     compat_image_file_size = serializers.Field(source="compat_image_file_size")
     medium_thumb_url = serializers.Field(source='medium_thumb_url')
+    uuid = serializers.Field(source='uuid')
 
     class Meta:
         model = Page
         read_only_fields = ('created', 'updated')
         fields = ("url",
+                  "uuid",
                   "project",
                   "name",
                   "page_image",

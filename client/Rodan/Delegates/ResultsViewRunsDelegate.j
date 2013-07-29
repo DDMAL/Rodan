@@ -5,7 +5,8 @@
 @import "../Models/WorkflowRun.j"
 
 
-@global RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+@global RodanShouldLoadWorkflowRunsNotification
+@global RodanShouldLoadWorkflowPagesNotification
 
 
 /**
@@ -16,95 +17,31 @@
     @outlet InteractiveJobsController       _interactiveJobsController;
     @outlet ResultsViewPagesDelegate        _resultsViewPagesDelegate;
     @outlet CPArrayController               _runsArrayController;
-    @outlet CPArrayController               _runJobArrayController;
             WorkflowRun                     _currentlySelectedWorkflowRun;
-            int                             _currentlySelectedRowIndex;
-            CPDictionary                    _simpleRunMap;
-            WorkflowRun                     _loadingWorkflowRun;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
-- (void)setArrayContents:(CPArray)aContents
-{
-    // Do a reset and check if we were filled.
-    [_runsArrayController setContent:aContents];
-    if ([[_runsArrayController content] count] == 0)
-    {
-        _currentlySelectedRowIndex = -1;
-        [_resultsViewPagesDelegate setArrayContents:nil];
-        [_runJobArrayController setContent: nil];
-    }
-    [self _repointCurrentlySelectedObject];
-
-    // If something is currently selected, we should updated run jobs.
-    if (_currentlySelectedRowIndex >= 0)
-    {
-        [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
-    }
-}
-
 - (id)init
 {
     self = [super init];
     if (self)
     {
-        _currentlySelectedRowIndex = -1;
-        _simpleRunMap = [[CPDictionary alloc] init];
         [[CPNotificationCenter defaultCenter] addObserver:self
                                               selector:@selector(handleShouldLoadNotification:)
-                                              name:RodanShouldLoadWorkflowResultsWorkflowResultsNotification
+                                              name:RodanShouldLoadWorkflowRunsNotification
                                               object:nil];
     }
 
     return self;
 }
 
-/**
- * Attempts interactive job.
- */
-- (@action)displayInteractiveJobWindow:(id)aSender
+- (void)reset
 {
-    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0];
-    [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
-}
-
-- (@action)displayErrorDetails:(id)aSender
-{
-    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0],
-        alert = [[CPAlert alloc] init];
-    [alert setMessageText:[runJob errorDetails]];
-    [alert runModal];
-}
-
-/**
- * Attempts retry of failed runjobs for selected run.
- */
-- (@action)retryFailedRunJobs:(id)aSender
-{
-    [WLRemoteAction schedule:WLRemoteActionPatchType
-                    path:[_currentlySelectedWorkflowRun pk]
-                    delegate:null
-                    message:null];
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-// Private Methods
-////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Repoints the currently selected object.
- */
-- (void)_repointCurrentlySelectedObject
-{
-    if (_currentlySelectedRowIndex >= 0)
-    {
-        _currentlySelectedWorkflowRun = [[_runsArrayController contentArray] objectAtIndex:_currentlySelectedRowIndex];
-    }
-    else
-    {
-        _currentlySelectedWorkflowRun = nil;
-    }
+    _currentlySelectedWorkflowRun = nil;
+    [_runsArrayController setContent:nil];
+    [_resultsViewPagesDelegate reset];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,26 +49,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
-    // Update ourselves.
-    _currentlySelectedRowIndex = -1;
-    [self _repointCurrentlySelectedObject];
-    [_runJobArrayController setContent: nil];
-
-    // Inform others.
-    [_resultsViewPagesDelegate setArrayContents:nil];
+    _currentlySelectedWorkflowRun = nil;
+    [_resultsViewPagesDelegate reset];
 }
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
-    // Update ourselves.
-    _currentlySelectedRowIndex = rowIndex;
-    [self _repointCurrentlySelectedObject];
-    [_runJobArrayController setContent: [_currentlySelectedWorkflowRun runJobs]];
-    [self handleShouldLoadNotification:nil];
-
-    // Inform others.
-    [_resultsViewPagesDelegate setArrayContents:nil];
-
+    _currentlySelectedWorkflowRun = [[_runsArrayController contentArray] objectAtIndex:rowIndex];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowPagesNotification
+                                          object:_currentlySelectedWorkflowRun];
     return YES;
 }
 
@@ -140,55 +66,19 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    if (_loadingWorkflowRun == nil && _currentlySelectedWorkflowRun != nil)
-    {
-        _loadingWorkflowRun = _currentlySelectedWorkflowRun;
-        [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:[_currentlySelectedWorkflowRun pk] + @"?by_page=true"  // return results by page, rather than by run_job
-                        delegate:self
-                        message:"Loading Workflow Run Results"];
-    }
+    [WLRemoteAction schedule:WLRemoteActionGetType path:@"/workflowruns/?workflow=" + [aNotification object] delegate:self message:nil];
 }
 
 /**
- * Handles remote object load.
+ * Handles success of loading.
  */
 - (void)remoteActionDidFinish:(WLRemoteAction)aAction
 {
     if ([aAction result])
     {
         [WLRemoteObject setDirtProof:YES];
-
-        // Update the loading object.
-        [_loadingWorkflowRun initWithJson:[aAction result]];
-        _loadingWorkflowRun = nil;
-
-        // Get the key.
-        var simpleRun = [[SimpleWorkflowRun alloc] initWithJson:[aAction result]],
-            key = [simpleRun pk],
-            splitString = [key componentsSeparatedByString:"/"];
-        if ([splitString count] > 1)
-        {
-            key = [splitString objectAtIndex:([splitString count] - 2)];
-        }
-
-        // Only put if the run was updated.
-        if ([_simpleRunMap valueForKey:key] == nil || [simpleRun updated] != [[_simpleRunMap valueForKey:key] updated])
-        {
-            [_simpleRunMap setValue:simpleRun forKey:key];
-        }
-
-        // Reload the pages for the currently selected run.
-        if (_currentlySelectedWorkflowRun != nil)
-        {
-            key = [_currentlySelectedWorkflowRun pk];
-            splitString = [key componentsSeparatedByString:"/"];
-            if ([splitString count] > 1)
-            {
-                key = [splitString objectAtIndex:([splitString count] - 2)];
-            }
-            [_resultsViewPagesDelegate setArrayContents:[[_simpleRunMap valueForKey:key] pages]];
-        }
+        var workflowRunsArray = [WorkflowRun objectsFromJson:[aAction result]];
+        [_runsArrayController setContent:workflowRunsArray];
         [WLRemoteObject setDirtProof:NO];
     }
 }

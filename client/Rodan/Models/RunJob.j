@@ -33,6 +33,7 @@ RUNJOB_STATUS_CANCELLED = 9;
 {
     return [
         ['pk', 'url', nil, true],
+        ['uuid', 'uuid'],
         ['jobName', 'job_name'],
         ['sequence', 'sequence'],
         ['status', 'status'],

@@ -3,6 +3,7 @@
 @implementation Page : WLRemoteObject
 {
     CPString    pk              @accessors;
+    CPString    uuid            @accessors;
     CPString    projectURI      @accessors;
     CPNumber    imageFileSize   @accessors;
     CPNumber    compatFileSize  @accessors;
@@ -22,6 +23,7 @@
 {
     return [
         ['pk', 'url'],
+        ['uuid', 'uuid'],
         ['projectURI', 'project'],
         ['pageName', 'name'],
         ['imageFileSize', 'image_file_size', nil, true],

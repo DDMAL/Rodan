@@ -1,12 +1,12 @@
 @import <Foundation/CPObject.j>
 @import "../Controllers/WorkflowController.j"
-@import "../Delegates/ResultsViewRunsDelegate.j"
 @import "../Models/Workflow.j"
 
+@global activeProject
+@global RodanShouldLoadWorkflowsNotification
+@global RodanShouldLoadWorkflowRunsNotification
 
-@global RodanShouldLoadWorkflowResultsWorkflowRunsNotification
 @class WorkflowController
-
 
 /**
  * Delegate for the Workflow table view in the Results view.
@@ -26,67 +26,67 @@
 - (id)init
 {
     [[CPNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(handleShouldLoadNotification:)
-                                          name:RodanShouldLoadWorkflowResultsWorkflowRunsNotification
+                                          selector:@selector(handleShouldLoadWorkflowsNotification:)
+                                          name:RodanShouldLoadWorkflowsNotification
                                           object:nil];
     return self;
 }
 
 - (void)reset
 {
-    [_resultsViewRunsDelegate setArrayContents:nil];
+    [_resultsViewRunsDelegate reset];
     _currentlySelectedWorkflow = [WorkflowController activeWorkflow];
 }
 
+/**
+ * Does a workflow load request.
+ */
+- (void)sendLoadRequest
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"/workflows/?project=" + [activeProject uuid]
+                    delegate:self
+                    message:nil];
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
-    [_resultsViewRunsDelegate setArrayContents:nil];
     _currentlySelectedWorkflow = nil;
-    [WorkflowController setActiveWorkflow:_currentlySelectedWorkflow];
+    [WorkflowController setActiveWorkflow:nil];
+    [_resultsViewRunsDelegate reset];
 }
-
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
     _currentlySelectedWorkflow = [[_workflowArrayController contentArray] objectAtIndex:rowIndex];
     [WorkflowController setActiveWorkflow:_currentlySelectedWorkflow];
-    [_resultsViewRunsDelegate setArrayContents:nil];
-    [self handleShouldLoadNotification:nil];
+    [_resultsViewRunsDelegate reset];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowRunsNotification
+                                          object:[_currentlySelectedWorkflow uuid]];
     return YES;
 }
 
-
 /**
- * Handles the request to load.
+ * Handles workflows load notification.
  */
-- (void)handleShouldLoadNotification:(CPNotification)aNotification
+- (void)handleShouldLoadWorkflowsNotification:(CPNotification)aNotification
 {
-    if (_loadingWorkflow == nil && _currentlySelectedWorkflow != nil)
-    {
-        _loadingWorkflow = _currentlySelectedWorkflow;
-        [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:[_loadingWorkflow remotePath]
-                        delegate:self
-                        message:"Loading Workflow"];
-    }
+    [self sendLoadRequest];
 }
 
-
 /**
- * Handles success of loading.
+ * Handles remote object load.
  */
 - (void)remoteActionDidFinish:(WLRemoteAction)aAction
 {
     if ([aAction result])
     {
         [WLRemoteObject setDirtProof:YES];
-        [_loadingWorkflow initWithJson:[aAction result]];
-        [_resultsViewRunsDelegate setArrayContents:[_currentlySelectedWorkflow workflowRuns]];
-        _loadingWorkflow = nil;
+        var workflowArray = [Workflow objectsFromJson:[aAction result]];
+        [_workflowArrayController setContent:workflowArray];
         [WLRemoteObject setDirtProof:NO];
     }
 }

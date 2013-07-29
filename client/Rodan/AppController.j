@@ -85,14 +85,15 @@ RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 
 // Data loading events.
 RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
-RodanShouldLoadWorkflowResultsWorkflowsNotification = @"RodanShouldLoadWorkflowResultsWorkflowsNotification";
-RodanShouldLoadWorkflowResultsWorkflowRunsNotification = @"RodanShouldLoadWorkflowResultsWorkflowRunsNotification";
-RodanShouldLoadWorkflowResultsWorkflowResultsNotification = @"RodanShouldLoadWorkflowResultsWorkflowResultsNotification";
+RodanShouldLoadWorkflowRunsNotification = @"RodanShouldLoadWorkflowRunsNotification";
+RodanShouldLoadWorkflowPagesNotification = @"RodanShouldLoadWorkflowPagesNotification";
 RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotification";
 RodanShouldLoadPagesNotification = @"RodanShouldLoadPagesNotification";
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification";
 RodanShouldLoadWorkflowDesignerDataNotification = @"RodanShouldLoadWorkflowDesignerDataNotification";
 RodanShouldLoadWorkflowsNotification = @"RodanShouldLoadWorkflowsNotification";
+RodanShouldLoadWorkflowPageResultsNotification = @"RodanShouldLoadWorkflowPageResultsNotification";
+RodanShouldLoadRunJobsNotification = @"RodanShouldLoadRunJobsNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";

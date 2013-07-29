@@ -2,6 +2,7 @@
 @import "../Transformers/RunJobStatusTransformer.j"
 @import "RunJob.j"
 @import "User.j"
+@import "Page.j"
 
 @global RUNJOB_STATUS_FAILED
 @global RUNJOB_STATUS_NOTRUNNING
@@ -16,14 +17,13 @@
     CPString    pk          @accessors;
     CPString    uuid        @accessors;
     CPNumber    run         @accessors;
-    CPArray     runJobs     @accessors;
     CPString    workflowURL @accessors;
     CPDate      created     @accessors;
     CPString    runCreator  @accessors;
     CPDate      updated     @accessors;
     BOOL        testRun     @accessors;
-
     CPString    testPageID  @accessors;
+    CPArray     pages       @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -31,8 +31,8 @@
     return [
         ['pk', 'url'],
         ['uuid', 'uuid'],
-        ['runJobs', 'run_jobs', [WLForeignObjectsTransformer forObjectClass:RunJob]],
         ['workflowURL', 'workflow'],
+        ['pages', 'pages', [WLForeignObjectsTransformer forObjectClass:Page]],
         ['runCreator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
         ['run', 'run'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
@@ -60,24 +60,6 @@
     {
         return @"/workflowruns/";
     }
-}
-
-/**
- * Returns number of run jobs that failed.
- */
-- (int)getRunJobFailCount
-{
-    var runJobEnumerator = [runJobs objectEnumerator],
-        runJob = null,
-        runJobFailCount = 0;
-    while (runJob = [runJobEnumerator nextObject])
-    {
-        if ([runJob status] == RUNJOB_STATUS_FAILED)
-        {
-            runJobFailCount++;
-        }
-    }
-    return runJobFailCount;
 }
 
 /**
