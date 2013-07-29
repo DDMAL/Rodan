@@ -9,3 +9,5 @@ from rodan.models.runjob import RunJob
 from rodan.models.classifier import Classifier
 from rodan.models.pageglyphs import PageGlyphs
 from rodan.models.resultspackage import ResultsPackage
+
+from rodan.models import signal_receivers
