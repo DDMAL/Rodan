@@ -68,7 +68,7 @@ If you run into errors about database key dependencies you can migrate two of th
 ### Celery Queue
 
 You should set up Celery and RabbitMQ as necessary. If you just want the default account information that comes with Rodan, you should set up RabbitMQ like this:
-    
+
     $> rabbitmqctl add_user rodanuser DDMALrodan
     $> rabbitmqctl add_vhost DDMAL
     $> rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
@@ -139,6 +139,13 @@ These are four modules that offer some further document processing functionality
 
 Finally, you should install the [Rodan plugins module](http://github.com/DDMAL/rodan_plugins), a set of Gamera plugins that replace built-in Gamera modules to allow them to operate with input/output, rather than modifying an image in-place. Install this in the same way as the previous modules.
 
+### PyBagIt
+
+The pybagit module is needed for packaging results. Clone it from https://github.com/ahankinson/pybagit to somewhere and run python setup.py install. Make sure you're in the rodan virtual environment.
+
+    $> git clone git@github.com:ahankinson/pybagit.git
+    $> cd pybagit
+    $> python setup.py install
 
 
 Running Rodan
