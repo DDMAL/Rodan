@@ -70,7 +70,11 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    _associatedWorkflowRun = [aNotification object];
+    if ([aNotification object] != nil)
+    {
+        _associatedWorkflowRun = [aNotification object];
+    }
+
     if (_associatedWorkflowRun != nil)
     {
         [WLRemoteAction schedule:WLRemoteActionGetType

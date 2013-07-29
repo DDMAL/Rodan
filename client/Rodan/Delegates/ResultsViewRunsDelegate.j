@@ -18,6 +18,7 @@
     @outlet ResultsViewPagesDelegate        _resultsViewPagesDelegate;
     @outlet CPArrayController               _runsArrayController;
             WorkflowRun                     _currentlySelectedWorkflowRun;
+            CPString                        _workflowUUID;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,7 @@
 - (void)reset
 {
     _currentlySelectedWorkflowRun = nil;
+    _workflowUUID = nil;
     [_runsArrayController setContent:nil];
     [_resultsViewPagesDelegate reset];
 }
@@ -66,7 +68,18 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType path:@"/workflowruns/?workflow=" + [aNotification object] delegate:self message:nil];
+    if ([aNotification object] != nil)
+    {
+        _workflowUUID = [aNotification object];
+    }
+
+    if (_workflowUUID != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:@"/workflowruns/?workflow=" + _workflowUUID
+                        delegate:self
+                        message:nil];
+    }
 }
 
 /**

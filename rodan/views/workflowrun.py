@@ -135,6 +135,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, pk, *args, **kwargs):
         by_page = self.request.QUERY_PARAMS.get('by_page', None)
+        include_results = self.request.QUERY_PARAMS.get('include_results', None)
         if not by_page:
             return self.retrieve(request, pk, *args, **kwargs)
 
@@ -151,7 +152,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                 page_data["results"] = []
                 pages[k] = page_data
 
-            if run_job.result.all():
+            if include_results and run_job.result.all():
                 pages[k]['results'].append(ResultRunJobSerializer(run_job.result.all()[0], context={'request': request}).data)
 
         workflow_run = WorkflowRunByPageSerializer(workflow_run, context={'request': request}).data[0]

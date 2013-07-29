@@ -5,8 +5,13 @@
 
 @global activeProject
 @global activeUser
+@global RodanWorkflowResultsTimerNotification
 @global RodanHasFocusWorkflowResultsViewNotification
 @global RodanShouldLoadWorkflowsNotification
+@global RodanShouldLoadWorkflowRunsNotification
+@global RodanShouldLoadWorkflowPagesNotification
+@global RodanShouldLoadRunJobsNotification
+@global RodanShouldLoadWorkflowPageResultsNotification
 
 var activeWorkflow = nil,
     _msLOADINTERVAL = 5.0;
@@ -51,6 +56,10 @@ var activeWorkflow = nil,
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(receiveHasFocusEvent:)
                                           name:RodanHasFocusWorkflowResultsViewNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleTimerNotification:)
+                                          name:RodanWorkflowResultsTimerNotification
                                           object:nil];
 }
 
@@ -160,7 +169,21 @@ var activeWorkflow = nil,
 {
     [resultsViewWorkflowsDelegate reset];
     [RKNotificationTimer setTimedNotification:_msLOADINTERVAL
-                         notification:RodanShouldLoadWorkflowsNotification];
+                         notification:RodanWorkflowResultsTimerNotification];
+}
+
+- (void)handleTimerNotification:(CPNotification)aNotification
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowRunsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowPagesNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadRunJobsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowPageResultsNotification
+                                          object:nil];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

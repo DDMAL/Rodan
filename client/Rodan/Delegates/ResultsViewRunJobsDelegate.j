@@ -1,5 +1,7 @@
 @import <Foundation/CPObject.j>
+@import "../Models/Page.j"
 @import "../Models/RunJob.j"
+@import "../Models/WorkflowRun.j"
 
 @global RodanShouldLoadRunJobsNotification
 
@@ -11,6 +13,8 @@
     @outlet CPArrayController           _runJobArrayController;
     @outlet InteractiveJobsController   _interactiveJobsController;
             RunJob                      _currentlySelectedRunJob;
+            Page                        _associatedPage;
+            WorkflowRun                 _associatedWorkflowRun;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +37,8 @@
 - (void)reset
 {
     _currentlySelectedRunJob = nil;
+    _associatedPage = nil
+    _associatedWorkflowRun = nil;
     [_runJobArrayController setContent:nil];
 }
 
@@ -55,12 +61,19 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    var page = [aNotification object].page,
-        workflowRun = [aNotification object].workflowRun;
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:@"/runjobs/?workflowrun=" + [workflowRun uuid] + "&page=" + [page uuid]
-                    delegate:self
-                    message:nil];
+    if ([aNotification object] != nil)
+    {
+        _associatedPage = [aNotification object].page,
+        _associatedWorkflowRun = [aNotification object].workflowRun;
+    }
+
+    if (_associatedPage != nil && _associatedWorkflowRun != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:@"/runjobs/?workflowrun=" + [_associatedWorkflowRun uuid] + "&page=" + [_associatedPage uuid]
+                        delegate:self
+                        message:nil];
+    }
 }
 
 /**

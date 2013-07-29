@@ -1,5 +1,7 @@
 @import <Foundation/CPObject.j>
 @import "../Models/Result.j"
+@import "../Models/Page.j"
+@import "../Models/WorkflowRun.j"
 
 @global RodanShouldLoadWorkflowPageResultsNotification
 
@@ -10,6 +12,8 @@
 {
     @outlet CPArrayController   _resultArrayController;
             Result              _currentlySelectedResult;
+            Page                _associatedPage;
+            WorkflowRun         _associatedWorkflowRun;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +36,8 @@
 - (void)reset
 {
     _currentlySelectedResult = nil;
+    _associatedPage = nil
+    _associatedWorkflowRun = nil;
     [_resultArrayController setContent:nil];
 }
 
@@ -65,12 +71,19 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    var page = [aNotification object].page,
-        workflowRun = [aNotification object].workflowRun;
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:@"/results/?workflowrun=" + [workflowRun uuid] + "&page=" + [page uuid]
-                    delegate:self
-                    message:nil];
+    if ([aNotification object] != nil)
+    {
+        _associatedPage = [aNotification object].page,
+        _associatedWorkflowRun = [aNotification object].workflowRun;
+    }
+
+    if (_associatedPage != nil && _associatedWorkflowRun != nil)
+    {
+        [WLRemoteAction schedule:WLRemoteActionGetType
+                        path:@"/results/?workflowrun=" + [_associatedWorkflowRun uuid] + "&page=" + [_associatedPage uuid]
+                        delegate:self
+                        message:nil];
+    }
 }
 
 /**

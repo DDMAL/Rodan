@@ -95,6 +95,7 @@ RodanShouldLoadWorkflowDesignerDataNotification = @"RodanShouldLoadWorkflowDesig
 RodanShouldLoadWorkflowsNotification = @"RodanShouldLoadWorkflowsNotification";
 RodanShouldLoadWorkflowPageResultsNotification = @"RodanShouldLoadWorkflowPageResultsNotification";
 RodanShouldLoadRunJobsNotification = @"RodanShouldLoadRunJobsNotification";
+RodanWorkflowResultsTimerNotification = @"RodanWorkflowResultsTimerNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
