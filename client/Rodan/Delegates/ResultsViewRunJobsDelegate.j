@@ -100,7 +100,7 @@
     var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0];
     [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
 }
-/*
+
 - (@action)displayErrorDetails:(id)aSender
 {
     var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0],
@@ -108,7 +108,7 @@
     [alert setMessageText:[runJob errorDetails]];
     [alert runModal];
 }
-
+/*
 /**
  * Attempts retry of failed runjobs for selected run.
  *//*

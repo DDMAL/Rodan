@@ -2393,7 +2393,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string key="NSFrame">{{21, 13}, {136, 32}}</string>
 							<reference key="NSSuperview" ref="482993496"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="151523459"/>
+							<reference key="NSNextKeyView" ref="116378669"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="587875971">
@@ -2412,7 +2412,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSButton" id="151523459">
+						<object class="NSButton" id="116378669">
 							<reference key="NSNextResponder" ref="482993496"/>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{157, 13}, {82, 32}}</string>
@@ -2421,13 +2421,13 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSButtonCell" key="NSCell" id="115008972">
+							<object class="NSButtonCell" key="NSCell" id="318638094">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">134217728</int>
 								<string key="NSContents">Cancel</string>
 								<reference key="NSSupport" ref="715315636"/>
 								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="151523459"/>
+								<reference key="NSControlView" ref="116378669"/>
 								<int key="NSButtonFlags">-2038284288</int>
 								<int key="NSButtonFlags2">129</int>
 								<string key="NSAlternateContents"/>
@@ -13586,7 +13586,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<object class="IBActionConnection" key="connection">
 						<string key="label">closeResultsPackageWindow:</string>
 						<reference key="source" ref="495198210"/>
-						<reference key="destination" ref="151523459"/>
+						<reference key="destination" ref="116378669"/>
 					</object>
 					<int key="connectionID">4841</int>
 				</object>
@@ -13613,6 +13613,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<reference key="destination" ref="173740645"/>
 					</object>
 					<int key="connectionID">4838</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">displayErrorDetails:</string>
+						<reference key="source" ref="34033813"/>
+						<reference key="destination" ref="325656142"/>
+					</object>
+					<int key="connectionID">4842</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -18103,7 +18111,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<reference ref="528646650"/>
 							<reference ref="669409833"/>
 							<reference ref="1064665959"/>
-							<reference ref="151523459"/>
+							<reference ref="116378669"/>
 						</object>
 						<reference key="parent" ref="727737797"/>
 					</object>
@@ -18828,17 +18836,17 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">4839</int>
-						<reference key="object" ref="151523459"/>
+						<reference key="object" ref="116378669"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="115008972"/>
+							<reference ref="318638094"/>
 						</object>
 						<reference key="parent" ref="482993496"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">4840</int>
-						<reference key="object" ref="115008972"/>
-						<reference key="parent" ref="151523459"/>
+						<reference key="object" ref="318638094"/>
+						<reference key="parent" ref="116378669"/>
 					</object>
 				</object>
 			</object>
@@ -20464,7 +20472,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">4841</int>
+			<int key="maxID">4842</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -21819,14 +21827,35 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string key="className">ResultsViewRunJobsDelegate</string>
 					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">displayInteractiveJobWindow:</string>
-						<string key="NS.object.0">id</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>displayErrorDetails:</string>
+							<string>displayInteractiveJobWindow:</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+						</object>
 					</object>
 					<object class="NSMutableDictionary" key="actionInfosByName">
-						<string key="NS.key.0">displayInteractiveJobWindow:</string>
-						<object class="IBActionInfo" key="NS.object.0">
-							<string key="name">displayInteractiveJobWindow:</string>
-							<string key="candidateClassName">id</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>displayErrorDetails:</string>
+							<string>displayInteractiveJobWindow:</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">displayErrorDetails:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">displayInteractiveJobWindow:</string>
+								<string key="candidateClassName">id</string>
+							</object>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
