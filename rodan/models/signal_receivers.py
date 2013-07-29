@@ -1,10 +1,11 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from rodan.models.workflow import Workflow
 from rodan.models.page import Page
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
+from rodan.models.runjob import RunJob, RunJobStatus
 
 
 @receiver(post_save, sender=WorkflowRun)
@@ -28,3 +29,12 @@ def update_workflow_upon_workflowjob_save(**kwargs):
     workflowjob_instance = kwargs['instance']
     workflow_instance = workflowjob_instance.workflow
     super(Workflow, workflow_instance).save()
+
+
+@receiver(pre_save, sender=RunJob)
+def clear_runjob_error_fields(**kwargs):
+    # If runjob status is not 'FAILED', we clear the error messages.
+    runjob_instance = kwargs['instance']
+    if runjob_instance.status != RunJobStatus.FAILED:
+        runjob_instance.error_summary = ''
+        runjob_instance.error_details = ''
