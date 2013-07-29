@@ -51,6 +51,7 @@
 @import "Controllers/MenuItemsController.j"
 @import "Controllers/InteractiveJobsController.j"
 @import "Controllers/ClassifierViewController.j"
+@import "Controllers/ResultsPackageController.j"
 
 @import "Delegates/ResultsViewPagesDelegate.j"
 @import "Delegates/ResultsViewResultsDelegate.j"

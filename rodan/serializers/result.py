@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 class ResultSerializer(serializers.HyperlinkedModelSerializer):
     # run_job = RunJobSerializer()
-    result = serializers.FileField(allow_empty_file=True)
+    result = serializers.Field(source="image_url")
     small_thumb_url = serializers.Field(source="small_thumb_url")
     medium_thumb_url = serializers.Field(source="medium_thumb_url")
     large_thumb_url = serializers.Field(source="large_thumb_url")

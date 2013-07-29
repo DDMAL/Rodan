@@ -20771,7 +20771,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>classifierArrayController</string>
-							<string>classifierSymbolCollectionArrayController</string>
 							<string>classifierTableViewDelegate</string>
 							<string>createButton</string>
 							<string>deleteClassifierWindow</string>
@@ -20788,13 +20787,12 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
-							<string>pageGlyphsSymbolCollectionArrayController</string>
 							<string>pageGlyphsTableViewDelegate</string>
 							<string>pageImageController</string>
+							<string>symbolTableColumn</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSArrayController</string>
 							<string>NSArrayController</string>
 							<string>ClassifierTableViewDelegate</string>
 							<string>NSButton</string>
@@ -20812,9 +20810,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string>NSTableView</string>
 							<string>OpenClassifierTableViewDelegate</string>
 							<string>NSWindow</string>
-							<string>NSArrayController</string>
 							<string>PageGlyphsTableViewDelegate</string>
 							<string>NSObjectController</string>
+							<string>NSTableColumn</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
@@ -20822,7 +20820,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>classifierArrayController</string>
-							<string>classifierSymbolCollectionArrayController</string>
 							<string>classifierTableViewDelegate</string>
 							<string>createButton</string>
 							<string>deleteClassifierWindow</string>
@@ -20839,18 +20836,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string>openClassifierTableView</string>
 							<string>openClassifierTableViewDelegate</string>
 							<string>openClassifierWindow</string>
-							<string>pageGlyphsSymbolCollectionArrayController</string>
 							<string>pageGlyphsTableViewDelegate</string>
 							<string>pageImageController</string>
+							<string>symbolTableColumn</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBToOneOutletInfo">
 								<string key="name">classifierArrayController</string>
-								<string key="candidateClassName">NSArrayController</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">classifierSymbolCollectionArrayController</string>
 								<string key="candidateClassName">NSArrayController</string>
 							</object>
 							<object class="IBToOneOutletInfo">
@@ -20918,16 +20911,16 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<string key="candidateClassName">NSWindow</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">pageGlyphsSymbolCollectionArrayController</string>
-								<string key="candidateClassName">NSArrayController</string>
-							</object>
-							<object class="IBToOneOutletInfo">
 								<string key="name">pageGlyphsTableViewDelegate</string>
 								<string key="candidateClassName">PageGlyphsTableViewDelegate</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">pageImageController</string>
 								<string key="candidateClassName">NSObjectController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">symbolTableColumn</string>
+								<string key="candidateClassName">NSTableColumn</string>
 							</object>
 						</object>
 					</object>
@@ -20991,13 +20984,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>symbolCollectionArrayController</string>
 							<string>theOtherTableViewDelegate</string>
 							<string>theTableView</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSArrayController</string>
 							<string>GlyphsTableViewDelegate</string>
 							<string>NSTableView</string>
 						</object>
@@ -21006,16 +20997,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>symbolCollectionArrayController</string>
 							<string>theOtherTableViewDelegate</string>
 							<string>theTableView</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">symbolCollectionArrayController</string>
-								<string key="candidateClassName">NSArrayController</string>
-							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">theOtherTableViewDelegate</string>
 								<string key="candidateClassName">GlyphsTableViewDelegate</string>
