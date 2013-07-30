@@ -1,4 +1,4 @@
-@import "../Models/SimpleResult.j"
+@import "../Models/Result.j"
 
 @implementation ResultThumbnailTransformer : CPValueTransformer
 {
@@ -9,7 +9,7 @@
     return NO;
 }
 
-- (id)transformedValue:(SimpleResult)aResult
+- (id)transformedValue:(Result)aResult
 {
     if (aResult != nil && [aResult processed])
     {
