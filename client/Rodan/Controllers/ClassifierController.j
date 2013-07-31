@@ -383,18 +383,6 @@
     {
         [pageGlyphsTableViewDelegate writeSymbolName:[aSender stringValue]];
     }
-
-    // [theClassifier makeAllDirty];
-    // //[theClassifier makeDirtyProperty:@"id_name"];
-    // [theClassifier ensureSaved];
-    // // TODO: instead of writing the entire classifier, try to send less JSON and just patch a bit.
-
-    // [thePageGlyphs makeAllDirty];
-    // [thePageGlyphs ensureSaved];
-
-    // [classifierTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
-    // [pageGlyphsTableViewDelegate initializeTableView];  // ensureSaved actually writes theClassifier, so we should reload to keep theTableView in sync
-
 }
 
 - (@action)close:(CPMenuItem)aSender
