@@ -79,6 +79,7 @@ def get_uuid_from_url(url):
 
     """
     url = str(url)
+    print "URL: ".format(url)
     re_uuid = re.compile(r'^(.*)/(?P<uuid>[0-9a-f]{32})/?$', re.IGNORECASE)
     match_object = re_uuid.match(url)
 
@@ -92,7 +93,7 @@ def get_uuid_from_url(url):
     if match_object:
         return match_object.group('uuid')
 
-    raise UUIDParseError("Unable to extract UUID from the url. Check your input or read the get_uuid_from_url function docstring.")
+    raise UUIDParseError("Unable to extract UUID from the url {0}. Check your input or read the get_uuid_from_url function docstring.".format(url))
 
 
 def get_settings(runjob):
