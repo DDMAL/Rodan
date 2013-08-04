@@ -1,10 +1,9 @@
 import os
 
 from django.core.urlresolvers import reverse
-from django.db.models import ForeignKey
+from django.db import models
 
 from rodan.models.gameraXML import GameraXML
-from rodan.models.classifier import Classifier
 from rodan.settings import BASE_URL
 
 
@@ -14,7 +13,7 @@ class PageGlyphs(GameraXML):
     def directory_path(self):
         return os.path.join(self.classifier.project.project_path, "pageglyphs")
 
-    classifier = ForeignKey(Classifier, related_name="pageglyphs")
+    classifier = models.ForeignKey("rodan.Classifier", related_name="pageglyphs")
     #classifiers = models.ManyToManyField(Classifier, related_name="pageglyphs", blank=False)
     # TODO: this should be many to many when implementing 'Open page glyphs into editor'
     # But I can't figure out how to implement directory_path in that case because I don't have an instance of a classifier to ask for the project path.

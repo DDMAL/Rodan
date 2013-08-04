@@ -1,8 +1,6 @@
 import os
-
+from django.db import models
 from rodan.models.gameraXML import GameraXML
-from rodan.models.project import Project
-from django.db.models import CharField, ForeignKey
 
 
 class Classifier(GameraXML):
@@ -11,8 +9,8 @@ class Classifier(GameraXML):
     def directory_path(self):
         return os.path.join(self.project.project_path, "classifiers")
 
-    name = CharField(max_length=255)
-    project = ForeignKey(Project, related_name="classifiers")  # workflows.py does it differently.
+    name = models.CharField(max_length=255)
+    project = models.ForeignKey("rodan.Project", related_name="classifiers")  # workflows.py does it differently.
 
     def save(self, *args, **kwargs):
         super(Classifier, self).save(*args, **kwargs)
