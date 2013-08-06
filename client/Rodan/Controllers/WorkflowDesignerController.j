@@ -186,7 +186,7 @@ var _msLOADINTERVAL = 5.0;
 
 - (@action)removePagesFromWorkflow:(id)aSender
 {
-    //pass
+    [workflowPagesArrayController removeObjectsAtArrangedObjectIndexes:[workflowPagesArrayController selectionIndexes]];
 }
 
 - (@action)openAddPagesWindow:(id)aSender

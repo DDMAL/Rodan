@@ -41,6 +41,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
         model = Workflow
         read_only_fields = ('created', 'updated', 'runs')
         fields = ('url',
+                  "uuid",
                   'project',
                   'creator',
                   'uuid',

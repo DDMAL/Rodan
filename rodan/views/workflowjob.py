@@ -16,7 +16,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
         workflow = self.request.QUERY_PARAMS.get('workflow', None)
 
         if workflow:
-            queryset = queryset.objects.filter(workflow__uuid=workflow)
+            queryset = queryset.filter(workflow__uuid=workflow)
 
         return queryset
 
