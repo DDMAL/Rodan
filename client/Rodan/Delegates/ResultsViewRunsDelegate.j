@@ -16,7 +16,7 @@
     @outlet InteractiveJobsController       _interactiveJobsController;
     @outlet ResultsViewPagesDelegate        _resultsViewPagesDelegate;
     @outlet CPArrayController               _runsArrayController;
-            WorkflowRun                     _currentlySelectedWorkflowRun;
+            WorkflowRun                     _currentlySelectedWorkflowRun @accessors(property=currentlySelectedWorkflowRun);
             CPString                        _workflowUUID;
 }
 

@@ -34,6 +34,8 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'workflow_run',
                   'download_url',
                   'status',
+                  'percent_completed',
+                  "pages",
                   'creator',
                   'created',
                   'updated')

@@ -12,6 +12,7 @@
 @global RodanShouldLoadWorkflowPagesNotification
 @global RodanShouldLoadRunJobsNotification
 @global RodanShouldLoadWorkflowPageResultsNotification
+@global RodanShouldLoadWorkflowResultsPackagesNotification
 
 var activeWorkflow = nil,
     _msLOADINTERVAL = 5.0;
@@ -183,6 +184,8 @@ var activeWorkflow = nil,
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadRunJobsNotification
                                           object:nil];
     [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowPageResultsNotification
+                                          object:nil];
+    [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadWorkflowResultsPackagesNotification
                                           object:nil];
 }
 

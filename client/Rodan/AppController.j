@@ -88,6 +88,7 @@ RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
 RodanShouldLoadWorkflowRunsNotification = @"RodanShouldLoadWorkflowRunsNotification";
 RodanShouldLoadWorkflowPagesNotification = @"RodanShouldLoadWorkflowPagesNotification";
+RodanShouldLoadWorkflowJobsNotification = @"RodanShouldLoadWorkflowJobsNotification";
 RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotification";
 RodanShouldLoadPagesNotification = @"RodanShouldLoadPagesNotification";
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification";
@@ -96,6 +97,7 @@ RodanShouldLoadWorkflowsNotification = @"RodanShouldLoadWorkflowsNotification";
 RodanShouldLoadWorkflowPageResultsNotification = @"RodanShouldLoadWorkflowPageResultsNotification";
 RodanShouldLoadRunJobsNotification = @"RodanShouldLoadRunJobsNotification";
 RodanWorkflowResultsTimerNotification = @"RodanWorkflowResultsTimerNotification";
+RodanShouldLoadWorkflowResultsPackagesNotification = @"RodanShouldLoadWorkflowResultsPackagesNotification";
 
 // View entry events.
 RodanHasFocusInteractiveJobsViewNotification = @"RodanHasFocusInteractiveJobsViewNotification";
