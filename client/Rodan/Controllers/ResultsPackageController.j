@@ -10,10 +10,9 @@
 @implementation ResultsPackageController : CPObject
 {
     @outlet ResultsViewRunsDelegate _runsDelegate;
-    @outlet CPArrayController       _resultsPackageJobArrayController;
-    @outlet CPArrayController       _resultsPackagePageArrayController;
     @outlet CPArrayController       _workflowJobsArrayController;
     @outlet CPArrayController       _resultsPackagesArrayController;
+    @outlet CPArrayController       _workflowPagesArrayController;
     @outlet CPMatrix                _pageRadioGroup;
     @outlet CPMatrix                _jobRadioGroup;
     @outlet CPRadio                 _pageRadioAll;
@@ -21,7 +20,6 @@
     @outlet CPTableView             _pageTableView;
     @outlet CPTableView             _jobTableView;
     @outlet CPWindow                _createResultsPackageWindow;
-    @outlet CPWindow                _listResultsPackageWindow;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,30 +58,11 @@
 }
 
 /**
- * Opens the list results package window.
- */
-- (@action)openListResultsPackageWindow:(id)aSender
-{
-    [CPApp beginSheet:_listResultsPackageWindow
-           modalForWindow:[CPApp mainWindow]
-           modalDelegate:self
-           didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
-}
-
-/**
  * Closes the create results package window.
  */
 - (@action)closeCreateResultsPackageWindow:(id)aSender
 {
     [CPApp endSheet:_createResultsPackageWindow returnCode:[aSender tag]];
-}
-
-/**
- * Closes the list results package window.
- */
-- (@action)closeListResultsPackageWindow:(id)aSender
-{
-    [CPApp endSheet:_listResultsPackageWindow returnCode:[aSender tag]];
 }
 
 /**
@@ -94,6 +73,7 @@
     var resultsPackage = [[ResultsPackage alloc] init];
     [resultsPackage setWorkflowRun:[_runsDelegate currentlySelectedWorkflowRun]];
     [resultsPackage setCreator:[activeUser pk]];
+    [resultsPackage setPages:[self _getSelectedPages]];
     [resultsPackage ensureCreated];
 }
 
@@ -133,30 +113,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Handler Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Handles the request to load.
- */
-- (void)handleShouldLoadWorkflowJobsNotification:(CPNotification)aNotification
-{
-    if ([aNotification object] != nil)
-    {
-        [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:@"/workflowjobs/?workflow=" + [aNotification object]
-                        delegate:self
-                        message:nil];
-    }
-}
-
 - (void)handleShouldLoadWorkflowResultsPackagesNotification:(id)aSender
 {
     if ([_runsDelegate currentlySelectedWorkflowRun] != nil)
     {
-        var getParameters = @"?workflowrun=" + [[_runsDelegate currentlySelectedWorkflowRun] pk];
-        getParameters += @"&creator=" + [activeUser pk];
-        [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:@"/resultspackages/" + getParameters
-                        delegate:self
-                        message:nil];
+        [self _requestResultsPackages:[_runsDelegate currentlySelectedWorkflowRun]];
     }
 }
 
@@ -179,5 +140,28 @@
 - (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
 {
     [aSheet orderOut:self];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Private Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (void)_requestResultsPackages:(WorkflowRun)aWorkflowRun
+{
+    var getParameters = @"?workflowrun=" + [aWorkflowRun pk];
+    getParameters += @"&creator=" + [activeUser pk];
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"/resultspackages/" + getParameters
+                    delegate:self
+                    message:nil];
+}
+
+- (CPArray)_getSelectedPages
+{
+    var selectedObjects = [[CPArray alloc] init];
+    if ([_pageRadioGroup selectedRadio] != _pageRadioAll)
+    {
+        selectedObjects = [_workflowPagesArrayController selectedObjects];
+    }
+    return selectedObjects;
 }
 @end
