@@ -13,7 +13,7 @@ class Classifier(GameraXML):
 
     name = models.CharField(max_length=255)
     project = models.ForeignKey("rodan.Project", related_name="classifiers")  # workflows.py does it differently.
-    creator = models.ForeignKey(User, related_name="pages", null=True, blank=True)
+    creator = models.ForeignKey(User, related_name="classifiers", null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
