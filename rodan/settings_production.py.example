@@ -3,6 +3,10 @@ djcelery.setup_loader()
 
 DEBUG = False
 
+ALLOWED_HOSTS = [
+    'localhost:8000',
+]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
