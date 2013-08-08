@@ -50,15 +50,10 @@
  */
 - (void)handleShouldLoadNotification:(CPNotification)aNotification
 {
-    if ([aNotification object] != nil)
-    {
-        _associatedWorkflow = [aNotification object];
-    }
-
-    if (_associatedWorkflow != nil)
+    if ([WorkflowController activeWorkflow] != nil)
     {
         [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:@"/workflowjobs/?workflow=" + [_associatedWorkflow uuid]
+                        path:@"/workflowjobs/?workflow=" + [[WorkflowController activeWorkflow] uuid]
                         delegate:self
                         message:nil];
     }
