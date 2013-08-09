@@ -1,12 +1,5 @@
-import os
 from settings_production import *
 
-PROJECT_DIR = os.path.dirname(__file__)
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    'localhost:8000',
-]
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -40,15 +33,6 @@ USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
-
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'uploads/')
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = "/uploads/"
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -243,12 +227,3 @@ NONIMAGE = -1
 
 BACKUP_WORKFLOWRUN_ON_RETRY = True
 TRACEBACK_IN_ERROR_DETAIL = True
-
-# The base_url below is hardcoded. This setting needs to be properly configured when you deploy Rodan.
-# Here is a list of places where this variable is used:
-#
-#    rodan.models.pageglyphs.PageGlyphs.get_absolute_url()
-#
-# When you find a better solution for returning the absolute url from a celery job,
-# go clean up the code in these places.
-BASE_URL = 'http://localhost:8000'
