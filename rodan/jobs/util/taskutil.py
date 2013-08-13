@@ -3,6 +3,7 @@ import re
 import shutil
 import tempfile
 import uuid
+import warnings
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
@@ -12,16 +13,30 @@ from rodan.helpers.thumbnails import create_thumbnails
 from rodan.settings import IMAGE_TYPES
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError
 from rodan.helpers.processed import processed
+from rodan.helpers.dbmanagement import refetch_from_db
+
+
+def set_runjob_status(runjob, status):
+    runjob = refetch_from_db(runjob)
+    runjob.status = status
+    runjob.save()
+    return runjob
 
 
 def set_running(runjob):
-    runjob.status = RunJobStatus.RUNNING
-    runjob.save()
+    """
+    'set_running' is deprecated. Use taskutil.set_runjob_status instead.
+    """
+    warnings.warn("set_running' is deprecated. Use taskutil.set_runjob_status instead.", DeprecationWarning)
+    set_runjob_status(runjob, RunJobStatus.RUNNING)
 
 
 def set_run_once_waiting(runjob):
-    runjob.status = runjob.status = RunJobStatus.RUN_ONCE_WAITING
-    runjob.save()
+    """
+    'set_run_once_waiting' is deprecated. Use taskutil.set_runjob_status instead.
+    """
+    warnings.warn("'set_run_once_waiting' is deprecated. Use taskutil.set_runjob_status instead.", DeprecationWarning)
+    set_runjob_status(runjob, RunJobStatus.RUN_ONCE_WAITING)
 
 
 def init_result(runjob):
@@ -79,7 +94,7 @@ def get_uuid_from_url(url):
 
     """
     url = str(url)
-    print "URL: ".format(url)
+    print "Trying to extract uuid from " + url
     re_uuid = re.compile(r'^(.*)/(?P<uuid>[0-9a-f]{32})/?$', re.IGNORECASE)
     match_object = re_uuid.match(url)
 
@@ -93,7 +108,7 @@ def get_uuid_from_url(url):
     if match_object:
         return match_object.group('uuid')
 
-    raise UUIDParseError("Unable to extract UUID from the url {0}. Check your input or read the get_uuid_from_url function docstring.".format(url))
+    raise UUIDParseError("Unable to extract UUID from {0}".format(url))
 
 
 def get_settings(runjob):
