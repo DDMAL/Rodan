@@ -1,10 +1,12 @@
 import urlparse
+import warnings
 
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from django.core.urlresolvers import resolve, Resolver404
+from django.contrib.auth.models import User
 
 from rodan.models.job import Job
 from rodan.models.workflowrun import WorkflowRun
@@ -20,11 +22,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
     serializer_class = ResultsPackageListSerializer
     paginate_by = None
 
-    def get_queryset(self):
-        queryset = ResultsPackage.objects.all()
-        return queryset
-
-    def _resolve_object(self, object_class, object_url, error_dict):
+    def _resolve_object(self, object_class, object_url, error_dict={'400': [], '404': []}):
         url_path = urlparse.urlparse(object_url).path
         try:
             object_view = resolve(url_path)
@@ -38,6 +36,27 @@ class ResultsPackageList(generics.ListCreateAPIView):
                 error_dict['404'] += [str(object_url)]
             else:
                 return db_object.pk
+
+    def get_queryset(self):
+        queryset = ResultsPackage.objects.all()
+
+        creator_url = self.request.QUERY_PARAMS.get('creator', None)
+        if creator_url:
+            creator_instance = self._resolve_object(User, creator_url)
+            if creator_instance:  # Checking if creator could be successfully resolved. Silently ignore filter otherwise.
+                queryset = queryset.filter(creator=creator_instance)
+            else:
+                print "Filtering by creator failed. Something wrong with the url {0}".format(creator_url)
+
+        workflow_run_url = self.request.QUERY_PARAMS.get('workflowrun', None)
+        if workflow_run_url:
+            workflowrun_instance = self._resolve_object(WorkflowRun, workflow_run_url)
+            if workflowrun_instance:
+                queryset = queryset.filter(workflow_run=workflowrun_instance)
+            else:
+                print "Filtering by workflow_run failed. Something wrong with the url {0}.".format(workflow_run_url)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
         workflow_run_url = request.DATA.get('workflow_run_url', None)

@@ -11,7 +11,7 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ResultsPackage
-        read_only_fields = ('created',)
+        read_only_fields = ('created', 'status', 'percent_completed', 'download_url')
         fields = ("url",
                   "workflow_run_url",
                   "name",
@@ -34,7 +34,7 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ResultsPackage
-        read_only_fields = ('created', )
+        read_only_fields = ('created', 'status', 'percent_completed', 'download_url')
         fields = ('url',
                   'workflow_run_url',
                   'name',
