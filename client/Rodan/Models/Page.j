@@ -1,4 +1,5 @@
 @import <Ratatosk/WLRemoteTransformers.j>
+@import "User.j"
 
 @implementation Page : WLRemoteObject
 {
@@ -15,7 +16,7 @@
     CPString    largeThumbURL   @accessors;
     CPDate      created         @accessors;
     CPDate      updated         @accessors;
-    CPString    creator         @accessors;
+    User        creator         @accessors;
     BOOL        processed       @accessors;
 }
 
@@ -35,7 +36,7 @@
         ['largeThumbURL', 'large_thumb_url', nil, true],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],
-        ['creator', 'creator', nil, true],
+        ['creator', 'creator', [WLForeignObjectTransformer forObjectClass:User]],
         ['processed', 'processed', nil, true]
     ];
 }
