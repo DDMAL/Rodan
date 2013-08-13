@@ -40,14 +40,14 @@ class ResultsPackageList(generics.ListCreateAPIView):
                 return db_object.pk
 
     def post(self, request, *args, **kwargs):
-        workflow_run = request.DATA.get('workflow_run', None)
-        page_urls = request.DATA.get('pages', None)
-        job_urls = request.DATA.get('jobs', None)
+        workflow_run_url = request.DATA.get('workflow_run_url', None)
+        page_urls = request.DATA.get('page_urls', None)
+        job_urls = request.DATA.get('job_urls', None)
 
-        if not workflow_run:
+        if not workflow_run_url:
             return Response({"message": "You must specify a workflow_run ID"}, status=status.HTTP_400_BAD_REQUEST)
 
-        url_path = urlparse.urlparse(workflow_run['url']).path
+        url_path = urlparse.urlparse(workflow_run_url).path
         try:
             workflow_run_view = resolve(url_path)
         except Resolver404:
