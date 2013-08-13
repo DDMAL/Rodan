@@ -59,8 +59,6 @@
 @import "Delegates/ResultsViewWorkflowsDelegate.j"
 @import "Delegates/WorkflowDesignerJobSettingsDelegate.j"
 
-@import "Frameworks/RodanKit/RKNotificationTimer.j"
-
 @import "Models/Project.j"
 @import "Models/User.j"
 
