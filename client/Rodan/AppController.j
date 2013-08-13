@@ -59,6 +59,8 @@
 @import "Delegates/ResultsViewWorkflowsDelegate.j"
 @import "Delegates/WorkflowDesignerJobSettingsDelegate.j"
 
+@import "Frameworks/RodanKit/RKNotificationTimer.j"
+
 @import "Models/Project.j"
 @import "Models/User.j"
 
@@ -379,6 +381,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToProjectStatus:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setStatusIsActive:YES];
 
@@ -389,6 +393,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToManagePages:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setPagesIsActive:YES];
 
@@ -402,6 +408,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToWorkflowResults:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setResultsIsActive:YES];
 
@@ -415,6 +423,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToInteractiveJobs:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setJobsIsActive:YES];
 
@@ -428,6 +438,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToUsersGroups:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setUsersIsActive:YES];
 
@@ -438,6 +450,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToClassifier:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [menuItemsController setClassifierIsActive:YES];
     var classifierView = [classifierViewController view];
@@ -451,6 +465,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)switchWorkspaceToWorkflowDesigner:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [menuItemsController reset];
     [chooseWorkflowView setFrame:[contentScrollView bounds]];
     [chooseWorkflowView layoutIfNeeded];
@@ -462,6 +478,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)openUserPreferences:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [userPreferencesWindow center];
     var preferencesContentView = [userPreferencesWindow contentView];
     [preferencesContentView addSubview:accountPreferencesView];
@@ -470,6 +488,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)openServerAdmin:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [serverAdminWindow center];
     var serverAdminContentView = [serverAdminWindow contentView];
     [serverAdminContentView addSubview:userAdminView];
@@ -478,6 +498,8 @@ activeProject = nil;  // URI to the currently open project
 
 - (IBAction)showWorkflowDesigner:(id)aSender
 {
+    [RKNotificationTimer clearTimedNotification];
+
     [workflowDesignerView setFrame:[contentScrollView bounds]];
     [workflowDesignerView layoutIfNeeded];
     [contentScrollView setDocumentView:workflowDesignerView];
