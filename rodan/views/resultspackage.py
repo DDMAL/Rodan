@@ -25,7 +25,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
         return queryset
 
     def _resolve_object(self, object_class, object_url, error_dict):
-        url_path = urlparse.urlparse(object_url['url']).path
+        url_path = urlparse.urlparse(object_url).path
         try:
             object_view = resolve(url_path)
             print object_view

@@ -10,24 +10,29 @@ from celery import Task
 
 
 def _add_result_to_bag(page_dir, runjob, bag):
-    if runjob.status in (RunJobStatus.HAS_FINISHED, RunJobStatus.FAILED):
-        short_job_name = runjob.job_name.split('.')[-1]  # get the last part of job name
-        runjob_dir = os.path.join(page_dir, "%s_%s" % (runjob.sequence, short_job_name))
-        os.makedirs(runjob_dir)
+    # TO-DO: Make error inclusion optional. Make unrun runjob inclustion optional.
+    short_job_name = runjob.job_name.split('.')[-1]  # get the last part of job name
+    runjob_dir = os.path.join(page_dir, "%s_%s" % (runjob.sequence, short_job_name))
+    os.makedirs(runjob_dir)
 
-        if runjob.status == RunJobStatus.HAS_FINISHED:
-            result_extenstion = os.path.splitext(runjob.result.get().result.path)[1]
-            result_filename = "result" + result_extenstion  # use filename with proper extenstion
-            with open(runjob.result.get().result.path, 'rb') as f:
-                with open(os.path.join(runjob_dir, result_filename), 'wb') as newf:
-                    newf.write(f.read())
+    if runjob.status == RunJobStatus.HAS_FINISHED:
+        result_extenstion = os.path.splitext(runjob.result.get().result.path)[1]
+        result_filename = "result" + result_extenstion  # use filename with proper extenstion
+        with open(runjob.result.get().result.path, 'rb') as f:
+            with open(os.path.join(runjob_dir, result_filename), 'wb') as newf:
+                newf.write(f.read())
 
-        elif runjob.status == RunJobStatus.FAILED:
-            with open(os.path.join(runjob_dir, 'error.txt'), 'w') as f:
-                f.write("Error Summary: ")
-                f.write(runjob.error_summary)
-                f.write("\n\nError Details:\n")
-                f.write(runjob.error_details)
+    elif runjob.status == RunJobStatus.FAILED:
+        with open(os.path.join(runjob_dir, 'error.txt'), 'w') as f:
+            f.write("Error Summary: ")
+            f.write(runjob.error_summary)
+            f.write("\n\nError Details:\n")
+            f.write(runjob.error_details)
+
+    else:
+        with open(os.path.join(runjob_dir, 'not_run.txt'), 'w') as f:
+            f.write("This job has not produced any result yet. "
+                    "Either an earlier job failed, or you tried to package results before the workflow finished running.")
 
 
 def _ensure_db_state(resultspackage):
@@ -111,27 +116,27 @@ class PackageResultTask(Task):
                         _ensure_db_state(resultspackage)
                         _update_progress(resultspackage, completed)
 
-            bag.update()
-            errors = bag.validate()
-            if not bag.is_valid:
-                _ensure_db_state(resultspackage)
-                resultspackage.status = ResultsPackageStatus.FAILED
-                resultspackage.save()
-                raise BagNotValidError("The bag failed validation.\n" + str(errors))
-
-            bag.package(resultspackage.package_path, method='zip')
-            resultspackage.download_url = resultspackage.file_url
-            resultspackage.percent_completed = 100
-            resultspackage.status = ResultsPackageStatus.COMPLETE
-
-            # If pages and jobs were not provided, we populate these fields now
-            # since we have figured them out.
-            resultspackage.pages = pages
-            resultspackage.jobs = jobs
-
+        bag.update()
+        errors = bag.validate()
+        if not bag.is_valid:
             _ensure_db_state(resultspackage)
+            resultspackage.status = ResultsPackageStatus.FAILED
             resultspackage.save()
-            shutil.rmtree(resultspackage.bag_path)
+            raise BagNotValidError("The bag failed validation.\n" + str(errors))
+
+        bag.package(resultspackage.package_path, method='zip')
+        resultspackage.download_url = resultspackage.file_url
+        resultspackage.percent_completed = 100
+        resultspackage.status = ResultsPackageStatus.COMPLETE
+
+        # If pages and jobs were not provided, we populate these fields now
+        # since we have figured them out.
+        resultspackage.pages = pages
+        resultspackage.jobs = jobs
+
+        _ensure_db_state(resultspackage)
+        resultspackage.save()
+        shutil.rmtree(resultspackage.bag_path)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         rp = ResultsPackage.objects.filter(pk=args[0])
