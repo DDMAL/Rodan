@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import uuid
 import warnings
+import urlparse
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
@@ -71,29 +72,34 @@ def get_input_path(runjob, result_id):
 def get_uuid_from_url(url):
     """
     This function returns the last UUID present in a url. The UUID
-    must be at the end of the url. It allows a slash at the end,
-    but any other funny trailing character will tick it off. The
-    UUID should not contain any block separator like hyphen or
-    underscore - it should be 32 adjacent characters.
+    must be at the end of the url. The trailing slash is optinal.
+    Query parameters are considered to be not part of the url.
+    The UUID should be 32 adjacent characters, unhyphenated.
+    Only http/https scheme is supported. It also works if no scheme is
+    provided, so relative urls are okay.
 
     Example: All of the following will return
     12345678901234567890123456abcdef as the UUID:
 
-    asdf://idontcare.org/12345678901234567890123456abcdef
-    asdf://idontcare.org/12345678901234567890123456abcdef/
-    asdf://idontcare.org/1abc2319bc11234567890123deadbeef/blah/blah/12345678901234567890123456abcdef
+    http://idontcare.org/12345678901234567890123456abcdef
+    http://idontcare.org/12345678901234567890123456abcdef/
+    http://idontcare.org/1abc2319bc11234567890123deadbeef/blah/blah/12345678901234567890123456abcdef
+    http://idontcare.org/12345678901234567890123456abcdef/?cooloption=true
+    relpath/12345678901234567890123456abcdef?cooloption=true
     12345678901234567890123456abcdef
+
 
     The following will raise exceptions:
 
-    asdf://idontcare.org/12345678901234567890123456abcde
-    asdf://idontcare.org/12345678901234567890123456abcdeff
-    asdf://idontcare.org/12345678901234567890123456abcdef/?cooloption=true
-    asdf://idontcare.org/12345678-9012-3456-7890-123456abcdef
+    http://idontcare.org/12345678901234567890123456abcde
+    http://idontcare.org/12345678901234567890123456abcdeff
+    http://idontcare.org/12345678-9012-3456-7890-123456abcdef
     12345678-9012-3456-7890-123456abcdef
 
     """
+
     url = str(url)
+    url = urlparse.urlparse(url).path
     print "Trying to extract uuid from " + url
     re_uuid = re.compile(r'^(.*)/(?P<uuid>[0-9a-f]{32})/?$', re.IGNORECASE)
     match_object = re_uuid.match(url)
