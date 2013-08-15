@@ -17,7 +17,6 @@ def update_workflow_upon_workflow_run_update(**kwargs):
 
 @receiver(post_save, sender=Page)
 def update_workflow_upon_page_save(**kwargs):
-    print "Hey"
     page_instance = kwargs['instance']
     workflows = page_instance.workflows.all()
     for workflow_instance in workflows:
