@@ -51,6 +51,8 @@
  */
 - (@action)openCreateResultsPackageWindow:(id)aSender
 {
+    [_resultsPackagesArrayController setContent: nil];
+    [self handleShouldLoadWorkflowResultsPackagesNotification:nil];
     [CPApp beginSheet:_createResultsPackageWindow
            modalForWindow:[CPApp mainWindow]
            modalDelegate:self
@@ -71,9 +73,19 @@
 - (@action)handleCreatePackageRequest:(id)aSender
 {
     var resultsPackage = [[ResultsPackage alloc] init];
-    [resultsPackage setWorkflowRun:[_runsDelegate currentlySelectedWorkflowRun]];
+    [resultsPackage setWorkflowRunUrl:[[_runsDelegate currentlySelectedWorkflowRun] pk]];
     [resultsPackage setCreator:[activeUser pk]];
-    [resultsPackage setPages:[self _getSelectedPages]];
+    if ([_pageRadioGroup selectedRadio] != _pageRadioAll)
+    {
+        var pageEnumerator = [[self _getSelectedPages] objectEnumerator],
+            page = nil,
+            pageUrlArray = [[CPMutableArray alloc] init];
+        while (page = [pageEnumerator nextObject])
+        {
+            [pageUrlArray addObject:[page pk]];
+        }
+        [resultsPackage setPageUrls:pageUrlArray];
+    }
     [resultsPackage ensureCreated];
 }
 

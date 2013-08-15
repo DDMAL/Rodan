@@ -7,8 +7,8 @@
     CPString    pk                  @accessors;
     CPString    downloadUrl         @accessors;
     CPString    name                @accessors;
-    CPArray     pages               @accessors;
-    WorkflowRun workflowRun         @accessors;
+    CPArray     pageUrls            @accessors;
+    CPString    workflowRunUrl      @accessors;
     CPString    creator             @accessors;
     CPDate      created             @accessors;
     CPDate      updated             @accessors;
@@ -21,8 +21,8 @@
         ['pk', 'url', nil, true],
         ['downloadUrl', 'download_url', nil, true],
         ['name', 'name', nil, true],
-        ['pages', 'pages',  [WLForeignObjectsTransformer forObjectClass:Page]],
-        ['workflowRun', 'workflow_run',  [WLForeignObjectTransformer forObjectClass:WorkflowRun]],
+        ['pageUrls', 'page_urls', nil, true],
+        ['workflowRunUrl', 'workflow_run_url', nil, true],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],
         ['creator', 'creator'],
