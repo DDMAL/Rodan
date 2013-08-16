@@ -3,8 +3,9 @@ import re
 import shutil
 import tempfile
 import uuid
-import warnings
 import urlparse
+import functools
+from django.conf import settings as rodan_settings
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
@@ -12,31 +13,59 @@ from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.settings import IMAGE_TYPES
-from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError
+from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.processed import processed
-from rodan.helpers.dbmanagement import refetch_from_db
+from rodan.helpers.dbmanagement import exists_in_db
+
+
+def execute_unless_deleted(db_object, partial_func):
+    if db_object.pk:
+        if exists_in_db(db_object):
+            partial_func()
+        else:
+            raise ObjectDeletedError("The object {0} has been deleted from the database. Aborting save.".format(db_object))
+    else:
+        # If the object doesn't have a primary key we assume that it being newly created and this safe to touch the database.
+        partial_func()
+
+
+def save_instance(db_object):
+    """
+    In asynchronous tasks, always use this method instead of the default django save method.
+    This saves an object only if it was not deleted from the database.
+    """
+    execute_unless_deleted(db_object, functools.partial(db_object.save))
+
+
+def save_file_field(file_field_object, *args, **kwargs):
+    """
+    Saving a file object in a django FileField saves the model instance by default.
+    In asynchronous tasks, we want to make sure we don't resave a deleted database record.
+    This function abstracts away that database check.
+
+    Arguments:
+        file_field_object: The FileField object of the instance that you're trying to save.
+        *args, **kwargs: All the arguments and keyword arguments that you would
+                         usually pass into the FileField.save() method.
+     """
+    if 'save' in kwargs and kwargs['save'] == False:
+        file_field_object.save(*args, **kwargs)
+
+    else:
+        execute_unless_deleted(file_field_object.instance,
+                               functools.partial(file_field_object.save, *args, **kwargs))
 
 
 def set_runjob_status(runjob, status):
-    runjob = refetch_from_db(runjob)
     runjob.status = status
-    runjob.save()
-    return runjob
+    save_instance(runjob)
 
 
 def set_running(runjob):
-    """
-    'set_running' is deprecated. Use taskutil.set_runjob_status instead.
-    """
-    warnings.warn("set_running' is deprecated. Use taskutil.set_runjob_status instead.", DeprecationWarning)
     set_runjob_status(runjob, RunJobStatus.RUNNING)
 
 
 def set_run_once_waiting(runjob):
-    """
-    'set_run_once_waiting' is deprecated. Use taskutil.set_runjob_status instead.
-    """
-    warnings.warn("'set_run_once_waiting' is deprecated. Use taskutil.set_runjob_status instead.", DeprecationWarning)
     set_runjob_status(runjob, RunJobStatus.RUN_ONCE_WAITING)
 
 
@@ -134,7 +163,7 @@ def apply_updates(runjob, updates):
         for setting in runjob.job_settings:
             if setting['name'] == setting_name:
                 setting['default'] = value
-    runjob.save()
+    save_instance(runjob)
 
 
 def create_temp_path(ext=None):
@@ -154,7 +183,7 @@ def save_result(result, result_temp_path):
     tdir, result_file = os.path.split(result_temp_path)
     result_save_path = result.result_path
     f = open(result_temp_path)
-    result.result.save(os.path.join(result_save_path, result_file), File(f))
+    save_file_field(result.result, os.path.join(result_save_path, result_file), File(f))
     f.close()
     shutil.rmtree(tdir)
 
@@ -181,33 +210,28 @@ def default_on_success(self, retval, task_id, args, kwargs):
     result.run_job.status = RunJobStatus.HAS_FINISHED
     result.run_job.error_summary = ""
     result.run_job.error_details = ""
-    result.run_job.save()
+    save_instance(result.run_job)
 
     res = create_thumbnails.s(result)
     res.link(processed.s())
     res.apply_async()
 
 
-def default_on_failure(self, exc, task_id, args, kwargs, einfo):
-    runjob_id = args[1]
-    runjob = RunJob.objects.get(pk=runjob_id)
-    runjob.status = RunJobStatus.FAILED
-
-    # Any job using the default_on_failure method can define an error_mapping
+def add_error_information_to_runjob(self, runjob, exc, einfo):
+    # Any job using the default_on_failure method can define an error_information
     # method, which will take in an exception and a traceback string,
     # and return a dictionary containing 'error_summary' and 'error_details'.
     # This is to allow pretty formatting of error messages in the client.
     # If any StandardError is raised in the process of retrieving the
     # values, the default values are used for both fields.
     try:
-        err_info = self.error_mapping(exc, einfo.traceback)
+        err_info = self.error_information(exc, einfo.traceback)
         err_summary = err_info['error_summary']
         err_detail = err_info['error_details']
-        from rodan.settings import TRACEBACK_IN_ERROR_DETAIL
-        if TRACEBACK_IN_ERROR_DETAIL:
+        if rodan_settings.TRACEBACK_IN_ERROR_DETAIL:
             err_detail = str(err_detail) + "\n\n" + str(einfo.traceback)
     except StandardError as e:
-        print "The error_mapping method is not implemented properly (or not implemented at all). Exception: "
+        print "The error_information method is not implemented properly (or not implemented at all). Exception: "
         print "%s: %s" % (e.__class__.__name__, e.__str__())
         print "Using default sources for error information."
         err_summary = exc.__class__.__name__
@@ -215,29 +239,13 @@ def default_on_failure(self, exc, task_id, args, kwargs, einfo):
 
     runjob.error_summary = err_summary
     runjob.error_details = err_detail
-    runjob.save()
+    save_instance(runjob)
 
-# More flexible error checking code, but this will be far more painful to maintain:
-#
-#    try:
-#        self.error_mapping
-#    except NameError as e:
-#        print "No error mapping defined. Using default values."
-#    else:
-#        try:
-#            err_info = self.error_mapping(exc, einfo)
-#        except StandardError as e:
-#            print "Unhandled exception in error mapping function. Exception: "
-#            print "%s: %s" % (e.__class__.__name__, e.__str__())
-#            print "Using default values instead."
-#        else:
-#            try:
-#                err_summary = err_info['error_summary']
-#            except KeyError:
-#                print "No Error summary defined by error_mapping."
-#                print "Using default values."
-#            try:
-#                err_detail = err_info['error_details']
-#            except KeyError:
-#                print "No Error details defined by error_mapping."
-#                print "Using default values."
+
+def default_on_failure(self, exc, task_id, args, kwargs, einfo):
+    runjob_id = args[1]
+    runjob = RunJob.objects.get(pk=runjob_id)
+    runjob.status = RunJobStatus.FAILED
+    save_instance(runjob)
+
+    add_error_information_to_runjob(self, runjob, exc, einfo)

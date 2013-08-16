@@ -1,1 +1,1 @@
-from rodan.tests.jobs.taskutiltest import TaskutilTest
+from rodan.tests.jobs.taskutiltest import UUIDRegexTest, SaveInstanceTest
