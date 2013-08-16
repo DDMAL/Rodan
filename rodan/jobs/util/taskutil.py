@@ -204,6 +204,38 @@ def save_result_as_png(result_image, runjob):
         return result
 
 
+def if_runjob_not_cancelled(method_type):
+    """
+    You can use this decorator to make any 'run', 'on_success' or 'on_failure'
+    method support runjob cancellation.
+    """
+    if method_type in ['on_success', 'on_failure']:
+        def wrap(f):
+            @functools.wraps(f)
+            def wrapped_f(*args, **kwargs):
+                inner_args = args[3]
+                runjob_id = inner_args[1]
+                runjob = RunJob.objects.get(pk=runjob_id)
+                if runjob.status == RunJobStatus.CANCELLED:
+                    return
+                return f(*args, **kwargs)
+            return wrapped_f
+        return wrap
+
+    elif method_type == 'run':
+        def wrap(f):
+            @functools.wraps(f)
+            def wrapped_f(*args, **kwargs):
+                runjob_id = args[2]
+                runjob = RunJob.objects.get(pk=runjob_id)
+                if runjob.status == RunJobStatus.CANCELLED:
+                    return
+                return f(*args, **kwargs)
+            return wrapped_f
+        return wrap
+
+
+@if_runjob_not_cancelled('on_success')
 def default_on_success(self, retval, task_id, args, kwargs):
     # create thumbnails and set runjob status to HAS_FINISHED after successfully processing an image object.
     result = Result.objects.get(pk=retval)
@@ -242,6 +274,7 @@ def add_error_information_to_runjob(self, runjob, exc, einfo):
     save_instance(runjob)
 
 
+@if_runjob_not_cancelled('on_failure')
 def default_on_failure(self, exc, task_id, args, kwargs, einfo):
     runjob_id = args[1]
     runjob = RunJob.objects.get(pk=runjob_id)

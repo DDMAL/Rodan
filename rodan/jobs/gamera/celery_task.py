@@ -3,21 +3,21 @@ import uuid
 import tempfile
 import shutil
 from django.core.files import File
-from celery import Task
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
 from rodan.jobs.util import taskutil
+from rodan.jobs.base import RodanJob
 
 
-class GameraTask(Task):
+class GameraTask(RodanJob):
     max_retries = None
     on_success = taskutil.default_on_success
     on_failure = taskutil.default_on_failure
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
         taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 

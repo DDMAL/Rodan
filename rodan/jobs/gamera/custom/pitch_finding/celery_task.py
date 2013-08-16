@@ -6,7 +6,6 @@ import gamera.gamera_xml
 import gamera.classify
 import gamera.knn
 from gamera.core import init_gamera, load_image
-from celery import Task
 
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
@@ -18,6 +17,7 @@ from rodan.jobs.util import taskutil
 from rodan.jobs.gamera.custom.pitch_finding.AomrObject import AomrObject
 from rodan.jobs.gamera.custom.pitch_finding.AomrMeiOutput import AomrMeiOutput
 from rodan.jobs.gamera.custom.pitch_finding.AomrExceptions import AomrUnableToFindStavesError
+from rodan.jobs.base import RodanJob
 
 init_gamera()
 
@@ -26,7 +26,7 @@ init_gamera()
 # Most probably these will be taken care of after July 1.
 
 
-class PitchFindingTask(Task):
+class PitchFindingTask(RodanJob):
     max_retries = None
     name = 'gamera.custom.pitch_finding.find_pitches'
     settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob'},
@@ -73,7 +73,7 @@ class PitchFindingTask(Task):
 
         return source_result.result.path
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
         taskutil.set_running(runjob)
         xml_filepath = taskutil.get_input_path(runjob, result_id)   # Trouble
@@ -88,6 +88,7 @@ class PitchFindingTask(Task):
         result = self.save_result(runjob, mei_document)
         return str(result.uuid)
 
+    @taskutil.if_runjob_not_cancelled('on_success')
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED

@@ -6,7 +6,6 @@ import gamera.gamera_xml
 import gamera.classify
 import gamera.knn
 from gamera.core import init_gamera, load_image
-from celery import Task
 from django.core.files import File
 
 from rodan.models.classifier import Classifier
@@ -17,9 +16,10 @@ from rodan.models.result import Result
 from rodan.jobs.util import taskutil
 from rodan.settings import GAMERA_XML
 from rodan.helpers.exceptions import UnknownClassifierError
+from rodan.jobs.base import RodanJob
 
 
-class ClassificationTaskBase(Task):
+class ClassificationTaskBase(RodanJob):
 
     def get_classifier(self, url):
         uuid = taskutil.get_uuid_from_url(url)
@@ -36,7 +36,7 @@ class ClassificationTaskBase(Task):
         taskutil.save_instance(result)
         return result
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
 
         if runjob.needs_input:
@@ -67,6 +67,7 @@ class ClassificationTaskBase(Task):
             result = self.save_result(pageglyphs_instance, runjob)
             return str(result.uuid)
 
+    @taskutil.if_runjob_not_cancelled('on_success')
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED

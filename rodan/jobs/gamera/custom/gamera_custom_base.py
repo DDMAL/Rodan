@@ -1,11 +1,11 @@
-from celery import Task
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.jobs.util import taskutil
 from gamera.core import init_gamera, load_image
+from rodan.jobs.base import RodanJob
 
 
-class GameraCustomTask(Task):
+class GameraCustomTask(RodanJob):
     max_retries = None
     name = "gamera_custom_task__no_job_name_provided"
     settings = []
@@ -25,7 +25,7 @@ class GameraCustomTask(Task):
 
         pass
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, result_id, runjob_id, *args, **kwargs):
         """Note: Even if you decide to override the entire run method,
             make sure you load and save images with gamera methods, and not PIL methods.
             Otherwise the loaded/saved images often don't have the proper pixel types,

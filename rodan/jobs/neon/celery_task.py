@@ -1,15 +1,14 @@
 import os
 import shutil
 import Image
-from celery import Task
 from rodan.jobs.util import taskutil
 from rodan.models.runjob import RunJob, RunJobStatus
 from rodan.models.result import Result
-from rodan.helpers.exceptions import NeonTempDirectoryError
 from rodan.jobs.neon.utils import live_mei_path, backup_mei_path, live_mei_directory, compressed_image_path
+from rodan.jobs.base import RodanJob
 
 
-class PitchCorrectionTask(Task):
+class PitchCorrectionTask(RodanJob):
     max_retries = None
     name = "neon.pitch_correction"
     settings = []   # This job really doesn't have any settings.
@@ -22,7 +21,7 @@ class PitchCorrectionTask(Task):
             shutil.rmtree(temp_path)
         os.mkdir(temp_path)
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
 
         if runjob.needs_input:
@@ -51,6 +50,7 @@ class PitchCorrectionTask(Task):
             taskutil.save_result(result, live_mei_path(runjob))
             return str(result.uuid)
 
+    @taskutil.if_runjob_not_cancelled('on_success')
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
