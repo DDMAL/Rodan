@@ -24,6 +24,7 @@
     BOOL        testRun     @accessors;
     CPString    testPageID  @accessors;
     CPArray     pages       @accessors;
+    BOOL        cancelled   @accessors;
 }
 
 + (CPArray)remoteProperties
@@ -37,7 +38,8 @@
         ['run', 'run'],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],
-        ['testRun', 'test_run']
+        ['testRun', 'test_run'],
+        ['cancelled', 'cancelled']
     ];
 }
 
