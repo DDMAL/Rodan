@@ -3,6 +3,7 @@ import os
 import shutil
 from operator import itemgetter
 from celery import registry, chain
+from celery.task.control import revoke
 from django.core.urlresolvers import resolve
 
 from rest_framework import generics
@@ -237,14 +238,20 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_already_cancelled = workflow_run.cancelled
-        if not workflow_already_cancelled:
-            workflow_newly_cancelled = request.DATA.get('cancelled', False)
-            if workflow_newly_cancelled:
-                runjobs = workflow_run.run_jobs.all()
-                for rj in runjobs:
-                    if rj.status not in (RunJobStatus.RUNNING, RunJobStatus.HAS_FINISHED, RunJobStatus.FAILED):
-                        rj.status = RunJobStatus.CANCELLED
-                        rj.save()
+        workflow_newly_cancelled = request.DATA.get('cancelled', False)
+
+        if not workflow_already_cancelled and workflow_newly_cancelled:
+            runjobs = workflow_run.run_jobs.all()
+            for rj in runjobs:
+                if rj.status not in (RunJobStatus.HAS_FINISHED, RunJobStatus.FAILED):
+                    if rj.status == RunJobStatus.RUNNING:
+                        revoke(rj.celery_task_id, terminate=True)
+                    rj.status = RunJobStatus.CANCELLED
+                    rj.save()
+
+        if workflow_already_cancelled and not workflow_newly_cancelled:
+            return Response({"message": "Workflowrun cannnot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
+
 
         return self.partial_update(request, pk, *args, **kwargs)
 
