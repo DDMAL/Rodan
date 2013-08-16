@@ -42,26 +42,26 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         pages = request.DATA.get('pages', None)
         if pages:
+            workflow_pages = []
+
             for page in pages:
                 value = urlparse.urlparse(page['url']).path
+
                 # resolve the URL we're passed to a page object
                 try:
                     p = resolve(value)
                 except:
                     return Response({'message': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                # check if the page already exists on this workflow. If so, we skip it.
-                relationship_exists = workflow.pages.filter(pk=p.kwargs.get('pk')).exists()
-                if relationship_exists:
-                    continue
-
-                # now use the pk to grab the Page object from the database
                 page_obj = Page.objects.get(pk=p.kwargs.get('pk'))
-                # finally, add this page to the workflow
                 if not page_obj:
                     return Response({'message': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
 
-                workflow.pages.add(page_obj)
+                workflow_pages.append(page_obj)
+
+            workflow.pages = workflow_pages
+            workflow.save()
+
             del request.DATA['pages']
 
         return self.update(request, *args, **kwargs)
