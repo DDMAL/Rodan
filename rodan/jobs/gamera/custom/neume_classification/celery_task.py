@@ -31,9 +31,9 @@ class ClassificationTaskBase(Task):
     def save_result(self, glyphs_model, runjob):
         result = taskutil.init_result(runjob)
         with open(glyphs_model.file_path) as f:
-            result.result.save('pageglyphs.xml', File(f))
+            taskutil.save_file_field(result.result, 'pageglyphs.xml', File(f))
         result.result_type = GAMERA_XML
-        result.save()
+        taskutil.save_instance(result)
         return result
 
     def run(self, result_id, runjob_id, *args, **kwargs):
@@ -63,14 +63,14 @@ class ClassificationTaskBase(Task):
 
             init_gamera()
             task_image = load_image(page_url)
-            pageglyphs_model = self.process_image(task_image, settings)
-            result = self.save_result(pageglyphs_model, runjob)
+            pageglyphs_instance = self.process_image(task_image, settings)
+            result = self.save_result(pageglyphs_instance, runjob)
             return str(result.uuid)
 
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.run_job.save()
+        taskutil.save_instance(result.run_job)
 
     on_failure = taskutil.default_on_failure
 
@@ -90,14 +90,14 @@ class ManualClassificationTask(ClassificationTaskBase):
         task_image = load_image(page_url)
         classifier_model = self.get_classifier(settings['classifier'])
         rdn_pageglyph = PageGlyphs(classifier=classifier_model)
-        rdn_pageglyph.save()
+        taskutil.save_instance(rdn_pageglyph)
 
         temp_xml_path = taskutil.create_temp_path(ext='xml')
         gamera.gamera_xml.glyphs_to_xml(temp_xml_path,
                                         task_image.cc_analysis(),
                                         with_features=True)
         with open(temp_xml_path) as f:
-            rdn_pageglyph.xml_file.save('page_glyphs.xml', File(f))
+            taskutil.save_file_field(rdn_pageglyph.xml_file, 'page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
         rdn_pageglyph.add_uuids_and_sort_glyphs()
@@ -119,18 +119,18 @@ class AutoClassificationTask(ClassificationTaskBase):
                 {'default': None, 'has_default': False, 'name': 'pageglyphs', 'type': 'uuid_pageglyphs', 'visibility': False}]
 
     def save_glyphs(self, glyphs, classifier):
-        pageglyphs_model = PageGlyphs(classifier=classifier)
-        pageglyphs_model.save()
+        pageglyphs_instance = PageGlyphs(classifier=classifier)
+        taskutil.save_instance(pageglyphs_instance)
         temp_xml_path = taskutil.create_temp_path(ext='xml')
         gamera.gamera_xml.glyphs_to_xml(temp_xml_path, glyphs, with_features=True)
 
         with open(temp_xml_path) as f:
-            pageglyphs_model.xml_file.save('page_glyphs.xml', File(f))
+            taskutil.save_file_field(pageglyphs_instance.xml_file, 'page_glyphs.xml', File(f))
         shutil.rmtree(os.path.dirname(temp_xml_path))
 
-        pageglyphs_model.add_uuids_and_sort_glyphs()
+        pageglyphs_instance.add_uuids_and_sort_glyphs()
 
-        return pageglyphs_model
+        return pageglyphs_instance
 
     def process_image(self, task_image, settings):
         classifier_model = self.get_classifier(settings['classifier'])
@@ -145,6 +145,6 @@ class AutoClassificationTask(ClassificationTaskBase):
                                                               max_parts_per_group=settings['max_parts_per_group'],
                                                               max_graph_size=settings['max_graph_size'])
         cknn.generate_features_on_glyphs(grouped_glyphs)
-        pageglyphs_model = self.save_glyphs(grouped_glyphs, classifier_model)
+        pageglyphs_instance = self.save_glyphs(grouped_glyphs, classifier_model)
 
-        return pageglyphs_model
+        return pageglyphs_instance

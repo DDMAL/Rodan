@@ -13,6 +13,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.models.workflowjob import WorkflowJob
 from rodan.settings import MEI
+from rodan.helpers.exceptions import UUIDParseError
 from rodan.jobs.util import taskutil
 from rodan.jobs.gamera.custom.pitch_finding.AomrObject import AomrObject
 from rodan.jobs.gamera.custom.pitch_finding.AomrMeiOutput import AomrMeiOutput
@@ -60,7 +61,7 @@ class PitchFindingTask(Task):
         taskutil.save_result(result, temp_mei_path)
 
         result.result_type = MEI
-        result.save()
+        taskutil.save_instance(result)
         return result
 
     def _get_segmented_image_path(self, wfrun, wfjob_url, page):
@@ -90,13 +91,14 @@ class PitchFindingTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.run_job.save()
+        taskutil.save_instance(result.run_job)
 
     on_failure = taskutil.default_on_failure
 
-    def error_mapping(self, exc, traceback):
-        from rodan.models.runjob import RunJob
+    def error_information(self, exc, traceback):
         if isinstance(exc, RunJob.DoesNotExist):
             return {'error_summary': "Cannot get segmented image",
                     'error_details': "Did you delete and re-add any of the jobs in the workflow?"}
-
+        if isinstance(exc, UUIDParseError):
+            return {'error_summary': "Cannot locate classifier",
+                     'error_details': "Did you click Save Settings?"}

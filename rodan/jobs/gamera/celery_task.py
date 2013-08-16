@@ -8,8 +8,6 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
-from rodan.helpers.thumbnails import create_thumbnails
-from rodan.helpers.processed import processed
 from gamera.core import init_gamera, load_image
 from rodan.jobs.util import taskutil
 
@@ -21,18 +19,15 @@ class GameraTask(Task):
 
     def run(self, result_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
-        runjob.status = RunJobStatus.RUNNING
-        runjob.save()
+        taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 
         # fall through to retrying if we're waiting for input
         if runjob.needs_input:
-            runjob.status = RunJobStatus.WAITING_FOR_INPUT
-            runjob.save()
+            runjob = taskutil.set_runjob_status(runjob, RunJobStatus.WAITING_FOR_INPUT)
             self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
 
         if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
-            runjob.status = RunJobStatus.RUNNING
-            runjob.save()
+            runjob = taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 
         if result_id is None:
             # this is the first job in a run
@@ -43,7 +38,7 @@ class GameraTask(Task):
             page = result.result.path
 
         new_result = Result(run_job=runjob)
-        new_result.save()
+        taskutil.save_instance(new_result)
 
         result_save_path = new_result.result_path
 
@@ -63,9 +58,8 @@ class GameraTask(Task):
         result_image.save_image(os.path.join(tdir, result_file))
 
         f = open(os.path.join(tdir, result_file))
-        new_result.result.save(os.path.join(result_save_path, result_file), File(f))
+        taskutil.save_file_field(new_result.result, os.path.join(result_save_path, result_file), File(f))
         f.close()
         shutil.rmtree(tdir)
 
         return str(new_result.uuid)
-

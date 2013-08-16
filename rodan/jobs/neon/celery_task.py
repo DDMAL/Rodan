@@ -54,6 +54,6 @@ class PitchCorrectionTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         result = Result.objects.get(pk=retval)
         result.run_job.status = RunJobStatus.HAS_FINISHED
-        result.run_job.save()
+        taskutil.save_instance(result.run_job)
 
     on_failure = taskutil.default_on_failure
