@@ -16,6 +16,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.util import taskutil
 from rodan.settings import GAMERA_XML
+from rodan.helpers.exceptions import UnknownClassifierError
 
 
 class ClassificationTaskBase(Task):
@@ -25,11 +26,7 @@ class ClassificationTaskBase(Task):
         try:
             return Classifier.objects.get(pk=uuid)
         except Classifier.DoesNotExist:
-            if uuid is None:
-                print "Looks like you forgot to provide a classifier uuid."
-            else:
-                print "Classifier with the given uuid not found."
-            print "This task will now fail with cryptic error messages."
+            raise UnknownClassifierError("No classifier with the given uuid found.")
 
     def save_result(self, glyphs_model, runjob):
         result = taskutil.init_result(runjob)

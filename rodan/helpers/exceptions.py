@@ -39,3 +39,7 @@ class ObjectDeletedError(RodanError):
 
 class PackageCancelledError(RodanError):
     pass
+
+
+class UnknownClassifierError(RodanError):
+    pass
