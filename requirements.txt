@@ -17,11 +17,11 @@ distribute==0.6.35
 django-celery==3.0.17
 django-celery-transactions==0.1.3
 django-extensions==1.1.1
-django-filter==0.6
+django-filter==0.7
 django-guardian==1.1.0.beta
 django-picklefield==0.3.0
 django-uuidfield==0.4.0
-djangorestframework==2.2.5
+djangorestframework==2.3.6
 eventlet==0.12.1
 flower==0.4.3
 ## FIXME: could not find svn URL in dependency_links for this package:

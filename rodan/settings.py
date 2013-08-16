@@ -183,7 +183,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'PAGINATE_BY': 100,
-    'USE_ABSOLUTE_URLS': True
+    'USE_ABSOLUTE_URLS': True,
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',
+                                'rest_framework.filters.OrderingFilter')
 }
 
 # used by django-guardian
