@@ -13,7 +13,7 @@ class SessionStatus(views.APIView):
         is_auth = request.user.is_authenticated()
         if is_auth:
             obj = User.objects.get(pk=request.user.id)
-            serializer = UserSerializer(obj)
+            serializer = UserSerializer(obj, context={'request': request})
             return Response(serializer.data)
         else:
             return Response({'detail': "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -34,7 +34,7 @@ class SessionAuth(views.APIView):
             if user.is_active:
                 # log in successfully
                 login(request, user)
-                serializer = UserSerializer(user)
+                serializer = UserSerializer(user, context={'request': request})
                 return Response(serializer.data)
             else:
                 # user exists, but is inactive
