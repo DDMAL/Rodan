@@ -231,67 +231,87 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         runjob.save()
 
     def patch(self, request, pk, *args, **kwargs):
-        try:
-            wf_run = WorkflowRun.objects.get(pk=pk)
-        except WorkflowRun.DoesNotExist:
-            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        try:
-            wf_run.workflow
-        except Workflow.DoesNotExist:
-            return Response({"message": "The WorkflowRun object no longer has a workflow associated with it."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        workflow_run = WorkflowRun.objects.get(pk=pk)
+        if not workflow_run:
+            return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if BACKUP_WORKFLOWRUN_ON_RETRY:
-            self._backup_workflowrun(wf_run)
+        workflow_already_cancelled = workflow_run.cancelled
+        if not workflow_already_cancelled:
+            workflow_newly_cancelled = request.DATA.get('cancelled', False)
+            if workflow_newly_cancelled:
+                runjobs = workflow_run.run_jobs.all()
+                for rj in runjobs:
+                    if rj.status not in (RunJobStatus.RUNNING, RunJobStatus.HAS_FINISHED, RunJobStatus.FAILED):
+                        rj.status = RunJobStatus.CANCELLED
+                        rj.save()
 
-        wf_pages = wf_run.workflow.pages.all()
-        wf_runjobs = RunJob.objects.filter(workflow_run=wf_run)
-        self._handle_deleted_pages(wf_runjobs, wf_pages)
+        return self.partial_update(request, pk, *args, **kwargs)
 
-        for page in wf_pages:
-            page_runjobs = wf_runjobs.filter(page=page)
-            if not page_runjobs.exists():
-                self._handle_new_page(wf_run, page)  # This page has been added later.
-                continue
 
-            runjobs_list = sorted(page_runjobs, key=lambda rj: rj.sequence)
-            # Sorting like that is troublesome. What if someone edited the workflow in
-            # meantime? Two runjobs may now have the same sequence number, and
-            # consequently be sorted in the wrong order. The task will then fail.
-            # For example, you cannot expect to find pitches before classification.
-
-            # I think, once a workflow has been run once, it should be locked so that the jobs
-            # cannot be reordered. Adding new jobs can be permitted, and changing settings
-            # is also obviously fine, but reordering the jobs or deleting jobs can
-            # seriously screw things up. It should not be allowed.
-
-            # Get the index of the runjob that failed in runjob_list
-            # Or get the index of the first job that was cancelled.
-            for i, r in enumerate(runjobs_list):
-                if r.status in (RunJobStatus.FAILED, RunJobStatus.CANCELLED):
-                    failed_index = i
-                    break
-            else:
-                continue  # Looks like nothing failed for this page. Nothing to do here folks.
-
-            self._clean_runjob_folder(runjobs_list[failed_index])
-
-            if failed_index > 0:
-                result_id = str(runjobs_list[failed_index - 1].result.get().uuid)
-            else:
-                result_id = None
-
-            first_job = runjobs_list[failed_index]
-            self._update_settings(first_job)
-            first_task = registry.tasks[str(first_job.job_name)]
-            task_chain = [first_task.si(result_id, str(first_job.uuid))]
-
-            for job in runjobs_list[failed_index + 1:]:
-                rodan_task = registry.tasks[str(first_job.job_name)]
-                task_chain.append(rodan_task.s(str(job.uuid)))
-
-            celery_chain = chain(task_chain)
-            celery_chain.apply_async()
-
-        return self.retrieve(request, pk, *args, **kwargs)
+# WorkflowRun retry not supported at the moment.
+#        try:
+#            wf_run = WorkflowRun.objects.get(pk=pk)
+#        except WorkflowRun.DoesNotExist:
+#            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#
+#        try:
+#            wf_run.workflow
+#        except Workflow.DoesNotExist:
+#            return Response({"message": "The WorkflowRun object no longer has a workflow associated with it."},
+#                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#
+#        if BACKUP_WORKFLOWRUN_ON_RETRY:
+#            self._backup_workflowrun(wf_run)
+#
+#        wf_pages = wf_run.workflow.pages.all()
+#        wf_runjobs = RunJob.objects.filter(workflow_run=wf_run)
+#        self._handle_deleted_pages(wf_runjobs, wf_pages)
+#
+#        for page in wf_pages:
+#            page_runjobs = wf_runjobs.filter(page=page)
+#            if not page_runjobs.exists():
+#                self._handle_new_page(wf_run, page)  # This page has been added later.
+#                continue
+#
+#            runjobs_list = sorted(page_runjobs, key=lambda rj: rj.sequence)
+#            # Sorting like that is troublesome. What if someone edited the workflow in
+#            # meantime? Two runjobs may now have the same sequence number, and
+#            # consequently be sorted in the wrong order. The task will then fail.
+#            # For example, you cannot expect to find pitches before classification.
+#
+#            # I think, once a workflow has been run once, it should be locked so that the jobs
+#            # cannot be reordered. Adding new jobs can be permitted, and changing settings
+#            # is also obviously fine, but reordering the jobs or deleting jobs can
+#            # seriously screw things up. It should not be allowed.
+#
+#            # Get the index of the runjob that failed in runjob_list
+#            # Or get the index of the first job that was cancelled.
+#            for i, r in enumerate(runjobs_list):
+#                if r.status in (RunJobStatus.FAILED, RunJobStatus.CANCELLED):
+#                    failed_index = i
+#                    break
+#            else:
+#                continue  # Looks like nothing failed for this page. Nothing to do here folks.
+#
+#            self._clean_runjob_folder(runjobs_list[failed_index])
+#
+#            if failed_index > 0:
+#                result_id = str(runjobs_list[failed_index - 1].result.get().uuid)
+#            else:
+#                result_id = None
+#
+#            first_job = runjobs_list[failed_index]
+#            self._update_settings(first_job)
+#            first_task = registry.tasks[str(first_job.job_name)]
+#            task_chain = [first_task.si(result_id, str(first_job.uuid))]
+#
+#            for job in runjobs_list[failed_index + 1:]:
+#                rodan_task = registry.tasks[str(first_job.job_name)]
+#                task_chain.append(rodan_task.s(str(job.uuid)))
+#
+#            celery_chain = chain(task_chain)
+#            celery_chain.apply_async()
+#
+#        return self.retrieve(request, pk, *args, **kwargs)
+#

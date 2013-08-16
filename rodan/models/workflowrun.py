@@ -1,7 +1,17 @@
 import os
 from django.db import models
 from uuidfield import UUIDField
+from rodan.models.runjob import RunJobStatus
 # from django_extensions.db.fields import json
+
+
+class WorkflowRunStatus(object):
+    NOT_RUNNING = 0
+    RUNNING = 1
+    HAS_FINISHED = 4
+    FAILED = -1
+    CANCELLED = 9
+
 
 
 class WorkflowRun(models.Model):
@@ -29,6 +39,7 @@ class WorkflowRun(models.Model):
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
     run = models.IntegerField(null=True, blank=True)
     test_run = models.BooleanField(default=False)
+    cancelled = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
