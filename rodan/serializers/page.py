@@ -20,7 +20,7 @@ class PageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Page
-        read_only_fields = ('created', 'updated', 'creator')
+        read_only_fields = ('created', 'updated')
         fields = ("url",
                   "uuid",
                   "project",
