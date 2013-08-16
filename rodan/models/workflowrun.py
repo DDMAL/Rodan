@@ -1,17 +1,7 @@
 import os
 from django.db import models
 from uuidfield import UUIDField
-from rodan.models.runjob import RunJobStatus
 # from django_extensions.db.fields import json
-
-
-class WorkflowRunStatus(object):
-    NOT_RUNNING = 0
-    RUNNING = 1
-    HAS_FINISHED = 4
-    FAILED = -1
-    CANCELLED = 9
-
 
 
 class WorkflowRun(models.Model):
