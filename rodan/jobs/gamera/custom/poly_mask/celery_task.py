@@ -10,15 +10,14 @@ class PolyMaskTask(GameraCustomTask):
     max_retries = None
     name = 'gamera.custom.border_removal.poly_mask'
 
-    settings = [{'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'},
-                {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'}]
+    settings = [{'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'}]
 
     def preconfigure_settings(self, page_url, settings):
         init_gamera()
         task_image = load_image(page_url)
 
         miyao_settings = settings.copy()
-        del miyao_settings['polygon_outer_points'], miyao_settings['image_width']
+        del miyao_settings['image_width']
 
         return {'image_width': task_image.ncols}
        # return {'polygon_outer_points': poly_json_list, 'image_width': task_image.ncols}

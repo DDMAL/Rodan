@@ -52,7 +52,7 @@
                     event.preventDefault();
                     if (settings.selectedPoly)
                     {
-                        _transformPolygonToRectagle(settings.selectedPoly);
+                        _transformPolygonToRectangle(settings.selectedPoly);
                     }
                     return false;
                 }
@@ -529,7 +529,7 @@
             return [bestIndex, (bestIndex + 1) % numberOfPoints];
         };
 
-        var _transformPolygonToRectagle = function(aPolygon)
+        var _transformPolygonToRectangle = function(aPolygon)
         {
             if(aPolygon === null)
             {
