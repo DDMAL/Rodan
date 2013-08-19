@@ -91,7 +91,7 @@
  */
 - (void)remoteActionDidFinish:(WLRemoteAction)aAction
 {
-    if ([aAction result])
+    if ([aAction result] && _associatedPage != nil && _associatedWorkflowRun != nil)
     {
         [WLRemoteObject setDirtProof:YES];
         [_resultArrayController setContent: [Result objectsFromJson: [aAction result]]];

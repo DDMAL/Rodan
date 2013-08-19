@@ -102,7 +102,7 @@
  */
 - (void)remoteActionDidFinish:(WLRemoteAction)aAction
 {
-    if ([aAction result])
+    if ([aAction result] && _workflowUUID != nil)
     {
         [WLRemoteObject setDirtProof:YES];
         var workflowRunsArray = [WorkflowRun objectsFromJson:[aAction result]];

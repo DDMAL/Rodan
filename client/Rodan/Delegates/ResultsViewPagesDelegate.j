@@ -89,7 +89,7 @@
  */
 - (void)remoteActionDidFinish:(WLRemoteAction)aAction
 {
-    if ([aAction result])
+    if ([aAction result] && _associatedWorkflowRun != nil)
     {
         [WLRemoteObject setDirtProof:YES];
         var workflowRun = [[WorkflowRun alloc] initWithJson:[aAction result]];
