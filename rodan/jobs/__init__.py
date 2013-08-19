@@ -95,6 +95,11 @@ try:
 except ImportError as e:
     print "No Diva JPEG2000 converter Installed. Skipping. ", e
 
+try:
+    from rodan.jobs.gamera.custom.poly_mask import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    print "Custom Poly Mask job not installed. Skipping", e
 
 try:
     from rodan.jobs.gamera.custom.border_removal import module_loader

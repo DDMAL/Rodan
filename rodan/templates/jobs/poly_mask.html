@@ -1,0 +1,63 @@
+{% extends "jobs/job_base.html" %}
+
+{% block resources %}
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v4.5.1.min.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
+<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKSegment.js"></script>
+{% endblock %}
+
+
+{% block body %}
+{% csrf_token %}    
+<input type="hidden" name="polygon_outer_points" value="" id="JSON-input" />
+<div style="padding: 1em; overflow: hidden; min-width: 1450px">
+    <div style="float: left; width: 350px; margin: 1em">
+        <h2>Polygon Masking Interface</h2>
+        <p>Select a polygon or anchor by clicking on it, then use the mouse to drag it to a new position.<br/>
+        <br/>
+        With a polygon selected, you can:<br/>
+        - delete it (d, Delete key, Backspace key)<br/>
+        - transform it to a rectangle (r)<br/>
+        - add an anchor (Alt key and mouse click)<br/>
+        <br/>
+        With an anchor selected, you can:<br/>
+        - delete it (d, Delete key, Backspace key)<br/>
+        <br/>
+        You can create a new polygon by pressing n (no other polygon must be selected).
+        <div style="margin-bottom: 1em;">
+            <input type="submit" name="submit" value="Segment" class="submit" />
+        </div>
+    </div>
+    <div id="segment-view" style="border: 2px solid; margin: 1em; float: left">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() 
+    {
+        $("#segment-view").RKSegment(
+        {
+            image: "{{ image_source.large_thumb_url }}",
+       //     polyPoints: {{ polygon_outer_points }},
+            originalWidth: {{ image_width }}
+        });
+        var rks = $("#segment-view").data('RKSegment');
+
+        $('#form').submit(function () 
+        {
+            $('#JSON-input').val(function() 
+            {
+                var points = rks.getPolyPoints();
+                return JSON.stringify(rks.getPolyPoints());
+            });
+        });
+
+    /*    
+        $("#submit").on("click", function(evnt) 
+        {
+            $.post('{{ form_url }}', 'polygon_outer_points=' + rks.getPolyPoints());
+        });
+        */
+    });
+</script>
+{% endblock %}

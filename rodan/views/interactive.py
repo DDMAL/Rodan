@@ -66,6 +66,14 @@ class RodanInteractiveBaseView(View):
 
         return render(request, 'jobs/job_input_done.html')
 
+class PolyMaskView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/poly_mask/"
+        self.template_name = "poly_mask.html"
+        return super(PolyMaskView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(PolyMaskView, self).post(request, *args, **kwargs)
 
 class CropView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):

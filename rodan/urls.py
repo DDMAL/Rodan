@@ -77,6 +77,7 @@ urlpatterns += format_suffix_patterns(
 )
 
 urlpatterns += patterns('',
+        url(r'^interactive/poly_mask/$', interactive.PolyMaskView.as_view()),
         url(r'^interactive/crop/$', interactive.CropView.as_view()),
         url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
         url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
