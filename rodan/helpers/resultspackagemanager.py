@@ -13,9 +13,9 @@ def _add_result_to_bag(page_dir, runjob, bag):
     # TO-DO: Make error inclusion optional. Make unrun runjob inclustion optional.
     short_job_name = runjob.job_name.split('.')[-1]  # get the last part of job name
     runjob_dir = os.path.join(page_dir, "%s_%s" % (runjob.sequence, short_job_name))
-    os.makedirs(runjob_dir)
 
     if runjob.status == RunJobStatus.HAS_FINISHED:
+        os.makedirs(runjob_dir)
         result_extenstion = os.path.splitext(runjob.result.get().result.path)[1]
         result_filename = "result" + result_extenstion  # use filename with proper extenstion
         with open(runjob.result.get().result.path, 'rb') as f:
@@ -23,16 +23,12 @@ def _add_result_to_bag(page_dir, runjob, bag):
                 newf.write(f.read())
 
     elif runjob.status == RunJobStatus.FAILED:
+        os.makedirs(runjob_dir)
         with open(os.path.join(runjob_dir, 'error.txt'), 'w') as f:
             f.write("Error Summary: ")
             f.write(runjob.error_summary)
             f.write("\n\nError Details:\n")
             f.write(runjob.error_details)
-
-    else:
-        with open(os.path.join(runjob_dir, 'not_run.txt'), 'w') as f:
-            f.write("This job has not produced any result yet. "
-                    "Either an earlier job failed, or you tried to package results before the workflow finished running.")
 
 
 def _ensure_db_state(resultspackage):
