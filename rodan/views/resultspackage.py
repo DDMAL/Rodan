@@ -26,7 +26,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
         url_path = urlparse.urlparse(object_url).path
         try:
             object_view = resolve(url_path)
-            print object_view
         except Resolver404:
             error_dict['400'] += [str(object_url)]
         else:
