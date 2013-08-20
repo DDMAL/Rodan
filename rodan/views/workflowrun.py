@@ -238,7 +238,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_already_cancelled = workflow_run.cancelled
-        workflow_newly_cancelled = request.DATA.get('cancelled', False)
+        workflow_newly_cancelled = request.DATA.get('cancelled', None)
 
         if not workflow_already_cancelled and workflow_newly_cancelled:
             runjobs = workflow_run.run_jobs.all()
@@ -249,7 +249,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                     rj.status = RunJobStatus.CANCELLED
                     rj.save()
 
-        if workflow_already_cancelled and not workflow_newly_cancelled:
+        if workflow_already_cancelled and workflow_newly_cancelled == False:
             return Response({"message": "Workflowrun cannnot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
 
 
