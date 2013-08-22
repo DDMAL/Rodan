@@ -59,7 +59,6 @@
 @import "Transformers/UsernameTransformer.j"
 @import "Transformers/ResultThumbnailTransformer.j"
 @import "Transformers/RetryFailedRunJobsTransformer.j"
-@import "Transformers/RunJobSettingsToStringTransformer.j"
 
 @import "Models/Project.j"
 @import "Models/User.j"
