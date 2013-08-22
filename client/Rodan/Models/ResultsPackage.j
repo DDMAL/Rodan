@@ -8,6 +8,7 @@
     CPString    downloadUrl         @accessors;
     CPString    name                @accessors;
     CPArray     pageUrls            @accessors;
+    CPArray     jobUrls             @accessors;
     CPString    workflowRunUrl      @accessors;
     CPString    creator             @accessors;
     CPDate      created             @accessors;
@@ -22,6 +23,7 @@
         ['downloadUrl', 'download_url', nil, true],
         ['name', 'name', nil, true],
         ['pageUrls', 'page_urls', nil, true],
+        ['jobUrls', 'job_urls', nil, true],
         ['workflowRunUrl', 'workflow_run_url', nil, true],
         ['created', 'created', [[WLDateTransformer alloc] init], true],
         ['updated', 'updated', [[WLDateTransformer alloc] init], true],

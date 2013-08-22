@@ -1,6 +1,7 @@
 @import <Foundation/CPObject.j>
 @import "../Models/ResultsPackage.j"
 @import "../Models/WorkflowRun.j"
+@import "../Models/Job.j"
 
 @global RodanShouldLoadWorkflowResultsPackagesNotification
 @global RodanShouldLoadWorkflowRunsJobsNotification
@@ -14,7 +15,7 @@ var RADIOTAG_ALL = 1,
 @implementation ResultsPackageController : CPObject
 {
     @outlet ResultsViewRunsDelegate _runsDelegate;
-    @outlet CPArrayController       _workflowJobsArrayController;
+    @outlet CPArrayController       _jobsArrayController;
     @outlet CPArrayController       _resultsPackagesArrayController;
     @outlet CPArrayController       _workflowPagesArrayController;
     @outlet CPMatrix                _pageRadioGroup;
@@ -58,6 +59,7 @@ var RADIOTAG_ALL = 1,
 - (@action)openCreateResultsPackageWindow:(id)aSender
 {
     [_resultsPackagesArrayController setContent: nil];
+    [_jobsArrayController setContent: nil];
     [self handleShouldLoadWorkflowResultsPackagesNotification:nil];
     [CPApp beginSheet:_createResultsPackageWindow
            modalForWindow:[CPApp mainWindow]
@@ -81,6 +83,8 @@ var RADIOTAG_ALL = 1,
     var resultsPackage = [[ResultsPackage alloc] init];
     [resultsPackage setWorkflowRunUrl:[[_runsDelegate currentlySelectedWorkflowRun] pk]];
     [resultsPackage setCreator:[activeUser pk]];
+
+    // Check for selected pages.
     if ([[_pageRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
     {
         var pageEnumerator = [[self _getSelectedPages] objectEnumerator],
@@ -91,6 +95,19 @@ var RADIOTAG_ALL = 1,
             [pageUrlArray addObject:[page pk]];
         }
         [resultsPackage setPageUrls:pageUrlArray];
+    }
+
+    // Check for selected jobs.
+    if ([[_jobRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
+    {
+        var jobEnumerator = [[self _getSelectedJobs] objectEnumerator],
+            job = nil,
+            jobUrlArray = [[CPMutableArray alloc] init];
+        while (job = [jobEnumerator nextObject])
+        {
+            [jobUrlArray addObject:[job pk]];
+        }
+        [resultsPackage setJobUrls:jobUrlArray];
     }
     [resultsPackage ensureCreated];
 }
@@ -109,7 +126,7 @@ var RADIOTAG_ALL = 1,
  */
 - (@action)handleJobRadioAction:(id)aSender
 {
-    [_jobTableView setEnabled: [[_jobRadioGroup selectedRadio] tag] == RADIOTAG_ALL];
+    [_jobTableView setEnabled: [[_jobRadioGroup selectedRadio] tag] != RADIOTAG_ALL];
     return YES;
 }
 
@@ -143,7 +160,7 @@ var RADIOTAG_ALL = 1,
 {
     if ([_runsDelegate currentlySelectedWorkflowRun] != nil)
     {
-        [self _requestWorkflowJobs:[_runsDelegate currentlySelectedWorkflowRun]];
+        [self _requestJobs:[_runsDelegate currentlySelectedWorkflowRun]];
     }
 }
 
@@ -190,9 +207,13 @@ var RADIOTAG_ALL = 1,
                     delegate:self
                     message:RodanShouldLoadWorkflowResultsPackagesNotification];
 }
-- (void)_requestWorkflowJobs:(WorkflowRun)aWorkflowRun
+- (void)_requestJobs:(WorkflowRun)aWorkflowRun
 {
-    // TODO
+    var getParameters = @"?workflowrun=" + [aWorkflowRun pk];
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:@"/jobs/" + getParameters
+                    delegate:self
+                    message:RodanShouldLoadWorkflowRunsJobsNotification];
 }
 
 - (void)_processRemoteActionResultPackages:(WLRemoteAction)aAction
@@ -205,7 +226,7 @@ var RADIOTAG_ALL = 1,
 - (void)_processRemoteActionWorkflowJobs:(WLRemoteAction)aAction
 {
     [WLRemoteObject setDirtProof:YES];
-    // TODO
+    [_jobsArrayController setContent: [Job objectsFromJson:[aAction result]]];
     [WLRemoteObject setDirtProof:NO];
 }
 
@@ -215,6 +236,16 @@ var RADIOTAG_ALL = 1,
     if ([[_pageRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
     {
         selectedObjects = [_workflowPagesArrayController selectedObjects];
+    }
+    return selectedObjects;
+}
+
+- (CPArray)_getSelectedJobs
+{
+    var selectedObjects = [[CPArray alloc] init];
+    if ([[_jobRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
+    {
+        selectedObjects = [_jobsArrayController selectedObjects];
     }
     return selectedObjects;
 }
