@@ -30,16 +30,6 @@
 
 @import "Categories/CPButtonBar+PopupButtons.j"
 
-@import "Transformers/ArrayCountTransformer.j"
-@import "Transformers/GameraClassNameTransformer.j"
-@import "Transformers/CheckBoxTransformer.j"
-@import "Transformers/DateFormatTransformer.j"
-@import "Transformers/ResultsDisplayTransformer.j"
-@import "Transformers/RunJobStatusTransformer.j"
-@import "Transformers/UsernameTransformer.j"
-@import "Transformers/ResultThumbnailTransformer.j"
-@import "Transformers/RetryFailedRunJobsTransformer.j"
-
 @import "Controllers/LogInController.j"
 @import "Controllers/UserPreferencesController.j"
 @import "Controllers/ServerAdminController.j"
@@ -58,6 +48,18 @@
 @import "Delegates/ResultsViewRunsDelegate.j"
 @import "Delegates/ResultsViewWorkflowsDelegate.j"
 @import "Delegates/WorkflowDesignerJobSettingsDelegate.j"
+@import "Delegates/ResultsViewRunJobsDelegate.j"
+
+@import "Transformers/ArrayCountTransformer.j"
+@import "Transformers/GameraClassNameTransformer.j"
+@import "Transformers/CheckBoxTransformer.j"
+@import "Transformers/DateFormatTransformer.j"
+@import "Transformers/ResultsDisplayTransformer.j"
+@import "Transformers/RunJobStatusTransformer.j"
+@import "Transformers/UsernameTransformer.j"
+@import "Transformers/ResultThumbnailTransformer.j"
+@import "Transformers/RetryFailedRunJobsTransformer.j"
+@import "Transformers/RunJobSettingsToStringTransformer.j"
 
 @import "Models/Project.j"
 @import "Models/User.j"
@@ -88,7 +90,7 @@ RodanDidLogOutNotification = @"RodanDidLogOutNotification";
 RodanShouldLoadInteractiveJobsNotification = @"RodanShouldLoadInteractiveJobsNotification";
 RodanShouldLoadWorkflowRunsNotification = @"RodanShouldLoadWorkflowRunsNotification";
 RodanShouldLoadWorkflowPagesNotification = @"RodanShouldLoadWorkflowPagesNotification";
-RodanShouldLoadWorkflowJobsNotification = @"RodanShouldLoadWorkflowJobsNotification";
+RodanShouldLoadWorkflowRunsJobsNotification = @"RodanShouldLoadWorkflowRunsJobsNotification";
 RodanShouldLoadClassifiersNotification = @"RodanShouldLoadClassifiersNotification";
 RodanShouldLoadPagesNotification = @"RodanShouldLoadPagesNotification";
 RodanShouldLoadClassifierNotification = @"RodanShouldLoadClassifierNotification";

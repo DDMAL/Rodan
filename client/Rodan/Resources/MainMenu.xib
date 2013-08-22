@@ -5610,6 +5610,31 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 												<int key="NSvFlags">274</int>
 												<object class="NSMutableArray" key="NSSubviews">
 													<bool key="EncodedWithXMLCoder">YES</bool>
+													<object class="NSButton" id="848870495">
+														<reference key="NSNextResponder" ref="369495863"/>
+														<int key="NSvFlags">268</int>
+														<string key="NSFrame">{{152, 252}, {173, 32}}</string>
+														<reference key="NSSuperview" ref="369495863"/>
+														<reference key="NSWindow"/>
+														<reference key="NSNextKeyView" ref="401557724"/>
+														<string key="NSReuseIdentifierKey">_NS:9</string>
+														<bool key="NSEnabled">YES</bool>
+														<object class="NSButtonCell" key="NSCell" id="962497272">
+															<int key="NSCellFlags">67108864</int>
+															<int key="NSCellFlags2">134217728</int>
+															<string key="NSContents">Cancel Workflow Run</string>
+															<reference key="NSSupport" ref="715315636"/>
+															<string key="NSCellIdentifier">_NS:9</string>
+															<reference key="NSControlView" ref="848870495"/>
+															<int key="NSButtonFlags">-2038284288</int>
+															<int key="NSButtonFlags2">129</int>
+															<string key="NSAlternateContents"/>
+															<string key="NSKeyEquivalent"/>
+															<int key="NSPeriodicDelay">200</int>
+															<int key="NSPeriodicInterval">25</int>
+														</object>
+														<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
+													</object>
 													<object class="NSButton" id="313457124">
 														<reference key="NSNextResponder" ref="369495863"/>
 														<int key="NSvFlags">268</int>
@@ -5775,7 +5800,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 														<string key="NSFrame">{{101, 282}, {426, 17}}</string>
 														<reference key="NSSuperview" ref="369495863"/>
 														<reference key="NSWindow"/>
-														<reference key="NSNextKeyView" ref="401557724"/>
+														<reference key="NSNextKeyView" ref="848870495"/>
 														<string key="NSReuseIdentifierKey">_NS:1535</string>
 														<bool key="NSEnabled">YES</bool>
 														<object class="NSTextFieldCell" key="NSCell" id="130764211">
@@ -12381,6 +12406,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<int key="connectionID">4579</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">cancelWorkflowRun:</string>
+						<reference key="source" ref="413465052"/>
+						<reference key="destination" ref="848870495"/>
+					</object>
+					<int key="connectionID">5124</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="951394318"/>
@@ -13697,22 +13730,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<int key="connectionID">4826</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">_pageRadioAll</string>
-						<reference key="source" ref="495198210"/>
-						<reference key="destination" ref="169436155"/>
-					</object>
-					<int key="connectionID">4906</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">_jobRadioAll</string>
-						<reference key="source" ref="495198210"/>
-						<reference key="destination" ref="476766164"/>
-					</object>
-					<int key="connectionID">4907</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">handlePageRadioAction:</string>
 						<reference key="source" ref="495198210"/>
@@ -14068,6 +14085,26 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						</object>
 					</object>
 					<int key="connectionID">5056</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">enabled: selection.pk</string>
+						<reference key="source" ref="848870495"/>
+						<reference key="destination" ref="195003374"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="848870495"/>
+							<reference key="NSDestination" ref="195003374"/>
+							<string key="NSLabel">enabled: selection.pk</string>
+							<string key="NSBinding">enabled</string>
+							<string key="NSKeyPath">selection.pk</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSValueTransformerName</string>
+								<string key="NS.object.0">NSIsNotNil</string>
+							</object>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">5127</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -18806,6 +18843,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<reference ref="59511490"/>
 							<reference ref="161894307"/>
 							<reference ref="313457124"/>
+							<reference ref="848870495"/>
 						</object>
 						<reference key="parent" ref="433972829"/>
 					</object>
@@ -19404,6 +19442,20 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<int key="objectID">5050</int>
 						<reference key="object" ref="406005221"/>
 						<reference key="parent" ref="940775355"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">5122</int>
+						<reference key="object" ref="848870495"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="962497272"/>
+						</object>
+						<reference key="parent" ref="369495863"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">5123</int>
+						<reference key="object" ref="962497272"/>
+						<reference key="parent" ref="848870495"/>
 					</object>
 				</object>
 			</object>
@@ -20183,6 +20235,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>5048.IBPluginDependency</string>
 					<string>5049.IBPluginDependency</string>
 					<string>5050.IBPluginDependency</string>
+					<string>5122.IBPluginDependency</string>
+					<string>5123.IBPluginDependency</string>
 					<string>56.IBPluginDependency</string>
 					<string>57.IBPluginDependency</string>
 					<string>58.IBPluginDependency</string>
@@ -21036,6 +21090,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -21064,7 +21120,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">5121</int>
+			<int key="maxID">5127</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -22310,10 +22366,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>_createResultsPackageWindow</string>
-							<string>_jobRadioAll</string>
 							<string>_jobRadioGroup</string>
 							<string>_jobTableView</string>
-							<string>_pageRadioAll</string>
 							<string>_pageRadioGroup</string>
 							<string>_pageTableView</string>
 							<string>_resultsPackagesArrayController</string>
@@ -22324,10 +22378,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSWindow</string>
-							<string>NSButtonCell</string>
 							<string>NSMatrix</string>
 							<string>NSTableView</string>
-							<string>NSButtonCell</string>
 							<string>NSMatrix</string>
 							<string>NSTableView</string>
 							<string>NSArrayController</string>
@@ -22341,10 +22393,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>_createResultsPackageWindow</string>
-							<string>_jobRadioAll</string>
 							<string>_jobRadioGroup</string>
 							<string>_jobTableView</string>
-							<string>_pageRadioAll</string>
 							<string>_pageRadioGroup</string>
 							<string>_pageTableView</string>
 							<string>_resultsPackagesArrayController</string>
@@ -22359,20 +22409,12 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<string key="candidateClassName">NSWindow</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">_jobRadioAll</string>
-								<string key="candidateClassName">NSButtonCell</string>
-							</object>
-							<object class="IBToOneOutletInfo">
 								<string key="name">_jobRadioGroup</string>
 								<string key="candidateClassName">NSMatrix</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">_jobTableView</string>
 								<string key="candidateClassName">NSTableView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">_pageRadioAll</string>
-								<string key="candidateClassName">NSButtonCell</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">_pageRadioGroup</string>
@@ -22546,6 +22588,17 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">ResultsViewRunsDelegate</string>
 					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">cancelWorkflowRun:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">cancelWorkflowRun:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">cancelWorkflowRun:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">

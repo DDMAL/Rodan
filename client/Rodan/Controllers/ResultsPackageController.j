@@ -3,9 +3,13 @@
 @import "../Models/WorkflowRun.j"
 
 @global RodanShouldLoadWorkflowResultsPackagesNotification
+@global RodanShouldLoadWorkflowRunsJobsNotification
 
 @global activeUser
 @global activeProject
+
+var RADIOTAG_ALL = 1,
+    RADIOTAG_SELECTED = 0;
 
 @implementation ResultsPackageController : CPObject
 {
@@ -15,8 +19,6 @@
     @outlet CPArrayController       _workflowPagesArrayController;
     @outlet CPMatrix                _pageRadioGroup;
     @outlet CPMatrix                _jobRadioGroup;
-    @outlet CPRadio                 _pageRadioAll;
-    @outlet CPRadio                 _jobRadioAll;
     @outlet CPTableView             _pageTableView;
     @outlet CPTableView             _jobTableView;
     @outlet CPWindow                _createResultsPackageWindow;
@@ -33,6 +35,10 @@
         [[CPNotificationCenter defaultCenter] addObserver:self
                                               selector:@selector(handleShouldLoadWorkflowResultsPackagesNotification:)
                                               name:RodanShouldLoadWorkflowResultsPackagesNotification
+                                              object:nil];
+        [[CPNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(handleShouldLoadWorkfowRunsJobsNotification:)
+                                              name:RodanShouldLoadWorkflowRunsJobsNotification
                                               object:nil];
     }
 
@@ -75,7 +81,7 @@
     var resultsPackage = [[ResultsPackage alloc] init];
     [resultsPackage setWorkflowRunUrl:[[_runsDelegate currentlySelectedWorkflowRun] pk]];
     [resultsPackage setCreator:[activeUser pk]];
-    if ([_pageRadioGroup selectedRadio] != _pageRadioAll)
+    if ([[_pageRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
     {
         var pageEnumerator = [[self _getSelectedPages] objectEnumerator],
             page = nil,
@@ -94,7 +100,7 @@
  */
 - (@action)handlePageRadioAction:(id)aSender
 {
-    [_pageTableView setEnabled: [_pageRadioGroup selectedRadio] != _pageRadioAll];
+    [_pageTableView setEnabled: [[_pageRadioGroup selectedRadio] tag] != RADIOTAG_ALL];
     return YES;
 }
 
@@ -103,7 +109,7 @@
  */
 - (@action)handleJobRadioAction:(id)aSender
 {
-    [_jobTableView setEnabled: [_jobRadioGroup selectedRadio] == _jobRadioAll];
+    [_jobTableView setEnabled: [[_jobRadioGroup selectedRadio] tag] == RADIOTAG_ALL];
     return YES;
 }
 
@@ -133,6 +139,14 @@
     }
 }
 
+- (void)handleShouldLoadWorkfowRunsJobsNotification:(id)aSender
+{
+    if ([_runsDelegate currentlySelectedWorkflowRun] != nil)
+    {
+        [self _requestWorkflowJobs:[_runsDelegate currentlySelectedWorkflowRun]];
+    }
+}
+
 /**
  * Handles success of loading.
  */
@@ -140,9 +154,19 @@
 {
     if ([aAction result])
     {
-        [WLRemoteObject setDirtProof:YES];
-        [_resultsPackagesArrayController setContent: [ResultsPackage objectsFromJson:[aAction result]]];
-        [WLRemoteObject setDirtProof:NO];
+        switch ([aAction message])
+        {
+            case RodanShouldLoadWorkflowResultsPackagesNotification:
+                [self _processRemoteActionResultPackages:aAction];
+                break;
+
+            case  RodanShouldLoadWorkflowRunsJobsNotification:
+                [self _processRemoteActionWorkflowJobs:aAction];
+                break;
+
+            default:
+                return;
+        }
     }
 }
 
@@ -164,13 +188,31 @@
     [WLRemoteAction schedule:WLRemoteActionGetType
                     path:@"/resultspackages/" + getParameters
                     delegate:self
-                    message:nil];
+                    message:RodanShouldLoadWorkflowResultsPackagesNotification];
+}
+- (void)_requestWorkflowJobs:(WorkflowRun)aWorkflowRun
+{
+    // TODO
+}
+
+- (void)_processRemoteActionResultPackages:(WLRemoteAction)aAction
+{
+    [WLRemoteObject setDirtProof:YES];
+    [_resultsPackagesArrayController setContent: [ResultsPackage objectsFromJson:[aAction result]]];
+    [WLRemoteObject setDirtProof:NO];
+}
+
+- (void)_processRemoteActionWorkflowJobs:(WLRemoteAction)aAction
+{
+    [WLRemoteObject setDirtProof:YES];
+    // TODO
+    [WLRemoteObject setDirtProof:NO];
 }
 
 - (CPArray)_getSelectedPages
 {
     var selectedObjects = [[CPArray alloc] init];
-    if ([_pageRadioGroup selectedRadio] != _pageRadioAll)
+    if ([[_pageRadioGroup selectedRadio] tag] != RADIOTAG_ALL)
     {
         selectedObjects = [_workflowPagesArrayController selectedObjects];
     }
