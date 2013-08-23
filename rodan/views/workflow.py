@@ -41,27 +41,30 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
         pages = request.DATA.get('pages', None)
-        if pages is not None:  # Remember pages can be empty array.
-            workflow_pages = []
 
-            for page in pages:
-                value = urlparse.urlparse(page['url']).path
+        if pages is None:
+            return self.update(request, *args, **kwargs)
 
-                # resolve the URL we're passed to a page object
-                try:
-                    p = resolve(value)
-                except:
-                    return Response({'message': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        workflow_pages = []
 
-                page_obj = Page.objects.get(pk=p.kwargs.get('pk'))
-                if not page_obj:
-                    return Response({'message': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
+        for page in pages:
+            value = urlparse.urlparse(page['url']).path
 
-                workflow_pages.append(page_obj)
+            # resolve the URL we're passed to a page object
+            try:
+                p = resolve(value)
+            except:
+                return Response({'message': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            workflow.pages = workflow_pages
-            workflow.save()
+            page_obj = Page.objects.get(pk=p.kwargs.get('pk'))
+            if not page_obj:
+                return Response({'message': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            del request.DATA['pages']
+            workflow_pages.append(page_obj)
+
+        workflow.pages = workflow_pages
+        workflow.save()
+
+        del request.DATA['pages']
 
         return self.update(request, *args, **kwargs)
