@@ -73,8 +73,11 @@
 
     if (_associatedPage != nil && _associatedWorkflowRun != nil)
     {
+        var parameters = @"?workflowrun=" + [_associatedWorkflowRun uuid];
+        parameters += @"&page=" + [_associatedPage uuid];
+        parameters += @"&ordering=sequence";
         [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:@"/runjobs/?workflowrun=" + [_associatedWorkflowRun uuid] + "&page=" + [_associatedPage uuid]
+                        path:@"/runjobs/" + parameters
                         delegate:self
                         message:nil];
     }

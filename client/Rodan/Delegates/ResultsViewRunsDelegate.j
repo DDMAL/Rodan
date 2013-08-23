@@ -90,8 +90,10 @@
 
     if (_workflowUUID != nil)
     {
+        var parameters = @"?workflow=" + _workflowUUID;
+        parameters += @"&ordering=created";
         [WLRemoteAction schedule:WLRemoteActionGetType
-                        path:@"/workflowruns/?workflow=" + _workflowUUID
+                        path:@"/workflowruns/" + parameters
                         delegate:self
                         message:nil];
     }
