@@ -34,6 +34,7 @@ from rodan.views.pageglyphs import PageGlyphsList
 from rodan.views.pageglyphs import PageGlyphsDetail
 from rodan.views.glyph import GlyphDetail
 from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
+from rodan.views.classifiersetting import ClassifierSettingList, ClassifierSettingDetail
 
 from rodan.views import interactive
 
@@ -73,6 +74,8 @@ urlpatterns += format_suffix_patterns(
         url(r'^glyph/(?P<pk>[0-9a-z\-]+)/$', GlyphDetail.as_view(), name="glyph-detail"),
         url(r'^resultspackages/$', ResultsPackageList.as_view(), name="resultspackage-list"),
         url(r'^resultspackage/(?P<pk>[0-9a-z\-]+)/$', ResultsPackageDetail.as_view(), name="resultspackage-detail"),
+        url(r'^classifiersettings/$', ClassifierSettingList.as_view(), name="classifiersetting-list"),
+        url(r'^classifiersetting/(?P<pk>[0-9a-z\-]+)/$', ClassifierSettingDetail.as_view(), name="classifiersetting-detail"),
     )
 )
 
