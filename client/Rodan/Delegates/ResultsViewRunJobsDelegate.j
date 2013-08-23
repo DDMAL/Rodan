@@ -14,6 +14,9 @@
     @outlet CPArrayController           _runJobSettingsArrayController;
     @outlet InteractiveJobsController   _interactiveJobsController;
     @outlet CPWindow                    _viewJobSettingsWindow;
+    @outlet CPWindow                    _runJobErrorDetailsWindow;
+    @outlet CPTextField                 _runJobErrorTextField;
+    @outlet CPView                      _runJobErrorView;
             RunJob                      _currentlySelectedRunJob;
             Page                        _associatedPage;
             WorkflowRun                 _associatedWorkflowRun;
@@ -116,12 +119,16 @@
     [_interactiveJobsController runInteractiveRunJob:runJob fromSender:aSender];
 }
 
-- (@action)displayErrorDetails:(id)aSender
+- (@action)openRunJobErrorDetailsWindow:(id)aSender
 {
-    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0],
-        alert = [[CPAlert alloc] init];
-    [alert setMessageText:[runJob errorDetails]];
-    [alert runModal];
+    var runJob = [[_runJobArrayController selectedObjects] objectAtIndex:0];
+    [_runJobErrorTextField setStringValue:[runJob errorDetails]];
+    [_runJobErrorTextField sizeToFit];
+    [_runJobErrorView setFrameSize:[_runJobErrorTextField frameSize]];
+    [CPApp beginSheet:_runJobErrorDetailsWindow
+           modalForWindow:[CPApp mainWindow]
+           modalDelegate:self
+           didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
 - (@action)openViewJobSettingsWindow:(id)aSender
@@ -133,10 +140,18 @@
 }
 
 /**
- * Closes the create results package window.
+ * Closes the job settings window.
  */
 - (@action)closeViewJobSettingsWindow:(id)aSender
 {
     [CPApp endSheet:_viewJobSettingsWindow returnCode:[aSender tag]];
+}
+
+/**
+ * Closes the run job error details window.
+ */
+- (@action)closeRunJobErrorDetailsWindow:(id)aSender
+{
+    [CPApp endSheet:_runJobErrorDetailsWindow returnCode:[aSender tag]];
 }
 @end
