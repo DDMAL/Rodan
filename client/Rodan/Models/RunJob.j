@@ -2,6 +2,7 @@
 @import "Result.j"
 @import "Page.j"
 @import "../Transformers/RunJobSettingsTransformer.j"
+@import "../Transformers/JobArgumentsTransformer.j"
 
 RUNJOB_STATUS_FAILED = -1,
 RUNJOB_STATUS_NOTRUNNING = 0,
@@ -20,6 +21,7 @@ RUNJOB_STATUS_CANCELLED = 9;
     BOOL        needsInput      @accessors;
     CPString    workflowName    @accessors;
     CPArray     jobSettings     @accessors;
+    CPArray     jobSettingsArray    @accessors;
     CPArray     result          @accessors;
     // this uses a simplified page object instead of the full one via Ratatosk. It's just the page name and url.
     JSObject    page            @accessors;
@@ -40,6 +42,7 @@ RUNJOB_STATUS_CANCELLED = 9;
         ['needsInput', 'needs_input'],
         ['workflowName', 'workflow_name'],
         ['jobSettings', 'job_settings', [[RunJobSettingsTransformer alloc] init]],
+        ['jobSettingsArray', 'job_settings', [[JobArgumentsTransformer alloc] init]],
         ['result', 'result', [WLForeignObjectsTransformer forObjectClass:Result]],
         ['page', 'page', [WLForeignObjectTransformer forObjectClass:Page]],
         ['created', 'created', [[WLDateTransformer alloc] init], true],

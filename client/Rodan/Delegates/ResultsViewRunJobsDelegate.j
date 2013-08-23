@@ -11,7 +11,9 @@
 @implementation ResultsViewRunJobsDelegate : CPObject
 {
     @outlet CPArrayController           _runJobArrayController;
+    @outlet CPArrayController           _runJobSettingsArrayController;
     @outlet InteractiveJobsController   _interactiveJobsController;
+    @outlet CPWindow                    _viewJobSettingsWindow;
             RunJob                      _currentlySelectedRunJob;
             Page                        _associatedPage;
             WorkflowRun                 _associatedWorkflowRun;
@@ -40,6 +42,7 @@
     _associatedPage = nil
     _associatedWorkflowRun = nil;
     [_runJobArrayController setContent:nil];
+    [_runJobSettingsArrayController setContent:nil];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +56,7 @@
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
 {
     _currentlySelectedRunJob = [[_runJobArrayController contentArray] objectAtIndex:rowIndex];
+    [_runJobSettingsArrayController setContent:[_currentlySelectedRunJob jobSettingsArray]];
     return YES;
 }
 
@@ -89,6 +93,14 @@
     }
 }
 
+/**
+ * Handler for window close.
+ */
+- (void)didEndSheet:(CPWindow)aSheet returnCode:(int)returnCode contextInfo:(id)contextInfo
+{
+    [aSheet orderOut:self];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Action Methods
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,15 +120,20 @@
     [alert setMessageText:[runJob errorDetails]];
     [alert runModal];
 }
-/*
-/**
- * Attempts retry of failed runjobs for selected run.
- *//*
-- (@action)retryFailedRunJobs:(id)aSender
+
+- (@action)openViewJobSettingsWindow:(id)aSender
 {
-    [WLRemoteAction schedule:WLRemoteActionPatchType
-                    path:[_currentlySelectedWorkflowRun pk]
-                    delegate:null
-                    message:null];
-}*/
+    [CPApp beginSheet:_viewJobSettingsWindow
+           modalForWindow:[CPApp mainWindow]
+           modalDelegate:self
+           didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+}
+
+/**
+ * Closes the create results package window.
+ */
+- (@action)closeViewJobSettingsWindow:(id)aSender
+{
+    [CPApp endSheet:_viewJobSettingsWindow returnCode:[aSender tag]];
+}
 @end
