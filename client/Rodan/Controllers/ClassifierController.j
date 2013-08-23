@@ -24,7 +24,7 @@
     @outlet CPWindow importClassifierWindow;
     InitImportFetchClassifiersDelegate initImportFetchClassifiersDelegate;
     @outlet UploadButton importClassifierChooseFileButton;
-    @outlet CPButton importCreateButton;  // Not implemented yet.
+    @outlet CPButton importCreateButton;
     @outlet CPTextField importClassifierNameTextfield;
     @outlet CPTextField importClassifierFileTextfield;
     @outlet CPTextField nameUsedLabelInImportWindow;
@@ -53,10 +53,11 @@
 - (void)awakeFromCib
 {
     [newClassifierWindow setDefaultButton:createButton];
+    [importClassifierWindow setDefaultButton:importCreateButton];
     [openClassifierWindow setDefaultButton:openButton];
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
 
-    // Allocating delegates here as to remove clutter from XCode with delegates that do very little.
+    // Allocating delegates here to remove clutter from XCode with delegates that do very little.
     fetchClassifiersDelegate  = [[FetchClassifiersDelegate alloc] initWithClassifierController:self];
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initImportFetchClassifiersDelegate  = [[InitImportFetchClassifiersDelegate alloc] initWithClassifierController:self];
@@ -67,11 +68,8 @@
 /*
     new: This menu item creates a new empty classifier by sending a POST request to /classifiers.
 */
-
 - (@action)new:(CPMenuItem)aSender
 {
-    // TODO: consider displaying the classifier list in the New window.
-    // (It might help the user to choose a name.)
     [WLRemoteAction schedule:WLRemoteActionGetType
                     path:'/classifiers/'
                     delegate:initNewFetchClassifiersDelegate
@@ -80,57 +78,17 @@
 
 - (void)initNewFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    [self _updateClassifierArrayControllerWithResponse:anAction];
-    [newClassifierTextfield setStringValue:[self suggestNameForNewClassifier]];
-    [self updateNameUsedLabel];
+    [self updateClassifierArrayControllerWithResponse:anAction];
+    [newClassifierTextfield setStringValue:@""];
+    [nameUsedLabel setHidden:YES];
     [newClassifierWindow makeKeyAndOrderFront:null];
-}
-
-/*
-    Comes up with a suggestion for the user to name the new classifier.
-    Default suggestion is classifier0.
-    Expects classifierArrayController to have been populated.
-*/
-- (CPString)suggestNameForNewClassifier
-{
-    var i = 0,
-        classifierCount = [[classifierArrayController contentArray] count];
-    for (; i < classifierCount; ++i)
-    {
-        var suggestion = [[CPString alloc] initWithFormat:@"classifier%d", i];
-        if (! [self classifierExists:suggestion])
-        {
-            return suggestion;
-        }
-    }
-    return @"classifier" + classifierCount.toString();
-}
-
-/*
-    Tells you if we have a classifier with the given name.
-    Doesn't go to the server... it relies on a previous fetch (like initNewFetchClassifiersDidFinish).
-    Called by the newWindow when choosing a default name, or checking when create
-    was pressed.
-*/
-- (Boolean)classifierExists:(CPString)classifierName
-{
-    var i = 0,
-        classifierArray = [classifierArrayController contentArray],
-        classifierCount = [classifierArray count];
-    for (; i < classifierCount; ++i)
-    {
-        if (classifierName === [classifierArray[i] name])
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 - (void)updateNameUsedLabel
 {
     if ([self classifierExists:[newClassifierTextfield stringValue]])
     {
+        [nameUsedLabel setStringValue:@"Name unavailable."];
         [nameUsedLabel setHidden:NO];
     }
     else
@@ -142,19 +100,48 @@
 /*
     This is for the create button in the New Classifier window.
     Check the user's classifier name then create.
-    TODO: Enter button from the textbox must call this function
 */
 - (@action)createClassifier:(id)aSender
 {
     var newName = [newClassifierTextfield stringValue];
-    if (newName !== @"" && ![self classifierExists:newName])
+
+    if (newName === @"")
+    {
+        [nameUsedLabel setStringValue:@"Name cannot be blank."];
+        [nameUsedLabel setHidden:NO];
+    }
+    else if (![self classifierExists:newName])
     {
         var classifier = [[MinimalClassifier alloc] initWithName:newName andProjectPk:[activeProject pk]];
         [classifierArrayController addObject:classifier];
         [classifier ensureCreated];
         [newClassifierWindow close];
     }
+
     return nil;
+}
+
+/*
+    classifierExists: Tells you if we have a classifier with the given name.
+    Doesn't go to the server... it relies on a previous fetch (like initNewFetchClassifiersDidFinish).
+    Called by the newWindow when choosing a default name, or checking when create
+    was pressed.
+*/
+- (Boolean)classifierExists:(CPString)classifierName
+{
+    var i = 0,
+        classifierArray = [classifierArrayController contentArray],
+        classifierCount = [classifierArray count];
+
+    for (; i < classifierCount; ++i)
+    {
+        if (classifierName === [classifierArray[i] name])
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*
@@ -178,10 +165,11 @@
 
 - (void)initImportFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    [self _updateClassifierArrayControllerWithResponse:anAction];
-    [importClassifierNameTextfield setStringValue:[self suggestNameForNewClassifier]];
+    [self updateClassifierArrayControllerWithResponse:anAction];
+    [importClassifierNameTextfield setStringValue:@""];
     [importClassifierFileTextfield setStringValue:@""];
-    [self updateNameUsedLabelInImportWindow];
+    [nameUsedLabelInImportWindow setHidden:YES];
+    [importClassifierChooseFileButton resetSelection];
     [importClassifierWindow makeKeyAndOrderFront:null];
 }
 
@@ -189,6 +177,7 @@
 {
     if ([self classifierExists:[importClassifierNameTextfield stringValue]])
     {
+        [nameUsedLabelInImportWindow setStringValue:@"Name unavailable."];
         [nameUsedLabelInImportWindow setHidden:NO];
     }
     else
@@ -199,22 +188,56 @@
 
 - (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection  // Delegate method for uploading XML
 {
-    // Use the uploaded file name to suggest a name for the classifier
-    var fileExtensionRe = /^(.+)\..+?$/,
-        // (firstPartOfFilename) dot fileExtension
-        // ... and the fileExtension part is non-greedy
-        classifierName = fileExtensionRe.exec(selection)[1];
-        // Element 1 of the output array is the capturing parenthesis match (firstPartOfFilename)
-    [importClassifierNameTextfield setStringValue:classifierName];
+    var oldNameFromFile = [self clipFileExtension:[importClassifierFileTextfield stringValue]],
+        currentName = [importClassifierNameTextfield stringValue];
+
+    if (currentName === @"" || currentName === oldNameFromFile)
+    {
+        // Update the Name textfield if it's empty or the user hasn't changed anything
+        var newName = [self clipFileExtension:selection];
+
+        [importClassifierNameTextfield setStringValue:newName];
+        [self updateNameUsedLabelInImportWindow];
+    }
+
     [importClassifierFileTextfield setStringValue:selection];
+}
+
+- (CPString)clipFileExtension:(CPString)fileName
+{
+    var fileExtensionRe = /^(.+)\..+?$/,
+        matchResult = fileExtensionRe.exec(fileName);
+
+    if (matchResult && matchResult[1])
+    {
+        return matchResult[1];
+    }
+    else
+    {
+        return @"";
+    }
 }
 
 - (@action)uploadClassifier:(CPButton)submitButton
 {
     var newName = [importClassifierNameTextfield stringValue];
-    if (newName !== @"" && ![self classifierExists:newName])
+
+    if (newName === @"")
     {
-        // TODO: Add to if statement checks to ensure that a selection has been made.
+        [nameUsedLabelInImportWindow setStringValue:@"Name cannot be blank."];
+        [nameUsedLabelInImportWindow setHidden:NO];
+    }
+    else if ([importClassifierFileTextfield stringValue] === @"")
+    {
+        [nameUsedLabelInImportWindow setStringValue:@"Choose a file to upload."];
+        [nameUsedLabelInImportWindow setHidden:NO];
+    }
+    else if ([self classifierExists:newName])
+    {
+        [self updateNameUsedLabelInImportWindow];
+    }
+    else
+    {
         [importClassifierChooseFileButton setValue:[activeProject pk] forParameter:@"project"];
         [importClassifierChooseFileButton setValue:[importClassifierNameTextfield stringValue] forParameter:@"name"];
         [importClassifierChooseFileButton submit];  // Sends a POST to /classifiers/ (see setup in ClassifierViewController's awakeFromCib)
@@ -223,8 +246,8 @@
 
 - (void)uploadButtonDidBeginUpload:(UploadButton)button  // Delegate method for uploading XML
 {
-    // This function is called when submit is pressed.
-    // console.log("uploadButtonDidBeginUpload.");
+    // This function is called when upload button is pressed.
+    // It's not needed because uploadClassifier: does the job.
 }
 
 - (void)uploadButton:(UploadButton)button didFailWithError:(CPString)anError  // Delegate method for uploading XML
@@ -243,7 +266,7 @@
 - (void)createObjectsWithJSONResponse:(id)aResponse
 {
     [WLRemoteObject setDirtProof:YES];
-    var newClassifiers = [MinimalClassifier objectsFromJson:[aResponse]];  // Note that there will actually just be one new classifier.
+    var newClassifiers = [MinimalClassifier objectsFromJson:[aResponse]];
     [classifierArrayController addObjects:newClassifiers];
     [WLRemoteObject setDirtProof:NO];
 }
@@ -258,10 +281,10 @@
 
 - (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    [self _updateClassifierArrayControllerWithResponse:anAction];
+    [self updateClassifierArrayControllerWithResponse:anAction];
 }
 
-- (void)_updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
+- (void)updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
 {
     var classifiers = [MinimalClassifier objectsFromJson:[anAction result]];
     [classifierArrayController setContent:classifiers];
@@ -318,7 +341,7 @@
 
 - (void)initOpenFetchClassifiersDidFinish:(WLRemoteAction)anAction
 {
-    [self _updateClassifierArrayControllerWithResponse:anAction];
+    [self updateClassifierArrayControllerWithResponse:anAction];
     [openClassifierWindow makeKeyAndOrderFront:null];
 }
 
