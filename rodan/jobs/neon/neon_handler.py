@@ -85,7 +85,7 @@ def update_neume_head_shape(request, runjob_id):
     if request.method == 'POST':
         id = str(request.POST.get('id'))
         head_shape = str(request.POST.get('shape'))
-        
+
         try:
             ulx = str(request.POST['ulx'])
             uly = str(request.POST['uly'])
@@ -415,7 +415,7 @@ def delete_custos(request, runjob_id):
 
 @render_to_json()
 def revert_file(request, runjob_id):
-    if request.method == 'GET':
+    if request.method == 'POST':
         runjob = get_object_or_404(RunJob, pk=runjob_id)
         print backup_mei_path(runjob)
         print os.path.exists(backup_mei_path(runjob))
