@@ -149,10 +149,9 @@ class NeonView(RodanInteractiveBaseView):
         from rodan.jobs.neon.utils import live_mei_url, compressed_image_url
         from rodan.jobs.neon import neon_handler
     except ImportError as e:
-        from rodan.settings import DEBUG
-        if DEBUG:
-            print "Neon is not installed. Skipping interactive neon view."
-            print "Exception:", e
+        print "Neon is not installed. Skipping interactive neon view."
+        print "Exception:", e
+
     else:
         view_url = "/interactive/neon/"
         template_name = "neon.html"
