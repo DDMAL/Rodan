@@ -1,8 +1,14 @@
 @import "../Controllers/WorkflowController.j"
 @import "../Frameworks/RodanKit/RKNumberFormatter.j"
 @import "../Models/MinimalClassifier.j"
+@import "../Models/Job.j"
 
 @global RodanShouldLoadClassifiersNotification
+@global JOBSETTING_TYPE_INT
+@global JOBSETTING_TYPE_REAL
+@global JOBSETTING_TYPE_UUIDWORKFLOWJOB
+@global JOBSETTING_TYPE_CHOICE
+@global JOBSETTING_TYPE_UUIDCLASSIFIER
 
 @implementation WorkflowDesignerJobSettingsDelegate : CPObject
 {
@@ -112,23 +118,23 @@
     var dataView = nil;
     switch ([aSetting settingType])
     {
-        case 'int':
+        case JOBSETTING_TYPE_INT:
             dataView = [self _createDigitField:aSetting decimalPlaces:NO];
             break;
 
-        case 'real':
+        case JOBSETTING_TYPE_REAL:
             dataView = [self _createDigitField:aSetting decimalPlaces:YES];
             break;
 
-        case 'uuid_workflowjob':
+        case JOBSETTING_TYPE_UUIDWORKFLOWJOB:
             dataView = [self _createWorkflowJobPopUpButton:aSetting];
             break;
 
-        case 'choice':
+        case JOBSETTING_TYPE_CHOICE:
             dataView = [self _createPopUpButton:aSetting];
             break;
 
-        case 'uuid_classifier':
+        case JOBSETTING_TYPE_UUIDCLASSIFIER:
             dataView = [self _createClassifierPopUpButton:aSetting];
             break;
 

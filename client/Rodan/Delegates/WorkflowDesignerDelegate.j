@@ -1,9 +1,11 @@
 @import <LPKit/LPMultiLineTextField.j>
+@import "../Models/Job.j"
 
 @global activeUser
 @global RodanShouldLoadWorkflowDesignerNotification
 @global RodanDidLoadWorkflowNotification
 @global RodanRemoveJobFromWorkflowNotification
+@global JOBSETTING_TYPE_UUIDWORKFLOWJOB
 
 JobItemType = @"JobItemType";
 
@@ -26,6 +28,8 @@ JobItemType = @"JobItemType";
     [currentWorkflowArrayController removeObjects:deletedObjects];
     [WLRemoteObject setDirtProof:NO];
     [deletedObjects makeObjectsPerformSelector:@selector(removeFromWorkflow)];
+    [self _removeWorkflowJobs:deletedObjects
+          fromWorkflowJobSettings:[currentWorkflowArrayController content]];
 }
 
 - (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
@@ -185,4 +189,50 @@ JobItemType = @"JobItemType";
         return NO;
 }
 
+- (void)_removeWorkflowJobs:(CPArray)aDeletedWorkflowJobs
+        fromWorkflowJobSettings:(CPArray)aWorkflowJobs
+{
+    var adjusted = NO;
+    if (aDeletedWorkflowJobs != nil && aWorkflowJobs != nil)
+    {
+        // Get the PKs.
+        var deletedWorkflowJobPkArray = [[CPMutableArray alloc] init],
+            deletedWorkflowJobEnumerator = [aDeletedWorkflowJobs objectEnumerator],
+            deletedWorkflowJob = nil;
+        while (deletedWorkflowJob = [deletedWorkflowJobEnumerator nextObject])
+        {
+            [deletedWorkflowJobPkArray addObject:[deletedWorkflowJob pk]];
+        }
+
+        // Go through the remaining workflow jobs.
+        var workflowJobEnumerator = [aWorkflowJobs objectEnumerator],
+            workflowJob = nil;
+        while (workflowJob = [workflowJobEnumerator nextObject])
+        {
+            // Go through the job settings for the workflow.
+            var jobSettingsEnumerator = [[workflowJob jobSettings] objectEnumerator],
+                jobSetting = nil;
+            while (jobSetting = [jobSettingsEnumerator nextObject])
+            {
+                if ([jobSetting settingType] == JOBSETTING_TYPE_UUIDWORKFLOWJOB)
+                {
+                    // If this workflow job references one of the deleted jobs, we have to remove it.
+                    var index = [deletedWorkflowJobPkArray indexOfObject:[jobSetting settingDefault]];
+                    if (index >= 0)
+                    {
+                        [jobSetting setSettingDefault:nil];
+                        adjusted = YES;
+                    }
+                }
+            }
+        }
+    }
+
+    // Do a save if there was an adjustment.
+    var workflow = [WorkflowController activeWorkflow];
+    if (workflow != nil && adjusted)
+    {
+        [workflow touchWorkflowJobs];
+    }
+}
 @end
