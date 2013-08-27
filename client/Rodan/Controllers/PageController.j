@@ -141,4 +141,19 @@ var _msLOADINTERVAL = 5.0;
         [WLRemoteObject setDirtProof:NO];
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Action Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Initializes packaging of results.
+ */
+- (@action)viewOriginal:(id)aSender
+{
+    var selectedObjects = [pageArrayController selectedObjects];
+    if ([selectedObjects count] == 1)
+    {
+        window.open([[selectedObjects objectAtIndex:0] pageImage], "_blank");
+    }
+}
 @end
