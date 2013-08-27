@@ -7,7 +7,6 @@ import urlparse
 import functools
 from django.conf import settings as rodan_settings
 from django.core.files import File
-from django.core.urlresolvers import resolve
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
@@ -16,6 +15,8 @@ from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.processed import processed
 from rodan.helpers.dbmanagement import exists_in_db
+
+from rodan.helpers.dbmanagement import resolve_object_from_url
 
 IMAGE_TYPES = rodan_settings.IMAGE_TYPES
 
@@ -145,23 +146,6 @@ def get_uuid_from_url(url):
         return match_object.group('uuid')
 
     raise UUIDParseError("Unable to extract UUID from {0}".format(url))
-
-
-def resolve_object_from_url(model_class, url):
-    """Arguments:
-           model_class: A django model class. Import the class and pass it in.
-           url: The url that you're trying to resolve.
-
-       Returns the resolved model instance.
-
-       Raises Resolver404 if no view is found that handles the given url.
-
-       Raises model_class.DoesNotExist if the database record with the supplied
-       primary key does not exist.
-    """
-    url_path = urlparse.urlparse(url).path
-    object_view = resolve(url_path)
-    return model_class.objects.get(pk=object_view.kwargs['pk'])
 
 
 def get_settings(runjob):
