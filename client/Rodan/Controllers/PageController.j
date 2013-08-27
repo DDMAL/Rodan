@@ -14,9 +14,6 @@ var _msLOADINTERVAL = 5.0;
     @outlet     UploadButton        imageUploadButton;
     @outlet     CPImageView         imageView;
     @outlet     CPArrayController   pageArrayController;
-    @outlet     CPTextField         sizeField;
-    @outlet     CPTextField         dateAddedField;
-    @outlet     CPTextField         addedByField;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,12 +21,6 @@ var _msLOADINTERVAL = 5.0;
 ////////////////////////////////////////////////////////////////////////////////////////////
 - (void)awakeFromCib
 {
-    // var formatter = [[CPDateFormatter alloc] init];
-    // [formatter setDateStyle:CPDateFormatterMediumStyle];
-    // [dateAddedField setFormatter:formatter];
-    var byteCountFormatter = [[CPByteCountFormatter alloc] init];
-    [sizeField setFormatter:byteCountFormatter];
-
     // Subscriptions for self.
     [[CPNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(receiveHasFocusEvent:)
