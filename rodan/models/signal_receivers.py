@@ -56,7 +56,7 @@ def update_optimal_setting_upon_classifiersetting_save(**kwargs):
     new_setting = kwargs['instance']
     producer = new_setting.producer
     if producer is None or new_setting.fitness is None:
-        return
+        return None
 
     related_settings = producer.classifier_settings.order_by('-fitness')
     if not related_settings.exists():
