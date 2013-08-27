@@ -29,7 +29,7 @@ init_gamera()
 class PitchFindingTask(RodanJob):
     max_retries = None
     name = 'gamera.custom.pitch_finding.find_pitches'
-    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob'},
+    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [settings.ONEBIT]},
                 {'default': 2, 'has_default': True, 'rng': [1, 1048576], 'name': 'discard_size', 'type': 'int'}]
 
     def process_image(self, segmented_image_path, xml_filepath, settings, page_order):
