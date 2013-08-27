@@ -54,15 +54,19 @@ def update_workflow_upon_workflowjob_removal(**kwargs):
 @receiver(post_save, sender=ClassifierSetting)
 def update_optimal_setting_upon_classifiersetting_save(**kwargs):
     new_setting = kwargs['instance']
-    classifier = new_setting.producer
-    if classifier is not None and new_setting.fitness is not None:
-        current_optimal_setting = classifier.optimal_setting
+    producer = new_setting.producer
+    if producer is None or new_setting.fitness is None:
+        return
 
-        if (current_optimal_setting is None or
-            current_optimal_setting.fitness < new_setting.fitness):
+    related_settings = producer.classifier_settings.order_by('-fitness')
+    if not related_settings.exists():
+        new_optimal = new_setting
+    else:
+        previous_optimal = related_settings[0]
+        new_optimal = max(new_setting, previous_optimal, key=lambda x: x.fitness)
 
-            classifier.optimal_setting = new_setting
-            classifier.save()
+    producer.optimal_setting = new_optimal
+    producer.save()
 
 
 ## The following two signal receivers fix the issue of workflowjob sequence numbers,

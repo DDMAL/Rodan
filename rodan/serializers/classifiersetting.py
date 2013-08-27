@@ -14,6 +14,8 @@ class ClassifierSettingSerializer(serializers.HyperlinkedModelSerializer):
                   'project',
                   'producer',
                   "fitness",
+                  'optimization_started_at',
+                  'optimization_finished_at',
                   "creator",
                   "created",
                   "updated")

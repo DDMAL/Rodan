@@ -31,6 +31,9 @@ class ClassifierSetting(models.Model):
     fitness = models.FloatField(null=True, blank=True)
     producer = models.ForeignKey('rodan.Classifier', related_name="classifier_settings", null=True, blank=True)
 
+    optimization_started_at = models.DateTimeField(null=True, blank=True)
+    optimization_finished_at = models.DateTimeField(null=True, blank=True)
+
     creator = models.ForeignKey("auth.User", related_name="classifier_settings", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

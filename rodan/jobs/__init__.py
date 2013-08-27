@@ -137,6 +137,13 @@ try:
 except ImportError as e:
     print "Custom Pitch Correction job not installed. Skipping", e
 
+
+## Periodic Tasks
+try:
+    from rodan.jobs.periodic_tasks.classifier_ga_optimization import OptimizeAllClassifiersTask
+except ImportError as e:
+    print "Classifier optimization periodic task not installed. Skipping", e
+
 #Development
 try:
     from rodan.jobs.util.devdummyjobs import load_wfjobuuid

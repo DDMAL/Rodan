@@ -22,7 +22,7 @@ class ClassifierListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Classifier
-        fields = ("url", "project", "name", "pageglyphs")
+        fields = ("url", "project", "name", "pageglyphs", "optimal_setting")
 
 
 class MinimalClassifierSerializer(serializers.HyperlinkedModelSerializer):

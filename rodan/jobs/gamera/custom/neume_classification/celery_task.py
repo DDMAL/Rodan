@@ -139,6 +139,11 @@ class AutoClassificationTask(ClassificationTaskBase):
         cknn = gamera.knn.kNNNonInteractive(classifier_model.file_path,
                                             features='all', perform_splits=True,
                                             num_k=settings['num_k'])
+
+        if classifier_model.optimal_setting:
+            print "Loading in classifier setting {0}".format(classifier_model.optimal_setting.name)
+            cknn.load_settings(classifier_model.optimal_setting.settings_file.path)
+
         func = gamera.classify.BoundingBoxGroupingFunction(settings['distance_threshold'])
         ccs = task_image.cc_analysis()
         grouped_glyphs = cknn.group_and_update_list_automatic(ccs,

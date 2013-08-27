@@ -17,6 +17,9 @@ class Classifier(GameraXML):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    optimal_setting = models.ForeignKey("rodan.ClassifierSetting", related_name="optimal_for",
+                                        null=True, blank=True, on_delete=models.SET_NULL)
+
     def save(self, *args, **kwargs):
         super(Classifier, self).save(*args, **kwargs)
         if not os.path.exists(self.directory_path):
