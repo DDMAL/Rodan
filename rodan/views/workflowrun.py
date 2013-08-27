@@ -111,7 +111,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
                                 workflow_job=workflow_job,
                                 job_settings=workflow_job.job_settings,  # copy the most recent settings from the workflow job (these may be modified if the job is interactive)
                                 needs_input=is_interactive,      # by default this is set to be True if the job is interactive
-                                page=page)
+                                page=page,
+                                sequence=workflow_job.sequence)
                 runjob.save()
 
                 rodan_task = registry.tasks[str(workflow_job.job_name)]

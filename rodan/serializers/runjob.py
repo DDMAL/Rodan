@@ -29,7 +29,6 @@ class PageRunJobSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
-    sequence = serializers.Field(source='sequence')
     job_settings = serializers.CharField()
     # result = ResultSerializer()
     result = ResultRunJobSerializer()

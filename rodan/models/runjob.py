@@ -52,6 +52,7 @@ class RunJob(models.Model):
     job_settings = json.JSONField(blank=True, null=True)
     needs_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    sequence = models.IntegerField(blank=True, null=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 
     error_summary = models.TextField(default="", blank=True, null=True)
@@ -73,10 +74,6 @@ class RunJob(models.Model):
         if os.path.exists(self.runjob_path):
             shutil.rmtree(self.runjob_path)
         super(RunJob, self).delete(*args, **kwargs)
-
-    @property
-    def sequence(self):
-        return self.workflow_job.sequence
 
     @property
     def job_name(self):
