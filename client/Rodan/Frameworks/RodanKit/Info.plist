@@ -22,5 +22,7 @@
     <string>neon</string>
     <key>gamera.custom.border_removal.poly_mask</key>
     <string>poly_mask</string>
+    <key>gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate</key>
+    <string>rotate</string>
 </dict>
 </plist>

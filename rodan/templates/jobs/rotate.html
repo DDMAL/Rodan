@@ -1,30 +1,111 @@
-{% extends "jobs/job_base.html" %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="  stylesheet" type="text/css" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/jquery.knob.js"></script>
+        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKRotate.js"></script>
+        <style>
+            button
+            {
+                height: 21px;
+            }
+            #currentAngleTextBox
+            {
+                width: 52px;
+                text-align: right;
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Rotate</h1>
+        <p>
+            Use the dial, the text box, or click and drag on the image directly to choose a rotation angle.
+        </p>
+        <div class="knob-wrapper">
+            <input class="knob" id="rotateKnob" data-cursor=true data-thickness=".3"></input>
+        </div>
+        <div id="submitDiv">
+            <input type='text' id="currentAngleTextBox"></input><span>&deg;</span>
+            <button id="submitButton">Submit</button>
+        </div>
+        <!-- <div id="gridControls">
+            <button id="testButton">Test</button>
+        </div> -->
+        <div id="rotateView"></div>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var precisionMultiplier = 40;
 
-{% block resources %}
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/jquery.knob.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/kinetic-v4.5.1.min.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/Stats.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/show_stats.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/rotate.js"></script>
-{% endblock %}
+            $("#rotateView").RKRotate({
+                imageUrl: "{{ image_source.large_thumb_url }}",
+                gridFadeTime: 800,
+                textBoxOutput: $('#currentAngleTextBox'),
+                controlOutput: $('#rotateKnob'),
+                controlOutputMultiplier: precisionMultiplier
+            });
 
+            var rkRotate = $("#rotateView").data("RKRotate");
 
-{% block body %}
-<p>Adjust the page rotation until the page is square. Use the ruler to
-line up objects on the page.</p>
-    {% csrf_token %}
-    <fieldset class="submit">
-        <input type="hidden" name="angle" value="0" id="angle-input" />
-        <input type="submit" name="submit" value="Rotate" class="submit" />
-    </fieldset>
+            $(".knob").knob({
+                'value': 0,
+                'width': 100,
+                'height': 100,
+                'displayPrevious': true,
+                'displayInput': false,
+                'min': 0,
+                'max': 360 * precisionMultiplier,
+                // 'step': 0.05,
+                'change': function(newValue) {
+                    rkRotate.rotate(newValue / precisionMultiplier * Math.PI / 180);
+                }
+            });
 
-<input id="toggleRuler" type="button" value="Toggle Ruler"></input>
-<input id="reorientRuler" type="button" value="Reorient Ruler"></input>
-<div class="images">
-	<div class="rotate-row">
-		<input class="knob" id="dialctrl" data-cursor=true data-thickness=".3"></input>
-		<div id="image-preview"></div>
-		<img id="image-original" src="{{ image_source.large_thumb_url }}" />
-	</div>
-</div>
-{% endblock %}
+            $(".knob-wrapper").mousedown(function()
+            {
+                rkRotate.showGrid();
+            });
+
+            $(window).on('mouseup', function()
+            {
+                rkRotate.hideGrid();
+            });
+
+            $("#currentAngleTextBox").on('keypress', function(event)
+            {
+                var keyPressed = event.keyCode || event.which,
+                    enterKey = 13;
+
+                if (keyPressed === enterKey)
+                {
+                    rkRotate.rotate(this.value * Math.PI / 180);
+                }
+            });
+
+            $("#submitButton").on('click', function()
+            {
+                $.ajax("/interactive/rotate", {
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {angle: rkRotate.getCurrentAngle() * 180 / Math.PI}
+                });
+            });
+
+            $("#testButton").on('click', function()
+            {
+                var swap = rkRotate.getGridBoxWidth();
+
+                rkRotate.setGridBoxWidth(rkRotate.getGridBoxHeight());
+                rkRotate.setGridBoxHeight(swap);
+                rkRotate.setGridFadeTime(200);
+                $('#rotateKnob')
+                    .val(180 * precisionMultiplier)
+                    .trigger('change');
+                $('#currentAngleTextBox').val(180);
+            });
+        });
+    </script>
+</html>
