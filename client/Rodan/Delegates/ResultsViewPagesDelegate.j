@@ -50,6 +50,8 @@
 - (void)tableViewSelectionIsChanging:(CPNotification)aNotification
 {
     _currentlySelectedPage = nil;
+    [_resultsViewResultsDelegate reset];
+    [_resultsViewRunJobsDelegate reset];
 }
 
 - (BOOL)tableView:(CPTableView)aTableView shouldSelectRow:(int)rowIndex
