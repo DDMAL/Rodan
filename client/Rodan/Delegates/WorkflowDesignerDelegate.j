@@ -16,6 +16,10 @@ JobItemType = @"JobItemType";
     @outlet     CPArrayController   jobArrayController;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+#pragma Public
 - (int)numberOfRowsInTableView:(CPTableView)aTableView
 {
     return [[currentWorkflowArrayController contentArray] count];
@@ -30,6 +34,7 @@ JobItemType = @"JobItemType";
     [deletedObjects makeObjectsPerformSelector:@selector(removeFromWorkflow)];
     [self _removeWorkflowJobs:deletedObjects
           fromWorkflowJobSettings:[currentWorkflowArrayController content]];
+    [self _resequenceWorkflowJobs];
 }
 
 - (void)tableView:(CPTableView)aTableView viewForTableColumn:(CPTableColumn)aTableColumn row:(int)aRow
@@ -149,6 +154,10 @@ JobItemType = @"JobItemType";
     return YES;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Private Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+#pragma Private
 /***
     Checks if a job's pixel types match the input type of another job object.
 ***/
@@ -226,6 +235,39 @@ JobItemType = @"JobItemType";
                 }
             }
         }
+    }
+
+    // Do a save if there was an adjustment.
+    var workflow = [WorkflowController activeWorkflow];
+    if (workflow != nil && adjusted)
+    {
+        [workflow touchWorkflowJobs];
+    }
+}
+
+/**
+ * Resequences existing workflow jobs.
+ */
+- (void)_resequenceWorkflowJobs
+{
+    var previousSortDescriptors = [currentWorkflowArrayController sortDescriptors],
+        newSortDescriptor = [CPSortDescriptor sortDescriptorWithKey:@"sequence"
+                                              ascending:YES],
+        newSortDescriptorArray = [[CPMutableArray alloc] init];
+    [newSortDescriptorArray addObject:newSortDescriptor];
+    [currentWorkflowArrayController setSortDescriptors:newSortDescriptorArray];
+    var workflowJobEnumerator = [[currentWorkflowArrayController arrangedObjects] objectEnumerator],
+        workflowJob = nil,
+        nextSequence = 1,
+        adjusted = NO;
+    while (workflowJob = [workflowJobEnumerator nextObject])
+    {
+        if (nextSequence != [workflowJob sequence])
+        {
+            [workflowJob setSequence:nextSequence];
+            adjusted = YES;
+        }
+        nextSequence++;
     }
 
     // Do a save if there was an adjustment.
