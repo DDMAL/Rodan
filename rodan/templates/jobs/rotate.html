@@ -40,7 +40,7 @@
 
         $(document).ready(function() {
 
-            var close_window_callback = function (jqxhr, textStatus, blahblah) {
+            var close_window_callback = function (jqxhr, textStatus) {
               if (jqxhr.status === 200) {
                 top.window.close();
               }
