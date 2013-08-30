@@ -19,7 +19,7 @@ def api_root(request, format=None):
                      'users': reverse('user-list', request=request, format=format),
                      'classifiers': reverse('classifier-list', request=request, format=format),
                      'resultspackages': reverse('resultspackage-list', request=request, format=format),
-                     'classifiersetting': reverse('classifiersetting-list', request=request, format=format)})
+                     'classifiersettings': reverse('classifiersetting-list', request=request, format=format)})
 
 
 @ensure_csrf_cookie
