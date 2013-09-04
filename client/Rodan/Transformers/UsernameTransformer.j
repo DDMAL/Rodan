@@ -20,8 +20,8 @@
 {
     if (value)
     {
-        if ((value.first_name != "") && (value.last_name != ""))
-            return value.first_name + " " + value.last_name;
+        if ((value.firstName != "") && (value.lastName != ""))
+            return value.firstName + " " + value.lastName;
         else
             return value.username;
     }
