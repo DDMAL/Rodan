@@ -15,14 +15,24 @@
 {
     @outlet     CPArrayController       _workflowArrayController;
     @outlet     ResultsViewRunsDelegate _resultsViewRunsDelegate;
+    @outlet     CPView                  _workflowControlView;
                 Workflow                _currentlySelectedWorkflow;
                 Workflow                _loadingWorkflow;
+
 }
 
+#pragma mark Public
+////////////////////////////////////////////////////////////////////////////////////////////
+// Init Methods
+////////////////////////////////////////////////////////////////////////////////////////////
+- (void)awakeFromCib
+{
+    var initialFrame = [_workflowControlView frame],
+        xDimension = CGRectGetMaxX(initialFrame) - CGRectGetMinX(initialFrame),
+        yDimension = CGRectGetMaxY(initialFrame) - CGRectGetMinY(initialFrame);
+    [_workflowControlView setFrameSize:CGSizeMake(xDimension, yDimension * 1.5)];
+}
 
-////////////////////////////////////////////////////////////////////////////////////////////
-// Public Methods
-////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init
 {
     [[CPNotificationCenter defaultCenter] addObserver:self
@@ -32,6 +42,9 @@
     return self;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Public Methods
+////////////////////////////////////////////////////////////////////////////////////////////
 - (void)reset
 {
     [_resultsViewRunsDelegate reset];
