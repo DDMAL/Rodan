@@ -13,10 +13,12 @@
 - (id)initWithClassifierController:(ClassifierController)aClassifierController
 {
     self = [super init];
+
     if (self)
     {
         classifierController = aClassifierController;
     }
+
     return self;
 }
 @end
@@ -32,6 +34,7 @@
 }
 @end
 
+
 @implementation InitNewFetchClassifiersDelegate : ClassifierControllerFetchDelegate
 {
 }
@@ -39,17 +42,6 @@
 - (void)remoteActionDidFinish:(WLRemoteAction)anAction
 {
     [classifierController initNewFetchClassifiersDidFinish:anAction];
-}
-@end
-
-
-@implementation InitImportFetchClassifiersDelegate : ClassifierControllerFetchDelegate
-{
-}
-
-- (void)remoteActionDidFinish:(WLRemoteAction)anAction
-{
-    [classifierController initImportFetchClassifiersDidFinish:anAction];
 }
 @end
 

@@ -3,10 +3,10 @@
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/OpenClassifierTableViewDelegate.j"
 @import "../Delegates/NewClassifierTextfieldDelegate.j"
-@import "../Delegates/ImportClassifierTextfieldDelegate.j"
 @import "../Delegates/SymbolOutlineDelegate.j"
 
 @import "../Controllers/ClassifierController.j"
+@import "../Controllers/ClassifierSettingsController.j"
 
 @global RodanShouldLoadClassifierNotification
 @global RodanHasFocusClassifierViewNotification
@@ -21,9 +21,21 @@
     //  ClassifierView.xib.  This object is accessed by "File's Owner" in ClassifierView.xib
 
     @outlet ClassifierController classifierController;
+    @outlet ClassifierSettingsController classifierSettingsController;
     RunJob runJob @accessors;
     CPCookie CSRFToken @accessors;
     @outlet UploadButton classifierUploadButton;
+    @outlet UploadButton classifierSettingsUploadButton;
+}
+
+- (CPViewController)init
+{
+    // I'm overwriting init because I want to use the object in InterfaceBuilder AND
+    // I want it to be initialized using initWithCibName.  When the cib instantiates
+    // ClassifierViewController, it will call this init function
+    self = [super initWithCibName:@"ClassifierView" bundle:[CPBundle mainBundle]];
+
+    return self;
 }
 
 - (void)awakeFromCib
@@ -40,22 +52,8 @@
                                               object:nil];
 
         [classifierUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"];
-        [classifierUploadButton setBordered:YES];
-        [classifierUploadButton setFileKey:@"files"];
-        [classifierUploadButton allowsMultipleFiles:NO];
-        [classifierUploadButton setDelegate:classifierController];
-        [classifierUploadButton setURL:@"/classifiers/"];
+        [classifierSettingsUploadButton setValue:[CSRFToken value] forParameter:@"csrfmiddlewaretoken"];
     }
-}
-
-- (CPViewController)init
-{
-    // I'm overwriting init because I want to use the object in InterfaceBuilder AND
-    // I want it to be initialized using initWithCibName.  When the cib instantiates
-    // ClassifierViewController, it will call this init function
-    self = [super initWithCibName:@"ClassifierView" bundle:[CPBundle mainBundle]];
-
-    return self;
 }
 
 - (@action)new:(CPMenuItem)aSender
@@ -66,6 +64,11 @@
 - (@action)importFromXML:(CPMenuItem)aSender
 {
     [classifierController importFromXML:aSender];
+}
+
+- (@action)importSettings:(CPMenuItem)aSender
+{
+    [classifierSettingsController importSettings:aSender];
 }
 
 - (@action)open:(CPMenuItem)aSender

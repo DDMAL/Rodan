@@ -5,6 +5,7 @@
 @import "../Delegates/ClassifierTableViewDelegate.j"
 @import "../Delegates/PageGlyphsTableViewDelegate.j"
 @import "../Delegates/ClassifierControllerFetchDelegates.j"
+@import "../Controllers/UploadWindowController.j"
 
 @global activeProject
 
@@ -21,13 +22,7 @@
     @outlet CPTextField newClassifierTextfield;
     @outlet CPTextField nameUsedLabel;
 
-    @outlet CPWindow importClassifierWindow;
-    InitImportFetchClassifiersDelegate initImportFetchClassifiersDelegate;
-    @outlet UploadButton importClassifierChooseFileButton;
-    @outlet CPButton importCreateButton;
-    @outlet CPTextField importClassifierNameTextfield;
-    @outlet CPTextField importClassifierFileTextfield;
-    @outlet CPTextField nameUsedLabelInImportWindow;
+    @outlet UploadWindowController classifierUploadWindowController;
 
     @outlet CPWindow openClassifierWindow;
     InitOpenFetchClassifiersDelegate initOpenFetchClassifiersDelegate;
@@ -48,19 +43,18 @@
     Runjob theRunJob;
 
     @outlet CPTableColumn symbolTableColumn;
+
 }
 
 - (void)awakeFromCib
 {
     [newClassifierWindow setDefaultButton:createButton];
-    [importClassifierWindow setDefaultButton:importCreateButton];
     [openClassifierWindow setDefaultButton:openButton];
     [openClassifierTableView setDelegate:openClassifierTableViewDelegate];
 
     // Allocating delegates here to remove clutter from XCode with delegates that do very little.
     fetchClassifiersDelegate  = [[FetchClassifiersDelegate alloc] initWithClassifierController:self];
     initNewFetchClassifiersDelegate  = [[InitNewFetchClassifiersDelegate alloc] initWithClassifierController:self];
-    initImportFetchClassifiersDelegate  = [[InitImportFetchClassifiersDelegate alloc] initWithClassifierController:self];
     initOpenFetchClassifiersDelegate = [[InitOpenFetchClassifiersDelegate alloc] initWithClassifierController:self];
     fetchPageGlyphsDelegate = [[FetchPageGlyphsDelegate alloc] initWithClassifierController:self];
 }
@@ -121,12 +115,6 @@
     return nil;
 }
 
-/*
-    classifierExists: Tells you if we have a classifier with the given name.
-    Doesn't go to the server... it relies on a previous fetch (like initNewFetchClassifiersDidFinish).
-    Called by the newWindow when choosing a default name, or checking when create
-    was pressed.
-*/
 - (Boolean)classifierExists:(CPString)classifierName
 {
     var i = 0,
@@ -144,150 +132,14 @@
     return false;
 }
 
-/*
-    importFromXML: This function opens the "Import From XML..." window which allows the user to
-    upload a classifier XML made with Gamera to be used by Rodan.  The window uses an "UploadButton"
-    to do the POST that creates the classifier.  The way it works is that fields are set on the
-    UploadButton, and then you call 'submit' to execute the POST request.
-    The UploadButton is actually the one marked "Choose..." (importClassifierChooseFileButton,) and
-    the button marked "Submit" simply sends the 'submit' message to the other button.  The reason for
-    this is usability: I wanted the user to choose a file and then submit it in two actions, to give
-    them a chance to look at the name and the file together before confirming.
-*/
+// /*
+//     importFromXML: This function opens the "Import From XML..." window which allows the user to
+//     upload a classifier XML made with Gamera to be used by Rodan.
+// */
 
 - (@action)importFromXML:(CPMenuItem)aSender
 {
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:'/classifiers/'
-                    delegate:initImportFetchClassifiersDelegate
-                    message:"Loading classifier list"];
-}
-
-- (void)initImportFetchClassifiersDidFinish:(WLRemoteAction)anAction
-{
-    [self updateClassifierArrayControllerWithResponse:anAction];
-    [importClassifierNameTextfield setStringValue:@""];
-    [importClassifierFileTextfield setStringValue:@""];
-    [nameUsedLabelInImportWindow setHidden:YES];
-    [importClassifierChooseFileButton resetSelection];
-    [importClassifierWindow makeKeyAndOrderFront:null];
-}
-
-- (void)updateNameUsedLabelInImportWindow
-{
-    if ([self classifierExists:[importClassifierNameTextfield stringValue]])
-    {
-        [nameUsedLabelInImportWindow setStringValue:@"Name unavailable."];
-        [nameUsedLabelInImportWindow setHidden:NO];
-    }
-    else
-    {
-        [nameUsedLabelInImportWindow setHidden:YES];
-    }
-}
-
-- (void)uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection  // Delegate method for uploading XML
-{
-    var oldNameFromFile = [self clipFileExtension:[importClassifierFileTextfield stringValue]],
-        currentName = [importClassifierNameTextfield stringValue];
-
-    if (currentName === @"" || currentName === oldNameFromFile)
-    {
-        // Update the Name textfield if it's empty or the user hasn't changed anything
-        var newName = [self clipFileExtension:selection];
-
-        [importClassifierNameTextfield setStringValue:newName];
-        [self updateNameUsedLabelInImportWindow];
-    }
-
-    [importClassifierFileTextfield setStringValue:selection];
-}
-
-- (CPString)clipFileExtension:(CPString)fileName
-{
-    var fileExtensionRe = /^(.+)\..+?$/,
-        matchResult = fileExtensionRe.exec(fileName);
-
-    if (matchResult && matchResult[1])
-    {
-        return matchResult[1];
-    }
-    else
-    {
-        return @"";
-    }
-}
-
-- (@action)uploadClassifier:(CPButton)submitButton
-{
-    var newName = [importClassifierNameTextfield stringValue];
-
-    if (newName === @"")
-    {
-        [nameUsedLabelInImportWindow setStringValue:@"Name cannot be blank."];
-        [nameUsedLabelInImportWindow setHidden:NO];
-    }
-    else if ([importClassifierFileTextfield stringValue] === @"")
-    {
-        [nameUsedLabelInImportWindow setStringValue:@"Choose a file to upload."];
-        [nameUsedLabelInImportWindow setHidden:NO];
-    }
-    else if ([self classifierExists:newName])
-    {
-        [self updateNameUsedLabelInImportWindow];
-    }
-    else
-    {
-        [importClassifierChooseFileButton setValue:[activeProject pk] forParameter:@"project"];
-        [importClassifierChooseFileButton setValue:[importClassifierNameTextfield stringValue] forParameter:@"name"];
-        [importClassifierChooseFileButton submit];  // Sends a POST to /classifiers/ (see setup in ClassifierViewController's awakeFromCib)
-    }
-}
-
-- (void)uploadButtonDidBeginUpload:(UploadButton)button  // Delegate method for uploading XML
-{
-    // This function is called when upload button is pressed.
-    // It's not needed because uploadClassifier: does the job.
-}
-
-- (void)uploadButton:(UploadButton)button didFailWithError:(CPString)anError  // Delegate method for uploading XML
-{
-    CPLog.error(anError);
-}
-
-- (void)uploadButton:(UploadButton)button didFinishUploadWithData:(CPString)response  // Delegate method for uploading XML
-{
-    [button resetSelection];
-    var data = JSON.parse(response);
-    [self createObjectsWithJSONResponse:data];
-    [importClassifierWindow close];
-}
-
-- (void)createObjectsWithJSONResponse:(id)aResponse
-{
-    [WLRemoteObject setDirtProof:YES];
-    var newClassifiers = [MinimalClassifier objectsFromJson:[aResponse]];
-    [classifierArrayController addObjects:newClassifiers];
-    [WLRemoteObject setDirtProof:NO];
-}
-
-- (void)fetchClassifiers
-{
-    [WLRemoteAction schedule:WLRemoteActionGetType
-                    path:'/classifiers/'
-                    delegate:fetchClassifiersDelegate
-                    message:"Loading classifier list"];
-}
-
-- (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
-{
-    [self updateClassifierArrayControllerWithResponse:anAction];
-}
-
-- (void)updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
-{
-    var classifiers = [MinimalClassifier objectsFromJson:[anAction result]];
-    [classifierArrayController setContent:classifiers];
+    [classifierUploadWindowController openWindow];
 }
 
 /*
@@ -444,6 +296,25 @@
     // [[CPNotificationCenter defaultCenter] postNotificationName:RodanShouldLoadInteractiveJobsNotification
     //                                       object:nil];  // TODO: Find another way to change the view...
                                                            // this is a data loading notification
+}
+
+- (void)fetchClassifiers
+{
+    [WLRemoteAction schedule:WLRemoteActionGetType
+                    path:'/classifiers/'
+                    delegate:fetchClassifiersDelegate
+                    message:"Loading classifier list"];
+}
+
+- (void)fetchClassifiersDidFinish:(WLRemoteAction)anAction
+{
+    [self updateClassifierArrayControllerWithResponse:anAction];
+}
+
+- (void)updateClassifierArrayControllerWithResponse:(WLRemoteAction)anAction
+{
+    var classifiers = [MinimalClassifier objectsFromJson:[anAction result]];
+    [classifierArrayController setContent:classifiers];
 }
 
 - (@action)printTheClassifier:(CPButton)aSender  // For debugging
