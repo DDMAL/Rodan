@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 
 class ClassifierSettingSerializer(serializers.HyperlinkedModelSerializer):
+    uuid = serializers.Field(source="uuid")
     file_url = serializers.Field(source="file_url")
 
     class Meta:

@@ -39,9 +39,18 @@ class ClassifierSetting(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     @property
+    def file_path(self):
+        return os.path.join(self.setting_directory, "{0}.xml".format(str(self.uuid)))
+
+    @property
     def file_url(self):
         if self.settings_file:
             return os.path.join(settings.MEDIA_URL, os.path.relpath(self.settings_file.path, settings.MEDIA_ROOT))
+
+    def save(self, *args, **kwargs):
+        super(ClassifierSetting, self).save(*args, **kwargs)
+        if not os.path.exists(self.setting_directory):
+            os.makedirs(self.setting_directory)
 
     def __unicode__(self):
         return u"<ClassifierSetting {0}>".format(str(self.name))

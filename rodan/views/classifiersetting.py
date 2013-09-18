@@ -29,12 +29,12 @@ class ClassifierSettingList(generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        response = super(ClassifierSetting, self).post(request, *args, **kwargs)
+        response = super(ClassifierSettingList, self).post(request, *args, **kwargs)
 
         if request.FILES:
             uploaded_xml_file = request.FILES['files']
 
-            with open(self.object.settings_file.path, 'w') as destination:
+            with open(self.object.file_path, 'w') as destination:
                 for chunk in uploaded_xml_file.chunks():
                     destination.write(chunk)
 
