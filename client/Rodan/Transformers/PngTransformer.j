@@ -13,14 +13,30 @@
     return [CPData class];
 }
 
-- (id)transformedValue:(id)base64
+- (id)transformedValue:(id)base64WithPrefix
 {
-    return [CPData dataWithBase64:base64];
+    var sep = [[self class] separator];
+
+    return [CPData dataWithBase64:base64WithPrefix.split(sep)[1]];
 }
 
 - (id)reverseTransformedValue:(CPData)aCPData
 {
-    return [aCPData base64];
+    var pre = [[self class] prefix],
+        sep = [[self class] separator];
+
+    return pre.concat(sep, [aCPData base64]);
 }
+
++ (CPString)prefix
+{
+    return "data:image/png;base64";
+}
+
++ (CPString)separator
+{
+    return ",";
+}
+
 
 @end

@@ -204,7 +204,8 @@ class Glyph(object):
         # (pypng expects a file descriptor)
         buf = StringIO.StringIO()
         png_writer.write(buf, pixels_2D)
-        return base64.b64encode(buf.getvalue())
+        base64_encoded_png = base64.b64encode(buf.getvalue())
+        return "data:image/png;base64,{0}".format(base64_encoded_png)
 
     @classmethod
     def runlength_encode(cls, base64_encoded_png):
