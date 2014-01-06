@@ -36,7 +36,6 @@
 
     PageGlyphs thePageGlyphs;
     FetchPageGlyphsDelegate fetchPageGlyphsDelegate;
-    FetchClassifiersDelegate fetchClassifiersDelegate;
 
     @outlet CPObjectController pageImageController;
 
