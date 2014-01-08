@@ -14,8 +14,6 @@
     Classifier theClassifier;
     @outlet CPArrayController classifierArrayController @accessors;
 
-    FetchClassifiersDelegate fetchClassifiersDelegate;
-
     @outlet CPWindow newClassifierWindow;
     InitNewFetchClassifiersDelegate initNewFetchClassifiersDelegate;
     @outlet CPButton createButton;
