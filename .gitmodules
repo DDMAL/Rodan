@@ -9,4 +9,4 @@
 	url = https://github.com/aljungberg/LPKit.git
 [submodule "client"]
 	path = client
-	url = git@github.com:ahwitz/client.git
+	url = git@github.com:ahwitz/client
