@@ -7,3 +7,6 @@
 [submodule "client/Rodan/Frameworks/LPKit"]
 	path = client/Rodan/Frameworks/LPKit
 	url = https://github.com/aljungberg/LPKit.git
+[submodule "rodanClient"]
+	path = rodanClient
+	url = git@github.com:ahwitz/rodanClient.git
