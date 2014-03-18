@@ -1,7 +1,11 @@
 from rodan.models.job import Job
 from django.conf import settings
-
 from rodan.jobs.neon.celery_task import PitchCorrectionTask
+
+try:
+    import pymei
+except:
+    raise ImportError
 
 MEI = settings.MEI
 
