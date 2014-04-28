@@ -89,6 +89,7 @@ urlpatterns += patterns('',
         url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
         url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
         url(r'^interactive/neon/$', interactive.NeonView.as_view()),
+        url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
     )
 
 urlpatterns += patterns('rodan.views.diva',
