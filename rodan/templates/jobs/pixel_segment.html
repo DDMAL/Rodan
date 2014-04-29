@@ -30,8 +30,8 @@
             <input type="submit" name="submit" value="Submit" class="submit" />
         </div>
     </div>
-    <div id="container" style="float: left; border: 1px solid black"></div>
-    <input type="hidden" name="polygon_outer_points" value="" id="JSON-input" />
+    <div id="container" style="float: left; border: 1px solid black; min-width: 1050px"></div>
+    <input type="hidden" name="geometries" value="" id="JSON-input" />
 </div>
 <script type="text/javascript">
     $(document).ready(function() 
@@ -43,8 +43,8 @@
         {
             $('#JSON-input').val(function() 
             {
-                var points = instance.getGeometries();
-                return JSON.stringify(points);
+                var geometries = instance.getGeometries();
+                return JSON.stringify(geometries);
             });
         });
     });
