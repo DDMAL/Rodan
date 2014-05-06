@@ -89,9 +89,9 @@ TEMPLATE_DIRS = (
 )
 
 # CELERYCAM_EXPIRE_SUCCESS = timedelta(days=30)
-CELERYCAM_EXPIRE_SUCCESS = None
-CELERYCAM_EXPIRE_ERROR = None
-CELERYCAM_EXPIRE_PENDING = None
+# CELERYCAM_EXPIRE_SUCCESS = None
+# CELERYCAM_EXPIRE_ERROR = None
+# CELERYCAM_EXPIRE_PENDING = None
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -105,7 +105,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
-    'djcelery',
     'guardian',
     # 'rodan.jobs',
 )
