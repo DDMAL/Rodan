@@ -92,21 +92,16 @@ urlpatterns += patterns('',
         url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
     )
 
-urlpatterns += patterns('rodan.views.diva',
-        url(r'^diva/data/$', 'divaserve')
-    )
-
 # Add neon urls only if neon jobs are installed.
 try:
     from rodan.jobs.neon import urls
 except ImportError as e:
-    if settings.DEBUG:
-        print "No neon job is installed. Neon urls will not be handled."
-        print "The following exception was raised: ", e
+    print("No neon job is installed. Neon urls will not be handled.")
+    print("The following exception was raised: {0}".format(e))
 else:
     urlpatterns += patterns('',
-            url(r'^interactive/neon/$', interactive.NeonView.as_view()),
-            url(r'^interactive/neon/edit/', include('rodan.jobs.neon.urls')),
+        url(r'^interactive/neon/$', interactive.NeonView.as_view()),
+        url(r'^interactive/neon/edit/', include('rodan.jobs.neon.urls')),
     )
 
 # Only add admin if it's enabled
