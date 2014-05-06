@@ -94,11 +94,12 @@ urlpatterns += patterns('',
 
 # Add neon urls only if neon jobs are installed.
 try:
-    from rodan.jobs.neon import urls
+    from rodan.jobs.neon import module_loader
 except ImportError as e:
     print("No neon job is installed. Neon urls will not be handled.")
     print("The following exception was raised: {0}".format(e))
 else:
+    from rodan.jobs.neon import urls
     urlpatterns += patterns('',
         url(r'^interactive/neon/$', interactive.NeonView.as_view()),
         url(r'^interactive/neon/edit/', include('rodan.jobs.neon.urls')),
