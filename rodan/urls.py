@@ -28,13 +28,7 @@ from rodan.views.result import ResultList
 from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
-from rodan.views.classifier import ClassifierList
-from rodan.views.classifier import ClassifierDetail
-from rodan.views.pageglyphs import PageGlyphsList
-from rodan.views.pageglyphs import PageGlyphsDetail
-from rodan.views.glyph import GlyphDetail
 from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
-from rodan.views.classifiersetting import ClassifierSettingList, ClassifierSettingDetail
 
 from rodan.views import interactive
 
@@ -67,15 +61,8 @@ urlpatterns += format_suffix_patterns(
         url(r'^workflowrun/(?P<pk>[0-9a-z\-]+)/$', WorkflowRunDetail.as_view(), name="workflowrun-detail"),
         url(r'^runjobs/$', RunJobList.as_view(), name="runjob-list"),
         url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
-        url(r'^classifiers/$', ClassifierList.as_view(), name="classifier-list"),
-        url(r'^classifier/(?P<pk>[0-9a-z\-]+)/$', ClassifierDetail.as_view(), name="classifier-detail"),
-        url(r'^pageglyphs/$', PageGlyphsList.as_view(), name="pageglyphs-list"),
-        url(r'^pageglyphs/(?P<pk>[0-9a-z\-]+)/$', PageGlyphsDetail.as_view(), name="pageglyphs-detail"),
-        url(r'^glyph/(?P<pk>[0-9a-z\-]+)/$', GlyphDetail.as_view(), name="glyph-detail"),
         url(r'^resultspackages/$', ResultsPackageList.as_view(), name="resultspackage-list"),
         url(r'^resultspackage/(?P<pk>[0-9a-z\-]+)/$', ResultsPackageDetail.as_view(), name="resultspackage-detail"),
-        url(r'^classifiersettings/$', ClassifierSettingList.as_view(), name="classifiersetting-list"),
-        url(r'^classifiersetting/(?P<pk>[0-9a-z\-]+)/$', ClassifierSettingDetail.as_view(), name="classifiersetting-detail"),
     )
 )
 

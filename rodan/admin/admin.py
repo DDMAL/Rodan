@@ -9,10 +9,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
 from rodan.models.job import Job
 from rodan.models.result import Result
-from rodan.models.classifier import Classifier
-from rodan.models.pageglyphs import PageGlyphs
 from rodan.models.resultspackage import ResultsPackage
-from rodan.models.classifiersetting import ClassifierSetting
 
 # from rodan.models.rodanuser import RodanUser
 
@@ -51,20 +48,8 @@ class WorkflowRunAdmin(admin.ModelAdmin):
     list_display = ('workflow', 'run', 'created')
 
 
-class ClassifierAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-
-
-class PageGlyphsAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'classifier')
-
-
 class ResultsPackageAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'workflow_run', 'created')
-
-
-class ClassifierSettingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'uuid', 'fitness', 'producer', 'created')
 
 
 # class UserProfileInline(admin.StackedInline):
@@ -88,7 +73,4 @@ admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(Result)
-admin.site.register(Classifier, ClassifierAdmin)
-admin.site.register(PageGlyphs, PageGlyphsAdmin)
 admin.site.register(ResultsPackage, ResultsPackageAdmin)
-admin.site.register(ClassifierSetting, ClassifierSettingAdmin)

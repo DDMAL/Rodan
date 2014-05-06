@@ -144,12 +144,6 @@ except ImportError as e:
     print("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
 
 
-## Periodic Tasks
-try:
-    from rodan.jobs.periodic_tasks.classifier_ga_optimization import OptimizeAllClassifiersTask
-except ImportError as e:
-    print("Classifier optimization periodic task not installed. Skipping. {0}".format(e))
-
 #Development
 try:
     from rodan.jobs.util.devdummyjobs import load_wfjobuuid

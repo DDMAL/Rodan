@@ -51,7 +51,3 @@ class Project(models.Model):
     @property
     def workflow_count(self):
         return self.workflows.count()
-
-    @property
-    def classifier_count(self):
-        return self.classifiers.count()
