@@ -2,8 +2,8 @@ from celery import Task
 from rodan.models.runjob import RunJob, RunJobStatus
 from rodan.jobs.util import taskutil
 
-class RodanJob(Task):
 
+class RodanJob(Task):
     def run_task(self, result_id, runjob_id, *args, **kwargs):
         """
         This is where all the execution code of a job goes.
