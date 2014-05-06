@@ -103,7 +103,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rodan',
     'django_extensions',
-    'south',
     'rest_framework',
     'rest_framework.authtoken',
     'djcelery',
