@@ -93,62 +93,62 @@ try:
     from rodan.jobs.diva import to_jpeg2000
     to_jpeg2000.load_module()
 except ImportError as e:
-    print("No Diva JPEG2000 converter Installed. Skipping. ", e)
+    print("No Diva JPEG2000 converter Installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.poly_mask import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Poly Mask job not installed. Skipping", e)
+    print("Custom Poly Mask job not installed. Skipping".format(e))
 
 try:
     from rodan.jobs.gamera.custom.border_removal import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Border Removal job not installed. Skipping", e
+    print("Custom Border Removal job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.segmentation import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Segmentation job not installed. Skipping", e)
+    print("Custom Segmentation job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.neume_classification import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Classification job not installed. Skipping", e)
+    print("Custom Classification job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.staff_removal import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom RT Staff Removal job not installed. Skipping", e)
+    print("Custom RT Staff Removal job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.pitch_finding import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Pitch Finding job not installed. Skipping", e)
+    print("Custom Pitch Finding job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.neon import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Pitch Correction job not installed. Skipping", e)
+    print("Custom Pitch Correction job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.pixel_segment import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print("Custom Pixel Segment job not installed. Skipping", e)
+    print("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
 
 
 ## Periodic Tasks
 try:
     from rodan.jobs.periodic_tasks.classifier_ga_optimization import OptimizeAllClassifiersTask
 except ImportError as e:
-    print("Classifier optimization periodic task not installed. Skipping", e)
+    print("Classifier optimization periodic task not installed. Skipping. {0}".format(e))
 
 #Development
 try:
