@@ -4,7 +4,7 @@ from django.conf import settings
 from rodan.jobs.neon.celery_task import PitchCorrectionTask
 
 
-def load_segmentation():
+def load_module():
     task_class = PitchCorrectionTask
 
     if not Job.objects.filter(job_name=task_class.name).exists():
@@ -24,7 +24,3 @@ def load_segmentation():
                 )
 
         j.save()
-
-
-def load_module():
-    load_segmentation()
