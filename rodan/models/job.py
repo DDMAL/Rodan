@@ -41,7 +41,7 @@ class Job(models.Model):
     output_types = json.JSONField(blank=True, null=True)
     settings = json.JSONField(blank=True, null=True)
 
-    enabled = models.BooleanField()
+    enabled = models.BooleanField(default=False)
     interactive = models.BooleanField(default=False)
 
     def __unicode__(self):
