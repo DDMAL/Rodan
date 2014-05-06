@@ -3,8 +3,6 @@ from django.conf import settings
 
 from rodan.jobs.neon.celery_task import PitchCorrectionTask
 
-MEI = settings.MEI
-
 
 def load_segmentation():
     task_class = PitchCorrectionTask
@@ -13,8 +11,12 @@ def load_segmentation():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Interactive pitch correction using Neon.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (MEI,), "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (MEI,), "name": "output"},
+                input_types={"default": None, "has_default": False,
+                             "list_of": False, "pixel_types": (settings.MEI,),
+                             "name": "input"},
+                output_types={"default": None, "has_default": False,
+                              "list_of": False, "pixel_types": (settings.MEI,),
+                              "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Pitch Correction",
