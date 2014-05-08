@@ -1,3 +1,4 @@
+import celery
 import urlparse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import resolve
@@ -70,9 +71,7 @@ class PageList(generics.ListCreateAPIView):
             # The ensure_compatible() method returns the page_object
             # as the first (invisible) argument to the create_thumbnails
             # method.
-            res = ensure_compatible.s(page_obj)
-            res.link(create_thumbnails.s())
-            res.link(processed.s())
+            res = celery.chain(ensure_compatible.s(page_obj), create_thumbnails.s(), processed.s())
             res.apply_async()
 
             try:
