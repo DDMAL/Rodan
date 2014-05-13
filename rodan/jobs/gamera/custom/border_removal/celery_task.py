@@ -2,8 +2,8 @@ from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
-import Image
-import ImageDraw
+from PIL import Image
+from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
 
