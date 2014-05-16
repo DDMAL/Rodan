@@ -82,6 +82,7 @@ urlpatterns += patterns('',
 # Add neon urls only if neon jobs are installed.
 try:
     from rodan.jobs.neon import module_loader
+    import pymei
 except ImportError as e:
     print("No neon job is installed. Neon urls will not be handled.")
     print("The following exception was raised: {0}".format(e))
