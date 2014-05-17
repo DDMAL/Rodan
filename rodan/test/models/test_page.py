@@ -5,12 +5,11 @@ from rodan.models.project import Project
 
 
 class PageTestCase(TestCase):
-    def setUp(self):
-        self.test_user = User(username="testuser")
-        self.test_user.save()
+    fixtures = ["1_users", "2_initial_data"]
 
-        self.test_project = Project(name="Test Project", creator=self.test_user)
-        self.test_project.save()
+    def setUp(self):
+        self.test_user = User.objects.get(username="ahankins")
+        self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
 
     def test_save(self):
         page = Page(project=self.test_project, creator=self.test_user, name="test page")
