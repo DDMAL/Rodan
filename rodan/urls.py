@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
-admin.autodiscover()
 
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.authtoken.views import obtain_auth_token
@@ -34,6 +33,10 @@ from rodan.views import interactive
 
 
 urlpatterns = []
+
+urlpatterns += patterns('',
+    url(r'^admin/', include(admin.site.urls)),
+)
 
 urlpatterns += format_suffix_patterns(
     patterns('rodan.views.main',
@@ -90,12 +93,6 @@ else:
     urlpatterns += patterns('',
         url(r'^interactive/neon/$', interactive.NeonView.as_view()),
         url(r'^interactive/neon/edit/', include('rodan.jobs.neon.urls')),
-    )
-
-# Only add admin if it's enabled
-if 'django.contrib.admin' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)),
     )
 
 # For serving stuff under MEDIA_ROOT in debug mode only
