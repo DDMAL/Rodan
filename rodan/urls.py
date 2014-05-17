@@ -83,6 +83,7 @@ urlpatterns += patterns('',
     )
 
 # Add neon urls only if neon jobs are installed.
+# @TODO: Move to a neon-specific URL loader and get it out of the site URLs file.
 try:
     from rodan.jobs.neon import module_loader
 except ImportError as e:
