@@ -1,6 +1,6 @@
 import os
 import shutil
-import Image
+from PIL import Image
 from rodan.jobs.util import taskutil
 from rodan.models.runjob import RunJob, RunJobStatus
 from rodan.models.result import Result

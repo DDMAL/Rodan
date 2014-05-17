@@ -1,8 +1,8 @@
 import json
 from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
-import Image
-import ImageDraw
+from PIL import Image
+from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
 from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask

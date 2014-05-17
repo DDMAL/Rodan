@@ -167,3 +167,12 @@ class NeonView(RodanInteractiveBaseView):
                     'edit_title': 'Runjob ' + str(runjob.uuid),
                     'neon_image': os.path.join(request.get_host(),
                                                            self.compressed_image_url(runjob))}
+
+class PixelSegmentView(RodanInteractiveBaseView):
+    def get(self, request, *args, **kwargs):
+        self.view_url = "/interactive/pixel_segment/"
+        self.template_name = "pixel_segment.html"
+        return super(PixelSegmentView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super(PixelSegmentView, self).post(request, *args, **kwargs)

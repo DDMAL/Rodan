@@ -1,8 +1,8 @@
 import json
 from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
-import Image
-import ImageDraw
+from PIL import Image
+from PIL import ImageDraw
 from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 
 

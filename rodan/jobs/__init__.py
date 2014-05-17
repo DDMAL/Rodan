@@ -25,67 +25,67 @@
     in the `helpers` directory, since this will automatically offload all thumbnailing to Celery as well.
 """
 
-print "Loading Rodan Jobs"
+print("Loading Rodan Jobs")
 
 try:
     from rodan.jobs.gamera import binarization
     binarization.load_module()
 except ImportError as e:
-    print "Trouble loading the Gamera binarization plugins. Is Gamera installed?"
+    print("Trouble loading the Gamera binarization plugins. Is Gamera installed?")
 
 try:
     from rodan.jobs.gamera import threshold
     threshold.load_module()
 except ImportError as e:
-    print "Trouble loading the Gamera threshold plugins. Is Gamera installed?"
+    print("Trouble loading the Gamera threshold plugins. Is Gamera installed?")
 
 try:
     from rodan.jobs.gamera import image_conversion
     image_conversion.load_module()
 except ImportError as e:
-    print "Trouble loading the Gamera image_conversion plugins. Is Gamera installed?"
+    print("Trouble loading the Gamera image_conversion plugins. Is Gamera installed?")
 
 try:
     from rodan.jobs.gamera import transformation
     transformation.load_module()
 except ImportError as e:
-    print "Trouble loading the Gamera transformation plugins. Is Gamera installed?"
+    print("Trouble loading the Gamera transformation plugins. Is Gamera installed?")
 
 try:
     from rodan.jobs.gamera.toolkits import rodan_plugins
     rodan_plugins.load_module()
 except ImportError as e:
-    print "The Rodan Plugins have not been installed. Skipping."
+    print("The Rodan Plugins have not been installed. Skipping.")
 
 try:
     from rodan.jobs.gamera.toolkits import border_removal
     border_removal.load_module()
 except ImportError as e:
-    print "No Border Removal Toolkit Installed. Skipping."
+    print("No Border Removal Toolkit Installed. Skipping.")
 
 try:
     from rodan.jobs.gamera.toolkits import staff_removal
     staff_removal.load_module()
 except ImportError as e:
-    print "No Staff Removal Toolkit Installed. Skipping."
+    print("No Staff Removal Toolkit Installed. Skipping.")
 
 try:
     from rodan.jobs.gamera.toolkits import background_estimation
     background_estimation.load_module()
 except ImportError as e:
-    print "No Background Estimation Toolkit Installed. Skipping."
+    print("No Background Estimation Toolkit Installed. Skipping.")
 
 try:
     from rodan.jobs.gamera.toolkits import lyric_extraction
     lyric_extraction.load_module()
 except ImportError as e:
-    print "No Lyric Extraction Toolkit Installed. Skipping."
+    print("No Lyric Extraction Toolkit Installed. Skipping.")
 
 try:
     from rodan.jobs.gamera.toolkits import musicstaves
     musicstaves.load_module()
 except ImportError as e:
-    print "No Music Staves Toolkit Installed. Skipping."
+    print("No Music Staves Toolkit Installed. Skipping.")
 
 ##########
 
@@ -93,61 +93,61 @@ try:
     from rodan.jobs.diva import to_jpeg2000
     to_jpeg2000.load_module()
 except ImportError as e:
-    print "No Diva JPEG2000 converter Installed. Skipping. ", e
+    print("No Diva JPEG2000 converter Installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.poly_mask import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Poly Mask job not installed. Skipping", e
+    print("Custom Poly Mask job not installed. Skipping".format(e))
 
 try:
     from rodan.jobs.gamera.custom.border_removal import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Border Removal job not installed. Skipping", e
+    print("Custom Border Removal job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.segmentation import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Segmentation job not installed. Skipping", e
+    print("Custom Segmentation job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.neume_classification import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Classification job not installed. Skipping", e
+    print("Custom Classification job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.staff_removal import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom RT Staff Removal job not installed. Skipping", e
+    print("Custom RT Staff Removal job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.pitch_finding import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Pitch Finding job not installed. Skipping", e
+    print("Custom Pitch Finding job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.neon import module_loader
     module_loader.load_module()
 except ImportError as e:
-    print "Custom Pitch Correction job not installed. Skipping", e
+    print("Custom Pitch Correction job not installed. Skipping. {0}".format(e))
 
-
-## Periodic Tasks
 try:
-    from rodan.jobs.periodic_tasks.classifier_ga_optimization import OptimizeAllClassifiersTask
+    from rodan.jobs.gamera.custom.pixel_segment import module_loader
+    module_loader.load_module()
 except ImportError as e:
-    print "Classifier optimization periodic task not installed. Skipping", e
+    print("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
+
 
 #Development
 try:
     from rodan.jobs.util.devdummyjobs import load_wfjobuuid
     load_wfjobuuid()
 except ImportError as e:
-    print "DEV: The dummy job could not be loaded properly. Skipping"
+    print("DEV: The dummy job could not be loaded properly. Skipping")
     print e

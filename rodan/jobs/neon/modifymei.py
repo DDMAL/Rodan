@@ -1,7 +1,7 @@
 from pymei import MeiElement, MeiAttribute, XmlImport, XmlExport
 
-class ModifyDocument:
 
+class ModifyDocument:
     def __init__(self, filename):
         self.mei = XmlImport.read(filename)
         self.filename = filename
@@ -110,10 +110,10 @@ class ModifyDocument:
     def delete_neume(self, ids):
         for id in ids:
             element = self.mei.getElementById(id)
-            
+
             # remove the bounding box attached to this element
             self.remove_zone(element)
-            
+
             # remove the element
             element.getParent().removeChild(element)
 
@@ -125,7 +125,7 @@ class ModifyDocument:
         """
 
         neume = self.mei.getElementById(id)
-        
+
         nc = neume.getChildrenByName("nc")[0]
 
         if shape == "punctum":
@@ -137,7 +137,7 @@ class ModifyDocument:
             nc.setAttributes(attrs)
         elif shape == "punctum_inclinatum_parvum":
             neume_name = "punctum"
-            attrs = [MeiAttribute("inclinatum", "true"), MeiAttribute("deminutus", "true")];
+            attrs = [MeiAttribute("inclinatum", "true"), MeiAttribute("deminutus", "true")]
             nc.setAttributes(attrs)
         elif shape == "quilisma":
             neume_name = "punctum"
@@ -153,14 +153,13 @@ class ModifyDocument:
         neume.addAttribute("name", neume_name)
 
         self.update_or_add_zone(neume, ulx, uly, lrx, lry)
-        
+
     def neumify(self, ids, type_id, head_shapes, ulx, uly, lrx, lry):
         '''
         Neumify a group of neumes (with provided ids)
         and give it the given neume name. Also update
         bounding box information.
         '''
-        
         # get neume name and variant from type id
         type_split = type_id.split(".")
         if type_split[-1].isdigit():
@@ -198,7 +197,7 @@ class ModifyDocument:
                         new_nc.addAttribute("inclinatum", "true")
                         new_nc.addAttribute("deminutus", "true")
                         ncs.append(new_nc)
-                        cur_nc = head 
+                        cur_nc = head
                     elif head == 'quilisma' and cur_nc != 'quilisma':
                         new_nc = MeiElement("nc")
                         new_nc.addAttribute("quilisma", "true")
@@ -282,7 +281,7 @@ class ModifyDocument:
 
                 # now remove the neume
                 neume.getParent().removeChild(neume)
-        
+
         result = {"nids": newids}
         return result
 
@@ -316,7 +315,7 @@ class ModifyDocument:
                 new_staff = MeiElement("staff")
                 new_layer = MeiElement("layer")
                 new_layer.addAttribute("n", "1")
-                
+
                 # get elements after "before element" to move
                 element_peers = before.getPeers()
                 e_ind = list(element_peers).index(before)
@@ -344,7 +343,7 @@ class ModifyDocument:
                     section_parent.addChild(new_staff)
 
                 new_staff.addAttribute("n", str(s_ind+2))
-                
+
                 # insert and update staff definitions
                 staff_group = self.mei.getElementsByName("staffGrp")
                 if len(staff_group):
@@ -372,7 +371,7 @@ class ModifyDocument:
         element to insert before when there is no subsequent
         staff. In this case, the element is inserted at the end
         of the last system. Also sets the bounding box information
-        of the new division placement. All of the complexity here 
+        of the new division placement. All of the complexity here
         comes from final divisions, where elements have to be shifted.
         '''
 
@@ -408,7 +407,7 @@ class ModifyDocument:
 
         # remove the division from the document
         layer.removeChild(division)
-        
+
         before = self.mei.getElementById(before_id)
         # get layer element
         layer_before = before.getParent()
@@ -425,7 +424,7 @@ class ModifyDocument:
                 new_staff = MeiElement("staff")
                 new_layer = MeiElement("layer")
                 new_layer.addAttribute("n", "1")
-                
+
                 # get elements after "before element" to move
                 element_peers = before.getPeers()
                 e_ind = list(element_peers).index(before)

@@ -6,7 +6,6 @@ from rodan.models.page import Page
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob, RunJobStatus
-from rodan.models.classifiersetting import ClassifierSetting
 
 
 @receiver(post_save, sender=WorkflowRun)
@@ -49,24 +48,6 @@ def update_workflow_upon_workflowjob_removal(**kwargs):
         if db_workflowjob.workflow:
             workflow_instance = db_workflowjob.workflow
             super(Workflow, workflow_instance).save()
-
-
-@receiver(post_save, sender=ClassifierSetting)
-def update_optimal_setting_upon_classifiersetting_save(**kwargs):
-    new_setting = kwargs['instance']
-    producer = new_setting.producer
-    if producer is None or new_setting.fitness is None:
-        return None
-
-    related_settings = producer.classifier_settings.order_by('-fitness')
-    if not related_settings.exists():
-        new_optimal = new_setting
-    else:
-        previous_optimal = related_settings[0]
-        new_optimal = max(new_setting, previous_optimal, key=lambda x: x.fitness)
-
-    producer.optimal_setting = new_optimal
-    producer.save()
 
 
 ## The following two signal receivers fix the issue of workflowjob sequence numbers,
