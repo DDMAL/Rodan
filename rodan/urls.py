@@ -88,7 +88,6 @@ try:
     from rodan.jobs.neon import module_loader
 except ImportError as e:
     print("No neon job is installed. Neon urls will not be handled.")
-    print("The following exception was raised: {0}".format(e))
 else:
     from rodan.jobs.neon import urls
     urlpatterns += patterns('',
