@@ -146,8 +146,8 @@ except ImportError as e:
 
 #Development
 try:
-    from rodan.jobs.util.devdummyjobs import load_wfjobuuid
-    load_wfjobuuid()
+    from rodan.jobs.devel.dummy_job import load_dummy_job
+    load_dummy_job()
 except ImportError as e:
     print("DEV: The dummy job could not be loaded properly. Skipping")
     print e

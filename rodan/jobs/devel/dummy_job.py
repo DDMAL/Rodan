@@ -1,17 +1,17 @@
 from rodan.models.job import Job
 
-def load_wfjobuuid():
-    name = 'dummywfuuidjob'
+
+def load_dummy_job():
+    name = 'rodan.jobs.devel.dummy_job'
     if not Job.objects.filter(job_name=name).exists():
         j = Job(job_name=name,
-                author="Deepanjan Roy",
-                description="Classifies the neumes detected in the page using the classifier interface.",
+                author="Andrew Hankinson",
+                description="A Dummy Job for testing the Job loading and workflow system",
                 input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (1,), "name": "input"},
                 output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (1,), "name": "output"},
-                settings=[{'default': None, 'has_default': False, 'type': 'uuid_workflowjob', 'name': 'Auxilary Input'}],
+                settings=[{}],
                 enabled=True,
                 category="Dummy",
                 interactive=False
                 )
-
         j.save()
