@@ -70,17 +70,17 @@ urlpatterns += format_suffix_patterns(
 )
 
 urlpatterns += patterns('',
-        url(r'^interactive/poly_mask/$', interactive.PolyMaskView.as_view()),
-        url(r'^interactive/crop/$', interactive.CropView.as_view()),
-        url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
-        url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
-        url(r'^interactive/rotate/$', interactive.RotateView.as_view()),
-        url(r'^interactive/segment/$', interactive.SegmentView.as_view()),
-        url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
-        url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
-        url(r'^interactive/neon/$', interactive.NeonView.as_view()),
-        url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
-    )
+    url(r'^interactive/poly_mask/$', interactive.PolyMaskView.as_view()),
+    url(r'^interactive/crop/$', interactive.CropView.as_view()),
+    url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
+    url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
+    url(r'^interactive/rotate/$', interactive.RotateView.as_view()),
+    url(r'^interactive/segment/$', interactive.SegmentView.as_view()),
+    url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
+    url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
+    url(r'^interactive/neon/$', interactive.NeonView.as_view()),
+    url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
+)
 
 # # Add neon urls only if neon jobs are installed.
 # # @TODO: Move to a neon-specific URL loader and get it out of the site URLs file.
