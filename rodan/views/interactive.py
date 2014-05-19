@@ -144,29 +144,6 @@ class BarlineCorrectionView(RodanInteractiveBaseView):
     def post(self, request, *args, **kwargs):
         return super(BarlineCorrectionView, self).post(request, *args, **kwargs)
 
-class NeonView(RodanInteractiveBaseView):
-    try:
-        from rodan.jobs.neon.utils import live_mei_url, compressed_image_url
-        from rodan.jobs.neon import neon_handler
-    except ImportError as e:
-        print "Neon is not installed. Skipping interactive neon view."
-        print "Exception:", e
-
-    else:
-        view_url = "/interactive/neon/"
-        template_name = "neon.html"
-        live_mei_url = staticmethod(live_mei_url)
-        compressed_image_url = staticmethod(compressed_image_url)
-
-        data = {'force_width': 1000, 'neume_library': 'salzinnes'  # This can be a setting
-                }
-
-        def runjob_context(self, runjob, request):
-            return {'live_mei_url': os.path.join(request.get_host(), self.live_mei_url(runjob)),
-                    'neon_handler_path': 'edit/' + str(runjob.uuid),
-                    'edit_title': 'Runjob ' + str(runjob.uuid),
-                    'neon_image': os.path.join(request.get_host(),
-                                                           self.compressed_image_url(runjob))}
 
 class PixelSegmentView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):

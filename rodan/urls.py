@@ -78,22 +78,8 @@ urlpatterns += patterns('',
     url(r'^interactive/segment/$', interactive.SegmentView.as_view()),
     url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
     url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
-    url(r'^interactive/neon/$', interactive.NeonView.as_view()),
     url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
 )
-
-# # Add neon urls only if neon jobs are installed.
-# # @TODO: Move to a neon-specific URL loader and get it out of the site URLs file.
-# try:
-#     from rodan.jobs.neon import module_loader
-# except ImportError as e:
-#     print("No neon job is installed. Neon urls will not be handled.")
-# else:
-#     from rodan.jobs.neon import urls
-#     urlpatterns += patterns('',
-#         url(r'^interactive/neon/$', interactive.NeonView.as_view()),
-#         url(r'^interactive/neon/edit/', include('rodan.jobs.neon.urls')),
-#     )
 
 # For serving stuff under MEDIA_ROOT in debug mode only
 if settings.DEBUG:
