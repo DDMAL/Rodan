@@ -1,12 +1,9 @@
+import os
 from django.test import TestCase
-from rodan.models.project import Project
-from django.contrib.auth.models import User
-from rodan.models.workflow import Workflow
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.page import Page
 from rodan.models.runjob import RunJob
-from rodan.models.job import Job
 
 
 class RunJobTestCase(TestCase):
@@ -21,10 +18,16 @@ class RunJobTestCase(TestCase):
         test_runjob = RunJob(workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob, page=self.test_page)
         test_runjob.save()
 
+        # test that the paths were created properly
+        rj_path = test_runjob.runjob_path
+        self.assertTrue(os.path.exists(rj_path))
+
         retr_runjob = RunJob.objects.get(uuid=test_runjob.pk)
         self.assertEqual(retr_runjob, test_runjob)
-
         retr_runjob.delete()
 
     def test_delete(self):
-        pass
+        test_runjob = RunJob.objects.get(uuid="3d558414db10427d82efdd9b9cb985bf")
+        rj_path = test_runjob.runjob_path
+        test_runjob.delete()
+        self.assertFalse(os.path.exists(rj_path))
