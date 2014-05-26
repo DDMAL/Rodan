@@ -1,5 +1,4 @@
 https://www.djangoproject.com/download/1.7.b4/tarball/
-django-celery
 Pillow==2.4.0
 Werkzeug==0.9.4
 amqp==1.4.5

@@ -1,6 +1,4 @@
 import os
-import djcelery
-djcelery.setup_loader()
 
 DEBUG = True
 
