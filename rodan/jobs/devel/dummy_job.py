@@ -1,4 +1,5 @@
 from rodan.models.job import Job
+from rodan.jobs.devel import celery_task
 
 
 def load_dummy_job():
