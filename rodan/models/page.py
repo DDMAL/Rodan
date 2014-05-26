@@ -7,14 +7,13 @@ from django.contrib.auth.models import User
 from uuidfield import UUIDField
 
 
-def upload_path(instance, filename):
+def upload_path(self, filename):
     _, ext = os.path.splitext(filename)
-    return os.path.join(instance.page_path, "original_file{0}".format(ext.lower()))
+    return os.path.join(self.page_path, "original_file{0}".format(ext.lower()))
 
-def compat_path(instance, filename):
+def compat_path(self, filename):
     _, ext = os.path.splitext(filename)
-    return os.path.join(instance.page_path, "compat_file{0}".format(ext.lower()))
-
+    return os.path.join(self.page_path, "compat_file{0}".format(ext.lower()))
 
 class Page(models.Model):
     """

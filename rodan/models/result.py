@@ -5,10 +5,9 @@ from uuidfield import UUIDField
 from rodan.settings import IMAGE_TYPES
 
 
-def upload_fn(instance, filename):
+def upload_fn(self, filename):
     _, ext = os.path.splitext(os.path.basename(filename))
-    return os.path.join(instance.result_path, "{0}{1}".format(str(instance.uuid), ext))
-
+    return os.path.join(self.result_path, "{0}{1}".format(str(self.uuid), ext))
 
 class Result(models.Model):
     """
