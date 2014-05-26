@@ -40,8 +40,8 @@ class Page(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     project = models.ForeignKey(Project, related_name="pages")
-    page_image = models.FileField(upload_to=self.upload_path, null=True, max_length=255)
-    compat_page_image = models.FileField(upload_to=self.compat_path, null=True, blank=True, max_length=255)
+    page_image = models.FileField(upload_to=upload_path, null=True, max_length=255)
+    compat_page_image = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
     page_order = models.IntegerField(null=True, blank=True)
     processed = models.BooleanField(default=False)
 
