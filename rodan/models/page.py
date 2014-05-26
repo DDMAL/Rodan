@@ -7,6 +7,14 @@ from django.contrib.auth.models import User
 from uuidfield import UUIDField
 
 
+def upload_path(self, filename):
+    _, ext = os.path.splitext(filename)
+    return os.path.join(self.page_path, "original_file{0}".format(ext.lower()))
+
+def compat_path(self, filename):
+    _, ext = os.path.splitext(filename)
+    return os.path.join(self.page_path, "compat_file{0}".format(ext.lower()))
+
 class Page(models.Model):
     """
         A Page represents a single page image from a book. When pages are uploaded they are
@@ -29,19 +37,11 @@ class Page(models.Model):
     def page_path(self):
         return os.path.join(self.project.project_path, "pages", str(self.uuid))
 
-    def upload_path(self, filename):
-        _, ext = os.path.splitext(filename)
-        return os.path.join(self.page_path, "original_file{0}".format(ext.lower()))
-
-    def compat_path(self, filename):
-        _, ext = os.path.splitext(filename)
-        return os.path.join(self.page_path, "compat_file{0}".format(ext.lower()))
-
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     project = models.ForeignKey(Project, related_name="pages")
-    page_image = models.FileField(upload_to=upload_path, null=True, max_length=255)
-    compat_page_image = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
+    page_image = models.FileField(upload_to=self.upload_path, null=True, max_length=255)
+    compat_page_image = models.FileField(upload_to=self.compat_path, null=True, blank=True, max_length=255)
     page_order = models.IntegerField(null=True, blank=True)
     processed = models.BooleanField(default=False)
 

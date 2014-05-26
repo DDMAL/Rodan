@@ -5,6 +5,10 @@ from uuidfield import UUIDField
 from rodan.settings import IMAGE_TYPES
 
 
+def upload_fn(self, filename):
+    _, ext = os.path.splitext(os.path.basename(filename))
+    return os.path.join(self.result_path, "{0}{1}".format(str(self.uuid), ext))
+
 class Result(models.Model):
     """
         A Result object stores pointers to the output of a RunJob. A single result file is the output
@@ -14,10 +18,6 @@ class Result(models.Model):
     @property
     def result_path(self):
         return self.run_job.runjob_path
-
-    def upload_fn(self, filename):
-        _, ext = os.path.splitext(os.path.basename(filename))
-        return os.path.join(self.result_path, "{0}{1}".format(str(self.uuid), ext))
 
     class Meta:
         app_label = 'rodan'
