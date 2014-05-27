@@ -89,11 +89,57 @@
   },
   {
     "fields": {
+      "runs": 0,
+      "name": "Test Workflow - no jobs",
+      "creator": 1,
+      "created": "2014-05-17T17:35:24.642Z",
+      "updated": "2014-05-17T17:41:37.181Z",
+      "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
+      "has_started": false,
+      "pages": [
+        "2f63f986449349769d7a313e0fc6edb3"
+      ],
+      "description": null
+    },
+    "model": "rodan.workflow",
+    "pk": "ef78a1aa79554abcb5f1b0ac7bba2bad"
+  },
+  {
+    "fields": {
+      "runs": 0,
+      "name": "Test Workflow - no jobs",
+      "creator": 1,
+      "created": "2014-05-17T17:35:24.642Z",
+      "updated": "2014-05-17T17:41:37.181Z",
+      "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
+      "has_started": false,
+      "pages": [
+      ],
+      "description": null
+    },
+    "model": "rodan.workflow",
+    "pk": "ff78a1aa79554abcb5f1b0ac7bba2bad"
+  },
+  {
+    "fields": {
       "updated": "2014-05-17T17:35:35.502Z",
       "created": "2014-05-17T17:35:35.502Z",
       "sequence": 1,
       "job_type": 0,
       "workflow": "df78a1aa79554abcb5f1b0ac7bba2bad",
+      "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
+      "job": "76753dd66e1147bcbd6321d749518da2"
+    },
+    "model": "rodan.workflowjob",
+    "pk": "a21f510a16c24701ac0e435b3f4c20f2"
+  },
+  {
+    "fields": {
+      "updated": "2014-05-17T17:35:35.502Z",
+      "created": "2014-05-17T17:35:35.502Z",
+      "sequence": 1,
+      "job_type": 0,
+      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
       "job": "76753dd66e1147bcbd6321d749518da2"
     },
