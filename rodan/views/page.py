@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 
-from rodan.models.page import Page
+from rodan.models.page import Page, upload_path
 from rodan.models.project import Project
 from rodan.serializers.page import PageSerializer
 from rodan.helpers.convert import ensure_compatible
@@ -64,7 +64,7 @@ class PageList(generics.ListCreateAPIView):
             page_obj.page_order = seq
             page_obj.creator = current_user
             page_obj.save()
-            page_obj.page_image.save(page_obj.upload_path(fileobj.name), fileobj)
+            page_obj.page_image.save(upload_path(page_obj, fileobj.name), fileobj)
 
             # Create a chain that will first ensure the
             # file is converted to PNG and then create the thumbnails.
