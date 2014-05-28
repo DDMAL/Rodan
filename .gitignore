@@ -8,4 +8,9 @@ db.sqlite
 .XcodeSupport/*
 errors.log
 rodan_env
-.DS_Store
+.DS_Store 
+rodan/migrations/*
+gunicorn_start.sh
+celery_start.sh
+rodan/settings_production.py
+rodan/static/Rodan
