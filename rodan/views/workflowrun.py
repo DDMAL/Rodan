@@ -232,9 +232,9 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         runjob.save()
 
     def patch(self, request, pk, *args, **kwargs):
-
-        workflow_run = WorkflowRun.objects.get(pk=pk)
-        if not workflow_run:
+        try:
+            workflow_run = WorkflowRun.objects.get(pk=pk)
+        except WorkflowRun.DoesNotExist:
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_already_cancelled = workflow_run.cancelled
