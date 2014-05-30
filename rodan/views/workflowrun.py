@@ -250,7 +250,6 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                     rj.save()
 
         if workflow_already_cancelled and workflow_newly_cancelled == False:
-            return Response({"message": "Workflowrun cannnot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
 
         return self.partial_update(request, pk, *args, **kwargs)
