@@ -1,4 +1,4 @@
-https://www.djangoproject.com/download/1.7.b4/tarball/
+-e git+https://github.com/django/django.git@170255caf43f2d0ae072f0b7a22da90f50bd95b0#egg=Django-origin/stable/1.7.x
 Pillow==2.4.0
 Werkzeug==0.9.4
 amqp==1.4.5
