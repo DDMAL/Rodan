@@ -6,11 +6,11 @@ git:
     submodules: false
 python:
     - "2.7"
-env:
-    - DJANGO=1.7b4
+services:
+    - mySQL
 install: 
-    - pip install DJANGO==$DJANGO
     - pip install -r requirements.txt
 before_script: 
     - mv rodan/settings_production.py.example rodan/settings_production.py
+    - mysql -e 'create database rodan_test;'
 script: python manage.py test
