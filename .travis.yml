@@ -6,12 +6,10 @@ git:
     submodules: false
 python:
     - "2.7"
-services:
-    - mySQL
 install: 
     - pip install -q mysql-python
+    - pip install -q django
     - pip install -r requirements.txt
 before_script: 
     - mv rodan/settings_production.py.example rodan/settings_production.py
-    - mysql -e 'create database rodan_test;'
 script: python manage.py test
