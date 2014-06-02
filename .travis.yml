@@ -9,6 +9,7 @@ python:
 services:
     - mySQL
 install: 
+    - pip install -q mysql-python
     - pip install -r requirements.txt
 before_script: 
     - mv rodan/settings_production.py.example rodan/settings_production.py
