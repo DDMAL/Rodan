@@ -53,7 +53,7 @@ class WorkflowRunViewTest(APITestCase):
     def test_post_no_existing_workflow(self):
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/1',
-            'workflow': 'http://localhost:8000/workflow/12345/',
+            'workflow': 'http://localhost:8000/workflow/df78a1aa79554abcb5f1b0ac7bba2bac/',
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -102,7 +102,7 @@ class WorkflowRunViewTest(APITestCase):
 
     def test_patch_not_found(self):
         workflowrun_update = {'run': 5}
-        response = self.client.patch("/workflowrun/12345/", workflowrun_update, format='json')
+        response = self.client.patch("/workflowrun/df78a1aa79554abcb5f1b0ac7bba2bac/", workflowrun_update, format='json')
         anticipated_message = {'message': 'Workflow_run not found'}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
