@@ -31,6 +31,8 @@ from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
 
 from rodan.views import interactive
 
+# this will only run with the first request.
+import rodan.jobs
 
 urlpatterns = []
 
