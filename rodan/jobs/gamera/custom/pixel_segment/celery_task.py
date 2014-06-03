@@ -2,6 +2,7 @@ import json
 import sys
 from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
+from PIL import ImageDraw
 from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 
 class PixelSegmentTask(GameraCustomTask):
@@ -36,8 +37,7 @@ class PixelSegmentTask(GameraCustomTask):
 
         # For each of the geometries provided, we have to apply the pixel colour to non-white pixels.
         for geometry in geometries:
-            if self._is_rectangle(geometry['points']):
-                imageOriginal = self._apply_geometry(imageOriginal, geometry)
+            imageOriginal = self._apply_geometry(imageOriginal, geometry)
 
         # Convert red to white and black to green.
         colour_swap = {(255, 0, 0): (255, 255, 255), (0, 255, 0): (0, 0, 0)}
@@ -80,6 +80,7 @@ class PixelSegmentTask(GameraCustomTask):
         upperLeftY = sys.maxint
         lowerRightX = 0;
         lowerRightY = 0;
+        geometryTuples = []
         for point in geometry['points']:
             point['x'] = int(point['x'] * scale)
             point['y'] = int(point['y'] * scale)
@@ -87,23 +88,45 @@ class PixelSegmentTask(GameraCustomTask):
             upperLeftY = point['y'] if point['y'] < upperLeftY else upperLeftY
             lowerRightX = point['x'] if point['x'] > lowerRightX else lowerRightX
             lowerRightY = point['y'] if point['y'] > lowerRightY else lowerRightY
+            geometryTuples.append((point['x'], point['y']))
         box = (upperLeftX, upperLeftY, lowerRightX, lowerRightY)
 
-        # Change pixels and return.
-        image = self._colour_pixels(image, box, newColour)
-        return image
+        # Change pixels and return.  If the geometry is a rectangle, we use a special
+        # method to speed things up that doesn't check for collision.
+        if self._is_rectangle(geometry['points']):
+            return self._colour_pixels(image, box, newColour, None)
+        else:
+            return self._colour_pixels(image, box, newColour, geometryTuples)
 
     # Colours all pixels in the image defined by the box the given colour (except white pixels).
-    def _colour_pixels(self, image, box, colour):
+    # If 'collisionGeometry' is provided, it will also check if the given pixel lies within
+    # the provided polygon.  (So, if you have a rectangle, don't provided this...it can be null).
+    #
+    # NOTE: 'collisionGeometry' must be a list of tuples (e.g. [(x, y), (x, y), ...])
+    def _colour_pixels(self, image, box, colour, collisionGeometry):
 
         # Crop out the image and get data.
         imageCrop = image.crop(box)
         imageCrop.load()
         imagePixelData = list(imageCrop.getdata())
 
+        # If collisionGeometry is provided, we need to do collision detection.
+        imagePolygonPixelData = None
+        if collisionGeometry is not None:
+            imageCopy = image.copy()
+            draw = ImageDraw.Draw(imageCopy)
+            draw.polygon(collisionGeometry, (0, 0, 255), (0, 0, 255))
+            del draw
+            imageCropPolygon = imageCopy.crop(box)
+            imageCropPolygon.load()
+            del imageCopy
+            imagePolygonPixelData = list(imageCropPolygon.getdata())
+            del imageCropPolygon
+
         # Go through pixels.
         for i in range(len(imagePixelData)):
-            if imagePixelData[i] != (255, 255, 255):
+            if imagePixelData[i] != (255, 255, 255) and \
+               (collisionGeometry is None or imagePolygonPixelData[i] == (0, 0, 255)):
                 imagePixelData[i] = colour
 
         # Apply and return.
@@ -112,7 +135,7 @@ class PixelSegmentTask(GameraCustomTask):
         return image
 
     # Colours all pixels defined in "swap" keys with their "swap" values for the box dimensions.
-    # See '_colour_pixels'...very similar.
+    # See other '_colour_pixels_' methods...very similar.
     def _colour_swap_pixels(self, image, box, colour_swap):
         imageCrop = image.crop(box)
         imageCrop.load()
@@ -123,6 +146,5 @@ class PixelSegmentTask(GameraCustomTask):
         imageCrop.putdata(imagePixelData)
         image.paste(imageCrop, box)
         return image
-
 
 
