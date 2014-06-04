@@ -91,10 +91,6 @@ class WorkflowRunViewTest(APITestCase):
         response = self.client.get("/workflowruns/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_detail_by_page(self):
-        response = self.client.get('/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/?by_page=true')
-        # self.assertEqual(response)
-
     def test_patch(self):
         workflowrun_update = {'run': WorkflowRun.objects.get(pk="eb4b3661be2a44908c4c932b0783bb3e").run+1}
         response = self.client.patch("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/", workflowrun_update, format='json')
