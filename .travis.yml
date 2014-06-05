@@ -4,7 +4,8 @@ branches:
         - develop
 git:
     submodules: false
-services: sqlite3
+services: 
+    - rabbitmq
 python:
     - "2.7"
 install: 
