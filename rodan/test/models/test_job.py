@@ -1,8 +1,6 @@
 from django.test import TestCase
 from rodan.models.job import Job
 
-# Turns out this is not a very interesting test
-
 
 class JobTestCase(TestCase):
     fixtures = ["1_users", "2_initial_data"]
