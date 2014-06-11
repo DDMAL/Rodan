@@ -6,7 +6,7 @@ db.sqlite
 *.cib
 *.xcodeproj/*
 .XcodeSupport/*
-errors.log
+rodan.log
 rodan_env
 .DS_Store 
 rodan/migrations/*
