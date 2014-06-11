@@ -6,6 +6,9 @@ from PIL import ImageDraw
 from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
 
 class PixelSegmentTask(GameraCustomTask):
+
+    COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
+
     max_retries = None
     name = 'gamera.custom.lyric_extraction.pixel_segment'
 
@@ -41,8 +44,7 @@ class PixelSegmentTask(GameraCustomTask):
 
         # Convert red to white and black to green.
         colour_swap = {(255, 0, 0): (255, 255, 255), (0, 255, 0): (0, 0, 0)}
-        box = (0, 0, imageOriginal.size[0], imageOriginal.size[1])
-        imageOriginal = self._colour_swap_pixels(imageOriginal, box, colour_swap)
+        imageOriginal = self._colour_swap_pixels(imageOriginal, colour_swap)
 
         # Convert back to gamera image and return.
         finalImage = from_pil(imageOriginal)
@@ -136,15 +138,31 @@ class PixelSegmentTask(GameraCustomTask):
 
     # Colours all pixels defined in "swap" keys with their "swap" values for the box dimensions.
     # See other '_colour_pixels_' methods...very similar.
-    def _colour_swap_pixels(self, image, box, colour_swap):
-        imageCrop = image.crop(box)
-        imageCrop.load()
-        imagePixelData = list(imageCrop.getdata())
-        for i in range(len(imagePixelData)):
-            if (imagePixelData[i] in colour_swap):
-                imagePixelData[i] = colour_swap[imagePixelData[i]]
-        imageCrop.putdata(imagePixelData)
-        image.paste(imageCrop, box)
+    #
+    # NOTE: we're not doing the swap on the entire image at once as this can cause memory proglems
+    # on large images.  Rather, we do vertical sections of the image one at a time.
+    def _colour_swap_pixels(self, image, colour_swap):
+        imageHeight = image.size[1]
+        count = 0
+        done = False
+        while not done:
+            upperLeftY = count * self.COLOUR_SWAP_PIXELS_BOX_HEIGHT
+            lowerRightY = upperLeftY + self.COLOUR_SWAP_PIXELS_BOX_HEIGHT
+            if lowerRightY >= imageHeight:
+                lowerRightY = imageHeight
+                done = True
+            box = (0, upperLeftY, image.size[0], lowerRightY)
+            imageCrop = image.crop(box)
+            imageCrop.load()
+            imagePixelData = list(imageCrop.getdata())
+            for i in range(len(imagePixelData)):
+                if (imagePixelData[i] in colour_swap):
+                    imagePixelData[i] = colour_swap[imagePixelData[i]]
+            imageCrop.putdata(imagePixelData)
+            image.paste(imageCrop, box)
+            del imagePixelData
+            del imageCrop
+            count += 1
         return image
 
 
