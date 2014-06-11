@@ -1,7 +1,5 @@
 import os
 from django.db import models
-from rodan.models.project import Project
-from rodan.models.runjob import RunJob
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
 from rodan.settings import IMAGE_TYPES
@@ -50,13 +48,20 @@ class Resource(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255, blank=True, null=True)
-    project = models.ForeignKey(Project, related_name="resources")
+    project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
     resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE_CHOICES)
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
-    origin = models.ForeignKey("RunJob", to_field="outputs", related_name="resource", null=True, blank=True)
+    runjob = models.ForeignKey('rodan.RunJob', null=True, blank=True)
+    output = models.CharField(max_length=255, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def origin(self):
+        if not self.runjob or not self.output:
+            return None
+        return {self.runjob: self.output}
