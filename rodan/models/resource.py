@@ -54,14 +54,7 @@ class Resource(models.Model):
     resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE_CHOICES)
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
-    runjob = models.ForeignKey('rodan.RunJob', null=True, blank=True)
-    output = models.CharField(max_length=255, blank=True, null=True)
+    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
-    @property
-    def origin(self):
-        if not self.runjob or not self.output:
-            return None
-        return {self.runjob: self.output}

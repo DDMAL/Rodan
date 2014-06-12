@@ -4,17 +4,17 @@ from uuidfield import UUIDField
 
 def default_label(sender, instance, created, **kwargs):
     if not instance.label:
-        instance.label = instance.input_port_type.name
+        instance.label = instance.output_port_type.name
         instance.save()
 
 
-class InputPort(models.Model):
+class OutputPort(models.Model):
     class Meta:
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow_job = models.ForeignKey('rodan.WorkflowJob', null=True, blank=True)
-    input_port_type = models.ForeignKey('rodan.InputPortType')
+    output_port_type = models.ForeignKey('rodan.OutputPortType')
     label = models.CharField(max_length=255, null=True, blank=True)
 
-models.signals.post_save.connect(default_label, sender=InputPort)
+models.signals.post_save.connect(default_label, sender=OutputPort)
