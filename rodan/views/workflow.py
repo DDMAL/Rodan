@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rodan.models.workflow import Workflow
-from rodan.models.page import Page
+from rodan.models.resourceassignment import ResourceAssignment
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -27,44 +27,58 @@ class WorkflowList(generics.ListCreateAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        project = request.DATA.get('project', None)
+        name = request.DATA.get('name', None)
+        valid = request.DATA.get('valid', None)
+        creator = request.DATA.get('creator', None)
+        workflow_jobs = request.DATA.get('workfow_jobs', None)
+
+        if valid:
+            return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        workflow = Workflow(project=project, name=name, valid=valid, creator=creator, workflow_jobs=workflow_jobs)
+        workflow.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Workflow
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
 
     def patch(self, request, pk, *args, **kwargs):
         kwargs['partial'] = True
         workflow = Workflow.objects.get(pk=pk)
+        to_be_validated = request.DATA.get('valid', None)
+        workflow.valid = False
+        workflow_jobs = request.DATA.get('workflow_job_set', None)
+        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+
         if not workflow:
             return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        pages = request.DATA.get('pages', None)
+        if to_be_validated:
 
-        if pages is None:
-            return self.update(request, *args, **kwargs)
+            if not workflow_jobs:
+                return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_400_BAD_REQUEST)
+            multiple_resources_found = False
 
-        workflow_pages = []
+            for ra in resource_assignments:
+                resource_list = ra.resources.all()
+                if resource_list.count() > 1:
+                    if multiple_resources_found:
+                        return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_400_BAD_REQUEST)
+                    multiple_resources_found = True
 
-        for page in pages:
-            value = urlparse.urlparse(page['url']).path
+                for res in resource_list:
+                    if res not in workflow.resource_set.all():
+                        return Response({'message': 'The resource {0} is not in the workflow'.format(res.name)}, status=status.HTTP_400_BAD_REQUEST)
 
-            # resolve the URL we're passed to a page object
-            try:
-                p = resolve(value)
-            except:
-                return Response({'message': 'Could not resolve path to page object'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            page_obj = Page.objects.get(pk=p.kwargs.get('pk'))
-            if not page_obj:
-                return Response({'message': 'Page Object was not found'}, status=status.HTTP_404_NOT_FOUND)
-
-            workflow_pages.append(page_obj)
-
-        workflow.pages = workflow_pages
+        workflow.valid = True
         workflow.save()
-
-        del request.DATA['pages']
 
         return self.update(request, *args, **kwargs)
