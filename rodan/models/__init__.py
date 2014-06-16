@@ -15,5 +15,6 @@ from rodan.models.runjob import RunJob
 from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
 from rodan.models.connection import Connection
+from rodan.models.resourceassignment import ResourceAssignment
 
 from rodan.models import signal_receivers
