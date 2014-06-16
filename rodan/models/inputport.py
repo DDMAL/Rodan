@@ -2,12 +2,6 @@ from django.db import models
 from uuidfield import UUIDField
 
 
-def default_label(sender, instance, created, **kwargs):
-    if not instance.label:
-        instance.label = instance.input_port_type.name
-        instance.save()
-
-
 class InputPort(models.Model):
     class Meta:
         app_label = 'rodan'
@@ -17,4 +11,7 @@ class InputPort(models.Model):
     input_port_type = models.ForeignKey('rodan.InputPortType')
     label = models.CharField(max_length=255, null=True, blank=True)
 
-models.signals.post_save.connect(default_label, sender=InputPort)
+    def save(self, *args, **kwargs):
+        if not self.label:
+            self.label = self.input_port_type.name
+        super(InputPort, self).save(*args, **kwargs)
