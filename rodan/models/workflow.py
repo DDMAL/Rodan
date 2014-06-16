@@ -24,6 +24,7 @@ class Workflow(models.Model):
     has_started = models.BooleanField(default=False)
     runs = models.IntegerField(default=1)
     creator = models.ForeignKey("auth.User", related_name="workflows")
+    valid = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
