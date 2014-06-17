@@ -298,7 +298,7 @@
   },
   {
     "fields": {
-      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
+      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
       "input_port_type": "30ed42546fe440a181f64a2ebdea82e1",
       "label": "Test InputPort II"
     },
@@ -325,18 +325,18 @@
   },
   {
     "fields": {
-      "input_port": "dd35645a7a7845c5a72c9a856ccb920e",
+      "input_port": "e38b11918691486cbd99627e5baec0a1",
       "input_workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
       "output_port": "bbdd13ddf05844aa8549e93e82ae4fd2",
       "output_workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
-      "workflow": "df78a1aa79554abcb5f1b0ac7bba2bad"
+      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad"
     },
     "model": "rodan.connection",
     "pk": "ee1429aad7434c32be359df5b86a580e"
   },
   {
     "fields": {
-      "input_port": "dd35645a7a7845c5a72c9a856ccb920e",
+      "input_port": "e38b11918691486cbd99627e5baec0a1",
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "resources": ["e8c2672da2f04a54bf710f1a2212bb0e","e920115a4b5548d3839249116bb7973c"]
     },
