@@ -7,7 +7,9 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rodan.models.workflow import Workflow
+from rodan.models.workflowjob import WorkflowJob
 from rodan.models.resourceassignment import ResourceAssignment
+from rodan.models.connection import Connection
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -55,30 +57,62 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         workflow = Workflow.objects.get(pk=pk)
         to_be_validated = request.DATA.get('valid', None)
         workflow.valid = False
-        workflow_jobs = request.DATA.get('workflow_job_set', None)
+        workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
         resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        connections = Connection.objects.filter(workflow=workflow)
 
         if not workflow:
             return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if to_be_validated:
+        if not to_be_validated:
+            return self.update(request, *args, **kwargs)
 
-            if not workflow_jobs:
-                return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_400_BAD_REQUEST)
-            multiple_resources_found = False
+        if not workflow_jobs:
+            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_400_BAD_REQUEST)
 
-            for ra in resource_assignments:
-                resource_list = ra.resources.all()
-                if resource_list.count() > 1:
-                    if multiple_resources_found:
-                        return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_400_BAD_REQUEST)
-                    multiple_resources_found = True
+        multiple_resources_found = False
+        start_points = []
 
-                for res in resource_list:
-                    if res not in workflow.resource_set.all():
-                        return Response({'message': 'The resource {0} is not in the workflow'.format(res.name)}, status=status.HTTP_400_BAD_REQUEST)
+        for ra in resource_assignments:
+            resource_list = ra.resources.all()
+            if resource_list.count() > 1:
+                if multiple_resources_found:
+                    return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_400_BAD_REQUEST)
+                multiple_resources_found = True
+
+            for res in resource_list:
+                if res not in workflow.resource_set.all():
+                    return Response({'message': 'The resource {0} is not in the workflow'.format(res.name)}, status=status.HTTP_400_BAD_REQUEST)
+
+            start_points.append(ra.input_port.workflow_job)
+
+        # for wfjob in workflow_jobs:
+        #     if not wfjob.input_port_set and wfjob not in start_points:
+        #         start_points.append(wfjob)
+        for wfjob in start_points:
+            start_point_visits = []
+            try:
+                self.DFS(wfjob, start_point_visits)
+            except LoopError:
+                return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_400_BAD_REQUEST)
 
         workflow.valid = True
         workflow.save()
 
         return self.update(request, *args, **kwargs)
+
+    def DFS(self, wfjob, start_point_visits):
+        start_point_visits.append(wfjob)
+        adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+        for conn in adjacent_connections:
+            if conn not in start_point_visits:
+                start_point_visits.append(conn)
+                wfj = conn.input_workflow_job
+                if wfj in start_point_visits:
+                    raise LoopError
+                    # node_visit(wfj)
+                self.DFS(wfj, start_point_visits)
+
+
+class LoopError(Exception):
+    pass
