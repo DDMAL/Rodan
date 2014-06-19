@@ -10,6 +10,7 @@ from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.connection import Connection
+from rodan.models.inputport import InputPort
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -59,7 +60,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         workflow.valid = False
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
         resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
-        connections = Connection.objects.filter(workflow=workflow)
 
         if not workflow:
             return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -86,33 +86,69 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
             start_points.append(ra.input_port.workflow_job)
 
-        # for wfjob in workflow_jobs:
-        #     if not wfjob.input_port_set and wfjob not in start_points:
-        #         start_points.append(wfjob)
+        for wfjob in workflow_jobs:
+            inputs = InputPort.objects.filter(workflow_job=wfjob)
+            if not inputs:
+                start_points.append(wfjob)
+
+        total_visits = []
         for wfjob in start_points:
             start_point_visits = []
             try:
-                self.DFS(wfjob, start_point_visits)
+                self.traverse(wfjob, start_point_visits, total_visits)
             except LoopError:
                 return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_400_BAD_REQUEST)
+            except WorkflowJobVisitError:
+                return Response({'message': 'The WorkflowJob with ID {0} is not valid'.format(wfjob.uuid)}, status=status.HTTP_400_BAD_REQUEST)
 
+        print total_visits
         workflow.valid = True
         workflow.save()
 
         return self.update(request, *args, **kwargs)
 
-    def DFS(self, wfjob, start_point_visits):
+    def workflow_job_valid(self, wfjob):
+        return True
+
+    def workflow_job_visit(self, wfjob, total_visits):
+        if not self.workflow_job_valid(wfjob):
+            raise WorkflowJobVisitError
+        input_ports = InputPort.objects.filter(workflow_job=wfjob)
+        if input_ports.count() == 0:
+            total_visits.append(wfjob)
+            return
+        for ip in input_ports:
+            if Connection.objects.filter(input_port=ip):
+                conn = Connection.objects.get(input_port=ip)
+                if conn in total_visits:
+                    return
+                total_visits.append(conn)
+            elif ResourceAssignment.objects.filter(input_port=ip):
+                ra = ResourceAssignment.objects.get(input_port=ip)
+                if ra in total_visits:
+                    return
+                total_visits.append(ra)
+        total_visits.append(wfjob)
+
+    def traverse(self, wfjob, start_point_visits, total_visits):
         start_point_visits.append(wfjob)
         adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
         for conn in adjacent_connections:
-            if conn not in start_point_visits:
-                start_point_visits.append(conn)
-                wfj = conn.input_workflow_job
-                if wfj in start_point_visits:
-                    raise LoopError
-                    # node_visit(wfj)
-                self.DFS(wfj, start_point_visits)
+            if conn in start_point_visits:
+                return
+            start_point_visits.append(conn)
+            self.workflow_job_visit(wfjob, total_visits)
+            wfj = conn.input_workflow_job
+            if wfj in start_point_visits:
+                raise LoopError
+            if wfj in total_visits:
+                return
+            self.traverse(wfj, start_point_visits, total_visits)
 
 
 class LoopError(Exception):
+    pass
+
+
+class WorkflowJobVisitError(Exception):
     pass

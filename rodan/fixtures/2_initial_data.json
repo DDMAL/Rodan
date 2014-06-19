@@ -128,7 +128,7 @@
       "created": "2014-05-17T17:35:35.502Z",
       "sequence": 1,
       "job_type": 0,
-      "workflow": "df78a1aa79554abcb5f1b0ac7bba2bad",
+      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
       "job": "76753dd66e1147bcbd6321d749518da2"
     },
@@ -141,12 +141,25 @@
       "created": "2014-05-17T17:35:35.502Z",
       "sequence": 1,
       "job_type": 0,
-      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
+      "workflow": "df78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
       "job": "76753dd66e1147bcbd6321d749518da2"
     },
     "model": "rodan.workflowjob",
     "pk": "a21f510a16c24701ac0e435b3f4c20f2"
+  },
+  {
+    "fields": {
+      "updated": "2014-05-17T17:35:35.502Z",
+      "created": "2014-05-17T17:35:35.502Z",
+      "sequence": 1,
+      "job_type": 0,
+      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
+      "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
+      "job": "76753dd66e1147bcbd6321d749518da2"
+    },
+    "model": "rodan.workflowjob",
+    "pk": "1e5d20a84d0f46cab47a2389a566ea06"
   },
   {
     "fields": {
@@ -214,7 +227,7 @@
       "error_details": "",
       "error_summary": "",
       "page": "2f63f986449349769d7a313e0fc6edb3",
-      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2"
+      "workflow_job": "1e5d20a84d0f46cab47a2389a566ea06"
     },
     "model": "rodan.runjob",
     "pk": "3d558414db10427d82efdd9b9cb985bf"
@@ -289,7 +302,7 @@
   },
   {
     "fields": {
-      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
+      "workflow_job": "1e5d20a84d0f46cab47a2389a566ea06",
       "input_port_type": "30ed42546fe440a181f64a2ebdea82e1",
       "label": "Test InputPort"
     },
@@ -307,12 +320,21 @@
   },
   {
     "fields": {
-      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
+      "workflow_job": "1e5d20a84d0f46cab47a2389a566ea06",
       "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
       "label": "Test OutputPort" 
     },
     "model": "rodan.outputport",
     "pk": "bbdd13ddf05844aa8549e93e82ae4fd2"
+  },
+  {
+    "fields": {
+      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
+      "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
+      "label": "Test OutputPort" 
+    },
+    "model": "rodan.outputport",
+    "pk": "0e8b037c44f74364a60a7f5cc397a48d"
   },
   {
     "fields": {
@@ -328,7 +350,7 @@
       "input_port": "e38b11918691486cbd99627e5baec0a1",
       "input_workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
       "output_port": "bbdd13ddf05844aa8549e93e82ae4fd2",
-      "output_workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
+      "output_workflow_job": "1e5d20a84d0f46cab47a2389a566ea06",
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad"
     },
     "model": "rodan.connection",
@@ -336,7 +358,7 @@
   },
   {
     "fields": {
-      "input_port": "e38b11918691486cbd99627e5baec0a1",
+      "input_port": "dd35645a7a7845c5a72c9a856ccb920e",
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "resources": ["e8c2672da2f04a54bf710f1a2212bb0e","e920115a4b5548d3839249116bb7973c"]
     },

@@ -12,6 +12,7 @@ from rodan.models.outputport import OutputPort
 from rodan.models.outputporttype import OutputPortType
 from rodan.models.resource import Resource
 from rodan.models.connection import Connection
+from rodan.models.job import Job
 
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -28,9 +29,10 @@ class WorkflowViewTestCase(APITestCase):
         self.test_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
         self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
         self.test_inputport = InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e")
-        self.test_workflowjob = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2")
+        self.test_workflowjob = WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06")
         self.test_resources = Resource.objects.filter(workflow=self.test_workflow)
         self.test_resourceassignment = ResourceAssignment.objects.get(uuid="cfda287923344720bfbec39081819617")
+        self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
 
     def test_validate_no_workflowjobs(self):
         workflow_update = {
@@ -109,3 +111,63 @@ class WorkflowViewTestCase(APITestCase):
         anticipated_message = {'message': 'There appears to be a loop in the workflow'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_no_input_workflow_job(self):
+        test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_no_input_workflowjob.save()
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_no_input_workflowjob, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_two_input_workflow(self):
+        test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_no_input_workflowjob.save()
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_no_input_workflowjob, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
+
+        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
+        test_second_inputport = InputPort(workflow_job=test_workflowjob2, input_port_type=test_inputporttype)
+        test_second_inputport.save()
+
+        connection2_data = {
+            'input_port': test_second_inputport,
+            'input_workflow_job': test_workflowjob2,
+            'output_port': test_outputport,
+            'output_workflow_job': test_no_input_workflowjob,
+            'workflow': self.test_workflow,
+        }
+        test_connection2 = Connection(**connection2_data)
+        test_connection2.save()
+
+        test_workflowjob3 = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_workflowjob3.save()
+
+        test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
+        test_inputport_for_workflowjob3.save()
+
+        connection3_data = {
+            'input_port': test_inputport_for_workflowjob3,
+            'input_workflow_job': test_workflowjob3,
+            'output_port': OutputPort.objects.get(uuid="0e8b037c44f74364a60a7f5cc397a48d"),
+            'output_workflow_job': test_workflowjob2,
+            'workflow': self.test_workflow,
+        }
+        test_connection3 = Connection(**connection3_data)
+        test_connection3.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
