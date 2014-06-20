@@ -1,3 +1,4 @@
+
 import urlparse
 from django.core.urlresolvers import resolve
 
@@ -101,7 +102,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             except WorkflowJobVisitError:
                 return Response({'message': 'The WorkflowJob with ID {0} is not valid'.format(wfjob.uuid)}, status=status.HTTP_400_BAD_REQUEST)
 
-        print total_visits
         workflow.valid = True
         workflow.save()
 
@@ -114,9 +114,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         if not self.workflow_job_valid(wfjob):
             raise WorkflowJobVisitError
         input_ports = InputPort.objects.filter(workflow_job=wfjob)
-        if input_ports.count() == 0:
-            total_visits.append(wfjob)
-            return
         for ip in input_ports:
             if Connection.objects.filter(input_port=ip):
                 conn = Connection.objects.get(input_port=ip)
@@ -132,12 +129,12 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def traverse(self, wfjob, start_point_visits, total_visits):
         start_point_visits.append(wfjob)
+        self.workflow_job_visit(wfjob, total_visits)
         adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
         for conn in adjacent_connections:
             if conn in start_point_visits:
                 return
             start_point_visits.append(conn)
-            self.workflow_job_visit(wfjob, total_visits)
             wfj = conn.input_workflow_job
             if wfj in start_point_visits:
                 raise LoopError
