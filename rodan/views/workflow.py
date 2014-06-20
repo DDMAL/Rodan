@@ -1,4 +1,3 @@
-
 import urlparse
 from django.core.urlresolvers import resolve
 
@@ -12,6 +11,8 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
+from rodan.models.outputport import OutputPort
+from rodan.models.inputporttype import InputPortType
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -76,9 +77,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         for ra in resource_assignments:
             resource_list = ra.resources.all()
+
             if resource_list.count() > 1:
                 if multiple_resources_found:
                     return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_400_BAD_REQUEST)
+
                 multiple_resources_found = True
 
             for res in resource_list:
@@ -89,63 +92,114 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         for wfjob in workflow_jobs:
             inputs = InputPort.objects.filter(workflow_job=wfjob)
+
             if not inputs:
                 start_points.append(wfjob)
 
         total_visits = []
         for wfjob in start_points:
             start_point_visits = []
+
             try:
-                self.traverse(wfjob, start_point_visits, total_visits)
+                self.workflow_valid(wfjob, start_point_visits, total_visits)
+
             except LoopError:
                 return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_400_BAD_REQUEST)
-            except WorkflowJobVisitError:
-                return Response({'message': 'The WorkflowJob with ID {0} is not valid'.format(wfjob.uuid)}, status=status.HTTP_400_BAD_REQUEST)
+
+            except NumberOfPortsError:
+                return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requriements'.format(NumberOfPortsError.ID)}, status=status.HTTP_400_BAD_REQUEST)
+
+            except NoOutputPortError:
+                return Response({'message': 'The WorkflowJob {0} has no OutputPorts!'.format(NoOutputPortError.ID)}, status=status.HTTP_400_BAD_REQUEST)
 
         workflow.valid = True
         workflow.save()
 
+        for wjfob in workflow_jobs:
+            if wfjob not in total_visits:
+                return Response({'message': 'The WorkflowJob with ID {0} was not visited'.format(wfjob.uuid)}, status=status.HTTP_400_BAD_REQUEST)
+
         return self.update(request, *args, **kwargs)
 
     def workflow_job_valid(self, wfjob):
-        return True
+        output_ports = OutputPort.objects.filter(workflow_job=wfjob)
+
+        if not output_ports:
+            NoOutputPortError.ID = wfjob.uuid
+            raise NoOutputPortError
+
+        input_port_types = InputPortType.objects.filter(job=wfjob.job)
+
+        for ipt in input_port_types:
+            number_of_input_ports = InputPort.objects.filter(input_port_type=ipt).count()
+
+            if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
+                NumberOfPortsError.ID = wfjob.uuid
+                raise NumberOfPortsError
 
     def workflow_job_visit(self, wfjob, total_visits):
-        if not self.workflow_job_valid(wfjob):
-            raise WorkflowJobVisitError
+        try:
+            self.workflow_job_valid(wfjob)
+        except Exception as e:
+            raise e
+
         input_ports = InputPort.objects.filter(workflow_job=wfjob)
+
         for ip in input_ports:
             if Connection.objects.filter(input_port=ip):
                 conn = Connection.objects.get(input_port=ip)
+
                 if conn in total_visits:
                     return
+
                 total_visits.append(conn)
+
             elif ResourceAssignment.objects.filter(input_port=ip):
                 ra = ResourceAssignment.objects.get(input_port=ip)
+
                 if ra in total_visits:
                     return
+
                 total_visits.append(ra)
+
         total_visits.append(wfjob)
 
-    def traverse(self, wfjob, start_point_visits, total_visits):
+    def workflow_valid(self, wfjob, start_point_visits, total_visits):
         start_point_visits.append(wfjob)
-        self.workflow_job_visit(wfjob, total_visits)
+
+        try:
+            self.workflow_job_visit(wfjob, total_visits)
+
+        except Exception as e:
+            raise e
+
         adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+
         for conn in adjacent_connections:
             if conn in start_point_visits:
                 return
+
             start_point_visits.append(conn)
             wfj = conn.input_workflow_job
+
             if wfj in start_point_visits:
                 raise LoopError
+
             if wfj in total_visits:
                 return
-            self.traverse(wfj, start_point_visits, total_visits)
+
+            self.workflow_valid(wfj, start_point_visits, total_visits)
 
 
 class LoopError(Exception):
     pass
 
 
-class WorkflowJobVisitError(Exception):
+class NoOutputPortError(Exception):
+    ID = ""
+    pass
+
+
+class NumberOfPortsError(Exception):
+    ID = ""
     pass
