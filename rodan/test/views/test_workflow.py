@@ -126,7 +126,7 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_two_input_workflow(self):
+    def test_merging_workflow(self):
         test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
         test_no_input_workflowjob.save()
 
@@ -156,6 +156,9 @@ class WorkflowViewTestCase(APITestCase):
         test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
         test_inputport_for_workflowjob3.save()
 
+        test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
+        test_outputport_for_workflowjob3.save()
+
         connection3_data = {
             'input_port': test_inputport_for_workflowjob3,
             'input_workflow_job': test_workflowjob3,
@@ -171,3 +174,80 @@ class WorkflowViewTestCase(APITestCase):
         }
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_branching_workflow(self):
+        test_second_output_workflow_job = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_second_output_workflow_job.save()
+
+        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_workflowjob2, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        test_workflowjob3 = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_workflowjob3.save()
+
+        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
+        test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
+        test_inputport_for_workflowjob3.save()
+
+        test_second_inputport = InputPort(workflow_job=test_second_output_workflow_job, input_port_type=test_inputporttype)
+        test_second_inputport.save()
+
+        test_outputport_for_workflowjob2 = OutputPort(workflow_job=test_workflowjob2, output_port_type=test_outputporttype)
+        test_outputport_for_workflowjob2.save()
+
+        test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
+        test_outputport_for_workflowjob3.save()
+
+        connection2_data = {
+            'input_port': test_second_inputport,
+            'input_workflow_job': test_second_output_workflow_job,
+            'output_port': test_outputport,
+            'output_workflow_job': test_workflowjob2,
+            'workflow': self.test_workflow,
+        }
+        test_connection2 = Connection(**connection2_data)
+        test_connection2.save()
+
+        connection3_data = {
+            'input_port': test_inputport_for_workflowjob3,
+            'input_workflow_job': test_workflowjob3,
+            'output_port': OutputPort.objects.get(uuid="0e8b037c44f74364a60a7f5cc397a48d"),
+            'output_workflow_job': test_workflowjob2,
+            'workflow': self.test_workflow,
+        }
+        test_connection3 = Connection(**connection3_data)
+        test_connection3.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        print response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def invalid_workflow_job(self):
+        test_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_workflowjob.save()
+
+        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
+        test_inputport = InputPort(workflow_job=test_workflowjob, input_port_type=test_inputporttype)
+        test_inputport.save()
+
+        connection_data = {
+            'input_port': test_inputport,
+            'input_workflow_job': test_workflowjob,
+            'output_port': OutputPort.objects.get(uuid=""),
+            'output_workflow_job': WorkflowJob.objects.get(uuid=""),
+            'workflow': self.test_workflow,
+        }
+        test_connection = Connection(**connection_data)
+        test_connection.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

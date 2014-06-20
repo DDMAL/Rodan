@@ -286,7 +286,7 @@
       "name": "Test InputPortType",
       "resource_type": 0,
       "minimum": 1,
-      "maximum": 1
+      "maximum": 4
     },
     "model": "rodan.inputporttype",
     "pk": "30ed42546fe440a181f64a2ebdea82e1"
