@@ -41,7 +41,7 @@ class WorkflowList(generics.ListCreateAPIView):
         workflow_jobs = request.DATA.get('workfow_jobs', None)
 
         if valid:
-            return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)
 
         workflow = Workflow(project=project, name=name, valid=valid, creator=creator, workflow_jobs=workflow_jobs)
         workflow.save()
@@ -63,115 +63,104 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
         resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
 
-        if not workflow:
-            return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
-
         if not to_be_validated:
             return self.update(request, *args, **kwargs)
 
-        if not workflow_jobs:
-            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            self._validate(workflow, workflow_jobs, resource_assignments)
 
-        multiple_resources_found = False
+        except WorkflowDoesNotExistError:
+            return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except NoWorkflowJobsError:
+            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_200_OK)
+
+        except MultipleResourceCollectionsError:
+            return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_200_OK)
+
+        except ResourceNotInWorkflowError:
+            return Response({'message': 'The resource {0} is not in the workflow'.format(ResourceNotInWorkflowError.name)}, status=status.HTTP_200_OK)
+
+        except OrphanError:
+            return Response({'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(OrphanError.ID)}, status=status.HTTP_200_OK)
+
+        except LoopError:
+            return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_200_OK)
+
+        except NumberOfPortsError:
+            return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(NumberOfPortsError.ID)}, status=status.HTTP_200_OK)
+
+        except NoOutputPortError:
+            return Response({'message': 'The WorkflowJob {0} has no OutputPorts'.format(NoOutputPortError.ID)}, status=status.HTTP_200_OK)
+
+        workflow.valid = True
+
+        workflow.save()
+        return self.partial_update(request, *args, **kwargs)
+
+    def _validate(self, workflow,  workflow_jobs, resource_assignments):
+        if not workflow:
+            raise WorkflowDoesNotExistError
+
+        if not workflow_jobs:
+            raise NoWorkflowJobsError
+
         start_points = []
+
+        self._resource_assignment_validate(workflow, workflow_jobs, resource_assignments, start_points)
+
+        self._find_remaining_start_points(workflow_jobs, start_points)
+
+        self._detect_orphans(start_points)
+
+        total_visits = []
+
+        self._workflow_traversal(start_points, total_visits)
+
+    def _resource_assignment_validate(self, workflow, workflow_jobs, resource_assignments, start_points):
+        multiple_resources_found = False
 
         for ra in resource_assignments:
             resource_list = ra.resources.all()
 
             if resource_list.count() > 1:
                 if multiple_resources_found:
-                    return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_400_BAD_REQUEST)
+                    raise MultipleResourceCollectionsError
 
                 multiple_resources_found = True
 
             for res in resource_list:
                 if res not in workflow.resource_set.all():
-                    return Response({'message': 'The resource {0} is not in the workflow'.format(res.name)}, status=status.HTTP_400_BAD_REQUEST)
+                    ResourceNotInWorkflowError.name = res.name
+                    raise ResourceNotInWorkflowError
 
             start_points.append(ra.input_port.workflow_job)
 
+    def _find_remaining_start_points(self, workflow_jobs, start_points):
         for wfjob in workflow_jobs:
             inputs = InputPort.objects.filter(workflow_job=wfjob)
 
             if not inputs:
                 start_points.append(wfjob)
 
-        total_visits = []
+    def _detect_orphans(self, start_points):
+        for wfjob in start_points:
+            outgoing_connections = Connection.objects.filter(output_workflow_job=wfjob)
+
+            if len(start_points) > 1 and not outgoing_connections:
+                OrphanError.ID = wfjob.uuid
+                raise OrphanError
+
+    def _workflow_traversal(self, start_points, total_visits):
         for wfjob in start_points:
             start_point_visits = []
 
-            try:
-                self.workflow_valid(wfjob, start_point_visits, total_visits)
+            self._workflow_valid(wfjob, start_point_visits, total_visits)
 
-            except LoopError:
-                return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_400_BAD_REQUEST)
-
-            except NumberOfPortsError:
-                return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requriements'.format(NumberOfPortsError.ID)}, status=status.HTTP_400_BAD_REQUEST)
-
-            except NoOutputPortError:
-                return Response({'message': 'The WorkflowJob {0} has no OutputPorts!'.format(NoOutputPortError.ID)}, status=status.HTTP_400_BAD_REQUEST)
-
-        workflow.valid = True
-        workflow.save()
-
-        for wjfob in workflow_jobs:
-            if wfjob not in total_visits:
-                return Response({'message': 'The WorkflowJob with ID {0} was not visited'.format(wfjob.uuid)}, status=status.HTTP_400_BAD_REQUEST)
-
-        return self.update(request, *args, **kwargs)
-
-    def workflow_job_valid(self, wfjob):
-        output_ports = OutputPort.objects.filter(workflow_job=wfjob)
-
-        if not output_ports:
-            NoOutputPortError.ID = wfjob.uuid
-            raise NoOutputPortError
-
-        input_port_types = InputPortType.objects.filter(job=wfjob.job)
-
-        for ipt in input_port_types:
-            number_of_input_ports = InputPort.objects.filter(input_port_type=ipt).count()
-
-            if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
-                NumberOfPortsError.ID = wfjob.uuid
-                raise NumberOfPortsError
-
-    def workflow_job_visit(self, wfjob, total_visits):
-        try:
-            self.workflow_job_valid(wfjob)
-        except Exception as e:
-            raise e
-
-        input_ports = InputPort.objects.filter(workflow_job=wfjob)
-
-        for ip in input_ports:
-            if Connection.objects.filter(input_port=ip):
-                conn = Connection.objects.get(input_port=ip)
-
-                if conn in total_visits:
-                    return
-
-                total_visits.append(conn)
-
-            elif ResourceAssignment.objects.filter(input_port=ip):
-                ra = ResourceAssignment.objects.get(input_port=ip)
-
-                if ra in total_visits:
-                    return
-
-                total_visits.append(ra)
-
-        total_visits.append(wfjob)
-
-    def workflow_valid(self, wfjob, start_point_visits, total_visits):
+    def _workflow_valid(self, wfjob, start_point_visits, total_visits):
         start_point_visits.append(wfjob)
 
-        try:
-            self.workflow_job_visit(wfjob, total_visits)
-
-        except Exception as e:
-            raise e
+        self._workflow_job_visit(wfjob, total_visits)
 
         adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
 
@@ -188,7 +177,39 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if wfj in total_visits:
                 return
 
-            self.workflow_valid(wfj, start_point_visits, total_visits)
+            self._workflow_valid(wfj, start_point_visits, total_visits)
+
+    def _workflow_job_visit(self, wfjob, total_visits):
+        self._workflow_job_valid(wfjob)
+
+        input_ports = InputPort.objects.filter(workflow_job=wfjob)
+
+        for ip in input_ports:
+            if Connection.objects.filter(input_port=ip):
+                conn = Connection.objects.get(input_port=ip)
+                total_visits.append(conn)
+
+            elif ResourceAssignment.objects.filter(input_port=ip):
+                ra = ResourceAssignment.objects.get(input_port=ip)
+                total_visits.append(ra)
+
+        total_visits.append(wfjob)
+
+    def _workflow_job_valid(self, wfjob):
+        output_ports = OutputPort.objects.filter(workflow_job=wfjob)
+
+        if not output_ports:
+            NoOutputPortError.ID = wfjob.uuid
+            raise NoOutputPortError
+
+        input_port_types = InputPortType.objects.filter(job=wfjob.job)
+
+        for ipt in input_port_types:
+            number_of_input_ports = InputPort.objects.filter(workflow_job=wfjob, input_port_type=ipt).count()
+
+            if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
+                NumberOfPortsError.ID = wfjob.uuid
+                raise NumberOfPortsError
 
 
 class LoopError(Exception):
@@ -197,9 +218,27 @@ class LoopError(Exception):
 
 class NoOutputPortError(Exception):
     ID = ""
-    pass
 
 
 class NumberOfPortsError(Exception):
     ID = ""
+
+
+class MultipleResourceCollectionsError(Exception):
     pass
+
+
+class OrphanError(Exception):
+    ID = ""
+
+
+class NoWorkflowJobsError(Exception):
+    pass
+
+
+class WorkflowDoesNotExistError(Exception):
+    pass
+
+
+class ResourceNotInWorkflowError(Exception):
+    name = ""
