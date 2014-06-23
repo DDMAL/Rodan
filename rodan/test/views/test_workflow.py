@@ -35,12 +35,17 @@ class WorkflowViewTestCase(APITestCase):
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
 
     def test_validate_no_workflowjobs(self):
+        test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
+
+        test_workflow_no_jobs = Workflow(name="no job workflow", project=test_project, creator=self.test_user)
+        test_workflow_no_jobs.save()
+
         workflow_update = {
             'valid': True,
         }
-        response = self.client.patch("/workflow/ef78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        response = self.client.patch("/workflow/{0}/".format(test_workflow_no_jobs.uuid), workflow_update, format='json')
         anticipated_message = {'message': 'No WorkflowJobs in Workflow'}
-        retr_workflow = Workflow.objects.get(pk="ef78a1aa79554abcb5f1b0ac7bba2bad")
+        retr_workflow = Workflow.objects.get(pk=test_workflow_no_jobs.uuid)
         self.assertEqual(response.data, anticipated_message)
         self.assertFalse(retr_workflow.valid)
 
@@ -70,7 +75,7 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.post("/workflows/", workflow_obj, format='json')
         anticipated_message = {'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_validate_resources_not_in_workflow(self):
         test_orphan_resource = Resource.objects.get(pk="8aa7e270b1c54be49dde5a682b16cda7")
@@ -110,20 +115,6 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         anticipated_message = {'message': 'There appears to be a loop in the workflow'}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_no_input_workflow_job(self):
-        test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_no_input_workflowjob.save()
-
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=test_no_input_workflowjob, output_port_type=test_outputporttype)
-        test_outputport.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_merging_workflow(self):
@@ -173,6 +164,8 @@ class WorkflowViewTestCase(APITestCase):
             'valid': True,
         }
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        retr_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
+        self.assertTrue(retr_workflow.valid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_branching_workflow(self):
@@ -194,6 +187,9 @@ class WorkflowViewTestCase(APITestCase):
 
         test_second_inputport = InputPort(workflow_job=test_second_output_workflow_job, input_port_type=test_inputporttype)
         test_second_inputport.save()
+
+        test_end_output_port = OutputPort(workflow_job=test_second_output_workflow_job, output_port_type=test_outputporttype)
+        test_end_output_port.save()
 
         test_outputport_for_workflowjob2 = OutputPort(workflow_job=test_workflowjob2, output_port_type=test_outputporttype)
         test_outputport_for_workflowjob2.save()
@@ -225,22 +221,21 @@ class WorkflowViewTestCase(APITestCase):
             'valid': True,
         }
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        print response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def invalid_workflow_job(self):
-        test_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_workflowjob.save()
+    def test_no_outputport_workflow_job(self):
+        test_invalid_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_invalid_workflowjob.save()
 
         test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
-        test_inputport = InputPort(workflow_job=test_workflowjob, input_port_type=test_inputporttype)
+        test_inputport = InputPort(workflow_job=test_invalid_workflowjob, input_port_type=test_inputporttype)
         test_inputport.save()
 
         connection_data = {
             'input_port': test_inputport,
-            'input_workflow_job': test_workflowjob,
-            'output_port': OutputPort.objects.get(uuid=""),
-            'output_workflow_job': WorkflowJob.objects.get(uuid=""),
+            'input_workflow_job': test_invalid_workflowjob,
+            'output_port': OutputPort.objects.get(uuid="bbdd13ddf05844aa8549e93e82ae4fd2"),
+            'output_workflow_job': WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06"),
             'workflow': self.test_workflow,
         }
         test_connection = Connection(**connection_data)
@@ -250,4 +245,51 @@ class WorkflowViewTestCase(APITestCase):
             'valid': True,
         }
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        anticipated_message = {'message': 'The WorkflowJob {0} has no OutputPorts'.format(test_invalid_workflowjob.uuid)}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_not_meeting_inputport_requirements(self):
+        test_job_with_requirements = Job.objects.get(uuid="76753dd66e1147bcbd6321d749518da2")
+        test_job_with_requirements.save()
+
+        test_invalid_workflowjob = WorkflowJob(workflow=self.test_workflow, job=test_job_with_requirements)
+        test_invalid_workflowjob.save()
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_invalid_workflowjob, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        connection_data = {
+            'input_port': InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e"),
+            'input_workflow_job': WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06"),
+            'output_port': test_outputport,
+            'output_workflow_job': test_invalid_workflowjob,
+            'workflow': self.test_workflow,
+        }
+        test_connection = Connection(**connection_data)
+        test_connection.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(test_invalid_workflowjob.uuid)}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_orphan_in_workfow(self):
+        test_orphan_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_orphan_workflowjob.save()
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_orphan_workflowjob, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        anticipated_message = {'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(test_orphan_workflowjob.uuid)}
+        self.assertEqual(anticipated_message, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
