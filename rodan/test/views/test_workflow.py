@@ -19,6 +19,10 @@ from rest_framework import status
 
 
 class WorkflowViewTestCase(APITestCase):
+    """
+        For clarification of some of the more confusing tests (i.e. loop, merging, branching), see
+        https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
+    """
     fixtures = ["1_users", "2_initial_data"]
 
     def setUp(self):
@@ -33,6 +37,15 @@ class WorkflowViewTestCase(APITestCase):
         self.test_resources = Resource.objects.filter(workflow=self.test_workflow)
         self.test_resourceassignment = ResourceAssignment.objects.get(uuid="cfda287923344720bfbec39081819617")
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
+
+    def test_no_workflow_found(self):
+        workflow_update = {
+            'valid': True,
+        }
+        response = self.client.patch("/workflow/37d3275809884b61a58a987e6f44821d/", workflow_update, format='json')
+        anticipated_message = {'message': 'Workflow not found'}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_validate_no_workflowjobs(self):
         test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
@@ -77,6 +90,16 @@ class WorkflowViewTestCase(APITestCase):
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_post(self):
+        workflow_obj = {
+            'project': 'http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/',
+            'name': "test workflow",
+            'creator': 'http://localhost:8000/user/1/',
+            'valid': False,
+        }
+        response = self.client.post("/workflows/", workflow_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_validate_resources_not_in_workflow(self):
         test_orphan_resource = Resource.objects.get(pk="8aa7e270b1c54be49dde5a682b16cda7")
         test_resourceassignment2 = ResourceAssignment(input_port=self.test_inputport, workflow=self.test_workflow)
@@ -93,9 +116,7 @@ class WorkflowViewTestCase(APITestCase):
         self.assertFalse(retr_workflow.valid)
 
     def test_loop(self):
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=self.test_workflowjob, output_port_type=test_outputporttype)
-        test_outputport.save()
+        test_outputport = OutputPort.objects.get(label="Test OutputPort II")
 
         test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
 
@@ -169,8 +190,8 @@ class WorkflowViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_branching_workflow(self):
-        test_second_output_workflow_job = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_second_output_workflow_job.save()
+        test_second_output_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_second_output_workflowjob.save()
 
         test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
 
@@ -185,21 +206,18 @@ class WorkflowViewTestCase(APITestCase):
         test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
         test_inputport_for_workflowjob3.save()
 
-        test_second_inputport = InputPort(workflow_job=test_second_output_workflow_job, input_port_type=test_inputporttype)
+        test_second_inputport = InputPort(workflow_job=test_second_output_workflowjob, input_port_type=test_inputporttype)
         test_second_inputport.save()
 
-        test_end_output_port = OutputPort(workflow_job=test_second_output_workflow_job, output_port_type=test_outputporttype)
+        test_end_output_port = OutputPort(workflow_job=test_second_output_workflowjob, output_port_type=test_outputporttype)
         test_end_output_port.save()
-
-        test_outputport_for_workflowjob2 = OutputPort(workflow_job=test_workflowjob2, output_port_type=test_outputporttype)
-        test_outputport_for_workflowjob2.save()
 
         test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
         test_outputport_for_workflowjob3.save()
 
         connection2_data = {
             'input_port': test_second_inputport,
-            'input_workflow_job': test_second_output_workflow_job,
+            'input_workflow_job': test_second_output_workflowjob,
             'output_port': test_outputport,
             'output_workflow_job': test_workflowjob2,
             'workflow': self.test_workflow,

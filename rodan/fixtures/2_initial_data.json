@@ -331,7 +331,7 @@
     "fields": {
       "workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
       "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
-      "label": "Test OutputPort" 
+      "label": "Test OutputPort II" 
     },
     "model": "rodan.outputport",
     "pk": "0e8b037c44f74364a60a7f5cc397a48d"
