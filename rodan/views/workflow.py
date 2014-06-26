@@ -1,10 +1,12 @@
 import urlparse
-from django.core.urlresolvers import resolve
 
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
+
+from django.core.urlresolvers import resolve
+from django.contrib.auth.models import User
 
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
@@ -13,6 +15,7 @@ from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from rodan.models.inputporttype import InputPortType
+from rodan.models.project import Project
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -38,15 +41,23 @@ class WorkflowList(generics.ListCreateAPIView):
         name = request.DATA.get('name', None)
         valid = request.DATA.get('valid', None)
         creator = request.DATA.get('creator', None)
-        workflow_jobs = request.DATA.get('workfow_jobs', None)
+
+        project_obj = self._resolve_to_object(project, Project)
+        user_obj = self._resolve_to_object(creator, User)
 
         if valid:
             return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)
 
-        workflow = Workflow(project=project, name=name, valid=valid, creator=creator, workflow_jobs=workflow_jobs)
+        workflow = Workflow(project=project_obj, name=name, valid=valid, creator=user_obj)
         workflow.save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+    def _resolve_to_object(self, request_url, model):
+        value = urlparse.urlparse(request_url).path
+        o = resolve(value)
+        obj_pk = o.kwargs.get('pk')
+        return model.objects.get(pk=obj_pk)
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -56,8 +67,12 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkflowSerializer
 
     def patch(self, request, pk, *args, **kwargs):
+        try:
+            workflow = Workflow.objects.get(pk=pk)
+        except Workflow.DoesNotExist:
+            return Response({'message': 'Workflow not found'}, status=status.HTTP_404_NOT_FOUND)
+
         kwargs['partial'] = True
-        workflow = Workflow.objects.get(pk=pk)
         to_be_validated = request.DATA.get('valid', None)
         workflow.valid = False
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
@@ -68,9 +83,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         try:
             self._validate(workflow, workflow_jobs, resource_assignments)
-
-        except WorkflowDoesNotExistError:
-            return Response({'message': "Workflow not found"}, status=status.HTTP_404_NOT_FOUND)
 
         except NoWorkflowJobsError:
             return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_200_OK)
@@ -99,9 +111,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         return self.partial_update(request, *args, **kwargs)
 
     def _validate(self, workflow,  workflow_jobs, resource_assignments):
-        if not workflow:
-            raise WorkflowDoesNotExistError
-
         if not workflow_jobs:
             raise NoWorkflowJobsError
 
@@ -113,9 +122,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         self._detect_orphans(start_points)
 
-        total_visits = []
-
-        self._workflow_traversal(start_points, total_visits)
+        self._workflow_traversal(start_points)
 
     def _resource_assignment_validate(self, workflow, workflow_jobs, resource_assignments, start_points):
         multiple_resources_found = False
@@ -151,7 +158,9 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 OrphanError.ID = wfjob.uuid
                 raise OrphanError
 
-    def _workflow_traversal(self, start_points, total_visits):
+    def _workflow_traversal(self, start_points):
+        total_visits = []
+
         for wfjob in start_points:
             start_point_visits = []
 
@@ -180,7 +189,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             self._workflow_valid(wfj, start_point_visits, total_visits)
 
     def _workflow_job_visit(self, wfjob, total_visits):
-        self._workflow_job_valid(wfjob)
+        self._workflow_job_validate(wfjob)
 
         input_ports = InputPort.objects.filter(workflow_job=wfjob)
 
@@ -195,7 +204,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         total_visits.append(wfjob)
 
-    def _workflow_job_valid(self, wfjob):
+    def _workflow_job_validate(self, wfjob):
         output_ports = OutputPort.objects.filter(workflow_job=wfjob)
 
         if not output_ports:
@@ -233,10 +242,6 @@ class OrphanError(Exception):
 
 
 class NoWorkflowJobsError(Exception):
-    pass
-
-
-class WorkflowDoesNotExistError(Exception):
     pass
 
 
