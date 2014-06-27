@@ -82,7 +82,7 @@ class WorkflowViewTestCase(APITestCase):
         workflow_obj = {
             'project': 'http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/',
             'name': "test workflow",
-            'creator': 'http://localhost:8000/user/1/',
+            # 'creator': 'http://localhost:8000/user/1/',
             'valid': True,
         }
         response = self.client.post("/workflows/", workflow_obj, format='json')

@@ -43,12 +43,18 @@ class WorkflowList(generics.ListCreateAPIView):
         creator = request.DATA.get('creator', None)
 
         project_obj = self._resolve_to_object(project, Project)
-        user_obj = self._resolve_to_object(creator, User)
+        if creator:
+            user_obj = self._resolve_to_object(creator, User)
+        user_obj = request.user
 
         if valid:
             return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)
 
-        workflow = Workflow(project=project_obj, name=name, valid=valid, creator=user_obj)
+        workflow = Workflow(project=project_obj,
+                            name=name,
+                            valid=valid,
+                            creator=user_obj)
+
         workflow.save()
 
         return Response(status=status.HTTP_201_CREATED)
