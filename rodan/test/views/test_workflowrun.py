@@ -9,6 +9,13 @@ from rodan.models.page import Page
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflow import Workflow
 from rodan.models.runjob import RunJobStatus
+from rodan.models.workflowjob import WorkflowJob
+from rodan.models.inputport import InputPort
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputport import OutputPort
+from rodan.models.outputporttype import OutputPortType
+from rodan.models.connection import Connection
+from rodan.models.job import Job
 
 
 class WorkflowRunViewTest(APITestCase):
@@ -22,6 +29,9 @@ class WorkflowRunViewTest(APITestCase):
         page.page_image = SimpleUploadedFile('original_file.png', 'n/t')
         page.compat_page_image = SimpleUploadedFile('compat_page_image.png', 'n/t')
         page.save()
+
+        self.test_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
+        self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
 
     def test_post(self):
         workflowrun_obj = {
@@ -82,6 +92,49 @@ class WorkflowRunViewTest(APITestCase):
         anticipated_message = {"message": "No pages were assigned to workflow ID {0}".format(workflowrun_obj['workflow'])}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_branching_workflow(self):
+        test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_no_input_workflowjob.save()
+
+        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
+        test_outputport = OutputPort(workflow_job=test_no_input_workflowjob, output_port_type=test_outputporttype)
+        test_outputport.save()
+
+        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
+
+        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
+        test_second_inputport = InputPort(workflow_job=test_workflowjob2, input_port_type=test_inputporttype)
+        test_second_inputport.save()
+
+        connection2_data = {
+            'input_port': test_second_inputport,
+            'input_workflow_job': test_workflowjob2,
+            'output_port': test_outputport,
+            'output_workflow_job': test_no_input_workflowjob,
+            'workflow': self.test_workflow,
+        }
+        test_connection2 = Connection(**connection2_data)
+        test_connection2.save()
+
+        test_workflowjob3 = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
+        test_workflowjob3.save()
+
+        test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
+        test_inputport_for_workflowjob3.save()
+
+        test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
+        test_outputport_for_workflowjob3.save()
+
+        connection3_data = {
+            'input_port': test_inputport_for_workflowjob3,
+            'input_workflow_job': test_workflowjob3,
+            'output_port': OutputPort.objects.get(uuid="0e8b037c44f74364a60a7f5cc397a48d"),
+            'output_workflow_job': test_workflowjob2,
+            'workflow': self.test_workflow,
+        }
+        test_connection3 = Connection(**connection3_data)
+        test_connection3.save()
 
     def test_get_detail(self):
         response = self.client.get("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/")

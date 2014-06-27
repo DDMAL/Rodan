@@ -17,6 +17,8 @@ from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJobStatus
+from rodan.models.connection import Connection
+from rodan.models.resourceassignment import ResourceAssignment
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
@@ -40,6 +42,23 @@ class WorkflowRunList(generics.ListCreateAPIView):
             queryset = queryset.filter(run=run)
 
         return queryset
+
+    def _create_workflow_run(self, workflow, workflow_jobs):
+        endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow, workflow_jobs)
+
+    def _endpoint_workflow_jobs(self, workflow, workflow_jobs):
+        endpoint_workflowjobs = []
+
+        for wfjob in workflow_jobs:
+            connections = Connection.objects.filter(output_workflowjob=wfjob)
+
+            if wfjob not in connections:
+                endpoint_workflowjobs.append(wfjob)
+
+        return endpoint_workflowjobs
+
+    def _singleton_workflow_jobs(self, workflow, workflow_jobs):
+        pass
 
     def post(self, request, *args, **kwargs):
         """
@@ -113,6 +132,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                                 needs_input=is_interactive,      # by default this is set to be True if the job is interactive
                                 page=page,
                                 sequence=workflow_job.sequence)
+
                 runjob.save()
 
                 rodan_task = registry.tasks[str(workflow_job.job_name)]
