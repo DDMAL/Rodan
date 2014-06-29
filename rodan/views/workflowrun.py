@@ -19,6 +19,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJobStatus
 from rodan.models.connection import Connection
 from rodan.models.resourceassignment import ResourceAssignment
+from rodan.models.resource import Resource
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
@@ -44,21 +45,48 @@ class WorkflowRunList(generics.ListCreateAPIView):
         return queryset
 
     def _create_workflow_run(self, workflow, workflow_jobs):
-        endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow, workflow_jobs)
+        endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
+        singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
 
-    def _endpoint_workflow_jobs(self, workflow, workflow_jobs):
+    def _endpoint_workflow_jobs(self, workflow):
+        workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
         endpoint_workflowjobs = []
 
         for wfjob in workflow_jobs:
-            connections = Connection.objects.filter(output_workflowjob=wfjob)
+            connections = Connection.objects.filter(output_workflow_job=wfjob)
 
-            if wfjob not in connections:
+            if not connections:
                 endpoint_workflowjobs.append(wfjob)
 
         return endpoint_workflowjobs
 
-    def _singleton_workflow_jobs(self, workflow, workflow_jobs):
-        pass
+    def _singleton_workflow_jobs(self, workflow):
+        singleton_workflowjobs = []
+
+        for wfjob in WorkflowJob.objects.filter(workflow=workflow):
+            singleton_workflowjobs.append(wfjob)
+
+        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+
+        for ra in resource_assignments:
+            resources = Resource.objects.filter(resource_assignments=ra)
+
+            if resources.count() > 1:
+                initial_wfjob = WorkflowJob.objects.get(inputport=ra.input_port)
+                self._traversal(singleton_workflowjobs, initial_wfjob)
+
+        return singleton_workflowjobs
+
+    def _traversal(self, singleton_workflowjobs, wfjob):
+        singleton_workflowjobs.remove(wfjob)
+        adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+
+        if not adjacent_connections:
+            return
+
+        for conn in adjacent_connections:
+            wfjob = WorkflowJob.objects.get(inputport=conn.input_port)
+            self._traversal(singleton_workflowjobs, wfjob)
 
     def post(self, request, *args, **kwargs):
         """
