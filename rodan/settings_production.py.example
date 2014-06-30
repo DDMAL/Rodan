@@ -38,22 +38,19 @@ MEDIA_URL = "/uploads/"
 # When you find a better solution for returning the absolute url from a celery job,
 # go clean up the code in these places.
 BASE_URL = 'http://localhost:8000'
+SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
+IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
 
+###############################################################################
+## Celery configuration
+###############################################################################
+BROKER_CONNECTION_MAX_RETRIES = '0'
 BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
-
+CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.helpers.thumbnails",
                   "rodan.helpers.convert",
                   "rodan.helpers.processed",
                   "rodan.helpers.resultspackagemanager",
                   "rodan.jobs",)
-
-# TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
-
 CELERY_RESULT_BACKEND = "amqp"
 
-#Note: If youre using SQLite as the Django database backend, celeryd will only be able to process one task at a time,
-#this is because SQLite doesnt allow concurrent writes.
-# CELERY_RESULT_DBURI = "sqlite:///db.sqlite"
-
-SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
-IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
