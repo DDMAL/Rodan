@@ -54,3 +54,16 @@ CELERY_IMPORTS = ("rodan.helpers.thumbnails",
                   "rodan.jobs",)
 CELERY_RESULT_BACKEND = "amqp"
 
+###############################################################################
+## Django CORS configuration
+###############################################################################
+#CORS_ORIGIN_ALLOW_ALL = False
+#CORS_ORIGIN_WHITELIST = (
+#    'some domain or IP'
+#)
+#CORS_ALLOW_CREDENTIALS = True
+#CORS_EXPOSE_HEADERS = (
+#    'Set-Cookie',
+#    'Vary'
+#)
+
