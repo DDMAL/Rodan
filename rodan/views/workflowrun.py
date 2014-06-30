@@ -20,6 +20,7 @@ from rodan.models.runjob import RunJobStatus
 from rodan.models.connection import Connection
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
+from rodan.models.input import Input
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
@@ -36,6 +37,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         run = self.request.QUERY_PARAMS.get('run', None)
 
         queryset = WorkflowRun.objects.all()
+
         if workflow:
             queryset = queryset.filter(workflow__uuid=workflow)
 
@@ -44,9 +46,39 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         return queryset
 
-    def _create_workflow_run(self, workflow, workflow_jobs):
+    def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
+        workflowjob_runjob_map = []
+
+        for wfjob in endpoint_workflowjobs:
+            self._create_runjob(wfjob, workflowjob_runjob_map, workflow_run)
+
+        for wfjob in workflowjob_runjob_map:
+            if wfjob not in singleton_workflowjobs:
+                workflowjob_runjob_map.remove(wfjob)
+
+    def _create_runjob(self, wfjob, workflowjob_runjob_map, workflow_run):
+        for rj in workflowjob_runjob_map:
+            if WorkflowJob.objects.filter(run_job=rj):
+                return None
+
+        resource_assignments = ResourceAssignment.objects.filter(workflow_job=wfjob)
+
+        for ra in resource_assignments:
+            for res in ra.resources:
+                run_job = RunJob(workflow_job=wfjob,
+                                 workflow_run=workflow_run)
+                run_job.save()
+
+                Input(run_job=run_job,
+                      resource=res,
+                      input_port=ra.input_port).save()
+
+        connections = Connection.objects.filter(output_workflow_job=wfjob)
+
+        for conn in connections:
+            self._create_runjob(conn.input_workflow_job, workflowjob_runjob_map, workflow_run)
 
     def _endpoint_workflow_jobs(self, workflow):
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
@@ -82,7 +114,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
 
         if not adjacent_connections:
-            return
+            return None
 
         for conn in adjacent_connections:
             wfjob = WorkflowJob.objects.get(inputport=conn.input_port)
@@ -116,6 +148,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         if not workflow_jobs.exists():
             return Response({"message": "No jobs for workflow {0} were specified".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
+
+        workflow_run = WorkflowRun(creator=request.user,
+                                   workflow=workflow_obj)
+        workflow_run.save()
 
         if test_status:
             # running in test mode. This runs the workflow on a single page.
@@ -158,7 +194,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
                                 workflow_job=workflow_job,
                                 job_settings=workflow_job.job_settings,  # copy the most recent settings from the workflow job (these may be modified if the job is interactive)
                                 needs_input=is_interactive,      # by default this is set to be True if the job is interactive
-                                page=page,
                                 sequence=workflow_job.sequence)
 
                 runjob.save()
