@@ -33,6 +33,7 @@ class WorkflowRunViewTest(APITestCase):
 
         self.test_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
+        self.test_user = User.objects.get(username="ahankins")
 
     def test_post(self):
         workflowrun_obj = {
@@ -146,6 +147,11 @@ class WorkflowRunViewTest(APITestCase):
 
         singletons = WorkflowRunList._singleton_workflow_jobs(WorkflowRunList(), self.test_workflow)
         self.assertFalse(singletons)
+
+        workflow_run = WorkflowRun(workflow=self.test_workflow,
+                                   creator=self.test_user)
+
+        WorkflowRunList._create_workflow_run(WorkflowRunList(), self.test_workflow, workflow_run)
 
     def test_endpoint_workflow_jobs(self):
         endpoints = WorkflowRunList._endpoint_workflow_jobs(WorkflowRunList(), self.test_workflow)
