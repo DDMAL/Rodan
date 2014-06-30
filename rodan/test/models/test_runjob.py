@@ -12,10 +12,9 @@ class RunJobTestCase(TestCase):
     def setUp(self):
         self.test_workflowrun = WorkflowRun.objects.get(uuid="eb4b3661be2a44908c4c932b0783bb3e")
         self.test_workflowjob = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2")
-        self.test_page = Page.objects.get(uuid="2f63f986449349769d7a313e0fc6edb3")
 
     def test_save(self):
-        test_runjob = RunJob(workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob, page=self.test_page)
+        test_runjob = RunJob(workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob)
         test_runjob.save()
 
         # test that the paths were created properly

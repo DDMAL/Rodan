@@ -226,7 +226,6 @@
       "celery_task_id": null,
       "error_details": "",
       "error_summary": "",
-      "page": "2f63f986449349769d7a313e0fc6edb3",
       "workflow_job": "1e5d20a84d0f46cab47a2389a566ea06"
     },
     "model": "rodan.runjob",
