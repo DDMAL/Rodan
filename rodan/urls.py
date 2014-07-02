@@ -28,6 +28,11 @@ from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
 from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
+from rodan.views.connection import ConnectionList, ConnectionDetail
+from rodan.views.outputport import OutputPortList, OutputPortDetail
+from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
+from rodan.views.inputport import InputPortList, InputPortDetail
+from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
 
 from rodan.views import interactive
 
@@ -68,6 +73,16 @@ urlpatterns += format_suffix_patterns(
         url(r'^runjob/(?P<pk>[0-9a-z\-]+)/$', RunJobDetail.as_view(), name="runjob-detail"),
         url(r'^resultspackages/$', ResultsPackageList.as_view(), name="resultspackage-list"),
         url(r'^resultspackage/(?P<pk>[0-9a-z\-]+)/$', ResultsPackageDetail.as_view(), name="resultspackage-detail"),
+        url(r'^connections/$', ConnectionList.as_view(), name="connection-list"),
+        url(r'^connection/(?P<pk>[0-9a-z\-]+)/$', ConnectionDetail.as_view(), name="connection-detail"),
+        url(r'^outputporttypes/$', OutputPortTypeList.as_view(), name="outputporttype-list"),
+        url(r'^outputporttype/(?P<pk>[0-9a-z/-]+)/$', OutputPortTypeDetail.as_view(), name="outputporttype-detail"),
+        url(r'^outputports/$', OutputPortList.as_view(), name="outputport-list"),
+        url(r'^outputport/(?P<pk>[0-9a-z/-]+)/$', OutputPortDetail.as_view(), name="outputport-detail"),
+        url(r'^inputporttypes/$', InputPortTypeList.as_view(), name="inputporttype-list"),
+        url(r'^inputporttype/(?P<pk>[0-9a-z/-]+)/$', InputPortTypeDetail.as_view(), name="inputporttype-detail"),
+        url(r'^inputports/$', InputPortList.as_view(), name="inputport-list"),
+        url(r'^inputport/(?P<pk>[0-9a-z/-]+)/$', InputPortDetail.as_view(), name="inputport-detail")
     )
 )
 

@@ -17,7 +17,12 @@ def api_root(request, format=None):
                      'jobs': reverse('job-list', request=request, format=format),
                      'results': reverse('result-list', request=request, format=format),
                      'users': reverse('user-list', request=request, format=format),
-                     'resultspackages': reverse('resultspackage-list', request=request, format=format)})
+                     'resultspackages': reverse('resultspackage-list', request=request, format=format),
+                     'connections': reverse('connection-list', request=request, format=format),
+                     'outputporttypes': reverse('outputporttype-list', request=request, format=format),
+                     'outputports': reverse('outputport-list', request=request, format=format),
+                     'inputporttypes': reverse('inputporttype-list', request=request, format=format),
+                     'inputports': reverse('inputport-list', request=request, format=format)})
 
 
 @ensure_csrf_cookie
