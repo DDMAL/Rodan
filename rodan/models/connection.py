@@ -11,4 +11,8 @@ class Connection(models.Model):
     input_workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='input_connection')
     output_port = models.ForeignKey('rodan.OutputPort')
     output_workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_connection')
-    workflow = models.ForeignKey('rodan.Workflow')
+    workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.workflow = self.output_workflow_job.workflow
+        super(Connection, self).save(*args, **kwargs)

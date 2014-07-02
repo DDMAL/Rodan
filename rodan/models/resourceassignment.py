@@ -12,6 +12,6 @@ class ResourceAssignment(models.Model):
     workflow = models.ForeignKey('rodan.Workflow')
     workflow_job = models.ForeignKey('rodan.WorkflowJob', null=True, blank=True)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.workflow_job = self.input_port.workflow_job
-        super(ResourceAssignment, self).save()
+        super(ResourceAssignment, self).save(*args, **kwargs)
