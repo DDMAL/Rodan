@@ -20,7 +20,7 @@ from rest_framework import status
 
 class WorkflowViewTestCase(APITestCase):
     """
-        For clarification of some of the more confusing tests (i.e. loop, merging, branching), see
+        For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
         https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
     """
     fixtures = ["1_users", "2_initial_data"]
