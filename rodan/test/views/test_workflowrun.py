@@ -149,6 +149,7 @@ class WorkflowRunViewTest(APITestCase):
         self.assertFalse(singletons)
 
         workflow_run = WorkflowRun(workflow=self.test_workflow, creator=self.test_user)
+        workflow_run.save()
 
         WorkflowRunList._create_workflow_run(WorkflowRunList(), self.test_workflow, workflow_run)
 

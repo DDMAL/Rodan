@@ -22,6 +22,7 @@ from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
 from rodan.models.input import Input
 from rodan.models.output import Output
+from rodan.models.outputport import OutputPort
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
@@ -50,7 +51,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
-        workflowjob_runjob_map = []
+        workflowjob_runjob_map = {}
         resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
 
         for ra in resource_assignments:
@@ -59,14 +60,14 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 break
 
             for res in resources:
-                self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run)
+                self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res)
                 return None
 
         self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run)
 
-    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run):
+    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, resource):
         for wfjob in endpoint_workflowjobs:
-            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run)
+            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run, resource)
             self._remove_non_singletons(workflowjob_runjob_map, singleton_workflowjobs)
 
     def _remove_non_singletons(self, workflowjob_runjob_map, singleton_workflowjobs):
@@ -74,7 +75,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             if wfjob not in singleton_workflowjobs:
                 workflowjob_runjob_map.remove(wfjob)
 
-    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run):
+    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, resource):
         if wfjob_A in workflowjob_runjob_map:
             return None
 
@@ -84,27 +85,37 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
-            self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run)
-            workflowjob_runjob_map[wfjob_B]
+            self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
+            if wfjob_B in workflowjob_runjob_map:
+                return None
 
-            associated_output = Output.objects.get(output_port=conn.output_port)
+            associated_output = Output.objects.filter(output_port=conn.output_port).order_by('-created')[0]
 
             Input(run_job=runjob_A,
                   input_port=conn.input_port,
-                  resource=associated_output.resource)
+                  resource=associated_output.resource).save()
 
-        resource_assignments = ResourceAssignment.objects.get(workflow_job=wfjob_A)
+        try:
+            resource_assignments = ResourceAssignment.objects.get(workflow_job=wfjob_A)
+
+        except ResourceAssignment.DoesNotExist:
+            return None
 
         for ra in resource_assignments:
             Input(run_job=runjob_A,
                   input_port=ra.input_port,
-                  resource=)
+                  resource=resource).save()
+
+        workflowjob_runjob_map.append({runjob_A: wfjob_A})
 
     def _create_runjob_A(self, wfjob, workflow_run):
         run_job = RunJob(workflow_job=wfjob,
                          workflow_run=workflow_run)
         run_job.save()
-        for op in wfjob.outputport_set:
+
+        outputports = OutputPort.objects.filter(workflow_job=wfjob)
+
+        for op in outputports:
             resource = Resource(project=workflow_run.workflow.project,
                                 resource_type=op.output_port_type.resource_type,
                                 workflow=workflow_run.workflow)
