@@ -5,6 +5,7 @@ from rodan.models.connection import Connection
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
+from rodan.models.inputporttype import InputPortType
 
 
 class ConnectionViewTestCase(APITestCase):
@@ -13,6 +14,8 @@ class ConnectionViewTestCase(APITestCase):
     def setUp(self):
         self.client.login(username="ahankins", password="hahaha")
         self.test_user = User.objects.get(username="ahankins")
+        self.test_input_port_type = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
+        self.test_workflow_job = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2")
 
     def test_post(self):
         test_output_workflow_job = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
@@ -34,4 +37,23 @@ class ConnectionViewTestCase(APITestCase):
         }
 
         response = self.client.post("/connections/", conn_obj, format='json')
+        retr_conn = Connection.objects.get(uuid=response.data["uuid"])
+        self.assertEqual(test_output_workflow_job.workflow, retr_conn.workflow)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_post_different_workflows(self):
+        test_input_port = InputPort(workflow_job=self.test_workflow_job,
+                                    input_port_type=self.test_input_port_type)
+        test_input_port.save()
+
+        conn_obj = {
+            'input_port': "http://localhost:8000/inputport/{0}/".format(test_input_port.uuid.hex),
+            'input_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f2/",
+            'output_port': "http://localhost:8000/outputport/0e8b037c44f74364a60a7f5cc397a48d/",
+            'output_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f3/",
+        }
+
+        response = self.client.post("/connections/", conn_obj, format='json')
+        anticipated_message = {'message': "Input and output WorkflowJobs must be part of the same workflow"}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
