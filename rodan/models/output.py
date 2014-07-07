@@ -10,3 +10,6 @@ class Output(models.Model):
     output_port = models.ForeignKey('rodan.OutputPort')
     run_job = models.ForeignKey('rodan.RunJob', null=True, blank=True)
     resource = models.ForeignKey('rodan.Resource', null=True, blank=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

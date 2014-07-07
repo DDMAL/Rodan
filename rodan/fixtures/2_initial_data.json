@@ -339,7 +339,9 @@
     "fields": {
       "output_port": "bbdd13ddf05844aa8549e93e82ae4fd2",
       "run_job": "3d558414db10427d82efdd9b9cb985bf",
-      "resource": "e920115a4b5548d3839249116bb7973c"
+      "resource": "e920115a4b5548d3839249116bb7973c",
+      "created": "2014-05-17T17:35:24.642Z",
+      "updated": "2014-05-17T17:41:37.181Z"
     },
     "model": "rodan.output",
     "pk": "04ae88f664664d3eaa68406c7c2f1211"
