@@ -16,6 +16,7 @@ from rodan.models.outputport import OutputPort
 from rodan.models.outputporttype import OutputPortType
 from rodan.models.connection import Connection
 from rodan.models.job import Job
+from rodan.models.runjob import RunJob
 from rodan.views.workflowrun import WorkflowRunList
 
 
@@ -152,6 +153,11 @@ class WorkflowRunViewTest(APITestCase):
         workflow_run.save()
 
         WorkflowRunList._create_workflow_run(WorkflowRunList(), self.test_workflow, workflow_run)
+        workflowjobs = WorkflowJob.objects.filter(workflow=self.test_workflow)
+
+        for wfjob in workflowjobs:
+            runjobs = RunJob.objects.filter(workflow_job=wfjob)
+            self.assertEqual(runjobs.count(), 2)
 
     def test_endpoint_workflow_jobs(self):
         endpoints = WorkflowRunList._endpoint_workflow_jobs(WorkflowRunList(), self.test_workflow)
@@ -173,7 +179,7 @@ class WorkflowRunViewTest(APITestCase):
 
         connection2_data = {
             'input_port': test_second_inputport,
-            'input_workflow_job':test_workflowjob2,
+            'input_workflow_job': test_workflowjob2,
             'output_port': single_outputport,
             'output_workflow_job': single_workflowjob,
             'workflow': self.test_workflow,
