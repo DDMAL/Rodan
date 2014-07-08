@@ -13,3 +13,6 @@ class Output(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return u"<Output {0}>".format(str(self.uuid))

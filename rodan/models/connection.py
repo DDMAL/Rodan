@@ -16,3 +16,6 @@ class Connection(models.Model):
     def save(self, *args, **kwargs):
         self.workflow = self.output_workflow_job.workflow
         super(Connection, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u"<Connection {0}>".format(str(self.uuid))

@@ -27,24 +27,31 @@ class Resource(models.Model):
 
     RESOURCE_TYPE_CHOICES = (
         ('Images', (
-                (IMAGE_TYPES[0], 'Onebit PNG Image'),
-                (IMAGE_TYPES[1], 'Greyscale PNG Image'),
-                (IMAGE_TYPES[2], 'Grey16 PNG Image'),
-                (IMAGE_TYPES[3], 'Colour PNG Image'),
-                (IMAGE_TYPES[4], 'Float Image Type'),
-                (IMAGE_TYPES[5], 'Complex Image Type'),
+            (IMAGE_TYPES[0], 'Onebit PNG Image'),
+            (IMAGE_TYPES[1], 'Greyscale PNG Image'),
+            (IMAGE_TYPES[2], 'Grey16 PNG Image'),
+            (IMAGE_TYPES[3], 'Colour PNG Image'),
+            (IMAGE_TYPES[4], 'Float Image Type'),
+            (IMAGE_TYPES[5], 'Complex Image Type'),
             )
-        ),
+         ),
         ('Classifiers', (
-        # some classifier types will go here
-                (),
+            # some classifier types will go here
+            (),
             )
-        ),
+         ),
+        ('Some other type', (
+            (),
+            )
+         )
     )
 
     @property
     def resource_path(self):
         return os.path.join(self.project.project_path, "resources", str(self.uuid))
+
+    def __unicode__(self):
+        return u"<Resource {0}>".format(str(self.uuid))
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255, blank=True, null=True)
