@@ -37,8 +37,6 @@ class Job(models.Model):
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
-    input_types = json.JSONField(blank=True, null=True)
-    output_types = json.JSONField(blank=True, null=True)
     settings = json.JSONField(blank=True, null=True)
 
     enabled = models.BooleanField(default=False)

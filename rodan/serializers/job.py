@@ -11,8 +11,6 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
                   "job_name",
                   "settings",
                   "description",
-                  "input_types",
-                  "output_types",
                   "category",
                   'enabled',
                   'interactive')
