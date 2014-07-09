@@ -7,12 +7,17 @@ from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from rodan.models.workflowjob import WorkflowJob
-from rodan.serializers.connection import ConnectionSerializer
+from rodan.serializers.connection import ConnectionListSerializer, ConnectionSerializer
 
 
 class ConnectionList(generics.ListCreateAPIView):
     model = Connection
-    serializer_class = ConnectionSerializer
+    serializer_class = ConnectionListSerializer
+    paginate_by = None
+
+    def get_queryset(self):
+        queryset = Connection.objects.all()
+        return queryset
 
     def post(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)
