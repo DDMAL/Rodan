@@ -70,7 +70,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res)
 
         else:
-            self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run)
+            self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None)
 
     def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, resource):
         for wfjob in endpoint_workflowjobs:
@@ -97,7 +97,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
             wfjob_B = conn.output_workflow_job
             self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
 
-            associated_output = Output.objects.filter(output_port=conn.output_port).order_by('-created')[0]
+            runjob_B = RunJob.objects.filter(workflow_job=wfjob_B).order_by('-created')[0]
+
+            associated_output = Output.objects.get(output_port=conn.output_port,
+                                                   run_job=runjob_B)
 
             Input(run_job=runjob_A,
                   input_port=conn.input_port,
@@ -200,70 +203,11 @@ class WorkflowRunList(generics.ListCreateAPIView):
         except:
             return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
 
-        workflow_jobs = WorkflowJob.objects.filter(workflow=workflow_obj).order_by('sequence')
-
-        if not workflow_jobs.exists():
-            return Response({"message": "No jobs for workflow {0} were specified".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
-
         workflow_run = WorkflowRun(creator=request.user,
                                    workflow=workflow_obj)
         workflow_run.save()
 
-        if test_status:
-            # running in test mode. This runs the workflow on a single page.
-            if not page_id:
-                return Response({"message": "You must specify a page ID if you are running in test mode."}, status=status.HTTP_400_BAD_REQUEST)
-
-            value = urlparse.urlparse(page_id).path
-            try:
-                p = resolve(value)
-            except:
-                return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
-            pages = Page.objects.filter(pk=p.kwargs.get('pk'))
-            run_num = None
-            test_status = True
-
-            if not pages.exists():
-                return Response({"message": "No pages for page ID {0} were found".format(page_id)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            pages = workflow_obj.pages.filter(processed=True)
-            run_num = workflow_obj.runs + 1
-            test_status = False
-
-            if not pages:
-                return Response({"message": "No pages were assigned to workflow ID {0}".format(workflow)}, status=status.HTTP_400_BAD_REQUEST)
-
-        workflow_run = WorkflowRun(workflow=workflow_obj,
-                                   run=run_num,
-                                   test_run=test_status,
-                                   creator=request.user)
-
-        workflow_run.save()
-
-        return_objects = []
-        for page in pages:
-            workflow_chain = []
-            for workflow_job in workflow_jobs:
-                is_interactive = False if workflow_job.job_type == 0 else True
-                runjob = RunJob(workflow_run=workflow_run,
-                                workflow_job=workflow_job,
-                                job_settings=workflow_job.job_settings,  # copy the most recent settings from the workflow job (these may be modified if the job is interactive)
-                                needs_input=is_interactive,      # by default this is set to be True if the job is interactive
-                                sequence=workflow_job.sequence)
-
-                runjob.save()
-
-                rodan_task = registry.tasks[str(workflow_job.job_name)]
-                workflow_chain.append((rodan_task, str(runjob.uuid)))
-            first_job = workflow_chain[0]
-            res = chain([first_job[0].si(None, first_job[1])] + [job[0].s(job[1]) for job in workflow_chain[1:]])
-            res.apply_async()
-            return_objects.append(res)
-
-        if not test_status:
-            # If we're not doing a test run, update the run count on the workflow
-            workflow_obj.runs = run_num
+        self._create_workflow_run(workflow_obj, workflow_run)
 
         return Response({"message": workflow_run.get_absolute_url()}, status=status.HTTP_201_CREATED)
 
