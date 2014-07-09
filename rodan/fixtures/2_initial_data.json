@@ -15,10 +15,8 @@
       "category": "Dummy",
       "description": "A Dummy Job for testing the Job loading and workflow system",
       "author": "Andrew Hankinson",
-      "output_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [1], \"name\": \"output\", \"list_of\": false}",
       "settings": "[{}]",
       "enabled": true,
-      "input_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [1], \"name\": \"input\", \"list_of\": false}",
       "job_name": "rodan.jobs.devel.celery_task.dummy_job",
       "interactive": false
     },
@@ -30,10 +28,8 @@
       "category": "Dummy",
       "description": "A Dummy Job for testing the Job loading and workflow system",
       "author": "Andrew Hankinson",
-      "output_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [1], \"name\": \"output\", \"list_of\": false}",
       "settings": "[{}]",
       "enabled": true,
-      "input_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [1], \"name\": \"input\", \"list_of\": false}",
       "job_name": "rodan.jobs.devel.dummy_job",
       "interactive": false
     },
@@ -45,10 +41,8 @@
       "category": "Conversion",
       "description": "Converts an image to a JPEG2000 image suitable for display in Diva",
       "author": "Andrew Hankinson",
-      "output_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [7], \"name\": \"output\", \"list_of\": false}",
       "settings": "{}",
       "enabled": true,
-      "input_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [3], \"name\": null, \"list_of\": false}",
       "job_name": "diva.conversion.to_jpeg2000",
       "interactive": false
     },
@@ -60,10 +54,8 @@
       "category": "Pitch Correction",
       "description": "Interactive pitch correction using Neon.",
       "author": "Deepanjan Roy",
-      "output_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [6], \"name\": \"output\", \"list_of\": false}",
       "settings": "[]",
       "enabled": true,
-      "input_types": "{\"default\": null, \"has_default\": false, \"pixel_types\": [6], \"name\": \"input\", \"list_of\": false}",
       "job_name": "neon.pitch_correction",
       "interactive": true
     },
