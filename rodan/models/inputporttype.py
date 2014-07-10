@@ -12,3 +12,6 @@ class InputPortType(models.Model):
     resource_type = models.IntegerField()
     minimum = models.IntegerField()
     maximum = models.IntegerField()
+
+    def __unicode__(self):
+        return u"<InputPortType {0}>".format(str(self.uuid))

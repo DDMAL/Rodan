@@ -3,6 +3,8 @@ import shutil
 from django.db import models
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
+from rodan.models.input import Input
+from rodan.models.output import Output
 
 
 class RunJobStatus(object):
@@ -85,3 +87,18 @@ class RunJob(models.Model):
     @property
     def page_name(self):
         return self.page.name
+
+    @property
+    def inputs(self):
+        inputs = []
+        for input in Input.objects.filter(run_job=self):
+            inputs.append(input)
+        return inputs
+
+    @property
+    def outputs(self):
+        outputs = []
+        for output in Output.objects.filter(run_job=self):
+            outputs.append(output)
+        return outputs
+

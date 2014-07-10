@@ -13,6 +13,8 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
     job_description = serializers.Field(source="job_description")
     input_pixel_types = serializers.Field(source="input_pixel_types")
     output_pixel_types = serializers.Field(source="output_pixel_types")
+    input_ports = serializers.Field(source="input_ports")
+    output_ports = serializers.Field(source="output_ports")
 
     class Meta:
         model = WorkflowJob
@@ -21,6 +23,8 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "workflow",
                   "input_pixel_types",
                   "output_pixel_types",
+                  "input_ports",
+                  "output_ports",
                   "job_name",
                   "job_description",
                   "job_type",

@@ -35,6 +35,8 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     job_name = serializers.Field(source="job_name")
     page = PageRunJobSerializer()
     workflow_name = serializers.Field(source="workflow_name")
+    inputs = serializers.Field(source="inputs")
+    outputs = serializers.Field(source="outputs")
 
     class Meta:
         model = RunJob
@@ -44,6 +46,8 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'workflow_name',
                   'workflow_run',
                   'workflow_job',
+                  'inputs',
+                  'outputs',
                   'sequence',
                   'result',
                   'page',

@@ -1,5 +1,7 @@
 from django.db import models
 from django_extensions.db.fields import json
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from uuidfield import UUIDField
 
 
@@ -48,3 +50,17 @@ class Job(models.Model):
     class Meta:
         app_label = 'rodan'
         ordering = ['category']
+
+    @property
+    def input_port_types(self):
+        types = []
+        for ipt in InputPortType.objects.filter(job=self):
+            types.append(ipt)
+        return types
+
+    @property
+    def output_port_types(self):
+        types = []
+        for opt in OutputPortType.objects.filter(job=self):
+            types.append(opt)
+        return types

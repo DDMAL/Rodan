@@ -15,3 +15,6 @@ class InputPort(models.Model):
         if not self.label:
             self.label = self.input_port_type.name
         super(InputPort, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u"<InputPort {0}>".format(str(self.uuid))
