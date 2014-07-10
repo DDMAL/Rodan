@@ -6,6 +6,7 @@ from rodan.serializers.outputport import OutputPortSerializer
 class OutputPortList(generics.ListCreateAPIView):
     model = OutputPort
     serializer_class = OutputPortSerializer
+    paginate_by = None
 
 
 class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):
