@@ -1,8 +1,6 @@
 from django.db import models
 from rodan.models.job import Job
 from rodan.models.workflow import Workflow
-from rodan.models.inputporttype import InputPortType
-from rodan.models.outputporttype import OutputPortType
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from django_extensions.db.fields import json
@@ -52,33 +50,19 @@ class WorkflowJob(models.Model):
 
     @property
     def input_pixel_types(self):
-        types = []
-        for ipt in InputPortType.objects.filter(job=self.job):
-            types.append(ipt.resource_type)
-        return types
+        return self.job.input_port_types
 
     @property
     def output_pixel_types(self):
-        types = []
-        for opt in OutputPortType.objects.filter(job=self.job):
-            types.append(opt.resource_type)
-        return types
+        return self.job.output_port_types
 
     @property
     def input_ports(self):
-        ports = []
-        for ip in InputPort.objects.filter(workflow_job=self):
-            ports.append(ip)
-        return ports
+        return [ip for ip in InputPort.objects.filter(workflow_job=self)]
 
     @property
     def output_ports(self):
-        ports = []
-        for op in OutputPort.objects.filter(workflow_job=self):
-            ports.append(op)
-        return ports
-    
-
+        return [op for op in OutputPort.objects.filter(workflow_job=self)]
 
 
 # class WorkflowJob(models.Model):

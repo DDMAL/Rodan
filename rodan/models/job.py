@@ -53,14 +53,8 @@ class Job(models.Model):
 
     @property
     def input_port_types(self):
-        types = []
-        for ipt in InputPortType.objects.filter(job=self):
-            types.append(ipt)
-        return types
+        return [ipt for ipt in InputPortType.objects.filter(job=self)]
 
     @property
     def output_port_types(self):
-        types = []
-        for opt in OutputPortType.objects.filter(job=self):
-            types.append(opt)
-        return types
+        return [opt for opt in OutputPortType.objects.filter(job=self)]

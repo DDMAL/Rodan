@@ -90,15 +90,8 @@ class RunJob(models.Model):
 
     @property
     def inputs(self):
-        inputs = []
-        for input in Input.objects.filter(run_job=self):
-            inputs.append(input)
-        return inputs
+        return [input for input in Input.objects.filter(run_job=self)]
 
     @property
     def outputs(self):
-        outputs = []
-        for output in Output.objects.filter(run_job=self):
-            outputs.append(output)
-        return outputs
-
+        return [output for output in Output.objects.filter(run_job=self)]
