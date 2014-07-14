@@ -4,10 +4,11 @@ from django.db.models.signals import post_save
 
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 
 from rodan.serializers.user import UserSerializer, UserListSerializer
-
 
 class UserList(generics.ListCreateAPIView):
     model = User
@@ -19,6 +20,13 @@ class UserList(generics.ListCreateAPIView):
         queryset = User.objects.exclude(pk=-1)
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        userName = request.DATA.get('username', None)
+        userPass = request.DATA.get('password', None)
+        user = User.objects.create_user(username=userName)
+        if not user:
+            return Response({'message': "error creating user"}, status=status.HTTP_200_OK)
+        return Response({'username': user.username}, status=status.HTTP_201_CREATED)
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     model = User
