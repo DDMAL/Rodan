@@ -35,15 +35,15 @@ class Resource(models.Model):
             (IMAGE_TYPES[5], 'Complex Image Type'),
             )
          ),
-        ('Classifiers', (
-            # some classifier types will go here
-            (),
-            )
-         ),
-        ('Some other type', (
-            (),
-            )
-         )
+        # ('Classifiers', (
+        #     # some classifier types will go here
+        #     (),
+        #     )
+        #  ),
+        # ('Some other type', (
+        #     (),
+        #     )
+        #  )
     )
 
     @property
