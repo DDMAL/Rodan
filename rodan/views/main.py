@@ -22,7 +22,10 @@ def api_root(request, format=None):
                      'outputporttypes': reverse('outputporttype-list', request=request, format=format),
                      'outputports': reverse('outputport-list', request=request, format=format),
                      'inputporttypes': reverse('inputporttype-list', request=request, format=format),
-                     'inputports': reverse('inputport-list', request=request, format=format)})
+                     'inputports': reverse('inputport-list', request=request, format=format),
+                     'resources': reverse('resource-list', request=request, format=format),
+                     'outputs': reverse('output-list', request=request, format=format),
+                     'inputs': reverse('input-list', request=request, format=format)})
 
 
 @ensure_csrf_cookie

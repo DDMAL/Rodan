@@ -33,6 +33,9 @@ from rodan.views.outputport import OutputPortList, OutputPortDetail
 from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
 from rodan.views.inputport import InputPortList, InputPortDetail
 from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
+from rodan.views.resource import ResourceList, ResourceDetail
+from rodan.views.output import OutputList, OutputDetail
+from rodan.views.input import InputList, InputDetail
 
 from rodan.views import interactive
 
@@ -82,7 +85,13 @@ urlpatterns += format_suffix_patterns(
         url(r'^inputporttypes/$', InputPortTypeList.as_view(), name="inputporttype-list"),
         url(r'^inputporttype/(?P<pk>[0-9a-z/-]+)/$', InputPortTypeDetail.as_view(), name="inputporttype-detail"),
         url(r'^inputports/$', InputPortList.as_view(), name="inputport-list"),
-        url(r'^inputport/(?P<pk>[0-9a-z/-]+)/$', InputPortDetail.as_view(), name="inputport-detail")
+        url(r'^inputport/(?P<pk>[0-9a-z/-]+)/$', InputPortDetail.as_view(), name="inputport-detail"),
+        url(r'^resources/$', ResourceList.as_view(), name="resource-list"),
+        url(r'^resource/(?P<pk>[0-9a-z/-]+)/$', ResourceDetail.as_view(), name="resource-detail"),
+        url(r'^outputs/$', OutputList.as_view(), name="output-list"),
+        url(r'^output/(?P<pk>[0-9a-z/-]+)/$', OutputDetail.as_view(), name="output-detail"),
+        url(r'^inputs/$', InputList.as_view(), name="input-list"),
+        url(r'^input/(?P<pk>[0-9a-z/-]+)/$', InputDetail.as_view(), name='input-detail')
     )
 )
 
