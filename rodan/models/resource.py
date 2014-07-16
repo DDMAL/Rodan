@@ -25,26 +25,12 @@ class Resource(models.Model):
         specific type. This constitutes a Resource. (from Rodan wiki)
     """
 
-    RESOURCE_TYPE_CHOICES = (
-        ('Images', (
-            (IMAGE_TYPES[0], 'Onebit PNG Image'),
-            (IMAGE_TYPES[1], 'Greyscale PNG Image'),
-            (IMAGE_TYPES[2], 'Grey16 PNG Image'),
-            (IMAGE_TYPES[3], 'Colour PNG Image'),
-            (IMAGE_TYPES[4], 'Float Image Type'),
-            (IMAGE_TYPES[5], 'Complex Image Type'),
-            )
-         ),
-        # ('Classifiers', (
-        #     # some classifier types will go here
-        #     (),
-        #     )
-        #  ),
-        # ('Some other type', (
-        #     (),
-        #     )
-        #  )
-    )
+    RESOURCE_TYPE_CHOICES = ((IMAGE_TYPES[0], 'Onebit PNG Image'),
+                             (IMAGE_TYPES[1], 'Greyscale PNG Image'),
+                             (IMAGE_TYPES[2], 'Grey16 PNG Image'),
+                             (IMAGE_TYPES[3], 'Colour PNG Image'),
+                             (IMAGE_TYPES[4], 'Float Image Type'),
+                             (IMAGE_TYPES[5], 'Complex Image Type'))
 
     @property
     def resource_path(self):
@@ -58,7 +44,8 @@ class Resource(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
-    resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE_CHOICES)
+    resource_type = models.CharField(max_length=20)
+    resource_order = models.IntegerField(null=True, blank=True)
     workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)

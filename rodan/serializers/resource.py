@@ -1,14 +1,13 @@
 from rodan.models.resource import Resource
 from rest_framework import serializers
 from rodan.serializers.user import UserListSerializer
-from rodan.serializers.output import OutputSerializer
 
 
 class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     creator = UserListSerializer(read_only=True)
     uuid = serializers.Field(source='uuid')
-    origin = OutputSerializer()
+    origin = serializers.HyperlinkedRelatedField(view_name="output-detail")
 
     class Meta:
         model = Resource
@@ -21,3 +20,9 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "origin",
                   "created",
                   "updated")
+
+
+class OutputResourceSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Resource

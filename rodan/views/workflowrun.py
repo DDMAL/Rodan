@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rodan.models.workflow import Workflow
-from rodan.models.page import Page
+# from rodan.models.page import Page
 from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
@@ -25,7 +25,7 @@ from rodan.models.output import Output
 from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
-from rodan.serializers.runjob import PageRunJobSerializer, ResultRunJobSerializer
+from rodan.serializers.runjob import ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
 
@@ -230,7 +230,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         run_jobs = workflow_run[0].run_jobs.all()
         pages = {}
         for run_job in run_jobs:
-            page_data = PageRunJobSerializer(run_job.page, context={'request': request}).data
+            # page_data = PageRunJobSerializer(run_job.page, context={'request': request}).data
             k = page_data['url']
             if k not in pages:
                 page_data["results"] = []

@@ -24,7 +24,7 @@ class Workflow(models.Model):
     has_started = models.BooleanField(default=False)
     runs = models.IntegerField(default=1)
     creator = models.ForeignKey("auth.User", related_name="workflows")
-    valid = models.BooleanField(default=False)
+    valid = models.NullBooleanField(default=False, null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -38,6 +38,7 @@ class Workflow(models.Model):
 
     def save(self, *args, **kwargs):
         super(Workflow, self).save(*args, **kwargs)
+        self.valid = False
         if not os.path.exists(self.workflow_path):
             os.makedirs(self.workflow_path)
 

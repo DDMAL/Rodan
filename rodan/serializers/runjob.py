@@ -1,6 +1,6 @@
 from rodan.models.runjob import RunJob
 from rodan.models.result import Result
-from rodan.models.page import Page
+# from rodan.models.page import Page
 from rest_framework import serializers
 
 
@@ -18,14 +18,14 @@ class ResultRunJobSerializer(serializers.HyperlinkedModelSerializer):
         model = Result
 
 
-class PageRunJobSerializer(serializers.HyperlinkedModelSerializer):
-    medium_thumb_url = serializers.Field(source="medium_thumb_url")
-    large_thumb_url = serializers.Field(source="medium_thumb_url")
-    uuid = serializers.Field(source='uuid')
+# class PageRunJobSerializer(serializers.HyperlinkedModelSerializer):
+#     medium_thumb_url = serializers.Field(source="medium_thumb_url")
+#     large_thumb_url = serializers.Field(source="medium_thumb_url")
+#     uuid = serializers.Field(source='uuid')
 
-    class Meta:
-        model = Page
-        fields = ('url', 'uuid', 'name', 'page_order', 'medium_thumb_url', 'large_thumb_url')
+#     class Meta:
+#         model = Page
+#         fields = ('url', 'uuid', 'name', 'page_order', 'medium_thumb_url', 'large_thumb_url')
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,7 +33,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     # result = ResultSerializer()
     result = ResultRunJobSerializer()
     job_name = serializers.Field(source="job_name")
-    page = PageRunJobSerializer()
+    # page = PageRunJobSerializer()
     workflow_name = serializers.Field(source="workflow_name")
     inputs = serializers.Field(source="inputs")
     outputs = serializers.Field(source="outputs")
@@ -50,7 +50,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'outputs',
                   'sequence',
                   'result',
-                  'page',
+                  # 'page',
                   'job_settings',
                   'needs_input',
                   'status',

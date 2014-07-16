@@ -42,7 +42,11 @@ class WorkflowList(generics.ListCreateAPIView):
         valid = request.DATA.get('valid', None)
         creator = request.DATA.get('creator', None)
 
-        project_obj = self._resolve_to_object(project, Project)
+        try:
+            project_obj = self._resolve_to_object(project, Project)
+        except:
+            return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
+
         if creator:
             user_obj = self._resolve_to_object(creator, User)
         user_obj = request.user
