@@ -16,6 +16,8 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "uuid",
                   "project",
                   "name",
+                  "resource_type",
+                  "resource_order",
                   "creator",
                   "origin",
                   "created",

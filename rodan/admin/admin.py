@@ -10,6 +10,7 @@ from rodan.models.runjob import RunJob
 from rodan.models.job import Job
 from rodan.models.result import Result
 from rodan.models.resultspackage import ResultsPackage
+from rodan.models.resource import Resource
 
 # from rodan.models.rodanuser import RodanUser
 
@@ -52,6 +53,10 @@ class ResultsPackageAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'workflow_run', 'created')
 
 
+class ResourceAdmin(admin.ModelAdmin):
+    list_display = ('resource_image', 'resource_order', 'created', 'updated')
+
+
 # class UserProfileInline(admin.StackedInline):
 #     model = RodanUser
 #     can_delete = False
@@ -74,3 +79,4 @@ admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(Result)
 admin.site.register(ResultsPackage, ResultsPackageAdmin)
+admin.site.register(Resource)
