@@ -54,6 +54,9 @@ class WorkflowList(generics.ListCreateAPIView):
         if valid:
             return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)
 
+        if not name:
+            return Response({'message': "You must supply a name for your workflow"}, status=status.HTTP_400_BAD_REQUEST)
+
         workflow = Workflow(project=project_obj,
                             name=name,
                             valid=valid,
