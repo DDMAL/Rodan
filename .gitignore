@@ -14,3 +14,5 @@ gunicorn_start.sh
 celery_start.sh
 rodan/settings_production.py
 rodan/static/Rodan
+
+/.DS_Store
