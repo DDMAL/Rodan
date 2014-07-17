@@ -13,7 +13,7 @@ from rodan.serializers.user import UserSerializer, UserListSerializer
 class UserList(generics.ListCreateAPIView):
     model = User
     permission_classes = (permissions.IsAdminUser, )
-    serializer_class = UserListSerializer
+    serializer_class = UserSerializer
     paginate_by = None
 
     def get_queryset(self):
