@@ -29,6 +29,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "has_started",
                   "created",
                   "updated",
+                  "valid",
                   "workflow_runs")
 
 
