@@ -6,6 +6,7 @@ from django.core.urlresolvers import resolve
 
 from rest_framework import status
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.response import Response
 
 from rodan.models.project import Project
@@ -19,6 +20,7 @@ from rodan.helpers.processed import processed
 class ResourceList(generics.ListCreateAPIView):
     model = Resource
     paginate_by = None
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
 
     def get_queryset(self):
@@ -81,3 +83,4 @@ class ResourceList(generics.ListCreateAPIView):
 class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Resource
     serializer_class = ResourceSerializer
+    permission_classes = (permissions.IsAuthenticated, )

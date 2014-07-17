@@ -1,6 +1,7 @@
 import urlparse
 from rest_framework import generics
 from rest_framework import status
+from rest_framework import permissions
 from rest_framework.response import Response
 from django.core.urlresolvers import resolve
 from rodan.models.connection import Connection
@@ -13,6 +14,7 @@ from rodan.serializers.connection import ConnectionListSerializer, ConnectionSer
 class ConnectionList(generics.ListCreateAPIView):
     model = Connection
     serializer_class = ConnectionListSerializer
+    permission_classes = (permissions.IsAuthenticated, )
     paginate_by = None
 
     def get_queryset(self):
@@ -51,3 +53,4 @@ class ConnectionList(generics.ListCreateAPIView):
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Connection
     serializer_class = ConnectionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
