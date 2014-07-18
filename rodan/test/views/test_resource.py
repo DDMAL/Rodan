@@ -8,7 +8,7 @@ class ResourceViewTestCase(APITestCase):
     fixtures = ['1_users', '2_initial_data']
 
     def setUp(self):
-        pass
+        self.test_project = Project.objects.get(name="Test Project")
 
     def test_post_no_files(self):
         pass
