@@ -60,7 +60,7 @@ class ResourceList(generics.ListCreateAPIView):
                                     resource_type=fileobj.content_type,
                                     creator=current_user)
             resource_obj.save()
-            resource_obj.resource_image.save(upload_path(resource_obj, fileobj.name), fileobj)
+            resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
             seq+=1
             res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())

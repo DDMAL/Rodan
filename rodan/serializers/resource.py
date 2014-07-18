@@ -17,9 +17,12 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "project",
                   "name",
                   "resource_type",
+                  "resource_file",
+                  "compat_resource_file",
                   "resource_order",
                   "creator",
                   "origin",
+                  "workflow",
                   "created",
                   "updated")
 
