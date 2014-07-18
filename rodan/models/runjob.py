@@ -3,6 +3,7 @@ import shutil
 from django.db import models
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
+from rodan.models.resource import Resource
 from rodan.models.input import Input
 from rodan.models.output import Output
 
@@ -75,6 +76,10 @@ class RunJob(models.Model):
         if os.path.exists(self.runjob_path):
             shutil.rmtree(self.runjob_path)
         super(RunJob, self).delete(*args, **kwargs)
+
+    @property
+    def resources(self):
+        return list(Resource.objects.filter(run_job=self))
 
     @property
     def job_name(self):

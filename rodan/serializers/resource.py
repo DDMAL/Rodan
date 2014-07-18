@@ -22,6 +22,7 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "resource_order",
                   "creator",
                   "origin",
+                  "run_job",
                   "workflow",
                   "created",
                   "updated")

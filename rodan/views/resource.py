@@ -9,6 +9,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.response import Response
 
+from rodan.models.runjob import RunJob
 from rodan.models.project import Project
 from rodan.models.resource import Resource, upload_path
 from rodan.serializers.resource import ResourceSerializer
@@ -53,6 +54,13 @@ class ResourceList(generics.ListCreateAPIView):
         except:
             return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
 
+        run_job = request.DATA.get('run_job', None)
+        if run_job:
+            try:
+                runjob_obj = self._resolve_to_object(run_job, RunJob)
+            except:
+                return Response({'message': "couldn't resolve runjob object tough luck buster"}, status=status.HTTP_400_BAD_REQUEST)
+
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
@@ -62,7 +70,10 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
-            seq+=1
+            if runjob_obj:
+                resource_obj.run_job = runjob_obj
+                resource_obj.save()
+
             res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
             res.apply_async()
 

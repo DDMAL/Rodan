@@ -46,6 +46,7 @@ class Resource(models.Model):
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
     resource_type = models.CharField(max_length=20)
     resource_order = models.IntegerField(null=True, blank=True)
+    run_job = models.ForeignKey('rodan.RunJob', null=True, blank=True)
     workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
     processed = models.BooleanField(default=False)
 

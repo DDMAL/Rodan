@@ -37,11 +37,13 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     workflow_name = serializers.Field(source="workflow_name")
     inputs = serializers.Field(source="inputs")
     outputs = serializers.Field(source="outputs")
+    resources = serializers.Field(source="resources")
 
     class Meta:
         model = RunJob
         read_only_fields = ("created", "updated")
         fields = ('url',
+                  'uuid',
                   'job_name',
                   'workflow_name',
                   'workflow_run',
@@ -50,9 +52,11 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'outputs',
                   'sequence',
                   'result',
-                  # 'page',
+                  'resources',
                   'job_settings',
                   'needs_input',
                   'status',
+                  'created',
+                  'updated',
                   'error_summary',
                   'error_details')
