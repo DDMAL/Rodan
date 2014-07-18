@@ -15,6 +15,7 @@ class ResultSerializer(serializers.HyperlinkedModelSerializer):
         model = Result
         read_only_fields = ('created', 'updated')
         fields = ("url",
+                  "uuid",
                   "result",
                   "run_job",
                   "run_job_name",

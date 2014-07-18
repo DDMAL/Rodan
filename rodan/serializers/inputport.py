@@ -6,6 +6,7 @@ class InputPortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InputPort
         fields = ("url",
+                  "uuid",
                   "input_port_type",
                   "label",
                   "workflow_job")

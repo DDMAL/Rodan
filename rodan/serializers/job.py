@@ -11,6 +11,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Job
         fields = ("url",
+                  "uuid",
                   "job_name",
                   "settings",
                   "input_port_types",

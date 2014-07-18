@@ -22,6 +22,7 @@ class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
         model = Project
         read_only_fields = ('created', 'updated')
         fields = ('url',
+                  'uuid',
                   'name',
                   "page_count",
                   "workflow_count",

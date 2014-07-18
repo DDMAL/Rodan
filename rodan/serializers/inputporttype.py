@@ -9,6 +9,7 @@ class InputPortTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InputPortType
         fields = ("url",
+                  "uuid",
                   "job",
                   "name",
                   "minimum",
