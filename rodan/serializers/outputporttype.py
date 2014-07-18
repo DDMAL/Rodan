@@ -11,4 +11,6 @@ class OutputPortTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("url",
                   "job",
                   "name",
+                  "minimum",
+                  "maximum",
                   "resource_type")

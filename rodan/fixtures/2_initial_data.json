@@ -286,7 +286,9 @@
     "fields": {
       "job": "76753dd66e1147bcbd6321d749518da2",
       "name": "Test OutputPortType",
-      "resource_type": 0
+      "resource_type": 0,
+      "minimum": 1,
+      "maximum": 1
     },
     "model": "rodan.outputporttype",
     "pk": "1cdb067e98194da48dd3dfa35e84671c"
