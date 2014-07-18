@@ -17,6 +17,7 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Connection
         fields = ("url",
+                  "uuid",
                   "input_port",
                   "input_workflow_job",
                   "output_port",
