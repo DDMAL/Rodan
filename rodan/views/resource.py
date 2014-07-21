@@ -40,10 +40,9 @@ class ResourceList(generics.ListCreateAPIView):
         response = []
         current_user = User.objects.get(pk=request.user.id)
 
-        start_seq = int(request.DATA.get('resource_order', None))
-
+        start_seq = request.DATA.get('resource_order', None)
         if not start_seq:
-            return Response({'message': "The start sequence for the page ordering may not be empty."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': "The start sequence for the resource ordering may not be empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         project = request.DATA.get('project', None)
         if not project:
@@ -59,9 +58,9 @@ class ResourceList(generics.ListCreateAPIView):
             try:
                 runjob_obj = self._resolve_to_object(run_job, RunJob)
             except:
-                return Response({'message': "couldn't resolve runjob object tough luck buster"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': "Couldn't resolve specified RunJob to a RunJob object"}, status=status.HTTP_400_BAD_REQUEST)
 
-        for seq, fileobj in enumerate(request.FILES.getlist('files'), start=start_seq):
+        for seq, fileobj in enumerate(request.FILES.getlist('files'), start=int(start_seq)):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
                                     resource_order=seq,
@@ -70,7 +69,7 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
-            if runjob_obj:
+            if run_job:
                 resource_obj.run_job = runjob_obj
                 resource_obj.save()
 
