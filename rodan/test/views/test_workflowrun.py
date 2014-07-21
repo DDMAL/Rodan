@@ -36,7 +36,20 @@ class WorkflowRunViewTest(APITestCase):
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
         self.test_user = User.objects.get(username="ahankins")
 
+        self.test_outputport = OutputPort(workflow_job=WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2"),
+                                          output_port_type=OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c"))
+        self.test_outputport.save()
+
+        self.test_inputport = InputPort(workflow_job=WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2"),
+                                        input_port_type=InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1"))
+        self.test_inputport.save()
+
     def test_post(self):
+        workflow_update = {
+            'valid': True,
+        }
+        self.client.patch("/workflow/df78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/1/',
             'workflow': 'http://localhost:8000/workflow/df78a1aa79554abcb5f1b0ac7bba2bad/',
@@ -155,9 +168,13 @@ class WorkflowRunViewTest(APITestCase):
         singletons = WorkflowRunList._singleton_workflow_jobs(WorkflowRunList(), self.test_workflow)
         self.assertFalse(singletons)
 
-        workflow_run = WorkflowRun(workflow=self.test_workflow,
-                                   creator=self.test_user)
-        workflow_run.save()
+        # workflow_run = WorkflowRun(workflow=self.test_workflow,
+        #                            creator=self.test_user)
+        # workflow_run.save()
+        workflow_update = {
+            'valid': True,
+        }
+        self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
 
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/1/',
