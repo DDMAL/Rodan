@@ -204,7 +204,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
 
         if not workflow_obj.valid:
-            return Response({"message": "workflow must be valid before you can run it"})
+            return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
         workflow_run = WorkflowRun(creator=request.user,
                                    workflow=workflow_obj)
         workflow_run.save()
