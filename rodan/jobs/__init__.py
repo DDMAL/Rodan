@@ -146,3 +146,9 @@ try:
     load_dummy_job()
 except ImportError as e:
     logger.warning("DEV: The dummy job could not be loaded properly. Skipping")
+
+try:
+    from rodan.jobs.devel.dummy_job_2 import load_dummy_job
+    load_dummy_job()
+except ImportError as e:
+    logger.warning("DEV: The second dummy job could not be loaded. Skipping")
