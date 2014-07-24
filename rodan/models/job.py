@@ -2,6 +2,8 @@ from django.db import models
 from django_extensions.db.fields import json
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
+from rodan.serializers.inputporttype import InputPortTypeSerializer
+from rodan.serializers.outputporttype import OutputPortTypeSerializer
 from uuidfield import UUIDField
 
 
@@ -53,8 +55,8 @@ class Job(models.Model):
 
     @property
     def input_port_types(self):
-        return [ipt for ipt in InputPortType.objects.filter(job=self)]
+        return [InputPortTypeSerializer(ipt).data for ipt in InputPortType.objects.filter(job=self)]
 
     @property
     def output_port_types(self):
-        return [opt for opt in OutputPortType.objects.filter(job=self)]
+        return [OutputPortTypeSerializer(opt) for opt in OutputPortType.objects.filter(job=self)]
