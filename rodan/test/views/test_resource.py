@@ -1,7 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.models.resource import Resource
 from rodan.models.project import Project
 
 

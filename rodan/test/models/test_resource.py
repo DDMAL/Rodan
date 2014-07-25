@@ -4,7 +4,6 @@ from rodan.models.resource import Resource
 from rodan.models.project import Project
 from rodan.models.output import Output
 from rodan.models.inputport import InputPort
-from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.workflow import Workflow
 
 
@@ -21,29 +20,30 @@ class ResourceTestCase(TestCase):
         self.test_resource_data = {
             "project": self.test_project,
             "creator": self.test_user,
-            "name": "test resource",
+            "name": "testresource.jpg",
         }
 
     def test_save_original_file(self):
         resource = Resource(**self.test_resource_data)
         resource.save()
 
-        retr_resource = Resource.objects.get(name="test resource")
+        retr_resource = Resource.objects.get(name="testresource.jpg")
+        self.assertEqual(retr_resource.resource_type, "image/jpeg")
         self.assertEqual(retr_resource.name, resource.name)
 
     def test_save_runjob_result(self):
         resource = Resource(**self.test_resource_data)
         resource.save()
 
-        retr_resource = Resource.objects.get(name="test resource")
+        retr_resource = Resource.objects.get(name="testresource.jpg")
         self.assertEqual(retr_resource.name, resource.name)
 
     def test_delete(self):
         resource = Resource(**self.test_resource_data)
         resource.save()
 
-        retr_resource = Resource.objects.get(name="test resource")
+        retr_resource = Resource.objects.get(name="testresource.jpg")
         retr_resource.delete()
 
-        retr_resource2 = Resource.objects.filter(name="test resource")
+        retr_resource2 = Resource.objects.filter(name="testresource.jpg")
         self.assertFalse(retr_resource2.exists())
