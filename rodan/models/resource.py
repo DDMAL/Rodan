@@ -1,8 +1,8 @@
 import os
+import mimetypes
 from django.db import models
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
-from rodan.settings import IMAGE_TYPES
 
 
 def upload_path(resource, filename):
@@ -18,19 +18,13 @@ def compat_path(resource, filename):
 class Resource(models.Model):
     class Meta:
         app_label = 'rodan'
+        ordering = ('resource_order', )
 
     """
         A Resource is any file associated with a Rodan Project. In the past, Resources were simply
         Pages. However, now it is possible to use any data resource and label it of being a
         specific type. This constitutes a Resource. (from Rodan wiki)
     """
-
-    RESOURCE_TYPE_CHOICES = ((IMAGE_TYPES[0], 'Onebit PNG Image'),
-                             (IMAGE_TYPES[1], 'Greyscale PNG Image'),
-                             (IMAGE_TYPES[2], 'Grey16 PNG Image'),
-                             (IMAGE_TYPES[3], 'Colour PNG Image'),
-                             (IMAGE_TYPES[4], 'Float Image Type'),
-                             (IMAGE_TYPES[5], 'Complex Image Type'))
 
     @property
     def resource_path(self):
@@ -55,3 +49,8 @@ class Resource(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.resource_type = mimetypes.guess_type(self.name, strict=False)[0]
+        super(Resource, self).save(*args, **kwargs)

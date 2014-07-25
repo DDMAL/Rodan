@@ -1,14 +1,10 @@
-import urlparse
 import celery
-
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve
-
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.response import Response
-
+from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.runjob import RunJob
 from rodan.models.project import Project
 from rodan.models.resource import Resource, upload_path
@@ -49,14 +45,14 @@ class ResourceList(generics.ListCreateAPIView):
             return Response({'message': "You must supply project identifier for these resources."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            project_obj = self._resolve_to_object(project, Project)
+            project_obj = resolve_to_object(project, Project)
         except:
             return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
 
         run_job = request.DATA.get('run_job', None)
         if run_job:
             try:
-                runjob_obj = self._resolve_to_object(run_job, RunJob)
+                runjob_obj = resolve_to_object(run_job, RunJob)
             except:
                 return Response({'message': "Couldn't resolve specified RunJob to a RunJob object"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -64,7 +60,6 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
                                     resource_order=seq,
-                                    resource_type=fileobj.content_type,
                                     creator=current_user)
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
@@ -83,12 +78,6 @@ class ResourceList(generics.ListCreateAPIView):
                 return Response({'message': " Could not serialize resource object"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'resources': response}, status=status.HTTP_201_CREATED)
-
-    def _resolve_to_object(self, request_url, model):
-        value = urlparse.urlparse(request_url).path
-        o = resolve(value)
-        obj_pk = o.kwargs.get('pk')
-        return model.objects.get(pk=obj_pk)
 
 
 class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
