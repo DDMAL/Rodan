@@ -152,3 +152,16 @@ try:
     load_dummy_job()
 except ImportError as e:
     logger.warning("DEV: The second dummy job could not be loaded. Skipping")
+
+try:
+    from rodan.jobs.devel.dummy_job_3 import load_dummy_job
+    load_dummy_job()
+except ImportError as e:
+    logger.warning("DEV: The third dummy job could not be loaded. Skipping")
+
+try:
+    from rodan.jobs.devel.dummy_job_4 import load_dummy_job
+    load_dummy_job()
+except ImportError as e:
+    logger.warning("DEV: The fourth dummy job could not be loaded. Skipping")
+
