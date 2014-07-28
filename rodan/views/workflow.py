@@ -1,13 +1,9 @@
-import urlparse
-
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-
-from django.core.urlresolvers import resolve
 from django.contrib.auth.models import User
-
+from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.resourceassignment import ResourceAssignment
@@ -43,12 +39,12 @@ class WorkflowList(generics.ListCreateAPIView):
         creator = request.DATA.get('creator', None)
 
         try:
-            project_obj = self._resolve_to_object(project, Project)
+            project_obj = resolve_to_object(project, Project)
         except:
             return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
 
         if creator:
-            user_obj = self._resolve_to_object(creator, User)
+            user_obj = resolve_to_object(creator, User)
         user_obj = request.user
 
         if valid:
@@ -65,12 +61,6 @@ class WorkflowList(generics.ListCreateAPIView):
         workflow.save()
 
         return Response(status=status.HTTP_201_CREATED)
-
-    def _resolve_to_object(self, request_url, model):
-        value = urlparse.urlparse(request_url).path
-        o = resolve(value)
-        obj_pk = o.kwargs.get('pk')
-        return model.objects.get(pk=obj_pk)
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
