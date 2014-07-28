@@ -26,7 +26,6 @@ class WorkflowJob(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", blank=True, null=True)
     job = models.ForeignKey(Job)
-    sequence = models.IntegerField(blank=True, null=True)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
     job_settings = json.JSONField(default="[]", blank=True, null=True)
 
@@ -38,7 +37,6 @@ class WorkflowJob(models.Model):
 
     class Meta:
         app_label = 'rodan'
-        ordering = ('sequence',)
 
     @property
     def job_name(self):
@@ -47,14 +45,6 @@ class WorkflowJob(models.Model):
     @property
     def job_description(self):
         return self.job.description
-
-    @property
-    def input_pixel_types(self):
-        return self.job.input_port_types
-
-    @property
-    def output_pixel_types(self):
-        return self.job.output_port_types
 
     @property
     def input_ports(self):
