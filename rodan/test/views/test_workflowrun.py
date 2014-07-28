@@ -87,28 +87,6 @@ class WorkflowRunViewTest(APITestCase):
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    # def test_post_no_jobs(self):
-    #     workflowrun_obj = {
-    #         'creator': 'http://localhost:8000/user/1/',
-    #         'workflow': 'http://localhost:8000/workflow/ef78a1aa79554abcb5f1b0ac7bba2bad/',
-    #     }
-
-    #     response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-    #     anticipated_message = {"message": "No jobs for workflow {0} were specified".format(workflowrun_obj['workflow'])}
-    #     self.assertEqual(response.data, anticipated_message)
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    # def test_post_no_pages(self):
-    #     workflowrun_obj = {
-    #         'creator': 'http://localhost:8000/user/1/',
-    #         'workflow': 'http://localhost:8000/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/',
-    #     }
-
-    #     response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-    #     anticipated_message = {"message": "No pages were assigned to workflow ID {0}".format(workflowrun_obj['workflow'])}
-    #     self.assertEqual(response.data, anticipated_message)
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_post_branching_workflow(self):
         test_second_output_workflowjob = WorkflowJob(workflow=self.test_workflow,
                                                      job=self.test_job)
@@ -168,9 +146,6 @@ class WorkflowRunViewTest(APITestCase):
         singletons = WorkflowRunList._singleton_workflow_jobs(WorkflowRunList(), self.test_workflow)
         self.assertFalse(singletons)
 
-        # workflow_run = WorkflowRun(workflow=self.test_workflow,
-        #                            creator=self.test_user)
-        # workflow_run.save()
         workflow_update = {
             'valid': True,
         }
