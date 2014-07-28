@@ -26,10 +26,33 @@ class ConnectionList(generics.ListCreateAPIView):
         output_port = request.DATA.get('output_port', None)
         output_workflow_job = request.DATA.get('output_workflow_job', None)
 
-        ip_obj = resolve_to_object(input_port, InputPort)
-        op_obj = resolve_to_object(output_port, OutputPort)
-        injob_obj = resolve_to_object(input_workflow_job, WorkflowJob)
-        outjob_obj = resolve_to_object(output_workflow_job, WorkflowJob)
+        try:
+            ip_obj = resolve_to_object(input_port, InputPort)
+        except AttributeError:
+            return Response({'message': "Please specify an input port"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'message': "Problem resolving input port object"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            op_obj = resolve_to_object(output_port, OutputPort)
+        except AttributeError:
+            return Response({'message': "Please specify an output port"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'message': "Problem resolving output port object"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            injob_obj = resolve_to_object(input_workflow_job, WorkflowJob)
+        except AttributeError:
+            return Response({'message': "Please specify an input workflowjob"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'message': "Problem resolving the input workflowjob"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            outjob_obj = resolve_to_object(output_workflow_job, WorkflowJob)
+        except AttributeError:
+            return Response({'message': "Please specify an output workflowjob"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'message': "Problem resolving the output workflowjob"}, status=status.HTTP_400_BAD_REQUEST)
 
         if outjob_obj.workflow != injob_obj.workflow:
             return Response({"message": "Input and output WorkflowJobs must be part of the same workflow"}, status.HTTP_200_OK)

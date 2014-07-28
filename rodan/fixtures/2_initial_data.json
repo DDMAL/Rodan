@@ -118,7 +118,6 @@
     "fields": {
       "updated": "2014-05-17T17:35:35.502Z",
       "created": "2014-05-17T17:35:35.502Z",
-      "sequence": 1,
       "job_type": 0,
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
@@ -131,7 +130,6 @@
     "fields": {
       "updated": "2014-05-17T17:35:35.502Z",
       "created": "2014-05-17T17:35:35.502Z",
-      "sequence": 1,
       "job_type": 0,
       "workflow": "df78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
@@ -144,7 +142,6 @@
     "fields": {
       "updated": "2014-05-17T17:35:35.502Z",
       "created": "2014-05-17T17:35:35.502Z",
-      "sequence": 1,
       "job_type": 0,
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
