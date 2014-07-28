@@ -41,11 +41,10 @@ class RunJob(models.Model):
 
     @property
     def runjob_path(self):
-        return os.path.join(self.workflow_run.workflow_run_path, "{0}_{1}".format(self.workflow_job.sequence, str(self.pk)))
+        return os.path.join(self.workflow_run.workflow_run_path, "{0}_{1}".format(self.workflow_job.job_name, str(self.pk)))
 
     class Meta:
         app_label = 'rodan'
-        ordering = ['workflow_job__sequence']
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
