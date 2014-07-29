@@ -93,3 +93,16 @@ class ConnectionViewTestCase(APITestCase):
         anticipated_message = {'message': "Problem resolving input port object"}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_not_a_real_inputport(self):
+        conn_obj = {
+            'input_port': "http://localhost:8000/inputport/56850768848b46f494d892d6f784cdac/",
+            'input_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f2/",
+            'output_port': "http://localhost:8000/outputport/0e8b037c44f74364a60a7f5cc397a48d/",
+            'output_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f3/",
+        }
+
+        response = self.client.post("/connections/", conn_obj, format='json')
+        anticipated_message = {'message': "No input port with the specified uuid exists"}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

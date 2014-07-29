@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
+from django.core.urlresolvers import Resolver404
 from django.contrib.auth.models import User
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.workflow import Workflow
@@ -40,12 +41,21 @@ class WorkflowList(generics.ListCreateAPIView):
 
         try:
             project_obj = resolve_to_object(project, Project)
-        except:
-            return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
+        except Resolver404:
+            return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except AttributeError:
+            return Response({'message': "Please specify a project"}, status=status.HTTP_400_BAD_REQUEST)
+        except Project.DoesNotExist:
+            return Response({'message': "No project with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if creator:
+        try:
             user_obj = resolve_to_object(creator, User)
-        user_obj = request.user
+        except Resolver404:
+            return Response({'message': "Could not resolve 'creator' to a User instance"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except AttributeError:
+            user_obj = request.user
+        except User.DoesNotExist:
+            return Response({'message': "The specified user does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if valid:
             return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)

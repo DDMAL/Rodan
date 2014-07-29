@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.response import Response
+from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.runjob import RunJob
 from rodan.models.project import Project
@@ -46,15 +47,19 @@ class ResourceList(generics.ListCreateAPIView):
 
         try:
             project_obj = resolve_to_object(project, Project)
-        except:
-            return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_400_BAD_REQUEST)
+        except Resolver404:
+            return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Project.DoesNotExist:
+            return Response({'message': "No project with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
         run_job = request.DATA.get('run_job', None)
         if run_job:
             try:
                 runjob_obj = resolve_to_object(run_job, RunJob)
-            except:
-                return Response({'message': "Couldn't resolve specified RunJob to a RunJob object"}, status=status.HTTP_400_BAD_REQUEST)
+            except Resolver404:
+                return Response({'message': "Couldn't resolve specified RunJob to a RunJob object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except RunJob.DoesNotExist:
+                return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
         for seq, fileobj in enumerate(request.FILES.getlist('files'), start=int(start_seq)):
             resource_obj = Resource(name=fileobj.name,
@@ -75,7 +80,7 @@ class ResourceList(generics.ListCreateAPIView):
                 d = ResourceSerializer(resource_obj).data
                 response.append(d)
             except:
-                return Response({'message': " Could not serialize resource object"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': " Could not serialize resource object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({'resources': response}, status=status.HTTP_201_CREATED)
 
