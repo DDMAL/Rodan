@@ -36,6 +36,7 @@ from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
 from rodan.views.resource import ResourceList, ResourceDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
+from rodan.views.resourceassignment import ResourceAssignmentList, ResourceAssignmentDetail
 
 from rodan.views import interactive
 
@@ -91,7 +92,9 @@ urlpatterns += format_suffix_patterns(
         url(r'^outputs/$', OutputList.as_view(), name="output-list"),
         url(r'^output/(?P<pk>[0-9a-z/-]+)/$', OutputDetail.as_view(), name="output-detail"),
         url(r'^inputs/$', InputList.as_view(), name="input-list"),
-        url(r'^input/(?P<pk>[0-9a-z/-]+)/$', InputDetail.as_view(), name='input-detail')
+        url(r'^input/(?P<pk>[0-9a-z/-]+)/$', InputDetail.as_view(), name='input-detail'),
+        url(r'^resourceassignments/$', ResourceAssignmentList.as_view(), name='resourceassignment-list'),
+        url(r'^resourceassignment/(?P<pk>[0-9a-z/-]+)/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail')
     )
 )
 

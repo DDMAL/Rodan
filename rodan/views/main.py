@@ -19,6 +19,7 @@ def api_root(request, format=None):
                      'users': reverse('user-list', request=request, format=format),
                      'resultspackages': reverse('resultspackage-list', request=request, format=format),
                      'connections': reverse('connection-list', request=request, format=format),
+                     'resourceassignments': reverse('resourceassignment-list', request=request, format=format),
                      'outputporttypes': reverse('outputporttype-list', request=request, format=format),
                      'outputports': reverse('outputport-list', request=request, format=format),
                      'inputporttypes': reverse('inputporttype-list', request=request, format=format),
