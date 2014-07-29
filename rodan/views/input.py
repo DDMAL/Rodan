@@ -10,7 +10,13 @@ class InputList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get_queryset(self):
-        return Input.objects.all()
+        run_job = self.request.QUERY_PARAMS.get('run_job', None)
+        queryset = Input.objects.all()
+
+        if run_job:
+            queryset = queryset.filter(run_job=run_job)
+
+        return queryset
 
 
 class InputDetail(generics.RetrieveUpdateDestroyAPIView):
