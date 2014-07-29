@@ -24,6 +24,9 @@ class InputPortTypeList(generics.ListCreateAPIView):
         if not minimum or not maximum:
             return Response({"message": "You must specify minimum and maximum for this InputPortType"}, status=status.HTTP_400_BAD_REQUEST)
 
+        if not resource_type:
+            return Response({'message': "Resource type must be specified"}, status=status.HTTP_400_BAD_REQUEST)
+
         job = request.DATA.get('job', None)
         try:
             job_obj = resolve_to_object(job, Job)
