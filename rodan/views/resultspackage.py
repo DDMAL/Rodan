@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 
 from rodan.models.job import Job
 from rodan.models.workflowrun import WorkflowRun
-from rodan.models.page import Page
 from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPackageListSerializer
 from rodan.models.resultspackage import ResultsPackage, ResultsPackageStatus
 from rodan.helpers.resultspackagemanager import PackageResultTask
@@ -59,7 +58,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         workflow_run_url = request.DATA.get('workflow_run_url', None)
-        page_urls = request.DATA.get('page_urls', None)
         job_urls = request.DATA.get('job_urls', None)
 
         if not workflow_run_url:
@@ -75,21 +73,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
             workflowrun = WorkflowRun.objects.get(pk=workflow_run_view.kwargs['pk'])
         except WorkflowRun.DoesNotExist:
             return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
-
-        if page_urls:
-            page_errors = {'400': [], '404': []}
-            pages = [self._resolve_object(Page, page_url, page_errors) for page_url in page_urls]
-
-            if page_errors['400']:
-                return Response({"message": "One or more pages have invalid url.",
-                                 "bad_urls:": page_errors['400']},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if page_errors['404']:
-                return Response({"message": "One or more pages could not be located.",
-                                 "bad_urls": page_errors['404']},
-                                status=status.HTTP_404_NOT_FOUND)
-        else:
-            pages = []
 
         if job_urls:
             job_errors = {'400': [], '404': []}
@@ -108,7 +91,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
         package = ResultsPackage.objects.create(workflow_run=workflowrun, creator=request.user,
                                                 expiry_date=None)  # Will change this. Can't figure out how to work with timezone support right now.
 
-        package.pages.add(*pages)
         package.jobs.add(*jobs)
 
         package.status = ResultsPackageStatus.SCHEDULED_FOR_PROCESSING

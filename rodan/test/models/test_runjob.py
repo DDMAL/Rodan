@@ -2,7 +2,6 @@ import os
 from django.test import TestCase
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflowjob import WorkflowJob
-from rodan.models.page import Page
 from rodan.models.runjob import RunJob
 
 

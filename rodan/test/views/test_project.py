@@ -1,10 +1,8 @@
 import os
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from rodan.models.page import Page
 from rodan.models.project import Project
 
 # Refer to http://www.django-rest-framework.org/api-guide/testing
@@ -21,10 +19,6 @@ class ProjectViewTestCase(APITestCase):
         self.project_dir = os.path.join(self.media_root, "projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/2f63f986449349769d7a313e0fc6edb3/")
 
         # we need to fix the file paths on our Page object
-        page = Page.objects.get(uuid="2f63f986449349769d7a313e0fc6edb3")
-        page.page_image = SimpleUploadedFile('original_file.png', 'n/t')
-        page.compat_page_image = SimpleUploadedFile('compat_page_image.png', 'n/t')
-        page.save()
 
     def tearDown(self):
         # tearing this down manually calls the delete method,

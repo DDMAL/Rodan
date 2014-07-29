@@ -19,7 +19,6 @@ class Workflow(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
     project = models.ForeignKey("rodan.Project", related_name="workflows")
-    pages = models.ManyToManyField("rodan.Page", related_name="workflows", blank=True)
     description = models.TextField(blank=True, null=True)
     has_started = models.BooleanField(default=False)
     runs = models.IntegerField(default=1)

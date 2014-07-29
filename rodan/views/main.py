@@ -13,7 +13,6 @@ def api_root(request, format=None):
                      'workflowjobs': reverse('workflowjob-list', request=request, format=format),
                      'workflowruns': reverse('workflowrun-list', request=request, format=format),
                      'runjobs': reverse('runjob-list', request=request, format=format),
-                     'pages': reverse('page-list', request=request, format=format),
                      'jobs': reverse('job-list', request=request, format=format),
                      'results': reverse('result-list', request=request, format=format),
                      'users': reverse('user-list', request=request, format=format),

@@ -1,6 +1,5 @@
 from rodan.models.workflow import Workflow
 from rest_framework import serializers
-from rodan.serializers.page import MinimalPageSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer
 
@@ -8,8 +7,6 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
-    pages = MinimalPageSerializer()
-    # pages = serializers.HyperlinkedRelatedField(many=True, view_name="page-detail")
     workflow_jobs = WorkflowJobSerializer()
     workflow_runs = WorkflowRunSerializer()
     uuid = serializers.Field(source='uuid')
@@ -23,7 +20,6 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "name",
                   "project",
                   'runs',
-                  "pages",
                   "workflow_jobs",
                   "description",
                   "has_started",

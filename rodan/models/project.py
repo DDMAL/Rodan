@@ -45,9 +45,5 @@ class Project(models.Model):
         )
 
     @property
-    def page_count(self):
-        return self.pages.count()
-
-    @property
     def workflow_count(self):
         return self.workflows.count()

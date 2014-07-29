@@ -34,7 +34,6 @@ class ResultsPackage(models.Model):
     download_url = models.URLField(blank=True, default='', max_length=255)
 
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages")
-    pages = models.ManyToManyField("rodan.Page", related_name="results_packages", blank=True)
     jobs = models.ManyToManyField("rodan.Job", related_name="results_packages", blank=True)
     creator = models.ForeignKey("auth.User", related_name="results_packages")
 

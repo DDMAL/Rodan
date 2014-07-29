@@ -2,7 +2,7 @@ from django.contrib import admin
 from guardian.admin import GuardedModelAdmin
 
 from rodan.models.project import Project
-from rodan.models.page import Page
+
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
@@ -30,10 +30,6 @@ class JobAdmin(admin.ModelAdmin):
 
 class ProjectAdmin(GuardedModelAdmin):
     readonly_fields = ('uuid',)
-
-
-class PageAdmin(admin.ModelAdmin):
-    list_display = ('page_image', 'page_order', 'created', 'updated')
 
 
 class WorkflowJobAdmin(admin.ModelAdmin):
@@ -73,7 +69,6 @@ class ResourceAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(WorkflowRun, WorkflowRunAdmin)
 admin.site.register(RunJob, RunJobAdmin)
-admin.site.register(Page, PageAdmin)
 admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob, WorkflowJobAdmin)

@@ -19,8 +19,6 @@ from rodan.views.workflowrun import WorkflowRunList
 from rodan.views.workflowrun import WorkflowRunDetail
 from rodan.views.runjob import RunJobList
 from rodan.views.runjob import RunJobDetail
-from rodan.views.page import PageList
-from rodan.views.page import PageDetail
 from rodan.views.job import JobList
 from rodan.views.job import JobDetail
 from rodan.views.result import ResultList
@@ -63,8 +61,6 @@ urlpatterns += format_suffix_patterns(
         url(r'^workflow/(?P<pk>[0-9a-z\-]+)/$', WorkflowDetail.as_view(), name="workflow-detail"),
         url(r'^workflowjobs/$', WorkflowJobList.as_view(), name="workflowjob-list"),
         url(r'^workflowjob/(?P<pk>[0-9a-z\-]+)/$', WorkflowJobDetail.as_view(), name="workflowjob-detail"),
-        url(r'^pages/$', PageList.as_view(), name="page-list"),
-        url(r'^page/(?P<pk>[0-9a-z\-]+)/$', PageDetail.as_view(), name="page-detail"),
         url(r'^jobs/$', JobList.as_view(), name="job-list"),
         url(r'^job/(?P<pk>[0-9a-z\-]+)/$', JobDetail.as_view(), name="job-detail"),
         url(r'^results/$', ResultList.as_view(), name="result-list"),

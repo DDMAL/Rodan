@@ -1,11 +1,9 @@
 import os
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 
-from rodan.models.page import Page
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflow import Workflow
 from rodan.models.runjob import RunJobStatus
@@ -27,10 +25,6 @@ class WorkflowRunViewTest(APITestCase):
         self.media_root = os.path.join(settings.PROJECT_DIR)
 
         self.client.login(username="ahankins", password="hahaha")
-        page = Page.objects.get(uuid="2f63f986449349769d7a313e0fc6edb3")
-        page.page_image = SimpleUploadedFile('original_file.png', 'n/t')
-        page.compat_page_image = SimpleUploadedFile('compat_page_image.png', 'n/t')
-        page.save()
 
         self.test_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")

@@ -2,7 +2,6 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from rodan.models.workflow import Workflow
-from rodan.models.page import Page
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob, RunJobStatus
@@ -13,14 +12,6 @@ def update_workflow_upon_workflow_run_update(**kwargs):
     workflowrun_instance = kwargs['instance']
     workflow_instance = workflowrun_instance.workflow
     super(Workflow, workflow_instance).save()  # touch the workflow to update the updated field.
-
-
-@receiver(post_save, sender=Page)
-def update_workflow_upon_page_save(**kwargs):
-    page_instance = kwargs['instance']
-    workflows = page_instance.workflows.all()
-    for workflow_instance in workflows:
-        super(Workflow, workflow_instance).save()
 
 
 @receiver(pre_save, sender=RunJob)
