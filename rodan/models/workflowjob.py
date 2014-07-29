@@ -1,8 +1,6 @@
 from django.db import models
 from rodan.models.job import Job
 from rodan.models.workflow import Workflow
-from rodan.models.inputport import InputPort
-from rodan.models.outputport import OutputPort
 from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
@@ -45,14 +43,6 @@ class WorkflowJob(models.Model):
     @property
     def job_description(self):
         return self.job.description
-
-    @property
-    def input_ports(self):
-        return [ip for ip in InputPort.objects.filter(workflow_job=self)]
-
-    @property
-    def output_ports(self):
-        return [op for op in OutputPort.objects.filter(workflow_job=self)]
 
 
 # class WorkflowJob(models.Model):
