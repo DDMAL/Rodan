@@ -92,7 +92,7 @@ class ConnectionViewTestCase(APITestCase):
         response = self.client.post("/connections/", conn_obj, format='json')
         anticipated_message = {'message': "Problem resolving input port object"}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_not_a_real_inputport(self):
         conn_obj = {
