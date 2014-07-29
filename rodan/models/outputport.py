@@ -7,7 +7,7 @@ class OutputPort(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_job = models.ForeignKey('rodan.WorkflowJob', null=True, blank=True)
+    workflow_job = models.ForeignKey('rodan.WorkflowJob')
     output_port_type = models.ForeignKey('rodan.OutputPortType')
     label = models.CharField(max_length=255, null=True, blank=True)
 
