@@ -70,7 +70,7 @@ class WorkflowList(generics.ListCreateAPIView):
 
         workflow.save()
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(WorkflowSerializer(workflow).data, status=status.HTTP_201_CREATED)
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
