@@ -43,5 +43,6 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
                   'creator',
                   'uuid',
                   'name',
+                  'valid',
                   'created',
                   'updated')

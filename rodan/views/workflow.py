@@ -98,25 +98,25 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             self._validate(workflow, workflow_jobs, resource_assignments)
 
         except NoWorkflowJobsError:
-            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_200_OK)
+            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_409_CONFLICT)
 
         except MultipleResourceCollectionsError:
-            return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_409_CONFLICT)
 
         except ResourceNotInWorkflowError:
-            return Response({'message': 'The resource {0} is not in the workflow'.format(ResourceNotInWorkflowError.name)}, status=status.HTTP_200_OK)
+            return Response({'message': 'The resource {0} is not in the workflow'.format(ResourceNotInWorkflowError.name)}, status=status.HTTP_409_CONFLICT)
 
         except OrphanError:
-            return Response({'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(OrphanError.ID)}, status=status.HTTP_200_OK)
+            return Response({'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(OrphanError.ID)}, status=status.HTTP_409_CONFLICT)
 
         except LoopError:
-            return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_200_OK)
+            return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT)
 
         except NumberOfPortsError:
-            return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(NumberOfPortsError.ID)}, status=status.HTTP_200_OK)
+            return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(NumberOfPortsError.ID)}, status=status.HTTP_409_CONFLICT)
 
         except NoOutputPortError:
-            return Response({'message': 'The WorkflowJob {0} has no OutputPorts'.format(NoOutputPortError.ID)}, status=status.HTTP_200_OK)
+            return Response({'message': 'The WorkflowJob {0} has no OutputPorts'.format(NoOutputPortError.ID)}, status=status.HTTP_409_CONFLICT)
 
         workflow.valid = True
 
