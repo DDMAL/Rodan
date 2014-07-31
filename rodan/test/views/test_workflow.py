@@ -135,7 +135,7 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         anticipated_message = {'message': 'There appears to be a loop in the workflow'}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_merging_workflow(self):
         test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
@@ -264,7 +264,7 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         anticipated_message = {'message': 'The WorkflowJob {0} has no OutputPorts'.format(test_invalid_workflowjob.uuid)}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_not_meeting_inputport_requirements(self):
         test_job_with_requirements = Job.objects.get(uuid="76753dd66e1147bcbd6321d749518da2")
@@ -293,7 +293,7 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(test_invalid_workflowjob.uuid)}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_orphan_in_workfow(self):
         test_orphan_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
@@ -309,4 +309,4 @@ class WorkflowViewTestCase(APITestCase):
         response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
         anticipated_message = {'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(test_orphan_workflowjob.uuid)}
         self.assertEqual(anticipated_message, response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
