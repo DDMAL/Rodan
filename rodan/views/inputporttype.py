@@ -37,12 +37,14 @@ class InputPortTypeList(generics.ListCreateAPIView):
         except Resolver404 as e:
             return Response({'message': "Error resolving job object. {0}".format(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        InputPortType(job=job_obj,
-                      resource_type=resource_type,
-                      name=name,
-                      minimum=minimum,
-                      maximum=maximum).save()
-        return Response(status=status.HTTP_201_CREATED)
+        ipt = InputPortType(job=job_obj,
+                            resource_type=resource_type,
+                            name=name,
+                            minimum=minimum,
+                            maximum=maximum)
+        ipt.save()
+
+        return Response(InputPortTypeSerializer(ipt).data, status=status.HTTP_201_CREATED)
 
 
 class InputPortTypeDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -12,7 +12,6 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rodan.models.workflow import Workflow
-# from rodan.models.page import Page
 from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
@@ -211,7 +210,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         self._create_workflow_run(workflow_obj, workflow_run)
 
-        return Response({"message": workflow_run.get_absolute_url()}, status=status.HTTP_201_CREATED)
+        return Response(WorkflowRunSerializer(workflow_run).data, status=status.HTTP_201_CREATED)
 
 
 class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
