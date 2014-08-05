@@ -29,11 +29,11 @@ logger = logging.getLogger('rodan')
 
 logger.warning("Loading Rodan Jobs")
 
-# try:
-#     from rodan.jobs.gamera import binarization
-#     binarization.load_module()
-# except ImportError as e:
-#     logger.warning("Trouble loading the Gamera binarization plugins. Is Gamera installed?")
+try:
+    from rodan.jobs.gamera import binarization
+    binarization.load_module()
+except ImportError as e:
+    logger.warning("Trouble loading the Gamera binarization plugins. Is Gamera installed?")
 
 # try:
 #     from rodan.jobs.gamera import threshold
@@ -148,19 +148,13 @@ except ImportError as e:
     logger.warning("DEV: The dummy job could not be loaded properly. Skipping")
 
 try:
-    from rodan.jobs.devel.dummy_job_2 import load_dummy_job
-    load_dummy_job()
-except ImportError as e:
-    logger.warning("DEV: The second dummy job could not be loaded. Skipping")
-
-try:
-    from rodan.jobs.devel.dummy_job_3 import load_dummy_job
+    from rodan.jobs.devel.extract_lyrics import load_dummy_job
     load_dummy_job()
 except ImportError as e:
     logger.warning("DEV: The third dummy job could not be loaded. Skipping")
 
 try:
-    from rodan.jobs.devel.dummy_job_4 import load_dummy_job
+    from rodan.jobs.devel.lyric_line_detection import load_dummy_job
     load_dummy_job()
 except ImportError as e:
     logger.warning("DEV: The fourth dummy job could not be loaded. Skipping")
