@@ -11,7 +11,7 @@ class InputPortTypeViewTestCase(APITestCase):
     def test_post(self):
         ipt_obj = {
             'job': "http://localhost:8000/job/0dc1f345b6ad4a8c8739e092e6ff7c2d/",
-            'resource_type': 'image/jpeg',
+            'resource_type': [0, 1, 2],
             'minimum': 1,
             'maximum': 1
         }

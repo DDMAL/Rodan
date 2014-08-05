@@ -1,4 +1,5 @@
 from django.db import models
+from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
@@ -9,7 +10,7 @@ class InputPortType(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     job = models.ForeignKey('rodan.Job', null=True, blank=True)
     name = models.CharField(max_length=255, null=True, blank=True)
-    resource_type = models.CharField(max_length=20)
+    resource_type = json.JSONField()
     minimum = models.IntegerField()
     maximum = models.IntegerField()
 

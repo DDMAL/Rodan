@@ -13,7 +13,7 @@ class InputPortTypeTestCase(TestCase):
     def test_resource_type(self):
         input_port_type = InputPortType(job=self.test_job,
                                         name="test input port type",
-                                        resource_type='application/xml',
+                                        resource_type=[0, 2, 4],
                                         minimum=1,
                                         maximum=1)
         input_port_type.save()

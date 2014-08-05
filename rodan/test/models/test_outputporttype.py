@@ -13,7 +13,7 @@ class OutputPortTypeTestCase(TestCase):
     def test_resource_type(self):
         output_port_type = OutputPortType(job=self.test_job,
                                           name="test output port type",
-                                          resource_type='image/jpeg',
+                                          resource_type=[0, 2, 4],
                                           minimum=1,
                                           maximum=1)
         output_port_type.save()
