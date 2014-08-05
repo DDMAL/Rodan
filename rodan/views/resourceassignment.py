@@ -52,7 +52,7 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
                                                  workflow_job=wfj_obj)
         resource_assignment.save()
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(ResourceAssignmentSerializer(resource_assignment).data, status=status.HTTP_201_CREATED)
 
 
 class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):
