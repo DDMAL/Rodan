@@ -18,4 +18,7 @@ class InputPortTypeSerializer(serializers.HyperlinkedModelSerializer):
                   "resource_type")
 
     def get_resource_type(self, obj):
-        return [i for i in obj.resource_type]
+        try:
+            return [i for i in obj.resource_type]
+        except TypeError:
+            return [obj.resource_type]
