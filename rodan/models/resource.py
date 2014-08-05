@@ -18,7 +18,6 @@ def compat_path(resource, filename):
 class Resource(models.Model):
     class Meta:
         app_label = 'rodan'
-        ordering = ('resource_order', )
 
     """
         A Resource is any file associated with a Rodan Project. In the past, Resources were simply
@@ -39,7 +38,6 @@ class Resource(models.Model):
     resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
     resource_type = models.CharField(max_length=20)
-    resource_order = models.IntegerField(null=True, blank=True)
     run_job = models.ForeignKey('rodan.RunJob', null=True, blank=True)
     workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
     processed = models.BooleanField(default=False)

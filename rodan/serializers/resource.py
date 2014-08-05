@@ -19,7 +19,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "resource_type",
                   "resource_file",
                   "compat_resource_file",
-                  "resource_order",
                   "creator",
                   "origin",
                   "run_job",

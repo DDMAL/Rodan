@@ -37,10 +37,6 @@ class ResourceList(generics.ListCreateAPIView):
         response = []
         current_user = User.objects.get(pk=request.user.id)
 
-        start_seq = request.DATA.get('resource_order', None)
-        if not start_seq:
-            return Response({'message': "The start sequence for the resource ordering may not be empty."}, status=status.HTTP_400_BAD_REQUEST)
-
         project = request.DATA.get('project', None)
         if not project:
             return Response({'message': "You must supply project identifier for these resources."}, status=status.HTTP_400_BAD_REQUEST)
@@ -61,10 +57,9 @@ class ResourceList(generics.ListCreateAPIView):
             except RunJob.DoesNotExist:
                 return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        for seq, fileobj in enumerate(request.FILES.getlist('files'), start=int(start_seq)):
+        for seq, fileobj in enumerate(request.FILES.getlist('files')):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
-                                    resource_order=seq,
                                     creator=current_user)
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)

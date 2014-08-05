@@ -50,7 +50,7 @@ class ResultsPackageAdmin(admin.ModelAdmin):
 
 
 class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('resource_image', 'resource_order', 'created', 'updated')
+    list_display = ('resource_image', 'created', 'updated')
 
 
 # class UserProfileInline(admin.StackedInline):
