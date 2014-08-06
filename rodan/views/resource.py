@@ -57,7 +57,7 @@ class ResourceList(generics.ListCreateAPIView):
             except RunJob.DoesNotExist:
                 return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        for seq, fileobj in enumerate(request.FILES.getlist('files')):
+        for fileobj in request.FILES.getlist('files'):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
                                     creator=current_user)

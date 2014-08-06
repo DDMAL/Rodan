@@ -9,7 +9,7 @@ from rodan.helpers.dbmanagement import refetch_from_db
 @task(name="rodan.helpers.thumbnails.create_thumbnails")
 def create_thumbnails(database_object):
     database_object = refetch_from_db(database_object)
-    image = PIL.Image.open(database_object.page_image.path).convert('RGB')
+    image = PIL.Image.open(database_object.resource_file.path).convert('RGB')
     width = float(image.size[0])
     height = float(image.size[1])
 
