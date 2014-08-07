@@ -72,7 +72,7 @@ class ConnectionList(generics.ListCreateAPIView):
                                 output_workflow_job=outjob_obj)
         connection.save()
 
-        return Response({"uuid": connection.uuid.hex}, status=status.HTTP_201_CREATED)
+        return Response({"connection": ConnectionSerializer(connection).data}, status=status.HTTP_201_CREATED)
 
 
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
