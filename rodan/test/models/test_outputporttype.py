@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rodan.models.job import Job
 from rodan.models.outputporttype import OutputPortType
-from mimetypes import types_map
+from rodan.settings import IMAGE_TYPES
 
 
 class OutputPortTypeTestCase(TestCase):
@@ -13,13 +13,14 @@ class OutputPortTypeTestCase(TestCase):
     def test_resource_type(self):
         output_port_type = OutputPortType(job=self.test_job,
                                           name="test output port type",
-                                          resource_type=[0, 2, 4],
+                                          resource_type=[IMAGE_TYPES[1], IMAGE_TYPES[3], IMAGE_TYPES[5]],
                                           minimum=1,
                                           maximum=1)
         output_port_type.save()
 
         retr_opt = OutputPortType.objects.get(name="test output port type")
-        self.assertTrue(retr_opt.resource_type in types_map.values())
+        for type in retr_opt.resource_type:
+            self.assertTrue(type in IMAGE_TYPES)
 
     def test_delete(self):
         output_port_type = OutputPortType(job=self.test_job, name="test output port type", resource_type=1, minimum=1, maximum=1)
