@@ -3,7 +3,6 @@ from rodan.jobs.gamera.celery_task import GameraTask
 from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
-from rodan.settings import IMAGE_TYPES
 from rodan.jobs.gamera import argconvert
 
 
