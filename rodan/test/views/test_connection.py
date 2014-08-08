@@ -48,7 +48,7 @@ class ConnectionViewTestCase(APITestCase):
         }
 
         response = self.client.post("/connections/", conn_obj, format='json')
-        retr_conn = Connection.objects.get(uuid=response.data["uuid"])
+        retr_conn = Connection.objects.get(uuid=response.data["connection"]["uuid"])
         self.assertEqual(test_output_workflow_job.workflow, retr_conn.workflow)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
