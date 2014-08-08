@@ -1,4 +1,7 @@
+from django.conf import settings
 from rodan.models.job import Job
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.devel.celery_task import dummy_job
 
 
@@ -15,3 +18,17 @@ def load_dummy_job():
                 interactive=False
                 )
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name='dummy input port type',
+                            resource_type=settings.IMAGE_TYPES,
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name='dummy output port type',
+                             resource_type=settings.IMAGE_TYPES,
+                             minimum=1,
+                             maximum=1)
+        opt.save()
