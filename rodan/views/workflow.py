@@ -37,7 +37,8 @@ class WorkflowList(generics.ListCreateAPIView):
         project = request.DATA.get('project', None)
         name = request.DATA.get('name', None)
         valid = request.DATA.get('valid', None)
-        creator = request.DATA.get('creator', None)
+
+        user_obj = request.user
 
         try:
             project_obj = resolve_to_object(project, Project)
@@ -47,15 +48,6 @@ class WorkflowList(generics.ListCreateAPIView):
             return Response({'message': "Please specify a project"}, status=status.HTTP_400_BAD_REQUEST)
         except Project.DoesNotExist:
             return Response({'message': "No project with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user_obj = resolve_to_object(creator, User)
-        except Resolver404:
-            return Response({'message': "Could not resolve 'creator' to a User instance"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except AttributeError:
-            user_obj = request.user
-        except User.DoesNotExist:
-            return Response({'message': "The specified user does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if valid:
             return Response({'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}, status=status.HTTP_200_OK)
