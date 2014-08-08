@@ -17,10 +17,6 @@ class ConnectionList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     paginate_by = None
 
-    def get_queryset(self):
-        queryset = Connection.objects.all()
-        return queryset
-
     def post(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)
         input_workflow_job = request.DATA.get('input_workflow_job', None)
