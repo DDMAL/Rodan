@@ -1,6 +1,6 @@
+from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.settings import IMAGE_TYPES
 
 
 class OutputPortTypeViewTestCase(APITestCase):
@@ -12,7 +12,7 @@ class OutputPortTypeViewTestCase(APITestCase):
     def test_post(self):
         opt_obj = {
             'job': "http://localhost:8000/job/0dc1f345b6ad4a8c8739e092e6ff7c2d/",
-            'resource_type': [IMAGE_TYPES[5]],
+            'resource_type': [settings.FLOAT],
             'minimum': 1,
             'maximum': 1
         }
