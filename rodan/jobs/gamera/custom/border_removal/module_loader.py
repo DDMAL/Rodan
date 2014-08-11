@@ -1,4 +1,6 @@
 from rodan.models.job import Job
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from django.conf import settings
 from rodan.jobs.gamera.custom.border_removal.celery_task import AutoBorderRemovalTask, CropBorderRemovalTask
 
@@ -12,14 +14,26 @@ def load_auto_border_removal():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Automatically tries to remove the border of a page. Non-interactive.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [GREYSCALE, ONEBIT, RGB], "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [GREYSCALE, ONEBIT, RGB], "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Border Removal",
                 interactive=False
                 )
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name="input",
+                            resource_type=[ONEBIT, GREYSCALE, RGB],
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name="output",
+                             resource_type=[ONEBIT, GREYSCALE, RGB],
+                             minimum=1,
+                             maximum=1)
+        opt.save()
 
 
 def load_crop_border_removal():
@@ -29,15 +43,26 @@ def load_crop_border_removal():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Manual masking crop. Uses the crop interface. Interactive.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [GREYSCALE, ONEBIT, RGB], "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [GREYSCALE, ONEBIT, RGB], "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Border Removal",
                 interactive=True
                 )
-
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name="input",
+                            resource_type=[ONEBIT, GREYSCALE, RGB],
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name="output",
+                             resource_type=[ONEBIT, GREYSCALE, RGB],
+                             minimum=1,
+                             maximum=1)
+        opt.save()
 
 
 def load_module():
