@@ -8,6 +8,8 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     creator = UserListSerializer(read_only=True)
     uuid = serializers.Field(source='uuid')
     origin = serializers.HyperlinkedRelatedField(view_name="output-detail")
+    resource_file = serializers.Field(source='resource_url')
+    compat_resource_file = serializers.Field(source='compat_file_url')
 
     class Meta:
         model = Resource

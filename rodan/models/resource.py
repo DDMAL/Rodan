@@ -79,6 +79,16 @@ class Resource(models.Model):
     def thumb_url(self):
         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
 
+    @property
+    def resource_url(self):
+        if self.resource_file:
+            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_file.url, settings.MEDIA_ROOT))
+
+    @property
+    def compat_file_url(self):
+        if self.compat_resource_file:
+            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.url, settings.MEDIA_ROOT))
+
     def thumb_filename(self, size):
         if self.filename:
             name, ext = os.path.splitext(self.filename)
