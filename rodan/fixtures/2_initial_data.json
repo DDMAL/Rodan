@@ -188,7 +188,7 @@
       "workflow_run": "eb4b3661be2a44908c4c932b0783bb3e",
       "created": "2014-05-17T17:40:57.446Z",
       "needs_input": false,
-      "job_settings": "[{\"has_default\": null, \"rng\": null, \"visibility\": true, \"choices\": null}]",
+      "job_settings": "[]",
       "celery_task_id": null,
       "error_details": "",
       "error_summary": "",
@@ -203,12 +203,13 @@
       "name": "ineedsleep.png",
       "creator": 1,
       "origin": null,
+      "run_job": "3d558414db10427d82efdd9b9cb985bf",
       "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/original_file.jpg",
       "created": "2014-05-17T17:35:16.940Z",
       "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
       "resource_type": 0,
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
-      "compat_resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/compat_file.jpg"
+      "compat_resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e1fece2beb54392990e8d21cafb0f06/resources/d2ada4f67f63479a8028e7d3322946b2/compat_file.png"
     },
     "model": "rodan.resource",
     "pk": "e8c2672da2f04a54bf710f1a2212bb0e"
