@@ -5,7 +5,7 @@ import shutil
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
-from rodan.models.result import Result
+from rodan.models.resource import Resource
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
 from rodan.jobs.util import taskutil
@@ -31,16 +31,17 @@ class GameraTask(RodanJob):
 
         if result_id is None:
             # this is the first job in a run
-            page = runjob.page.compat_file_path
+            page = Resource.objects.get(run_job=runjob).compat_resource_file.url
         else:
             # we take the page image we want to operate on from the previous result object
-            result = Result.objects.get(pk=result_id)
-            page = result.result.path
+            result = Resource.objects.get(pk=result_id)
+            page = result.resource_path
 
-        new_result = Result(run_job=runjob)
+        new_result = Resource(run_job=runjob,
+                              project=runjob.workflow_job.workflow.project)
         taskutil.save_instance(new_result)
 
-        result_save_path = new_result.result_path
+        result_save_path = new_result.resource_path
 
         settings = {}
         for s in runjob.job_settings:
@@ -58,7 +59,7 @@ class GameraTask(RodanJob):
         result_image.save_image(os.path.join(tdir, result_file))
 
         f = open(os.path.join(tdir, result_file))
-        taskutil.save_file_field(new_result.result, os.path.join(result_save_path, result_file), File(f))
+        taskutil.save_file_field(new_result.resource_file, os.path.join(result_save_path, result_file), File(f))
         f.close()
         shutil.rmtree(tdir)
 
