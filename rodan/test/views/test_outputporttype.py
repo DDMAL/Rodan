@@ -2,6 +2,8 @@ from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
 
+FLOAT = settings.FLOAT
+
 
 class OutputPortTypeViewTestCase(APITestCase):
     fixtures = ["1_users", "2_initial_data"]
@@ -12,7 +14,7 @@ class OutputPortTypeViewTestCase(APITestCase):
     def test_post(self):
         opt_obj = {
             'job': "http://localhost:8000/job/0dc1f345b6ad4a8c8739e092e6ff7c2d/",
-            'resource_type': [settings.FLOAT],
+            'resource_type': [FLOAT],
             'minimum': 1,
             'maximum': 1
         }
