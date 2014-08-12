@@ -1,4 +1,6 @@
 from rodan.models.job import Job
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from django.conf import settings
 from rodan.jobs.neon.celery_task import PitchCorrectionTask
 
@@ -17,8 +19,6 @@ def load_segmentation():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Interactive pitch correction using Neon.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (MEI,), "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (MEI,), "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Pitch Correction",
@@ -26,6 +26,20 @@ def load_segmentation():
                 )
 
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name=None,
+                            resource_type=[MEI],
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name="output",
+                             resource_type=[MEI],
+                             minimum=1,
+                             maximum=1)
+        opt.save()
 
 
 def load_module():

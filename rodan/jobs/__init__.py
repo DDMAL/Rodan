@@ -91,11 +91,11 @@ except ImportError as e:
 
 # ##########
 
-# try:
-#     from rodan.jobs.diva import to_jpeg2000
-#     to_jpeg2000.load_module()
-# except ImportError as e:
-#     logger.warning("No Diva JPEG2000 converter Installed. Skipping. {0}".format(e))
+try:
+    from rodan.jobs.diva import to_jpeg2000
+    to_jpeg2000.load_module()
+except ImportError as e:
+    logger.warning("No Diva JPEG2000 converter Installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.poly_mask import module_loader
@@ -127,11 +127,11 @@ except ImportError as e:
 # except ImportError as e:
 #     logger.warning("Custom Pitch Finding job not installed. Skipping. {0}".format(e))
 
-# try:
-#     from rodan.jobs.neon import module_loader
-#     module_loader.load_module()
-# except ImportError as e:
-#     logger.warning("Custom Pitch Correction job not installed. Skipping. {0}".format(e))
+try:
+    from rodan.jobs.neon import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    logger.warning("Custom Pitch Correction job not installed. Skipping. {0}".format(e))
 
 try:
     from rodan.jobs.gamera.custom.pixel_segment import module_loader
