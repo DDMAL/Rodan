@@ -1,4 +1,6 @@
 from rodan.models.job import Job
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.gamera.custom.staff_removal.celery_task import RTStafflineRemovalTask
 from django.conf import settings
 
@@ -12,8 +14,6 @@ def load_rt_staff_removal():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Removes the staff lines usign Roach and Tatem Staffline removal algorithm.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [ONEBIT,], "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": [ONEBIT,], "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Staff Removal",
@@ -21,6 +21,20 @@ def load_rt_staff_removal():
                 )
 
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name="input",
+                            resource_type=[ONEBIT],
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name="output",
+                             resource_type=[ONEBIT],
+                             minimum=1,
+                             maximum=1)
+        opt.save()
 
 
 def load_module():

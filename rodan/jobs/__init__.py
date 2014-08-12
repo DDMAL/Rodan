@@ -109,23 +109,23 @@ try:
 except ImportError as e:
     logger.warning("Custom Border Removal job not installed. Skipping. {0}".format(e))
 
-# try:
-#     from rodan.jobs.gamera.custom.segmentation import module_loader
-#     module_loader.load_module()
-# except ImportError as e:
-#     logger.warning("Custom Segmentation job not installed. Skipping. {0}".format(e))
-
-# try:
-#     from rodan.jobs.gamera.custom.staff_removal import module_loader
-#     module_loader.load_module()
-# except ImportError as e:
-#     logger.warning("Custom RT Staff Removal job not installed. Skipping. {0}".format(e))
-
 try:
-    from rodan.jobs.gamera.custom.pitch_finding import module_loader
+    from rodan.jobs.gamera.custom.segmentation import module_loader
     module_loader.load_module()
 except ImportError as e:
-    logger.warning("Custom Pitch Finding job not installed. Skipping. {0}".format(e))
+    logger.warning("Custom Segmentation job not installed. Skipping. {0}".format(e))
+
+try:
+    from rodan.jobs.gamera.custom.staff_removal import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    logger.warning("Custom RT Staff Removal job not installed. Skipping. {0}".format(e))
+
+# try:
+#     from rodan.jobs.gamera.custom.pitch_finding import module_loader
+#     module_loader.load_module()
+# except ImportError as e:
+#     logger.warning("Custom Pitch Finding job not installed. Skipping. {0}".format(e))
 
 # try:
 #     from rodan.jobs.neon import module_loader
