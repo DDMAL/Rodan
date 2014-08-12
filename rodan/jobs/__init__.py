@@ -97,11 +97,11 @@ except ImportError as e:
 # except ImportError as e:
 #     logger.warning("No Diva JPEG2000 converter Installed. Skipping. {0}".format(e))
 
-# try:
-#     from rodan.jobs.gamera.custom.poly_mask import module_loader
-#     module_loader.load_module()
-# except ImportError as e:
-#     logger.warning("Custom Poly Mask job not installed. Skipping".format(e))
+try:
+    from rodan.jobs.gamera.custom.poly_mask import module_loader
+    module_loader.load_module()
+except ImportError as e:
+    logger.warning("Custom Poly Mask job not installed. Skipping".format(e))
 
 try:
     from rodan.jobs.gamera.custom.border_removal import module_loader
