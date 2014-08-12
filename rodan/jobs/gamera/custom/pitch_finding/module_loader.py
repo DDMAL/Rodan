@@ -1,4 +1,6 @@
 from rodan.models.job import Job
+from rodan.models.inputporttype import InputPortType
+from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.gamera.custom.pitch_finding.celery_task import PitchFindingTask
 from django.conf import settings
 
@@ -12,8 +14,6 @@ def load_pitch_finder():
         j = Job(job_name=task_class.name,
                 author="Deepanjan Roy",
                 description="Classifies the neumes detected in the page using the classifier interface.",
-                input_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (GAMERA_XML,), "name": "input"},
-                output_types={"default": None, "has_default": False, "list_of": False, "pixel_types": (MEI,), "name": "output"},
                 settings=task_class.settings,
                 enabled=True,
                 category="Pitch Finding",
@@ -21,6 +21,20 @@ def load_pitch_finder():
                 )
 
         j.save()
+
+        ipt = InputPortType(job=j,
+                            name="input",
+                            resource_type=[GAMERA_XML],
+                            minimum=1,
+                            maximum=1)
+        ipt.save()
+
+        opt = OutputPortType(job=j,
+                             name="output",
+                             resource_type=[MEI],
+                             minimum=1,
+                             maximum=1)
+        opt.save()
 
 
 def load_module():
