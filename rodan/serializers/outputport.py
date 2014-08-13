@@ -9,4 +9,5 @@ class OutputPortSerializer(serializers.HyperlinkedModelSerializer):
                   "uuid",
                   "output_port_type",
                   "label",
-                  "workflow_job")
+                  "workflow_job",
+                  "misc")

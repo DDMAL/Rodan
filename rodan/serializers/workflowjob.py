@@ -31,7 +31,8 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "job",
                   "job_settings",
                   "created",
-                  "updated")
+                  "updated",
+                  "misc")
 
     def get_input_ports(self, obj):
         return [InputPortSerializer(ip).data for ip in InputPort.objects.filter(workflow_job=obj)]

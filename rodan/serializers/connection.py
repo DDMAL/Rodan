@@ -22,7 +22,8 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
                   "input_workflow_job",
                   "output_port",
                   "output_workflow_job",
-                  "workflow")
+                  "workflow",
+                  "misc")
 
 
 class ConnectionListSerializer(serializers.HyperlinkedModelSerializer):

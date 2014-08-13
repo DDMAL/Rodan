@@ -26,7 +26,8 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "created",
                   "updated",
                   "valid",
-                  "workflow_runs")
+                  "workflow_runs",
+                  "misc")
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
