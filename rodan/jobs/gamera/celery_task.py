@@ -6,7 +6,6 @@ from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.resource import Resource
-from rodan.models.outputport import OutputPort
 from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
@@ -39,16 +38,8 @@ class GameraTask(RodanJob):
             result = Resource.objects.get(origin=output_id)
             page = result.resource_file.path
 
-        new_result = Resource(run_job=runjob,
-                              project=runjob.workflow_job.workflow.project)
-        taskutil.save_instance(new_result)
-
-        new_output = Output(output_port=OutputPort.objects.get(workflow_job=runjob.workflow_job),
-                            run_job=runjob,
-                            resource=new_result)
-        taskutil.save_instance(new_output)
-
-        new_result.origin = new_output
+        new_output = Output.objects.get(run_job=runjob)
+        new_result = Resource.objects.get(origin=new_output)
 
         result_save_path = new_result.resource_path
 

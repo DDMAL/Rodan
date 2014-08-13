@@ -132,9 +132,12 @@ class WorkflowRunList(generics.ListCreateAPIView):
                                 workflow=workflow_run.workflow)
             resource.save()
 
-            Output(output_port=op,
-                   run_job=run_job,
-                   resource=resource).save()
+            output = Output(output_port=op,
+                            run_job=run_job,
+                            resource=resource)
+            output.save()
+
+            resource.origin = output
 
         return run_job
 
