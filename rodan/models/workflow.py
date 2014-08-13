@@ -2,6 +2,7 @@ import os
 import shutil
 from django.db import models
 from uuidfield import UUIDField
+from django_extensions.db.fields import json
 
 
 class Workflow(models.Model):
@@ -24,6 +25,7 @@ class Workflow(models.Model):
     runs = models.IntegerField(default=1)
     creator = models.ForeignKey("auth.User", related_name="workflows")
     valid = models.BooleanField(default=False)
+    misc = json.JSONField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

@@ -1,4 +1,5 @@
 from django.db import models
+from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
@@ -12,6 +13,7 @@ class Connection(models.Model):
     output_port = models.ForeignKey('rodan.OutputPort')
     output_workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_connection')
     workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
+    misc = json.JSONField()
 
     def save(self, *args, **kwargs):
         self.workflow = self.output_workflow_job.workflow

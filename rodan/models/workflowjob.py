@@ -26,6 +26,7 @@ class WorkflowJob(models.Model):
     job = models.ForeignKey(Job)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
     job_settings = json.JSONField(default="[]", blank=True, null=True)
+    misc = json.JSONField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

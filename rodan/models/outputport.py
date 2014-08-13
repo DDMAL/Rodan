@@ -1,4 +1,5 @@
 from django.db import models
+from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
@@ -10,6 +11,7 @@ class OutputPort(models.Model):
     workflow_job = models.ForeignKey('rodan.WorkflowJob')
     output_port_type = models.ForeignKey('rodan.OutputPortType')
     label = models.CharField(max_length=255, null=True, blank=True)
+    misc = json.JSONField()
 
     def save(self, *args, **kwargs):
         if not self.label:
