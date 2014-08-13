@@ -6,6 +6,8 @@ from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.resource import Resource
+from rodan.models.outputport import OutputPort
+from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
 from rodan.jobs.util import taskutil
@@ -17,29 +19,36 @@ class GameraTask(RodanJob):
     on_success = taskutil.default_on_success
     on_failure = taskutil.default_on_failure
 
-    def run_task(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, output_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
         taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 
         # fall through to retrying if we're waiting for input
         if runjob.needs_input:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.WAITING_FOR_INPUT)
-            self.retry(args=[result_id, runjob_id], *args, countdown=10, **kwargs)
+            self.retry(args=[output_id, runjob_id], *args, countdown=10, **kwargs)
 
         if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 
-        if result_id is None:
+        if output_id is None:
             # this is the first job in a run
             page = Resource.objects.get(run_job=runjob).compat_resource_file.url
         else:
             # we take the page image we want to operate on from the previous result object
-            result = Resource.objects.get(pk=result_id)
-            page = result.resource_path
+            result = Resource.objects.get(origin=output_id)
+            page = result.resource_file.path
 
         new_result = Resource(run_job=runjob,
                               project=runjob.workflow_job.workflow.project)
         taskutil.save_instance(new_result)
+
+        new_output = Output(output_port=OutputPort.objects.get(workflow_job=runjob.workflow_job),
+                            run_job=runjob,
+                            resource=new_result)
+        taskutil.save_instance(new_output)
+
+        new_result.origin = new_output
 
         result_save_path = new_result.resource_path
 

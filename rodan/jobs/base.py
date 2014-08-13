@@ -4,15 +4,15 @@ from rodan.jobs.util import taskutil
 
 
 class RodanJob(Task):
-    def run_task(self, result_id, runjob_id, *args, **kwargs):
+    def run_task(self, output_id, runjob_id, *args, **kwargs):
         """
         This is where all the execution code of a job goes.
         """
         pass
 
-    def run(self, result_id, runjob_id, *args, **kwargs):
+    def run(self, output_id, runjob_id, *args, **kwargs):
         runjob = RunJob.objects.get(pk=runjob_id)
         runjob.celery_task_id = self.request.id
         taskutil.save_instance(runjob)
         if runjob.status != RunJobStatus.CANCELLED:
-            return self.run_task(result_id, runjob_id, *args, **kwargs)
+            return self.run_task(output_id, runjob_id, *args, **kwargs)
