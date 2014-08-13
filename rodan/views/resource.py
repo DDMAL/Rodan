@@ -1,4 +1,5 @@
 import celery
+import mimetypes
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
@@ -68,8 +69,12 @@ class ResourceList(generics.ListCreateAPIView):
                 resource_obj.run_job = runjob_obj
                 resource_obj.save()
 
-            res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
-            res.apply_async()
+            file_type = mimetypes.guess_type(fileobj.name)[0]
+
+            type = file_type.rstrip('/')
+            if type is 'image':
+                res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
+                res.apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj).data
