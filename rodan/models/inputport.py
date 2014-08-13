@@ -11,7 +11,7 @@ class InputPort(models.Model):
     workflow_job = models.ForeignKey('rodan.WorkflowJob')
     input_port_type = models.ForeignKey('rodan.InputPortType')
     label = models.CharField(max_length=255, null=True, blank=True)
-    misc = json.JSONField()
+    misc = json.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.label:

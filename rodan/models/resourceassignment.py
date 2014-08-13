@@ -12,7 +12,7 @@ class ResourceAssignment(models.Model):
     resources = models.ManyToManyField('rodan.Resource', related_name='resource_assignments')
     workflow = models.ForeignKey('rodan.Workflow')
     workflow_job = models.ForeignKey('rodan.WorkflowJob', null=True, blank=True)
-    misc = json.JSONField()
+    misc = json.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.workflow_job = self.input_port.workflow_job
