@@ -204,7 +204,7 @@
       "creator": 1,
       "origin": null,
       "run_job": "3d558414db10427d82efdd9b9cb985bf",
-      "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/original_file.jpg",
+      "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e1fece2beb54392990e8d21cafb0f06/resources/d2ada4f67f63479a8028e7d3322946b2/original_file.gif",
       "created": "2014-05-17T17:35:16.940Z",
       "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
       "resource_type": 0,
@@ -220,12 +220,12 @@
       "name": "ineedsleep.png",
       "creator": null,
       "origin": "04ae88f664664d3eaa68406c7c2f1211",
-      "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/original_file.jpg",
+      "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e1fece2beb54392990e8d21cafb0f06/resources/cd9a5c41208645f98a1cd30b00ee916f/original_file.png",
       "created": "2014-05-17T17:35:16.940Z",
       "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
       "resource_type": 0,
       "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
-      "compat_resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/compat_file.jpg"
+      "compat_resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e1fece2beb54392990e8d21cafb0f06/resources/cd9a5c41208645f98a1cd30b00ee916f/compat_file.png"
     },
     "model": "rodan.resource",
     "pk": "e920115a4b5548d3839249116bb7973c"
@@ -235,7 +235,7 @@
       "updated": "2014-05-17T17:35:18.315Z",
       "name": "ineedsleep.png",
       "creator": null,
-      "origin": "04ae88f664664d3eaa68406c7c2f1211",
+      "origin": null,
       "resource_file": "/Users/rberkow/Documents/code/Rodan/rodan/uploads/projects/9e8e928b4ec24a09b6113f1b0af1ea53/pages/ca0c9839e3a24a91a4552db9b2878770/original_file.jpg",
       "created": "2014-05-17T17:35:16.940Z",
       "project": "9e8e928b4ec24a09b6113f1b0af1ea53",
@@ -303,6 +303,15 @@
     },
     "model": "rodan.outputport",
     "pk": "0e8b037c44f74364a60a7f5cc397a48d"
+  },
+  {
+    "fields": {
+      "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
+      "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
+      "label": "Test OutputPort III" 
+    },
+    "model": "rodan.outputport",
+    "pk": "2e122c9b2e814294a555907448ca1b71"
   },
   {
     "fields": {
