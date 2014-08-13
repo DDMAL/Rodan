@@ -52,23 +52,6 @@ class ConnectionViewTestCase(APITestCase):
         self.assertEqual(test_output_workflow_job.workflow, retr_conn.workflow)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_post_different_workflows(self):
-        test_input_port = InputPort(workflow_job=self.test_workflow_job,
-                                    input_port_type=self.test_input_port_type)
-        test_input_port.save()
-
-        conn_obj = {
-            'input_port': "http://localhost:8000/inputport/{0}/".format(test_input_port.uuid.hex),
-            'input_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f2/",
-            'output_port': "http://localhost:8000/outputport/0e8b037c44f74364a60a7f5cc397a48d/",
-            'output_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f3/",
-        }
-
-        response = self.client.post("/connections/", conn_obj, format='json')
-        anticipated_message = {'message': "Input and output WorkflowJobs must be part of the same workflow"}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_post_no_inputport(self):
         conn_obj = {
             'input_workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f2/",
