@@ -13,5 +13,4 @@ class ResourceAssignmentSerializer(serializers.HyperlinkedModelSerializer):
                   "input_port",
                   "resources",
                   "workflow",
-                  "workflow_job",
-                  "misc")
+                  "workflow_job")
