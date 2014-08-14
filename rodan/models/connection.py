@@ -13,7 +13,7 @@ class Connection(models.Model):
     output_port = models.ForeignKey('rodan.OutputPort')
     output_workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_connection')
     workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
-    misc = json.JSONField(null=True, blank=True)
+    misc = json.JSONField()
 
     def save(self, *args, **kwargs):
         self.workflow = self.output_workflow_job.workflow
