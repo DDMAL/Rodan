@@ -3,7 +3,7 @@ from rodan.models.connection import Connection
 from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.outputport import OutputPortSerializer
-from rodan.serializers.workflow import WorkflowSerializer
+from rodan.serializers.workflow import WorkflowListSerializer
 
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
@@ -12,7 +12,7 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
     output_port = OutputPortSerializer()
     input_workflow_job = WorkflowJobSerializer()
     output_workflow_job = WorkflowJobSerializer()
-    workflow = WorkflowSerializer()
+    workflow = WorkflowListSerializer()
 
     class Meta:
         model = Connection
