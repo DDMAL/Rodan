@@ -89,3 +89,8 @@ class ConnectionViewTestCase(APITestCase):
         anticipated_message = {'message': "No input port with the specified uuid exists"}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete(self):
+        response = self.client.delete("/connection/ee1429aad7434c32be359df5b86a580e/")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Connection.objects.filter(pk="ee1429aad7434c32be359df5b86a580e"))

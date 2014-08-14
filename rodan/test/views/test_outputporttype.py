@@ -29,6 +29,7 @@ class OutputPortTypeViewTestCase(APITestCase):
         }
 
         response = self.client.post("/outputporttypes/", opt_obj, format='json')
-        anticipated_message = {'message': 'You must specify minimum and maximum for this OutputPortType'}
+        anticipated_message = {'maximum': ['This field is required.'],
+                               'minimum': ['This field is required.']}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
