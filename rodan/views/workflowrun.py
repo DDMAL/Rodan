@@ -23,6 +23,7 @@ from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
+from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 from rodan.serializers.runjob import ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
@@ -188,8 +189,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         """
         # workflow = request.QUERY_PARAMS.get('workflow', None)
         workflow = request.DATA.get('workflow', None)
-        test_status = request.QUERY_PARAMS.get('test', None)
-        page_id = request.QUERY_PARAMS.get('page_id', None)
 
         if not workflow:
             return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
@@ -207,13 +206,17 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         if not workflow_obj.valid:
             return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
-        workflow_run = WorkflowRun(creator=request.user,
-                                   workflow=workflow_obj)
-        workflow_run.save()
+
+        request.DATA['creator'] = UserSerializer(request.user).data['url']
+
+        create_wfrun = self.create(request, *args, **kwargs)
+
+        workflow_run_id = create_wfrun.data['uuid']
+        workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
 
         self._create_workflow_run(workflow_obj, workflow_run)
 
-        return Response(WorkflowRunSerializer(workflow_run).data, status=status.HTTP_201_CREATED)
+        return create_wfrun
 
 
 class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):

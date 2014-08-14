@@ -13,6 +13,7 @@ from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from rodan.models.inputporttype import InputPortType
 from rodan.models.project import Project
+from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 
@@ -38,10 +39,11 @@ class WorkflowList(generics.ListCreateAPIView):
         name = request.DATA.get('name', None)
         valid = request.DATA.get('valid', None)
 
-        user_obj = request.user
+        user_obj = UserSerializer(request.user).data
+        request.DATA['creator'] = user_obj['url']
 
         try:
-            project_obj = resolve_to_object(project, Project)
+            resolve_to_object(project, Project)
         except Resolver404:
             return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except AttributeError:
@@ -55,14 +57,7 @@ class WorkflowList(generics.ListCreateAPIView):
         if not name:
             return Response({'message': "You must supply a name for your workflow"}, status=status.HTTP_400_BAD_REQUEST)
 
-        workflow = Workflow(project=project_obj,
-                            name=name,
-                            valid=valid,
-                            creator=user_obj)
-
-        workflow.save()
-
-        return Response(WorkflowListSerializer(workflow).data, status=status.HTTP_201_CREATED)
+        return self.create(request, *args, **kwargs)
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):

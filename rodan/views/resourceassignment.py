@@ -20,7 +20,7 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)
         try:
-            ip_obj = resolve_to_object(input_port, InputPort)
+            resolve_to_object(input_port, InputPort)
         except Resolver404:
             return Response({'message': "Couldn't resolve InputPort object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except AttributeError:
@@ -30,7 +30,7 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
 
         workflow = request.DATA.get('workflow', None)
         try:
-            wf_obj = resolve_to_object(workflow, Workflow)
+            resolve_to_object(workflow, Workflow)
         except Resolver404:
             return Response({'message': "Couldn't resolve Workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except AttributeError:
@@ -40,19 +40,15 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
 
         workflow_job = request.DATA.get('workflow_job', None)
         try:
-            wfj_obj = resolve_to_object(workflow_job, WorkflowJob)
+            resolve_to_object(workflow_job, WorkflowJob)
         except Resolver404:
             return Response({'message': "Could't resolve WorkflowJob object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except AttributeError:
             return Response({'message': "Please specify a workflowjob"}, status=status.HTTP_400_BAD_REQUEST)
         except WorkflowJob.DoesNotExist:
             return Response({'message': "No workflowjob with specified uuid exists"}, status.HTTP_400_BAD_REQUEST)
-        resource_assignment = ResourceAssignment(input_port=ip_obj,
-                                                 workflow=wf_obj,
-                                                 workflow_job=wfj_obj)
-        resource_assignment.save()
 
-        return Response(ResourceAssignmentSerializer(resource_assignment).data, status=status.HTTP_201_CREATED)
+        return self.create(request, *args, **kwargs)
 
 
 class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):

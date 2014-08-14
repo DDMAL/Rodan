@@ -7,6 +7,7 @@ from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
+from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.connection import ConnectionListSerializer, ConnectionSerializer
 
 
@@ -38,17 +39,15 @@ class ConnectionList(generics.ListCreateAPIView):
         except OutputPort.DoesNotExist:
             return Response({'message': "No output port with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        injob_obj = ip_obj.workflow_job
+        injob_obj = WorkflowJobSerializer(ip_obj.workflow_job).data
+        request.DATA['input_workflow_job'] = injob_obj['url']
 
-        outjob_obj = op_obj.workflow_job
+        outjob_obj = WorkflowJobSerializer(op_obj.workflow_job).data
+        request.DATA['output_workflow_job'] = outjob_obj['url']
 
-        connection = Connection(input_port=ip_obj,
-                                input_workflow_job=injob_obj,
-                                output_port=op_obj,
-                                output_workflow_job=outjob_obj)
-        connection.save()
+        request.DATA['workflow'] = injob_obj['workflow']
 
-        return Response(ConnectionListSerializer(connection).data, status=status.HTTP_201_CREATED)
+        return self.create(request, *args, **kwargs)
 
 
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
