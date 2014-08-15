@@ -99,8 +99,3 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Resource
     serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated, )
-
-    def patch(self, request, *args, **kwargs):
-        print request.DATA
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)

@@ -47,9 +47,8 @@ class ResourceViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data['resources']), 2)
 
-    def test_patch(self):
-        resource_update = {'resource_type': 'text/plain'}
-        response = self.client.patch("/resource/8aa7e270b1c54be49dde5a682b16cda7/", resource_update, format='json').data
+    # def test_patch(self):
+    #     resource_update = {'resource_type': 'text/plain'}
+    #     response = self.client.patch("/resource/8aa7e270b1c54be49dde5a682b16cda7/", resource_update, format='json').data
 
-        # retr_res = self.client.get("/resource/8aa7e270b1c54be49dde5a682b16cda7/").data
-        self.assertEqual(response['resource_type'], 'text/plain')
+    #     self.assertEqual(response['resource_type'], 'text/plain')
