@@ -8,6 +8,7 @@ from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.runjob import RunJob
 from rodan.models.project import Project
+from rodan.models.output import Output
 from rodan.models.resource import Resource, upload_path
 from rodan.serializers.resource import ResourceSerializer
 from rodan.helpers.convert import ensure_compatible
@@ -57,10 +58,22 @@ class ResourceList(generics.ListCreateAPIView):
             except RunJob.DoesNotExist:
                 return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
+        origin = request.DATA.get('origin', None)
+        if origin:
+            try:
+                output_obj = resolve_to_object(origin, Output)
+            except Resolver404:
+                return Response({'message': "Couldn't resolve specified output to an Output object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Output.DoesNotExist:
+                return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            output_obj = None
+
         for fileobj in request.FILES.getlist('files'):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
-                                    creator=current_user)
+                                    creator=current_user,
+                                    origin=output_obj)
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
@@ -86,3 +99,8 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Resource
     serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def patch(self, request, *args, **kwargs):
+        print request.DATA
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
