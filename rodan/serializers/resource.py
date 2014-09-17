@@ -23,8 +23,8 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "compat_resource_file",
                   "creator",
                   "origin",
-                  "run_job",
-                  "workflow",
+#                  "run_job",
+#                  "workflow",
                   "created",
                   "updated")
 

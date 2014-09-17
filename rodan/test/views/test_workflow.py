@@ -34,7 +34,7 @@ class WorkflowViewTestCase(APITestCase):
         self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
         self.test_inputport = InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e")
         self.test_workflowjob = WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06")
-        self.test_resources = Resource.objects.filter(workflow=self.test_workflow)
+        self.test_resources = Resource.objects.filter(project=self.test_project)
         self.test_resourceassignment = ResourceAssignment.objects.get(uuid="cfda287923344720bfbec39081819617")
         self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
 

@@ -129,8 +129,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for op in outputports:
             resource = Resource(project=workflow_run.workflow.project,
-                                resource_type=op.output_port_type.resource_type,
-                                workflow=workflow_run.workflow)
+                                resource_type=op.output_port_type.resource_type)
             resource.save()
 
             output = Output(output_port=op,
