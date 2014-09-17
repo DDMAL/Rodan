@@ -138,6 +138,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             output.save()
 
             resource.origin = output
+            resource.save()
 
         return run_job
 
