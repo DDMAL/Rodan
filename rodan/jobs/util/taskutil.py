@@ -14,9 +14,7 @@ from rodan.jobs.gamera import argconvert
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.processed import processed
-from rodan.helpers.dbmanagement import exists_in_db
-
-from rodan.helpers.dbmanagement import resolve_object_from_url
+from rodan.helpers.dbmanagement import exists_in_db, refetch_from_db, resolve_object_from_url
 
 IMAGE_TYPES = rodan_settings.IMAGE_TYPES
 
@@ -61,7 +59,7 @@ def save_file_field(file_field_object, *args, **kwargs):
 def set_runjob_status(runjob, status):
     runjob.status = status
     save_instance(runjob)
-
+    return refetch_from_db(runjob)
 
 def set_running(runjob):
     set_runjob_status(runjob, RunJobStatus.RUNNING)
