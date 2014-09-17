@@ -22,7 +22,7 @@ class WorkflowJob(models.Model):
     )
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", blank=True, null=True)
+    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs")
     job = models.ForeignKey(Job)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
     job_settings = json.JSONField(default="[]", blank=True, null=True)
