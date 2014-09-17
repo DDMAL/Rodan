@@ -25,7 +25,7 @@ class GameraTask(RodanJob):
         # fall through to retrying if we're waiting for input
         if runjob.needs_input:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.WAITING_FOR_INPUT)
-            self.retry(args=[output_id, runjob_id], *args, countdown=10, **kwargs)
+            raise self.retry(args=[output_id, runjob_id], *args, countdown=10, **kwargs)
 
         if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
