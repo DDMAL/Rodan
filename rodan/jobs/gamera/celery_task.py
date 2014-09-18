@@ -32,7 +32,7 @@ class GameraTask(RodanJob):
 
         if output_id is None:
             # this is the first job in a run
-            page = Resource.objects.get(run_job=runjob).compat_resource_file.url
+            page = Input.objects.get(run_job=runjob).resource.compat_resource_file.url
         else:
             # we take the page image we want to operate on from the previous result object
             result = Resource.objects.get(origin=output_id)
