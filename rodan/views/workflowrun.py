@@ -53,7 +53,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
         workflowjob_runjob_map = {}
-        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         ra_collection = None
 
@@ -91,7 +91,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         runjob_A = self._create_runjob_A(wfjob_A, workflow_run)
 
-        incoming_connections = Connection.objects.filter(input_workflow_job=wfjob_A)
+        incoming_connections = Connection.objects.filter(input_port__workflow_job=wfjob_A)
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
@@ -147,7 +147,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         endpoint_workflowjobs = []
 
         for wfjob in workflow_jobs:
-            connections = Connection.objects.filter(output_workflow_job=wfjob)
+            connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
             if not connections:
                 endpoint_workflowjobs.append(wfjob)
@@ -160,7 +160,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         for wfjob in WorkflowJob.objects.filter(workflow=workflow):
             singleton_workflowjobs.append(wfjob)
 
-        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         for ra in resource_assignments:
             resources = Resource.objects.filter(resource_assignments=ra)
@@ -173,7 +173,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def _traversal(self, singleton_workflowjobs, wfjob):
         singleton_workflowjobs.remove(wfjob)
-        adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+        adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
         if not adjacent_connections:
             return None

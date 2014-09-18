@@ -286,7 +286,7 @@
     "fields": {
       "workflow_job": "1e5d20a84d0f46cab47a2389a566ea06",
       "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
-      "label": "Test OutputPort" 
+      "label": "Test OutputPort"
     },
     "model": "rodan.outputport",
     "pk": "bbdd13ddf05844aa8549e93e82ae4fd2"
@@ -295,7 +295,7 @@
     "fields": {
       "workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
       "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
-      "label": "Test OutputPort II" 
+      "label": "Test OutputPort II"
     },
     "model": "rodan.outputport",
     "pk": "0e8b037c44f74364a60a7f5cc397a48d"
@@ -304,7 +304,7 @@
     "fields": {
       "workflow_job": "a21f510a16c24701ac0e435b3f4c20f2",
       "output_port_type": "1cdb067e98194da48dd3dfa35e84671c",
-      "label": "Test OutputPort III" 
+      "label": "Test OutputPort III"
     },
     "model": "rodan.outputport",
     "pk": "2e122c9b2e814294a555907448ca1b71"
@@ -323,10 +323,7 @@
   {
     "fields": {
       "input_port": "e38b11918691486cbd99627e5baec0a1",
-      "input_workflow_job": "a21f510a16c24701ac0e435b3f4c20f3",
-      "output_port": "bbdd13ddf05844aa8549e93e82ae4fd2",
-      "output_workflow_job": "1e5d20a84d0f46cab47a2389a566ea06",
-      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad"
+      "output_port": "bbdd13ddf05844aa8549e93e82ae4fd2"
     },
     "model": "rodan.connection",
     "pk": "ee1429aad7434c32be359df5b86a580e"
@@ -334,7 +331,6 @@
   {
     "fields": {
       "input_port": "dd35645a7a7845c5a72c9a856ccb920e",
-      "workflow": "ff78a1aa79554abcb5f1b0ac7bba2bad",
       "resources": ["e8c2672da2f04a54bf710f1a2212bb0e","e920115a4b5548d3839249116bb7973c"]
     },
     "model": "rodan.resourceassignment",

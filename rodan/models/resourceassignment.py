@@ -9,9 +9,11 @@ class ResourceAssignment(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     input_port = models.ForeignKey('rodan.InputPort')
     resources = models.ManyToManyField('rodan.Resource', related_name='resource_assignments')
-    workflow = models.ForeignKey('rodan.Workflow')
-    workflow_job = models.ForeignKey('rodan.WorkflowJob', null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        self.workflow_job = self.input_port.workflow_job
-        super(ResourceAssignment, self).save(*args, **kwargs)
+    @property
+    def workflow(self):
+        return self.input_port.workflow_job.workflow
+
+    @property
+    def workflow_job(self):
+        return self.input_port.workflow_job

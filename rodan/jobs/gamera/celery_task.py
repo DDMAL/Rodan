@@ -6,6 +6,7 @@ from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.resource import Resource
+from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
 from gamera.core import init_gamera, load_image
