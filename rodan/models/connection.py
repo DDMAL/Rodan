@@ -22,5 +22,20 @@ class Connection(models.Model):
     def workflow(self):
         return self.output_port.workflow_job.workflow
 
+
+    def save(self, *args, **kwargs):
+        super(Connection, self).save(*args, **kwargs)
+        wf = self.workflow
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
+    def delete(self, *args, **kwargs):
+        wf = self.workflow
+        super(Connection, self).delete(*args, **kwargs)
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
     def __unicode__(self):
         return u"<Connection {0}>".format(str(self.uuid))
