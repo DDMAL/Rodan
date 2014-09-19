@@ -104,6 +104,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                   input_port=conn.input_port,
                   resource=associated_output.resource).save()
 
+        # entry inputs
         for ip in InputPort.objects.filter(workflow_job=wfjob_A):
             try:
                 ra = ResourceAssignment.objects.get(input_port=ip)
@@ -112,9 +113,14 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 ra = None
 
             if ra:
+                if ra.resources.count() > 1:
+                    entry_res = resource
+                else:
+                    entry_res = ra.resources.first()
+
                 Input(run_job=runjob_A,
                       input_port=ra.input_port,
-                      resource=resource).save()
+                      resource=entry_res).save()
 
         workflowjob_runjob_map[wfjob_A] = runjob_A
         return runjob_A
