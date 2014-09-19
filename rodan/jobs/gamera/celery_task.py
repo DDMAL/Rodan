@@ -3,12 +3,12 @@ import uuid
 import tempfile
 import shutil
 from django.core.files import File
+from gamera.core import init_gamera, load_image
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.resource import Resource
 from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
-from gamera.core import init_gamera, load_image
 from rodan.jobs.util import taskutil
 from rodan.jobs.base import RodanJob
 
@@ -32,11 +32,10 @@ class GameraTask(RodanJob):
 
         if output_id is None:
             # this is the first job in a run
-            page = Resource.objects.get(run_job=runjob).compat_resource_file.url
+            resource = Resource.objects.get(run_job=runjob).compat_resource_file.url
         else:
-            # we take the page image we want to operate on from the previous result object
-            result = Resource.objects.get(origin=output_id)
-            page = result.resource_file.path
+            # we take the resource image we want to operate on from the resource object which was the output of the previous runjob
+            resource = Resource.objects.get(origin=output_id).resource_file.path
 
         new_output = Output.objects.get(run_job=runjob)
         new_result = Resource.objects.get(origin=new_output)
@@ -51,7 +50,7 @@ class GameraTask(RodanJob):
 
         init_gamera()
 
-        task_image = load_image(page)
+        task_image = load_image(resource)
         tdir = tempfile.mkdtemp()
         task_function = self.name.split(".")[-1]
         result_image = getattr(task_image, task_function)(**settings)
