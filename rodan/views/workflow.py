@@ -137,7 +137,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 multiple_resources_found = True
 
             for res in resource_list:
-                if not workflow.project.resources.filter(pk=res.pk):
+                if not workflow.project.resources.filter(pk=res.pk).exists():
                     ResourceNotInWorkflowError.name = res.name
                     raise ResourceNotInWorkflowError
 
