@@ -87,7 +87,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, resource):
         if wfjob_A in workflowjob_runjob_map:
-            return None
+            return workflowjob_runjob_map[wfjob_A]
 
         runjob_A = self._create_runjob_A(wfjob_A, workflow_run)
 
@@ -95,9 +95,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
-            self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
-
-            runjob_B = RunJob.objects.filter(workflow_job=wfjob_B).order_by('-created')[0]
+            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
@@ -119,6 +117,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                       resource=resource).save()
 
         workflowjob_runjob_map[wfjob_A] = runjob_A
+        return runjob_A
 
     def _create_runjob_A(self, wfjob, workflow_run):
         run_job = RunJob(workflow_job=wfjob,
