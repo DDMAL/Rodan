@@ -16,3 +16,6 @@ rodan/settings_production.py
 rodan/static/Rodan
 
 /.DS_Store
+
+# ignore emacs autosave file
+*~

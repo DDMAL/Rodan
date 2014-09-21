@@ -16,5 +16,17 @@ class InputPort(models.Model):
             self.label = self.input_port_type.name
         super(InputPort, self).save(*args, **kwargs)
 
+        wf = self.workflow_job.workflow
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
+    def delete(self, *args, **kwargs):
+        wf = self.workflow_job.workflow
+        super(InputPort, self).delete(*args, **kwargs)
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
     def __unicode__(self):
         return u"<InputPort {0}>".format(str(self.uuid))

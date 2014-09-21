@@ -9,12 +9,14 @@ class ResourceAssignmentTestCase(TestCase):
     fixtures = ['1_users', '2_initial_data']
 
     def setUp(self):
-        self.test_workflow = Workflow.objects.get(uuid="df78a1aa79554abcb5f1b0ac7bba2bad")
         self.test_inputport = InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e")
+
+        # It is invalid to have two RAs pointing to the same InputPort.
+        ResourceAssignment.objects.get(input_port=self.test_inputport).delete()
+
         self.test_resources = Resource.objects.all()
 
         self.test_data = {
-            "workflow": self.test_workflow,
             "input_port": self.test_inputport,
         }
 
@@ -25,5 +27,5 @@ class ResourceAssignmentTestCase(TestCase):
             resource_assignment.resources.add(res)
             resource_assignment.save()
 
-        retr_ra = ResourceAssignment.objects.get(workflow=self.test_workflow)
+        retr_ra = ResourceAssignment.objects.get(input_port__workflow_job__workflow=self.test_inputport.workflow_job.workflow)
         self.assertEqual(retr_ra, resource_assignment)

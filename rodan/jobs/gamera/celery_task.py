@@ -7,6 +7,7 @@ from gamera.core import init_gamera, load_image
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.resource import Resource
+from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
 from rodan.jobs.util import taskutil
@@ -25,14 +26,14 @@ class GameraTask(RodanJob):
         # fall through to retrying if we're waiting for input
         if runjob.needs_input:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.WAITING_FOR_INPUT)
-            self.retry(args=[output_id, runjob_id], *args, countdown=10, **kwargs)
+            raise self.retry(args=[output_id, runjob_id], *args, countdown=10, **kwargs)
 
         if runjob.status == RunJobStatus.WAITING_FOR_INPUT:
             runjob = taskutil.set_runjob_status(runjob, RunJobStatus.RUNNING)
 
         if output_id is None:
             # this is the first job in a run
-            resource = Resource.objects.get(run_job=runjob).compat_resource_file.url
+            resource = Input.objects.get(run_job=runjob).resource.compat_resource_file.url
         else:
             # we take the resource image we want to operate on from the resource object which was the output of the previous runjob
             resource = Resource.objects.get(origin=output_id).resource_file.path

@@ -76,7 +76,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         to_be_validated = request.DATA.get('valid', None)
         workflow.valid = False
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
-        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         if not to_be_validated:
             return self.update(request, *args, **kwargs)
@@ -137,7 +137,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 multiple_resources_found = True
 
             for res in resource_list:
-                if res not in workflow.resource_set.all():
+                if not workflow.project.resources.filter(pk=res.pk).exists():
                     ResourceNotInWorkflowError.name = res.name
                     raise ResourceNotInWorkflowError
 
@@ -152,7 +152,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def _detect_orphans(self, start_points):
         for wfjob in start_points:
-            outgoing_connections = Connection.objects.filter(output_workflow_job=wfjob)
+            outgoing_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
             if len(start_points) > 1 and not outgoing_connections:
                 OrphanError.ID = wfjob.uuid
@@ -171,7 +171,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
         self._workflow_job_visit(wfjob, total_visits)
 
-        adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+        adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
         for conn in adjacent_connections:
             if conn in start_point_visits:

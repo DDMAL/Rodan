@@ -8,8 +8,8 @@ class Input(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     input_port = models.ForeignKey('rodan.InputPort')
-    resource = models.ForeignKey('rodan.Resource', null=True, blank=True)
-    run_job = models.ForeignKey('rodan.RunJob', null=True, blank=True)
+    resource = models.ForeignKey('rodan.Resource')
+    run_job = models.ForeignKey('rodan.RunJob')
 
     def __unicode__(self):
         return u"<Input {0}>".format(str(self.uuid))

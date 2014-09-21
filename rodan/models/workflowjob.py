@@ -22,13 +22,28 @@ class WorkflowJob(models.Model):
     )
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", blank=True, null=True)
+    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs")
     job = models.ForeignKey(Job)
     job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
     job_settings = json.JSONField(default="[]", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        super(WorkflowJob, self).save(*args, **kwargs)
+        wf = self.workflow
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
+    def delete(self, *args, **kwargs):
+        wf = self.workflow
+        super(WorkflowJob, self).delete(*args, **kwargs)
+        if wf.valid:
+            wf.valid = False
+            wf.save(update_fields=['valid'])
+
 
     def __unicode__(self):
         return u"<WorkflowJob {0}>".format(str(self.uuid))

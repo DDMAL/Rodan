@@ -53,7 +53,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
         workflowjob_runjob_map = {}
-        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         ra_collection = None
 
@@ -87,17 +87,15 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, resource):
         if wfjob_A in workflowjob_runjob_map:
-            return None
+            return workflowjob_runjob_map[wfjob_A]
 
         runjob_A = self._create_runjob_A(wfjob_A, workflow_run)
 
-        incoming_connections = Connection.objects.filter(input_workflow_job=wfjob_A)
+        incoming_connections = Connection.objects.filter(input_port__workflow_job=wfjob_A)
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
-            self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
-
-            runjob_B = RunJob.objects.filter(workflow_job=wfjob_B).order_by('-created')[0]
+            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
@@ -106,6 +104,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                   input_port=conn.input_port,
                   resource=associated_output.resource).save()
 
+        # entry inputs
         for ip in InputPort.objects.filter(workflow_job=wfjob_A):
             try:
                 ra = ResourceAssignment.objects.get(input_port=ip)
@@ -114,11 +113,17 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 ra = None
 
             if ra:
+                if ra.resources.count() > 1:
+                    entry_res = resource
+                else:
+                    entry_res = ra.resources.first()
+
                 Input(run_job=runjob_A,
                       input_port=ra.input_port,
-                      resource=resource).save()
+                      resource=entry_res).save()
 
         workflowjob_runjob_map[wfjob_A] = runjob_A
+        return runjob_A
 
     def _create_runjob_A(self, wfjob, workflow_run):
         run_job = RunJob(workflow_job=wfjob,
@@ -129,8 +134,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for op in outputports:
             resource = Resource(project=workflow_run.workflow.project,
-                                resource_type=op.output_port_type.resource_type,
-                                workflow=workflow_run.workflow)
+                                resource_type=op.output_port_type.resource_type)
             resource.save()
 
             output = Output(output_port=op,
@@ -139,6 +143,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             output.save()
 
             resource.origin = output
+            resource.save()
 
         return run_job
 
@@ -147,7 +152,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         endpoint_workflowjobs = []
 
         for wfjob in workflow_jobs:
-            connections = Connection.objects.filter(output_workflow_job=wfjob)
+            connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
             if not connections:
                 endpoint_workflowjobs.append(wfjob)
@@ -160,7 +165,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         for wfjob in WorkflowJob.objects.filter(workflow=workflow):
             singleton_workflowjobs.append(wfjob)
 
-        resource_assignments = ResourceAssignment.objects.filter(workflow=workflow)
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         for ra in resource_assignments:
             resources = Resource.objects.filter(resource_assignments=ra)
@@ -173,7 +178,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def _traversal(self, singleton_workflowjobs, wfjob):
         singleton_workflowjobs.remove(wfjob)
-        adjacent_connections = Connection.objects.filter(output_workflow_job=wfjob)
+        adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
 
         if not adjacent_connections:
             return None
