@@ -164,9 +164,9 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             raise WorkflowValidationError(response=Response({'message': 'Workflow is not connected'}, status=status.HTTP_409_CONFLICT))
 
         ## no cycle
-        visited_set_global = set()
+        self.visited_set_global = set()
         for wfjob in workflow_jobs:
-            if wfjob not in visited_set_global:
+            if wfjob not in self.visited_set_global:
                 try:
                     visited_set = set()
                     self._depth_first_search_cycles(wfjob, visited_set)
@@ -199,6 +199,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         "Treat the workflow graph as directed."
         if this_wfjob in visited_set:
             raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
+        self.visited_set_global.add(this_wfjob)
         visited_set.add(this_wfjob)
 
         for op in this_wfjob.output_ports.all():
