@@ -1,10 +1,9 @@
 from django.test import TestCase
 from rodan.models.job import Job
+from model_mommy import mommy
 
 
 class JobTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
     def setUp(self):
         pass
 

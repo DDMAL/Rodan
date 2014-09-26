@@ -2,14 +2,13 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from rodan.models.workflow import Workflow
 from rodan.models.project import Project
+from model_mommy import mommy
 
 
 class WorkflowTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
     def setUp(self):
-        self.test_user = User.objects.get(username="ahankins")
-        self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
+        self.test_project = mommy.make('rodan.Project')
+        self.test_user = mommy.make(User)
 
         self.test_workflow_data = {
             "name": "test workflow",

@@ -2,15 +2,14 @@ from django.test import TestCase
 from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from django.conf import settings
+from model_mommy import mommy
 
 GREYSCALE, RGB, COMPLEX = settings.GREYSCALE, settings.RGB, settings.COMPLEX
 
 
 class InputPortTypeTestCase(TestCase):
-    fixtures = ['1_users', '2_initial_data']
-
     def setUp(self):
-        self.test_job = Job.objects.get(uuid="76753dd66e1147bcbd6321d749518da2")
+        self.test_job = mommy.make('rodan.Job')
 
     def test_resource_type(self):
         input_port_type = InputPortType(job=self.test_job,

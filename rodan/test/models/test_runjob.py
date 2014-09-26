@@ -3,14 +3,17 @@ from django.test import TestCase
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.runjob import RunJob
+from model_mommy import mommy
 
 
 class RunJobTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
     def setUp(self):
-        self.test_workflowrun = WorkflowRun.objects.get(uuid="eb4b3661be2a44908c4c932b0783bb3e")
-        self.test_workflowjob = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f2")
+        self.test_workflowjob = mommy.make('rodan.WorkflowJob')
+        self.test_workflowrun = mommy.make('rodan.WorkflowRun',
+                                           workflow=self.test_workflowjob.workflow)
+        self.test_runjob = mommy.make('rodan.RunJob',
+                                      workflow_job=self.test_workflowjob,
+                                      workflow_run=self.test_workflowrun)
 
     def test_save(self):
         test_runjob = RunJob(workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob)
@@ -25,7 +28,7 @@ class RunJobTestCase(TestCase):
         retr_runjob.delete()
 
     def test_delete(self):
-        test_runjob = RunJob.objects.get(uuid="3d558414db10427d82efdd9b9cb985bf")
+        test_runjob = self.test_runjob
         rj_path = test_runjob.runjob_path
         test_runjob.delete()
         self.assertFalse(os.path.exists(rj_path))
