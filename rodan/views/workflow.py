@@ -5,14 +5,7 @@ from rest_framework.response import Response
 from django.core.urlresolvers import Resolver404
 from django.contrib.auth.models import User
 from rodan.helpers.object_resolving import resolve_to_object
-from rodan.models.workflow import Workflow
-from rodan.models.workflowjob import WorkflowJob
-from rodan.models.resourceassignment import ResourceAssignment
-from rodan.models.connection import Connection
-from rodan.models.inputport import InputPort
-from rodan.models.outputport import OutputPort
-from rodan.models.inputporttype import InputPortType
-from rodan.models.project import Project
+from rodan.models import Workflow, WorkflowJob, ResourceAssignment, Connection, InputPort, OutputPort, InputPortType, OutputPortType, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
@@ -72,178 +65,164 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         except Workflow.DoesNotExist:
             return Response({'message': 'Workflow not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        kwargs['partial'] = True
+        #kwargs['partial'] = True
         to_be_validated = request.DATA.get('valid', None)
-        workflow.valid = False
-        workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
+        #workflow.valid = False
+
         resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
 
         if not to_be_validated:
-            return self.update(request, *args, **kwargs)
+            return super(WorkflowDetail, self).patch(request, *args, **kwargs)
 
         try:
-            self._validate(workflow, workflow_jobs, resource_assignments)
+            self._validate(workflow)
+        except WorkflowValidationError as e:
+            return e.response
 
-        except NoWorkflowJobsError:
-            return Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_409_CONFLICT)
+        #workflow.valid = True
+        #workflow.save()
 
-        except MultipleResourceCollectionsError:
-            return Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_409_CONFLICT)
+        return super(WorkflowDetail, self).patch(request, *args, **kwargs)
 
-        except ResourceNotInWorkflowError:
-            return Response({'message': 'The resource {0} is not in the workflow'.format(ResourceNotInWorkflowError.name)}, status=status.HTTP_409_CONFLICT)
 
-        except OrphanError:
-            return Response({'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(OrphanError.ID)}, status=status.HTTP_409_CONFLICT)
-
-        except LoopError:
-            return Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT)
-
-        except NumberOfPortsError:
-            return Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(NumberOfPortsError.ID)}, status=status.HTTP_409_CONFLICT)
-
-        except NoOutputPortError:
-            return Response({'message': 'The WorkflowJob {0} has no OutputPorts'.format(NoOutputPortError.ID)}, status=status.HTTP_409_CONFLICT)
-
-        workflow.valid = True
-
-        workflow.save()
-        return self.partial_update(request, *args, **kwargs)
-
-    def _validate(self, workflow,  workflow_jobs, resource_assignments):
-        if not workflow_jobs:
-            raise NoWorkflowJobsError
-
-        start_points = []
-
-        self._resource_assignment_validate(workflow, workflow_jobs, resource_assignments, start_points)
-
-        self._find_remaining_start_points(workflow_jobs, start_points)
-
-        self._detect_orphans(start_points)
-
-        self._workflow_traversal(start_points)
-
-    def _resource_assignment_validate(self, workflow, workflow_jobs, resource_assignments, start_points):
-        multiple_resources_found = False
-
-        for ra in resource_assignments:
-            resource_list = ra.resources.all()
-
-            if resource_list.count() > 1:
-                if multiple_resources_found:
-                    raise MultipleResourceCollectionsError
-
-                multiple_resources_found = True
-
-            for res in resource_list:
-                if not workflow.project.resources.filter(pk=res.pk).exists():
-                    ResourceNotInWorkflowError.name = res.name
-                    raise ResourceNotInWorkflowError
-
-            start_points.append(ra.input_port.workflow_job)
-
-    def _find_remaining_start_points(self, workflow_jobs, start_points):
+    def _validate(self, workflow):
+        # validate WorkflowJobs
+        workflow_jobs = workflow.workflow_jobs.all()
         for wfjob in workflow_jobs:
-            inputs = InputPort.objects.filter(workflow_job=wfjob)
+            number_of_output_ports = wfjob.output_ports.count()
+            if number_of_output_ports == 0:
+                raise WorkflowValidationError(response=Response({'message': 'The WorkflowJob {0} has no OutputPorts'.format(wfjob.uuid)}, status=status.HTTP_409_CONFLICT))
 
-            if not inputs:
-                start_points.append(wfjob)
+            job = wfjob.job
+            input_port_types = job.input_port_types.all()
+            output_port_types = job.output_port_types.all()
 
-    def _detect_orphans(self, start_points):
-        for wfjob in start_points:
-            outgoing_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
+            for ipt in input_port_types:
+                number_of_input_ports = wfjob.input_ports.filter(input_port_type=ipt).count()
+                if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
+                    raise WorkflowValidationError(response=Response({'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(wfjob.uuid)}, status=status.HTTP_409_CONFLICT))
 
-            if len(start_points) > 1 and not outgoing_connections:
-                OrphanError.ID = wfjob.uuid
-                raise OrphanError
+            for opt in output_port_types:
+                number_of_output_ports = wfjob.output_ports.filter(output_port_type=opt).count()
+                if number_of_output_ports > opt.maximum or number_of_output_ports < opt.minimum:
+                    raise WorkflowValidationError(response=Response({'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(wfjob.uuid)}, status=status.HTTP_409_CONFLICT))
 
-    def _workflow_traversal(self, start_points):
-        total_visits = []
+            # [TODO] check settings argtype
 
-        for wfjob in start_points:
-            start_point_visits = []
-
-            self._workflow_valid(wfjob, start_point_visits, total_visits)
-
-    def _workflow_valid(self, wfjob, start_point_visits, total_visits):
-        start_point_visits.append(wfjob)
-
-        self._workflow_job_visit(wfjob, total_visits)
-
-        adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
-
-        for conn in adjacent_connections:
-            if conn in start_point_visits:
-                return
-
-            start_point_visits.append(conn)
-            wfj = conn.input_workflow_job
-
-            if wfj in start_point_visits:
-                raise LoopError
-
-            if wfj in total_visits:
-                return
-
-            self._workflow_valid(wfj, start_point_visits, total_visits)
-
-    def _workflow_job_visit(self, wfjob, total_visits):
-        self._workflow_job_validate(wfjob)
-
-        input_ports = InputPort.objects.filter(workflow_job=wfjob)
-
+        # validate InputPorts
+        input_ports = InputPort.objects.filter(workflow_job__workflow=workflow)
         for ip in input_ports:
-            if Connection.objects.filter(input_port=ip):
-                conn = Connection.objects.get(input_port=ip)
-                total_visits.append(conn)
+            number_of_connection = ip.connections.count()
+            number_of_resource_assignment = ip.resource_assignments.count()
+            if number_of_connection + number_of_resource_assignment > 1:
+                raise WorkflowValidationError(response=Response({'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
-            elif ResourceAssignment.objects.filter(input_port=ip):
-                ra = ResourceAssignment.objects.get(input_port=ip)
-                total_visits.append(ra)
+        # OutputPorts do not need validation
 
-        total_visits.append(wfjob)
+        # validate Connections
+        connections = Connection.objects.filter(input_port__workflow_job__workflow=workflow, output_port__workflow_job__workflow=workflow)
+        for connection in connections:
+            op = connection.output_port
+            out_type = op.output_port_type.resource_type
+            ip = connection.input_port
+            in_type = ip.input_port_type.resource_type
 
-    def _workflow_job_validate(self, wfjob):
-        output_ports = OutputPort.objects.filter(workflow_job=wfjob)
+            if not resource_type_of_connection_agreed(out_type, in_type):
+                raise WorkflowValidationError(response=Response({'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
-        if not output_ports:
-            NoOutputPortError.ID = wfjob.uuid
-            raise NoOutputPortError
+        # validate ResourceAssignments
+        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
+        multiple_resources_found = False
+        for ra in resource_assignments:
+            number_of_resources = ra.resources.count()
+            if number_of_resources > 1:
+                if multiple_resources_found:
+                    raise WorkflowValidationError(response=Response({'message': 'Multiple resource assignment collections found'}, status=status.HTTP_409_CONFLICT))
+                multiple_resources_found = True
+            elif number_of_resources == 0:
+                raise WorkflowValidationError(response=Response({'message': 'No resource assigned by ResourceAssignment {0}'.format(ra.uuid)}, status=status.HTTP_409_CONFLICT))
 
-        input_port_types = InputPortType.objects.filter(job=wfjob.job)
+            ip = ra.input_port
+            type_of_ip = ip.input_port_type.resource_type
+            resources = ra.resources.all()
+            for res in resources:
+                if res.project.uuid != ra.input_port.workflow_job.workflow.project.uuid:
+                    raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.name)}, status=status.HTTP_409_CONFLICT))
+                if not res.processed:
+                    raise WorkflowValidationError(response=Response({'message': 'The resource {0} has not been processed'.format(res.name)}, status=status.HTTP_409_CONFLICT))
+                if not resource_type_of_resource_assignment_agreed(res.resource_type, type_of_ip):  # TODO
+                    raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.name, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
-        for ipt in input_port_types:
-            number_of_input_ports = InputPort.objects.filter(workflow_job=wfjob, input_port_type=ipt).count()
+        # graph validation
+        if len(workflow_jobs) == 0:
+            raise WorkflowValidationError(response=Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_409_CONFLICT))
 
-            if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
-                NumberOfPortsError.ID = wfjob.uuid
-                raise NumberOfPortsError
+        ## connected
+        visited_set = set()
+        self._depth_first_search_connectivity(workflow_jobs[0], visited_set)
+        if len(visited_set) < len(workflow_jobs):
+            raise WorkflowValidationError(response=Response({'message': 'Workflow is not connected'}, status=status.HTTP_409_CONFLICT))
+
+        ## no cycle
+        visited_set_global = set()
+        for wfjob in workflow_jobs:
+            if wfjob not in visited_set_global:
+                try:
+                    visited_set = set()
+                    self._depth_first_search_cycles(wfjob, visited_set)
+                except WorkflowValidationError as e:
+                    raise e
+
+        # Valid!
+        return True
+
+    def _depth_first_search_connectivity(self, this_wfjob, visited_set):
+        "Treat the workflow graph as undirected."
+        if this_wfjob in visited_set:
+            return
+        visited_set.add(this_wfjob)
+
+        for ip in this_wfjob.input_ports.all():
+            connections = ip.connections.all()
+            for conn in connections:
+                adj_wfjob = conn.output_port.workflow_job
+                self._depth_first_search_connectivity(adj_wfjob, visited_set)
+
+        for op in this_wfjob.output_ports.all():
+            connections = op.connections.all()
+            for conn in connections:
+                adj_wfjob = conn.input_port.workflow_job
+                self._depth_first_search_connectivity(adj_wfjob, visited_set)
 
 
-class LoopError(Exception):
-    pass
+    def _depth_first_search_cycles(self, this_wfjob, visited_set):
+        "Treat the workflow graph as directed."
+        if this_wfjob in visited_set:
+            raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
+        visited_set.add(this_wfjob)
+
+        for op in this_wfjob.output_ports.all():
+            adjacent_wfjobs = set()
+            connections = op.connections.all()
+            for conn in connections:
+                adj_wfjob = conn.input_port.workflow_job
+                if adj_wfjob not in adjacent_wfjobs:
+                    self._depth_first_search_cycles(adj_wfjob, visited_set)
+                    adjacent_wfjobs.add(adj_wfjob)
 
 
-class NoOutputPortError(Exception):
-    ID = ""
+class WorkflowValidationError(Exception):
+    response = None
+
+    def __init__(self, response):
+        super(WorkflowValidationError, self).__init__()
+        self.response = response
 
 
-class NumberOfPortsError(Exception):
-    ID = ""
+def resource_type_of_connection_agreed(typeA, typeB):
+    # [TODO] move this function to a specific module like `RodanType.py`?
+    return set(typeA).intersection(set(typeB))
 
-
-class MultipleResourceCollectionsError(Exception):
-    pass
-
-
-class OrphanError(Exception):
-    ID = ""
-
-
-class NoWorkflowJobsError(Exception):
-    pass
-
-
-class ResourceNotInWorkflowError(Exception):
-    name = ""
+def resource_type_of_resource_assignment_agreed(type_res, type_port):
+    # [TODO] move this function to a specific module like `RodanType.py`?
+    return True  # [TODO]

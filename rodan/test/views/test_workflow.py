@@ -17,70 +17,81 @@ from rodan.models.job import Job
 from rest_framework.test import APITestCase
 from rest_framework import status
 
+from model_mommy import mommy
+import uuid
 
 class WorkflowViewTestCase(APITestCase):
     """
         For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
         https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
     """
-    fixtures = ["1_users", "2_initial_data"]
+    fixtures = ["1_users"]
 
     def setUp(self):
         self.media_root = os.path.join(settings.PROJECT_DIR)
 
         self.client.login(username="ahankins", password="hahaha")
         self.test_user = User.objects.get(username="ahankins")
-        self.test_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
-        self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
-        self.test_inputport = InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e")
-        self.test_workflowjob = WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06")
-        self.test_resources = Resource.objects.filter(project=self.test_project)
-        self.test_resourceassignment = ResourceAssignment.objects.get(uuid="cfda287923344720bfbec39081819617")
-        self.test_job = Job.objects.get(uuid="a01a8cb0fea143238946d3d344b65790")
 
-    def test_no_workflow_found(self):
+        self.test_job = mommy.make('rodan.Job')
+        self.test_inputporttype = mommy.make('rodan.InputPortType',
+                                             maximum=3,
+                                             minimum=1,
+                                             job=self.test_job,
+                                             resource_type=[0, 1])
+        self.test_outputporttype = mommy.make('rodan.OutputPortType',
+                                              maximum=3,
+                                              minimum=1,
+                                              job=self.test_job,
+                                              resource_type=[0, 1, 2])
+
+        self.test_project = mommy.make('rodan.Project')
+        self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
+        self.test_resources = mommy.make('rodan.Resource', _quantity=10,
+                                         project=self.test_project,
+                                         processed=True)
+
+        # build this graph: test_workflowjob --> test_workflowjob2
+        self.test_workflowjob = mommy.make('rodan.WorkflowJob',
+                                           workflow=self.test_workflow,
+                                           job=self.test_job)
+        inputport = mommy.make('rodan.InputPort',
+                               workflow_job=self.test_workflowjob,
+                               input_port_type=self.test_inputporttype)
+        outputport = mommy.make('rodan.OutputPort',
+                                workflow_job=self.test_workflowjob,
+                                output_port_type=self.test_outputporttype)
+        test_resourceassignment = mommy.make('rodan.ResourceAssignment',
+                                             input_port=inputport)
+        test_resourceassignment.resources.add(*self.test_resources)
+
+
+        test_connection = mommy.make('rodan.Connection',
+                                     output_port=outputport,
+                                     input_port__input_port_type=self.test_inputporttype,
+                                     input_port__workflow_job__workflow=self.test_workflow,
+                                     input_port__workflow_job__job=self.test_job)
+        self.test_workflowjob2 = test_connection.input_port.workflow_job
+        outputport2 = mommy.make('rodan.OutputPort',
+                                 workflow_job=self.test_workflowjob2,
+                                 output_port_type=self.test_outputporttype)
+
+    def _validate(self, workflow_uuid):
         workflow_update = {
             'valid': True,
         }
-        response = self.client.patch("/workflow/37d3275809884b61a58a987e6f44821d/", workflow_update, format='json')
+        return self.client.patch("/workflow/{0}/".format(workflow_uuid), workflow_update, format='json')
+
+
+
+    def test_view__workflow_notfound(self):
+        response = self._validate(uuid.uuid1().hex)
         anticipated_message = {'message': 'Workflow not found'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_validate_no_workflowjobs(self):
-        test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
-
-        test_workflow_no_jobs = Workflow(name="no job workflow", project=test_project, creator=self.test_user)
-        test_workflow_no_jobs.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/{0}/".format(test_workflow_no_jobs.uuid), workflow_update, format='json')
-        anticipated_message = {'message': 'No WorkflowJobs in Workflow'}
-        retr_workflow = Workflow.objects.get(pk=test_workflow_no_jobs.uuid)
-        self.assertEqual(response.data, anticipated_message)
-        self.assertFalse(retr_workflow.valid)
-
-    def test_validate_multiple_resource_collections(self):
-        test_resourceassignment2 = ResourceAssignment(input_port=self.test_inputport, workflow=self.test_workflow)
-        test_resourceassignment2.save()
-        for res in self.test_resources:
-            test_resourceassignment2.resources.add(res)
-
-        workflow_update = {
-            'valid': True,
-        }
-
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        anticipated_message = {'message': 'Multiple resource assignment collections found'}
-        retr_workflow = Workflow.objects.get(pk="ff78a1aa79554abcb5f1b0ac7bba2bad")
-        self.assertEqual(response.data, anticipated_message)
-        self.assertFalse(retr_workflow.valid)
-
-    def test_no_posting_valid(self):
+    def test_view__posting_valid(self):
         workflow_obj = {
-            'project': 'http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/',
+            'project': 'http://localhost:8000/project/{0}/'.format(self.test_project.uuid),
             'name': "test workflow",
             'valid': True,
         }
@@ -88,225 +99,233 @@ class WorkflowViewTestCase(APITestCase):
         anticipated_message = {'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_post(self):
+    def test_view__post(self):
         workflow_obj = {
-            'project': 'http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/',
+            'project': 'http://localhost:8000/project/{0}/'.format(self.test_project.uuid),
             'name': "test workflow",
             'creator': 'http://localhost:8000/user/1/',
             'valid': False,
         }
         response = self.client.post("/workflows/", workflow_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_validate_resources_not_in_workflow(self):
-        test_orphan_resource = Resource.objects.get(pk="8aa7e270b1c54be49dde5a682b16cda7")
-        test_resourceassignment2 = ResourceAssignment(input_port=self.test_inputport, workflow=self.test_workflow)
-        test_resourceassignment2.save()
-        test_resourceassignment2.resources.add(test_orphan_resource)
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        anticipated_message = {'message': 'The resource {0} is not in the workflow'.format(test_orphan_resource.name)}
-        retr_workflow = Workflow.objects.get(pk="ff78a1aa79554abcb5f1b0ac7bba2bad")
-        self.assertEqual(response.data, anticipated_message)
+    def test_view__validation_result_valid(self):
+        response = self._validate(self.test_workflow.uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        retr_workflow = Workflow.objects.get(pk=self.test_workflow.uuid)
+        self.assertTrue(retr_workflow.valid)
+    def test_view__validation_result_invalid(self):
+        test_workflow_no_jobs = mommy.make('rodan.Workflow', project=self.test_project)
+        response = self._validate(test_workflow_no_jobs.uuid)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        retr_workflow = Workflow.objects.get(pk=test_workflow_no_jobs.uuid)
         self.assertFalse(retr_workflow.valid)
 
-    def test_loop(self):
-        test_outputport = OutputPort.objects.get(label="Test OutputPort II")
+    def test_workflowjob__no_output(self):
+        self.test_workflowjob2.output_ports.all().delete()
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The WorkflowJob {0} has no OutputPorts'.format(self.test_workflowjob2.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_workflowjob__inputport_number_not_satisfy(self):
+        mommy.make('rodan.Connection', _quantity=10,
+                   output_port=self.test_workflowjob.output_ports.all()[0],
+                   input_port__workflow_job=self.test_workflowjob2,
+                   input_port__input_port_type=self.test_inputporttype)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_workflowjob__outputport_number_not_satisfy(self):
+        mommy.make('rodan.Connection', _quantity=10,
+                   output_port__workflow_job=self.test_workflowjob,
+                   output_port__output_port_type=self.test_outputporttype,
+                   input_port__workflow_job=self.test_workflowjob2,
+                   input_port__input_port_type=self.test_inputporttype)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_workflowjob__settings_not_satisfy(self):
+        # [TODO]
+        pass
 
-        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
+    def test_input__multiple_resourceassignments(self):
+        ip = self.test_workflowjob.input_ports.all()[0]
+        ra2 = mommy.make('rodan.ResourceAssignment',
+                         input_port=ip)
+        ra2.resources.add(*self.test_resources)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_input__multiple_connections(self):
+        ip = self.test_workflowjob2.input_ports.all()[0]
+        mommy.make('rodan.Connection',
+                   output_port=self.test_workflowjob.output_ports.all()[0],
+                   input_port=ip)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_input__resourceassignment_and_connection(self):
+        ip = self.test_workflowjob2.input_ports.all()[0]
+        ra = mommy.make('rodan.ResourceAssignment',
+                         input_port=ip)
+        ra.resources.add(*self.test_resources)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
 
-        connection2_data = {
-            'input_port': self.test_inputport,
-            'input_workflow_job': self.test_workflowjob,
-            'output_port': test_outputport,
-            'output_workflow_job': test_workflowjob2,
-            'workflow': self.test_workflow,
-        }
-        test_connection2 = Connection(**connection2_data)
-        test_connection2.save()
+    def test_connection__resource_type_not_agree(self):
+        job = mommy.make('rodan.Job')
+        ipt = mommy.make('rodan.InputPortType',
+                         maximum=1,
+                         minimum=1,
+                         job=job,
+                         resource_type=[9])
+        conn = mommy.make('rodan.Connection',
+                          output_port=self.test_workflowjob2.output_ports.all()[0],
+                          input_port__workflow_job__job=job,
+                          input_port__workflow_job__workflow=self.test_workflow,
+                          input_port__input_port_type=ipt)
+        mommy.make('rodan.OutputPort',
+                   workflow_job=conn.input_port.workflow_job,
+                   output_port_type=self.test_outputporttype)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(conn.output_port.uuid, conn.input_port.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
 
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+    def test_resourceassignment__resource_not_in_project(self):
+        project = mommy.make('rodan.Project')
+        resource = mommy.make('rodan.Resource',
+                              project=project,  # != self.project
+                              processed=True)
+        ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
+        ra.resources.add(resource)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The resource {0} is not in the project'.format(resource.name)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_resourceassignment__resource_not_processed(self):
+        resource = mommy.make('rodan.Resource',
+                              project=self.test_project,
+                              processed=False)
+        ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
+        ra.resources.add(resource)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The resource {0} has not been processed'.format(resource.name)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_resourceassignment__no_resources(self):
+        ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
+        ra.resources.clear()
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'No resource assigned by ResourceAssignment {0}'.format(ra.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_resourceassignment__resource_type_not_agree(self):
+        # [TODO]
+        pass
+
+    def test_multiple_resource_collections(self):
+        test_resourceassignment2 = mommy.make('rodan.ResourceAssignment',
+                                              input_port__workflow_job=self.test_workflowjob2,
+                                              input_port__input_port_type=self.test_inputporttype)
+        test_resourceassignment2.resources.add(*self.test_resources)
+
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'Multiple resource assignment collections found'}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+
+    def test_graph__empty(self):
+        test_workflow_no_jobs = mommy.make('rodan.Workflow', project=self.test_project)
+        response = self._validate(test_workflow_no_jobs.uuid)
+        anticipated_message = {'message': 'No WorkflowJobs in Workflow'}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_graph__not_connected(self):
+        workflowjob = mommy.make('rodan.WorkflowJob',
+                                 workflow=self.test_workflow,
+                                 job=self.test_job)
+        inputport = mommy.make('rodan.InputPort',
+                               workflow_job=workflowjob,
+                               input_port_type=self.test_inputporttype)
+        outputport = mommy.make('rodan.OutputPort',
+                                workflow_job=workflowjob,
+                                output_port_type=self.test_outputporttype)
+        test_resourceassignment = mommy.make('rodan.ResourceAssignment',
+                                             input_port=inputport)
+        test_resourceassignment.resources.add(self.test_resources[0])
+
+        test_connection = mommy.make('rodan.Connection',
+                                     output_port=outputport,
+                                     input_port__input_port_type=self.test_inputporttype,
+                                     input_port__workflow_job__workflow=self.test_workflow,
+                                     input_port__workflow_job__job=self.test_job)
+        test_workflowjob2 = test_connection.input_port.workflow_job
+        outputport2 = mommy.make('rodan.OutputPort',
+                                 workflow_job=test_workflowjob2,
+                                 output_port_type=self.test_outputporttype)
+
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'Workflow is not connected'}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_graph__loop(self):
+        mommy.make('rodan.Connection',
+                   input_port__input_port_type=self.test_inputporttype,
+                   input_port__workflow_job=self.test_workflowjob,
+                   output_port__output_port_type=self.test_outputporttype,
+                   output_port__workflow_job=self.test_workflowjob2)
+
+        response = self._validate(self.test_workflow.uuid)
         anticipated_message = {'message': 'There appears to be a loop in the workflow'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+    def test_graph__merging_workflow(self):
+        test_no_input_workflowjob = mommy.make('rodan.WorkflowJob',
+                                               workflow=self.test_workflow)
+        mommy.make('rodan.Connection',
+                   output_port__workflow_job=test_no_input_workflowjob,
+                   output_port__output_port_type=self.test_outputporttype,
+                   input_port__workflow_job=self.test_workflowjob2,
+                   input_port__input_port_type=self.test_inputporttype)
 
-    def test_merging_workflow(self):
-        test_no_input_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_no_input_workflowjob.save()
+        test_connection3 = mommy.make('rodan.Connection',
+                                      output_port=self.test_workflowjob2.output_ports.all()[0],
+                                      input_port__input_port_type=self.test_inputporttype,
+                                      input_port__workflow_job__workflow=self.test_workflow)
+        self.test_workflowjob3 = test_connection3.input_port.workflow_job
+        mommy.make('rodan.OutputPort',
+                   workflow_job=self.test_workflowjob3,
+                   output_port_type=self.test_outputporttype)
 
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=test_no_input_workflowjob, output_port_type=test_outputporttype)
-        test_outputport.save()
 
-        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
-
-        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
-        test_second_inputport = InputPort(workflow_job=test_workflowjob2, input_port_type=test_inputporttype)
-        test_second_inputport.save()
-
-        connection2_data = {
-            'input_port': test_second_inputport,
-            'input_workflow_job': test_workflowjob2,
-            'output_port': test_outputport,
-            'output_workflow_job': test_no_input_workflowjob,
-            'workflow': self.test_workflow,
-        }
-        test_connection2 = Connection(**connection2_data)
-        test_connection2.save()
-
-        test_workflowjob3 = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_workflowjob3.save()
-
-        test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
-        test_inputport_for_workflowjob3.save()
-
-        test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
-        test_outputport_for_workflowjob3.save()
-
-        connection3_data = {
-            'input_port': test_inputport_for_workflowjob3,
-            'input_workflow_job': test_workflowjob3,
-            'output_port': OutputPort.objects.get(uuid="0e8b037c44f74364a60a7f5cc397a48d"),
-            'output_workflow_job': test_workflowjob2,
-            'workflow': self.test_workflow,
-        }
-        test_connection3 = Connection(**connection3_data)
-        test_connection3.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        retr_workflow = Workflow.objects.get(uuid="ff78a1aa79554abcb5f1b0ac7bba2bad")
-        self.assertTrue(retr_workflow.valid)
+        response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_graph__branching_workflow(self):
+        test_connection3 = mommy.make('rodan.Connection',
+                                      output_port__output_port_type=self.test_outputporttype,
+                                      output_port__workflow_job=self.test_workflowjob2,
+                                      input_port__input_port_type=self.test_inputporttype,
+                                      input_port__workflow_job__workflow=self.test_workflow)
+        self.test_workflowjob3 = test_connection3.input_port.workflow_job
+        mommy.make('rodan.OutputPort',
+                   workflow_job=self.test_workflowjob3,
+                   output_port_type=self.test_outputporttype)
 
-    def test_branching_workflow(self):
-        test_second_output_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_second_output_workflowjob.save()
+        test_connection2 = mommy.make('rodan.Connection',
+                                      output_port__output_port_type=self.test_outputporttype,
+                                      output_port__workflow_job=self.test_workflowjob2,
+                                      input_port__input_port_type=self.test_inputporttype,
+                                      input_port__workflow_job__workflow=self.test_workflow)
+        self.test_second_output_workflowjob = test_connection2.input_port.workflow_job
+        mommy.make('rodan.OutputPort',
+                   workflow_job=self.test_second_output_workflowjob,
+                   output_port_type=self.test_outputporttype)
 
-        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
-
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=test_workflowjob2, output_port_type=test_outputporttype)
-        test_outputport.save()
-
-        test_workflowjob3 = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_workflowjob3.save()
-
-        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
-        test_inputport_for_workflowjob3 = InputPort(workflow_job=test_workflowjob3, input_port_type=test_inputporttype)
-        test_inputport_for_workflowjob3.save()
-
-        test_second_inputport = InputPort(workflow_job=test_second_output_workflowjob, input_port_type=test_inputporttype)
-        test_second_inputport.save()
-
-        test_end_output_port = OutputPort(workflow_job=test_second_output_workflowjob, output_port_type=test_outputporttype)
-        test_end_output_port.save()
-
-        test_outputport_for_workflowjob3 = OutputPort(workflow_job=test_workflowjob3, output_port_type=test_outputporttype)
-        test_outputport_for_workflowjob3.save()
-
-        connection2_data = {
-            'input_port': test_second_inputport,
-            'input_workflow_job': test_second_output_workflowjob,
-            'output_port': test_outputport,
-            'output_workflow_job': test_workflowjob2,
-            'workflow': self.test_workflow,
-        }
-        test_connection2 = Connection(**connection2_data)
-        test_connection2.save()
-
-        connection3_data = {
-            'input_port': test_inputport_for_workflowjob3,
-            'input_workflow_job': test_workflowjob3,
-            'output_port': OutputPort.objects.get(uuid="0e8b037c44f74364a60a7f5cc397a48d"),
-            'output_workflow_job': test_workflowjob2,
-            'workflow': self.test_workflow,
-        }
-        test_connection3 = Connection(**connection3_data)
-        test_connection3.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
+        response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_no_outputport_workflow_job(self):
-        test_invalid_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_invalid_workflowjob.save()
-
-        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
-        test_inputport = InputPort(workflow_job=test_invalid_workflowjob, input_port_type=test_inputporttype)
-        test_inputport.save()
-
-        connection_data = {
-            'input_port': test_inputport,
-            'input_workflow_job': test_invalid_workflowjob,
-            'output_port': OutputPort.objects.get(uuid="bbdd13ddf05844aa8549e93e82ae4fd2"),
-            'output_workflow_job': WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06"),
-            'workflow': self.test_workflow,
-        }
-        test_connection = Connection(**connection_data)
-        test_connection.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        anticipated_message = {'message': 'The WorkflowJob {0} has no OutputPorts'.format(test_invalid_workflowjob.uuid)}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-
-    def test_not_meeting_inputport_requirements(self):
-        test_job_with_requirements = Job.objects.get(uuid="76753dd66e1147bcbd6321d749518da2")
-        test_job_with_requirements.save()
-
-        test_invalid_workflowjob = WorkflowJob(workflow=self.test_workflow, job=test_job_with_requirements)
-        test_invalid_workflowjob.save()
-
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=test_invalid_workflowjob, output_port_type=test_outputporttype)
-        test_outputport.save()
-
-        connection_data = {
-            'input_port': InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e"),
-            'input_workflow_job': WorkflowJob.objects.get(uuid="1e5d20a84d0f46cab47a2389a566ea06"),
-            'output_port': test_outputport,
-            'output_workflow_job': test_invalid_workflowjob,
-            'workflow': self.test_workflow,
-        }
-        test_connection = Connection(**connection_data)
-        test_connection.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(test_invalid_workflowjob.uuid)}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-
-    def test_orphan_in_workfow(self):
-        test_orphan_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        test_orphan_workflowjob.save()
-
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        test_outputport = OutputPort(workflow_job=test_orphan_workflowjob, output_port_type=test_outputporttype)
-        test_outputport.save()
-
-        workflow_update = {
-            'valid': True,
-        }
-        response = self.client.patch("/workflow/ff78a1aa79554abcb5f1b0ac7bba2bad/", workflow_update, format='json')
-        anticipated_message = {'message': 'The WorkflowJob with ID {0} is not connected to the rest of the workflow'.format(test_orphan_workflowjob.uuid)}
-        self.assertEqual(anticipated_message, response.data)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
