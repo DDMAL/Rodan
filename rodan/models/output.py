@@ -8,7 +8,7 @@ class Output(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     output_port = models.ForeignKey('rodan.OutputPort')
-    run_job = models.ForeignKey('rodan.RunJob')
+    run_job = models.ForeignKey('rodan.RunJob', related_name='outputs')
     resource = models.ForeignKey('rodan.Resource')
 
     created = models.DateTimeField(auto_now_add=True)

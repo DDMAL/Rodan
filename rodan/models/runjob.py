@@ -48,7 +48,7 @@ class RunJob(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
-    workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_job")
+    workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs")
 
     job_settings = json.JSONField(blank=True, null=True)
     needs_input = models.BooleanField(default=False)

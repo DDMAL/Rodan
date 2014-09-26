@@ -40,13 +40,11 @@ class Resource(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
-    resource_type = models.CharField(max_length=20)
-#    run_job = models.ForeignKey('rodan.RunJob', null=True, blank=True)
-#    workflow = models.ForeignKey('rodan.Workflow', null=True, blank=True)
+    resource_type = models.CharField(max_length=20, null=True, blank=True)
     processed = models.BooleanField(default=False)
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
-    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)
+    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)  # no backward reference
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

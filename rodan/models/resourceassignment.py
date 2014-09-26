@@ -7,7 +7,7 @@ class ResourceAssignment(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    input_port = models.ForeignKey('rodan.InputPort')
+    input_port = models.ForeignKey('rodan.InputPort', related_name='resource_assignments')
     resources = models.ManyToManyField('rodan.Resource', related_name='resource_assignments')
 
     @property

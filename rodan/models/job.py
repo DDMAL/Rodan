@@ -32,7 +32,7 @@ class Job(models.Model):
         More information about jobs and their execution may be found in the __init__.py of the jobs/ directory.
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    job_name = models.CharField(max_length=255)
+    job_name = models.CharField(max_length=200)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)

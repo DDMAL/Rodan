@@ -7,8 +7,8 @@ class Connection(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    input_port = models.ForeignKey('rodan.InputPort')
-    output_port = models.ForeignKey('rodan.OutputPort')
+    input_port = models.ForeignKey('rodan.InputPort', related_name='connections')
+    output_port = models.ForeignKey('rodan.OutputPort', related_name='connections')
 
     @property
     def input_workflow_job(self):
