@@ -4,9 +4,10 @@ from rodan.models.inputport import InputPort
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class ResourceAssignmentTestCase(TestCase):
+class ResourceAssignmentTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_inputport = mommy.make('rodan.InputPort')
         self.test_resources = mommy.make('rodan.Resource', _quantity=10,

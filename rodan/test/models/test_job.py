@@ -1,9 +1,10 @@
 from django.test import TestCase
 from rodan.models.job import Job
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class JobTestCase(TestCase):
+class JobTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         pass
 

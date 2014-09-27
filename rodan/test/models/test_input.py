@@ -4,9 +4,10 @@ from rodan.models.runjob import RunJob
 from rodan.models.resource import Resource
 from rodan.models.input import Input
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class InputTestCase(TestCase):
+class InputTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_runjob = mommy.make('rodan.RunJob')
         self.test_inputport = mommy.make('rodan.InputPort',

@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from rodan.models.workflow import Workflow
 from rodan.models.project import Project
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class WorkflowTestCase(TestCase):
+class WorkflowTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_project = mommy.make('rodan.Project')
         self.test_user = mommy.make(User)

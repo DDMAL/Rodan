@@ -3,11 +3,12 @@ from rodan.models.job import Job
 from rodan.models.outputporttype import OutputPortType
 from django.conf import settings
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 GREYSCALE, RGB, COMPLEX = settings.GREYSCALE, settings.RGB, settings.COMPLEX
 
 
-class OutputPortTypeTestCase(TestCase):
+class OutputPortTypeTestCase(RodanTestTearDownMixin, TestCase):
 
     def setUp(self):
         self.test_job = mommy.make('rodan.Job')

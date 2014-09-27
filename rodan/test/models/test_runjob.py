@@ -4,9 +4,10 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.runjob import RunJob
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class RunJobTestCase(TestCase):
+class RunJobTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_workflowjob = mommy.make('rodan.WorkflowJob')
         self.test_workflowrun = mommy.make('rodan.WorkflowRun',

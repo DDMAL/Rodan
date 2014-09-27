@@ -6,9 +6,10 @@ from rodan.models.output import Output
 from rodan.models.inputport import InputPort
 from rodan.models.workflow import Workflow
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class ResourceTestCase(TestCase):
+class ResourceTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_user = mommy.make(User)
         self.test_output = mommy.make('rodan.Output')

@@ -5,9 +5,10 @@ from rodan.models.outputport import OutputPort
 from rodan.models.job import Job
 from rodan.models.connection import Connection
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class ConnectionTestCase(TestCase):
+class ConnectionTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_inputport = mommy.make('rodan.InputPort')
         self.workflow = self.test_inputport.workflow_job.workflow

@@ -3,8 +3,9 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.inputporttype import InputPortType
 from rodan.models.inputport import InputPort
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
-class InputPortTestCase(TestCase):
+class InputPortTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         self.test_workflowjob = mommy.make('rodan.WorkflowJob')
         self.test_inputporttype = mommy.make('rodan.InputPortType',
