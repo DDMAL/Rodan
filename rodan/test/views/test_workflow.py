@@ -1,4 +1,3 @@
-import os
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -18,70 +17,24 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 
-class WorkflowViewTestCase(APITestCase):
+class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     """
         For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
         https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
     """
-    fixtures = ["1_users"]
 
     def setUp(self):
-        self.media_root = os.path.join(settings.PROJECT_DIR)
-
+        self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
-        self.test_user = User.objects.get(username="ahankins")
-
-        self.test_job = mommy.make('rodan.Job')
-        self.test_inputporttype = mommy.make('rodan.InputPortType',
-                                             maximum=3,
-                                             minimum=1,
-                                             job=self.test_job,
-                                             resource_type=[0, 1])
-        self.test_outputporttype = mommy.make('rodan.OutputPortType',
-                                              maximum=3,
-                                              minimum=1,
-                                              job=self.test_job,
-                                              resource_type=[0, 1, 2])
-
-        self.test_project = mommy.make('rodan.Project')
-        self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
-        self.test_resources = mommy.make('rodan.Resource', _quantity=10,
-                                         project=self.test_project,
-                                         processed=True)
-
-        # build this graph: test_workflowjob --> test_workflowjob2
-        self.test_workflowjob = mommy.make('rodan.WorkflowJob',
-                                           workflow=self.test_workflow,
-                                           job=self.test_job)
-        inputport = mommy.make('rodan.InputPort',
-                               workflow_job=self.test_workflowjob,
-                               input_port_type=self.test_inputporttype)
-        outputport = mommy.make('rodan.OutputPort',
-                                workflow_job=self.test_workflowjob,
-                                output_port_type=self.test_outputporttype)
-        test_resourceassignment = mommy.make('rodan.ResourceAssignment',
-                                             input_port=inputport)
-        test_resourceassignment.resources.add(*self.test_resources)
-
-
-        test_connection = mommy.make('rodan.Connection',
-                                     output_port=outputport,
-                                     input_port__input_port_type=self.test_inputporttype,
-                                     input_port__workflow_job__workflow=self.test_workflow,
-                                     input_port__workflow_job__job=self.test_job)
-        self.test_workflowjob2 = test_connection.input_port.workflow_job
-        outputport2 = mommy.make('rodan.OutputPort',
-                                 workflow_job=self.test_workflowjob2,
-                                 output_port_type=self.test_outputporttype)
 
     def _validate(self, workflow_uuid):
         workflow_update = {
             'valid': True,
         }
         return self.client.patch("/workflow/{0}/".format(workflow_uuid), workflow_update, format='json')
-
 
 
     def test_view__workflow_notfound(self):
@@ -103,7 +56,7 @@ class WorkflowViewTestCase(APITestCase):
         workflow_obj = {
             'project': 'http://localhost:8000/project/{0}/'.format(self.test_project.uuid),
             'name': "test workflow",
-            'creator': 'http://localhost:8000/user/1/',
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'valid': False,
         }
         response = self.client.post("/workflows/", workflow_obj, format='json')

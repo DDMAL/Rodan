@@ -2,18 +2,17 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.models.project import Project
+from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
-class ResourceViewTestCase(APITestCase):
-    fixtures = ['1_users', '2_initial_data']
-
+class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
-        self.test_project = Project.objects.get(name="Test Project")
 
     def test_post_no_files(self):
         resource_obj = {
-            'project': "http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/",
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
         }
         response = self.client.post("/resources/", resource_obj, format='json')
         anticipated_message = {'message': "You must supply at least one file to upload"}
@@ -37,7 +36,7 @@ class ResourceViewTestCase(APITestCase):
 
     def test_post(self):
         resource_obj = {
-            'project': "http://localhost:8000/project/9e8e928b4ec24a09b6113f1b0af1ea53/",
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
             'files': [
                 SimpleUploadedFile('page1.png', 'n/t'),
                 SimpleUploadedFile('page2.png', 'n/t')

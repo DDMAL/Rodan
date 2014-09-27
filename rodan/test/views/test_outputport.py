@@ -1,17 +1,17 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
-class OutputPortViewTestCase(APITestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class OutputPortViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 
     def test_post(self):
         op_obj = {
-            'workflow_job': "http://localhost:8000/workflowjob/a21f510a16c24701ac0e435b3f4c20f3/",
-            'output_port_type': "http://localhost:8000/outputporttype/1cdb067e98194da48dd3dfa35e84671c/",
+            'workflow_job': "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob.uuid),
+            'output_port_type': "http://localhost:8000/outputporttype/{0}/".format(self.test_outputporttype.uuid),
         }
 
         response = self.client.post("/outputports/", op_obj, format='json')
