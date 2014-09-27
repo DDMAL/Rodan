@@ -199,8 +199,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         "Treat the workflow graph as directed."
         if this_wfjob in visited_set:
             raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
-        self.visited_set_global.add(this_wfjob)
         visited_set.add(this_wfjob)
+
+        if this_wfjob in self.visited_set_global:
+            return
+        self.visited_set_global.add(this_wfjob)
 
         for op in this_wfjob.output_ports.all():
             adjacent_wfjobs = set()
