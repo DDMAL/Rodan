@@ -154,53 +154,33 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                     raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.name, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # graph validation
+        ## Step 0
         if len(workflow_jobs) == 0:
             raise WorkflowValidationError(response=Response({'message': 'No WorkflowJobs in Workflow'}, status=status.HTTP_409_CONFLICT))
 
-        ## connected
-        visited_set = set()
-        self._depth_first_search_connectivity(workflow_jobs[0], visited_set)
-        if len(visited_set) < len(workflow_jobs):
-            raise WorkflowValidationError(response=Response({'message': 'Workflow is not connected'}, status=status.HTTP_409_CONFLICT))
-
-        ## no cycle
+        ## Step 1
         self.visited_set_global = set()
+
+        ## Step 2
+        self.disjoint_set = DisjointSet(workflow_jobs)
+
+        ## Step 3&4
         for wfjob in workflow_jobs:
-            if wfjob not in self.visited_set_global:
-                try:
-                    visited_set = set()
-                    self._depth_first_search_cycles(wfjob, visited_set)
-                except WorkflowValidationError as e:
-                    raise e
+            try:
+                self._integrated_depth_first_search(wfjob)
+            except WorkflowValidationError as e:
+                raise e
+
+        ## Step 5
+        one_set = self.disjoint_set.find(workflow_jobs[0])
+        for wfjob in workflow_jobs:
+            if self.disjoint_set.find(wfjob) is not one_set:
+                raise WorkflowValidationError(response=Response({'message': 'Workflow is not connected'}, status=status.HTTP_409_CONFLICT))
 
         # Valid!
         return True
 
-    def _depth_first_search_connectivity(self, this_wfjob, visited_set):
-        "Treat the workflow graph as undirected."
-        if this_wfjob in visited_set:
-            return
-        visited_set.add(this_wfjob)
-
-        for ip in this_wfjob.input_ports.all():
-            connections = ip.connections.all()
-            for conn in connections:
-                adj_wfjob = conn.output_port.workflow_job
-                self._depth_first_search_connectivity(adj_wfjob, visited_set)
-
-        for op in this_wfjob.output_ports.all():
-            connections = op.connections.all()
-            for conn in connections:
-                adj_wfjob = conn.input_port.workflow_job
-                self._depth_first_search_connectivity(adj_wfjob, visited_set)
-
-
-    def _depth_first_search_cycles(self, this_wfjob, visited_set):
-        "Treat the workflow graph as directed."
-        if this_wfjob in visited_set:
-            raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
-        visited_set.add(this_wfjob)
-
+    def _integrated_depth_first_search(self, this_wfjob):
         if this_wfjob in self.visited_set_global:
             return
         self.visited_set_global.add(this_wfjob)
@@ -211,7 +191,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             for conn in connections:
                 adj_wfjob = conn.input_port.workflow_job
                 if adj_wfjob not in adjacent_wfjobs:
-                    self._depth_first_search_cycles(adj_wfjob, visited_set)
+                    if self.disjoint_set.find(this_wfjob) is self.disjoint_set.find(adj_wfjob):
+                        raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
+                    self.disjoint_set.union(this_wfjob, adj_wfjob)
+                    self._integrated_depth_first_search(adj_wfjob)
                     adjacent_wfjobs.add(adj_wfjob)
 
 
@@ -230,3 +213,22 @@ def resource_type_of_connection_agreed(typeA, typeB):
 def resource_type_of_resource_assignment_agreed(type_res, type_port):
     # [TODO] move this function to a specific module like `RodanType.py`?
     return True  # [TODO]
+
+class DisjointSet(object):
+    def __init__(self, xs):
+        self._parent = {}
+        # MakeSet
+        for x in xs:
+            self._parent[x] = x
+    def find(self, x):
+        parent = self._parent[x]
+        if parent is x:
+            return x
+        else:
+            new_parent = self.find(parent)
+            self._parent[x] = new_parent
+            return new_parent
+    def union(self, x, y):
+        xRoot = self.find(x)
+        yRoot = self.find(y)
+        self._parent[xRoot] = yRoot
