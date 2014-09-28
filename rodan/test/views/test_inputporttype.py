@@ -1,19 +1,19 @@
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
+from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 ONEBIT, GREYSCALE, GREY16 = settings.ONEBIT, settings.GREYSCALE, settings.GREY16
 
 
-class InputPortTypeViewTestCase(APITestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 
     def test_post(self):
         ipt_obj = {
-            'job': "http://localhost:8000/job/0dc1f345b6ad4a8c8739e092e6ff7c2d/",
+            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
             'resource_type': [ONEBIT, GREYSCALE, GREY16],
             'minimum': 1,
             'maximum': 1
@@ -24,7 +24,7 @@ class InputPortTypeViewTestCase(APITestCase):
 
     def test_post_no_min_max(self):
         opt_obj = {
-            'job': "http://localhost:8000/job/0dc1f345b6ad4a8c8739e092e6ff7c2d/",
+            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
             'resource_type': 0
         }
 

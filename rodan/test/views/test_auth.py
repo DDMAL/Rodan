@@ -1,13 +1,11 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth.models import User
+from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
-class AuthViewTestCase(APITestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
-        self.test_user = User.objects.get(username="ahankins")
+        self.setUp_user()
 
     def test_authorized(self):
         can_log_in = self.client.login(username="ahankins", password="hahaha")

@@ -1,10 +1,10 @@
 from django.test import TestCase
 from rodan.models.job import Job
+from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class JobTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class JobTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         pass
 

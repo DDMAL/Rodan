@@ -1,9 +1,9 @@
 from django.test import TestCase
+from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class WorkflowJobTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class WorkflowJobTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
         pass
 

@@ -5,17 +5,18 @@ from rodan.models.project import Project
 from rodan.models.output import Output
 from rodan.models.inputport import InputPort
 from rodan.models.workflow import Workflow
+from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class ResourceTestCase(TestCase):
-    fixtures = ["1_users", "2_initial_data"]
-
+class ResourceTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
-        self.test_user = User.objects.get(username="ahankins")
-        self.test_project = Project.objects.get(uuid="9e8e928b4ec24a09b6113f1b0af1ea53")
-        self.test_output = Output.objects.get(uuid="04ae88f664664d3eaa68406c7c2f1211")
-        self.test_inputport = InputPort.objects.get(uuid="e38b11918691486cbd99627e5baec0a1")
-        self.test_workflow = Workflow.objects.get(uuid="df78a1aa79554abcb5f1b0ac7bba2bad")
+        self.test_user = mommy.make(User)
+        self.test_output = mommy.make('rodan.Output')
+        self.test_project = self.test_output.run_job.workflow_job.workflow.project
+        self.test_inputport = mommy.make('rodan.InputPort',
+                                         workflow_job=self.test_output.run_job.workflow_job)
+        self.test_workflow = self.test_output.run_job.workflow_job.workflow
 
         self.test_resource_data = {
             "project": self.test_project,

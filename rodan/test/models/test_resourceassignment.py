@@ -3,25 +3,18 @@ from rodan.models.workflow import Workflow
 from rodan.models.inputport import InputPort
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
+from model_mommy import mommy
+from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
 
-class ResourceAssignmentTestCase(TestCase):
-    fixtures = ['1_users', '2_initial_data']
-
+class ResourceAssignmentTestCase(RodanTestTearDownMixin, TestCase):
     def setUp(self):
-        self.test_inputport = InputPort.objects.get(uuid="dd35645a7a7845c5a72c9a856ccb920e")
-
-        # It is invalid to have two RAs pointing to the same InputPort.
-        ResourceAssignment.objects.get(input_port=self.test_inputport).delete()
-
-        self.test_resources = Resource.objects.all()
-
-        self.test_data = {
-            "input_port": self.test_inputport,
-        }
+        self.test_inputport = mommy.make('rodan.InputPort')
+        self.test_resources = mommy.make('rodan.Resource', _quantity=10,
+                                         project=self.test_inputport.workflow_job.workflow.project)
 
     def test_save(self):
-        resource_assignment = ResourceAssignment(**self.test_data)
+        resource_assignment = ResourceAssignment(input_port=self.test_inputport)
         resource_assignment.save()
         for res in self.test_resources:
             resource_assignment.resources.add(res)

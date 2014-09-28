@@ -8,7 +8,7 @@ class InputPortType(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    job = models.ForeignKey('rodan.Job', null=True, blank=True)
+    job = models.ForeignKey('rodan.Job', null=True, blank=True, related_name='input_port_types')
     name = models.CharField(max_length=255, null=True, blank=True)
     resource_type = json.JSONField()
     minimum = models.IntegerField()
