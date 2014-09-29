@@ -192,9 +192,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
             WorkflowRun object.
         """
-        # workflow = request.QUERY_PARAMS.get('workflow', None)
         workflow = request.DATA.get('workflow', None)
-
         if not workflow:
             return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -214,14 +212,14 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         request.DATA['creator'] = UserSerializer(request.user).data['url']
 
-        create_wfrun = self.create(request, *args, **kwargs)
+        created_wfrun = self.create(request, *args, **kwargs)
 
-        workflow_run_id = create_wfrun.data['uuid']
+        workflow_run_id = created_wfrun.data['uuid']
         workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
 
         self._create_workflow_run(workflow_obj, workflow_run)
-
-        return create_wfrun
+        # [TODO] run!
+        return created_wfrun
 
 
 class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -343,8 +341,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                         revoke(rj.celery_task_id, terminate=True)
                     rj.status = RunJobStatus.CANCELLED
                     rj.save()
-
-        if workflow_already_cancelled and workflow_newly_cancelled == False:
+        elif workflow_already_cancelled and workflow_newly_cancelled == False:
             return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
 
         return self.partial_update(request, pk, *args, **kwargs)
