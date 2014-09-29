@@ -171,7 +171,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             resources = Resource.objects.filter(resource_assignments=ra)
 
             if resources.count() > 1:
-                initial_wfjob = WorkflowJob.objects.get(inputport=ra.input_port)
+                initial_wfjob = WorkflowJob.objects.get(input_ports=ra.input_port)
                 self._traversal(singleton_workflowjobs, initial_wfjob)
 
         return singleton_workflowjobs
@@ -184,7 +184,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             return None
 
         for conn in adjacent_connections:
-            wfjob = WorkflowJob.objects.get(inputport=conn.input_port)
+            wfjob = WorkflowJob.objects.get(input_ports=conn.input_port)
             self._traversal(singleton_workflowjobs, wfjob)
 
     def post(self, request, *args, **kwargs):
