@@ -27,8 +27,7 @@ class WorkflowRun(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs")
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
-    run = models.IntegerField(null=True, blank=True)
-    test_run = models.BooleanField(default=False)
+    test_run = models.BooleanField(default=False)  # [TODO]
     cancelled = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)

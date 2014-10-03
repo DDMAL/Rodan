@@ -42,7 +42,7 @@ class RunJobAdmin(admin.ModelAdmin):
 
 
 class WorkflowRunAdmin(admin.ModelAdmin):
-    list_display = ('workflow', 'run', 'created')
+    list_display = ('workflow', 'created')
 
 
 class ResultsPackageAdmin(admin.ModelAdmin):
