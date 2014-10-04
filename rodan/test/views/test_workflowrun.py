@@ -19,31 +19,22 @@ from rodan.views.workflowrun import WorkflowRunList
 from model_mommy import mommy
 from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
-
+from django.core.files.base import ContentFile
+from rodan.models.resource import upload_path
 
 class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
-        self.setUp_basic_workflow()
+        self.setUp_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
+        self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
 
-    def test_post(self):
-        workflow_update = {
-            'valid': True,
-        }
-        self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), workflow_update, format='json')
-
-        workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-        }
-
-        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_get_list(self):
+        response = self.client.get("/workflowruns/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_no_workflow_ID(self):
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
-            'workflow': None,
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk)
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -62,73 +53,118 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_patch_not_found(self):
-        workflowrun_update = {'run': 5}
+        workflowrun_update = {'cancelled': True}
         response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
         anticipated_message = {'message': 'Workflow_run not found'}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_patch_already_cancelled(self):
-        wfrun = mommy.make('rodan.WorkflowRun',
-                           cancelled=True)
-        workflowrun_update = {'cancelled': False}
-        response = self.client.patch("/workflowrun/{0}/".format(wfrun.uuid), workflowrun_update, format='json')
-        anticipated_message = {"message": "Workflowrun cannot be uncancelled."}
-        self.assertEqual(anticipated_message, response.data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_dummy_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+        self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+
+
+    def test_successful_execution(self):
+        with self.settings(CELERY_ALWAYS_EAGER=True,
+                           CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task locally
+
+            self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
+            self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+
+            workflowrun_obj = {
+                'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+                'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            }
+            response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
+            dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+
+            # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+            self.assertEqual(dummy_a_runjob.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(dummy_m_runjob.ready_for_input, True)
+
+            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(dummy_m_runjob.uuid)})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # then the workflowrun should re-run
+            dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
+            self.assertEqual(dummy_m_runjob.status, RunJobStatus.HAS_FINISHED)
+
+    def test_failed_execution(self):
+        with self.settings(CELERY_ALWAYS_EAGER=True):  # run celery task locally
+            self.test_resource.resource_file.save('dummy.txt', ContentFile('will fail'))
+            self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
+            workflowrun_obj = {
+                'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+                'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            }
+
+            response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
+            dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+
+            # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+            self.assertEqual(dummy_a_runjob.status, RunJobStatus.FAILED)
+            self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
+            self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(dummy_m_runjob.ready_for_input, False)
+
+    def test_cancel(self):
+        with self.settings(CELERY_ALWAYS_EAGER=True,
+                           CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task locally
+            self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
+            self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+            workflowrun_obj = {
+                'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+                'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            }
+            response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+            wfrun_uuid = response.data['uuid']
+
+            response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), {'cancelled': True}, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+            self.assertEqual(dummy_m_runjob.status, RunJobStatus.CANCELLED)
+
+            workflowrun_update = {'cancelled': False}
+            response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format='json')
+            anticipated_message = {"message": "Workflowrun cannot be uncancelled."}
+            self.assertEqual(anticipated_message, response.data)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 
 """
-    def test_patch(self):
-        workflowrun_update = {'run': WorkflowRun.objects.get(pk="eb4b3661be2a44908c4c932b0783bb3e").run+1}
-        response = self.client.patch("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/", workflowrun_update, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_endpoint_workflow_jobs(self):
-        endpoints = WorkflowRunList._endpoint_workflow_jobs(WorkflowRunList(), self.test_workflow)
-        self.assertEqual(endpoints, [WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")])
-
-    def test_singleton_workflow_jobs(self):
-        single_workflowjob = WorkflowJob(workflow=self.test_workflow, job=self.test_job)
-        single_workflowjob.save()
-
-        test_outputporttype = OutputPortType.objects.get(uuid="1cdb067e98194da48dd3dfa35e84671c")
-        single_outputport = OutputPort(workflow_job=single_workflowjob, output_port_type=test_outputporttype)
-        single_outputport.save()
-
-        test_workflowjob2 = WorkflowJob.objects.get(uuid="a21f510a16c24701ac0e435b3f4c20f3")
-
-        test_inputporttype = InputPortType.objects.get(uuid="30ed42546fe440a181f64a2ebdea82e1")
-        test_second_inputport = InputPort(workflow_job=test_workflowjob2, input_port_type=test_inputporttype)
-        test_second_inputport.save()
-
-        connection2_data = {
-            'input_port': test_second_inputport,
-            'input_workflow_job': test_workflowjob2,
-            'output_port': single_outputport,
-            'output_workflow_job': single_workflowjob,
-            'workflow': self.test_workflow,
-        }
-        test_connection2 = Connection(**connection2_data)
-        test_connection2.save()
-
-        singletons = WorkflowRunList._singleton_workflow_jobs(WorkflowRunList(), self.test_workflow)
-        self.assertEqual(singletons, [single_workflowjob])
-
     def test_get_detail(self):
         response = self.client.get("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+"""
 
-    def test_get_list(self):
-        response = self.client.get("/workflowruns/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+"""
+_threads = {}
 
-    def test_patch_newly_cancelled(self):
-        workflowrun_update = {'cancelled': True}
-        self.client.patch("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/", workflowrun_update, format='json')
-        workflowrun_obj = WorkflowRun.objects.get(pk='eb4b3661be2a44908c4c932b0783bb3e')
-        expected_status = RunJobStatus.CANCELLED or RunJobStatus.HAS_FINISHED or RunJobStatus.FAILED
-        for rj in workflowrun_obj.run_jobs.all():
-            self.assertEqual(rj.status, expected_status)
+def setUpModule():
+    _threads['celery'] = CeleryWorkerThread()
+    _threads['celery'].daemon = True
+    _threads['celery'].start()
+
+    # Wait for the worker to be ready
+    _threads['celery'].is_ready.wait()
+    if _threads['celery'].error:
+        raise _threads['celery'].error
+
+
+def tearDownModule():
+    if 'celery' in _threads:
+        _threads['celery'].join(5)
 """

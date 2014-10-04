@@ -7,6 +7,7 @@ from rest_framework import status
 from rodan.models import RunJob
 from rodan.models import Result
 
+from rodan.jobs.RodanMaster import rodan_master
 
 class RodanInteractiveBaseView(View):
     view_url = ""
@@ -26,18 +27,7 @@ class RodanInteractiveBaseView(View):
 
         rj_uuid = request.GET['runjob']
         runjob = get_object_or_404(RunJob, pk=(rj_uuid))
-
-        sequence = runjob.workflow_job.sequence
-        page = runjob.page
-
-        # if this is the first job in the sequence, the file path is just the original image
-        if sequence == 1:
-            image_source = runjob.page
-        else:
-            previous_run_job = RunJob.objects.get(workflow_job__sequence=(sequence - 1),
-                                                  workflow_run__uuid=runjob.workflow_run.uuid,
-                                                  page = page.uuid)
-            image_source = Result.objects.get(run_job__uuid=previous_run_job.uuid)
+        image_source = runjob.inputs.first().resource
 
         self.data.update({'form_url': self.view_url,
                       'run_job_uuid': rj_uuid,
@@ -57,12 +47,19 @@ class RodanInteractiveBaseView(View):
         rj_uuid = request.POST['run_job_uuid']
         runjob = RunJob.objects.get(uuid=rj_uuid)
 
+        if not runjob.needs_input or not runjob.ready_for_input:
+            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
+
         for job_setting in runjob.job_settings:
             if job_setting['name'] in request.POST:
                 job_setting['default'] = request.POST[job_setting['name']]
 
         runjob.needs_input = False
+        runjob.ready_for_input = False
         runjob.save()
+
+        # call rodan_master to continue workflowrun
+        rodan_master.apply_async((runjob.workflow_run.uuid,))
 
         return render(request, 'jobs/job_input_done.html')
 

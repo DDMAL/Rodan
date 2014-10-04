@@ -1,7 +1,7 @@
 from model_mommy import mommy
 from django.contrib.auth.models import User
-from rodan.models.project import Project
-
+from rodan.models import Project, Job
+import time
 
 class RodanTestSetUpMixin(object):
     def setUp_user(self):
@@ -56,6 +56,56 @@ class RodanTestSetUpMixin(object):
         outputport2 = mommy.make('rodan.OutputPort',
                                  workflow_job=self.test_workflowjob2,
                                  output_port_type=self.test_outputporttype)
+
+    def setUp_dummy_workflow(self):
+        """
+        Workflow Graph:
+        dummy_a_wfjob => dummy_m_wfjob
+        """
+        self.setUp_user()
+
+        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
+        load_dummy_automatic_job()
+        load_dummy_manual_job()
+        dummy_a_job = Job.objects.get(job_name='rodan.jobs.devel.dummy_automatic_job')
+        dummy_m_job = Job.objects.get(job_name='rodan.jobs.devel.dummy_manual_job')
+
+
+        self.test_project = mommy.make('rodan.Project')
+        self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
+        self.test_resource = mommy.make('rodan.Resource',
+                                         project=self.test_project,
+                                         processed=True)
+
+        # build this graph: dummy_a_wfjob => dummy_m_wfjob
+        self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',
+                                        workflow=self.test_workflow,
+                                        job=dummy_a_job)
+        inputport_a = mommy.make('rodan.InputPort',
+                                 workflow_job=self.dummy_a_wfjob,
+                                 input_port_type=dummy_a_job.input_port_types.first())
+        outputport_a = mommy.make('rodan.OutputPort',
+                                  workflow_job=self.dummy_a_wfjob,
+                                  output_port_type=dummy_a_job.output_port_types.first())
+        resourceassignment = mommy.make('rodan.ResourceAssignment',
+                                        input_port=inputport_a)
+        resourceassignment.resources.add(self.test_resource)
+
+
+        self.dummy_m_wfjob = mommy.make('rodan.WorkflowJob',
+                                        workflow=self.test_workflow,
+                                        job=dummy_m_job)
+        inputport_m = mommy.make('rodan.InputPort',
+                                 workflow_job=self.dummy_m_wfjob,
+                                 input_port_type=dummy_m_job.input_port_types.first())
+        outputport_m = mommy.make('rodan.OutputPort',
+                                  workflow_job=self.dummy_m_wfjob,
+                                  output_port_type=dummy_m_job.output_port_types.first())
+
+        test_connection = mommy.make('rodan.Connection',
+                                     output_port=outputport_a,
+                                     input_port=inputport_m)
+
 
 class RodanTestTearDownMixin(object):
     """

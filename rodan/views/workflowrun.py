@@ -28,6 +28,8 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPa
 from rodan.serializers.runjob import ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
+from rodan.jobs.RodanMaster import rodan_master
+
 
 class WorkflowRunList(generics.ListCreateAPIView):
     model = WorkflowRun
@@ -122,12 +124,15 @@ class WorkflowRunList(generics.ListCreateAPIView):
                       input_port=ra.input_port,
                       resource=entry_res).save()
 
+
         workflowjob_runjob_map[wfjob_A] = runjob_A
         return runjob_A
 
     def _create_runjob_A(self, wfjob, workflow_run):
+        interactive = wfjob.job.interactive
         run_job = RunJob(workflow_job=wfjob,
-                         workflow_run=workflow_run)
+                         workflow_run=workflow_run,
+                         needs_input=interactive)
         run_job.save()
 
         outputports = OutputPort.objects.filter(workflow_job=wfjob)
@@ -218,7 +223,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
         workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
 
         self._create_workflow_run(workflow_obj, workflow_run)
-        # [TODO] run!
+        rodan_master.apply_async((workflow_run_id,))
+
         return created_wfrun
 
 
@@ -334,13 +340,15 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         workflow_newly_cancelled = request.DATA.get('cancelled', None)
 
         if not workflow_already_cancelled and workflow_newly_cancelled:
-            runjobs = workflow_run.run_jobs.all()
-            for rj in runjobs:
-                if rj.status not in (RunJobStatus.HAS_FINISHED, RunJobStatus.FAILED):
-                    if rj.status == RunJobStatus.RUNNING:
-                        revoke(rj.celery_task_id, terminate=True)
-                    rj.status = RunJobStatus.CANCELLED
-                    rj.save()
+            runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
+            runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
+
+            for celery_id in runjobs_to_revoke_celery_id:
+                if celery_id is not None:
+                    revoke(celery_id, terminate=True)
+
+            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED)
+
         elif workflow_already_cancelled and workflow_newly_cancelled == False:
             return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
 
