@@ -1,10 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rodan.models.resource import Resource
-from rodan.models.project import Project
-from rodan.models.output import Output
-from rodan.models.inputport import InputPort
-from rodan.models.workflow import Workflow
 from model_mommy import mommy
 from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
 
@@ -29,7 +25,7 @@ class ResourceTestCase(RodanTestTearDownMixin, TestCase):
         resource.save()
 
         retr_resource = Resource.objects.get(name="testresource.jpg")
-        self.assertEqual(retr_resource.resource_type, "image/jpeg")
+        self.assertEqual(retr_resource.resource_type, ["image/jpeg"])
         self.assertEqual(retr_resource.name, resource.name)
 
     def test_save_runjob_result(self):

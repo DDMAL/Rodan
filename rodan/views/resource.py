@@ -81,7 +81,7 @@ class ResourceList(generics.ListCreateAPIView):
                 resource_obj.run_job = runjob_obj
                 resource_obj.save()
 
-            type = resource_obj.resource_type.split('/')[0]
+            type = resource_obj.resource_type[0].split('/')[0]
             if type == 'image':
                 res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
                 res.apply_async()

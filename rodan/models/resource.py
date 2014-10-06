@@ -52,7 +52,7 @@ class Resource(models.Model):
 
     def save(self, *args, **kwargs):
         if self.name:
-            self.resource_type = mimetypes.guess_type(self.name, strict=False)[0]
+            self.resource_type = [mimetypes.guess_type(self.name, strict=False)[0]]
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
             os.makedirs(self.resource_path)

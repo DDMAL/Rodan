@@ -1,7 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.models.project import Project
 from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
@@ -26,7 +25,6 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                 SimpleUploadedFile('page1.png', 'n/t'),
                 SimpleUploadedFile('page2.png', 'n/t')
             ],
-            'resource_order': 1
         }
         response = self.client.post("/resources/", resource_obj, format='multipart')
         anticipated_message = {'message': "You must supply project identifier for these resources."}
