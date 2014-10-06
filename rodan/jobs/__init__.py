@@ -138,11 +138,3 @@ try:
     module_loader.load_module()
 except ImportError as e:
     logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
-
-
-#Development
-try:
-    from rodan.jobs.devel.dummy_job import load_dummy_job
-    load_dummy_job()
-except ImportError as e:
-    logger.warning("DEV: The dummy job could not be loaded properly. Skipping")

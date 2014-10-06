@@ -4,6 +4,7 @@ import shutil
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
+from django_extensions.db.fields import json
 from uuidfield import UUIDField
 
 
@@ -40,7 +41,7 @@ class Resource(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
     compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
-    resource_type = models.CharField(max_length=20, null=True, blank=True)
+    resource_type = json.JSONField(null=True, blank=True)
     processed = models.BooleanField(default=False)
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)

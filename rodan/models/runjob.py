@@ -52,6 +52,7 @@ class RunJob(models.Model):
 
     job_settings = json.JSONField(blank=True, null=True)
     needs_input = models.BooleanField(default=False)
+    ready_for_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
     sequence = models.IntegerField(blank=True, null=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
