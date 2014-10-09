@@ -14,6 +14,7 @@ from rodan.serializers.resource import ResourceSerializer
 from rodan.helpers.convert import ensure_compatible
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.processed import processed
+from rodan.models.resource import ResourceType
 
 
 class ResourceList(generics.ListCreateAPIView):
@@ -81,8 +82,7 @@ class ResourceList(generics.ListCreateAPIView):
                 resource_obj.run_job = runjob_obj
                 resource_obj.save()
 
-            type = resource_obj.resource_type[0].split('/')[0]
-            if type == 'image':
+            if resource_obj.resource_type in ResourceType.IMAGE_TYPES:
                 res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
                 res.apply_async()
 

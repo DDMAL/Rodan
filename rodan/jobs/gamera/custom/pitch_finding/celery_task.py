@@ -10,6 +10,7 @@ from gamera.core import init_gamera, load_image
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
+from rodan.models.resource import ResourceType
 from rodan.models.workflowjob import WorkflowJob
 from rodan.helpers.exceptions import UUIDParseError
 from django.conf import settings
@@ -29,7 +30,7 @@ init_gamera()
 class PitchFindingTask(RodanJob):
     max_retries = None
     name = 'gamera.custom.pitch_finding.find_pitches'
-    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [settings.ONEBIT]},
+    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [ResourceType.ONEBIT]},
                 {'default': 2, 'has_default': True, 'rng': [1, 1048576], 'name': 'discard_size', 'type': 'int'}]
 
     def process_image(self, segmented_image_path, xml_filepath, settings, page_order):
@@ -60,7 +61,7 @@ class PitchFindingTask(RodanJob):
         pymei.write(mei_document, temp_mei_path)
         taskutil.save_result(result, temp_mei_path)
 
-        result.result_type = settings.MEI
+        result.result_type = ResourceType.MEI
         taskutil.save_instance(result)
         return result
 

@@ -2,9 +2,9 @@ from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.diva.celery_task import JOB_NAME
-from django.conf import settings
+from rodan.models.resource import ResourceType
 
-RGB, JPEG2000 = settings.RGB, settings.JPEG2000
+RGB, JPEG2000 = ResourceType.RGB, ResourceType.JPEG2000
 
 
 def load_module():

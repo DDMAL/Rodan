@@ -18,7 +18,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJobStatus
 from rodan.models.connection import Connection
 from rodan.models.resourceassignment import ResourceAssignment
-from rodan.models.resource import Resource
+from rodan.models.resource import Resource, ResourceType
 from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.models.outputport import OutputPort
@@ -101,6 +101,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
+            resource = associated_output.resource
+            resource.resource_type = ResourceType.intersection(conn.output_port.output_port_type.resource_type, conn.input_port.input_port_type.resource_type).pop()
+            resource.save()
 
             Input(run_job=runjob_A,
                   input_port=conn.input_port,
@@ -139,7 +142,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for op in outputports:
             resource = Resource(project=workflow_run.workflow.project,
-                                resource_type=op.output_port_type.resource_type)
+                                resource_type=None)
             resource.save()
 
             output = Output(output_port=op,

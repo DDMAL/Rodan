@@ -2,9 +2,9 @@ from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.gamera.custom.segmentation.celery_task import SegmentationTask
-from django.conf import settings
+from rodan.models.resource import ResourceType
 
-ONEBIT = settings.ONEBIT
+ONEBIT = ResourceType.ONEBIT
 
 
 def load_segmentation():

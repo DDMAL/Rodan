@@ -1,9 +1,9 @@
-from django.conf import settings
+from rodan.models.resource import ResourceType
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
-FLOAT = settings.FLOAT
+FLOAT = ResourceType.FLOAT
 
 
 class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -25,7 +25,7 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_post_no_min_max(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_type': 0
+            'resource_type': [FLOAT],
         }
 
         response = self.client.post("/outputporttypes/", opt_obj, format='json')

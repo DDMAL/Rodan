@@ -2,8 +2,8 @@ import os
 from django.db import models
 from django.conf import settings
 from uuidfield import UUIDField
-from rodan.settings import IMAGE_TYPES
-
+from rodan.models.resource import ResourceType
+IMAGE_TYPES = ResourceType.IMAGE_TYPES
 
 def upload_fn(self, filename):
     _, ext = os.path.splitext(os.path.basename(filename))

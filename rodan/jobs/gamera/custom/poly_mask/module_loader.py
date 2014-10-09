@@ -1,10 +1,10 @@
 from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
-from django.conf import settings
+from rodan.models.resource import ResourceType
 from rodan.jobs.gamera.custom.poly_mask.celery_task import PolyMaskTask
 
-ONEBIT = settings.ONEBIT
+ONEBIT = ResourceType.ONEBIT
 
 
 def load_poly_mask():

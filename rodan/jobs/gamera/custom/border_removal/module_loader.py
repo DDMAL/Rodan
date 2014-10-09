@@ -1,10 +1,10 @@
 from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
-from django.conf import settings
+from rodan.models.resource import ResourceType
 from rodan.jobs.gamera.custom.border_removal.celery_task import AutoBorderRemovalTask, CropBorderRemovalTask
 
-ONEBIT, GREYSCALE, RGB = settings.ONEBIT, settings.GREYSCALE, settings.RGB
+ONEBIT, GREYSCALE, RGB = ResourceType.ONEBIT, ResourceType.GREYSCALE, ResourceType.RGB
 
 
 def load_auto_border_removal():

@@ -2,9 +2,9 @@ from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.outputporttype import OutputPortType
 from rodan.jobs.gamera.custom.pitch_finding.celery_task import PitchFindingTask
-from django.conf import settings
+from rodan.models.resource import ResourceType
 
-GAMERA_XML, MEI = settings.GAMERA_XML, settings.MEI
+GAMERA_XML, MEI = ResourceType.GAMERA_XML, ResourceType.MEI
 
 
 def load_pitch_finder():

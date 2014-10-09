@@ -1,9 +1,9 @@
-from django.conf import settings
+from rodan.models.resource import ResourceType
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
-ONEBIT, GREYSCALE, GREY16 = settings.ONEBIT, settings.GREYSCALE, settings.GREY16
+ONEBIT, GREYSCALE, GREY16 = ResourceType.ONEBIT, ResourceType.GREYSCALE, ResourceType.GREY16
 
 
 class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -25,7 +25,7 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_post_no_min_max(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_type': 0
+            'resource_type': [ONEBIT],
         }
 
         response = self.client.post("/inputporttypes/", opt_obj, format='json')

@@ -15,8 +15,9 @@ from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.processed import processed
 from rodan.helpers.dbmanagement import exists_in_db, refetch_from_db, resolve_object_from_url
+from rodan.models.resource import ResourceType
 
-IMAGE_TYPES = rodan_settings.IMAGE_TYPES
+IMAGE_TYPES = ResourceType.IMAGE_TYPES
 
 def execute_unless_deleted(db_object, partial_func):
     if db_object.pk:

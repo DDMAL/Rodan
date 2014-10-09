@@ -208,25 +208,7 @@ MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1500
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
 
-# These pixel types mirror Gamera's pixel types found in the
-# gamera.enum module
-ONEBIT = 0
-GREYSCALE = 1
-GREY16 = 2
-RGB = 3
-FLOAT = 4
-COMPLEX = 5
 
-# extra job output types
-MEI = 6
-JPEG2000 = 7
-PACKAGE = 8  # a `package` is used to produce multiple outputs from a single job.
-GAMERA_XML = 9
-
-# For now None is considered to be an image type for backwards compatibility.
-IMAGE_TYPES = (None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX)
-
-NONIMAGE = -1
 
 BACKUP_WORKFLOWRUN_ON_RETRY = True
 TRACEBACK_IN_ERROR_DETAIL = True
