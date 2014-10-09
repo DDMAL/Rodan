@@ -50,7 +50,6 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'workflow_job',
                   'inputs',
                   'outputs',
-                  'sequence',
                   'result',
                   'resources',
                   'job_settings',
