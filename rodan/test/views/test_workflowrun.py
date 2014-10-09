@@ -26,7 +26,8 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
     def setUp(self):
         self.setUp_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
-        self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_list(self):
         response = self.client.get("/workflowruns/")
@@ -66,7 +67,8 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
     def setUp(self):
         self.setUp_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
-        self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
     def test_successful_execution(self):
@@ -129,6 +131,7 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
                 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             }
             response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             wfrun_uuid = response.data['uuid']
 
             response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), {'cancelled': True}, format='json')
