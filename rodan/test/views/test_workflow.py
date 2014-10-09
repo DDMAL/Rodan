@@ -179,8 +179,17 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__resource_type_not_agree(self):
-        # [TODO]
-        pass
+        ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
+        res = mommy.make('rodan.Resource',
+                         project=self.test_project,
+                         resource_type=-1,
+                         processed=True)
+        ra.resources.add(res)
+
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ra.input_port.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
 
     def test_multiple_resource_collections(self):
         test_resourceassignment2 = mommy.make('rodan.ResourceAssignment',
