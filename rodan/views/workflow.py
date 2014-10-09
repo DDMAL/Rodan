@@ -140,7 +140,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 if not res.processed:
                     raise WorkflowValidationError(response=Response({'message': 'The resource {0} has not been processed'.format(res.name)}, status=status.HTTP_409_CONFLICT))
                 if res.resource_type not in type_of_ip:
-                    raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.name, ip.uuid)}, status=status.HTTP_409_CONFLICT))
+                    raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # graph validation
         ## Step 0
