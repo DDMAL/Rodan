@@ -30,6 +30,7 @@ class RodanTestSetUpMixin(object):
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resources = mommy.make('rodan.Resource', _quantity=10,
                                          project=self.test_project,
+                                         resource_type=0,
                                          processed=True)
 
         # build this graph: test_workflowjob --> test_workflowjob2
@@ -74,8 +75,9 @@ class RodanTestSetUpMixin(object):
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource = mommy.make('rodan.Resource',
-                                         project=self.test_project,
-                                         processed=True)
+                                        project=self.test_project,
+                                        resource_type=0,
+                                        processed=True)
 
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
         self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',

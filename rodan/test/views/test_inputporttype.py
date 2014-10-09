@@ -1,7 +1,7 @@
 from rodan.models.resource import ResourceType
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 ONEBIT, GREYSCALE, GREY16 = ResourceType.ONEBIT, ResourceType.GREYSCALE, ResourceType.GREY16
 

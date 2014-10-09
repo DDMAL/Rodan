@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rodan.models.workflow import Workflow
 from rodan.models.project import Project
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class WorkflowTestCase(RodanTestTearDownMixin, TestCase):

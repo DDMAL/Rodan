@@ -4,7 +4,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.runjob import RunJob
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class RunJobTestCase(RodanTestTearDownMixin, TestCase):

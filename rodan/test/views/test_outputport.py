@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
 class OutputPortViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):

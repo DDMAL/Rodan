@@ -7,7 +7,7 @@ from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
 from rodan.models.inputporttype import InputPortType
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 
 class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):

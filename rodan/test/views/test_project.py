@@ -2,7 +2,7 @@ import os
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models.project import Project
 
 # Refer to http://www.django-rest-framework.org/api-guide/testing

@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from rodan.models.resource import Resource
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class ResourceTestCase(RodanTestTearDownMixin, TestCase):

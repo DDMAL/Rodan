@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rodan.models.job import Job
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class JobTestCase(RodanTestTearDownMixin, TestCase):

@@ -5,7 +5,7 @@ from rodan.models.outputport import OutputPort
 from rodan.models.job import Job
 from rodan.models.connection import Connection
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class ConnectionTestCase(RodanTestTearDownMixin, TestCase):

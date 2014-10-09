@@ -1,6 +1,6 @@
 from django.test import TestCase
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class WorkflowJobTestCase(RodanTestTearDownMixin, TestCase):

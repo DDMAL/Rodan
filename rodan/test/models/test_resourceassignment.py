@@ -4,7 +4,7 @@ from rodan.models.inputport import InputPort
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class ResourceAssignmentTestCase(RodanTestTearDownMixin, TestCase):

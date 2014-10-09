@@ -3,7 +3,7 @@ from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.models.resource import ResourceType
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class InputPortTypeTestCase(RodanTestTearDownMixin, TestCase):

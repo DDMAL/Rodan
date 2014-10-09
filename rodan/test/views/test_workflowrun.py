@@ -17,7 +17,7 @@ from rodan.models.job import Job
 from rodan.models.runjob import RunJob
 from rodan.views.workflowrun import WorkflowRunList
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 from django.core.files.base import ContentFile
 from rodan.models.resource import upload_path

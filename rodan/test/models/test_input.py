@@ -4,7 +4,7 @@ from rodan.models.runjob import RunJob
 from rodan.models.resource import Resource
 from rodan.models.input import Input
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class InputTestCase(RodanTestTearDownMixin, TestCase):

@@ -17,7 +17,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from model_mommy import mommy
-from rodan.test.RodanTestHelpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 
 class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
