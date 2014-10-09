@@ -64,23 +64,12 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             workflow = Workflow.objects.get(pk=pk)
         except Workflow.DoesNotExist:
             return Response({'message': 'Workflow not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        #kwargs['partial'] = True
         to_be_validated = request.DATA.get('valid', None)
-        #workflow.valid = False
-
-        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-
-        if not to_be_validated:
-            return super(WorkflowDetail, self).patch(request, *args, **kwargs)
-
-        try:
-            self._validate(workflow)
-        except WorkflowValidationError as e:
-            return e.response
-
-        #workflow.valid = True
-        #workflow.save()
+        if to_be_validated:
+            try:
+                self._validate(workflow)
+            except WorkflowValidationError as e:
+                return e.response
 
         return super(WorkflowDetail, self).patch(request, *args, **kwargs)
 
