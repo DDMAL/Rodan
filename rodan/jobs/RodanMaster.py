@@ -4,18 +4,25 @@ from rodan.models.runjob import RunJobStatus
 
 @task(name='rodan.jobs.RodanMaster.rodan_master')
 def rodan_master(workflow_run_id):
+    # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
+
+    # preconfigure interactive runjobs and set them ready for input
+    interactive_runjobs = RunJob.objects.filter(workflow_run__uuid=workflow_run_id,
+                          status=RunJobStatus.NOT_RUNNING,
+                          inputs__resource__compat_resource_file__gt='',  # http://stackoverflow.com/questions/4771464/django-queryset-filter-for-blank-filefield
+                          needs_input=True,
+                          ready_for_input=False
+    )
+    interactive_runjobs.update(ready_for_input=True)
+
+
+    # find runable runjobs
     runable_runjobs = RunJob.objects.filter(
         workflow_run__uuid=workflow_run_id,
         status=RunJobStatus.NOT_RUNNING,
-        inputs__resource__resource_file__gt='',  # http://stackoverflow.com/questions/4771464/django-queryset-filter-for-blank-filefield
+        inputs__resource__compat_resource_file__gt='',  # http://stackoverflow.com/questions/4771464/django-queryset-filter-for-blank-filefield
         needs_input=False
     ).values('uuid', 'workflow_job__job__job_name')
-
-    RunJob.objects.filter(workflow_run__uuid=workflow_run_id,
-                          status=RunJobStatus.NOT_RUNNING,
-                          inputs__resource__resource_file__gt='',  # http://stackoverflow.com/questions/4771464/django-queryset-filter-for-blank-filefield
-                          needs_input=True
-    ).update(ready_for_input=True)
 
     if len(runable_runjobs) == 0:
         return False
