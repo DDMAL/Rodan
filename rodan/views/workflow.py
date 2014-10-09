@@ -8,7 +8,7 @@ from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import Workflow, WorkflowJob, ResourceAssignment, Connection, InputPort, OutputPort, InputPortType, OutputPortType, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
-
+from rodan.models.resource import ResourceType
 
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
@@ -116,7 +116,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             ip = connection.input_port
             in_type = ip.input_port_type.resource_type
 
-            if not resource_type_of_connection_agreed(out_type, in_type):
+            if not ResourceType.intersection(out_type, in_type):
                 raise WorkflowValidationError(response=Response({'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # validate ResourceAssignments
@@ -139,7 +139,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                     raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.name)}, status=status.HTTP_409_CONFLICT))
                 if not res.processed:
                     raise WorkflowValidationError(response=Response({'message': 'The resource {0} has not been processed'.format(res.name)}, status=status.HTTP_409_CONFLICT))
-                if not resource_type_of_resource_assignment_agreed(res.resource_type, type_of_ip):  # TODO
+                if res.resource_type not in type_of_ip:
                     raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.name, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # graph validation
@@ -194,14 +194,6 @@ class WorkflowValidationError(Exception):
         super(WorkflowValidationError, self).__init__()
         self.response = response
 
-
-def resource_type_of_connection_agreed(typeA, typeB):
-    # [TODO] move this function to a specific module like `RodanType.py`?
-    return set(typeA).intersection(set(typeB))
-
-def resource_type_of_resource_assignment_agreed(type_res, type_port):
-    # [TODO] move this function to a specific module like `RodanType.py`?
-    return True  # [TODO]
 
 class DisjointSet(object):
     def __init__(self, xs):
