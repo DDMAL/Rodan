@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, shutil
 from celery import task
 from django.core.files import File
 from rodan.models import Input, Output
@@ -6,33 +6,40 @@ from rodan.jobs.base import RodanTask
 
 class dummy_automatic_job(RodanTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
-    def run(self, runjob_id):
-        inputs = Input.objects.filter(run_job__pk=runjob_id)
-        outputs = Output.objects.filter(run_job__pk=runjob_id)
+    def my_run(self, inputs, settings, outputs):
+        in_resources = []
+        for ipt_name in inputs:
+            for input in inputs[ipt_name]:
+                in_resources.append(input['resource_path'])
 
-        resource_file_path = inputs[0].resource.resource_file.path
-        with open(resource_file_path, 'rb') as f:
-            if 'fail' in f.read():
-                raise Exception('Dummy automatic job fail')
-            for output in outputs:
-                output.resource.resource_file.save('dummy', File(f))
+        for opt_name in outputs:
+            for output in outputs[opt_name]:
+                with open(in_resources[0], 'r') as f:
+                    if 'fail' in f.read():
+                        raise Exception('dummy automatic job error')
+                shutil.copyfile(in_resources[0], output['resource_path'])
 
-    def error_information(self, exc, traceback):
+    def my_error_information(self, exc, traceback):
         return {'error_summary': "dummy automatic job error",
                 'error_details': ''
             }
 
 class dummy_manual_job(RodanTask):
     name = "rodan.jobs.devel.dummy_manual_job"
-    def run(self, runjob_id):
-        inputs = Input.objects.filter(run_job__pk=runjob_id)
-        outputs = Output.objects.filter(run_job__pk=runjob_id)
+    def my_run(self, inputs, settings, outputs):
+        in_resources = []
+        for ipt_name in inputs:
+            for input in inputs[ipt_name]:
+                in_resources.append(input['resource_path'])
 
-        resource_file_path = inputs[0].resource.resource_file.path
-        with open(resource_file_path, 'rb') as f:
-            for output in outputs:
-                output.resource.resource_file.save('dummy', File(f))
-    def error_information(self, exc, traceback):
+        for opt_name in outputs:
+            for output in outputs[opt_name]:
+                with open(in_resources[0], 'r') as f:
+                    if 'fail' in f.read():
+                        raise Exception('dummy automatic job error')
+                shutil.copyfile(in_resources[0], output['resource_path'])
+
+    def my_error_information(self, exc, traceback):
         return {'error_summary': "dummy manual job error",
                 'error_details': ''
             }

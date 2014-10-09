@@ -9,7 +9,7 @@ class OutputPortType(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     job = models.ForeignKey('rodan.Job', null=True, blank=True, related_name='output_port_types')
-    name = models.CharField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255)
     resource_type = json.JSONField()
     minimum = models.IntegerField()
     maximum = models.IntegerField()

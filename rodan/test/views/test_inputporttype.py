@@ -15,10 +15,10 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
         ipt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
             'resource_type': [ONEBIT, GREYSCALE, GREY16],
+            'name': 'test',
             'minimum': 1,
             'maximum': 1
         }
-
         response = self.client.post("/inputporttypes/", ipt_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -26,10 +26,24 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
             'resource_type': [ONEBIT],
+            'name': 'test',
         }
 
         response = self.client.post("/inputporttypes/", opt_obj, format='json')
         anticipated_message = {'maximum': ['This field is required.'],
                                'minimum': ['This field is required.']}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_no_name(self):
+        opt_obj = {
+            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
+            'resource_type': [ONEBIT],
+            'minimum': 1,
+            'maximum': 1
+        }
+
+        response = self.client.post("/inputporttypes/", opt_obj, format='json')
+        anticipated_message = {'name': ['This field is required.']}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

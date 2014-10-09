@@ -13,6 +13,11 @@ def rodan_master(workflow_run_id):
                           needs_input=True,
                           ready_for_input=False
     )
+    i_runjob_values = interactive_runjobs.values('uuid', 'workflow_job__job__job_name')
+    for i_runjob_value in i_runjob_values:
+        task = registry.tasks[str(i_runjob_value['workflow_job__job__job_name'])]
+        runjob_id = str(i_runjob_value['uuid'])
+        task.preconfigure(runjob_id)
     interactive_runjobs.update(ready_for_input=True)
 
 
