@@ -5,10 +5,10 @@ from rodan.jobs.util import taskutil
 from rodan.models.runjob import RunJob, RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.neon.utils import live_mei_path, backup_mei_path, live_mei_directory, compressed_image_path
-from rodan.jobs.base import RodanJob
+from rodan.jobs.base import RodanTask
 
 
-class PitchCorrectionTask(RodanJob):
+class PitchCorrectionTask(RodanTask):
     max_retries = None
     name = "neon.pitch_correction"
     settings = []   # This job really doesn't have any settings.

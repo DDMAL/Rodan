@@ -11,10 +11,10 @@ from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.jobs.gamera import argconvert
 from rodan.jobs.util import taskutil
-from rodan.jobs.base import RodanJob
+from rodan.jobs.base import RodanTask
 
 
-class GameraTask(RodanJob):
+class GameraTask(RodanTask):
     max_retries = None
     on_success = taskutil.default_on_success
     on_failure = taskutil.default_on_failure

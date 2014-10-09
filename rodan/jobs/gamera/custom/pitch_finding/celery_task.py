@@ -18,7 +18,7 @@ from rodan.jobs.util import taskutil
 from rodan.jobs.gamera.custom.pitch_finding.AomrObject import AomrObject
 from rodan.jobs.gamera.custom.pitch_finding.AomrMeiOutput import AomrMeiOutput
 from rodan.jobs.gamera.custom.pitch_finding.AomrExceptions import AomrUnableToFindStavesError
-from rodan.jobs.base import RodanJob
+from rodan.jobs.base import RodanTask
 
 init_gamera()
 
@@ -27,7 +27,7 @@ init_gamera()
 # Most probably these will be taken care of after July 1.
 
 
-class PitchFindingTask(RodanJob):
+class PitchFindingTask(RodanTask):
     max_retries = None
     name = 'gamera.custom.pitch_finding.find_pitches'
     settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [ResourceType.ONEBIT]},

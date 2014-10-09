@@ -2,10 +2,10 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.jobs.util import taskutil
 from gamera.core import init_gamera, load_image
-from rodan.jobs.base import RodanJob
+from rodan.jobs.base import RodanTask
 
 
-class GameraCustomTask(RodanJob):
+class GameraCustomTask(RodanTask):
     max_retries = None
     name = "gamera_custom_task__no_job_name_provided"
     settings = []

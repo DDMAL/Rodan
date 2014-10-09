@@ -6,7 +6,7 @@ from rodan.helpers.processed import processed
 from django.conf import settings as rodan_settings
 
 
-class RodanJob(Task):
+class RodanTask(Task):
     def run(self, runjob_id):
         raise NotImplementedError()
     def error_information(self, exc, traceback):

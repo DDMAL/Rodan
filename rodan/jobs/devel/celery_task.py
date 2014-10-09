@@ -2,9 +2,9 @@ import os, sys
 from celery import task
 from django.core.files import File
 from rodan.models import Input, Output
-from rodan.jobs.base import RodanJob
+from rodan.jobs.base import RodanTask
 
-class dummy_automatic_job(RodanJob):
+class dummy_automatic_job(RodanTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
     def run(self, runjob_id):
         inputs = Input.objects.filter(run_job__pk=runjob_id)
@@ -22,7 +22,7 @@ class dummy_automatic_job(RodanJob):
                 'error_details': ''
             }
 
-class dummy_manual_job(RodanJob):
+class dummy_manual_job(RodanTask):
     name = "rodan.jobs.devel.dummy_manual_job"
     def run(self, runjob_id):
         inputs = Input.objects.filter(run_job__pk=runjob_id)
