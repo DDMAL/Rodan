@@ -2,8 +2,8 @@ from celery import registry, task
 from rodan.models import RunJob, Resource
 from rodan.models.runjob import RunJobStatus
 
-@task(name='rodan.jobs.RodanMaster.rodan_master')
-def rodan_master(workflow_run_id):
+@task(name='rodan.jobs.master_task.master_task')
+def master_task(workflow_run_id):
     # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
 
     # preconfigure interactive runjobs and set them ready for input
@@ -38,6 +38,6 @@ def rodan_master(workflow_run_id):
             runjob_query = RunJob.objects.filter(uuid=rj_value['uuid'])
 
             runjob_query.update(status=RunJobStatus.RUNNING)  # in test, tasks are executed synchronously, therefore update the status before dispatching the task
-            async_task = (task.s(runjob_id) | rodan_master.si(workflow_run_id)).apply_async()
+            async_task = (task.s(runjob_id) | master_task.si(workflow_run_id)).apply_async()
             runjob_query.update(celery_task_id=async_task.task_id)
         return True

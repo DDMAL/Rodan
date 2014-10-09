@@ -28,7 +28,7 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPa
 from rodan.serializers.runjob import ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
-from rodan.jobs.RodanMaster import rodan_master
+from rodan.jobs.master_task import master_task
 
 
 class WorkflowRunList(generics.ListCreateAPIView):
@@ -226,7 +226,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
 
         self._create_workflow_run(workflow_obj, workflow_run)
-        rodan_master.apply_async((workflow_run_id,))
+        master_task.apply_async((workflow_run_id,))
 
         return created_wfrun
 

@@ -7,7 +7,7 @@ from rest_framework import status
 from rodan.models import RunJob
 from rodan.models import Result
 
-from rodan.jobs.RodanMaster import rodan_master
+from rodan.jobs.master_task import master_task
 
 class RodanInteractiveBaseView(View):
     view_url = ""
@@ -46,7 +46,6 @@ class RodanInteractiveBaseView(View):
 
         rj_uuid = request.POST['run_job_uuid']
         runjob = RunJob.objects.get(uuid=rj_uuid)
-
         if not runjob.needs_input or not runjob.ready_for_input:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
@@ -58,8 +57,8 @@ class RodanInteractiveBaseView(View):
         runjob.ready_for_input = False
         runjob.save()
 
-        # call rodan_master to continue workflowrun
-        rodan_master.apply_async((runjob.workflow_run.uuid,))
+        # call master_task to continue workflowrun
+        master_task.apply_async((runjob.workflow_run.uuid,))
 
         return render(request, 'jobs/job_input_done.html')
 
