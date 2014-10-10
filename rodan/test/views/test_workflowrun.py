@@ -24,7 +24,7 @@ from rodan.models.resource import upload_path
 
 class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
-        self.setUp_dummy_workflow()
+        self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -63,9 +63,9 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
 
 
-class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
-        self.setUp_dummy_workflow()
+        self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -142,28 +142,267 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-
-"""
-    def test_get_detail(self):
-        response = self.client.get("/workflowrun/eb4b3661be2a44908c4c932b0783bb3e/")
+class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    "Test workflowrun creation and execution with a complex workflow."
+    def setUp(self):
+        self.setUp_complex_dummy_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-"""
 
-"""
-_threads = {}
+    def test_creation(self):
+        # Workflowrun will not be executed as RabbitMQ and Celery are not running.
+        # But the Workflowrun is created.
+        workflowrun_obj = {
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+        }
+        import socket
+        try:
+            response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        except socket.error as e:  # RabbitMQ not running
+            pass
 
-def setUpModule():
-    _threads['celery'] = CeleryWorkerThread()
-    _threads['celery'].daemon = True
-    _threads['celery'].start()
+        len_rc = len(self.test_resourcecollection)
+        self.assertEqual(self.test_wfjob_A.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_B.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_D.run_jobs.count(), len_rc)
+        self.assertEqual(self.test_wfjob_E.run_jobs.count(), len_rc)
 
-    # Wait for the worker to be ready
-    _threads['celery'].is_ready.wait()
-    if _threads['celery'].error:
-        raise _threads['celery'].error
+        self.assertEqual(self.test_Aip.inputs.count(), 1)
+        self.assertEqual(self.test_Aop.outputs.count(), 1)
+        self.assertEqual(self.test_Bop.outputs.count(), 1)
+        self.assertEqual(self.test_Cip1.inputs.count(), 1)
+        self.assertEqual(self.test_Cip2.inputs.count(), 1)
+        self.assertEqual(self.test_Cop1.outputs.count(), 1)
+        self.assertEqual(self.test_Cop2.outputs.count(), 1)
+        self.assertEqual(self.test_Dip1.inputs.count(), len_rc)
+        self.assertEqual(self.test_Dip2.inputs.count(), len_rc)
+        self.assertEqual(self.test_Dop.outputs.count(), len_rc)
+        self.assertEqual(self.test_Eip1.inputs.count(), len_rc)
+        self.assertEqual(self.test_Eip2.inputs.count(), len_rc)
+        self.assertEqual(self.test_Eop.outputs.count(), len_rc)
+
+        def same_resources(queryA, queryB):
+            return set(queryA.values_list('resource__uuid', flat=True)) == set(queryB.values_list('resource__uuid', flat=True))
+        self.assertTrue(same_resources(self.test_Aop.outputs, self.test_Cip1.inputs))
+        self.assertTrue(same_resources(self.test_Bop.outputs, self.test_Cip2.inputs))
+        self.assertTrue(same_resources(self.test_Cop1.outputs, self.test_Dip2.inputs))
+        self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Eip1.inputs))
+
+        self.assertEqual(
+            set(self.test_Aip.inputs.values_list('resource__uuid', flat=True)),
+            set([self.test_resource.uuid])
+        )
+        self.assertEqual(
+            set(self.test_Eip2.inputs.values_list('resource__uuid', flat=True)),
+            set([self.test_resource.uuid])
+        )
+        self.assertEqual(
+            set(self.test_Dip1.inputs.values_list('resource__uuid', flat=True)),
+            set(map(lambda res: res.uuid, self.test_resourcecollection))
+        )
+
+        rjA = self.test_wfjob_A.run_jobs.first()
+        rjB = self.test_wfjob_B.run_jobs.first()
+        rjC = self.test_wfjob_C.run_jobs.first()
+        rjDs = self.test_wfjob_D.run_jobs.all()
+        rjEs = self.test_wfjob_E.run_jobs.all()
+
+        self.assertFalse(rjA.needs_input)
+        self.assertFalse(rjA.ready_for_input)
+        self.assertTrue(rjB.needs_input)
+        self.assertFalse(rjB.ready_for_input)
+        self.assertFalse(rjC.needs_input)
+        self.assertFalse(rjC.ready_for_input)
+        for rjDi in rjDs:
+            self.assertTrue(rjDi.needs_input)
+            self.assertFalse(rjDi.ready_for_input)
+        for rjEi in rjEs:
+            self.assertFalse(rjEi.needs_input)
+            self.assertFalse(rjEi.ready_for_input)
 
 
-def tearDownModule():
-    if 'celery' in _threads:
-        _threads['celery'].join(5)
-"""
+    def test_execution(self):
+        with self.settings(CELERY_ALWAYS_EAGER=True,
+                           CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task locally
+            workflowrun_obj = {
+                'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+                'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            }
+            response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            rjA = self.test_wfjob_A.run_jobs.first()
+            rjB = self.test_wfjob_B.run_jobs.first()
+            rjC = self.test_wfjob_C.run_jobs.first()
+            rjDs = self.test_wfjob_D.run_jobs.all()
+            rjEs = self.test_wfjob_E.run_jobs.all()
+
+            Aout = self.test_Aop.outputs.first()
+            Bout = self.test_Bop.outputs.first()
+            Cout1 = self.test_Cop1.outputs.first()
+            Cout2 = self.test_Cop2.outputs.first()
+            Douts = self.test_Dop.outputs.all()
+            Eouts = self.test_Eop.outputs.all()
+
+            Ain = self.test_Aip.inputs.first()
+            Cin1 = self.test_Cip1.inputs.first()
+            Cin2 = self.test_Cip2.inputs.first()
+            Din1s = self.test_Dip1.inputs.all()
+            Din2s = self.test_Dip2.inputs.all()
+            Ein1s = self.test_Eip1.inputs.all()
+            Ein2s = self.test_Eip2.inputs.all()
+
+
+            self.assertEqual(rjA.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjB.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjB.ready_for_input, True)
+            self.assertEqual(rjC.status, RunJobStatus.NOT_RUNNING)
+            for rjDi in rjDs:
+                self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+            for rjEi in rjEs:
+                self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+
+            self.assertTrue(Aout.resource.compat_resource_file)
+            self.assertFalse(Bout.resource.compat_resource_file)
+            self.assertFalse(Cout1.resource.compat_resource_file)
+            self.assertFalse(Cout2.resource.compat_resource_file)
+            for Douti in Douts:
+                self.assertFalse(Douti.resource.compat_resource_file)
+            for Eouti in Eouts:
+                self.assertFalse(Eouti.resource.compat_resource_file)
+
+
+            # Work with RunJob B
+            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjB.uuid)})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            ## refetch
+            rjA = self.test_wfjob_A.run_jobs.first()
+            rjB = self.test_wfjob_B.run_jobs.first()
+            rjC = self.test_wfjob_C.run_jobs.first()
+            rjDs = self.test_wfjob_D.run_jobs.all()
+            rjEs = self.test_wfjob_E.run_jobs.all()
+
+            Aout = self.test_Aop.outputs.first()
+            Bout = self.test_Bop.outputs.first()
+            Cout1 = self.test_Cop1.outputs.first()
+            Cout2 = self.test_Cop2.outputs.first()
+            Douts = self.test_Dop.outputs.all()
+            Eouts = self.test_Eop.outputs.all()
+
+            Ain = self.test_Aip.inputs.first()
+            Cin1 = self.test_Cip1.inputs.first()
+            Cin2 = self.test_Cip2.inputs.first()
+            Din1s = self.test_Dip1.inputs.all()
+            Din2s = self.test_Dip2.inputs.all()
+            Ein1s = self.test_Eip1.inputs.all()
+            Ein2s = self.test_Eip2.inputs.all()
+
+            self.assertEqual(rjB.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjB.needs_input, False)
+            self.assertEqual(rjB.ready_for_input, False)
+            self.assertEqual(rjC.status, RunJobStatus.HAS_FINISHED)
+            for rjDi in rjDs:
+                self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+            for rjEi in rjEs:
+                self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+
+            self.assertTrue(Bout.resource.compat_resource_file)
+            self.assertTrue(Cout1.resource.compat_resource_file)
+            self.assertTrue(Cout2.resource.compat_resource_file)
+            for Douti in Douts:
+                self.assertFalse(Douti.resource.compat_resource_file)
+            for Eouti in Eouts:
+                self.assertFalse(Eouti.resource.compat_resource_file)
+
+            # Work with one of RunJob D
+            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDs[0].uuid)})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+            ## refetch
+            rjA = self.test_wfjob_A.run_jobs.first()
+            rjB = self.test_wfjob_B.run_jobs.first()
+            rjC = self.test_wfjob_C.run_jobs.first()
+            rjDs = self.test_wfjob_D.run_jobs.all()
+            rjEs = self.test_wfjob_E.run_jobs.all()
+
+            Aout = self.test_Aop.outputs.first()
+            Bout = self.test_Bop.outputs.first()
+            Cout1 = self.test_Cop1.outputs.first()
+            Cout2 = self.test_Cop2.outputs.first()
+            Douts = self.test_Dop.outputs.all()
+            Eouts = self.test_Eop.outputs.all()
+
+            Ain = self.test_Aip.inputs.first()
+            Cin1 = self.test_Cip1.inputs.first()
+            Cin2 = self.test_Cip2.inputs.first()
+            Din1s = self.test_Dip1.inputs.all()
+            Din2s = self.test_Dip2.inputs.all()
+            Ein1s = self.test_Eip1.inputs.all()
+            Ein2s = self.test_Eip2.inputs.all()
+
+            rjD0 = rjDs[0]
+            rjDremain = rjDs[1:]
+
+            Dout0 = rjD0.outputs.get(output_port__output_port_type__name='out_typeA')
+            rjE0 = Dout0.resource.inputs.all()[0].run_job
+            Eout0 = rjE0.outputs.get(output_port__output_port_type__name='out_typeA')
+            self.assertEqual(rjD0.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjD0.needs_input, False)
+            self.assertEqual(rjD0.ready_for_input, False)
+            self.assertTrue(Dout0.resource.compat_resource_file)
+            self.assertEqual(rjE0.status, RunJobStatus.HAS_FINISHED)
+            self.assertTrue(Eout0.resource.compat_resource_file)
+
+            for rjDi in rjDremain:
+                Douti = rjDi.outputs.get(output_port__output_port_type__name='out_typeA')
+                rjEi = Douti.resource.inputs.all()[0].run_job
+                Eouti = rjEi.outputs.get(output_port__output_port_type__name='out_typeA')
+                self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+                self.assertEqual(rjDi.needs_input, True)
+                self.assertEqual(rjDi.ready_for_input, True)
+                self.assertFalse(Douti.resource.compat_resource_file)
+                self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+                self.assertFalse(Eouti.resource.compat_resource_file)
+
+            # Work with all Runjob Ds
+            ## refetch
+            rjA = self.test_wfjob_A.run_jobs.first()
+            rjB = self.test_wfjob_B.run_jobs.first()
+            rjC = self.test_wfjob_C.run_jobs.first()
+            rjDs = self.test_wfjob_D.run_jobs.all()
+            rjEs = self.test_wfjob_E.run_jobs.all()
+
+            Aout = self.test_Aop.outputs.first()
+            Bout = self.test_Bop.outputs.first()
+            Cout1 = self.test_Cop1.outputs.first()
+            Cout2 = self.test_Cop2.outputs.first()
+            Douts = self.test_Dop.outputs.all()
+            Eouts = self.test_Eop.outputs.all()
+
+            Ain = self.test_Aip.inputs.first()
+            Cin1 = self.test_Cip1.inputs.first()
+            Cin2 = self.test_Cip2.inputs.first()
+            Din1s = self.test_Dip1.inputs.all()
+            Din2s = self.test_Dip2.inputs.all()
+            Ein1s = self.test_Eip1.inputs.all()
+            Ein2s = self.test_Eip2.inputs.all()
+
+            for rjDi in rjDremain:
+                response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDi.uuid)})
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            for rjDi in rjDs:
+                self.assertEqual(rjDi.status, RunJobStatus.HAS_FINISHED)
+                self.assertEqual(rjDi.needs_input, False)
+                self.assertEqual(rjDi.ready_for_input, False)
+            for Douti in Douts:
+                self.assertTrue(Douti.resource.compat_resource_file)
+            for rjEi in rjEs:
+                self.assertEqual(rjEi.status, RunJobStatus.HAS_FINISHED)
+            for Eouti in Eouts:
+                self.assertTrue(Douti.resource.compat_resource_file)

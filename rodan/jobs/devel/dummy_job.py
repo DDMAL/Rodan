@@ -18,19 +18,27 @@ def load_dummy_automatic_job():
                 )
         j.save()
 
-        ipt = InputPortType(job=j,
-                            name='dummy input port type',
-                            resource_type=ResourceType.IMAGE_TYPES,
-                            minimum=1,
-                            maximum=1)
-        ipt.save()
+        InputPortType(job=j,
+                      name='in_typeA',
+                      resource_type=ResourceType.IMAGE_TYPES,
+                      minimum=0,
+                      maximum=10).save()
+        InputPortType(job=j,
+                      name='in_typeB',
+                      resource_type=ResourceType.IMAGE_TYPES,
+                      minimum=0,
+                      maximum=10).save()
 
-        opt = OutputPortType(job=j,
-                             name='dummy output port type',
-                             resource_type=ResourceType.IMAGE_TYPES,
-                             minimum=1,
-                             maximum=1)
-        opt.save()
+        OutputPortType(job=j,
+                       name='out_typeA',
+                       resource_type=ResourceType.IMAGE_TYPES,
+                       minimum=0,
+                       maximum=10).save()
+        OutputPortType(job=j,
+                       name='out_typeB',
+                       resource_type=ResourceType.IMAGE_TYPES,
+                       minimum=0,
+                       maximum=10).save()
 
 
 def load_dummy_manual_job():
@@ -47,16 +55,24 @@ def load_dummy_manual_job():
                 )
         j.save()
 
-        ipt = InputPortType(job=j,
-                            name='dummy input port type',
-                            resource_type=ResourceType.IMAGE_TYPES,
-                            minimum=1,
-                            maximum=1)
-        ipt.save()
+        InputPortType(job=j,
+                      name='in_typeA',
+                      resource_type=ResourceType.IMAGE_TYPES,
+                      minimum=0,
+                      maximum=10).save()
+        InputPortType(job=j,
+                      name='in_typeB',
+                      resource_type=ResourceType.IMAGE_TYPES,
+                      minimum=0,
+                      maximum=10).save()
 
-        opt = OutputPortType(job=j,
-                             name='dummy output port type',
-                             resource_type=ResourceType.IMAGE_TYPES,
-                             minimum=1,
-                             maximum=1)
-        opt.save()
+        OutputPortType(job=j,
+                       name='out_typeA',
+                       resource_type=ResourceType.IMAGE_TYPES,
+                       minimum=0,
+                       maximum=10).save()
+        OutputPortType(job=j,
+                       name='out_typeB',
+                       resource_type=ResourceType.IMAGE_TYPES,
+                       minimum=0,
+                       maximum=10).save()

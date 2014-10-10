@@ -11,13 +11,16 @@ class dummy_automatic_job(RodanTask):
         for ipt_name in inputs:
             for input in inputs[ipt_name]:
                 in_resources.append(input['resource_path'])
-
         for opt_name in outputs:
             for output in outputs[opt_name]:
-                with open(in_resources[0], 'r') as f:
-                    if 'fail' in f.read():
-                        raise Exception('dummy automatic job error')
-                shutil.copyfile(in_resources[0], output['resource_path'])
+                if len(in_resources) > 0:
+                    with open(in_resources[0], 'r') as f:
+                        if 'fail' in f.read():
+                            raise Exception('dummy manual job error')
+                    shutil.copyfile(in_resources[0], output['resource_path'])
+                else:
+                    with open(output['resource_path'], 'w') as g:
+                        g.write('dummy')
 
     def error_information(self, exc, traceback):
         return {'error_summary': "dummy automatic job error",
@@ -34,10 +37,14 @@ class dummy_manual_job(RodanTask):
 
         for opt_name in outputs:
             for output in outputs[opt_name]:
-                with open(in_resources[0], 'r') as f:
-                    if 'fail' in f.read():
-                        raise Exception('dummy automatic job error')
-                shutil.copyfile(in_resources[0], output['resource_path'])
+                if len(in_resources) > 0:
+                    with open(in_resources[0], 'r') as f:
+                        if 'fail' in f.read():
+                            raise Exception('dummy manual job error')
+                    shutil.copyfile(in_resources[0], output['resource_path'])
+                else:
+                    with open(output['resource_path'], 'w') as g:
+                        g.write('dummy')
 
     def error_information(self, exc, traceback):
         return {'error_summary': "dummy manual job error",
