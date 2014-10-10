@@ -20,7 +20,7 @@ class RodanTask(Task):
         temp_dir = tempfile.mkdtemp()
         outputs = self._outputs(runjob_id, temp_dir)
 
-        # build argument for my_run and mapping dictionary
+        # build argument for run_my_task and mapping dictionary
         arg_outputs = {}
         temppath_map = {}
         for opt_name, output_list in outputs.iteritems():
@@ -32,7 +32,7 @@ class RodanTask(Task):
                     'resource_type': output['resource_type']
                 })
                 temppath_map[output['resource_temp_path']] = output
-        retval = self.my_run(inputs, settings, arg_outputs)
+        retval = self.run_my_task(inputs, settings, arg_outputs)
 
         # save outputs
         for temppath, output in temppath_map.iteritems():
@@ -44,17 +44,21 @@ class RodanTask(Task):
         shutil.rmtree(temp_dir)
         return retval
 
-    def my_run(self, inputs, settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
 
-    def my_error_information(self, exc, traceback):
+    def error_information(self, exc, traceback):
         raise NotImplementedError()
 
     def preconfigure(self, runjob_id):
-        "Preconfigure a manual task with respect to input resources."
+        """
+        Preconfigure a manual task with respect to input resources.
+        """
         settings = RunJob.objects.get(uuid=runjob_id).job_settings
+        if not isinstance(settings, dict):
+            settings = {}
         inputs = self._inputs(runjob_id)
-        updates = self.my_preconfigure(inputs, settings)
+        updates = self.preconfigure_my_task(inputs, settings)
         if not isinstance(updates, dict):
             updates = {}
         while updates:
@@ -63,8 +67,11 @@ class RodanTask(Task):
                 if setting['name'] == new_setting_name:
                     setting['default'] = new_value
         RunJob.objects.filter(uuid=runjob_id).update(job_settings=settings)
-    def my_preconfigure(self, inputs, settings={}):
-        # should return an dictionary
+    def preconfigure_my_task(self, inputs, settings):
+        """
+        This method returns a name-value dictionary of updates
+        to preconfigure some of the settings in runjob.
+        """
         return {}
 
     def on_success(self, retval, task_id, args, kwargs):
@@ -91,13 +98,13 @@ class RodanTask(Task):
         # If any StandardError is raised in the process of retrieving the
         # values, the default values are used for both fields.
         try:
-            err_info = self.my_error_information(exc, einfo.traceback)
+            err_info = self.error_information(exc, einfo.traceback)
             err_summary = err_info['error_summary']
             err_details = err_info['error_details']
             if rodan_settings.TRACEBACK_IN_ERROR_DETAIL:
                 err_details = str(err_details) + "\n\n" + str(einfo.traceback)
         except Exception as e:
-            print "The my_error_information method is not implemented properly (or not implemented at all). Exception: "
+            print "The error_information method is not implemented properly (or not implemented at all). Exception: "
             print "%s: %s" % (e.__class__.__name__, e.__str__())
             print "Using default sources for error information."
             err_summary = exc.__class__.__name__

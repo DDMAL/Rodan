@@ -6,7 +6,7 @@ from rodan.jobs.base import RodanTask
 
 class dummy_automatic_job(RodanTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
-    def my_run(self, inputs, settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         in_resources = []
         for ipt_name in inputs:
             for input in inputs[ipt_name]:
@@ -19,14 +19,14 @@ class dummy_automatic_job(RodanTask):
                         raise Exception('dummy automatic job error')
                 shutil.copyfile(in_resources[0], output['resource_path'])
 
-    def my_error_information(self, exc, traceback):
+    def error_information(self, exc, traceback):
         return {'error_summary': "dummy automatic job error",
                 'error_details': ''
             }
 
 class dummy_manual_job(RodanTask):
     name = "rodan.jobs.devel.dummy_manual_job"
-    def my_run(self, inputs, settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         in_resources = []
         for ipt_name in inputs:
             for input in inputs[ipt_name]:
@@ -39,7 +39,7 @@ class dummy_manual_job(RodanTask):
                         raise Exception('dummy automatic job error')
                 shutil.copyfile(in_resources[0], output['resource_path'])
 
-    def my_error_information(self, exc, traceback):
+    def error_information(self, exc, traceback):
         return {'error_summary': "dummy manual job error",
                 'error_details': ''
             }
