@@ -7,8 +7,8 @@ class Input(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    input_port = models.ForeignKey('rodan.InputPort')
-    resource = models.ForeignKey('rodan.Resource')
+    input_port = models.ForeignKey('rodan.InputPort', related_name='inputs')
+    resource = models.ForeignKey('rodan.Resource', related_name='inputs')
     run_job = models.ForeignKey('rodan.RunJob', related_name='inputs')
 
     def __unicode__(self):

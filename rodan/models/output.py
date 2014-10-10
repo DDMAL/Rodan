@@ -7,9 +7,9 @@ class Output(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    output_port = models.ForeignKey('rodan.OutputPort')
+    output_port = models.ForeignKey('rodan.OutputPort', related_name='outputs')
     run_job = models.ForeignKey('rodan.RunJob', related_name='outputs')
-    resource = models.ForeignKey('rodan.Resource')
+    resource = models.ForeignKey('rodan.Resource', related_name='outputs')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
