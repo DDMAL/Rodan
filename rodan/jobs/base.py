@@ -50,29 +50,6 @@ class RodanTask(Task):
     def error_information(self, exc, traceback):
         raise NotImplementedError()
 
-    def preconfigure(self, runjob_id):
-        """
-        Preconfigure a manual task with respect to input resources.
-        """
-        settings = RunJob.objects.get(uuid=runjob_id).job_settings
-        if not isinstance(settings, dict):
-            settings = {}
-        inputs = self._inputs(runjob_id)
-        updates = self.preconfigure_my_task(inputs, settings)
-        if not isinstance(updates, dict):
-            updates = {}
-        while updates:
-            new_setting_name, new_value = updates.popitem()
-            for setting in settings:
-                if setting['name'] == new_setting_name:
-                    setting['default'] = new_value
-        RunJob.objects.filter(uuid=runjob_id).update(job_settings=settings)
-    def preconfigure_my_task(self, inputs, settings):
-        """
-        This method returns a name-value dictionary of updates
-        to preconfigure some of the settings in runjob.
-        """
-        return {}
 
     def on_success(self, retval, task_id, args, kwargs):
         RunJob.objects.filter(pk=args[0]).update(status=RunJobStatus.HAS_FINISHED,
