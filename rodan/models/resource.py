@@ -81,14 +81,13 @@ class Resource(models.Model):
         return os.path.join(self.project.project_path, "resources", str(self.uuid))
 
     def __unicode__(self):
-        if self.resource_file:
-            return u"<Resource {0}>".format(self.resource_file.name)
+        return u"<Resource {0}>".format(self.uuid)
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     project = models.ForeignKey('rodan.Project', related_name="resources")
-    resource_file = models.FileField(upload_to=upload_path, null=True, max_length=255)
-    compat_resource_file = models.FileField(upload_to=compat_path, null=True, blank=True, max_length=255)
+    resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
+    compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
     resource_type = models.IntegerField(choices=ResourceType.choices, default=-1, null=True, blank=True)
     processed = models.BooleanField(default=False)
 
