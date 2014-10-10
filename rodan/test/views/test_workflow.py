@@ -154,21 +154,20 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         project = mommy.make('rodan.Project')
         resource = mommy.make('rodan.Resource',
                               project=project,  # != self.project
-                              processed=True)
+                              compat_resource_file="dummy")
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
         anticipated_message = {'message': 'The resource {0} is not in the project'.format(resource.name)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
-    def test_resourceassignment__resource_not_processed(self):
+    def test_resourceassignment__resource_null_compat_resource_file(self):
         resource = mommy.make('rodan.Resource',
-                              project=self.test_project,
-                              processed=False)
+                              project=self.test_project)
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The resource {0} has not been processed'.format(resource.name)}
+        anticipated_message = {'message': 'The compatible resource file of resource {0} is not ready'.format(resource.name)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__no_resources(self):
@@ -183,7 +182,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         res = mommy.make('rodan.Resource',
                          project=self.test_project,
                          resource_type=-1,
-                         processed=True)
+                         compat_resource_file="dummy")
         ra.resources.add(res)
 
         response = self._validate(self.test_workflow.uuid)

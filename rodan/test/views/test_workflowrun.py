@@ -74,8 +74,6 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
     def test_successful_execution(self):
         with self.settings(CELERY_ALWAYS_EAGER=True,
                            CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task locally
-
-            self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
             workflowrun_obj = {
@@ -102,7 +100,6 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
     def test_failed_execution(self):
         with self.settings(CELERY_ALWAYS_EAGER=True):  # run celery task locally
-            self.test_resource.resource_file.save('dummy.txt', ContentFile('will fail'))
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
             workflowrun_obj = {
                 'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
@@ -124,7 +121,6 @@ class WorkflowRunExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
     def test_cancel(self):
         with self.settings(CELERY_ALWAYS_EAGER=True,
                            CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task locally
-            self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
             workflowrun_obj = {
                 'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
