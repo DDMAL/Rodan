@@ -74,9 +74,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
         else:
             self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None)
 
-    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, resource):
+    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, arg_resource):
         for wfjob in endpoint_workflowjobs:
-            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run, resource)
+            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run, arg_resource)
 
         workflow_job_iteration = {}
 
@@ -87,7 +87,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             if wfjob not in singleton_workflowjobs:
                 del workflowjob_runjob_map[wfjob]
 
-    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, resource):
+    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, arg_resource):
         if wfjob_A in workflowjob_runjob_map:
             return workflowjob_runjob_map[wfjob_A]
 
@@ -97,7 +97,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
-            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, resource)
+            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, arg_resource)
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
@@ -119,7 +119,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             if ra:
                 if ra.resources.count() > 1:
-                    entry_res = resource
+                    entry_res = arg_resource
                 else:
                     entry_res = ra.resources.first()
 
