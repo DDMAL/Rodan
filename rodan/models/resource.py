@@ -98,8 +98,6 @@ class Resource(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if self.name:
-            self.resource_type = ResourceType.guess(self.name)
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
             os.makedirs(self.resource_path)
