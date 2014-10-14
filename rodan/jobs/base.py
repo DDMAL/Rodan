@@ -1,7 +1,7 @@
 import tempfile, shutil, os, uuid, copy
 from celery import Task
 from rodan.models.runjob import RunJobStatus
-from rodan.models import RunJob, Input, Output
+from rodan.models import RunJob, Input, Output, Resource
 from rodan.jobs.util import taskutil
 from rodan.helpers.thumbnails import create_thumbnails
 from rodan.helpers.processed import processed
@@ -37,9 +37,11 @@ class RodanTask(Task):
         # save outputs
         for temppath, output in temppath_map.iteritems():
             with open(temppath, 'rb') as f:
-                # TODO: there would be race condition
                 o = Output.objects.get(uuid=output['uuid'])
-                o.resource.compat_resource_file.save(temppath, File(f)) # Django will resolve the path according to upload_to
+                o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                path = o.resource.compat_resource_file.path
+                res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
+                res_query.update(compat_resource_file=path)
 
         shutil.rmtree(temp_dir)
         return retval
