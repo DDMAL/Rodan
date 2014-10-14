@@ -136,9 +136,9 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             resources = ra.resources.all()
             for res in resources:
                 if res.project.uuid != ra.input_port.workflow_job.workflow.project.uuid:
-                    raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.name)}, status=status.HTTP_409_CONFLICT))
+                    raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
                 if not res.compat_resource_file:
-                    raise WorkflowValidationError(response=Response({'message': 'The compatible resource file of resource {0} is not ready'.format(res.name)}, status=status.HTTP_409_CONFLICT))
+                    raise WorkflowValidationError(response=Response({'message': 'The compatible resource file of resource {0} is not ready'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
                 if res.resource_type not in type_of_ip:
                     raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
