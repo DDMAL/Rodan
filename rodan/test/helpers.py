@@ -137,8 +137,11 @@ class RodanTestSetUpMixin(object):
         self.test_resourcecollection = mommy.make('rodan.Resource', _quantity=10,
                                                   project=self.test_project,
                                                   resource_type=0)
-        for res in self.test_resourcecollection:
+        for index, res in enumerate(self.test_resourcecollection):
+            res.name = str(index) # 0 to 9
+            res.save()
             res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+
         self.test_resource = mommy.make('rodan.Resource',
                                         project=self.test_project,
                                         resource_type=0)

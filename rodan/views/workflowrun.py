@@ -91,7 +91,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if wfjob_A in workflowjob_runjob_map:
             return workflowjob_runjob_map[wfjob_A]
 
-        runjob_A = self._create_runjob_A(wfjob_A, workflow_run)
+        runjob_A = self._create_runjob_A(wfjob_A, workflow_run, arg_resource)
 
         incoming_connections = Connection.objects.filter(input_port__workflow_job=wfjob_A)
 
@@ -131,7 +131,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         workflowjob_runjob_map[wfjob_A] = runjob_A
         return runjob_A
 
-    def _create_runjob_A(self, wfjob, workflow_run):
+    def _create_runjob_A(self, wfjob, workflow_run, arg_resource):
         interactive = wfjob.job.interactive
         run_job = RunJob(workflow_job=wfjob,
                          workflow_run=workflow_run,
@@ -150,6 +150,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
                             resource=resource)
             output.save()
 
+            if arg_resource:   # resource collection identifier
+                resource.name = arg_resource.name
             resource.origin = output
             resource.save()
 

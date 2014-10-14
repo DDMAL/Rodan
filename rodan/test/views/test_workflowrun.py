@@ -204,6 +204,19 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             set(map(lambda res: res.uuid, self.test_resourcecollection))
         )
 
+        # names for resource collection
+        rc_names_set = set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+        Do_names_set = set([])
+        for output in self.test_Dop.outputs.all():
+            Do_names_set.add(output.resource.name)
+        self.assertEqual(rc_names_set, Do_names_set)
+
+        Eo_names_set = set([])
+        for output in self.test_Eop.outputs.all():
+            Eo_names_set.add(output.resource.name)
+        self.assertEqual(rc_names_set, Eo_names_set)
+
+        # automatic and manual
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
         rjC = self.test_wfjob_C.run_jobs.first()
