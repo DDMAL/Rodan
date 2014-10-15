@@ -4,12 +4,12 @@ from rodan.jobs.gamera.celery_task import GameraTask
 from rodan.models.resource import Resource
 from StringIO import StringIO
 from model_mommy import mommy
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
-class GameraTaskTestCase(APITestCase):
-    fixtures = ['1_users', '3_jobs']
-
+class GameraTaskTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_user()
         self.client.login(username="ahankins", password="hahaha")
         file_obj = StringIO()
         image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))

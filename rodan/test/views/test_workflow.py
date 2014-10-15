@@ -158,7 +158,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The resource {0} is not in the project'.format(resource.name)}
+        anticipated_message = {'message': 'The resource {0} is not in the project'.format(resource.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__resource_null_compat_resource_file(self):
@@ -167,7 +167,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The compatible resource file of resource {0} is not ready'.format(resource.name)}
+        anticipated_message = {'message': 'The compatible resource file of resource {0} is not ready'.format(resource.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__no_resources(self):
