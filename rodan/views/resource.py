@@ -1,4 +1,3 @@
-import celery
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
@@ -6,15 +5,10 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
-from rodan.models.runjob import RunJob
-from rodan.models.project import Project
-from rodan.models.output import Output
-from rodan.models.resource import Resource, upload_path
+from rodan.models import RunJob, Project, Output, Resource, ResourceType
+from rodan.models.resource import upload_path
 from rodan.serializers.resource import ResourceSerializer
-from rodan.helpers.convert import ensure_compatible
-from rodan.helpers.thumbnails import create_thumbnails
-from rodan.helpers.processed import processed
-from rodan.models.resource import ResourceType
+from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 
 
 class ResourceList(generics.ListCreateAPIView):
@@ -78,13 +72,13 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
-            if run_job:
-                resource_obj.run_job = runjob_obj
-                resource_obj.save()
+            # [TODO]: I think we do not need this?
+            #if run_job:
+            #    resource_obj.run_job = runjob_obj
+            #    resource_obj.save()
 
-            if resource_obj.resource_type in ResourceType.IMAGE_TYPES:
-                res = celery.chain(ensure_compatible.s(resource_obj), create_thumbnails.s(), processed.s())
-                res.apply_async()
+            resource_id = str(resource_obj.uuid)
+            (ensure_compatible.si(resource_id) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj).data

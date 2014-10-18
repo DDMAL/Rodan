@@ -1,10 +1,14 @@
 from model_mommy import mommy
 from django.contrib.auth.models import User
-from rodan.models import Project, Job
+from rodan.models import Project, Job, ResourceType
 from django.core.files.base import ContentFile
 import time
+from rodan.startup import startup
 
 class RodanTestSetUpMixin(object):
+    def setUp_rodan(self):
+        startup()
+
     def setUp_user(self):
         self.test_user = User.objects.create_user(username="ahankins", password="hahaha")
 
@@ -13,26 +17,26 @@ class RodanTestSetUpMixin(object):
         Workflow Graph:
         test_workflowjob => test_workflowjob2
         """
-        self.setUp_user()
 
         self.test_job = mommy.make('rodan.Job')
         self.test_inputporttype = mommy.make('rodan.InputPortType',
                                              maximum=3,
                                              minimum=1,
-                                             job=self.test_job,
-                                             resource_type=[0, 1])
+                                             job=self.test_job)
+        self.test_inputporttype.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
-                                              job=self.test_job,
-                                              resource_type=[0, 1, 2])
+                                              job=self.test_job)
+        self.test_outputporttype.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resources = mommy.make('rodan.Resource', _quantity=10,
                                          project=self.test_project,
-                                         resource_type=0,
                                          compat_resource_file="dummy")
+        for r in self.test_resources:
+            r.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
 
         # build this graph: test_workflowjob --> test_workflowjob2
         self.test_workflowjob = mommy.make('rodan.WorkflowJob',
@@ -64,7 +68,6 @@ class RodanTestSetUpMixin(object):
         Workflow Graph:
         dummy_a_wfjob => dummy_m_wfjob
         """
-        self.setUp_user()
 
         from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
         load_dummy_automatic_job()
@@ -77,8 +80,8 @@ class RodanTestSetUpMixin(object):
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource = mommy.make('rodan.Resource',
                                         project=self.test_project,
-                                        resource_type=0,
                                         compat_resource_file="dummy")
+        self.test_resource.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
 
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
         self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',
@@ -113,7 +116,6 @@ class RodanTestSetUpMixin(object):
         """
         Description of this complex dummy workflow: https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
         """
-        self.setUp_user()
 
         from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
         load_dummy_automatic_job()
@@ -135,18 +137,18 @@ class RodanTestSetUpMixin(object):
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resourcecollection = mommy.make('rodan.Resource', _quantity=10,
-                                                  project=self.test_project,
-                                                  resource_type=0)
+                                                  project=self.test_project)
+        for r in self.test_resourcecollection:
+            r.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
         for index, res in enumerate(self.test_resourcecollection):
             res.name = str(index) # 0 to 9
             res.save()
             res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         self.test_resource = mommy.make('rodan.Resource',
-                                        project=self.test_project,
-                                        resource_type=0)
+                                        project=self.test_project)
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-
+        self.test_resource.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
 
 
         self.test_wfjob_A = mommy.make('rodan.WorkflowJob',

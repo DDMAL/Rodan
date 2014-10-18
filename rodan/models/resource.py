@@ -4,67 +4,15 @@ import shutil
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django_extensions.db.fields import json
 from uuidfield import UUIDField
-
-
-class ResourceType(object):
-    # These pixel types mirror Gamera's pixel types found in the
-    # gamera.enum module
-    ONEBIT = 0
-    GREYSCALE = 1
-    GREY16 = 2
-    RGB = 3
-    FLOAT = 4
-    COMPLEX = 5
-
-    # extra job output types
-    MEI = 6
-    JPEG2000 = 7
-    PACKAGE = 8  # a `package` is used to produce multiple outputs from a single job.
-    GAMERA_XML = 9
-
-    # For now None is considered to be an image type for backwards compatibility.
-    IMAGE_TYPES = (None, ONEBIT, GREYSCALE, GREY16, RGB, FLOAT, COMPLEX)
-
-    NONIMAGE = -1
-
-    choices = ((ONEBIT, 'One bit'),
-               (GREYSCALE, 'Greyscale'),
-               (GREY16, 'Grey16'),
-               (RGB, 'RGB'),
-               (FLOAT, 'Float'),
-               (COMPLEX, 'Complex'),
-               (MEI, 'MEI'),
-               (JPEG2000, 'JPEG2000'),
-               (PACKAGE, 'Package'),
-               (GAMERA_XML, 'Gamera XML'),
-               (NONIMAGE, 'Non-image')
-    )
-
-    @staticmethod
-    def guess(filename):
-        # [TODO]
-        mime_type = mimetypes.guess_type(filename, strict=False)[0]
-        return ResourceType.NONIMAGE
-
-    @staticmethod
-    def get_extension(res_type):
-        # [TODO]
-        return 'png'
-
-    @staticmethod
-    def intersection(typesA, typesB):
-        return set(typesA).intersection(set(typesB))
-
+from django.db.models.signals import m2m_changed
 
 def upload_path(resource, filename):
-    _, ext = os.path.splitext(filename)
-    return os.path.join(resource.resource_path, "original_file{0}".format(ext.lower()))
+    return os.path.join(resource.resource_path, "original_file")
 
 def compat_path(resource, filename):
     _, ext = os.path.splitext(filename)
-    return os.path.join(resource.resource_path, "compat_file{0}".format(ext.lower()))
+    return os.path.join(resource.resource_path, "compat_file")
 
 class Resource(models.Model):
     class Meta:
@@ -88,8 +36,7 @@ class Resource(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
-    resource_type = models.IntegerField(choices=ResourceType.choices, default=-1, null=True, blank=True)
-    processed = models.BooleanField(default=False)
+    resource_types = models.ManyToManyField('rodan.ResourceType', related_name='+')
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)  # no backward reference

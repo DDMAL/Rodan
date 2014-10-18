@@ -47,10 +47,9 @@ IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
 BROKER_CONNECTION_MAX_RETRIES = '0'
 BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
 CELERY_ENABLE_UTC = True
-CELERY_IMPORTS = ("rodan.helpers.thumbnails",
-                  "rodan.helpers.convert",
-                  "rodan.helpers.processed",
+CELERY_IMPORTS = ("rodan.jobs.helpers",
                   "rodan.helpers.resultspackagemanager",
+                  "rodan.jobs.master_task",
                   "rodan.jobs",)
 CELERY_RESULT_BACKEND = "amqp"
 
@@ -66,4 +65,3 @@ CELERY_RESULT_BACKEND = "amqp"
 #    'Set-Cookie',
 #    'Vary'
 #)
-

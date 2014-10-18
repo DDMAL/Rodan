@@ -3,11 +3,12 @@ from django.contrib.auth.models import User
 from rodan.models.workflow import Workflow
 from rodan.models.project import Project
 from model_mommy import mommy
-from rodan.test.helpers import RodanTestTearDownMixin
+from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
-class WorkflowTestCase(RodanTestTearDownMixin, TestCase):
+class WorkflowTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
         self.test_project = mommy.make('rodan.Project')
         self.test_user = mommy.make(User)
 

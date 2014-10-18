@@ -2,10 +2,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.models import Resource
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 
@@ -22,8 +25,8 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_post_no_project(self):
         resource_obj = {
             'files': [
-                SimpleUploadedFile('page1.png', 'n/t'),
-                SimpleUploadedFile('page2.png', 'n/t')
+                SimpleUploadedFile('page1.txt', 'n/t'),
+                SimpleUploadedFile('page2.txt', 'n/t')
             ],
         }
         response = self.client.post("/resources/", resource_obj, format='multipart')
@@ -33,16 +36,25 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(anticipated_message, response.data)
 
     def test_post(self):
-        resource_obj = {
-            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
-            'files': [
-                SimpleUploadedFile('page1.png', 'n/t'),
-                SimpleUploadedFile('page2.png', 'n/t')
-            ],
-        }
-        response = self.client.post("/resources/", resource_obj, format='multipart')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(len(response.data['resources']), 2)
+        with self.settings(CELERY_ALWAYS_EAGER=True,
+                           CELERY_EAGER_PROPAGATES_EXCEPTIONS=True):  # run celery task synchronously
+            resource_obj = {
+                'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
+                'files': [
+                    SimpleUploadedFile('page1.txt', 'n/t'),
+                    SimpleUploadedFile('page2.txt', 'n/t')
+                ],
+            }
+            response = self.client.post("/resources/", resource_obj, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(len(response.data['resources']), 2)
+            self.test_resource1 = Resource.objects.get(pk=response.data['resources'][0]['uuid'])
+            self.test_resource2 = Resource.objects.get(pk=response.data['resources'][1]['uuid'])
+            self.assertNotEqual(self.test_resource1.resource_file.path, '')
+            self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+            self.assertNotEqual(self.test_resource2.resource_file.path, '')
+            self.assertNotEqual(self.test_resource2.compat_resource_file.path, '')
+
 
     # def test_patch(self):
     #     resource_update = {'resource_type': 'text/plain'}

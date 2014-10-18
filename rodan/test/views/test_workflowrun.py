@@ -24,6 +24,8 @@ from rodan.models.resource import upload_path
 
 class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
@@ -65,6 +67,8 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
 class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
@@ -145,6 +149,8 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     "Test workflowrun creation and execution with a complex workflow."
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_complex_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
@@ -190,6 +196,20 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertTrue(same_resources(self.test_Bop.outputs, self.test_Cip2.inputs))
         self.assertTrue(same_resources(self.test_Cop1.outputs, self.test_Dip2.inputs))
         self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Eip1.inputs))
+
+
+        def assert_same_resource_types(op):
+            op_types = op.output_port_type.resource_types.all().values_list('name', flat=True)
+            for o in op.outputs.all():
+                r_types = o.resource.resource_types.all().values_list('name', flat=True)
+                self.assertTrue(set(op_types), set(r_types))
+        assert_same_resource_types(self.test_Aop)
+        assert_same_resource_types(self.test_Bop)
+        assert_same_resource_types(self.test_Cop1)
+        assert_same_resource_types(self.test_Cop2)
+        assert_same_resource_types(self.test_Dop)
+        assert_same_resource_types(self.test_Eop)
+
 
         self.assertEqual(
             set(self.test_Aip.inputs.values_list('resource__uuid', flat=True)),

@@ -29,6 +29,8 @@ logger = logging.getLogger('rodan')
 
 logger.warning("Loading Rodan Jobs")
 
+# [TODO]
+"""
 try:
     from rodan.jobs.gamera import binarization
     binarization.load_module()
@@ -138,3 +140,4 @@ try:
     module_loader.load_module()
 except ImportError as e:
     logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
+"""

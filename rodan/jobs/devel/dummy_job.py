@@ -1,8 +1,5 @@
-from rodan.models.job import Job
-from rodan.models.inputporttype import InputPortType
-from rodan.models.outputporttype import OutputPortType
+from rodan.models import Job, InputPortType, OutputPortType, ResourceType
 from rodan.jobs.devel.celery_task import dummy_automatic_job, dummy_manual_job
-from rodan.models.resource import ResourceType
 
 def load_dummy_automatic_job():
     name = 'rodan.jobs.devel.dummy_automatic_job'
@@ -18,27 +15,33 @@ def load_dummy_automatic_job():
                 )
         j.save()
 
-        InputPortType(job=j,
+        i1 = InputPortType(job=j,
                       name='in_typeA',
-                      resource_type=ResourceType.IMAGE_TYPES,
                       minimum=0,
-                      maximum=10).save()
-        InputPortType(job=j,
-                      name='in_typeB',
-                      resource_type=ResourceType.IMAGE_TYPES,
-                      minimum=0,
-                      maximum=10).save()
+                      maximum=10)
+        i1.save()
+        i1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
 
-        OutputPortType(job=j,
+        i2 = InputPortType(job=j,
+                      name='in_typeB',
+                      minimum=0,
+                      maximum=10)
+        i2.save()
+        i2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+
+        o1 = OutputPortType(job=j,
                        name='out_typeA',
-                       resource_type=ResourceType.IMAGE_TYPES,
                        minimum=0,
-                       maximum=10).save()
-        OutputPortType(job=j,
+                       maximum=10)
+        o1.save()
+        o1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+
+        o2 = OutputPortType(job=j,
                        name='out_typeB',
-                       resource_type=ResourceType.IMAGE_TYPES,
                        minimum=0,
-                       maximum=10).save()
+                       maximum=10)
+        o2.save()
+        o2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
 
 
 def load_dummy_manual_job():
@@ -55,24 +58,30 @@ def load_dummy_manual_job():
                 )
         j.save()
 
-        InputPortType(job=j,
+        i1 = InputPortType(job=j,
                       name='in_typeA',
-                      resource_type=ResourceType.IMAGE_TYPES,
                       minimum=0,
-                      maximum=10).save()
-        InputPortType(job=j,
-                      name='in_typeB',
-                      resource_type=ResourceType.IMAGE_TYPES,
-                      minimum=0,
-                      maximum=10).save()
+                      maximum=10)
+        i1.save()
+        i1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
 
-        OutputPortType(job=j,
+        i2 = InputPortType(job=j,
+                      name='in_typeB',
+                      minimum=0,
+                      maximum=10)
+        i2.save()
+        i2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+
+        o1 = OutputPortType(job=j,
                        name='out_typeA',
-                       resource_type=ResourceType.IMAGE_TYPES,
                        minimum=0,
-                       maximum=10).save()
-        OutputPortType(job=j,
+                       maximum=10)
+        o1.save()
+        o1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+
+        o2 = OutputPortType(job=j,
                        name='out_typeB',
-                       resource_type=ResourceType.IMAGE_TYPES,
                        minimum=0,
-                       maximum=10).save()
+                       maximum=10)
+        o2.save()
+        o2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))

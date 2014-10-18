@@ -5,6 +5,7 @@ from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
         self.setUp_user()
 
     def test_authorized(self):

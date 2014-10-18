@@ -1,13 +1,11 @@
 import tempfile, shutil, os, uuid, copy
 from celery import Task
 from rodan.models.runjob import RunJobStatus
-from rodan.models import RunJob, Input, Output, Resource
-from rodan.jobs.util import taskutil
-from rodan.helpers.thumbnails import create_thumbnails
-from rodan.helpers.processed import processed
+from rodan.models import RunJob, Input, Output, Resource, ResourceType
+from rodan.jobs.helpers import create_thumbnails
 from django.conf import settings as rodan_settings
 from django.core.files import File
-from rodan.models.resource import ResourceType
+from django.db.models import Prefetch
 
 
 class RodanTask(Task):
@@ -29,7 +27,7 @@ class RodanTask(Task):
             for output in output_list:
                 arg_outputs[opt_name].append({
                     'resource_path': output['resource_temp_path'],
-                    'resource_type': output['resource_type']
+                    'resource_types': output['resource_types']
                 })
                 temppath_map[output['resource_temp_path']] = output
         retval = self.run_my_task(inputs, settings, arg_outputs)
@@ -54,13 +52,13 @@ class RodanTask(Task):
 
 
     def on_success(self, retval, task_id, args, kwargs):
-        RunJob.objects.filter(pk=args[0]).update(status=RunJobStatus.HAS_FINISHED,
+        runjob_id = args[0]
+        RunJob.objects.filter(pk=runjob_id).update(status=RunJobStatus.HAS_FINISHED,
                                                  error_summary='',
                                                  error_details='')
-        #### [TODO] modify these helpers, and execute them only when the output are image type
-        #res = create_thumbnails.s(result)
-        #res.link(processed.s())
-        #res.apply_async()
+        output_resources = Resource.objects.filter(outputs__run_job=runjob_id)
+        for output_resource in output_resources:
+            create_thumbnails.si(str(output_resource.uuid)).apply_async()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         runjob_id = args[0]
@@ -94,42 +92,45 @@ class RodanTask(Task):
 
     def _inputs(self, runjob_id):
         "Return a dictionary of list of input file path and input resource type."
-        input_values = Input.objects.filter(run_job__pk=runjob_id).values(
-            'input_port__input_port_type__name',
-            'resource__compat_resource_file',
-            'resource__resource_type')
+        input_query = Input.objects.filter(run_job__pk=runjob_id).select_related('input_port__input_port_type').prefetch_related('resource__resource_types')
+
+        input_values = [{
+            'ipt_name': i.input_port.input_port_type.name,
+            'resource_path': i.resource.compat_resource_file.path,
+            'resource_types': [rt.name for rt in i.resource.resource_types.all()],
+        } for i in input_query]
 
         inputs = {}
         for input_value in input_values:
-            ipt_name = input_value['input_port__input_port_type__name']
+            ipt_name = input_value['ipt_name']
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
-            inputs[ipt_name].append({'resource_path': input_value['resource__compat_resource_file'],
-                                     'resource_type': input_value['resource__resource_type']})
+            inputs[ipt_name].append({'resource_path': input_value['resource_path'],
+                                     'resource_types': input_value['resource_types']})
+        del input_query
         return inputs
 
     def _outputs(self, runjob_id, temp_dir):
         "Return a dictionary of list of output file path and output resource type."
-        output_values = Output.objects.filter(run_job__pk=runjob_id).values(
-            'output_port__output_port_type__name',
-            'resource__resource_type',
-            'uuid')
+        output_query = Output.objects.filter(run_job__pk=runjob_id).select_related('output_port__output_port_type').prefetch_related('resource__resource_types')
+
+        output_values = [{
+            'opt_name': o.output_port.output_port_type.name,
+            'resource_types': [rt.name for rt in o.resource.resource_types.all()],
+            'uuid': o.uuid
+        } for o in output_query]
 
         outputs = {}
         for output_value in output_values:
-            opt_name = output_value['output_port__output_port_type__name']
+            opt_name = output_value['opt_name']
             if opt_name not in outputs:
                 outputs[opt_name] = []
 
-            output_res_type = output_value['resource__resource_type']
-            output_res_ext = ResourceType.get_extension(output_res_type)
-            if output_res_ext is None:
-                output_res_tempname = "{0}".format(str(uuid.uuid4()))
-            else:
-                output_res_tempname = "{0}.{1}".format(str(uuid.uuid4()), output_res_ext)
+            output_res_tempname = str(uuid.uuid4())
             output_res_temppath = os.path.join(temp_dir, output_res_tempname)
 
-            outputs[opt_name].append({'resource_type': output_res_type,
+            outputs[opt_name].append({'resource_types': output_value['resource_types'],
                                       'resource_temp_path': output_res_temppath,
                                       'uuid': output_value['uuid']})
+        del output_query
         return outputs

@@ -1,17 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-
-from rodan.models.project import Project
-from rodan.models.workflowjob import WorkflowJob
-from rodan.models.workflow import Workflow
-from rodan.models.resourceassignment import ResourceAssignment
-from rodan.models.inputport import InputPort
-from rodan.models.inputporttype import InputPortType
-from rodan.models.outputport import OutputPort
-from rodan.models.outputporttype import OutputPortType
-from rodan.models.resource import Resource
-from rodan.models.connection import Connection
-from rodan.models.job import Job
+from rodan.models import Project, WorkflowJob, Workflow, ResourceAssignment, InputPort, InputPortType, OutputPort, OutputPortType, Resource, Connection, Job, ResourceType
 
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -27,6 +16,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     """
 
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 
@@ -135,8 +126,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ipt = mommy.make('rodan.InputPortType',
                          maximum=1,
                          minimum=1,
-                         job=job,
-                         resource_type=[9])
+                         job=job)
+        ipt.resource_types.add(*ResourceType.list('mei'))
         conn = mommy.make('rodan.Connection',
                           output_port=self.test_workflowjob2.output_ports.all()[0],
                           input_port__workflow_job__job=job,
@@ -181,9 +172,10 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         res = mommy.make('rodan.Resource',
                          project=self.test_project,
-                         resource_type=-1,
                          compat_resource_file="dummy")
+        res.resource_types.add(*ResourceType.list('mei'))
         ra.resources.add(res)
+
 
         response = self._validate(self.test_workflow.uuid)
         anticipated_message = {'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ra.input_port.uuid)}

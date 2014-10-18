@@ -10,6 +10,8 @@ from rodan.models.project import Project
 
 class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 

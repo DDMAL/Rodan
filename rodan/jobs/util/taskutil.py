@@ -11,13 +11,10 @@ from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
-from rodan.helpers.thumbnails import create_thumbnails
+from rodan.jobs.helpers import create_thumbnails
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
-from rodan.helpers.processed import processed
 from rodan.helpers.dbmanagement import exists_in_db, refetch_from_db, resolve_object_from_url
-from rodan.models.resource import ResourceType
 
-IMAGE_TYPES = ResourceType.IMAGE_TYPES
 
 def execute_unless_deleted(db_object, partial_func):
     if db_object.pk:
@@ -90,7 +87,7 @@ def get_page_url(runjob, result_id):
 
 def get_input_path(runjob, result_id):
     runjob_input_types = runjob.workflow_job.job.input_types['pixel_types']
-    if all(runjob_input_types) in IMAGE_TYPES:
+    if all(runjob_input_types) in []: #IMAGE_TYPES:  # I believe this module will be eventually removed
         return get_page_url(runjob, result_id)
     elif result_id is None:
         raise InvalidFirstJobError("This cannot be the first job. This job takes a non-image type as input.")
@@ -245,8 +242,7 @@ def default_on_success(self, retval, task_id, args, kwargs):
     result.run_job.error_details = ""
     save_instance(result.run_job)
 
-    res = create_thumbnails.s(result)
-    res.link(processed.s())
+    res = create_thumbnails.s(result.uuid)
     res.apply_async()
 
 

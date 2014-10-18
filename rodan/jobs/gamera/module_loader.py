@@ -61,7 +61,7 @@ def create_jobs_from_module(gamera_module, interactive=False):
         for t in input_types:
             ipt = InputPortType(job=j,
                                 name=t['name'],
-                                resource_type=t['pixel_types'],
+                                #resource_type=t['pixel_types'], # [TODO]
                                 minimum=1,
                                 maximum=1)
             ipt.save()
@@ -69,7 +69,7 @@ def create_jobs_from_module(gamera_module, interactive=False):
         for t in output_types:
             opt = OutputPortType(job=j,
                                  name=t['name'],
-                                 resource_type=t['pixel_types'],
+                                 #resource_type=t['pixel_types'], # [TODO]
                                  minimum=1,
                                  maximum=1)
             opt.save()

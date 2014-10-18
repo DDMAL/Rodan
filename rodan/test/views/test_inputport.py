@@ -5,6 +5,8 @@ from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 class InputPortViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
         self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
 

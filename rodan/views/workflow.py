@@ -8,7 +8,6 @@ from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import Workflow, WorkflowJob, ResourceAssignment, Connection, InputPort, OutputPort, InputPortType, OutputPortType, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
-from rodan.models.resource import ResourceType
 
 class WorkflowList(generics.ListCreateAPIView):
     model = Workflow
@@ -112,11 +111,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         connections = Connection.objects.filter(input_port__workflow_job__workflow=workflow, output_port__workflow_job__workflow=workflow)
         for connection in connections:
             op = connection.output_port
-            out_type = op.output_port_type.resource_type
+            out_types = op.output_port_type.resource_types.all()
             ip = connection.input_port
-            in_type = ip.input_port_type.resource_type
+            in_types = ip.input_port_type.resource_types.all()
 
-            if not ResourceType.intersection(out_type, in_type):
+            if not set(in_types).issubset(set(out_types)):
                 raise WorkflowValidationError(response=Response({'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # validate ResourceAssignments
@@ -132,14 +131,15 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 raise WorkflowValidationError(response=Response({'message': 'No resource assigned by ResourceAssignment {0}'.format(ra.uuid)}, status=status.HTTP_409_CONFLICT))
 
             ip = ra.input_port
-            type_of_ip = ip.input_port_type.resource_type
+            types_of_ip = ip.input_port_type.resource_types.all()
             resources = ra.resources.all()
             for res in resources:
                 if res.project.uuid != ra.input_port.workflow_job.workflow.project.uuid:
                     raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
                 if not res.compat_resource_file:
                     raise WorkflowValidationError(response=Response({'message': 'The compatible resource file of resource {0} is not ready'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
-                if res.resource_type not in type_of_ip:
+                types_of_res = res.resource_types.all()
+                if not set(types_of_ip).issubset(set(types_of_res)):
                     raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # graph validation

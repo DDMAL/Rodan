@@ -40,6 +40,9 @@ from rodan.views import interactive
 
 # this will only run with the first request.
 import rodan.jobs
+from rodan.startup import startup
+startup()
+
 
 urlpatterns = []
 
