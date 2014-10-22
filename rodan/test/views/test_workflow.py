@@ -120,6 +120,45 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
+    def test_input__more_than_maximum(self):
+        for i in range(self.test_inputporttype.maximum):
+            ip = mommy.make('rodan.InputPort',
+                            workflow_job=self.test_workflowjob,
+                            input_port_type=self.test_inputporttype)
+            ra = mommy.make('rodan.ResourceAssignment',
+                            input_port=ip)
+            ra.resources.add(self.test_resources[0])
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_input__fewer_than_minimum(self):
+        ip = self.test_workflowjob.input_ports.all()[0]
+        ip.resource_assignments.all().delete()
+        ip.delete()
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_output__more_than_maximum(self):
+        for o in range(self.test_outputporttype.maximum):
+            op = mommy.make('rodan.OutputPort',
+                            workflow_job=self.test_workflowjob,
+                            output_port_type=self.test_outputporttype)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_output__fewer_than_minimum(self):
+        opt2 = mommy.make('rodan.OutputPortType',
+                          maximum=3,
+                          minimum=1,
+                          job=self.test_job)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message1 = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message2 = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
 
     def test_connection__resource_type_not_agree(self):
         job = mommy.make('rodan.Job')
