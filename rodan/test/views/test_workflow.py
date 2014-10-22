@@ -42,7 +42,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         response = self.client.post("/workflows/", workflow_obj, format='json')
         anticipated_message = {'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_view__post(self):
         workflow_obj = {
             'project': 'http://localhost:8000/project/{0}/'.format(self.test_project.uuid),
