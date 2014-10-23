@@ -39,10 +39,10 @@ class ConnectionList(generics.ListCreateAPIView):
         except OutputPort.DoesNotExist:
             return Response({'message': "No output port with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        injob_obj = WorkflowJobSerializer(ip_obj.workflow_job).data
+        injob_obj = WorkflowJobSerializer(ip_obj.workflow_job, context={'request': request}).data
         request.DATA['input_workflow_job'] = injob_obj['url']
 
-        outjob_obj = WorkflowJobSerializer(op_obj.workflow_job).data
+        outjob_obj = WorkflowJobSerializer(op_obj.workflow_job, context={'request': request}).data
         request.DATA['output_workflow_job'] = outjob_obj['url']
 
         request.DATA['workflow'] = injob_obj['workflow']

@@ -42,7 +42,7 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
 
     def test_token_auth_fail(self):
         token = self.client.post("/auth/token/", {"username": "ahankins", "password": "wrongg"}, format="multipart")
-        self.assertEqual(token.data['non_field_errors'][0], "Unable to login with provided credentials.")
+        self.assertEqual(token.data['non_field_errors'][0], "Unable to log in with provided credentials.")
 
     def tearDown(self):
         pass

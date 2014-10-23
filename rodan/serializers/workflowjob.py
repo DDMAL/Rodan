@@ -14,8 +14,6 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
 
     job_name = serializers.Field(source="job_name")
     job_description = serializers.Field(source="job_description")
-    input_ports = serializers.SerializerMethodField("get_input_ports")
-    output_ports = serializers.SerializerMethodField("get_output_ports")
 
     class Meta:
         model = WorkflowJob
@@ -32,9 +30,3 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "job_settings",
                   "created",
                   "updated")
-
-    def get_input_ports(self, obj):
-        return [InputPortSerializer(ip).data['url'] for ip in InputPort.objects.filter(workflow_job=obj)]
-
-    def get_output_ports(self, obj):
-        return [OutputPortSerializer(op).data['url'] for op in OutputPort.objects.filter(workflow_job=obj)]

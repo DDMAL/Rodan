@@ -8,7 +8,9 @@ from rodan.serializers.user import UserSerializer
 
 
 class SessionStatus(views.APIView):
-    """ Get session status to see if the user is logged in or they need to authenticate. """
+    """
+    Return session status to see if the user is logged in or they need to authenticate.
+    """
     def get(self, request, *args, **kwargs):
         is_auth = request.user.is_authenticated()
         if is_auth:
@@ -20,6 +22,15 @@ class SessionStatus(views.APIView):
 
 
 class SessionAuth(views.APIView):
+    """
+    Session authentication.
+
+    This will set two cookies, `crsftoken` and `sessionid`. These are persistent in your browsing session. "Logging out" will effectively delete these cookies, and require to re-authenticate on your next visit.
+
+    #### Parameters
+    - username -- Username
+    - password -- Password
+    """
     def post(self, request, *args, **kwargs):
         username = request.DATA.get('username', None)
         password = request.DATA.get('password', None)
@@ -45,6 +56,11 @@ class SessionAuth(views.APIView):
 
 
 class SessionClose(views.APIView):
+    """
+    Logging out.
+
+    This will clear `sessionid`.
+    """
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             logout(request)

@@ -10,6 +10,13 @@ from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 
 class WorkflowList(generics.ListCreateAPIView):
+    """
+    Returns a list of all workflows. Accepts a POST request with a data body to create a new workflow. POST requests will return the newly-created workflow object.
+
+    - Supported Query Parameters:
+        - project=$ID: Retrieve workflows belonging to project $ID.
+    - Permissions: Authenticated
+    """
     model = Workflow
     # permission_classes = (permissions.IsAuthenticated, )
     permission_classes = (permissions.AllowAny, )
@@ -31,7 +38,7 @@ class WorkflowList(generics.ListCreateAPIView):
         name = request.DATA.get('name', None)
         valid = request.DATA.get('valid', None)
 
-        user_obj = UserSerializer(request.user).data
+        user_obj = UserSerializer(request.user, context={'request': request}).data
         request.DATA['creator'] = user_obj['url']
 
         try:

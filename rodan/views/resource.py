@@ -12,6 +12,20 @@ from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 
 
 class ResourceList(generics.ListCreateAPIView):
+    """
+    ## GET
+
+    Retrieve all resources.
+
+    - Supported query parameters:
+        - `project=$ID`: filter resources belonging to project $ID.
+
+    ## POST
+
+    Create new resources.
+
+    Accepts a POST request with a data body with multiple files to create new resource objects. It will return the newly created resource objects.
+    """
     model = Resource
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
@@ -81,7 +95,7 @@ class ResourceList(generics.ListCreateAPIView):
             (ensure_compatible.si(resource_id) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
-                d = ResourceSerializer(resource_obj).data
+                d = ResourceSerializer(resource_obj, context={'request': request}).data
                 response.append(d)
             except:
                 return Response({'message': " Could not serialize resource object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -90,6 +104,9 @@ class ResourceList(generics.ListCreateAPIView):
 
 
 class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Perform operations on a single resource instance.
+    """
     model = Resource
     serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated, )

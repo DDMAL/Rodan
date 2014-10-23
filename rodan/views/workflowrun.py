@@ -219,7 +219,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if not workflow_obj.valid:
             return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.DATA['creator'] = UserSerializer(request.user).data['url']
+        request.DATA['creator'] = UserSerializer(request.user, context={'request': request}).data['url']
 
         created_wfrun = self.create(request, *args, **kwargs)
 
