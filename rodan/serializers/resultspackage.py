@@ -6,7 +6,7 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
 
     name = serializers.Field(source='bag_name')
     workflow_run_url = serializers.HyperlinkedRelatedField(source='workflow_run', view_name='workflowrun-detail')
-    page_urls = serializers.HyperlinkedRelatedField(source='pages', view_name='page-detail', many=True)
+    #page_urls = serializers.HyperlinkedRelatedField(source='pages', view_name='page-detail', many=True)
     job_urls = serializers.HyperlinkedRelatedField(source='jobs', view_name='job-detail', many=True)
 
     class Meta:
@@ -18,7 +18,7 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
                   "status",
                   'percent_completed',
                   "download_url",
-                  "page_urls",
+    #              "page_urls",
                   "job_urls",
                   "creator",
                   "created",
@@ -29,7 +29,7 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
 
     name = serializers.Field(source='bag_name')
     workflow_run_url = serializers.HyperlinkedRelatedField(source='workflow_run', view_name='workflowrun-detail')
-    page_urls = serializers.HyperlinkedRelatedField(source='pages', view_name='page-detail', many=True)
+    #page_urls = serializers.HyperlinkedRelatedField(source='pages', view_name='page-detail', many=True)
     job_urls = serializers.HyperlinkedRelatedField(source='jobs', view_name='job-detail', many=True)
 
     class Meta:
@@ -41,7 +41,7 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'status',
                   'percent_completed',
                   'download_url',
-                  'page_urls',
+    #              'page_urls',
                   'job_urls',
                   'creator',
                   'created',
