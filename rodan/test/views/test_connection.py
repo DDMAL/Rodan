@@ -78,6 +78,6 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
     def test_delete(self):
         test_conn_uuid = self.test_outputport.connections.all()[0].uuid
-        response = self.client.delete("/connection/{0}/".format(test_conn_uuid))
+        response = self.client.delete("/connection/{0}/.json".format(test_conn_uuid), format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Connection.objects.filter(pk=test_conn_uuid))

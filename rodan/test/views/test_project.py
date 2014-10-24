@@ -43,6 +43,6 @@ class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_delete(self):
         project_uuid = self.test_project.uuid
-        response = self.client.delete("/project/{0}/".format(project_uuid))
+        response = self.client.delete("/project/{0}/.json".format(project_uuid))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Project.objects.filter(uuid=project_uuid).exists())
