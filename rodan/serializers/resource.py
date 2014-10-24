@@ -10,7 +10,7 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     origin = serializers.HyperlinkedRelatedField(view_name="output-detail")
     resource_file = serializers.Field(source='resource_url')
     compat_resource_file = serializers.Field(source='compat_file_url')
-    resource_type = serializers.PrimaryKeyRelatedField()
+    resource_type = serializers.HyperlinkedRelatedField(view_name="resourcetype-detail")
 
     class Meta:
         model = Resource
@@ -24,8 +24,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "compat_resource_file",
                   "creator",
                   "origin",
-#                  "run_job",
-#                  "workflow",
                   "created",
                   "updated")
 
