@@ -20,28 +20,28 @@ def load_dummy_automatic_job():
                       minimum=0,
                       maximum=10)
         i1.save()
-        i1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        i1.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         i2 = InputPortType(job=j,
                       name='in_typeB',
                       minimum=0,
                       maximum=10)
         i2.save()
-        i2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        i2.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         o1 = OutputPortType(job=j,
                        name='out_typeA',
                        minimum=0,
                        maximum=10)
         o1.save()
-        o1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        o1.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         o2 = OutputPortType(job=j,
                        name='out_typeB',
                        minimum=0,
                        maximum=10)
         o2.save()
-        o2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        o2.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
 
 def load_dummy_manual_job():
@@ -63,25 +63,25 @@ def load_dummy_manual_job():
                       minimum=0,
                       maximum=10)
         i1.save()
-        i1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        i1.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         i2 = InputPortType(job=j,
                       name='in_typeB',
                       minimum=0,
                       maximum=10)
         i2.save()
-        i2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        i2.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         o1 = OutputPortType(job=j,
                        name='out_typeA',
                        minimum=0,
                        maximum=10)
         o1.save()
-        o1.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        o1.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         o2 = OutputPortType(job=j,
                        name='out_typeB',
                        minimum=0,
                        maximum=10)
         o2.save()
-        o2.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        o2.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))

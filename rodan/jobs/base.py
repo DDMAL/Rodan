@@ -27,7 +27,7 @@ class RodanTask(Task):
             for output in output_list:
                 arg_outputs[opt_name].append({
                     'resource_path': output['resource_temp_path'],
-                    'resource_types': output['resource_types']
+                    'resource_type': output['resource_type']
                 })
                 temppath_map[output['resource_temp_path']] = output
         retval = self.run_my_task(inputs, settings, arg_outputs)
@@ -92,45 +92,37 @@ class RodanTask(Task):
 
     def _inputs(self, runjob_id):
         "Return a dictionary of list of input file path and input resource type."
-        input_query = Input.objects.filter(run_job__pk=runjob_id).select_related('input_port__input_port_type').prefetch_related('resource__resource_types')
-
-        input_values = [{
-            'ipt_name': i.input_port.input_port_type.name,
-            'resource_path': i.resource.compat_resource_file.path,
-            'resource_types': [rt.name for rt in i.resource.resource_types.all()],
-        } for i in input_query]
+        input_values = Input.objects.filter(run_job__pk=runjob_id).values(
+            'input_port__input_port_type__name',
+            'resource__compat_resource_file',
+            'resource__resource_type__mimetype')
 
         inputs = {}
         for input_value in input_values:
-            ipt_name = input_value['ipt_name']
+            ipt_name = input_value['input_port__input_port_type__name']
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
-            inputs[ipt_name].append({'resource_path': input_value['resource_path'],
-                                     'resource_types': input_value['resource_types']})
-        del input_query
+            inputs[ipt_name].append({'resource_path': input_value['resource__compat_resource_file'],
+                                     'resource_type': input_value['resource__resource_type__mimetype']})
         return inputs
 
     def _outputs(self, runjob_id, temp_dir):
         "Return a dictionary of list of output file path and output resource type."
-        output_query = Output.objects.filter(run_job__pk=runjob_id).select_related('output_port__output_port_type').prefetch_related('resource__resource_types')
-
-        output_values = [{
-            'opt_name': o.output_port.output_port_type.name,
-            'resource_types': [rt.name for rt in o.resource.resource_types.all()],
-            'uuid': o.uuid
-        } for o in output_query]
+        output_values = Output.objects.filter(run_job__pk=runjob_id).values(
+            'output_port__output_port_type__name',
+            'resource__resource_type__mimetype',
+            'uuid')
 
         outputs = {}
         for output_value in output_values:
-            opt_name = output_value['opt_name']
+            opt_name = output_value['output_port__output_port_type__name']
             if opt_name not in outputs:
                 outputs[opt_name] = []
 
             output_res_tempname = str(uuid.uuid4())
             output_res_temppath = os.path.join(temp_dir, output_res_tempname)
 
-            outputs[opt_name].append({'resource_types': output_value['resource_types'],
+            outputs[opt_name].append({'resource_type': output_value['resource__resource_type__mimetype'],
                                       'resource_temp_path': output_res_temppath,
                                       'uuid': output_value['uuid']})
-        del output_query
         return outputs

@@ -25,6 +25,12 @@ class ResourceList(generics.ListCreateAPIView):
     Create new resources.
 
     Accepts a POST request with a data body with multiple files to create new resource objects. It will return the newly created resource objects.
+
+    - Supported query parameters:
+        - `project=$ID`
+        - `run_job=$ID`
+        - `origin=$ID`
+        - `type=string` File type, could be 'image'...
     """
     model = Resource
     paginate_by = None
@@ -78,21 +84,21 @@ class ResourceList(generics.ListCreateAPIView):
         else:
             output_obj = None
 
+        res_type = request.DATA.get('type', None)
+        if not res_type:
+            return Response({'message': "You must supply type for these resources."}, status=status.HTTP_400_BAD_REQUEST)
+
         for fileobj in request.FILES.getlist('files'):
             resource_obj = Resource(name=fileobj.name,
                                     project=project_obj,
                                     creator=current_user,
-                                    origin=output_obj)
+                                    origin=output_obj,
+                                    resource_type=ResourceType.cached('application/octet-stream'))
             resource_obj.save()
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
-            # [TODO]: I think we do not need this?
-            #if run_job:
-            #    resource_obj.run_job = runjob_obj
-            #    resource_obj.save()
-
             resource_id = str(resource_obj.uuid)
-            (ensure_compatible.si(resource_id) | create_thumbnails.si(resource_id)).apply_async()
+            (ensure_compatible.si(resource_id, res_type) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj, context={'request': request}).data

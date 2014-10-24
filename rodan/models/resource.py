@@ -36,7 +36,7 @@ class Resource(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
-    resource_types = models.ManyToManyField('rodan.ResourceType', related_name='+')
+    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources')
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)  # no backward reference

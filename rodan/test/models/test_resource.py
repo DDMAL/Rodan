@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rodan.models.resource import Resource
+from rodan.models import ResourceType, Resource
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
@@ -19,6 +19,7 @@ class ResourceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
             "project": self.test_project,
             "creator": self.test_user,
             "name": "testresource.jpg",
+            "resource_type": ResourceType.cached('test/a1')
         }
 
 

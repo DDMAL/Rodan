@@ -148,8 +148,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                     raise WorkflowValidationError(response=Response({'message': 'The resource {0} is not in the project'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
                 if not res.compat_resource_file:
                     raise WorkflowValidationError(response=Response({'message': 'The compatible resource file of resource {0} is not ready'.format(res.uuid)}, status=status.HTTP_409_CONFLICT))
-                types_of_res = res.resource_types.all()
-                if not set(types_of_ip).issubset(set(types_of_res)):
+                type_of_res = res.resource_type
+                if not type_of_res in types_of_ip:
                     raise WorkflowValidationError(response=Response({'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # graph validation

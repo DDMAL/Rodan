@@ -6,16 +6,16 @@ from django.core.files import File
 from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource
+from rodan.models import Resource, ResourceType
 
 @task(name="rodan.jobs.helpers.ensure_compatible")
-def ensure_compatible(resource_id):
-    resource_object = Resource.objects.prefetch_related('resource_types').get(uuid=resource_id)
-    resource_types = resource_object.resource_types.all().values_list('name', flat=True)
-
+def ensure_compatible(resource_id, resource_type=None):
+    resource_object = Resource.objects.filter(uuid=resource_id).select_related('resource_type')[0]
+    if not resource_type:
+        resource_type = resource_object.resource_type.mimetype
     resource_file_path = resource_object.resource_file.path
 
-    if 'image' in resource_types:
+    if resource_type.startswith('image'):
         filename = "compat_file.png"
         image = PIL.Image.open(resource_file_path).convert('RGB')
         tmpdir = tempfile.mkdtemp()
@@ -23,6 +23,8 @@ def ensure_compatible(resource_id):
         with open(os.path.join(tmpdir, filename), 'rb') as f:
             resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path according to upload_to
             compat_resource_file_path = resource_object.compat_resource_file.path
+        new_type = ResourceType.cached("image/rgb+png")[0]
+        Resource.objects.filter(uuid=resource_id).update(resource_type=new_type)
         shutil.rmtree(tmpdir)
     else:
         with open(resource_file_path, 'rb') as f:
@@ -35,10 +37,10 @@ def ensure_compatible(resource_id):
 
 @task(name="rodan.jobs.helpers.create_thumbnails")
 def create_thumbnails(resource_id):
-    resource_object = Resource.objects.prefetch_related('resource_types').get(uuid=resource_id)
-    resource_types = resource_object.resource_types.all().values_list('name', flat=True)
+    resource_object = Resource.objects.filter(uuid=resource_id).select_related('resource_type')[0]
+    resource_type = resource_object.resource_type.mimetype
 
-    if 'image' in resource_types:
+    if resource_type.startswith('image'):
         image = PIL.Image.open(resource_object.compat_resource_file.path).convert('RGB')
         width = float(image.size[0])
         height = float(image.size[1])

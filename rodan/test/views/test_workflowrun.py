@@ -199,10 +199,10 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
 
         def assert_same_resource_types(op):
-            op_types = op.output_port_type.resource_types.all().values_list('name', flat=True)
+            op_types = op.output_port_type.resource_types.all().values_list('mimetype', flat=True)
             for o in op.outputs.all():
-                r_types = o.resource.resource_types.all().values_list('name', flat=True)
-                self.assertTrue(set(op_types), set(r_types))
+                r_type = o.resource.resource_type.mimetype
+                self.assertIn(r_type, op_types)
         assert_same_resource_types(self.test_Aop)
         assert_same_resource_types(self.test_Bop)
         assert_same_resource_types(self.test_Cop1)

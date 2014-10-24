@@ -166,7 +166,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                          maximum=1,
                          minimum=1,
                          job=job)
-        ipt.resource_types.add(*ResourceType.list('mei'))
+        ipt.resource_types.add(ResourceType.cached('test/b'))
         conn = mommy.make('rodan.Connection',
                           output_port=self.test_workflowjob2.output_ports.all()[0],
                           input_port__workflow_job__job=job,
@@ -211,8 +211,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         res = mommy.make('rodan.Resource',
                          project=self.test_project,
-                         compat_resource_file="dummy")
-        res.resource_types.add(*ResourceType.list('mei'))
+                         compat_resource_file="dummy",
+                         resource_type=ResourceType.cached('test/b'))
         ra.resources.add(res)
 
 

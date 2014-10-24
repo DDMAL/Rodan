@@ -44,6 +44,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                     SimpleUploadedFile('page1.txt', 'n/t'),
                     SimpleUploadedFile('page2.txt', 'n/t')
                 ],
+                'type': 'text',
             }
             response = self.client.post("/resources/", resource_obj, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)

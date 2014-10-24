@@ -23,20 +23,19 @@ class RodanTestSetUpMixin(object):
                                              maximum=3,
                                              minimum=1,
                                              job=self.test_job)
-        self.test_inputporttype.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        self.test_inputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
                                               job=self.test_job)
-        self.test_outputporttype.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+        self.test_outputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resources = mommy.make('rodan.Resource', _quantity=10,
                                          project=self.test_project,
-                                         compat_resource_file="dummy")
-        for r in self.test_resources:
-            r.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
+                                         compat_resource_file="dummy",
+                                         resource_type=ResourceType.cached('test/a1'))
 
         # build this graph: test_workflowjob --> test_workflowjob2
         self.test_workflowjob = mommy.make('rodan.WorkflowJob',
@@ -80,8 +79,8 @@ class RodanTestSetUpMixin(object):
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource = mommy.make('rodan.Resource',
                                         project=self.test_project,
-                                        compat_resource_file="dummy")
-        self.test_resource.resource_types.add(*ResourceType.list('test_type', 'test_type2'))
+                                        compat_resource_file="dummy",
+                                        resource_type=ResourceType.cached('test/a1'))
 
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
         self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',
@@ -137,18 +136,17 @@ class RodanTestSetUpMixin(object):
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resourcecollection = mommy.make('rodan.Resource', _quantity=10,
-                                                  project=self.test_project)
-        for r in self.test_resourcecollection:
-            r.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
+                                                  project=self.test_project,
+                                                  resource_type=ResourceType.cached('test/a1'))
         for index, res in enumerate(self.test_resourcecollection):
             res.name = str(index) # 0 to 9
             res.save()
             res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         self.test_resource = mommy.make('rodan.Resource',
-                                        project=self.test_project)
+                                        project=self.test_project,
+                                        resource_type=ResourceType.cached('test/a1'))
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-        self.test_resource.resource_types.add(*ResourceType.list('test_type', 'test_type2', 'test_type3'))
 
 
         self.test_wfjob_A = mommy.make('rodan.WorkflowJob',

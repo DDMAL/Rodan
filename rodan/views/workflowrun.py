@@ -104,9 +104,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
-            resource = associated_output.resource
-            resource.resource_types.add(*associated_output.output_port.output_port_type.resource_types.all())
-            resource.save()
 
             Input(run_job=runjob_A,
                   input_port=conn.input_port,
@@ -141,10 +138,17 @@ class WorkflowRunList(generics.ListCreateAPIView):
                          needs_input=interactive)
         run_job.save()
 
-        outputports = OutputPort.objects.filter(workflow_job=wfjob)
+        outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
 
         for op in outputports:
-            resource = Resource(project=workflow_run.workflow.project)
+            resource_type_set = set(op.output_port_type.resource_types.all())
+            if op.connections.exists():
+                ipt_type_set = set(op.connections.first().input_port.input_port_type.resource_types.all())
+                resource_type_set = resource_type_set.intersection(ipt_type_set)
+            res_type = resource_type_set.pop()
+
+            resource = Resource(project=workflow_run.workflow.project,
+                                resource_type=res_type)
             resource.save()
 
             output = Output(output_port=op,
