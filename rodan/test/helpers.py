@@ -67,10 +67,6 @@ class RodanTestSetUpMixin(object):
         Workflow Graph:
         dummy_a_wfjob => dummy_m_wfjob
         """
-
-        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
-        load_dummy_automatic_job()
-        load_dummy_manual_job()
         dummy_a_job = Job.objects.get(job_name='rodan.jobs.devel.dummy_automatic_job')
         dummy_m_job = Job.objects.get(job_name='rodan.jobs.devel.dummy_manual_job')
 

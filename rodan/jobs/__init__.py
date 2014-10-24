@@ -141,3 +141,10 @@ try:
 except ImportError as e:
     logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
 """
+
+import sys
+TEST = 'test' in sys.argv
+if TEST:
+    from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
+    load_dummy_automatic_job()
+    load_dummy_manual_job()

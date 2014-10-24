@@ -8,10 +8,12 @@ from rodan.models import ResourceType
 TEST = 'test' in sys.argv
 
 def startup():
-    load_resource_type()
+    load_resource_types()
+    import rodan.jobs
+    reload(rodan.jobs)
 
 
-def load_resource_type():
+def load_resource_types():
     load_type('application/octet-stream', 'Unknown type')  # RFC 2046
     load_type('image/onebit+png', '')
     load_type('image/greyscale+png', '')

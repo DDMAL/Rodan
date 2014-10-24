@@ -39,7 +39,6 @@ from rodan.views.resourceassignment import ResourceAssignmentList, ResourceAssig
 from rodan.views import interactive
 
 # this will only run with the first request.
-import rodan.jobs
 from rodan.startup import startup
 startup()
 
