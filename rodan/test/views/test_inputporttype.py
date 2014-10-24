@@ -13,7 +13,7 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_post(self):
         ipt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['onebit', 'greyscale', 'grey16'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/", "http://localhost:8000/resourcetype/test/a2/"],
             'name': 'test',
             'minimum': 1,
             'maximum': 1
@@ -24,7 +24,7 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_post_no_min_max(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['onebit'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
             'name': 'test',
         }
 
@@ -37,7 +37,7 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_post_no_name(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['onebit'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
             'minimum': 1,
             'maximum': 1
         }

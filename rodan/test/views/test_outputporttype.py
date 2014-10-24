@@ -13,7 +13,7 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_post(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['float'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
             'name': 'test',
             'minimum': 1,
             'maximum': 1
@@ -25,7 +25,7 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_post_no_min_max(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['float'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
             'name': 'test'
         }
 
@@ -38,7 +38,7 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_post_no_name(self):
         opt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ['float'],
+            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
             'minimum': 1,
             'maximum': 1
         }

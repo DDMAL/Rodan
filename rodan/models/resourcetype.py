@@ -5,7 +5,6 @@ class ResourceType(models.Model):
     """
     A ResourceType is [TODO]
     """
-
     class Meta:
         app_label = 'rodan'
 

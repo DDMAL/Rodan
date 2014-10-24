@@ -24,6 +24,7 @@ def api_root(request, format=None):
                      'inputporttypes': reverse('inputporttype-list', request=request, format=format),
                      'inputports': reverse('inputport-list', request=request, format=format),
                      'resources': reverse('resource-list', request=request, format=format),
+                     'resourcetypes': reverse('resourcetype-list', request=request, format=format),
                      'outputs': reverse('output-list', request=request, format=format),
                      'inputs': reverse('input-list', request=request, format=format)})
 
