@@ -10,6 +10,14 @@ from rodan.models import Result
 from rodan.jobs.master_task import master_task
 
 class RodanInteractiveBaseView(View):
+    """
+    Rodan makes available interfaces for interactive jobs. Each endpoint accepts GET and POST requests. An exception is Neon, which has its own API (and is discussed elsewhere).
+
+    - Supported Query Parameters for GET:
+        - `runjob=$ID`: $ID is the UUID of the associated Run Job.
+
+    A POST request will send the Run Job UUID along with data specific to each interactive job.
+    """
     view_url = ""
     template_name = ""
     data = {}

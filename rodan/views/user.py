@@ -11,6 +11,9 @@ from rest_framework.response import Response
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
 class UserList(generics.ListCreateAPIView):
+    """
+    Returns a list of users. Accepts POST requests to create new users. A successful POST request will return the newly created user object.
+    """
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserListSerializer
@@ -29,6 +32,9 @@ class UserList(generics.ListCreateAPIView):
         return Response({'username': user.username}, status=status.HTTP_201_CREATED)
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Performs operations on a single user record.
+    """
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserSerializer

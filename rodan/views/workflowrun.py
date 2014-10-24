@@ -32,6 +32,16 @@ from rodan.jobs.master_task import master_task
 
 
 class WorkflowRunList(generics.ListCreateAPIView):
+    """
+    Returns a list of all workflows runs. Accepts a POST request with a data body to create a new `WorkflowRun`. POST requests will return the newly-created workflow run object.
+
+    Creating a new `WorkflowRun` instance executes the workflow. Meanwhile, `RunJob`s, `Input`s, `Output`s and `Resource`s are created according to the workflow.
+
+    - Supported Query Parameters:
+        - workflow=$ID: Retrieves all runs for workflow $ID. (GET only)
+        - test=true: Sets whether this is a test run or not. (POST only)
+        - page_id=$ID: If this is a test run, you must supply a page ID to test the workflow on. (POST only)
+    """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
@@ -39,16 +49,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         workflow = self.request.QUERY_PARAMS.get('workflow', None)
-        run = self.request.QUERY_PARAMS.get('run', None)
-
         queryset = WorkflowRun.objects.all()
-
         if workflow:
             queryset = queryset.filter(workflow__uuid=workflow)
-
-        if run:
-            queryset = queryset.filter(run=run)
-
         return queryset
 
     def _create_workflow_run(self, workflow, workflow_run):
@@ -233,6 +236,18 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
 
 class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    [TODO]
+    Performs operations on a single workflow run instance.
+
+    - Supported Query Parameters:
+        - `by_page=true`: If true, re-formats the returned workflow run object by returning it based on page-and-results, rather than runjob-and-page.
+        - `include_results=true|false`: Sets whether to include the results (per page) for the workflow run (GET only; only checked if `by_page` is present).
+
+    Sending a PATCH request retries the failed jobs in a workflowrun. It tries its best to have expected behavior. If the settings of the associated workflowjob of a runjob is changed, the new settings are picked up by the runjob. Of course, the jobs that have already succeeded will not be run again, so changing their workflowjob settings have no effect whatsoever. If you add a new page to workflow, that page is taken into the workflowrun and all the workflow jobs are run on it, so if you forgot to add one page to a workflow you can add it later and send the patch request to the workflowrun.
+
+    Note that it only tries the workflow starting from the first failed or cancelled job for each page. Under no conditions does it try to rerun a successful job, so for example, if you have already finished segmentation, you do not have to do it again. Also, by default, it will backup all the files of the previous try to MEDIA_ROOT/projects//workflowrun_retry_backup. This behavior is controlled by BACKUP_WORKFLOW_RUN_ON_RETRY variable in settings.py
+    """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer

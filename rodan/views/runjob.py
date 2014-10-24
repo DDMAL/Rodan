@@ -7,6 +7,15 @@ from rodan.serializers.runjob import RunJobSerializer
 
 
 class RunJobList(generics.ListAPIView):
+    """
+    Returns a list of all run jobs. Run Jobs are typically created by the server, so this does not accept POST requests.
+
+    - Supported Query Parameters:
+        - `requires_interaction=true`: Sets whether only those Run Jobs that currently require interaction will be returned or not (GET only).
+        - `project=$ID`: Retrieve runjobs belonging to project $ID (GET only).
+        - `workflowrun=$ID`: Retrieve runjobs belonging to workflow run $ID (GET only).
+        - `page=$ID`: Retrieve runjobs belonging to page $ID (GET only).
+    """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
@@ -28,6 +37,9 @@ class RunJobList(generics.ListAPIView):
 
 
 class RunJobDetail(generics.RetrieveUpdateAPIView):
+    """
+    Performs operations on a single Run Job instance. Does not support the DELETE method.
+    """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer

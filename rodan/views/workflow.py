@@ -60,6 +60,9 @@ class WorkflowList(generics.ListCreateAPIView):
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Performs operations on a single workflow instance.
+    """
     model = Workflow
 
     permission_classes = (permissions.IsAuthenticated, )
