@@ -4,13 +4,13 @@ Called by urls.py as suggested by http://stackoverflow.com/questions/6791911/exe
 """
 import sys
 from rodan.models import ResourceType
+from rodan.jobs import load_jobs as load_rodan_jobs
 
 TEST = 'test' in sys.argv
 
 def startup():
     load_resource_types()
-    import rodan.jobs
-    reload(rodan.jobs)
+    load_jobs()
 
 
 def load_resource_types():
@@ -34,3 +34,10 @@ def load_resource_types():
 def load_type(mimetype, description):
     if not ResourceType.objects.filter(mimetype=mimetype).exists():
         ResourceType(mimetype=mimetype, description=description).save()
+
+def load_jobs():
+    load_rodan_jobs()
+    if TEST:
+        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
+        load_dummy_automatic_job()
+        load_dummy_manual_job()
