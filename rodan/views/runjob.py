@@ -36,7 +36,7 @@ class RunJobList(generics.ListAPIView):
         return queryset
 
 
-class RunJobDetail(generics.RetrieveUpdateAPIView):
+class RunJobDetail(generics.RetrieveAPIView):
     """
     Performs operations on a single Run Job instance. Does not support the DELETE method.
     """

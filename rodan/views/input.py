@@ -4,7 +4,7 @@ from rodan.models.input import Input
 from rodan.serializers.input import InputSerializer
 
 
-class InputList(generics.ListCreateAPIView):
+class InputList(generics.ListAPIView):
     model = Input
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
@@ -19,7 +19,7 @@ class InputList(generics.ListCreateAPIView):
         return queryset
 
 
-class InputDetail(generics.RetrieveUpdateDestroyAPIView):
+class InputDetail(generics.RetrieveAPIView):
     model = Input
     serializer_class = InputSerializer
     permission_classes = (permissions.IsAuthenticated, )

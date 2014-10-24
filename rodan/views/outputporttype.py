@@ -9,7 +9,7 @@ from rodan.models.outputporttype import OutputPortType
 from rodan.serializers.outputporttype import OutputPortTypeSerializer
 
 
-class OutputPortTypeList(generics.ListCreateAPIView):
+class OutputPortTypeList(generics.ListAPIView):
     model = OutputPortType
     serializer_class = OutputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -30,7 +30,7 @@ class OutputPortTypeList(generics.ListCreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class OutputPortTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+class OutputPortTypeDetail(generics.RetrieveAPIView):
     model = OutputPortType
     serializer_class = OutputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )

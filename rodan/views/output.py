@@ -4,7 +4,7 @@ from rodan.models.output import Output
 from rodan.serializers.output import OutputSerializer, OutputListSerializer
 
 
-class OutputList(generics.ListCreateAPIView):
+class OutputList(generics.ListAPIView):
     model = Output
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
@@ -14,7 +14,7 @@ class OutputList(generics.ListCreateAPIView):
         return Output.objects.all()
 
 
-class OutputDetail(generics.RetrieveUpdateDestroyAPIView):
+class OutputDetail(generics.RetrieveAPIView):
     model = Output
     serializer_class = OutputSerializer
     permission_classes = (permissions.IsAuthenticated, )

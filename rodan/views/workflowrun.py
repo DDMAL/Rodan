@@ -239,7 +239,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         return created_wfrun
 
 
-class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
+class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     """
     [TODO]
     Performs operations on a single workflow run instance.
