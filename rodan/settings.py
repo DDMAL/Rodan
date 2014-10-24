@@ -218,3 +218,14 @@ THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
 
 BACKUP_WORKFLOWRUN_ON_RETRY = True
 TRACEBACK_IN_ERROR_DETAIL = True
+
+
+
+###############################################################################
+## Celery configuration
+###############################################################################
+CELERY_ENABLE_UTC = True
+CELERY_IMPORTS = ("rodan.jobs.helpers",
+                  "rodan.helpers.resultspackagemanager",
+                  "rodan.jobs.master_task",
+                  "rodan.jobs",)
