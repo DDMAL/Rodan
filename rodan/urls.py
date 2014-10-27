@@ -51,13 +51,12 @@ urlpatterns += patterns('',
 )
 
 urlpatterns += format_suffix_patterns(
-    patterns('rodan.views.main',
-             url(r'^browse/$', 'api_root'),
+    patterns('',
+             url(r'', 'rodan.views.main.api_root'),
              url(r'^auth/token/$', obtain_auth_token),
              url(r'^auth/session/$', SessionAuth.as_view()),
              url(r'^auth/status/$', SessionStatus.as_view()),
              url(r'^auth/logout/$', SessionClose.as_view()),
-             url(r'^$', 'home'),
              url(r'^projects/$', ProjectList.as_view(), name="project-list"),
              url(r'^project/(?P<pk>[0-9a-z\-]+)/$', ProjectDetail.as_view(), name="project-detail"),
              url(r'^workflows/$', WorkflowList.as_view(), name="workflow-list"),

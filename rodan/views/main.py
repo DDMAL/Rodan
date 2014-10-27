@@ -27,9 +27,3 @@ def api_root(request, format=None):
                      'resourcetypes': reverse('resourcetype-list', request=request, format=format),
                      'outputs': reverse('output-list', request=request, format=format),
                      'inputs': reverse('input-list', request=request, format=format)})
-
-
-@ensure_csrf_cookie
-def home(request):
-    data = {}
-    return render(request, 'base.html', data)
