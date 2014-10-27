@@ -25,7 +25,9 @@ class SessionAuth(views.APIView):
     """
     Session authentication.
 
-    This will set two cookies, `crsftoken` and `sessionid`. These are persistent in your browsing session. "Logging out" will effectively delete these cookies, and require to re-authenticate on your next visit.
+    This will set two cookies, `crsftoken` and `sessionid`.
+    These are persistent in your browsing session. "Logging out" will effectively
+    delete these cookies, and require to re-authenticate on your next visit.
 
     #### Parameters
     - username -- Username
