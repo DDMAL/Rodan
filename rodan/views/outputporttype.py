@@ -15,19 +15,19 @@ class OutputPortTypeList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     paginate_by = None
 
-    def post(self, request, *args, **kwargs):
-        job = request.DATA.get('job', None)
+#    def post(self, request, *args, **kwargs):
+#        job = request.DATA.get('job', None)
+#
+#        try:
+#            resolve_to_object(job, Job)
+#        except AttributeError:
+#            return Response({'message': "Please specify a job"}, status=status.HTTP_400_BAD_REQUEST)
+#        except Job.DoesNotExist:
+#            return Response({'message': "No job with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
+#        except Resolver404 as e:
+#            return Response({'message': "Error resolving job object. {0}".format(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        try:
-            resolve_to_object(job, Job)
-        except AttributeError:
-            return Response({'message': "Please specify a job"}, status=status.HTTP_400_BAD_REQUEST)
-        except Job.DoesNotExist:
-            return Response({'message': "No job with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-        except Resolver404 as e:
-            return Response({'message': "Error resolving job object. {0}".format(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return self.create(request, *args, **kwargs)
+#        return self.create(request, *args, **kwargs)
 
 
 class OutputPortTypeDetail(generics.RetrieveAPIView):
