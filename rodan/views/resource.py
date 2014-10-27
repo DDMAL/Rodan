@@ -87,6 +87,13 @@ class ResourceList(generics.ListCreateAPIView):
         res_type = request.DATA.get('type', None)
         if not res_type:
             return Response({'message': "You must supply type for these resources."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                restype_obj = resolve_to_object(res_type, ResourceType)
+            except Resolver404:
+                return Response({'message': "Couldn't resolve specified resource type to a ResourceType object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except ResourceType.DoesNotExist:
+                return Response({'message': "Requested resource type does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
         for fileobj in request.FILES.getlist('files'):
             resource_obj = Resource(name=fileobj.name,
@@ -98,7 +105,7 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
 
             resource_id = str(resource_obj.uuid)
-            (ensure_compatible.si(resource_id, res_type) | create_thumbnails.si(resource_id)).apply_async()
+            (ensure_compatible.si(resource_id, restype_obj.mimetype) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj, context={'request': request}).data

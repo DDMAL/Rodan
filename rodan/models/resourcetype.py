@@ -8,7 +8,8 @@ class ResourceType(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    mimetype = models.CharField(max_length=50, primary_key=True)
+    uuid = UUIDField(primary_key=True, auto=True)
+    mimetype = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=255, blank=True)
 
     _cache = {}

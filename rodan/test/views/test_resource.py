@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from rodan.models import Resource
+from rodan.models import Resource, ResourceType
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -44,7 +44,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                     SimpleUploadedFile('page1.txt', 'n/t'),
                     SimpleUploadedFile('page2.txt', 'n/t')
                 ],
-                'type': 'text',
+                'type': "http://localhost:8000/resourcetype/{0}/".format(ResourceType.cached('application/octet-stream').uuid),
             }
             response = self.client.post("/resources/", resource_obj, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)

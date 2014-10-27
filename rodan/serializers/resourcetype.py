@@ -6,4 +6,4 @@ class ResourceTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ResourceType
         read_only_fields = ('mimetype', 'description')
-        fields = ('mimetype', 'description')
+        fields = ('uuid', 'mimetype', 'description')

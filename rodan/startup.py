@@ -14,6 +14,7 @@ def startup():
 
 
 def load_resource_types():
+    ResourceType._cache = {}  # clear cache as every testcase empties the database
     load_type('application/octet-stream', 'Unknown type')  # RFC 2046
     load_type('image/onebit+png', '')
     load_type('image/greyscale+png', '')
