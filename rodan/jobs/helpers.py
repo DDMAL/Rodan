@@ -23,8 +23,8 @@ def ensure_compatible(resource_id, resource_type=None):
         with open(os.path.join(tmpdir, filename), 'rb') as f:
             resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path according to upload_to
             compat_resource_file_path = resource_object.compat_resource_file.path
-        new_type = ResourceType.cached("image/rgb+png")[0]
-        Resource.objects.filter(uuid=resource_id).update(resource_type=new_type)
+        resource_object.resource_type = ResourceType.cached("image/rgb+png")
+        resource_object.save(update_fields=['resource_type'])
         shutil.rmtree(tmpdir)
     else:
         with open(resource_file_path, 'rb') as f:
