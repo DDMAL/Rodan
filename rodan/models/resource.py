@@ -7,12 +7,18 @@ from django.contrib.auth.models import User
 from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
 
-def upload_path(resource, filename):
-    return os.path.join(resource.resource_path, "original_file")
-
-def compat_path(resource, filename):
+def upload_path(resource_obj, filename):
+    # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
-    return os.path.join(resource.resource_path, "compat_file")
+    return os.path.join(resource_obj.resource_path, "original_file{0}".format(ext.lower()))
+
+def compat_path(resource_obj, filename):
+    # compatible file -- use Rodan extensions
+    # We need extension in filesystem as a cue for HTTP server to figure out the best mimetype when user downloads it.
+    ext = resource_obj.resource_type.extension
+    if ext:
+        ext = '.{0}'.format(ext)
+    return os.path.join(resource_obj.resource_path, "compat_file{0}".format(ext))
 
 class Resource(models.Model):
     class Meta:

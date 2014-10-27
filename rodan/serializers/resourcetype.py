@@ -5,5 +5,5 @@ from rest_framework import serializers
 class ResourceTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ResourceType
-        read_only_fields = ('mimetype', 'description')
-        fields = ('uuid', 'mimetype', 'description')
+        read_only_fields = ('mimetype', 'description', 'extension')
+        fields = ('uuid', 'mimetype', 'description', 'extension')

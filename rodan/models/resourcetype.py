@@ -11,6 +11,10 @@ class ResourceType(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     mimetype = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=255, blank=True)
+    extension = models.CharField(max_length=50, blank=True)
+
+    def __unicode__(self):
+        return u"<ResourceType {0}>".format(self.mimetype)
 
     _cache = {}
     @staticmethod

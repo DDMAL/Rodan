@@ -1,3 +1,4 @@
+import mimetypes
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
@@ -28,9 +29,12 @@ class ResourceList(generics.ListCreateAPIView):
 
     - Supported query parameters:
         - `project=$ID`
-        - `run_job=$ID`
-        - `origin=$ID`
-        - `type=string` File type, could be 'image'...
+        - `run_job=$ID`: (optional)
+        - `origin=$ID`: (optional)
+        - `type`: (optional) User can claim the type of the files using this parameter to help Rodan convert it into compatible format. It could be:
+            - An arbitrary MIME type string.
+            - Or a hyperlink to a ResourceType object.
+        - `files`: the files
     """
     model = Resource
     paginate_by = None
@@ -84,16 +88,13 @@ class ResourceList(generics.ListCreateAPIView):
         else:
             output_obj = None
 
-        res_type = request.DATA.get('type', None)
-        if not res_type:
-            return Response({'message': "You must supply type for these resources."}, status=status.HTTP_400_BAD_REQUEST)
-        else:
+        claimed_mimetype = request.DATA.get('type', None)
+        if claimed_mimetype:
             try:
-                restype_obj = resolve_to_object(res_type, ResourceType)
-            except Resolver404:
-                return Response({'message': "Couldn't resolve specified resource type to a ResourceType object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except ResourceType.DoesNotExist:
-                return Response({'message': "Requested resource type does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+                restype_obj = resolve_to_object(claimed_mimetype, ResourceType)
+                claimed_mimetype = restype_obj.mimetype
+            except (Resolver404, ResourceType.DoesNotExist):
+                pass
 
         for fileobj in request.FILES.getlist('files'):
             resource_obj = Resource(name=fileobj.name,
@@ -102,10 +103,11 @@ class ResourceList(generics.ListCreateAPIView):
                                     origin=output_obj,
                                     resource_type=ResourceType.cached('application/octet-stream'))
             resource_obj.save()
-            resource_obj.resource_file.save(upload_path(resource_obj, fileobj.name), fileobj)
+            resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
 
             resource_id = str(resource_obj.uuid)
-            (ensure_compatible.si(resource_id, restype_obj.mimetype) | create_thumbnails.si(resource_id)).apply_async()
+            mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
+            (ensure_compatible.si(resource_id, mimetype) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj, context={'request': request}).data
