@@ -52,7 +52,7 @@ urlpatterns += patterns('',
 
 urlpatterns += format_suffix_patterns(
     patterns('',
-             url(r'', 'rodan.views.main.api_root'),
+             url(r'^$', 'rodan.views.main.api_root'),
              url(r'^auth/token/$', obtain_auth_token, name="token-auth"),
              url(r'^auth/session/$', SessionAuth.as_view(), name="session-auth"),
              url(r'^auth/status/$', SessionStatus.as_view(), name="session-status"),
@@ -78,23 +78,23 @@ urlpatterns += format_suffix_patterns(
              url(r'^connections/$', ConnectionList.as_view(), name="connection-list"),
              url(r'^connection/(?P<pk>[0-9a-z\-]+)/$', ConnectionDetail.as_view(), name="connection-detail"),
              url(r'^outputporttypes/$', OutputPortTypeList.as_view(), name="outputporttype-list"),
-             url(r'^outputporttype/(?P<pk>[0-9a-z/-]+)/$', OutputPortTypeDetail.as_view(), name="outputporttype-detail"),
+             url(r'^outputporttype/(?P<pk>[0-9a-z\-]+)/$', OutputPortTypeDetail.as_view(), name="outputporttype-detail"),
              url(r'^outputports/$', OutputPortList.as_view(), name="outputport-list"),
-             url(r'^outputport/(?P<pk>[0-9a-z/-]+)/$', OutputPortDetail.as_view(), name="outputport-detail"),
+             url(r'^outputport/(?P<pk>[0-9a-z\-]+)/$', OutputPortDetail.as_view(), name="outputport-detail"),
              url(r'^inputporttypes/$', InputPortTypeList.as_view(), name="inputporttype-list"),
-             url(r'^inputporttype/(?P<pk>[0-9a-z/-]+)/$', InputPortTypeDetail.as_view(), name="inputporttype-detail"),
+             url(r'^inputporttype/(?P<pk>[0-9a-z\-]+)/$', InputPortTypeDetail.as_view(), name="inputporttype-detail"),
              url(r'^inputports/$', InputPortList.as_view(), name="inputport-list"),
-             url(r'^inputport/(?P<pk>[0-9a-z/-]+)/$', InputPortDetail.as_view(), name="inputport-detail"),
+             url(r'^inputport/(?P<pk>[0-9a-z\-]+)/$', InputPortDetail.as_view(), name="inputport-detail"),
              url(r'^resources/$', ResourceList.as_view(), name="resource-list"),
-             url(r'^resource/(?P<pk>[0-9a-z/-]+)/$', ResourceDetail.as_view(), name="resource-detail"),
+             url(r'^resource/(?P<pk>[0-9a-z\-]+)/$', ResourceDetail.as_view(), name="resource-detail"),
              url(r'^resourcetypes/$', ResourceTypeList.as_view(), name="resourcetype-list"),
              url(r'^resourcetype/(?P<pk>[0-9a-z\-]+)/$', ResourceTypeDetail.as_view(), name="resourcetype-detail"),
              url(r'^outputs/$', OutputList.as_view(), name="output-list"),
-             url(r'^output/(?P<pk>[0-9a-z/-]+)/$', OutputDetail.as_view(), name="output-detail"),
+             url(r'^output/(?P<pk>[0-9a-z\-]+)/$', OutputDetail.as_view(), name="output-detail"),
              url(r'^inputs/$', InputList.as_view(), name="input-list"),
-             url(r'^input/(?P<pk>[0-9a-z/-]+)/$', InputDetail.as_view(), name='input-detail'),
+             url(r'^input/(?P<pk>[0-9a-z\-]+)/$', InputDetail.as_view(), name='input-detail'),
              url(r'^resourceassignments/$', ResourceAssignmentList.as_view(), name='resourceassignment-list'),
-             url(r'^resourceassignment/(?P<pk>[0-9a-z/-]+)/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail')
+             url(r'^resourceassignment/(?P<pk>[0-9a-z\-]+)/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail')
          )
 )
 
