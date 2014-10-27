@@ -37,6 +37,7 @@ from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
 from rodan.views.resourceassignment import ResourceAssignmentList, ResourceAssignmentDetail
 
+from rodan.views.status import StatusView
 from rodan.views import interactive
 
 # this will only run with the first request.
@@ -57,6 +58,7 @@ urlpatterns += format_suffix_patterns(
              url(r'^auth/session/$', SessionAuth.as_view(), name="session-auth"),
              url(r'^auth/status/$', SessionStatus.as_view(), name="session-status"),
              url(r'^auth/logout/$', SessionClose.as_view(), name="session-close"),
+             url(r'^status/$', StatusView.as_view(), name="status"),
              url(r'^projects/$', ProjectList.as_view(), name="project-list"),
              url(r'^project/(?P<pk>[0-9a-z\-]+)/$', ProjectDetail.as_view(), name="project-detail"),
              url(r'^workflows/$', WorkflowList.as_view(), name="workflow-list"),

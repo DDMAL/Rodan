@@ -30,4 +30,5 @@ def api_root(request, format=None):
                      'session-auth': reverse('session-auth', request=request, format=format),
                      'session-status': reverse('session-status', request=request, format=format),
                      'token-auth': reverse('token-auth', request=request, format=format),
-                     'session-close': reverse('session-close', request=request, format=format)})
+                     'session-close': reverse('session-close', request=request, format=format),
+                     'status': reverse('status', request=request, format=format)})
