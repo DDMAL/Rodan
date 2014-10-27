@@ -26,4 +26,8 @@ def api_root(request, format=None):
                      'resources': reverse('resource-list', request=request, format=format),
                      'resourcetypes': reverse('resourcetype-list', request=request, format=format),
                      'outputs': reverse('output-list', request=request, format=format),
-                     'inputs': reverse('input-list', request=request, format=format)})
+                     'inputs': reverse('input-list', request=request, format=format),
+                     'session-auth': reverse('session-auth', request=request, format=format),
+                     'session-status': reverse('session-status', request=request, format=format),
+                     'token-auth': reverse('token-auth', request=request, format=format),
+                     'session-close': reverse('session-close', request=request, format=format)})
