@@ -19,7 +19,7 @@ def load_module():
                           minimum=1,
                           maximum=1)
         i.save()
-        i.resource_types.add(*ResourceType.cached_filter(lambda name: name.startwith('image/')))
+        i.resource_types.add(*ResourceType.cached_filter(lambda name: name.startswith('image/')))
 
         o = OutputPortType(job=j,
                        name='out',
