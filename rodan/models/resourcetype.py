@@ -36,3 +36,11 @@ class ResourceType(models.Model):
             for mime in mimelist:
                 return_objs.append(ResourceType.cached(mime))
             return return_objs
+
+    _cached_mimetypes = ()
+    @staticmethod
+    def cached_filter(fn=lambda name: True):
+        "Return cached Rodan ResourceTypes according to filter function on mimetype field."
+        if not ResourceType._cached_mimetypes:
+            ResourceType._cached_mimetypes = tuple(ResourceType.objects.all().values_list('mimetype', flat=True))
+        return ResourceType.cached(filter(fn, ResourceType._cached_mimetypes))
