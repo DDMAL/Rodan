@@ -225,7 +225,4 @@ TRACEBACK_IN_ERROR_DETAIL = True
 ## Celery configuration
 ###############################################################################
 CELERY_ENABLE_UTC = True
-CELERY_IMPORTS = ("rodan.jobs.helpers",
-                  "rodan.helpers.resultspackagemanager",
-                  "rodan.jobs.master_task",
-                  "rodan.jobs",)
+CELERY_IMPORTS = ("rodan.jobs",)

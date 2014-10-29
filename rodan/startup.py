@@ -4,14 +4,16 @@ Called by urls.py as suggested by http://stackoverflow.com/questions/6791911/exe
 """
 import sys
 from rodan.models import ResourceType
-from rodan.jobs import load_jobs as load_rodan_jobs
 
 TEST = 'test' in sys.argv
 
 def startup():
     load_resource_types()
-    load_jobs()
 
+    if TEST:
+        import rodan.jobs     # just test if they are defined correctly and make no errors.
+        import rodan.test.dummy_jobs
+        reload(rodan.test.dummy_jobs)
 
 def load_resource_types():
     ResourceType._cache = {}  # clear cache as every testcase empties the database
@@ -35,8 +37,3 @@ def load_resource_types():
 def load_type(mimetype, description='', extension=''):
     if not ResourceType.objects.filter(mimetype=mimetype).exists():
         ResourceType(mimetype=mimetype, description=description, extension=extension).save()
-
-def load_jobs():
-    load_rodan_jobs()
-    if TEST:
-        import rodan.test.dummy_jobs
