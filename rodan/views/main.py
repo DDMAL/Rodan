@@ -17,7 +17,6 @@ def api_root(request, format=None):
                      'workflowruns': reverse('workflowrun-list', request=request, format=format),
                      'runjobs': reverse('runjob-list', request=request, format=format),
                      'jobs': reverse('job-list', request=request, format=format),
-                     'results': reverse('result-list', request=request, format=format),
                      'users': reverse('user-list', request=request, format=format),
                      'resultspackages': reverse('resultspackage-list', request=request, format=format),
                      'connections': reverse('connection-list', request=request, format=format),

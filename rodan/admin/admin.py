@@ -8,7 +8,6 @@ from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
 from rodan.models.job import Job
-from rodan.models.result import Result
 from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
 
@@ -73,6 +72,5 @@ admin.site.register(RunJob, RunJobAdmin)
 admin.site.register(Workflow)
 admin.site.register(Job, JobAdmin)
 admin.site.register(WorkflowJob, WorkflowJobAdmin)
-admin.site.register(Result)
 admin.site.register(ResultsPackage, ResultsPackageAdmin)
 admin.site.register(Resource)

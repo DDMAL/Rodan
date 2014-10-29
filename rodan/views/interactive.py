@@ -3,9 +3,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-
 from rodan.models import RunJob
-from rodan.models import Result
 
 from rodan.jobs.master_task import master_task
 

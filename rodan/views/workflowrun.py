@@ -25,7 +25,6 @@ from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
-from rodan.serializers.runjob import ResultRunJobSerializer
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
 from rodan.jobs.master_task import master_task
@@ -285,8 +284,9 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                 page_data["results"] = []
                 pages[k] = page_data
 
-            if include_results and run_job.result.all():
-                pages[k]['results'].append(ResultRunJobSerializer(run_job.result.all()[0], context={'request': request}).data)
+            # [TODO] Remove result
+            #if include_results and run_job.result.all():
+            #    pages[k]['results'].append(ResultRunJobSerializer(run_job.result.all()[0], context={'request': request}).data)
 
         workflow_run = WorkflowRunByPageSerializer(workflow_run, context={'request': request}).data[0]
         workflow_run['pages'] = sorted(pages.values(), key=itemgetter('page_order'))

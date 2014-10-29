@@ -9,12 +9,11 @@ from django.conf import settings as rodan_settings
 from django.core.files import File
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
-from rodan.models.result import Result
 from rodan.jobs.gamera import argconvert
 from rodan.jobs.helpers import create_thumbnails
 from rodan.helpers.exceptions import InvalidFirstJobError, UUIDParseError, ObjectDeletedError
 from rodan.helpers.dbmanagement import exists_in_db, refetch_from_db, resolve_object_from_url
-
+Result = lambda x: x   # dummy object
 
 def execute_unless_deleted(db_object, partial_func):
     if db_object.pk:

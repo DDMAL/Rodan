@@ -22,8 +22,6 @@ from rodan.views.runjob import RunJobList
 from rodan.views.runjob import RunJobDetail
 from rodan.views.job import JobList
 from rodan.views.job import JobDetail
-from rodan.views.result import ResultList
-from rodan.views.result import ResultDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
 from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
@@ -68,8 +66,6 @@ urlpatterns += format_suffix_patterns(
              url(r'^workflowjob/(?P<pk>[0-9a-z\-]+)/$', WorkflowJobDetail.as_view(), name="workflowjob-detail"),
              url(r'^jobs/$', JobList.as_view(), name="job-list"),
              url(r'^job/(?P<pk>[0-9a-z\-]+)/$', JobDetail.as_view(), name="job-detail"),
-             url(r'^results/$', ResultList.as_view(), name="result-list"),
-             url(r'^result/(?P<pk>[0-9a-z\-]+)/$', ResultDetail.as_view(), name="result-detail"),
              url(r'^users/$', UserList.as_view(), name="user-list"),
              url(r'^user/(?P<pk>[0-9\-]+)/$', UserDetail.as_view(), name="user-detail"),
              url(r'^workflowruns/$', WorkflowRunList.as_view(), name="workflowrun-list"),
