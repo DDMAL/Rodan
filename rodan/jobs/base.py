@@ -38,7 +38,7 @@ class _RodanTaskRegisterHook(TaskType):
                                       minimum=ipt.get('minimum'),
                                       maximum=ipt.get('maximum'))
                     i.save()
-                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(ipt['resource_type'])
+                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(ipt['resource_types'])
                     i.resource_types.add(*resource_types)
                 for opt in attrs.get('output_port_types', ()):
                     o = OutputPortType(job=j,
@@ -46,7 +46,7 @@ class _RodanTaskRegisterHook(TaskType):
                                       minimum=opt.get('minimum'),
                                       maximum=opt.get('maximum'))
                     o.save()
-                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(opt['resource_type'])
+                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(opt['resource_types'])
                     if len(resource_types) == 0:
                         raise ValueError('No available resource types found for this Input/OutputPortType')
                     o.resource_types.add(*resource_types)
@@ -55,40 +55,17 @@ class _RodanTaskRegisterHook(TaskType):
     def _resolve_resource_types(value):
         """
         `value` should be one of:
-        - a string of a certain mimetype
         - a list of strings of mimetypes
         - a callable which receives one parameter (as a filter)
-        - a string of regex
-        - a regex object
 
         Returns a list of ResourceType objects.
         """
         try:
-            value('')
-            return ResourceType.cached_filter(value)
+            mimelist = filter(value, ResourceType.all_mimetypes())
         except TypeError:
-            pass
+            mimelist = value
+        return ResourceType.cached_list(mimelist)
 
-        if isinstance(value, basestring):
-            try:
-                return (ResourceType.cached(value), )
-            except ResourceType.DoesNotExist:
-                # treat as regex
-                regex = re.compile(value)
-                return ResourceType.cached_filter(lambda n: regex.search(n) is not None)
-
-        try:
-            # regex object
-            value.match('')
-            return ResourceType.cached_filter(lambda n: value.search(n) is not None)
-        except Exception as e:
-            pass
-
-        try:
-            # a list of mimetype strings
-            return ResourceType.cached(value)
-        except Exception as e:
-            raise e
 
 class RodanTask(Task):
     __metaclass__ = _RodanTaskRegisterHook

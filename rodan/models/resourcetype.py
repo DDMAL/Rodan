@@ -1,6 +1,8 @@
 from django.db import models
 from uuidfield import UUIDField
 
+_cache = {}
+
 class ResourceType(models.Model):
     """
     A ResourceType is [TODO]
@@ -16,31 +18,26 @@ class ResourceType(models.Model):
     def __unicode__(self):
         return u"<ResourceType {0}>".format(self.mimetype)
 
-    _cache = {}
     @staticmethod
-    def cached(mime_or_mimelist):
-        "return cached object(s) of type names for performance"
-        if not isinstance(mime_or_mimelist, list) and not isinstance(mime_or_mimelist, tuple):
-            mime = mime_or_mimelist         # not iterable
-
-            if mime in ResourceType._cache:
-                return ResourceType._cache[mime]
-            else:
-                obj = ResourceType.objects.get(mimetype=mime)  # could raise exception models.DoesNotExist
-                ResourceType._cache[mime] = obj
-                return obj
+    def load(mimetype, description='', extension=''):
+        if not ResourceType.objects.filter(mimetype=mimetype).exists():
+            rt_obj = ResourceType(mimetype=mimetype, description=description, extension=extension)
+            rt_obj.save()
         else:
-            mimelist = mime_or_mimelist     # iterable
+            rt_obj = ResourceType.objects.get(mimetype=mimetype)
 
-            return_objs = []
-            for mime in mimelist:
-                return_objs.append(ResourceType.cached(mime))
-            return return_objs
+        _cache[mimetype] = rt_obj
 
-    _cached_mimetypes = ()
     @staticmethod
-    def cached_filter(fn=lambda name: True):
-        "Return cached Rodan ResourceTypes according to filter function on mimetype field."
-        if not ResourceType._cached_mimetypes:
-            ResourceType._cached_mimetypes = tuple(ResourceType.objects.all().values_list('mimetype', flat=True))
-        return ResourceType.cached(filter(fn, ResourceType._cached_mimetypes))
+    def cached(mime):
+        return _cache[mime]
+
+    @staticmethod
+    def cached_list(mimelist):
+        "return cached objects of mimetypes"
+        return map(lambda mime: _cache[mime], mimelist)
+
+    @staticmethod
+    def all_mimetypes():
+        "return all mimetypes in the cache"
+        return _cache.keys()

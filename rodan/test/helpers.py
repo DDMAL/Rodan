@@ -23,12 +23,12 @@ class RodanTestSetUpMixin(object):
                                              maximum=3,
                                              minimum=1,
                                              job=self.test_job)
-        self.test_inputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
+        self.test_inputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
                                               job=self.test_job)
-        self.test_outputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
+        self.test_outputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)

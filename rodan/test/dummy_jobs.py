@@ -17,12 +17,12 @@ class dummy_automatic_job(RodanTask):
     interactive = False
 
     input_port_types = (
-        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
-        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
+        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
     )
     output_port_types = (
-        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
-        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
+        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
     )
 
     def run_my_task(self, inputs, settings, outputs):
@@ -59,12 +59,12 @@ class dummy_manual_job(RodanTask):
     interactive = True
 
     input_port_types = (
-        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
-        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
+        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
     )
     output_port_types = (
-        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
-        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
+        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
     )
 
     def run_my_task(self, inputs, settings, outputs):
