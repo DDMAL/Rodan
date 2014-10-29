@@ -9,9 +9,8 @@ TEST = 'test' in sys.argv
 
 def startup():
     load_resource_types()
-
     if TEST:
-        import rodan.jobs     # just test if they are defined correctly and make no errors.
+        import rodan.jobs     # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
         import rodan.test.dummy_jobs
         reload(rodan.test.dummy_jobs)
 
