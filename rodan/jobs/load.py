@@ -11,6 +11,11 @@ allow a graceful degradation with a message that a particular set of modules cou
 loaded.
 
 
+# How to write Rodan jobs?
+
+See https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
+
+
 # Why not loading in `__init__.py`?
 
 Because it hinders testing. If we write these imports in `__init__.py`, Rodan will attempt
