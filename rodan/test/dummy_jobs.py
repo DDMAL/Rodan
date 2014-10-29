@@ -56,7 +56,7 @@ class dummy_manual_job(RodanTask):
     )
     enabled = True
     category = "Dummy"
-    interactive = False
+    interactive = True
 
     input_port_types = (
         {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_type': ('test/a1', 'test/a2')},
