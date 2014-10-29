@@ -1,0 +1,34 @@
+{# Customize the browsable API #}
+
+{% extends "rest_framework/base.html" %}
+
+
+{% block title %}Rodan APIs{% endblock %}
+
+
+{% block branding %}
+<a class='brand' rel='nofollow' href='/'>Rodan APIs</a>
+{% endblock %}
+
+{% block description %}
+{{ description }}
+
+<section>
+  <p>
+    <strong>Allowed methods: </strong>
+    {% for m in allowed_methods %}
+    <code>{{ m }}</code>
+    {% endfor %}
+  </p>
+  <p>
+    <strong>Permissions: </strong>
+    {% for c in view.permission_classes %}
+    <code>{{ c }}</code>
+    {% endfor %}
+  </p>
+</section>
+
+<hr/>
+{% endblock %}
+
+{% block footer %}{% endblock %}
