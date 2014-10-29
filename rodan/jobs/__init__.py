@@ -142,7 +142,6 @@ def load_jobs():
         logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
 
     from rodan.jobs.conversion import to_png
-    to_png.load_module()
 
 
 load_jobs()

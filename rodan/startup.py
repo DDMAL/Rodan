@@ -39,6 +39,4 @@ def load_type(mimetype, description='', extension=''):
 def load_jobs():
     load_rodan_jobs()
     if TEST:
-        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
-        load_dummy_automatic_job()
-        load_dummy_manual_job()
+        import rodan.test.dummy_jobs

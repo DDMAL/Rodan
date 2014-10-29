@@ -32,7 +32,7 @@ def ensure_compatible(resource_id, claimed_mimetype=None):
     }]}
 
     if mimetype.startswith('image'):
-        from rodan.jobs.conversion.celery_task import to_png
+        from rodan.jobs.conversion import to_png
         to_png().run_my_task(inputs, [], outputs)
         resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
     else:
