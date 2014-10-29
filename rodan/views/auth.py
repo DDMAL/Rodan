@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import views
+from rest_framework import parsers
+from rest_framework import renderers
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from rodan.serializers.user import UserSerializer
 
@@ -69,3 +73,22 @@ class SessionClose(views.APIView):
             return Response({'detail': "User was successfully logged out"})
         else:
             return Response({'detail': "Access denied"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class ObtainAuthToken(views.APIView):
+    throttle_classes = ()
+    permission_classes = ()
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
+    renderer_classes = (renderers.JSONRenderer,)
+    serializer_class = AuthTokenSerializer
+    model = Token
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.DATA)
+        if serializer.is_valid():
+            token, created = Token.objects.get_or_create(user=serializer.object['user'])
+            userinfo = UserSerializer(serializer.object['user'], context={'request': request})
+            info_with_token = userinfo.data['token'] = token.key
+            return Response(userinfo.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

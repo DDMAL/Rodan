@@ -20,12 +20,20 @@ def ensure_compatible(resource_id, claimed_mimetype=None):
 
     infile_path = resource_info['resource_file']
     tmpdir = tempfile.mkdtemp()
-    tmpfile = os.path.join(tmpdir, 'temp.png')
+    tmpfile = os.path.join(tmpdir, 'temp')
 
+    inputs = {'in': [{
+        'resource_path': infile_path,
+        'resource_type': mimetype
+    }]}
+    outputs = {'out': [{
+        'resource_path': tmpfile,
+        'resource_type': ''
+    }]}
 
     if mimetype.startswith('image'):
-        image = PIL.Image.open(infile_path).convert('RGB')
-        image.save(tmpfile)
+        from rodan.jobs.conversion import to_png
+        to_png().run_my_task(inputs, [], outputs)
         resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
     else:
         shutil.copy(infile_path, tmpfile)

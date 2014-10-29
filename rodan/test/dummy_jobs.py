@@ -6,6 +6,25 @@ from rodan.jobs.base import RodanTask
 
 class dummy_automatic_job(RodanTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
+    author = "Andrew Hankinson"
+    description = "A Dummy Job for testing the Job loading and workflow system"
+    settings = (
+        {'default': None, 'has_default': False, 'name': "mask", 'pixel_types': (0), 'type': "imagetype"},
+        {'default': [], 'has_default': False, 'name': "reference_histogram", 'list_of': False, 'length': -1, 'type': "floatvector"}
+    )
+    enabled = True
+    category = "Dummy"
+    interactive = False
+
+    input_port_types = (
+        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+    )
+    output_port_types = (
+        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+    )
+
     def run_my_task(self, inputs, settings, outputs):
         in_resources = []
         for ipt_name in inputs:
@@ -29,6 +48,25 @@ class dummy_automatic_job(RodanTask):
 
 class dummy_manual_job(RodanTask):
     name = "rodan.jobs.devel.dummy_manual_job"
+    author = "Andrew Hankinson"
+    description = "A Dummy Job for testing the Job loading and workflow system"
+    settings = (
+        {'default': None, 'has_default': False, 'name': "mask", 'pixel_types': (0), 'type': "imagetype"},
+        {'default': [], 'has_default': False, 'name': "reference_histogram", 'list_of': False, 'length': -1, 'type': "floatvector"}
+    )
+    enabled = True
+    category = "Dummy"
+    interactive = True
+
+    input_port_types = (
+        {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+    )
+    output_port_types = (
+        {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+    )
+
     def run_my_task(self, inputs, settings, outputs):
         in_resources = []
         for ipt_name in inputs:

@@ -23,12 +23,12 @@ class RodanTestSetUpMixin(object):
                                              maximum=3,
                                              minimum=1,
                                              job=self.test_job)
-        self.test_inputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
+        self.test_inputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
                                               job=self.test_job)
-        self.test_outputporttype.resource_types.add(*ResourceType.cached(['test/a1', 'test/a2']))
+        self.test_outputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
@@ -111,10 +111,6 @@ class RodanTestSetUpMixin(object):
         """
         Description of this complex dummy workflow: https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
         """
-
-        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
-        load_dummy_automatic_job()
-        load_dummy_manual_job()
         job_a = Job.objects.get(job_name='rodan.jobs.devel.dummy_automatic_job')
         job_m = Job.objects.get(job_name='rodan.jobs.devel.dummy_manual_job')
 

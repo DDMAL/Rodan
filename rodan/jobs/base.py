@@ -1,14 +1,76 @@
-import tempfile, shutil, os, uuid, copy
+import tempfile, shutil, os, uuid, copy, re
 from celery import Task
+from celery.app.task import TaskType
 from rodan.models.runjob import RunJobStatus
-from rodan.models import RunJob, Input, Output, Resource, ResourceType
+from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType
 from rodan.jobs.helpers import create_thumbnails
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
 
 
+class _RodanTaskRegisterHook(TaskType):
+    """
+    This is a metaclass for RodanTask.
+
+    Every time a new task inherits RodanTask, __init__ method of this metaclass is
+    triggered, which registers the new task in Rodan database.
+
+    Note: TaskType is the metaclass of Task (Celery objects)
+    """
+    def __init__(cls, clsname, bases, attrs):
+        super(_RodanTaskRegisterHook, cls).__init__(clsname, bases, attrs)
+
+        if attrs.get('__metaclass__') != _RodanTaskRegisterHook:  # not the base class
+            if not Job.objects.filter(job_name=attrs['name']).exists():
+                j = Job(job_name=attrs['name'],
+                        author=attrs.get('author'),
+                        description=attrs.get('description'),
+                        settings=attrs.get('settings'),
+                        enabled=attrs.get('enabled'),
+                        category=attrs.get('category'),
+                        interactive=attrs.get('interactive'))
+                j.save()
+
+                for ipt in attrs['input_port_types']:
+                    i = InputPortType(job=j,
+                                      name=ipt.get('name'),
+                                      minimum=ipt.get('minimum'),
+                                      maximum=ipt.get('maximum'))
+                    i.save()
+                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(ipt['resource_types'])
+                    i.resource_types.add(*resource_types)
+
+                for opt in attrs['output_port_types']:
+                    o = OutputPortType(job=j,
+                                       name=opt.get('name'),
+                                       minimum=opt.get('minimum'),
+                                       maximum=opt.get('maximum'))
+                    o.save()
+                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(opt['resource_types'])
+                    if len(resource_types) == 0:
+                        raise ValueError('No available resource types found for this Input/OutputPortType')
+                    o.resource_types.add(*resource_types)
+
+    @staticmethod
+    def _resolve_resource_types(value):
+        """
+        `value` should be one of:
+        - a list of strings of mimetypes
+        - a callable which receives one parameter (as a filter)
+
+        Returns a list of ResourceType objects.
+        """
+        try:
+            mimelist = filter(value, ResourceType.all_mimetypes())
+        except TypeError:
+            mimelist = value
+        return ResourceType.cached_list(mimelist)
+
+
 class RodanTask(Task):
+    __metaclass__ = _RodanTaskRegisterHook
+    abstract = True
     # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
     # Specific jobs that inherit the base class should not touch database.
 
