@@ -32,7 +32,7 @@ class _RodanTaskRegisterHook(TaskType):
                         interactive=attrs.get('interactive'))
                 j.save()
 
-                for ipt in attrs.get('input_port_types', ()):
+                for ipt in attrs['input_port_types']:
                     i = InputPortType(job=j,
                                       name=ipt.get('name'),
                                       minimum=ipt.get('minimum'),
@@ -40,11 +40,12 @@ class _RodanTaskRegisterHook(TaskType):
                     i.save()
                     resource_types = _RodanTaskRegisterHook._resolve_resource_types(ipt['resource_types'])
                     i.resource_types.add(*resource_types)
-                for opt in attrs.get('output_port_types', ()):
+
+                for opt in attrs['output_port_types']:
                     o = OutputPortType(job=j,
-                                      name=opt.get('name'),
-                                      minimum=opt.get('minimum'),
-                                      maximum=opt.get('maximum'))
+                                       name=opt.get('name'),
+                                       minimum=opt.get('minimum'),
+                                       maximum=opt.get('maximum'))
                     o.save()
                     resource_types = _RodanTaskRegisterHook._resolve_resource_types(opt['resource_types'])
                     if len(resource_types) == 0:
