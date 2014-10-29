@@ -29,6 +29,7 @@ class JobAdmin(admin.ModelAdmin):
 
 
 class ProjectAdmin(GuardedModelAdmin):
+    list_display = ('name', 'uuid', 'creator', 'created', 'updated')
     readonly_fields = ('uuid',)
 
 
