@@ -12,7 +12,12 @@ from rodan.serializers.user import UserSerializer, UserListSerializer
 
 class UserList(generics.ListCreateAPIView):
     """
-    Returns a list of users. Accepts POST requests to create new users. A successful POST request will return the newly created user object.
+    Returns a list of Users. Accepts POST requests to create a new User.
+    A successful POST request will return the newly created User object.
+
+    #### Parameters
+    - `username` -- GET-only.
+    - `password` -- GET-only.
     """
     model = User
     permission_classes = (permissions.IsAdminUser, )
@@ -33,7 +38,7 @@ class UserList(generics.ListCreateAPIView):
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Performs operations on a single user record.
+    Performs operations on a single User instance.
     """
     model = User
     permission_classes = (permissions.IsAdminUser, )

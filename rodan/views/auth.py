@@ -36,6 +36,9 @@ class SessionAuth(views.APIView):
     #### Parameters
     - username -- Username
     - password -- Password
+
+    #### Example
+    `{"username": "admin", "password": "admin"}`
     """
     def post(self, request, *args, **kwargs):
         username = request.DATA.get('username', None)
@@ -63,9 +66,7 @@ class SessionAuth(views.APIView):
 
 class SessionClose(views.APIView):
     """
-    Logging out.
-
-    This will clear `sessionid`.
+    Logging out. This will clear `sessionid`.
     """
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
@@ -91,4 +92,3 @@ class ObtainAuthToken(views.APIView):
             info_with_token = userinfo.data['token'] = token.key
             return Response(userinfo.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

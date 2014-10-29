@@ -5,6 +5,9 @@ from rodan.serializers.output import OutputSerializer, OutputListSerializer
 
 
 class OutputList(generics.ListAPIView):
+    """
+    Returns a list of Outputs. Do not accept POST request as Outputs are typically created by the server.
+    """
     model = Output
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
@@ -15,6 +18,9 @@ class OutputList(generics.ListAPIView):
 
 
 class OutputDetail(generics.RetrieveAPIView):
+    """
+    Query a single Output instance.
+    """
     model = Output
     serializer_class = OutputSerializer
     permission_classes = (permissions.IsAuthenticated, )

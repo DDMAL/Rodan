@@ -14,27 +14,19 @@ from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 
 class ResourceList(generics.ListCreateAPIView):
     """
-    ## GET
+    Returns a list of Resources. Accepts a POST request with a data body with
+    multiple files to create new Resource objects. It will return the newly
+    created Resource objects.
 
-    Retrieve all resources.
-
-    - Supported query parameters:
-        - `project=$ID`: filter resources belonging to project $ID.
-
-    ## POST
-
-    Create new resources.
-
-    Accepts a POST request with a data body with multiple files to create new resource objects. It will return the newly created resource objects.
-
-    - Supported query parameters:
-        - `project=$ID`
-        - `run_job=$ID`: (optional)
-        - `origin=$ID`: (optional)
-        - `type`: (optional) User can claim the type of the files using this parameter to help Rodan convert it into compatible format. It could be:
-            - An arbitrary MIME type string.
+    #### Parameters
+    - `project` -- GET & POST. UUID of a Project.
+    - `run_job` -- (optional) POST-only. UUID of a RunJob.
+    - `origin` -- (optional) POST-only. UUID of an Output.
+    - `type` -- (optional) POST-only. User can claim the type of the files using
+       this parameter to help Rodan convert it into compatible format. It could be:
+            - An arbitrary MIME-type string.
             - Or a hyperlink to a ResourceType object.
-        - `files`: the files
+    - `files` -- POST-only. The files.
     """
     model = Resource
     paginate_by = None
@@ -120,7 +112,7 @@ class ResourceList(generics.ListCreateAPIView):
 
 class ResourceDetail(generics.RetrieveUpdateAPIView):
     """
-    Perform operations on a single resource instance.
+    Perform operations on a single Resource instance.
     """
     model = Resource
     serializer_class = ResourceSerializer

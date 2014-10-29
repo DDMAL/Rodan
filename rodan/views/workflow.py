@@ -11,11 +11,13 @@ from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerialize
 
 class WorkflowList(generics.ListCreateAPIView):
     """
-    Returns a list of all workflows. Accepts a POST request with a data body to create a new workflow. POST requests will return the newly-created workflow object.
+    Returns a list of all Workflows. Accepts a POST request with a data body to
+    create a new Workflow. POST requests will return the newly-created Workflow object.
 
-    - Supported Query Parameters:
-        - project=$ID: Retrieve workflows belonging to project $ID.
-    - Permissions: Authenticated
+    #### Parameters
+    - `project` -- GET & POST. UUID of a Project for GET, URL of a Project for POST.
+    - `name` -- POST-only.
+    - `valid` -- (optional) POST-only. Should be empty string.
     """
     model = Workflow
     # permission_classes = (permissions.IsAuthenticated, )
@@ -61,13 +63,18 @@ class WorkflowList(generics.ListCreateAPIView):
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Performs operations on a single workflow instance.
+    Performs operations on a single Workflow instance.
+
+    #### Parameters
+    - `valid` -- PATCH-only. If provided with non-empty string, workflow validation
+      will be triggered.
     """
     model = Workflow
 
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
 
+    # [TODO] PUT valid=True??
     def patch(self, request, pk, *args, **kwargs):
         try:
             workflow = Workflow.objects.get(pk=pk)

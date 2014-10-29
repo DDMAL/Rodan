@@ -8,6 +8,9 @@ from rest_framework.reverse import reverse
 
 @api_view(('GET',))
 def api_root(request, format=None):
+    """
+    Browse all APIs of Rodan server.
+    """
     return Response({'projects': reverse('project-list', request=request, format=format),
                      'workflows': reverse('workflow-list', request=request, format=format),
                      'workflowjobs': reverse('workflowjob-list', request=request, format=format),

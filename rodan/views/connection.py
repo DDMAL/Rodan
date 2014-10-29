@@ -12,6 +12,14 @@ from rodan.serializers.connection import ConnectionListSerializer, ConnectionSer
 
 
 class ConnectionList(generics.ListCreateAPIView):
+    """
+    Returns a list of Connections. Accepts a POST request with a data body to create
+    a new Connection. POST requests will return the newly-created Connection object.
+
+    #### Parameters
+    - input_port -- POST-only, URL to an InputPort object
+    - output_port -- POST-only, URL to an OutputPort object
+    """
     model = Connection
     serializer_class = ConnectionListSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -39,18 +47,13 @@ class ConnectionList(generics.ListCreateAPIView):
         except OutputPort.DoesNotExist:
             return Response({'message': "No output port with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        injob_obj = WorkflowJobSerializer(ip_obj.workflow_job, context={'request': request}).data
-        request.DATA['input_workflow_job'] = injob_obj['url']
-
-        outjob_obj = WorkflowJobSerializer(op_obj.workflow_job, context={'request': request}).data
-        request.DATA['output_workflow_job'] = outjob_obj['url']
-
-        request.DATA['workflow'] = injob_obj['workflow']
-
         return self.create(request, *args, **kwargs)
 
 
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Perform operations on a single Connection instance.
+    """
     model = Connection
     serializer_class = ConnectionSerializer
     permission_classes = (permissions.IsAuthenticated, )

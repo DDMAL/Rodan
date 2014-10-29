@@ -12,6 +12,17 @@ from rodan.serializers.resourceassignment import ResourceAssignmentSerializer
 
 
 class ResourceAssignmentList(generics.ListCreateAPIView):
+    """
+    Returns a list of ResourceAssignments. Accepts a POST request with a data body
+    to create a new ResourceAssignments. POST requests will return the newly-created
+    ResourceAssignment object.
+
+    #### Parameters
+    - input_port -- POST-only, URL to an InputPort object
+    - workflow -- POST-only, URL to an Workflow object [TODO] unnecessary??
+    - workflow_job -- POST-only, URL to an WorkflowJob object [TODO] unnecessary??
+    - [TODO]: Resources?
+    """
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -52,6 +63,9 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
 
 
 class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Perform operations on a single ResourceAssignment instance.
+    """
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )

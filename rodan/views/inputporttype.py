@@ -10,6 +10,10 @@ from rodan.serializers.inputporttype import InputPortTypeSerializer
 
 
 class InputPortTypeList(generics.ListAPIView):
+    """
+    Returns a list of InputPortTypes. Does not accept POST requests, since
+    InputPortTypes should be defined and loaded server-side.
+    """
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -31,6 +35,9 @@ class InputPortTypeList(generics.ListAPIView):
 
 
 class InputPortTypeDetail(generics.RetrieveAPIView):
+    """
+    Query a single InputPortType instance.
+    """
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )

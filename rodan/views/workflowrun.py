@@ -33,14 +33,21 @@ from rodan.jobs.master_task import master_task
 
 class WorkflowRunList(generics.ListCreateAPIView):
     """
-    Returns a list of all workflows runs. Accepts a POST request with a data body to create a new `WorkflowRun`. POST requests will return the newly-created workflow run object.
+    Returns a list of all WorkflowRuns. Accepts a POST request with a data body to
+    create a new WorkflowRun. POST requests will return the newly-created WorkflowRun
+    object.
 
-    Creating a new `WorkflowRun` instance executes the workflow. Meanwhile, `RunJob`s, `Input`s, `Output`s and `Resource`s are created according to the workflow.
+    Creating a new WorkflowRun instance executes the workflow. Meanwhile, RunJobs,
+    Inputs, Outputs and Resources are created corresponding to the workflow.
 
-    - Supported Query Parameters:
-        - workflow=$ID: Retrieves all runs for workflow $ID. (GET only)
-        - test=true: Sets whether this is a test run or not. (POST only)
-        - page_id=$ID: If this is a test run, you must supply a page ID to test the workflow on. (POST only)
+    #### Parameters
+    - `workflow` -- GET-only. UUID of a Workflow. [TODO]: even in POST?
+
+
+    [TODO]: Deprecated parameters??
+
+    - test=true: Sets whether this is a test run or not. (POST only)
+    - page_id=$ID: If this is a test run, you must supply a page ID to test the workflow on. (POST only)
     """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
@@ -241,12 +248,15 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
 class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     """
-    [TODO]
-    Performs operations on a single workflow run instance.
+    Performs operations on a single WorkflowRun instance.
 
-    - Supported Query Parameters:
-        - `by_page=true`: If true, re-formats the returned workflow run object by returning it based on page-and-results, rather than runjob-and-page.
-        - `include_results=true|false`: Sets whether to include the results (per page) for the workflow run (GET only; only checked if `by_page` is present).
+    #### Parameters
+    - `cancelled` -- PATCH-only. Attempt of uncancelling will trigger an error. [TODO] type??
+
+    [TODO] are they still effective??
+
+    - `by_page=true`: If true, re-formats the returned workflow run object by returning it based on page-and-results, rather than runjob-and-page.
+    - `include_results=true|false`: Sets whether to include the results (per page) for the workflow run (GET only; only checked if `by_page` is present).
 
     Sending a PATCH request retries the failed jobs in a workflowrun. It tries its best to have expected behavior. If the settings of the associated workflowjob of a runjob is changed, the new settings are picked up by the runjob. Of course, the jobs that have already succeeded will not be run again, so changing their workflowjob settings have no effect whatsoever. If you add a new page to workflow, that page is taken into the workflowrun and all the workflow jobs are run on it, so if you forgot to add one page to a workflow you can add it later and send the patch request to the workflowrun.
 
@@ -360,7 +370,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_already_cancelled = workflow_run.cancelled
-        workflow_newly_cancelled = request.DATA.get('cancelled', None)
+        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # [TODO] what is the type? str or bool??
 
         if not workflow_already_cancelled and workflow_newly_cancelled:
             runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))

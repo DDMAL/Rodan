@@ -7,13 +7,13 @@ from rodan.models.workflowrun import WorkflowRun
 
 class JobList(generics.ListAPIView):
     """
-    Returns a list of all workflows. Does not accept POST requests, since Jobs should be defined and loaded server-side.
+    Returns a list of all Jobs. Does not accept POST requests, since
+    Jobs should be defined and loaded server-side.
 
-    - Supported Query Parameters:
-        - `enabled=true`: Filter the list of available jobs by their enabled/disabled status.
-        - `workflowrun=$ID`: Filter the list of available jobs for those associated with the provided Workflow Run ID.
-    - Methods Supported: GET
-    - Permissions: Read-only (public)
+    #### Parameters
+    - `enabled` -- GET-only. [TODO] (what stands for enabled and what for disabled?)
+      Filter the list of available jobs by their enabled/disabled status.
+    - `workflowrun` -- GET-only. UUID of WorkflowRun object.
     """
     model = Job
     serializer_class = JobSerializer
@@ -28,7 +28,7 @@ class JobList(generics.ListAPIView):
         workflow_run_url = self.request.QUERY_PARAMS.get('workflowrun', None)
         queryset = Job.objects.all()
         if enabled:
-            queryset = queryset.filter(enabled=enabled)
+            queryset = queryset.filter(enabled=enabled) # [TODO] how to interpret this string?
         if workflow_run_url:
             workflow_run_instance = resolve_object_from_url(WorkflowRun, workflow_run_url)
             run_jobs = workflow_run_instance.run_jobs.all()
@@ -42,7 +42,7 @@ class JobList(generics.ListAPIView):
 
 class JobDetail(generics.RetrieveAPIView):
     """
-    Returns a single instance of a Job. Read-only.
+    Query a single Job instance.
     """
     model = Job
     serializer_class = JobSerializer

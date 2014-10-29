@@ -7,10 +7,12 @@ from rodan.serializers.workflowjob import WorkflowJobSerializer
 
 class WorkflowJobList(generics.ListCreateAPIView):
     """
-    Returns a list of all workflows jobs. Accepts a POST request with a data body to create a new workflow job. POST requests will return the newly-created workflow job object.
+    Returns a list of all WorkflowJobs. Accepts a POST request with a data body
+    to create a new WorkflowJob. POST requests will return the newly-created
+    WorkflowJob object.
 
-    - Supported Query Parameters:
-        - `workflow=$ID`: Retrieve workflow jobs belonging to workflow $ID.
+    ##### Parameters
+    - `workflow` -- GET-only. UUID of a Workflow.
     """
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
@@ -29,7 +31,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Performs operations on a single workflow job instance.
+    Performs operations on a single WorkflowJob instance.
     """
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )

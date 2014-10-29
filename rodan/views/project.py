@@ -11,7 +11,9 @@ from rodan.serializers.project import ProjectSerializer, ProjectListSerializer
 
 class ProjectList(generics.ListCreateAPIView):
     """
-    Returns a list of projects that the user has permissions to view. Accepts a POST request with a data body to create a new project. POST requests will return the newly-created project object.
+    Returns a list of Projects that the user has permissions to view. Accepts a POST
+    request with a data body to create a new Project. POST requests will return the
+    newly-created Project object.
     """
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
@@ -26,7 +28,7 @@ class ProjectList(generics.ListCreateAPIView):
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Performs operations on a single project instance.
+    Performs operations on a single Project instance.
     """
     model = Project
     permission_classes = (permissions.IsAuthenticated,)

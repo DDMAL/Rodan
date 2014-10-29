@@ -5,6 +5,12 @@ from rodan.serializers.input import InputSerializer
 
 
 class InputList(generics.ListAPIView):
+    """
+    Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the server.
+
+    #### Parameters
+    - `run_job` -- GET-only. [TODO]: URL or UUID?
+    """
     model = Input
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
@@ -20,6 +26,9 @@ class InputList(generics.ListAPIView):
 
 
 class InputDetail(generics.RetrieveAPIView):
+    """
+    Query a single Input instance.
+    """
     model = Input
     serializer_class = InputSerializer
     permission_classes = (permissions.IsAuthenticated, )

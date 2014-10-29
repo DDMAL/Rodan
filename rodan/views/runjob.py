@@ -8,13 +8,13 @@ from rodan.serializers.runjob import RunJobSerializer
 
 class RunJobList(generics.ListAPIView):
     """
-    Returns a list of all run jobs. Run Jobs are typically created by the server, so this does not accept POST requests.
+    Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
 
-    - Supported Query Parameters:
-        - `requires_interaction=true`: Sets whether only those Run Jobs that currently require interaction will be returned or not (GET only).
-        - `project=$ID`: Retrieve runjobs belonging to project $ID (GET only).
-        - `workflowrun=$ID`: Retrieve runjobs belonging to workflow run $ID (GET only).
-        - `page=$ID`: Retrieve runjobs belonging to page $ID (GET only).
+    #### Parameters
+    - `requires_interaction` -- GET-only. If provided with any values, it will only
+      return those RunJobs that currently require interaction.
+    - `project` -- GET-only. UUID of a Project.
+    - `workflowrun` -- GET-only. UUID of a WorkflowRun. [TODO] Rename to workflow_run??
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
@@ -27,7 +27,7 @@ class RunJobList(generics.ListAPIView):
         workflowrun = self.request.QUERY_PARAMS.get('workflowrun', None)
         queryset = RunJob.objects.all()
         if requires_interaction:
-            queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING])
+            queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING]) # [TODO] ready_for_input?
         if project:
             queryset = queryset.filter(workflow_job__workflow__project__uuid=project)
         if workflowrun:
@@ -38,7 +38,7 @@ class RunJobList(generics.ListAPIView):
 
 class RunJobDetail(generics.RetrieveAPIView):
     """
-    Performs operations on a single Run Job instance. Does not support the DELETE method.
+    Performs operations on a single RunJob instance.
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
