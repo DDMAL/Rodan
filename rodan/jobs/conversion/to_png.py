@@ -12,7 +12,7 @@ class to_png(RodanTask):
     interactive = False
 
     input_port_types = (
-        {'name': 'in', 'minimum': 1, 'maximum': 1, 'resource_type': lambda name: name.startwith('image/')},
+        {'name': 'in', 'minimum': 1, 'maximum': 1, 'resource_type': lambda name: name.startswith('image/')},
     )
     output_port_types = (
         {'name': 'out', 'minimum': 1, 'maximum': 1, 'resource_type': 'image/rgb+png'},

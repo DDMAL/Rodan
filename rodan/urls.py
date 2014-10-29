@@ -3,11 +3,12 @@ from django.conf import settings
 from django.contrib import admin
 
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework.authtoken.views import obtain_auth_token
 
 from rodan.views.auth import SessionAuth
 from rodan.views.auth import SessionStatus
 from rodan.views.auth import SessionClose
+from rodan.views.auth import ObtainAuthToken
+
 
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail
@@ -54,7 +55,7 @@ urlpatterns += patterns('',
 urlpatterns += format_suffix_patterns(
     patterns('',
              url(r'^$', 'rodan.views.main.api_root'),
-             url(r'^auth/token/$', obtain_auth_token, name="token-auth"),
+             url(r'^auth/token/$', ObtainAuthToken.as_view(), name="token-auth"),
              url(r'^auth/session/$', SessionAuth.as_view(), name="session-auth"),
              url(r'^auth/status/$', SessionStatus.as_view(), name="session-status"),
              url(r'^auth/logout/$', SessionClose.as_view(), name="session-close"),
