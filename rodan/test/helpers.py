@@ -111,10 +111,6 @@ class RodanTestSetUpMixin(object):
         """
         Description of this complex dummy workflow: https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
         """
-
-        from rodan.jobs.devel.dummy_job import load_dummy_automatic_job, load_dummy_manual_job
-        load_dummy_automatic_job()
-        load_dummy_manual_job()
         job_a = Job.objects.get(job_name='rodan.jobs.devel.dummy_automatic_job')
         job_m = Job.objects.get(job_name='rodan.jobs.devel.dummy_manual_job')
 
