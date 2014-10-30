@@ -77,8 +77,8 @@ class RodanTask(Task):
     def run(self, runjob_id):
         settings = RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0]
         inputs = self._inputs(runjob_id)
-        temp_dir = tempfile.mkdtemp()
-        outputs = self._outputs(runjob_id, temp_dir)
+        self._temp_dir = tempfile.mkdtemp()
+        outputs = self._outputs(runjob_id, self._temp_dir)
 
         # build argument for run_my_task and mapping dictionary
         arg_outputs = {}
@@ -103,7 +103,8 @@ class RodanTask(Task):
                 res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
                 res_query.update(compat_resource_file=path)
 
-        shutil.rmtree(temp_dir)
+        shutil.rmtree(self._temp_dir)
+        del self._temp_dir
         return retval
 
     def run_my_task(self, inputs, settings, outputs):
@@ -128,6 +129,8 @@ class RodanTask(Task):
         update = self._add_error_information_to_runjob(exc, einfo)
         update['status'] = RunJobStatus.FAILED
         RunJob.objects.filter(pk=runjob_id).update(**update)
+        shutil.rmtree(self._temp_dir)
+        del self._temp_dir
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
