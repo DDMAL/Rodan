@@ -33,7 +33,7 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
     def test_session_auth_fail(self):
         response = self.client.get("/")
         response = self.client.post("/auth/session/", {"username": "ahankins", "password": "notgood"}, format="multipart")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_token_auth_pass(self):
         token = self.client.post("/auth/token/", {"username": "ahankins", "password": "hahaha"}, format="multipart")
@@ -42,7 +42,4 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
 
     def test_token_auth_fail(self):
         token = self.client.post("/auth/token/", {"username": "ahankins", "password": "wrongg"}, format="multipart")
-        self.assertEqual(token.data['non_field_errors'][0], "Unable to log in with provided credentials.")
-
-    def tearDown(self):
-        pass
+        self.assertEqual(token.data, {'is_logged_in': False})
