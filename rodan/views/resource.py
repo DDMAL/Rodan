@@ -21,7 +21,6 @@ class ResourceList(generics.ListCreateAPIView):
 
     #### Parameters
     - `project` -- GET & POST. UUID of a Project.
-    - `run_job` -- (optional) POST-only. UUID of a RunJob.
     - `origin` -- (optional) POST-only. UUID of an Output.
     - `type` -- (optional) POST-only. User can claim the type of the files using
        this parameter to help Rodan convert it into compatible format. It could be:
@@ -60,15 +59,6 @@ class ResourceList(generics.ListCreateAPIView):
             return Response({'message': "Could not resolve Project ID to a Project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Project.DoesNotExist:
             return Response({'message': "No project with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-        run_job = request.DATA.get('run_job', None)
-        if run_job:
-            try:
-                runjob_obj = resolve_to_object(run_job, RunJob)
-            except Resolver404:
-                return Response({'message': "Couldn't resolve specified RunJob to a RunJob object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except RunJob.DoesNotExist:
-                return Response({'message': "No runjob with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
 
         origin = request.DATA.get('origin', None)
         if origin:
