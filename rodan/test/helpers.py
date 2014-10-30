@@ -1,13 +1,22 @@
 from model_mommy import mommy
 from django.contrib.auth.models import User
 from rodan.models import Project, Job, ResourceType
+from rodan.models.resourcetype import load_predefined_resource_types
 from django.core.files.base import ContentFile
 import time
-from rodan.startup import startup
 
 class RodanTestSetUpMixin(object):
     def setUp_rodan(self):
-        startup()
+        # ResourceTypes
+        load_predefined_resource_types()
+        load = ResourceType.load
+        load('test/a1', '')
+        load('test/a2', '')
+        load('test/b', '')
+        # Jobs
+        import rodan.jobs.load     # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
+        import rodan.test.dummy_jobs
+        reload(rodan.test.dummy_jobs)
 
     def setUp_user(self):
         self.test_user = User.objects.create_user(username="ahankins", password="hahaha")

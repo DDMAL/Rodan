@@ -25,8 +25,8 @@ are already Job-related objects in the production database, and we cannot test w
 there are errors in job definitions. Therefore, we write imports in a submodule that will
 never be executed when importing `rodan.jobs` or other submodules under `rodan.jobs`.
 """
-from rodan.startup import startup
-startup()  # set up ResourceTypes
+from rodan.models.resourcetype import load_predefined_resource_types
+load_predefined_resource_types()  # set up ResourceTypes
 
 import logging
 logger = logging.getLogger('rodan')
