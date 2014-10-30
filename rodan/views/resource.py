@@ -12,6 +12,8 @@ from rodan.models.resource import ResourceProcessingStatus
 from rodan.serializers.resource import ResourceSerializer
 from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 
+#class ResourceFilter(django_filters.FilterSet):
+
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -32,15 +34,7 @@ class ResourceList(generics.ListCreateAPIView):
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
-
-    def get_queryset(self):
-        queryset = Resource.objects.all()
-        project = self.request.QUERY_PARAMS.get('project', None)
-
-        if project:
-            queryset = queryset.filter(project__uuid=project)
-
-        return queryset
+    filter_fields = ('project', )
 
     def post(self, request, *args, **kwargs):
         if not request.FILES:

@@ -18,15 +18,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
     paginate_by = None
-
-    def get_queryset(self):
-        queryset = WorkflowJob.objects.all()
-        workflow = self.request.QUERY_PARAMS.get('workflow', None)
-
-        if workflow:
-            queryset = queryset.filter(workflow__uuid=workflow)
-
-        return queryset
+    filter_fields = ('workflow', )
 
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):

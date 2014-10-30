@@ -40,7 +40,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     Inputs, Outputs and Resources are created corresponding to the workflow.
 
     #### Parameters
-    - `workflow` -- GET-only. UUID of a Workflow. [TODO]: even in POST?
+    - `workflow` -- GET-only. UUID of a Workflow. [TODO]: use Hyperlink in POST?
 
 
     [TODO]: Deprecated parameters??
@@ -52,13 +52,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     paginate_by = None
-
-    def get_queryset(self):
-        workflow = self.request.QUERY_PARAMS.get('workflow', None)
-        queryset = WorkflowRun.objects.all()
-        if workflow:
-            queryset = queryset.filter(workflow__uuid=workflow)
-        return queryset
+    filter_fields = ('workflow' , )
 
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)

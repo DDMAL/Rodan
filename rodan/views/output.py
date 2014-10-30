@@ -13,9 +13,6 @@ class OutputList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = OutputListSerializer
 
-    def get_queryset(self):
-        return Output.objects.all()
-
 
 class OutputDetail(generics.RetrieveAPIView):
     """
