@@ -114,7 +114,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-            # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+            # At this point, the automatic RunJob should fail, and the manual RunJob should not accept input
             self.assertEqual(dummy_a_runjob.status, RunJobStatus.FAILED)
             self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
             self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
