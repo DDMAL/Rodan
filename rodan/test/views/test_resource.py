@@ -3,6 +3,9 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Resource, ResourceType
+from rodan.models.resource import ResourceProcessingStatus
+from StringIO import StringIO
+from PIL import Image
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -51,8 +54,76 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_resource2 = Resource.objects.get(pk=response.data['resources'][1]['uuid'])
         self.assertNotEqual(self.test_resource1.resource_file.path, '')
         self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
+        self.assertEqual(self.test_resource1.processing_status, ResourceProcessingStatus.NOT_APPLICABLE)
         self.assertNotEqual(self.test_resource2.resource_file.path, '')
         self.assertNotEqual(self.test_resource2.compat_resource_file.path, '')
+        self.assertEqual(self.test_resource2.resource_type.mimetype, 'application/octet-stream')
+        self.assertEqual(self.test_resource2.processing_status, ResourceProcessingStatus.NOT_APPLICABLE)
+
+
+class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_basic_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+
+    def test_post_image(self):
+        file_obj = StringIO()
+        image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
+        image.save(file_obj, 'png')
+        file_obj.name = 'page1.png'
+        file_obj.seek(0)
+        resource_obj = {
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
+            'files': [
+                file_obj
+            ],
+        }
+        response = self.client.post("/resources/", resource_obj, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.test_resource1 = Resource.objects.get(pk=response.data['resources'][0]['uuid'])
+        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertEqual(self.test_resource1.processing_status, ResourceProcessingStatus.HAS_FINISHED)
+        self.assertEqual(self.test_resource1.resource_type.mimetype, 'image/rgb+png')
+
+    def test_post_image_claiming_txt(self):
+        file_obj = StringIO()
+        image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
+        image.save(file_obj, 'png')
+        file_obj.name = 'page1.png'
+        file_obj.seek(0)
+        resource_obj = {
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
+            'files': [
+                file_obj
+            ],
+            'type': 'text/plain'
+        }
+        response = self.client.post("/resources/", resource_obj, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.test_resource1 = Resource.objects.get(pk=response.data['resources'][0]['uuid'])
+        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertEqual(self.test_resource1.processing_status, ResourceProcessingStatus.NOT_APPLICABLE)
+        self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
+
+    def test_post_bad_image(self):
+        with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail   [TODO]: figure why celery still raises exception
+            resource_obj = {
+                'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
+                'files': [
+                    SimpleUploadedFile('page1.png', 'n/t'),
+                ],
+            }
+            response = self.client.post("/resources/", resource_obj, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.test_resource1 = Resource.objects.get(pk=response.data['resources'][0]['uuid'])
+            self.assertEqual(self.test_resource1.compat_resource_file.path, '')
+            self.assertEqual(self.test_resource1.processing_status, ResourceProcessingStatus.FAILED)
+            self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
+
+
 
 
     # def test_patch(self):

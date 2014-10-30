@@ -1,4 +1,5 @@
 import mimetypes
+from celery import registry
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
@@ -7,7 +8,7 @@ from rest_framework.response import Response
 from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import RunJob, Project, Output, Resource, ResourceType
-from rodan.models.resource import upload_path
+from rodan.models.resource import ResourceProcessingStatus
 from rodan.serializers.resource import ResourceSerializer
 from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 
@@ -93,13 +94,14 @@ class ResourceList(generics.ListCreateAPIView):
                                     project=project_obj,
                                     creator=current_user,
                                     origin=output_obj,
+                                    processing_status=ResourceProcessingStatus.WAITING,
                                     resource_type=ResourceType.cached('application/octet-stream'))
             resource_obj.save()
             resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
 
             resource_id = str(resource_obj.uuid)
             mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
-            (ensure_compatible.si(resource_id, mimetype) | create_thumbnails.si(resource_id)).apply_async()
+            (registry.tasks[ensure_compatible.name].si(resource_id, mimetype) | create_thumbnails.si(resource_id)).apply_async()
 
             try:
                 d = ResourceSerializer(resource_obj, context={'request': request}).data

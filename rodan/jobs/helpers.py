@@ -7,46 +7,69 @@ from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
 from rodan.models import Resource, ResourceType
+from rodan.models.resource import ResourceProcessingStatus
+from celery import Task
 
-@task(name="rodan.jobs.helpers.ensure_compatible")
-def ensure_compatible(resource_id, claimed_mimetype=None):
-    resource_query = Resource.objects.filter(uuid=resource_id)
-    resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
+class ensure_compatible(Task):
+    name = "rodan.jobs.helpers.ensure_compatible"
 
-    if not claimed_mimetype:
-        mimetype = resource_info['resource_type__mimetype']
-    else:
-        mimetype = claimed_mimetype
+    def run(self, resource_id, claimed_mimetype=None):
+        resource_query = Resource.objects.filter(uuid=resource_id)
+        resource_query.update(processing_status=ResourceProcessingStatus.RUNNING)
+        resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
 
-    infile_path = resource_info['resource_file']
-    tmpdir = tempfile.mkdtemp()
-    tmpfile = os.path.join(tmpdir, 'temp')
+        if not claimed_mimetype:
+            mimetype = resource_info['resource_type__mimetype']
+        else:
+            mimetype = claimed_mimetype
 
-    inputs = {'in': [{
-        'resource_path': infile_path,
-        'resource_type': mimetype
-    }]}
-    outputs = {'out': [{
-        'resource_path': tmpfile,
-        'resource_type': ''
-    }]}
+        infile_path = resource_info['resource_file']
+        self._tmpdir = tempfile.mkdtemp()
+        tmpfile = os.path.join(self._tmpdir, 'temp')
 
-    if mimetype.startswith('image'):
-        from rodan.jobs.conversion import to_png
-        to_png().run_my_task(inputs, [], outputs)
-        resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
-    else:
-        shutil.copy(infile_path, tmpfile)
-        resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
+        inputs = {'in': [{
+            'resource_path': infile_path,
+            'resource_type': mimetype
+        }]}
+        outputs = {'out': [{
+            'resource_path': tmpfile,
+            'resource_type': ''
+        }]}
 
-    with open(tmpfile, 'rb') as f:
-        resource_object = resource_query[0]
-        resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path according to upload_to
-    shutil.rmtree(tmpdir)
-    compat_resource_file_path = resource_object.compat_resource_file.path
-    resource_query.update(compat_resource_file=compat_resource_file_path)
+        self._task_instance = None
+        new_processing_status = ResourceProcessingStatus.HAS_FINISHED
 
-    return True
+        if mimetype.startswith('image'):
+            from rodan.jobs.conversion import to_png
+            self._task_instance = to_png()
+            self._task_instance.run_my_task(inputs, [], outputs)
+            resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
+        else:
+            shutil.copy(infile_path, tmpfile)
+            resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
+            new_processing_status = ResourceProcessingStatus.NOT_APPLICABLE
+
+        with open(tmpfile, 'rb') as f:
+            resource_object = resource_query[0]
+            resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
+        compat_resource_file_path = resource_object.compat_resource_file.path
+        resource_query.update(compat_resource_file=compat_resource_file_path,
+                              processing_status=new_processing_status)
+        shutil.rmtree(self._tmpdir)
+        del self._tmpdir
+        del self._task_instance
+        return True
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        resource_id = args[0]
+
+        from rodan.jobs.base import RodanTask
+        update = RodanTask._add_error_information_to_runjob.im_func(self._task_instance, exc, einfo)
+        update['processing_status'] = ResourceProcessingStatus.FAILED
+        Resource.objects.filter(pk=resource_id).update(**update)
+        shutil.rmtree(self._tmpdir)
+        del self._tmpdir
+        del self._task_instance
 
 
 @task(name="rodan.jobs.helpers.create_thumbnails")

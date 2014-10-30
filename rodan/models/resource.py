@@ -20,6 +20,13 @@ def compat_path(resource_obj, filename):
         ext = '.{0}'.format(ext)
     return os.path.join(resource_obj.resource_path, "compat_file{0}".format(ext))
 
+class ResourceProcessingStatus(object):
+    WAITING = 0
+    RUNNING = 1
+    HAS_FINISHED = 4
+    FAILED = -1
+    NOT_APPLICABLE = None
+
 class Resource(models.Model):
     class Meta:
         app_label = 'rodan'
@@ -29,6 +36,10 @@ class Resource(models.Model):
         Pages. However, now it is possible to use any data resource and label it of being a
         specific type. This constitutes a Resource. (from Rodan wiki)
     """
+    STATUS_CHOICES = [(ResourceProcessingStatus.WAITING, "Waiting to be processed"),
+                      (ResourceProcessingStatus.RUNNING, "Running"),
+                      (ResourceProcessingStatus.HAS_FINISHED, "Has finished"),
+                      (ResourceProcessingStatus.FAILED, "Failed")]
 
     @property
     def resource_path(self):
@@ -43,6 +54,10 @@ class Resource(models.Model):
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
     resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources')
+
+    processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True)
+    error_summary = models.TextField(default="")
+    error_details = models.TextField(default="")
 
     creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)  # no backward reference
