@@ -4,6 +4,8 @@ from rodan.models import Project, Job, ResourceType
 from rodan.models.resourcetype import load_predefined_resource_types
 from django.core.files.base import ContentFile
 import time
+from django.conf import settings
+import shutil, os
 
 class RodanTestSetUpMixin(object):
     def setUp_rodan(self):
@@ -239,6 +241,6 @@ class RodanTestTearDownMixin(object):
         class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase)
     """
     def tearDown(self):
-        # tearing this down manually calls the delete method,
-        # which cleans up the filesystem
-        Project.objects.all().delete()
+        # clean up the temporary filesystem
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)

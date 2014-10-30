@@ -227,6 +227,13 @@ TRACEBACK_IN_ERROR_DETAIL = True
 CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.jobs.load",)
 import sys as _sys
-if 'test' in _sys.argv:
+TEST = 'test' in _sys.argv
+if TEST:
     CELERY_ALWAYS_EAGER=True  # Run Celery task synchronously, instead of sending into queue
     CELERY_EAGER_PROPAGATES_EXCEPTIONS=True  # Propagate exceptions in synchronous task running by default
+
+
+# Use temporary filesystem to store projects and resources during test
+if TEST:
+    import tempfile as _tempfile
+    MEDIA_ROOT = _tempfile.mkdtemp() + '/'
