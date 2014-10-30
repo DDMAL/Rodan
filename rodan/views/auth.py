@@ -85,10 +85,27 @@ class ObtainAuthToken(views.APIView):
     model = Token
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.DATA)
-        if serializer.is_valid():
-            token, created = Token.objects.get_or_create(user=serializer.object['user'])
-            userinfo = UserSerializer(serializer.object['user'], context={'request': request})
-            info_with_token = userinfo.data['token'] = token.key
-            return Response(userinfo.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        username = request.DATA.get('username', None)
+        password = request.DATA.get('password', None)
+
+        if not username:
+            return Response({'detail': "You must supply a username"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not password:
+            return Response({'detail': "You must supply a password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                # log in successfully
+                login(request, user)
+                token, created = Token.objects.get_or_create(user=user)
+                userinfo = UserSerializer(user, context={'request': request})
+                userinfo.data['token'] = token.key
+                return Response(userinfo.data)
+            else:
+                # user exists, but is not allowed to log in
+                return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            # user does not exist. Assume a typo in the username or password and allow the user to re-authenticate
+            return Response({"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED)
