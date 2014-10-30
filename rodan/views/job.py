@@ -26,7 +26,7 @@ class JobList(generics.ListAPIView):
         if 'workflow_run' in self.request.QUERY_PARAMS:
             wfrun_id = self.request.QUERY_PARAMS['workflow_run']
             wf_id = Workflow.objects.filter(workflow_runs__uuid=wfrun_id).values_list('uuid', flat=True)
-            filter_dict['workflow_jobs__workflow__uuid'] = wf_id
+            filter_dict['workflow_jobs__workflow__uuid__in'] = wf_id
 
         return Job.objects.filter(**filter_dict)
 
