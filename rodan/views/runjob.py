@@ -1,39 +1,31 @@
 from rest_framework import generics
 from rest_framework import permissions
-
+import django_filters
 from rodan.models.runjob import RunJob
 from rodan.models.runjob import RunJobStatus
 from rodan.serializers.runjob import RunJobSerializer
 
+class RunJobFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(name="workflow_run__workflow__project")
+    class Meta:
+        model = RunJob
+        fields = ('ready_for_input', 'project', 'workflow_run')
 
 class RunJobList(generics.ListAPIView):
     """
     Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
 
     #### Parameters
-    - `requires_interaction` -- GET-only. If provided with any values, it will only
+    - `ready_for_input` -- GET-only. If provided with any values, it will only
       return those RunJobs that currently require interaction.
     - `project` -- GET-only. UUID of a Project.
-    - `workflowrun` -- GET-only. UUID of a WorkflowRun. [TODO] Rename to workflow_run??
+    - `workflow_run` -- GET-only. UUID of a WorkflowRun.
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
     paginate_by = None
-
-    def get_queryset(self):
-        requires_interaction = self.request.QUERY_PARAMS.get('requires_interaction', None)
-        project = self.request.QUERY_PARAMS.get('project', None)
-        workflowrun = self.request.QUERY_PARAMS.get('workflowrun', None)
-        queryset = RunJob.objects.all()
-        if requires_interaction:
-            queryset = queryset.filter(needs_input=1).filter(status__in=[RunJobStatus.WAITING_FOR_INPUT, RunJobStatus.RUN_ONCE_WAITING]) # [TODO] ready_for_input?
-        if project:
-            queryset = queryset.filter(workflow_job__workflow__project__uuid=project)
-        if workflowrun:
-            queryset = queryset.filter(workflow_run=workflowrun)
-
-        return queryset
+    filter_class = RunJobFilter
 
 
 class RunJobDetail(generics.RetrieveAPIView):

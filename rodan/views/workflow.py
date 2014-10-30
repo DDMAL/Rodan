@@ -24,15 +24,7 @@ class WorkflowList(generics.ListCreateAPIView):
     permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
     paginate_by = None
-
-    def get_queryset(self):
-        queryset = Workflow.objects.all()
-        project = self.request.QUERY_PARAMS.get('project', None)
-
-        if project:
-            queryset = queryset.filter(project__uuid=project)
-
-        return queryset
+    filter_fields = ('project', )
 
     def post(self, request, *args, **kwargs):
         kwargs['partial'] = True

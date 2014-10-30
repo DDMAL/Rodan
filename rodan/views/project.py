@@ -21,7 +21,6 @@ class ProjectList(generics.ListCreateAPIView):
     paginate_by = None
 
     def get_queryset(self):
-        # queryset = Project.objects.all()
         queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')
         return queryset
 
@@ -33,8 +32,3 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProjectSerializer
-
-    def get(self, request, pk, *args, **kwargs):
-        if not check_uuid(pk):
-            return Response({'message': "You must supply a valid UUID identifier"}, status=status.HTTP_400_BAD_REQUEST)
-        return self.retrieve(request, *args, **kwargs)

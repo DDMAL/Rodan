@@ -9,20 +9,12 @@ class InputList(generics.ListAPIView):
     Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the server.
 
     #### Parameters
-    - `run_job` -- GET-only. [TODO]: URL or UUID?
+    - `run_job` -- GET-only. UUID of a RunJob object.
     """
     model = Input
     paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
-
-    def get_queryset(self):
-        run_job = self.request.QUERY_PARAMS.get('run_job', None)
-        queryset = Input.objects.all()
-
-        if run_job:
-            queryset = queryset.filter(run_job=run_job)
-
-        return queryset
+    filter_fields = ('run_job', )
 
 
 class InputDetail(generics.RetrieveAPIView):
