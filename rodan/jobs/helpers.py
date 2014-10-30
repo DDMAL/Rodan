@@ -62,9 +62,7 @@ class ensure_compatible(Task):
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         resource_id = args[0]
-
-        from rodan.jobs.base import RodanTask
-        update = RodanTask._add_error_information_to_runjob.im_func(self._task_instance, exc, einfo)
+        update = self._task_instance._add_error_information_to_runjob(exc, einfo)
         update['processing_status'] = ResourceProcessingStatus.FAILED
         Resource.objects.filter(pk=resource_id).update(**update)
         shutil.rmtree(self._tmpdir)
