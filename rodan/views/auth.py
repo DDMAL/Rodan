@@ -57,11 +57,11 @@ class SessionAuth(views.APIView):
                 serializer = UserSerializer(user, context={'request': request})
                 return Response(serializer.data)
             else:
-                # user exists, but is inactive
+                # user exists, but is not allowed to log in
                 return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
         else:
-            # user does not exist
-            return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)
+            # user does not exist. Assume a typo in the username or password and allow the user to re-authenticate
+            return Response({"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class SessionClose(views.APIView):
