@@ -39,6 +39,8 @@ from rodan.views.resourceassignment import ResourceAssignmentList, ResourceAssig
 from rodan.views.status import StatusView
 from rodan.views import interactive
 
+# run-once import, initialize Rodan database
+import rodan.jobs.load
 
 urlpatterns = []
 
