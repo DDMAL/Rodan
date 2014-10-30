@@ -11,8 +11,7 @@ class JobList(generics.ListAPIView):
     Jobs should be defined and loaded server-side.
 
     #### Parameters
-    - `enabled` -- GET-only. [TODO] (what stands for enabled and what for disabled?)
-      Filter the list of available jobs by their enabled/disabled status.
+    - `enabled` -- GET-only. Boolean value: True/False.
     - `workflowrun` -- GET-only. UUID of WorkflowRun object.
     """
     model = Job

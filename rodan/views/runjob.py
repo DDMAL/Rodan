@@ -16,8 +16,7 @@ class RunJobList(generics.ListAPIView):
     Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
 
     #### Parameters
-    - `ready_for_input` -- GET-only. If provided with any values, it will only
-      return those RunJobs that currently require interaction.
+    - `ready_for_input` -- GET-only. Boolean value: True/False.
     - `project` -- GET-only. UUID of a Project.
     - `workflow_run` -- GET-only. UUID of a WorkflowRun.
     """
