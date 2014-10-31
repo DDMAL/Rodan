@@ -9,9 +9,9 @@ from django.core.files import File
 from django.db.models import Prefetch
 
 
-class _RodanTaskRegisterHook(TaskType):
+class RodanTaskType(TaskType):
     """
-    This is a metaclass for RodanTask.
+    This is the metaclass for RodanTask base class.
 
     Every time a new task inherits RodanTask, __init__ method of this metaclass is
     triggered, which registers the new task in Rodan database.
@@ -19,9 +19,9 @@ class _RodanTaskRegisterHook(TaskType):
     Note: TaskType is the metaclass of Task (Celery objects)
     """
     def __init__(cls, clsname, bases, attrs):
-        super(_RodanTaskRegisterHook, cls).__init__(clsname, bases, attrs)
+        super(RodanTaskType, cls).__init__(clsname, bases, attrs)
 
-        if attrs.get('__metaclass__') != _RodanTaskRegisterHook:  # not the base class
+        if attrs.get('__metaclass__') != RodanTaskType:  # not the base class
             if not Job.objects.filter(job_name=attrs['name']).exists():
                 j = Job(job_name=attrs['name'],
                         author=attrs.get('author'),
@@ -38,7 +38,7 @@ class _RodanTaskRegisterHook(TaskType):
                                       minimum=ipt.get('minimum'),
                                       maximum=ipt.get('maximum'))
                     i.save()
-                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(ipt['resource_types'])
+                    resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
                     i.resource_types.add(*resource_types)
 
                 for opt in attrs['output_port_types']:
@@ -47,7 +47,7 @@ class _RodanTaskRegisterHook(TaskType):
                                        minimum=opt.get('minimum'),
                                        maximum=opt.get('maximum'))
                     o.save()
-                    resource_types = _RodanTaskRegisterHook._resolve_resource_types(opt['resource_types'])
+                    resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
                     if len(resource_types) == 0:
                         raise ValueError('No available resource types found for this Input/OutputPortType')
                     o.resource_types.add(*resource_types)
@@ -69,7 +69,7 @@ class _RodanTaskRegisterHook(TaskType):
 
 
 class RodanTask(Task):
-    __metaclass__ = _RodanTaskRegisterHook
+    __metaclass__ = RodanTaskType
     abstract = True
     # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
     # Specific jobs that inherit the base class should not touch database.
