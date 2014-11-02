@@ -183,7 +183,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
-    'PAGINATE_BY': 100,
+    'PAGINATE_BY': 20,
     'USE_ABSOLUTE_URLS': True,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',
                                 'rest_framework.filters.OrderingFilter')
