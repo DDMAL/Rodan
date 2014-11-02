@@ -22,7 +22,6 @@ class UserList(generics.ListCreateAPIView):
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserListSerializer
-    paginate_by = None
 
     def get_queryset(self):
         queryset = User.objects.exclude(pk=-1)

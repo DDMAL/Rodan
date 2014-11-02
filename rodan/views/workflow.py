@@ -23,7 +23,6 @@ class WorkflowList(generics.ListCreateAPIView):
     # permission_classes = (permissions.IsAuthenticated, )
     permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
-    paginate_by = None
     filter_fields = ('project', )
 
     def post(self, request, *args, **kwargs):

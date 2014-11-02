@@ -16,7 +16,6 @@ class JobList(generics.ListAPIView):
     """
     model = Job
     serializer_class = JobSerializer
-    paginate_by = None
     filter_fields = ('enabled', )
 
     def get_queryset(self):

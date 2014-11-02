@@ -17,7 +17,6 @@ class InputPortTypeList(generics.ListAPIView):
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
-    paginate_by = None
 
 #    def post(self, request, *args, **kwargs):
 #        job = request.DATA.get('job', None)

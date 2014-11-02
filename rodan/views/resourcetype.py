@@ -13,7 +13,6 @@ class ResourceTypeList(generics.ListAPIView):
     model = ResourceType
     serializer_class = ResourceTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
-    paginate_by = None
 
 
 class ResourceTypeDetail(generics.RetrieveAPIView):

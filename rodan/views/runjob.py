@@ -23,7 +23,6 @@ class RunJobList(generics.ListAPIView):
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
-    paginate_by = None
     filter_class = RunJobFilter
 
 

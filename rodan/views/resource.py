@@ -31,7 +31,6 @@ class ResourceList(generics.ListCreateAPIView):
     - `files` -- POST-only. The files.
     """
     model = Resource
-    paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
     filter_fields = ('project', )

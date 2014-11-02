@@ -26,7 +26,6 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )
-    paginate_by = None
 
     def post(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)

@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 
 
 @api_view(('GET',))
+@ensure_csrf_cookie
 def api_root(request, format=None):
     """
     Browse all APIs of Rodan server.

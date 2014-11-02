@@ -17,7 +17,6 @@ class WorkflowJobList(generics.ListCreateAPIView):
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
-    paginate_by = None
     filter_fields = ('workflow', )
 
 

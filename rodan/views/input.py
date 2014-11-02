@@ -12,7 +12,6 @@ class InputList(generics.ListAPIView):
     - `run_job` -- GET-only. UUID of a RunJob object.
     """
     model = Input
-    paginate_by = None
     permission_classes = (permissions.IsAuthenticated, )
     filter_fields = ('run_job', )
 

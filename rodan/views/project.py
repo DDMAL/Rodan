@@ -18,7 +18,6 @@ class ProjectList(generics.ListCreateAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProjectListSerializer
-    paginate_by = None
 
     def get_queryset(self):
         queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')

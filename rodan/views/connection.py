@@ -22,8 +22,7 @@ class ConnectionList(generics.ListCreateAPIView):
     """
     model = Connection
     serializer_class = ConnectionListSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-    paginate_by = None
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)

@@ -19,7 +19,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageListSerializer
-    paginate_by = None
 
     def _resolve_object(self, object_class, object_url, error_dict={'400': [], '404': []}):
         url_path = urlparse.urlparse(object_url).path

@@ -51,8 +51,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
-    paginate_by = None
-    filter_fields = ('workflow' , )
+    filter_fields = ('workflow',)
 
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)

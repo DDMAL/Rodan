@@ -11,8 +11,7 @@ class InputPortList(generics.ListCreateAPIView):
     """
     model = InputPort
     serializer_class = InputPortSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-    paginate_by = None
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -21,4 +20,4 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     model = InputPort
     serializer_class = InputPortSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
