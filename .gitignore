@@ -19,3 +19,5 @@ rodan/static/Rodan
 
 # ignore emacs autosave file
 *~
+
+.DS_Store
