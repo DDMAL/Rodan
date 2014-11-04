@@ -14,15 +14,13 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        read_only_fields = ('created', 'updated', 'runs')
+        read_only_fields = ('created', 'updated')
         fields = ("url",
                   "uuid",
                   "name",
                   "project",
-                  'runs',
                   "workflow_jobs",
                   "description",
-                  "has_started",
                   "created",
                   "updated",
                   "valid",
@@ -36,7 +34,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        read_only_fields = ('created', 'updated', 'runs')
+        read_only_fields = ('created', 'updated')
         fields = ('url',
                   "uuid",
                   'project',

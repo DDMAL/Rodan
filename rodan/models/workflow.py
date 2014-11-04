@@ -14,8 +14,6 @@ class Workflow(models.Model):
     - `name`
     - `description`
     - `project` -- a reference to `Project` where it resides.
-    - `has_started` [TODO] deprecated
-    - `runs` [TODO] deprecated
     - `creator` -- a reference to `User` who created it.
     - `valid` -- a boolean, indicating whether the contents of `Workflow` is valid.
     - `created`
@@ -37,8 +35,6 @@ class Workflow(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey("rodan.Project", related_name="workflows")
     description = models.TextField(blank=True, null=True)
-    has_started = models.BooleanField(default=False)
-    runs = models.IntegerField(default=1)
     creator = models.ForeignKey("auth.User", related_name="workflows")
     valid = models.BooleanField(default=False)
 
