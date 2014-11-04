@@ -38,7 +38,7 @@ class WorkflowJobAdmin(admin.ModelAdmin):
 
 
 class RunJobAdmin(admin.ModelAdmin):
-    list_display = ('job_name', 'page_name', 'created', 'updated')
+    list_display = ('job_name', 'created', 'updated')
 
 
 class WorkflowRunAdmin(admin.ModelAdmin):
