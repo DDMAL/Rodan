@@ -5,7 +5,27 @@ _cache = {}
 
 class ResourceType(models.Model):
     """
-    A ResourceType is [TODO]
+    Describes the resource types built in Rodan. Every `ResourceType` is based on
+    a standard or custom MIME-type, to help other applications understand Rodan's
+    resource types as much as possible.
+
+    **Fields**
+
+    - `uuid`
+    - `mimetype` -- a string in MIME-type format. `application/octet-stream` stands
+      for unknown type.
+    - `description` -- optional string.
+    - `extension` -- extension name (after dot) assigned to compatible resource files
+      to help the static file server find the best MIME-types.
+
+    **Class Methods**
+
+    - `ResourceType.load` -- initialize a `ResourceType` if not in database, and
+      add it into local `ResourceType` cache.
+    - `ResourceType.cached` -- retrieve a cached `ResourceType` instance by MIME-type.
+    - `ResourceType.cached_list` -- retrieve a list of cached `ResourceType` instances
+      by MIME-type.
+    - `ResourceType.all_mimetypes` -- retrieve all MIME-types supported by Rodan.
     """
     class Meta:
         app_label = 'rodan'

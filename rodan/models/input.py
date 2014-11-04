@@ -3,6 +3,18 @@ from uuidfield import UUIDField
 
 
 class Input(models.Model):
+    """
+    Links a `RunJob` to one of its input `Resource`s. There must be
+    one `Input` for each `InputPort` of the `WorkflowJob`.
+
+    **Fields**
+
+    - `uuid`
+    - `input_port` -- a reference to an `InputPort`.
+    - `resource` -- a field containing a reference to the precise `Resource` that
+      this `RunJob` will act on.
+    - `run_job` -- a reference to the `RunJob` that will be executed.
+    """
     class Meta:
         app_label = 'rodan'
 

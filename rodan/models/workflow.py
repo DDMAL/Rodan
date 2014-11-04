@@ -6,11 +6,28 @@ from uuidfield import UUIDField
 
 class Workflow(models.Model):
     """
-        A Workflow is a sequence of jobs, where the output of one job becomes the input
-        of the subsequent job. Each workflow also has multiple Pages assigned to it, so that
-        a workflow may apply the same sequence of jobs to all the pages.
+    A `Workflow` is a container of jobs, their connections, and resource assignments.
 
-        This model uses quoted relationed model names to avoid circular imports.
+    **Fields**
+
+    - `uuid`
+    - `name`
+    - `description`
+    - `project` -- a reference to `Project` where it resides.
+    - `has_started` [TODO] deprecated
+    - `runs` [TODO] deprecated
+    - `creator` -- a reference to `User` who created it.
+    - `valid` -- a boolean, indicating whether the contents of `Workflow` is valid.
+    - `created`
+    - `updated`
+
+    **Properties**
+
+    - `workflow_path` [TODO] deprecated: we use resource path now
+
+    **Methods**
+
+    - `save` and `delete` [TODO] deprecated: we use resource path now
     """
     @property
     def workflow_path(self):

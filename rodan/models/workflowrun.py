@@ -1,21 +1,33 @@
 import os
 from django.db import models
 from uuidfield import UUIDField
-# from django_extensions.db.fields import json
 
 
 class WorkflowRun(models.Model):
     """
-        A WorkflowRun model represents the running of a workflow. Since Rodan is based
-        on a RESTful design, workflows are *not* run by sending a "run workflow" command.
-        Rather, they are run by creating a new WorkflowRun resource.
+    Represents the running of a workflow. Since Rodan is based on a RESTful design,
+    `Workflow`s are *not* run by sending a command like "run workflow". Rather,
+    they are run by creating a new `WorkflowRun` instance.
 
-        WorkflowRuns can be either a test run, or a "real" run. Test runs operate on a single page,
-        while "real" runs operate on a whole collection of pages.
+    **Fields**
 
-        Each RunJob instance has a foreign key to the WorkflowRun they are associated with.
+    - `uuid`
+    - `workflow` -- a reference to the `Workflow`.
+    - `creator` -- a reference to the `User`.
+    - `test_run` [TODO]
+    - `cancelled` -- a boolean indicating whether it has been cancelled.
+    - `created`
+    - `updated`
 
-        To see how WorkflowRuns are executed, see `views/workflowrun.py`.
+    **Properties**
+
+    - `workflow_run_path` [TODO]
+    - `retry_backup_directory` [TODO]
+
+    **Methods**
+
+    - `save` [TODO]
+    - `get_absolute_url` [TODO]
     """
     @property
     def workflow_run_path(self):

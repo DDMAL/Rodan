@@ -3,6 +3,29 @@ from uuidfield import UUIDField
 
 
 class Connection(models.Model):
+    """
+    Describes exactly how `WorkflowJob`s are connected together.
+
+    **Fields**
+
+    - `uuid`
+    - `input_port` -- a reference to the specific `InputPort` that is on
+      the "input" end of the connection.
+    - `output_port` -- a reference to the specific `OutputPort` that is on
+      the "output" end of the connection.
+
+    **Properties**
+
+    - `input_workflow_job` -- the `WorkflowJob` instance associated with
+      `input_port`.
+    - `output_workflow_job` -- the `WorkflowJob` instance associated with
+      `output_port`.
+    - `workflow` -- the `Workflow` instance which the `WorkflowJob`s are a part of.
+
+    **Methods**
+
+    - `save` and `delete` -- invalidate the associated `Workflow`.
+    """
     class Meta:
         app_label = 'rodan'
 

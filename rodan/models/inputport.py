@@ -3,6 +3,26 @@ from uuidfield import UUIDField
 
 
 class InputPort(models.Model):
+    """
+    Represents what a `WorkflowJob` will take when it is executed.
+
+    The number of `InputPort`s for a particular `InputPortType` must be within the
+    associated `InputPortType.minimum` and `InputPortType.maximum` values.
+
+    **Fields**
+
+    - `uuid`
+    - `workflow_job` -- a foreign key reference to the associated `WorkflowJob`.
+    - `input_port_type` -- a foreign key reference to associated `InputPortType`.
+    - `label` -- an optional name unique to the other `InputPort`s in the `WorkflowJob`
+      (only for the user).
+
+    **Methods**
+
+    - `save` and `delete` -- invalidate the associated `Workflow`.
+    - `save` -- set `label` to the name of its associated `InputPortType` as a
+      default value.
+    """
     class Meta:
         app_label = 'rodan'
 

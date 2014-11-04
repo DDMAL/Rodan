@@ -28,14 +28,63 @@ class ResourceProcessingStatus(object):
     NOT_APPLICABLE = None
 
 class Resource(models.Model):
+    """
+    A `Resource` is associated with a Rodan Project.
+        Pages. However, now it is possible to use any data resource and label it of being a
+        specific type. This constitutes a Resource.
+
+    **Fields**
+
+    - `uuid`
+    - `name` -- user-assigned name of this `Resource`.
+    - `project` -- a reference to the `Project`.
+
+    - `resource_file` -- original file uploaded by user. This can be null, if the
+      `Resource` was produced by a `RunJob`.
+    - `processing_status` -- an integer, indicating the status of conversion of
+      user-loaded resource file.
+      It can be null if the `Resource` was produced by a `RunJob`.
+    - `error_summary` -- a field storing the error summary of conversion process.
+    - `error_details` -- a field storing the error details of conversion process.
+    - `creator` -- a reference to the `User` if it is user-uploaded.
+
+    - `compat_resource_file` -- Rodan-compatible resource file. It can be produced
+      by a `RunJob`, or converted from user-uploaded file.
+    - `resource_type` -- a reference to the `ResourceType`. `application/octet-stream`
+      stands for arbitrary type.
+
+    - `origin` -- a reference to the `Output` model associated with the `RunJob`
+      that produced the `Resource`. This can be null, if the `Resource` was uploaded
+      by user, and not produced as an output file of a `RunJob`.
+    - `created`
+    - `updated`
+
+    **Properties**
+
+    - `resource_path` -- local path of resource folder.
+    - `resource_file_path` -- local path of user-uploaded resource file. Return None
+      if user-uploaded file does not exist.
+    - `resource_url` -- exposed URL of user-uploaded resource file. Return None
+      if user-uploaded file does not exist.
+    - `filename` -- filename of user-uploaded resource file.
+    - `compat_file_url` -- exposed URL of compatible resource file. Return None
+      if compatible resource file does not exist.
+    - `thumb_path` -- local path of thumbnail folder.
+    - `thumb_url` -- exposed URL of thumbnail folder.
+    - `small_thumb_url` -- exposed URL of small thumbnail.
+    - `medium_thumb_url` -- exposed URL of middle thumbnail.
+    - `large_thumb_url` -- exposed URL of large thumbnail.
+
+    **Methods**
+
+    - `save` -- create local paths of resource folder and thumbnail folder.
+    - `delete` -- delete local paths of resource folder and thumbnail folder. Invalidate
+      all associated `Workflow`s.
+    """
+
     class Meta:
         app_label = 'rodan'
 
-    """
-        A Resource is any file associated with a Rodan Project. In the past, Resources were simply
-        Pages. However, now it is possible to use any data resource and label it of being a
-        specific type. This constitutes a Resource. (from Rodan wiki)
-    """
     STATUS_CHOICES = [(ResourceProcessingStatus.WAITING, "Waiting to be processed"),
                       (ResourceProcessingStatus.RUNNING, "Running"),
                       (ResourceProcessingStatus.HAS_FINISHED, "Has finished"),

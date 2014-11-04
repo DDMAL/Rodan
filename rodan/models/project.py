@@ -10,9 +10,27 @@ from django.dispatch import receiver
 
 class Project(models.Model):
     """
-        A Project is mostly administrative and organizational. It's the top-level model.
+    The top-level model. A `Project` is mostly administrative and organizational.
+    `Resource`s, `Workflow`s belong to `Project`s.
 
-        Pages, Workflows, and Classifiers belong to a project.
+    **Fields**
+
+    - `uuid`
+    - `name`
+    - `description`
+    - `creator` -- a foreign key to the `User` who created the `Project`.
+    - `created`
+    - `updated`
+
+    **Properties**
+
+    - `project_path` -- the project directory in the filesystem.
+    - `workflow_count` -- the count of `Workflow`s under the `Project`.
+
+    **Methods**
+
+    - `save` -- create the project directory if it does not exist.
+    - `delete` -- delete the whole project directory.
     """
     @property
     def project_path(self):

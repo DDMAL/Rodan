@@ -3,6 +3,21 @@ from uuidfield import UUIDField
 
 
 class Output(models.Model):
+    """
+    An `Output` is the result of performing a job on the specific input `Resource`s.
+    There must be one `Output` for each `OutputPort` in the `RunJob`'s associated
+    `WorkflowJob`.
+
+    **Fields**
+
+    - `uuid`
+    - `output_port` -- a reference to an `OutputPort`.
+    - `run_job` -- a reference to the `RunJob` associated with this `Output`.
+    - `resource` -- the precise `Resource` that is output by the `RunJob` at
+      the above-referenced `OutputPort`.
+    - `created`
+    - `updated`
+    """
     class Meta:
         app_label = 'rodan'
 

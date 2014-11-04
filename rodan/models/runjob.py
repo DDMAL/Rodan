@@ -20,21 +20,44 @@ class RunJobStatus(object):
 
 class RunJob(models.Model):
     """
-        A RunJob is a job that has been executed as part of a Workflow Run. Every Result
-        object is associated with a RunJob, since it is by the execution of this job that
-        each result is produced.
+    A `RunJob` is where a `WorkflowJob` gets executed as part of a `WorkflowRun`.
+    The settings specified in the `WorkflowJob` are also kept track of in the `RunJob`.
+    The `RunJob` specifies the exact individual `Resource`s the job is going to be
+    applied to.
 
-        A RunJob keeps track of the settings that were used to produce the result image.
+    **Fields**
 
-        The "needs_input" parameter is key to the functioning of interactive jobs. Each celery task
-        should retrieve its associated runjob just prior to executing the job. If it sees a True value
-        for `needs_input`, it will fall out of the queue and schedule itself for retrying after a set period.
-        (By default, 3 minutes)
+    - `uuid`
+    - `workflow_run` -- a reference to `WorkflowRun`.
+    - `workflow_job` -- a reference to `WorkflowJob`.
+    - `job_settings` -- the settings associated with the `WorkflowJob` that is
+      being executed in the `RunJob`.
+    - `needs_input` -- a boolean. If true, indicate that the `RunJob` needs or will need
+      user input.
+    - `ready_for_input` -- a boolean. If true, indicate that the `RunJob` is currently
+      ready for user input.
+    - `status` -- an integer indicating the status of `RunJob`.
+    - `celery_task_id` -- the corresponding Celery Task. This field is set after the
+      `RunJob` starts running.
+    - `error_summary` -- summary of error when the `RunJob` fails.
+    - `error_details` -- details of error when the `RunJob` fails.
+    - `created`
+    - `updated`
+
+    **Properties**
+
+    - `runjob_path` [TODO] deprecated: we use resource paths now.
+    - `job_name` -- the name of corresponding Rodan `Job`.
+    - `workflow_name` -- the name of corresponding `Workflow`.
+
+    **Methods**
+
+    - `save` and `delete` [TODO] deprecated: we use resource paths now.
     """
     STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
                       (RunJobStatus.RUNNING, "Running"),
-                      (RunJobStatus.WAITING_FOR_INPUT, "Waiting for input"),
-                      (RunJobStatus.RUN_ONCE_WAITING, "Run once, waiting for input"),
+                      (RunJobStatus.WAITING_FOR_INPUT, "Waiting for input"), # [TODO] deprecated
+                      (RunJobStatus.RUN_ONCE_WAITING, "Run once, waiting for input"), # [TODO] deprecated
                       (RunJobStatus.HAS_FINISHED, "Has finished"),
                       (RunJobStatus.FAILED, "Failed, ZOMG"),
                       (RunJobStatus.CANCELLED, "Cancelled")]
@@ -77,25 +100,9 @@ class RunJob(models.Model):
         super(RunJob, self).delete(*args, **kwargs)
 
     @property
-    def resources(self):
-        return list(Resource.objects.filter(run_job=self))
-
-    @property
     def job_name(self):
         return self.workflow_job.job_name
 
     @property
     def workflow_name(self):
         return self.workflow_run.workflow.name
-
-    @property
-    def page_name(self):
-        return self.page.name
-
-    @property
-    def inputs(self):
-        return [input for input in Input.objects.filter(run_job=self)]
-
-    @property
-    def outputs(self):
-        return [output for output in Output.objects.filter(run_job=self)]

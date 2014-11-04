@@ -3,6 +3,27 @@ from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
 
 class ResourceAssignment(models.Model):
+    """
+    Describes the assignment of `Resource`s to an `InputPort`.
+
+    **Fields**
+
+    - `uuid`
+    - `input_port` -- a reference to the specific `InputPort`.
+    - `resources` -- a many-to-many field referencing zero or more `Resource`s.
+      the "output" end of the connection.
+
+    **Properties**
+
+    - `workflow` -- the `Workflow` instance which the `ResourceAssignment` is a part of.
+    - `workflow_job` -- the `WorkflowJob` instance that the `InputPort` is on.
+
+    **Methods**
+
+    - `save` and `delete` -- invalidate the associated `Workflow`.
+    - `resources.add`, `resource.remove` and `resource.clear` -- invalidate the
+      associated `Workflow`.
+    """
     class Meta:
         app_label = 'rodan'
 
