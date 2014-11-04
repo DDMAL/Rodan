@@ -1,7 +1,7 @@
 {# Customize the browsable API #}
-
 {% extends "rest_framework/base.html" %}
 
+{% load browsable_api_helpers %}
 
 {% block title %}Rodan APIs{% endblock %}
 
@@ -14,21 +14,42 @@
 {{ description }}
 
 <section>
-  <p>
-    <strong>Allowed methods: </strong>
-    {% for m in allowed_methods %}
-    <code>{{ m }}</code>
-    {% endfor %}
-  </p>
-  <p>
-    <strong>Permissions: </strong>
-    {% for c in view.permission_classes %}
-    <code>{{ c }}</code>
-    {% endfor %}
-  </p>
+  <table class="table">
+    <tr>
+      <td><strong>Allow:</strong></td>
+      <td>
+        {% for m in allowed_methods %}
+        <code>{{ m }}</code>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Permissions:</strong></td>
+      <td>
+        {% for c in view.permission_classes %}
+        <code>{{ c|getattr:"__class__"|getattr:"__name__" }}</code>
+        {% endfor %}
+      </td>
+    </tr>
+    {% if view.model %}
+    <tr>
+      <td><strong>Model:</strong></td>
+      <td>
+        <p>
+          <code>{{ view.model|getattr:"__class__"|getattr:"__name__" }}</code>
+          &nbsp;&nbsp;
+          <a style="cursor:pointer" data-toggle="collapse" data-target="#model_doc">Show/Hide specification</a>
+        </p>
+        <div id="model_doc" class="collapse" style="margin-left:2em;border-left:2px solid lightgrey;padding-left:1em">
+          {{ view.model|getattr:"__doc__"|to_html }}
+        </div>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
 </section>
 
-<hr/>
 {% endblock %}
 
-{% block footer %}{% endblock %}
+{% block footer %}
+{% endblock %}
