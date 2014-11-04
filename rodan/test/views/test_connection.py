@@ -23,7 +23,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_get_list(self):
         response = self.client.get("/connections/")
         response_connections = []
-        for conn in response.data:
+        for conn in response.data['results']:
             response_connections.append(Connection.objects.get(uuid=conn['uuid']))
         self.assertEqual(str(response_connections), str(Connection.objects.all()))
 
