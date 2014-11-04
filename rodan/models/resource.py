@@ -30,8 +30,6 @@ class ResourceProcessingStatus(object):
 class Resource(models.Model):
     """
     A `Resource` is associated with a Rodan Project.
-        Pages. However, now it is possible to use any data resource and label it of being a
-        specific type. This constitutes a Resource.
 
     **Fields**
 
