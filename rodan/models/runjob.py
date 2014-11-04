@@ -46,13 +46,8 @@ class RunJob(models.Model):
 
     **Properties**
 
-    - `runjob_path` [TODO] deprecated: we use resource paths now.
     - `job_name` -- the name of corresponding Rodan `Job`.
     - `workflow_name` -- the name of corresponding `Workflow`.
-
-    **Methods**
-
-    - `save` and `delete` [TODO] deprecated: we use resource paths now.
     """
     STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
                       (RunJobStatus.RUNNING, "Running"),
@@ -61,10 +56,6 @@ class RunJob(models.Model):
                       (RunJobStatus.HAS_FINISHED, "Has finished"),
                       (RunJobStatus.FAILED, "Failed, ZOMG"),
                       (RunJobStatus.CANCELLED, "Cancelled")]
-
-    @property
-    def runjob_path(self):
-        return os.path.join(self.workflow_run.workflow_run_path, "{0}_{1}".format(self.workflow_job.job_name, str(self.pk)))
 
     class Meta:
         app_label = 'rodan'
@@ -87,17 +78,6 @@ class RunJob(models.Model):
 
     def __unicode__(self):
         return u"<RunJob {0} {1} ({2})>".format(str(self.uuid), self.workflow_job.job.job_name, self.needs_input)
-
-    def save(self, *args, **kwargs):
-        super(RunJob, self).save(*args, **kwargs)
-        if not os.path.exists(self.runjob_path):
-            os.makedirs(self.runjob_path)
-        self.workflow_run.save()
-
-    def delete(self, *args, **kwargs):
-        if os.path.exists(self.runjob_path):
-            shutil.rmtree(self.runjob_path)
-        super(RunJob, self).delete(*args, **kwargs)
 
     @property
     def job_name(self):
