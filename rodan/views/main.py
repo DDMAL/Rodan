@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -12,7 +13,8 @@ def api_root(request, format=None):
     """
     Browse all APIs of Rodan server.
     """
-    return Response({'projects': reverse('project-list', request=request, format=format),
+    response = {
+        'routes': {'projects': reverse('project-list', request=request, format=format),
                      'workflows': reverse('workflow-list', request=request, format=format),
                      'workflowjobs': reverse('workflowjob-list', request=request, format=format),
                      'workflowruns': reverse('workflowrun-list', request=request, format=format),
@@ -34,4 +36,10 @@ def api_root(request, format=None):
                      'session-status': reverse('session-status', request=request, format=format),
                      'token-auth': reverse('token-auth', request=request, format=format),
                      'session-close': reverse('session-close', request=request, format=format),
-                     'status': reverse('status', request=request, format=format)})
+                     'status': reverse('status', request=request, format=format)},
+        'configuration': {
+            'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']
+        }
+    }
+
+    return Response(response)
