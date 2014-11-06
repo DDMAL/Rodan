@@ -242,7 +242,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     Performs operations on a single WorkflowRun instance.
 
     #### Parameters
-    - `cancelled` -- PATCH-only. Attempt of uncancelling will trigger an error. [TODO] type??
+    - `cancelled` -- PATCH-only. A boolean value of `True` or `False`. Attempt of uncancelling will trigger an error.
 
     [TODO] are they still effective??
 
@@ -292,7 +292,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
         workflow_already_cancelled = workflow_run.cancelled
-        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # [TODO] what is the type? str or bool??
+        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # will retrieve a boolean value
 
         if not workflow_already_cancelled and workflow_newly_cancelled:
             runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
