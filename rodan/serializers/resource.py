@@ -7,14 +7,13 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     creator = UserListSerializer(read_only=True)
     uuid = serializers.Field(source='uuid')
-    origin = serializers.HyperlinkedRelatedField(view_name="output-detail")
     resource_file = serializers.Field(source='resource_url')
     compat_resource_file = serializers.Field(source='compat_file_url')
     resource_type = serializers.HyperlinkedRelatedField(view_name="resourcetype-detail")
 
     class Meta:
         model = Resource
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', 'updated', 'error_summary', 'error_details', 'processing_status', 'origin')
         fields = ("url",
                   "uuid",
                   "project",
