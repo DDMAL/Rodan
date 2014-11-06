@@ -23,11 +23,6 @@ class WorkflowRun(models.Model):
 
     - `workflow_run_path` [TODO]
     - `retry_backup_directory` [TODO]
-
-    **Methods**
-
-    - `save` [TODO]
-    - `get_absolute_url` [TODO]
     """
     @property
     def workflow_run_path(self):
@@ -47,10 +42,6 @@ class WorkflowRun(models.Model):
 
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))
-
-    def get_absolute_url(self):
-        """ NOTE: This is a hack. We should come up with a more flexible way of doing this. """
-        return u"/workflowrun/{0}/".format(self.pk)
 
     @property
     def retry_backup_directory(self):
