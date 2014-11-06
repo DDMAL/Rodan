@@ -4,9 +4,8 @@ from rodan.serializers.inputport import InputPortSerializer
 
 
 class ResourceAssignmentSerializer(serializers.HyperlinkedModelSerializer):
-    input_port = InputPortSerializer()
-    workflow = serializers.HyperlinkedRelatedField(view_name="workflow-detail", read_only=True)
-    workflow_job = serializers.HyperlinkedRelatedField(view_name="workflowjob-detail", read_only=True)
+    workflow = serializers.HyperlinkedRelatedField(view_name='workflow-detail', source='workflow', read_only=True)
+    workflow_job = serializers.HyperlinkedRelatedField(view_name='workflowjob-detail', source='workflow_job', read_only=True)
 
     class Meta:
         model = ResourceAssignment
