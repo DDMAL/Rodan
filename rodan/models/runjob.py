@@ -11,8 +11,8 @@ from rodan.models.output import Output
 class RunJobStatus(object):
     NOT_RUNNING = 0
     RUNNING = 1
-    WAITING_FOR_INPUT = 2
-    RUN_ONCE_WAITING = 3
+    WAITING_FOR_INPUT = 2 # [TODO] deprecated
+    RUN_ONCE_WAITING = 3 # [TODO] deprecated
     HAS_FINISHED = 4
     FAILED = -1
     CANCELLED = 9
@@ -51,8 +51,6 @@ class RunJob(models.Model):
     """
     STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
                       (RunJobStatus.RUNNING, "Running"),
-                      (RunJobStatus.WAITING_FOR_INPUT, "Waiting for input"), # [TODO] deprecated
-                      (RunJobStatus.RUN_ONCE_WAITING, "Run once, waiting for input"), # [TODO] deprecated
                       (RunJobStatus.HAS_FINISHED, "Has finished"),
                       (RunJobStatus.FAILED, "Failed, ZOMG"),
                       (RunJobStatus.CANCELLED, "Cancelled")]
