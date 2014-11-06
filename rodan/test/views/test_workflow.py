@@ -185,20 +185,18 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
 
     def test_connection__resource_type_not_agree(self):
-        job = mommy.make('rodan.Job')
-        ipt = mommy.make('rodan.InputPortType',
-                         maximum=1,
-                         minimum=1,
-                         job=job)
-        ipt.resource_types.add(ResourceType.cached('test/b'))
+        new_ipt = mommy.make('rodan.InputPortType',
+                             maximum=1,
+                             minimum=0,
+                             job=self.test_job)
+        new_ipt.resource_types.add(ResourceType.cached('test/b'))
+        new_ip = mommy.make('rodan.InputPort',
+                            workflow_job=self.test_workflowjob2,
+                            input_port_type=new_ipt)
+        op = self.test_workflowjob.output_ports.first()
         conn = mommy.make('rodan.Connection',
-                          output_port=self.test_workflowjob2.output_ports.all()[0],
-                          input_port__workflow_job__job=job,
-                          input_port__workflow_job__workflow=self.test_workflow,
-                          input_port__input_port_type=ipt)
-        mommy.make('rodan.OutputPort',
-                   workflow_job=conn.input_port.workflow_job,
-                   output_port_type=self.test_outputporttype)
+                          output_port=op,
+                          input_port=new_ip)
         response = self._validate(self.test_workflow.uuid)
         anticipated_message = {'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(conn.output_port.uuid, conn.input_port.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
@@ -304,22 +302,26 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_graph__merging_workflow(self):
         test_no_input_workflowjob = mommy.make('rodan.WorkflowJob',
                                                workflow=self.test_workflow)
+        opt_for_no_input = mommy.make('rodan.OutputPortType',
+                                      minimum=0,
+                                      maximum=10,
+                                      job=test_no_input_workflowjob.job)
+        opt_for_no_input.resource_types.add(ResourceType.cached('test/a1'))
         mommy.make('rodan.Connection',
                    output_port__workflow_job=test_no_input_workflowjob,
-                   output_port__output_port_type=self.test_outputporttype,
+                   output_port__output_port_type=opt_for_no_input,
                    input_port__workflow_job=self.test_workflowjob2,
                    input_port__input_port_type=self.test_inputporttype)
 
         test_connection3 = mommy.make('rodan.Connection',
                                       output_port=self.test_workflowjob2.output_ports.all()[0],
                                       input_port__input_port_type=self.test_inputporttype,
-                                      input_port__workflow_job__workflow=self.test_workflow)
+                                      input_port__workflow_job__workflow=self.test_workflow,
+                                      input_port__workflow_job__job=self.test_job)
         self.test_workflowjob3 = test_connection3.input_port.workflow_job
         mommy.make('rodan.OutputPort',
                    workflow_job=self.test_workflowjob3,
                    output_port_type=self.test_outputporttype)
-
-
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     def test_graph__branching_workflow(self):
@@ -327,7 +329,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                                       output_port__output_port_type=self.test_outputporttype,
                                       output_port__workflow_job=self.test_workflowjob2,
                                       input_port__input_port_type=self.test_inputporttype,
-                                      input_port__workflow_job__workflow=self.test_workflow)
+                                      input_port__workflow_job__workflow=self.test_workflow,
+                                      input_port__workflow_job__job=self.test_job)
         self.test_workflowjob3 = test_connection3.input_port.workflow_job
         mommy.make('rodan.OutputPort',
                    workflow_job=self.test_workflowjob3,
@@ -337,7 +340,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                                       output_port__output_port_type=self.test_outputporttype,
                                       output_port__workflow_job=self.test_workflowjob2,
                                       input_port__input_port_type=self.test_inputporttype,
-                                      input_port__workflow_job__workflow=self.test_workflow)
+                                      input_port__workflow_job__workflow=self.test_workflow,
+                                      input_port__workflow_job__job=self.test_job)
         self.test_second_output_workflowjob = test_connection2.input_port.workflow_job
         mommy.make('rodan.OutputPort',
                    workflow_job=self.test_second_output_workflowjob,
