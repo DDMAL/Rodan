@@ -40,11 +40,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
     Inputs, Outputs and Resources are created corresponding to the workflow.
 
     #### Parameters
-    - `workflow` -- GET-only. UUID of a Workflow. [TODO]: use Hyperlink in POST?
+    - `workflow` -- GET-only. UUID(GET) or Hyperlink(POST) of a Workflow.
 
 
     [TODO]: Deprecated parameters??
-
     - test=true: Sets whether this is a test run or not. (POST only)
     - page_id=$ID: If this is a test run, you must supply a page ID to test the workflow on. (POST only)
     """
@@ -52,6 +51,41 @@ class WorkflowRunList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     filter_fields = ('workflow',)
+
+    def post(self, request, *args, **kwargs):
+        """
+            In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
+            WorkflowRun object.
+        """
+        workflow = request.DATA.get('workflow', None)
+        if not workflow:
+            return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+        value = urlparse.urlparse(workflow).path
+        try:
+            w = resolve(value)
+        except:
+            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            workflow_obj = Workflow.objects.get(pk=w.kwargs.get('pk'))
+        except:
+            return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
+
+        if not workflow_obj.valid:
+            return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.DATA['creator'] = UserSerializer(request.user, context={'request': request}).data['url']
+
+        created_wfrun = self.create(request, *args, **kwargs)
+
+        workflow_run_id = created_wfrun.data['uuid']
+        workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
+
+        self._create_workflow_run(workflow_obj, workflow_run)
+        master_task.apply_async((workflow_run_id,))
+
+        return created_wfrun
 
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
@@ -202,41 +236,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
             wfjob = WorkflowJob.objects.get(input_ports=conn.input_port)
             self._traversal(singleton_workflowjobs, wfjob)
 
-    def post(self, request, *args, **kwargs):
-        """
-            In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
-            WorkflowRun object.
-        """
-        workflow = request.DATA.get('workflow', None)
-        if not workflow:
-            return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-        value = urlparse.urlparse(workflow).path
-        try:
-            w = resolve(value)
-        except:
-            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            workflow_obj = Workflow.objects.get(pk=w.kwargs.get('pk'))
-        except:
-            return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
-
-        if not workflow_obj.valid:
-            return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
-
-        request.DATA['creator'] = UserSerializer(request.user, context={'request': request}).data['url']
-
-        created_wfrun = self.create(request, *args, **kwargs)
-
-        workflow_run_id = created_wfrun.data['uuid']
-        workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
-
-        self._create_workflow_run(workflow_obj, workflow_run)
-        master_task.apply_async((workflow_run_id,))
-
-        return created_wfrun
-
 
 class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     """
@@ -285,6 +284,31 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
         workflow_run['pages'] = sorted(pages.values(), key=itemgetter('page_order'))
 
         return Response(workflow_run)
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            workflow_run = WorkflowRun.objects.get(pk=pk)
+        except WorkflowRun.DoesNotExist:
+            return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        workflow_already_cancelled = workflow_run.cancelled
+        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # [TODO] what is the type? str or bool??
+
+        if not workflow_already_cancelled and workflow_newly_cancelled:
+            runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
+            runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
+
+            for celery_id in runjobs_to_revoke_celery_id:
+                if celery_id is not None:
+                    revoke(celery_id, terminate=True)
+
+            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED)
+
+        elif workflow_already_cancelled and workflow_newly_cancelled == False:
+            return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return self.partial_update(request, pk, *args, **kwargs)
+
 
     def _backup_workflowrun(self, wf_run):
         source = wf_run.workflow_run_path
@@ -355,27 +379,3 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                 runjob.workflowjob = new_workflowjobs[0]  # And also set the new workflow_job.
                                                           # I'm not too sure about this one.
         runjob.save()
-
-    def patch(self, request, pk, *args, **kwargs):
-        try:
-            workflow_run = WorkflowRun.objects.get(pk=pk)
-        except WorkflowRun.DoesNotExist:
-            return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        workflow_already_cancelled = workflow_run.cancelled
-        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # [TODO] what is the type? str or bool??
-
-        if not workflow_already_cancelled and workflow_newly_cancelled:
-            runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
-            runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
-
-            for celery_id in runjobs_to_revoke_celery_id:
-                if celery_id is not None:
-                    revoke(celery_id, terminate=True)
-
-            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED)
-
-        elif workflow_already_cancelled and workflow_newly_cancelled == False:
-            return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
-
-        return self.partial_update(request, pk, *args, **kwargs)
