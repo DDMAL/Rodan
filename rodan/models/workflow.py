@@ -18,18 +18,7 @@ class Workflow(models.Model):
     - `valid` -- a boolean, indicating whether the contents of `Workflow` is valid.
     - `created`
     - `updated`
-
-    **Properties**
-
-    - `workflow_path` [TODO] deprecated: we use resource path now
-
-    **Methods**
-
-    - `save` and `delete` [TODO] deprecated: we use resource path now
     """
-    @property
-    def workflow_path(self):
-        return os.path.join(self.project.project_path, "workflows", str(self.uuid))
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
@@ -47,15 +36,3 @@ class Workflow(models.Model):
     class Meta:
         app_label = 'rodan'
         ordering = ('created',)
-
-    def save(self, *args, **kwargs):
-        if not self.valid:
-            self.valid = False
-        super(Workflow, self).save(*args, **kwargs)
-        if not os.path.exists(self.workflow_path):
-            os.makedirs(self.workflow_path)
-
-    def delete(self, *args, **kwargs):
-        if os.path.exists(self.workflow_path):
-            shutil.rmtree(self.workflow_path)
-        super(Workflow, self).delete(*args, **kwargs)

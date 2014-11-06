@@ -48,11 +48,6 @@ class WorkflowRun(models.Model):
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))
 
-    def save(self, *args, **kwargs):
-        super(WorkflowRun, self).save(*args, **kwargs)
-        if not os.path.exists(self.workflow_run_path):
-            os.makedirs(self.workflow_run_path)
-
     def get_absolute_url(self):
         """ NOTE: This is a hack. We should come up with a more flexible way of doing this. """
         return u"/workflowrun/{0}/".format(self.pk)
