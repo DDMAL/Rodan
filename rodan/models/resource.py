@@ -154,9 +154,7 @@ class Resource(models.Model):
             return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
 
     def thumb_filename(self, size):
-        if self.filename:
-            name, ext = os.path.splitext(self.filename)
-            return "{0}_{1}.{2}".format(name, size, settings.THUMBNAIL_EXT)
+        return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
 
     @property
     def filename(self):
