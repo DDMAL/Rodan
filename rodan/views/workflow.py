@@ -130,7 +130,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             ip = connection.input_port
             in_types = ip.input_port_type.resource_types.all()
 
-            if not set(in_types).issubset(set(out_types)):
+            if not set(in_types).intersection(set(out_types)):
                 raise WorkflowValidationError(response=Response({'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # validate ResourceAssignments
