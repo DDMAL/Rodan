@@ -8,6 +8,8 @@ from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
 
+import logging
+logger = logging.getLogger('rodan')
 
 class RodanTaskType(TaskType):
     """
@@ -148,9 +150,9 @@ class RodanTask(Task):
             if rodan_settings.TRACEBACK_IN_ERROR_DETAIL:
                 err_details = str(err_details) + "\n\n" + str(einfo.traceback)
         except Exception as e:
-            print "The error_information method is not implemented properly (or not implemented at all). Exception: "
-            print "%s: %s" % (e.__class__.__name__, e.__str__())
-            print "Using default sources for error information."
+            logger.warning("The error_information method is not implemented properly (or not implemented at all). Exception: ")
+            logger.warning("%s: %s" % (e.__class__.__name__, e.__str__()))
+            logger.warning("Using default sources for error information.")
             err_summary = exc.__class__.__name__
             err_details = einfo.traceback
 
