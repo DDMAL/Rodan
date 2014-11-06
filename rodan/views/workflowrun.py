@@ -57,6 +57,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
             In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
             WorkflowRun object.
         """
+        cancelled = request.DATA.get('cancelled', None)
+        if cancelled:
+            return Response({"message": "Cannot create a cancelled WorkflowRun"}, status=status.HTTP_400_BAD_REQUEST)
+
         workflow = request.DATA.get('workflow', None)
         if not workflow:
             return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
