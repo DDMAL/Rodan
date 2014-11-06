@@ -27,25 +27,20 @@ from rest_framework import serializers
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
-    job_settings = serializers.CharField()
-    job_name = serializers.Field(source="job_name")
-    workflow_name = serializers.Field(source="workflow_name")
-    inputs = serializers.Field(source="inputs")
-    outputs = serializers.Field(source="outputs")
-    resources = serializers.Field(source="resources")
+    job = serializers.HyperlinkedRelatedField(view_name='job-detail', source='job', read_only=True)
+    workflow = serializers.HyperlinkedRelatedField(view_name='workflow-detail', source='workflow', read_only=True)
 
     class Meta:
         model = RunJob
         read_only_fields = ("created", "updated")
         fields = ('url',
                   'uuid',
-                  'job_name',
-                  'workflow_name',
+                  'job',
+                  'workflow',
                   'workflow_run',
                   'workflow_job',
                   'inputs',
                   'outputs',
-                  'resources',
                   'job_settings',
                   'needs_input',
                   'status',

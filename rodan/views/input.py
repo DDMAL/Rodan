@@ -12,9 +12,9 @@ class InputList(generics.ListAPIView):
     - `run_job` -- GET-only. UUID of a RunJob object.
     """
     model = Input
+    serializer_class = InputSerializer
     permission_classes = (permissions.IsAuthenticated, )
     filter_fields = ('run_job', )
-
 
 class InputDetail(generics.RetrieveAPIView):
     """

@@ -7,11 +7,6 @@ from rodan.serializers.runjob import RunJobSerializer
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
-    creator = UserListSerializer(read_only=True)
-    resource = OutputResourceSerializer()
-    output_port = OutputPortSerializer()
-    run_job = RunJobSerializer()
-
     class Meta:
         model = Output
         fields = ("url",

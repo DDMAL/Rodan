@@ -7,11 +7,6 @@ from rodan.serializers.runjob import RunJobSerializer
 
 
 class InputSerializer(serializers.HyperlinkedModelSerializer):
-    creator = UserListSerializer(read_only=True)
-    resource = ResourceSerializer()
-    run_job = RunJobSerializer()
-    input_port = InputPortSerializer()
-
     class Meta:
         model = Input
         fields = ("url",

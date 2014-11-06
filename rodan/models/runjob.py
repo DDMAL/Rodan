@@ -46,8 +46,8 @@ class RunJob(models.Model):
 
     **Properties**
 
-    - `job_name` -- the name of corresponding Rodan `Job`.
-    - `workflow_name` -- the name of corresponding `Workflow`.
+    - `job` -- the corresponding Rodan `Job` instance.
+    - `workflow` -- the corresponding `Workflow` instance.
     """
     STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
                       (RunJobStatus.RUNNING, "Running"),
@@ -78,9 +78,9 @@ class RunJob(models.Model):
         return u"<RunJob {0} {1} ({2})>".format(str(self.uuid), self.workflow_job.job.job_name, self.needs_input)
 
     @property
-    def job_name(self):
-        return self.workflow_job.job_name
+    def job(self):
+        return self.workflow_job.job
 
     @property
-    def workflow_name(self):
-        return self.workflow_run.workflow.name
+    def workflow(self):
+        return self.workflow_run.workflow
