@@ -65,7 +65,20 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
 
-    # [TODO] PUT valid=True??
+    def put(self, request, pk, *args, **kwargs):
+        try:
+            workflow = Workflow.objects.get(pk=pk)
+        except Workflow.DoesNotExist:
+            return Response({'message': 'Workflow not found'}, status=status.HTTP_404_NOT_FOUND)
+        to_be_validated = request.DATA.get('valid', None)
+        if to_be_validated:
+            try:
+                self._validate(workflow)
+            except WorkflowValidationError as e:
+                return e.response
+
+        return self.update(request, *args, **kwargs)
+
     def patch(self, request, pk, *args, **kwargs):
         try:
             workflow = Workflow.objects.get(pk=pk)
@@ -78,7 +91,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             except WorkflowValidationError as e:
                 return e.response
 
-        return super(WorkflowDetail, self).patch(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
 
 
     def _validate(self, workflow):
