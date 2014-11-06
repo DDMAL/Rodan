@@ -108,12 +108,19 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         # validate InputPorts
         input_ports = InputPort.objects.filter(workflow_job__workflow=workflow)
         for ip in input_ports:
+            if ip.input_port_type.job != ip.workflow_job.job:
+                raise WorkflowValidationError(response=Response({'message': 'InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(ip.uuid)}, status=status.HTTP_409_CONFLICT))
+
             number_of_connection = ip.connections.count()
             number_of_resource_assignment = ip.resource_assignments.count()
             if number_of_connection + number_of_resource_assignment > 1:
                 raise WorkflowValidationError(response=Response({'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}, status=status.HTTP_409_CONFLICT))
 
-        # OutputPorts do not need validation
+        # validate OutputPorts
+        output_ports = OutputPort.objects.filter(workflow_job__workflow=workflow)
+        for op in output_ports:
+            if op.output_port_type.job != op.workflow_job.job:
+                raise WorkflowValidationError(response=Response({'message': 'OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(op.uuid)}, status=status.HTTP_409_CONFLICT))
 
         # validate Connections
         connections = Connection.objects.filter(input_port__workflow_job__workflow=workflow, output_port__workflow_job__workflow=workflow)

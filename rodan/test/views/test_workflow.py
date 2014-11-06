@@ -93,6 +93,18 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         # [TODO]
         pass
 
+    def test_input__type_incompatible_with_job(self):
+        new_ipt = mommy.make('rodan.InputPortType')
+        new_ip = mommy.make('rodan.InputPort',
+                            workflow_job=self.test_workflowjob,
+                            input_port_type=new_ipt)
+        new_ra = mommy.make('rodan.ResourceAssignment', input_port=new_ip)
+        new_ra.resources.add(self.test_resources[0])
+
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(new_ip.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
     def test_input__multiple_resourceassignments(self):
         ip = self.test_workflowjob.input_ports.all()[0]
         ra2 = mommy.make('rodan.ResourceAssignment',
@@ -138,6 +150,18 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ip.delete()
         response = self._validate(self.test_workflow.uuid)
         anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+
+
+    def test_output__type_incompatible_with_job(self):
+        new_opt = mommy.make('rodan.OutputPortType')
+        new_op = mommy.make('rodan.OutputPort',
+                            workflow_job=self.test_workflowjob,
+                            output_port_type=new_opt)
+
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'message': 'OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(new_op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_output__more_than_maximum(self):
