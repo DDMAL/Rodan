@@ -174,6 +174,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_D.run_jobs.count(), len_rc)
         self.assertEqual(self.test_wfjob_E.run_jobs.count(), len_rc)
+        self.assertEqual(self.test_wfjob_F.run_jobs.count(), len_rc)
 
         self.assertEqual(self.test_Aip.inputs.count(), 1)
         self.assertEqual(self.test_Aop.outputs.count(), 1)
@@ -188,6 +189,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(self.test_Eip1.inputs.count(), len_rc)
         self.assertEqual(self.test_Eip2.inputs.count(), len_rc)
         self.assertEqual(self.test_Eop.outputs.count(), len_rc)
+        self.assertEqual(self.test_Fip.inputs.count(), len_rc)
+        self.assertEqual(self.test_Fop.outputs.count(), len_rc)
 
         def same_resources(queryA, queryB):
             return set(queryA.values_list('resource__uuid', flat=True)) == set(queryB.values_list('resource__uuid', flat=True))
@@ -195,6 +198,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertTrue(same_resources(self.test_Bop.outputs, self.test_Cip2.inputs))
         self.assertTrue(same_resources(self.test_Cop1.outputs, self.test_Dip2.inputs))
         self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Eip1.inputs))
+        self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Fip.inputs))
 
 
         def assert_same_resource_types(op):
@@ -208,6 +212,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         assert_same_resource_types(self.test_Cop2)
         assert_same_resource_types(self.test_Dop)
         assert_same_resource_types(self.test_Eop)
+        assert_same_resource_types(self.test_Fop)
 
 
         self.assertEqual(
@@ -235,12 +240,18 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Eo_names_set.add(output.resource.name)
         self.assertEqual(rc_names_set, Eo_names_set)
 
+        Fo_names_set = set([])
+        for output in self.test_Fop.outputs.all():
+            Fo_names_set.add(output.resource.name)
+        self.assertEqual(rc_names_set, Fo_names_set)
+
         # automatic and manual
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
         rjC = self.test_wfjob_C.run_jobs.first()
         rjDs = self.test_wfjob_D.run_jobs.all()
         rjEs = self.test_wfjob_E.run_jobs.all()
+        rjFs = self.test_wfjob_F.run_jobs.all()
 
         self.assertFalse(rjA.needs_input)
         self.assertFalse(rjA.ready_for_input)
@@ -252,6 +263,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertTrue(rjDi.needs_input)
             self.assertFalse(rjDi.ready_for_input)
         for rjEi in rjEs:
+            self.assertFalse(rjEi.needs_input)
+            self.assertFalse(rjEi.ready_for_input)
+        for rjFi in rjFs:
             self.assertFalse(rjEi.needs_input)
             self.assertFalse(rjEi.ready_for_input)
 
@@ -269,6 +283,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjC = self.test_wfjob_C.run_jobs.first()
         rjDs = self.test_wfjob_D.run_jobs.all()
         rjEs = self.test_wfjob_E.run_jobs.all()
+        rjFs = self.test_wfjob_F.run_jobs.all()
 
         Aout = self.test_Aop.outputs.first()
         Bout = self.test_Bop.outputs.first()
@@ -276,6 +291,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cout2 = self.test_Cop2.outputs.first()
         Douts = self.test_Dop.outputs.all()
         Eouts = self.test_Eop.outputs.all()
+        Fouts = self.test_Eop.outputs.all()
 
         Ain = self.test_Aip.inputs.first()
         Cin1 = self.test_Cip1.inputs.first()
@@ -284,6 +300,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din2s = self.test_Dip2.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
+        Fins = self.test_Eip1.inputs.all()
 
 
         self.assertEqual(rjA.status, RunJobStatus.HAS_FINISHED)
@@ -294,6 +311,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
         for rjEi in rjEs:
             self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+        for rjFi in rjFs:
+            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
 
         self.assertTrue(Aout.resource.compat_resource_file)
         self.assertFalse(Bout.resource.compat_resource_file)
@@ -303,6 +322,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertFalse(Douti.resource.compat_resource_file)
         for Eouti in Eouts:
             self.assertFalse(Eouti.resource.compat_resource_file)
+        for Fouti in Fouts:
+            self.assertFalse(Fouti.resource.compat_resource_file)
 
 
         # Work with RunJob B
@@ -315,6 +336,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjC = self.test_wfjob_C.run_jobs.first()
         rjDs = self.test_wfjob_D.run_jobs.all()
         rjEs = self.test_wfjob_E.run_jobs.all()
+        rjFs = self.test_wfjob_F.run_jobs.all()
 
         Aout = self.test_Aop.outputs.first()
         Bout = self.test_Bop.outputs.first()
@@ -322,6 +344,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cout2 = self.test_Cop2.outputs.first()
         Douts = self.test_Dop.outputs.all()
         Eouts = self.test_Eop.outputs.all()
+        Fouts = self.test_Fop.outputs.all()
 
         Ain = self.test_Aip.inputs.first()
         Cin1 = self.test_Cip1.inputs.first()
@@ -330,6 +353,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din2s = self.test_Dip2.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
+        Fins = self.test_Fip.inputs.all()
 
         self.assertEqual(rjB.status, RunJobStatus.HAS_FINISHED)
         self.assertEqual(rjB.needs_input, False)
@@ -339,6 +363,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
         for rjEi in rjEs:
             self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+        for rjFi in rjFs:
+            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
 
         self.assertTrue(Bout.resource.compat_resource_file)
         self.assertTrue(Cout1.resource.compat_resource_file)
@@ -347,6 +373,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertFalse(Douti.resource.compat_resource_file)
         for Eouti in Eouts:
             self.assertFalse(Eouti.resource.compat_resource_file)
+        for Fouti in Fouts:
+            self.assertFalse(Fouti.resource.compat_resource_file)
 
         # Work with one of RunJob D
         response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDs[0].uuid)})
@@ -359,6 +387,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjC = self.test_wfjob_C.run_jobs.first()
         rjDs = self.test_wfjob_D.run_jobs.all()
         rjEs = self.test_wfjob_E.run_jobs.all()
+        rjFs = self.test_wfjob_F.run_jobs.all()
 
         Aout = self.test_Aop.outputs.first()
         Bout = self.test_Bop.outputs.first()
@@ -366,6 +395,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cout2 = self.test_Cop2.outputs.first()
         Douts = self.test_Dop.outputs.all()
         Eouts = self.test_Eop.outputs.all()
+        Fouts = self.test_Fop.outputs.all()
 
         Ain = self.test_Aip.inputs.first()
         Cin1 = self.test_Cip1.inputs.first()
@@ -374,38 +404,52 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din2s = self.test_Dip2.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
+        Fins = self.test_Fip.inputs.all()
 
         rjD0 = rjDs[0]
         rjDremain = rjDs[1:]
 
         Dout0 = rjD0.outputs.get(output_port__output_port_type__name='out_typeA')
-        rjE0 = Dout0.resource.inputs.all()[0].run_job
+        rjE0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_E)[0].run_job
         Eout0 = rjE0.outputs.get(output_port__output_port_type__name='out_typeA')
+        rjF0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
+        Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeA')
         self.assertEqual(rjD0.status, RunJobStatus.HAS_FINISHED)
         self.assertEqual(rjD0.needs_input, False)
         self.assertEqual(rjD0.ready_for_input, False)
         self.assertTrue(Dout0.resource.compat_resource_file)
         self.assertEqual(rjE0.status, RunJobStatus.HAS_FINISHED)
         self.assertTrue(Eout0.resource.compat_resource_file)
+        self.assertEqual(rjF0.status, RunJobStatus.HAS_FINISHED)
+        self.assertTrue(Fout0.resource.compat_resource_file)
 
         for rjDi in rjDremain:
             Douti = rjDi.outputs.get(output_port__output_port_type__name='out_typeA')
-            rjEi = Douti.resource.inputs.all()[0].run_job
+            rjEi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_E)[0].run_job
             Eouti = rjEi.outputs.get(output_port__output_port_type__name='out_typeA')
+            rjFi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
+            Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeA')
             self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
             self.assertEqual(rjDi.needs_input, True)
             self.assertEqual(rjDi.ready_for_input, True)
             self.assertFalse(Douti.resource.compat_resource_file)
             self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
             self.assertFalse(Eouti.resource.compat_resource_file)
+            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
+            self.assertFalse(Fouti.resource.compat_resource_file)
 
         # Work with all Runjob Ds
+        for rjDi in rjDremain:
+            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDi.uuid)})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         ## refetch
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
         rjC = self.test_wfjob_C.run_jobs.first()
         rjDs = self.test_wfjob_D.run_jobs.all()
         rjEs = self.test_wfjob_E.run_jobs.all()
+        rjFs = self.test_wfjob_F.run_jobs.all()
 
         Aout = self.test_Aop.outputs.first()
         Bout = self.test_Bop.outputs.first()
@@ -413,6 +457,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cout2 = self.test_Cop2.outputs.first()
         Douts = self.test_Dop.outputs.all()
         Eouts = self.test_Eop.outputs.all()
+        Fouts = self.test_Fop.outputs.all()
 
         Ain = self.test_Aip.inputs.first()
         Cin1 = self.test_Cip1.inputs.first()
@@ -421,10 +466,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din2s = self.test_Dip2.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
-
-        for rjDi in rjDremain:
-            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDi.uuid)})
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        Fins = self.test_Fip.inputs.all()
 
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, RunJobStatus.HAS_FINISHED)
@@ -435,4 +477,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjEi in rjEs:
             self.assertEqual(rjEi.status, RunJobStatus.HAS_FINISHED)
         for Eouti in Eouts:
-            self.assertTrue(Douti.resource.compat_resource_file)
+            self.assertTrue(Eouti.resource.compat_resource_file)
+        for rjFi in rjFs:
+            self.assertEqual(rjFi.status, RunJobStatus.HAS_FINISHED)
+        for Fouti in Fouts:
+            self.assertTrue(Fouti.resource.compat_resource_file)
