@@ -31,9 +31,9 @@ class RodanTaskType(TaskType):
                         author=attrs.get('author'),
                         description=attrs.get('description'),
                         settings=attrs.get('settings'),
-                        enabled=attrs.get('enabled'),
+                        enabled=attrs.get('enabled', False),
                         category=attrs.get('category'),
-                        interactive=attrs.get('interactive'))
+                        interactive=attrs.get('interactive', False)
                 j.save()
 
                 for ipt in attrs['input_port_types']:
