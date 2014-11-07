@@ -36,7 +36,10 @@ def api_root(request, format=None):
                      'session-status': reverse('session-status', request=request, format=format),
                      'token-auth': reverse('token-auth', request=request, format=format),
                      'session-close': reverse('session-close', request=request, format=format),
-                     'status': reverse('status', request=request, format=format)},
+                     'taskqueue-active': reverse('taskqueue-active', request=request, format=format),
+                     'taskqueue-scheduled': reverse('taskqueue-scheduled', request=request, format=format),
+                     'taskqueue-status': reverse('taskqueue-status', request=request, format=format),
+                     'taskqueue-config': reverse('taskqueue-config', request=request, format=format)},
         'configuration': {
             'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']
         }
