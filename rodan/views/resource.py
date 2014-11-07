@@ -26,8 +26,8 @@ class ResourceList(generics.ListCreateAPIView):
     - `origin` -- (optional) POST-only. UUID of an Output.
     - `type` -- (optional) POST-only. User can claim the type of the files using
        this parameter to help Rodan convert it into compatible format. It could be:
-            - An arbitrary MIME-type string.
-            - Or a hyperlink to a ResourceType object.
+        - An arbitrary MIME-type string.
+        - Or a hyperlink to a ResourceType object.
     - `files` -- POST-only. The files.
     """
     model = Resource
