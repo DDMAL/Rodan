@@ -11,6 +11,7 @@ from rodan.models import RunJob, Project, Output, Resource, ResourceType
 from rodan.models.resource import ResourceProcessingStatus
 from rodan.serializers.resource import ResourceSerializer
 from rodan.jobs.helpers import ensure_compatible, create_thumbnails
+from django.db.models import Q
 
 #class ResourceFilter(django_filters.FilterSet):
 
@@ -23,6 +24,8 @@ class ResourceList(generics.ListCreateAPIView):
 
     #### Parameters
     - `project` -- GET & POST. UUID of a Project.
+    - `result_of_workflow_run` -- GET-only. UUID of a WorkflowRun. Filters the results
+      of a WorkflowRun.
     - `origin` -- (optional) POST-only. UUID of an Output.
     - `type` -- (optional) POST-only. User can claim the type of the files using
        this parameter to help Rodan convert it into compatible format. It could be:
@@ -34,6 +37,15 @@ class ResourceList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
     filter_fields = ('project', )
+
+    def get_queryset(self):
+        # initial queryset (before filtering on `filter_fields`)
+        queryset = Resource.objects.all()
+        wfrun_uuid = self.request.QUERY_PARAMS.get('result_of_workflow_run', None)
+        if wfrun_uuid:
+            queryset = queryset.filter(Q(origin__run_job__workflow_run__uuid=wfrun_uuid) &
+                                       (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid)))
+        return queryset
 
     def post(self, request, *args, **kwargs):
         if not request.FILES:
