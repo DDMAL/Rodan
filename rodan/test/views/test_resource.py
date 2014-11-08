@@ -6,6 +6,7 @@ from rodan.models import Resource, ResourceType
 from rodan.models.resource import ResourceProcessingStatus
 from StringIO import StringIO
 from PIL import Image
+from model_mommy import mommy
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -60,6 +61,47 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertNotEqual(self.test_resource2.compat_resource_file.path, '')
         self.assertEqual(self.test_resource2.resource_type.mimetype, 'application/octet-stream')
         self.assertEqual(self.test_resource2.processing_status, ResourceProcessingStatus.NOT_APPLICABLE)
+
+    def test_get_results_of_workflowrun(self):
+        wfrun1 = mommy.make('rodan.WorkflowRun')
+        wfrun2 = mommy.make('rodan.WorkflowRun')
+        output1a = mommy.make('rodan.Output',
+                              run_job__workflow_run=wfrun1)
+        output1b = mommy.make('rodan.Output',
+                              run_job__workflow_run=wfrun1)
+        output1c = mommy.make('rodan.Output',
+                              run_job__workflow_run=wfrun1)
+        res1a = output1a.resource
+        res1a.origin = output1a
+        res1a.save()
+        res1b = output1b.resource
+        res1b.origin = output1b
+        res1b.save()
+        res1c = output1c.resource
+        res1c.origin = output1c
+        res1c.save()
+        mommy.make('rodan.Input',
+                   run_job__workflow_run=wfrun1,
+                   resource=res1a)
+
+        output2 = mommy.make('rodan.Output',
+                             run_job__workflow_run=wfrun2)
+        res2 = output2.resource
+        res2.origin = output2
+        res2.save()
+        mommy.make('rodan.Input',
+                   run_job__workflow_run=wfrun1,
+                   resource=res2)
+
+        response = self.client.get("/resources/?format=json&result_of_workflow_run={0}".format(wfrun1.uuid))
+        res_list = response.data['results']
+        self.assertEqual(len(res_list), 2)
+        self.assertEqual(set(map(lambda r: r['uuid'], res_list)), set(map(str, [res1b.uuid, res1c.uuid])))
+
+        response = self.client.get("/resources/?format=json&result_of_workflow_run={0}".format(wfrun2.uuid))
+        res_list = response.data['results']
+        self.assertEqual(len(res_list), 1)
+        self.assertEqual(res_list[0]['uuid'], str(res2.uuid))
 
 
 class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
