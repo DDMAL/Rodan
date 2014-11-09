@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
+
 class UserList(generics.ListCreateAPIView):
     """
     Returns a list of Users. Accepts POST requests to create a new User.
@@ -34,6 +35,7 @@ class UserList(generics.ListCreateAPIView):
         if not user:
             return Response({'message': "error creating user"}, status=status.HTTP_200_OK)
         return Response({'username': user.username}, status=status.HTTP_201_CREATED)
+
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """

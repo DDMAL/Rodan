@@ -6,8 +6,6 @@ from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.inputport import InputPort
-from rodan.models.workflow import Workflow
-from rodan.models.workflowjob import WorkflowJob
 from rodan.serializers.resourceassignment import ResourceAssignmentSerializer
 
 

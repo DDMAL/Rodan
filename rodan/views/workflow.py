@@ -3,11 +3,11 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from django.core.urlresolvers import Resolver404
-from django.contrib.auth.models import User
 from rodan.helpers.object_resolving import resolve_to_object
-from rodan.models import Workflow, WorkflowJob, ResourceAssignment, Connection, InputPort, OutputPort, InputPortType, OutputPortType, Project
+from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
+
 
 class WorkflowList(generics.ListCreateAPIView):
     """
@@ -92,7 +92,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 return e.response
 
         return self.partial_update(request, *args, **kwargs)
-
 
     def _validate(self, workflow):
         # validate WorkflowJobs
@@ -229,6 +228,7 @@ class DisjointSet(object):
         # MakeSet
         for x in xs:
             self._parent[x] = x
+
     def find(self, x):
         parent = self._parent[x]
         if parent is x:
@@ -237,6 +237,7 @@ class DisjointSet(object):
             new_parent = self.find(parent)
             self._parent[x] = new_parent
             return new_parent
+
     def union(self, x, y):
         xRoot = self.find(x)
         yRoot = self.find(y)

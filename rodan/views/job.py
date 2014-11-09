@@ -1,5 +1,4 @@
 from rest_framework import generics
-from rodan.helpers.dbmanagement import resolve_object_from_url
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
 from rodan.models import Workflow

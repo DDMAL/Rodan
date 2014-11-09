@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework import permissions
 from rodan.celery import app
+
 
 class TaskQueueActiveView(APIView):
     """
@@ -13,6 +14,7 @@ class TaskQueueActiveView(APIView):
         inspect = app.control.inspect()
         return Response(inspect.active())
 
+
 class TaskQueueConfigView(APIView):
     """
     Returns the config of Celery queue.
@@ -23,6 +25,7 @@ class TaskQueueConfigView(APIView):
         inspect = app.control.inspect()
         return Response(inspect.conf())
 
+
 class TaskQueueScheduledView(APIView):
     """
     Returns the list of scheduled Celery tasks.
@@ -32,6 +35,7 @@ class TaskQueueScheduledView(APIView):
     def get(self, request, format=None):
         inspect = app.control.inspect()
         return Response(inspect.scheduled())
+
 
 class TaskQueueStatusView(APIView):
     """

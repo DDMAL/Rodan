@@ -1,10 +1,6 @@
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
-from rest_framework.response import Response
-from django.core.urlresolvers import Resolver404
-from rodan.helpers.object_resolving import resolve_to_object
-from rodan.models.job import Job
 from rodan.models.inputporttype import InputPortType
 from rodan.serializers.inputporttype import InputPortTypeSerializer
 

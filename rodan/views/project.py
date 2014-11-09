@@ -1,10 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions
-from rest_framework import status
-from rest_framework.response import Response
 from guardian.shortcuts import get_objects_for_user
 
-from rodan.helpers.check_uuid import check_uuid
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectSerializer, ProjectListSerializer
 

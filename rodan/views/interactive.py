@@ -1,11 +1,10 @@
-import os
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rodan.models import RunJob
-
 from rodan.jobs.master_task import master_task
+
 
 class RodanInteractiveBaseView(View):
     """
@@ -38,8 +37,8 @@ class RodanInteractiveBaseView(View):
         image_source = runjob.inputs.first().resource
 
         self.data.update({'form_url': self.view_url,
-                      'run_job_uuid': rj_uuid,
-                      'image_source': image_source})
+                          'run_job_uuid': rj_uuid,
+                          'image_source': image_source})
 
         self.data.update(self.runjob_context(runjob, request))
 
@@ -70,6 +69,7 @@ class RodanInteractiveBaseView(View):
 
         return render(request, 'jobs/job_input_done.html')
 
+
 class PolyMaskView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):
         self.view_url = "/interactive/poly_mask/"
@@ -78,6 +78,7 @@ class PolyMaskView(RodanInteractiveBaseView):
 
     def post(self, request, *args, **kwargs):
         return super(PolyMaskView, self).post(request, *args, **kwargs)
+
 
 class CropView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):

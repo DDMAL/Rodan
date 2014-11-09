@@ -7,7 +7,6 @@ from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
-from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.connection import ConnectionListSerializer, ConnectionSerializer
 
 

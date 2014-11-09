@@ -7,7 +7,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
-from rodan.models import RunJob, Project, Output, Resource, ResourceType
+from rodan.models import Project, Output, Resource, ResourceType
 from rodan.models.resource import ResourceProcessingStatus
 from rodan.serializers.resource import ResourceSerializer
 from rodan.jobs.helpers import ensure_compatible, create_thumbnails

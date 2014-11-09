@@ -16,6 +16,7 @@ class InputList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     filter_fields = ('run_job', )
 
+
 class InputDetail(generics.RetrieveAPIView):
     """
     Query a single Input instance.
