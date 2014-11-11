@@ -31,7 +31,7 @@ class UserList(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         userName = request.DATA.get('username', None)
         userPass = request.DATA.get('password', None)
-        user = User.objects.create_user(username=userName)
+        user = User.objects.create_user(username=userName, password=userPass)
         if not user:
             return Response({'message': "error creating user"}, status=status.HTTP_200_OK)
         return Response({'username': user.username}, status=status.HTTP_201_CREATED)
