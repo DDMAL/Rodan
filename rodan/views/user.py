@@ -17,8 +17,8 @@ class UserList(generics.ListCreateAPIView):
     A successful POST request will return the newly created User object.
 
     #### Parameters
-    - `username` -- GET-only.
-    - `password` -- GET-only.
+    - `username` -- GET & POST.
+    - `password` -- GET & POST.
     """
     model = User
     permission_classes = (permissions.IsAdminUser, )

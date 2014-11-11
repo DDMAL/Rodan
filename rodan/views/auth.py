@@ -66,7 +66,7 @@ class SessionAuth(views.APIView):
 
 class SessionClose(views.APIView):
     """
-    Logging out. This will clear `sessionid`.
+    POST to log out. This will clear `sessionid`.
     """
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
