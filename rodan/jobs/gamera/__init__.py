@@ -24,7 +24,7 @@ try:
     transformation.load_module()
 except ImportError as e:
     logger.warning("Trouble loading the Gamera transformation plugins. Is Gamera installed?")
-
+"""
 try:
     from rodan.jobs.gamera.toolkits import rodan_plugins
     rodan_plugins.load_module()
@@ -94,3 +94,4 @@ try:
     module_loader.load_module()
 except ImportError as e:
     logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
+"""
