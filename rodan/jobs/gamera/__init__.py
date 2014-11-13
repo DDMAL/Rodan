@@ -1,27 +1,29 @@
+from rodan.jobs.gamera.module_loader import create_jobs_from_module
+
 import logging
 logger = logging.getLogger('rodan')
 
 try:
-    from rodan.jobs.gamera import binarization
-    binarization.load_module()
+    from gamera.plugins import binarization
+    create_jobs_from_module(binarization)
 except ImportError as e:
     logger.warning("Trouble loading the Gamera binarization plugins. Is Gamera installed?")
 
 try:
-    from rodan.jobs.gamera import threshold
-    threshold.load_module()
+    from gamera.plugins import threshold
+    create_jobs_from_module(threshold)
 except ImportError as e:
     logger.warning("Trouble loading the Gamera threshold plugins. Is Gamera installed?")
 
 try:
-    from rodan.jobs.gamera import image_conversion
-    image_conversion.load_module()
+    from gamera.plugins import image_conversion
+    create_jobs_from_module(image_conversion)
 except ImportError as e:
     logger.warning("Trouble loading the Gamera image_conversion plugins. Is Gamera installed?")
 
 try:
-    from rodan.jobs.gamera import transformation
-    transformation.load_module()
+    from gamera.plugins import transformation
+    create_jobs_from_module(transformation)
 except ImportError as e:
     logger.warning("Trouble loading the Gamera transformation plugins. Is Gamera installed?")
 """

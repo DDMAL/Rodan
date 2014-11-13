@@ -1,9 +1,6 @@
 import os, tempfile, shutil
 from PIL import Image
 from rest_framework.test import APITestCase
-from rodan.models.resource import Resource
-from StringIO import StringIO
-from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
