@@ -26,46 +26,56 @@ try:
     create_jobs_from_module(transformation)
 except ImportError as e:
     logger.warning("Trouble loading the Gamera transformation plugins. Is Gamera installed?")
-"""
-try:
-    from rodan.jobs.gamera.toolkits import rodan_plugins
-    rodan_plugins.load_module()
-except ImportError as e:
-    logger.warning("The Rodan Plugins have not been installed. Skipping.")
 
+####### Toolkits
 try:
-    from rodan.jobs.gamera.toolkits import border_removal
-    border_removal.load_module()
-except ImportError as e:
-    logger.warning("No Border Removal Toolkit Installed. Skipping.")
-
-try:
-    from rodan.jobs.gamera.toolkits import staff_removal
-    staff_removal.load_module()
-except ImportError as e:
-    logger.warning("No Staff Removal Toolkit Installed. Skipping.")
-
-try:
-    from rodan.jobs.gamera.toolkits import background_estimation
-    background_estimation.load_module()
+    from gamera.toolkits.background_estimation.plugins import background_estimation
+    create_jobs_from_module(background_estimation)
 except ImportError as e:
     logger.warning("No Background Estimation Toolkit Installed. Skipping.")
 
 try:
-    from rodan.jobs.gamera.toolkits import lyric_extraction
-    lyric_extraction.load_module()
+    from gamera.toolkits.border_removal.plugins import border_removal
+    create_jobs_from_module(border_removal)
+except ImportError as e:
+    logger.warning("No Border Removal Toolkit Installed. Skipping.")
+
+try:
+    from gamera.toolkits.lyric_extraction.plugins import border_lyric
+    from gamera.toolkits.lyric_extraction.plugins import lyricline
+    from gamera.toolkits.lyric_extraction.plugins import lyric_extractor
+    create_jobs_from_module(border_lyric)
+    create_jobs_from_module(lyricline)
+    create_jobs_from_module(lyric_extractor)
 except ImportError as e:
     logger.warning("No Lyric Extraction Toolkit Installed. Skipping.")
 
 try:
-    from rodan.jobs.gamera.toolkits import musicstaves
-    musicstaves.load_module()
+    from gamera.toolkits.musicstaves.plugins import musicstaves_plugins
+    create_jobs_from_module(musicstaves_plugins)
 except ImportError as e:
     logger.warning("No Music Staves Toolkit Installed. Skipping.")
 
+try:
+    from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
+    from gamera.toolkits.rodan_plugins.plugins.rdn_despeckle import rdn_despeckle
+    from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
+    create_jobs_from_module(rdn_rotate, interactive=True)
+    create_jobs_from_module(rdn_despeckle, interactive=True)
+    create_jobs_from_module(rdn_despeckle, interactive=False)
+    create_jobs_from_module(rdn_crop, interactive=True)
+except ImportError as e:
+    logger.warning("The Rodan Plugins have not been installed. Skipping.")
+
+try:
+    from gamera.toolkits.staffline_removal.plugins import staff_removal
+    create_jobs_from_module(staff_removal)
+except ImportError as e:
+    logger.warning("No Staff Removal Toolkit Installed. Skipping.")
 
 
 
+"""
 try:
     from rodan.jobs.gamera.custom.poly_mask import module_loader
     module_loader.load_module()
