@@ -26,7 +26,7 @@ class RodanTaskType(TaskType):
         if attrs.get('__metaclass__') == RodanTaskType or attrs.get('abstract') == True:  # not the base class or abstract class
             return
         else:
-            if not Job.objects.filter(job_name=attrs['name']).exists():
+            if not Job.objects.filter(job_name=attrs['name'], interactive=attrs.get('interactive', False)).exists():
                 j = Job(job_name=attrs['name'],
                         author=attrs.get('author'),
                         description=attrs.get('description'),
