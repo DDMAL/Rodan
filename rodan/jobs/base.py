@@ -20,10 +20,14 @@ class RodanTaskType(TaskType):
 
     Note: TaskType is the metaclass of Task (Celery objects)
     """
+    def __new__(cls, clsname, bases, attrs):
+        attrs['_abstract'] = attrs.get('abstract')  # Keep a copy as Celery TaskType will delete it.
+        return TaskType.__new__(cls, clsname, bases, attrs)
+
     def __init__(cls, clsname, bases, attrs):
         super(RodanTaskType, cls).__init__(clsname, bases, attrs)
 
-        if attrs.get('__metaclass__') == RodanTaskType or attrs.get('abstract') == True:  # not the base class or abstract class
+        if attrs.get('__metaclass__') == RodanTaskType or attrs.get('_abstract') == True:  # not the base class or abstract class
             return
         else:
             if not Job.objects.filter(job_name=attrs['name'], interactive=attrs.get('interactive', False)).exists():
