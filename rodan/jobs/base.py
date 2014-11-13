@@ -47,6 +47,8 @@ class RodanTaskType(TaskType):
                                       maximum=ipt.get('maximum'))
                     i.save()
                     resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
+                    if len(resource_types) == 0:
+                        raise ValueError('No available resource types found for this InputPortType: {0}'.format(ipt['resource_types']))
                     i.resource_types.add(*resource_types)
 
                 for opt in attrs['output_port_types']:
@@ -57,7 +59,7 @@ class RodanTaskType(TaskType):
                     o.save()
                     resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
                     if len(resource_types) == 0:
-                        raise ValueError('No available resource types found for this Input/OutputPortType')
+                        raise ValueError('No available resource types found for this OutputPortType: {0}'.format(opt['resource_types']))
                     o.resource_types.add(*resource_types)
 
     @staticmethod
