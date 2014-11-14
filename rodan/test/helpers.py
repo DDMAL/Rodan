@@ -1,11 +1,10 @@
+import shutil, os, uuid, time
 from model_mommy import mommy
 from django.contrib.auth.models import User
 from rodan.models import Project, Job, ResourceType
 from rodan.models.resourcetype import load_predefined_resource_types
 from django.core.files.base import ContentFile
-import time
 from django.conf import settings
-import shutil, os
 
 class RodanTestSetUpMixin(object):
     def setUp_rodan(self):
@@ -19,6 +18,14 @@ class RodanTestSetUpMixin(object):
         import rodan.jobs.load     # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
         import rodan.test.dummy_jobs
         reload(rodan.test.dummy_jobs)
+
+    def new_temppath(self):
+        "This method will only return an available file path, not creating the file! But it creates the parent directory."
+        try:
+            os.makedirs(settings.MEDIA_ROOT)
+        except OSError:
+            pass
+        return os.path.join(settings.MEDIA_ROOT, str(uuid.uuid1()))
 
     def setUp_user(self):
         self.test_user = User.objects.create_user(username="ahankins", password="hahaha")
