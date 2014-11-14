@@ -5,7 +5,7 @@ from django.db.models import Q
 
 # Read more on Django queries: https://docs.djangoproject.com/en/dev/topics/db/queries/
 
-@task(name='rodan.jobs.master_task.master_task')
+@task(name='rodan.core.master_task')
 def master_task(workflow_run_id):
     # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
 

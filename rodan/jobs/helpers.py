@@ -11,7 +11,7 @@ from rodan.models.resource import ResourceProcessingStatus
 from celery import Task
 
 class ensure_compatible(Task):
-    name = "rodan.jobs.helpers.ensure_compatible"
+    name = "rodan.core.ensure_compatible"
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
@@ -70,7 +70,7 @@ class ensure_compatible(Task):
         del self._task_instance
 
 
-@task(name="rodan.jobs.helpers.create_thumbnails")
+@task(name="rodan.core.create_thumbnails")
 def create_thumbnails(resource_id):
     resource_object = Resource.objects.filter(uuid=resource_id).select_related('resource_type')[0]
     mimetype = resource_object.resource_type.mimetype
