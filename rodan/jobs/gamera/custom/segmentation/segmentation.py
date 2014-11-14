@@ -1,25 +1,43 @@
 import json
-from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
+from rodan.jobs.gamera.celery_task import GameraTask
 
 
-class SegmentationTask(GameraCustomTask):
-    max_retries = None
+class SegmentationTask(GameraTask):
     name = 'gamera.custom.segmentation.segmentation'
+    author = "Deepanjan Roy"
+    description = "Finds the staves using Miyao Staff Finder and masks out everything else."
+    settings = [
+        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'num lines', 'type': 'int'},
+        {'default': 5, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'scanlines', 'type': 'int'},
+        {'default': 0.8, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'blackness', 'type': 'real'},
+        {'default': -1, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'tolerance', 'type': 'int'},
+        {'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'},
+        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'}
+    ]
+    enabled = True
+    category = "Segmentation"
+    interactive = True
 
-    settings = [{'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'num lines', 'type': 'int'},
-                {'default': 5, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'scanlines', 'type': 'int'},
-                {'default': 0.8, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'blackness', 'type': 'real'},
-                {'default': -1, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'tolerance', 'type': 'int'},
-                {'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'},
-                {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'}]
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
 
-    def preconfigure_settings(self, page_url, settings):
+
+    def preconfigure_settings(self, page_url, settings): # [TODO]
         init_gamera()
         task_image = load_image(page_url)
         ranked_page = task_image.rank(9, 9, 0)

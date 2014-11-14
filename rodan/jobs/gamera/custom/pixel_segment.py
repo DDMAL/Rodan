@@ -1,28 +1,33 @@
 import json
 import sys
-from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
+from rodan.jobs.gamera.celery_task import GameraTask
 
-class PixelSegmentTask(GameraCustomTask):
-
+class PixelSegmentTask(GameraTask):
     COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
 
-    max_retries = None
     name = 'gamera.custom.lyric_extraction.pixel_segment'
-
+    author = "Ryan Bannon"
+    description = "[TODO]"
     settings = [{'visibility': False, 'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'},
                 {'visibility': False, 'default': None, 'has_default': True, 'name': 'geometries', 'type': 'json'}]
+    enabled = True
+    category = "Lyric Extraction"
+    interactive = True
 
-    # Preconfiguration setup.
-    def preconfigure_settings(self, page_url, settings):
-
-        init_gamera()
-        task_image = load_image(page_url)
-        miyao_settings = settings.copy()
-        del miyao_settings['image_width']
-        return {'image_width': task_image.ncols}
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ['image/rgb+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ['image/rgb+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
 
     # Given an image and coloured geometries from the associated interactive
     # job, converts non-white pixels in each geometry in the image to the
@@ -164,5 +169,3 @@ class PixelSegmentTask(GameraCustomTask):
             del imageCrop
             count += 1
         return image
-
-

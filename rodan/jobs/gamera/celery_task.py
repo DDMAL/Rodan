@@ -6,6 +6,9 @@ from rodan.jobs.base import RodanTask
 class GameraTask(RodanTask):
     abstract = True
 
+    def process_image(self, task_image, settings):
+        raise NotImplementedError()
+
     def run_my_task(self, inputs, rodan_job_settings, outputs):
         settings = {}
         for s in rodan_job_settings:
@@ -16,6 +19,5 @@ class GameraTask(RodanTask):
         init_gamera()
 
         task_image = load_image(inputs[inputs.keys()[0]][0]['resource_path'])
-        task_function = self.name.split(".")[-1]
-        result_image = getattr(task_image, task_function)(**settings)
+        result_image = self.process_image(task_image, settings)
         result_image.save_image(outputs[outputs.keys()[0]][0]['resource_path'])

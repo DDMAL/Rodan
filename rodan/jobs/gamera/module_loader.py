@@ -54,6 +54,10 @@ def create_jobs_from_module(gamera_module, interactive=False):
             input_port_types = input_types
             output_port_types = output_types
 
+            def process_image(self, task_image, settings):
+                task_function = self.name.split(".")[-1]
+                return getattr(task_image, task_function)(**settings)
+
 
 def pixel_type_to_rodan_type(pixel_t):
     # Gamera pixel types can be found in gamera.enums module

@@ -1,16 +1,32 @@
-from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
+from rodan.jobs.gamera.celery_task import GameraTask
 from rodan.jobs.gamera import argconvert
-from gamera.core import init_gamera
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
 from PIL import Image
 from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
 
-class AutoBorderRemovalTask(GameraCustomTask):
-    max_retries = None
+class AutoBorderRemovalTask(GameraTask):
     name = 'gamera.custom.border_removal.auto_border_removal'
+    author = "Deepanjan Roy"
+    description = "Automatically tries to remove the border of a page. Non-interactive."
     settings = argconvert.convert_arg_list(border_removal.args.list)
+    enabled = True
+    category = "Border Removal"
+    interactive = False
+
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
+        'minimum': 1,
+        'maximum': 1
+    }]
 
     def process_image(self, task_image, settings):
         """
@@ -20,8 +36,6 @@ class AutoBorderRemovalTask(GameraCustomTask):
         can do some interpolation, and converting back to onebit uses a default
         binarizaiton algorithm (the otsu threshold). These can change the image.
         """
-
-        init_gamera()
         grey_image = task_image.to_greyscale()
         crop_mask = grey_image.border_removal(**settings)
 
@@ -38,14 +52,32 @@ class AutoBorderRemovalTask(GameraCustomTask):
         return result_image
 
 
-class CropBorderRemovalTask(GameraCustomTask):
-    max_retries = None
+class CropBorderRemovalTask(GameraTask):
     name = 'gamera.custom.border_removal.crop_border_removal'
+    author = "Deepanjan Roy"
+    description = "Manual masking crop. Uses the crop interface. Interactive."
 
     # Ideally, Border Removal Settings should not be coupled with rdn_crop settings.
-    # Need more robust argument system. To-Do. This is ugly.
+    # Need more robust argument system. [TODO]. This is ugly.
     from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
     settings = argconvert.convert_arg_list(rdn_crop.args.list)
+
+    enabled = True
+    category = "Border Removal"
+    interactive = False
+
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
+        'minimum': 1,
+        'maximum': 1
+    }]
 
     @staticmethod
     def create_mask(org_img, ulx=0, uly=0, lrx=0, lry=0, imw=0):
@@ -96,9 +128,6 @@ class CropBorderRemovalTask(GameraCustomTask):
         can do some interpolation, and converting back to onebit uses a default
         binarizaiton algorithm (the otsu threshold). These can change the image.
         """
-
-        init_gamera()
-
         need_to_change_back = False
         if task_image.data.pixel_type == 0:
             task_image = task_image.to_greyscale()

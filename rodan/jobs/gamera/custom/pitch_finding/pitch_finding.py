@@ -7,11 +7,6 @@ import gamera.classify
 import gamera.knn
 from gamera.core import init_gamera, load_image
 
-from rodan.models.runjob import RunJob
-from rodan.models.runjob import RunJobStatus
-from rodan.models.result import Result
-from rodan.models.resource import ResourceType
-from rodan.models.workflowjob import WorkflowJob
 from rodan.helpers.exceptions import UUIDParseError
 from django.conf import settings
 from rodan.jobs.util import taskutil
@@ -26,12 +21,29 @@ init_gamera()
 # There are lots of room for improvement, and lots of code to clean up.
 # Most probably these will be taken care of after July 1.
 
-
+# [TODO]
 class PitchFindingTask(RodanTask):
-    max_retries = None
     name = 'gamera.custom.pitch_finding.find_pitches'
-    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [ResourceType.ONEBIT]},
+    author = "Deepanjan Roy"
+    description = "Classifies the neumes detected in the page using the classifier interface."
+    enabled = True
+    category = "Pitch Finding"
+    interactive = False
+    settings = [{'default': None, 'has_default': False, 'name': 'segmented_image_source', 'type': 'uuid_workflowjob', 'input_types': [gamera.enums.ONEBIT]},
                 {'default': 2, 'has_default': True, 'rng': [1, 1048576], 'name': 'discard_size', 'type': 'int'}]
+
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ['application/gamera+xml'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ['application/mei+xml'],
+        'minimum': 1,
+        'maximum': 1
+    }]
 
     def process_image(self, segmented_image_path, xml_filepath, settings, page_order):
         segmented_image = load_image(segmented_image_path)
@@ -88,14 +100,6 @@ class PitchFindingTask(RodanTask):
         mei_document = self.process_image(segmented_image_path, xml_filepath, settings, page_order)
         result = self.save_result(runjob, mei_document)
         return str(result.uuid)
-
-    @taskutil.if_runjob_not_cancelled('on_success')
-    def on_success(self, retval, task_id, args, kwargs):
-        result = Result.objects.get(pk=retval)
-        result.run_job.status = RunJobStatus.HAS_FINISHED
-        taskutil.save_instance(result.run_job)
-
-    on_failure = taskutil.default_on_failure
 
     def error_information(self, exc, traceback):
         if isinstance(exc, RunJob.DoesNotExist):

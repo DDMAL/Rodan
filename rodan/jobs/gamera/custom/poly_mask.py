@@ -1,27 +1,34 @@
 import json
-from gamera.core import init_gamera, load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.gamera.custom.gamera_custom_base import GameraCustomTask
+from rodan.jobs.gamera.celery_task import GameraTask
 
 
-class PolyMaskTask(GameraCustomTask):
-    max_retries = None
+class PolyMaskTask(GameraTask):
     name = 'gamera.custom.border_removal.poly_mask'
+    author = "Deepanjan Roy"
+    description = "TODO"
 
     settings = [{'visibility': False, 'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'},
                 {'visibility': False, 'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'}]
 
-    def preconfigure_settings(self, page_url, settings):
-        init_gamera()
-        task_image = load_image(page_url)
+    enabled = True
+    category = "Border Removal"
+    interactive = True
 
-        miyao_settings = settings.copy()
-        del miyao_settings['image_width']
-
-      #  return {'image_width': task_image.ncols}
-        return {'image_width': task_image.ncols}
+    input_port_types = [{
+        'name': 'input',
+        'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'output',
+        'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
 
     def process_image(self, task_image, settings):
         mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')

@@ -74,36 +74,33 @@ except ImportError as e:
     logger.warning("No Staff Removal Toolkit Installed. Skipping.")
 
 
-
-"""
+#### custom
 try:
-    from rodan.jobs.gamera.custom.poly_mask import module_loader
-    module_loader.load_module()
-except ImportError as e:
-    logger.warning("Custom Poly Mask job not installed. Skipping".format(e))
-
-try:
-    from rodan.jobs.gamera.custom.border_removal import module_loader
-    module_loader.load_module()
+    from rodan.jobs.gamera.custom import border_removal
 except ImportError as e:
     logger.warning("Custom Border Removal job not installed. Skipping. {0}".format(e))
 
 try:
-    from rodan.jobs.gamera.custom.segmentation import module_loader
-    module_loader.load_module()
+    from rodan.jobs.gamera.custom import pixel_segment
+except ImportError as e:
+    logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
+
+try:
+    from rodan.jobs.gamera.custom.pitch_finding import pitch_finding
+except ImportError as e:
+    logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
+
+try:
+    from rodan.jobs.gamera.custom import poly_mask
+except ImportError as e:
+    logger.warning("Custom Poly Mask job not installed. Skipping".format(e))
+
+try:
+    from rodan.jobs.gamera.custom.segmentation import segmentation
 except ImportError as e:
     logger.warning("Custom Segmentation job not installed. Skipping. {0}".format(e))
 
 try:
-    from rodan.jobs.gamera.custom.staff_removal import module_loader
-    module_loader.load_module()
+    from rodan.jobs.gamera.custom import staff_removal
 except ImportError as e:
     logger.warning("Custom RT Staff Removal job not installed. Skipping. {0}".format(e))
-
-
-try:
-    from rodan.jobs.gamera.custom.pixel_segment import module_loader
-    module_loader.load_module()
-except ImportError as e:
-    logger.warning("Custom Pixel Segment job not installed. Skipping. {0}".format(e))
-"""
