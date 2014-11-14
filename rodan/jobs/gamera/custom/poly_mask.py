@@ -1,11 +1,12 @@
 import json
+from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.gamera.base import GameraTask
+from rodan.jobs.base import RodanTask
 
 
-class PolyMaskTask(GameraTask):
+class PolyMaskTask(RodanTask):
     name = 'gamera.custom.border_removal.poly_mask'
     author = "Deepanjan Roy"
     description = "TODO"
@@ -30,7 +31,10 @@ class PolyMaskTask(GameraTask):
         'maximum': 1
     }]
 
-    def process_image(self, task_image, settings):
+    def run_my_task(self, inputs, rodan_job_settings, outputs):
+        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+        task_image = load_image(inputs['input'][0]['resource_path'])
+
         mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
         mask_drawer = ImageDraw.Draw(mask_img)
 
@@ -50,4 +54,4 @@ class PolyMaskTask(GameraTask):
         result_image_greyscale = task_image_greyscale.mask(segment_mask)
         result_image = result_image_greyscale.to_onebit()   # Get it back to one-bit
 
-        return result_image
+        result_image.save_image(outputs['output'][0]['resource_path'])

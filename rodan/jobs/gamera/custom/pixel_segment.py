@@ -1,10 +1,11 @@
 import json
 import sys
+from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.gamera.base import GameraTask
+from rodan.jobs.base import RodanTask
 
-class PixelSegmentTask(GameraTask):
+class PixelSegmentTask(RodanTask):
     COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
 
     name = 'gamera.custom.lyric_extraction.pixel_segment'
@@ -32,7 +33,9 @@ class PixelSegmentTask(GameraTask):
     # Given an image and coloured geometries from the associated interactive
     # job, converts non-white pixels in each geometry in the image to the
     # specified colour.
-    def process_image(self, task_image, settings):
+    def run_my_task(self, inputs, rodan_job_settings, outputs):
+        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+        task_image = load_image(inputs['input'][0]['resource_path'])
 
         # Get the returned data.
         try:
@@ -53,7 +56,7 @@ class PixelSegmentTask(GameraTask):
 
         # Convert back to gamera image and return.
         finalImage = from_pil(imageOriginal)
-        return finalImage
+        finalImage.save_image(outputs['output'][0]['resource_path'])
 
     # Returns true iff provided geometry points form a rectangle.
     # It assumes at least 3 points.

@@ -1,13 +1,14 @@
 import json
+from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from rodan.jobs.gamera.base import GameraTask
+from rodan.jobs.base import RodanTask
 
 
-class SegmentationTask(GameraTask):
+class SegmentationTask(RodanTask):
     name = 'gamera.custom.segmentation.segmentation'
     author = "Deepanjan Roy"
     description = "Finds the staves using Miyao Staff Finder and masks out everything else."
@@ -54,7 +55,10 @@ class SegmentationTask(GameraTask):
 
         return {'polygon_outer_points': poly_json_list, 'image_width': task_image.ncols}
 
-    def process_image(self, task_image, settings):
+    def run_my_task(self, inputs, rodan_job_settings, outputs):
+        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+        task_image = load_image(inputs['input'][0]['resource_path'])
+
         mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
         mask_drawer = ImageDraw.Draw(mask_img)
 
@@ -74,4 +78,4 @@ class SegmentationTask(GameraTask):
         result_image_greyscale = task_image_greyscale.mask(segment_mask)
         result_image = result_image_greyscale.to_onebit()   # Get it back to one-bit
 
-        return result_image
+        result_image.save_image(outputs['output'][0]['resource_path'])

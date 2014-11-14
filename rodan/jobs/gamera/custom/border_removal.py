@@ -1,12 +1,13 @@
-from rodan.jobs.gamera.base import GameraTask
+from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
+from gamera.core import load_image
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
 from PIL import Image
 from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
 
-class AutoBorderRemovalTask(GameraTask):
+class AutoBorderRemovalTask(RodanTask):
     name = 'gamera.custom.border_removal.auto_border_removal'
     author = "Deepanjan Roy"
     description = "Automatically tries to remove the border of a page. Non-interactive."
@@ -28,7 +29,7 @@ class AutoBorderRemovalTask(GameraTask):
         'maximum': 1
     }]
 
-    def process_image(self, task_image, settings):
+    def run_my_task(self, inputs, rodan_job_settings, outputs):
         """
         Note that if the incoming image is onebit, it will convert it to greyscale,
         do the cropping, and then convert it back to onebit. This can sometimes
@@ -36,6 +37,8 @@ class AutoBorderRemovalTask(GameraTask):
         can do some interpolation, and converting back to onebit uses a default
         binarizaiton algorithm (the otsu threshold). These can change the image.
         """
+        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+        task_image = load_image(inputs['input'][0]['resource_path'])
         grey_image = task_image.to_greyscale()
         crop_mask = grey_image.border_removal(**settings)
 
@@ -49,10 +52,9 @@ class AutoBorderRemovalTask(GameraTask):
         if need_to_change_back:
             result_image = result_image.to_onebit()
 
-        return result_image
+        result_image.save_image(outputs['output'][0]['resource_path'])
 
-
-class CropBorderRemovalTask(GameraTask):
+class CropBorderRemovalTask(RodanTask):
     name = 'gamera.custom.border_removal.crop_border_removal'
     author = "Deepanjan Roy"
     description = "Manual masking crop. Uses the crop interface. Interactive."
@@ -120,7 +122,8 @@ class CropBorderRemovalTask(GameraTask):
         im = from_pil(im)
         return im.to_onebit()
 
-    def process_image(self, task_image, settings):
+
+    def run_my_task(self, inputs, rodan_job_settings, outputs):
         """
         Note that if the incoming image is onebit, it will convert it to greyscale,
         do the cropping, and then convert it back to onebit. This can sometimes
@@ -128,6 +131,9 @@ class CropBorderRemovalTask(GameraTask):
         can do some interpolation, and converting back to onebit uses a default
         binarizaiton algorithm (the otsu threshold). These can change the image.
         """
+        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+        task_image = load_image(inputs['input'][0]['resource_path'])
+
         need_to_change_back = False
         if task_image.data.pixel_type == 0:
             task_image = task_image.to_greyscale()
@@ -139,4 +145,4 @@ class CropBorderRemovalTask(GameraTask):
         if need_to_change_back:
             result_image = result_image.to_onebit()
 
-        return result_image
+        result_image.save_image(outputs['output'][0]['resource_path'])

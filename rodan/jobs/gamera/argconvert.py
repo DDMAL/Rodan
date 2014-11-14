@@ -56,3 +56,11 @@ def convert_pixel_to_mimetype(pixel_t):
         5: 'image/complex+png',
     }
     return mapp[pixel_t]
+
+def convert_to_gamera_settings(rodan_job_settings):
+    settings = {}
+    for s in rodan_job_settings:
+        setting_name = "_".join(s['name'].split(" "))
+        setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
+        settings[setting_name] = setting_value
+    return settings
