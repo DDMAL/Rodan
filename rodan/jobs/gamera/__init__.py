@@ -99,7 +99,7 @@ except ImportError as e:
     logger.warning("Custom Poly Mask job not installed. Skipping".format(e))
 
 try:
-    from rodan.jobs.gamera.custom.segmentation import segmentation
+    from rodan.jobs.gamera.custom.segmentation import apply_segmentation, computer_assistance
 except ImportError as e:
     logger.warning("Custom Segmentation job not installed. Skipping. {0}".format(e))
 

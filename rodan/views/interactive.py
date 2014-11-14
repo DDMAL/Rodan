@@ -1,75 +1,83 @@
+import json
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
 from rest_framework import status
+from rest_framework.response import Response
 from rodan.models import RunJob
+from rodan.models.runjob import RunJobStatus
 from rodan.jobs.master_task import master_task
 
 
-class RodanInteractiveBaseView(View):
+class InteractiveView(View):
     """
     Rodan makes available interfaces for interactive jobs. Each endpoint accepts
     GET and POST requests. An exception is Neon, which has its own API (and is
     discussed elsewhere).
 
     #### Parameters
-    - `runjob` -- GET-only. UUID of the associated RunJob.
-    - `run_job_uuid` -- POST-only. UUID of the associated RunJob.
+    - `interface` -- GET-only (optional). Specify the name of interface. If not
+      provided, the API will return a list of accepted interfaces in JSON format.
+    - `run_job` -- GET & POST. UUID of the associated RunJob.
     - `**kwargs` -- POST-only. Job settings.
     """
-    view_url = ""
-    template_name = ""
-    data = {}
-
-    def runjob_context(self, runjob, request):
-        """
-        Provide this method in a subclass to provide extra context
-        about the runjob to the template. Must return a dictionary.
-        """
-        return {}
-
-    def get(self, request, *args, **kwargs):
-        if 'runjob' not in request.GET:
+    def get(self, request, run_job_uuid):
+        # check runjob
+        runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
+        if runjob.workflow_run.cancelled:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
-        rj_uuid = request.GET['runjob']
-        runjob = get_object_or_404(RunJob, pk=(rj_uuid))
-        image_source = runjob.inputs.first().resource
+        # Read directive
+        directive_path = runjob.inputs.filter(input_port__input_port_type__name='directive').first().resource.compat_resource_file.path
+        with open(directive_path, 'r') as f:
+            directive = json.load(f)
 
-        self.data.update({'form_url': self.view_url,
-                          'run_job_uuid': rj_uuid,
-                          'image_source': image_source})
+        # Return which interfaces are supported, if param 'interface' is not provided.
+        if 'interface' not in request.GET:
+            supported_interfaces = map(lambda d: d['name'], directive['acceptable_interfaces'])
+            return Response(supported_interfaces, content_type='application/json')
 
-        self.data.update(self.runjob_context(runjob, request))
-
-        for setting in runjob.job_settings:
-            self.data[setting['name']] = setting['default']
-
-        return render(request, "{0}/{1}".format('jobs', self.template_name), self.data)
-
-    def post(self, request, *args, **kwargs):
-        if 'run_job_uuid' not in request.POST:
+        # Verify interface
+        interface_configuration = filter(lambda d: d['name'] == request.GET['interface'], directive['acceptable_interfaces'])
+        if not interface_configuration:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
-        rj_uuid = request.POST['run_job_uuid']
-        runjob = RunJob.objects.get(uuid=rj_uuid)
+        # Go!
+        resource_obj = runjob.inputs.filter(input_port__input_port_type__name='resource').first().resource
+        context = {'run_job': rj_uuid,
+                   'resource_obj': resource_obj,
+                   'kwargs': interface_configuration['kwargs']}
+        template_name = 'jobs/{0}.html'.format(interface_configuration['name'])
+        return render(request, template_name, context)
+
+
+    def post(self, request, run_job_uuid):
+        runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
+        if runjob.workflow_run.cancelled:
+            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
         if not runjob.needs_input or not runjob.ready_for_input:
             return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
 
-        for job_setting in runjob.job_settings:
-            if job_setting['name'] in request.POST:
-                job_setting['default'] = request.POST[job_setting['name']]
+        d = {}
+        for k, v in request.POST.iteritems():
+            d[k] = v
 
         runjob.needs_input = False
         runjob.ready_for_input = False
+        runjob.status = RunJobStatus.HAS_FINISHED
+        runjob.error_summary = ''
+        runjob.error_details = ''
         runjob.save()
+        resource = runjob.outputs.first().resource
+        resource.compat_resource_file.save('', ContentFile(json.dumps(d)))
 
         # call master_task to continue workflowrun
         master_task.apply_async((runjob.workflow_run.uuid,))
 
         return render(request, 'jobs/job_input_done.html')
 
-
+"""
 class PolyMaskView(RodanInteractiveBaseView):
     def get(self, request, *args, **kwargs):
         self.view_url = "/interactive/poly_mask/"
@@ -158,3 +166,4 @@ class PixelSegmentView(RodanInteractiveBaseView):
 
     def post(self, request, *args, **kwargs):
         return super(PixelSegmentView, self).post(request, *args, **kwargs)
+"""

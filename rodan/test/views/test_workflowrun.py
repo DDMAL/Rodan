@@ -1,4 +1,4 @@
-import os
+import os, json
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -93,12 +93,17 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
         self.assertEqual(dummy_m_runjob.ready_for_input, True)
 
-        response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(dummy_m_runjob.uuid)})
+        interactive_result = {'foo': 'bar'}
+        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), interactive_result)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # then the workflowrun should re-run
+        # then manual job should be flagged as finished and should have result
+        with open(dummy_m_runjob.outputs.first().resource.compat_resource_file.path) as f:
+            self.assertEqual(json.load(f), interactive_result)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
         self.assertEqual(dummy_m_runjob.status, RunJobStatus.HAS_FINISHED)
+
+        # then the workflowrun should re-run [TODO]
 
     def test_failed_execution(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
@@ -327,7 +332,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
 
         # Work with RunJob B
-        response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjB.uuid)})
+        response = self.client.post("/interactive/{0}/".format(str(rjB.uuid)), {'foo': 'bar'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ## refetch
@@ -377,7 +382,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertFalse(Fouti.resource.compat_resource_file)
 
         # Work with one of RunJob D
-        response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDs[0].uuid)})
+        response = self.client.post("/interactive/{0}/".format(str(rjDs[0].uuid)), {'foo': 'bar'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -440,7 +445,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         # Work with all Runjob Ds
         for rjDi in rjDremain:
-            response = self.client.post("/interactive/poly_mask/", {'run_job_uuid': str(rjDi.uuid)})
+            response = self.client.post("/interactive/{0}/".format(str(rjDi.uuid)), {'foo': 'bar'})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ## refetch

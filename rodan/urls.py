@@ -37,7 +37,7 @@ from rodan.views.input import InputList, InputDetail
 from rodan.views.resourceassignment import ResourceAssignmentList, ResourceAssignmentDetail
 
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
-from rodan.views import interactive
+from rodan.views.interactive import InteractiveView
 
 # run-once import, initialize Rodan database
 import rodan.jobs.load
@@ -94,20 +94,9 @@ urlpatterns += format_suffix_patterns(
              url(r'^inputs/$', InputList.as_view(), name="input-list"),
              url(r'^input/(?P<pk>[0-9a-z\-]+)/$', InputDetail.as_view(), name='input-detail'),
              url(r'^resourceassignments/$', ResourceAssignmentList.as_view(), name='resourceassignment-list'),
-             url(r'^resourceassignment/(?P<pk>[0-9a-z\-]+)/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail')
+             url(r'^resourceassignment/(?P<pk>[0-9a-z\-]+)/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail'),
+             url(r'^interactive/(?P<run_job_uuid>[0-9a-z\-]+)/$', InteractiveView.as_view(), name='interactive'),
          )
-)
-
-urlpatterns += patterns('',
-    url(r'^interactive/poly_mask/$', interactive.PolyMaskView.as_view()),
-    url(r'^interactive/crop/$', interactive.CropView.as_view()),
-    url(r'^interactive/binarise/$', interactive.BinariseView.as_view()),
-    url(r'^interactive/despeckle/$', interactive.DespeckleView.as_view()),
-    url(r'^interactive/rotate/$', interactive.RotateView.as_view()),
-    url(r'^interactive/segment/$', interactive.SegmentView.as_view()),
-    url(r'^interactive/luminance/$', interactive.LuminanceView.as_view()),
-    url(r'^interactive/barlinecorrection/$', interactive.BarlineCorrectionView.as_view()),
-    url(r'^interactive/pixel_segment/$', interactive.PixelSegmentView.as_view()),
 )
 
 # For serving stuff under MEDIA_ROOT in debug mode only
