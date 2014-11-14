@@ -2,7 +2,7 @@ import json
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.gamera.celery_task import GameraTask
+from rodan.jobs.gamera.base import GameraTask
 
 
 class PolyMaskTask(GameraTask):

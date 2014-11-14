@@ -2,7 +2,7 @@ import json
 import sys
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.gamera.celery_task import GameraTask
+from rodan.jobs.gamera.base import GameraTask
 
 class PixelSegmentTask(GameraTask):
     COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100

@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from rodan.jobs.gamera.celery_task import GameraTask
+from rodan.jobs.gamera.base import GameraTask
 
 
 class SegmentationTask(GameraTask):

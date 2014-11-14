@@ -1,4 +1,4 @@
-from rodan.jobs.gamera.celery_task import GameraTask
+from rodan.jobs.gamera.base import GameraTask
 from gamera.toolkits.musicstaves import MusicStaves_rl_roach_tatem
 
 

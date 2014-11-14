@@ -1,4 +1,4 @@
-from rodan.jobs.gamera.celery_task import GameraTask
+from rodan.jobs.gamera.base import GameraTask
 from rodan.jobs.gamera import argconvert
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
 from PIL import Image
