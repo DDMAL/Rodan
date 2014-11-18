@@ -1,7 +1,9 @@
 from settings_production import *
+import os
 
 TEMPLATE_DEBUG = DEBUG
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -78,6 +80,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'rodan.urls'
 
 TEMPLATE_DIRS = (
+    PROJECT_PATH + '/jobs/',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

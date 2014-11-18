@@ -76,5 +76,4 @@ def load_predefined_resource_types():
     load('image/jp2', 'jpeg2000', 'jp2')  # RFC 3745
     load('application/zip', 'Package', 'zip')
     load('application/gamera+xml', 'Gamera classifier XML', 'xml')
-    load('application/vnd.rodan.interactive.directive+json', 'Rodan interactive directive', 'directive.json')
-    load('application/vnd.rodan.interactive.result+json', 'Rodan interactive result', 'result.json')
+    load('application/json', 'JSON', 'json')

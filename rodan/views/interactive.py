@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.template import RequestContext
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -53,7 +54,7 @@ class InteractiveView(APIView):
         manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
         template, context = manual_task.get_my_interface(inputs, settings)
         c = RequestContext(request, context)
-        return Response(template.render(c), content_type="text/html")
+        return HttpResponse(template.render(c))
 
     def post(self, request, run_job_uuid, *a, **k):
         # check runjob
