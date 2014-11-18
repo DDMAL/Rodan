@@ -4,17 +4,16 @@ from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 
 
-class ApplySegmentationTask(RodanTask):
+class ApplySegmentationTask(RodanAutomaticTask):
     name = 'gamera.custom.segmentation.apply_segmentation'
     author = "Ling-Xiao Yang"
     description = "Apply segmentation."
     settings = []
     enabled = True
     category = "Segmentation"
-    interactive = False
 
     input_port_types = [{
         'name': 'input-image',

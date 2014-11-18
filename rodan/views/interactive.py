@@ -1,67 +1,91 @@
 import json
+from celery import registry
 from django.shortcuts import render
-from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
+from django.template import RequestContext
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rodan.models import RunJob
+from rest_framework.exceptions import APIException
+from rodan.models import RunJob, Input
 from rodan.models.runjob import RunJobStatus
 from rodan.jobs.master_task import master_task
 
 
-class InteractiveView(View):
+class InteractiveView(APIView):
     """
     Rodan makes available interfaces for interactive jobs. Each endpoint accepts
-    GET and POST requests. An exception is Neon, which has its own API (and is
-    discussed elsewhere).
+    GET and POST requests.
 
     #### Parameters
-    - `interface` -- GET-only (optional). Specify the name of interface. If not
-      provided, the API will return a list of accepted interfaces in JSON format.
-    - `run_job` -- GET & POST. UUID of the associated RunJob.
     - `**kwargs` -- POST-only. Job settings.
     """
-    def get(self, request, run_job_uuid):
+    def get(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
         if runjob.workflow_run.cancelled:
-            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'WorkflowRun has been cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+        if not runjob.ready_for_input:
+            return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Read directive
-        directive_path = runjob.inputs.filter(input_port__input_port_type__name='directive').first().resource.compat_resource_file.path
-        with open(directive_path, 'r') as f:
-            directive = json.load(f)
+        # read input values: urls, actual path, and type
+        input_values = Input.objects.filter(run_job__pk=run_job_uuid).values(
+            'input_port__input_port_type__name',
+            'resource__compat_resource_file',
+            'resource__resource_type__mimetype',
+            'resource__uuid')
+        inputs = {}
+        for input_value in input_values:
+            ipt_name = input_value['input_port__input_port_type__name']
+            if ipt_name not in inputs:
+                inputs[ipt_name] = []
+            r = Resource.objects.get(input_value['resource__uuid'])
+            inputs[ipt_name].append({
+                'resource_path': input_value['resource__compat_resource_file'],
+                'resource_type': input_value['resource__resource_type__mimetype'],
+                'resource_url': r.compat_file_url,
+                'small_thumb_url': r.small_thumb_url,
+                'medium_thumb_url': r.medium_thumb_url,
+                'large_thumb_url': r.large_thumb_url
+            })
+        settings = runjob.job_settings
+        manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
+        template, context = manual_task.get_my_interface(inputs, settings)
+        c = RequestContext(request, context)
+        return Response(template.render(c), content_type="text/html")
 
-        # Return which interfaces are supported, if param 'interface' is not provided.
-        if 'interface' not in request.GET:
-            supported_interfaces = map(lambda d: d['name'], directive['acceptable_interfaces'])
-            return Response(supported_interfaces, content_type='application/json')
-
-        # Verify interface
-        interface_configuration = filter(lambda d: d['name'] == request.GET['interface'], directive['acceptable_interfaces'])
-        if not interface_configuration:
-            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
-
-        # Go!
-        resource_obj = runjob.inputs.filter(input_port__input_port_type__name='resource').first().resource
-        context = {'run_job': rj_uuid,
-                   'resource_obj': resource_obj,
-                   'kwargs': interface_configuration['kwargs']}
-        template_name = 'jobs/{0}.html'.format(interface_configuration['name'])
-        return render(request, template_name, context)
-
-
-    def post(self, request, run_job_uuid):
+    def post(self, request, run_job_uuid, *a, **k):
+        # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
         if runjob.workflow_run.cancelled:
-            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
-        if not runjob.needs_input or not runjob.ready_for_input:
-            return render(request, 'jobs/bad_request.html', status=status.HTTP_400_BAD_REQUEST)
-
-        d = {}
+            return Response({'message': 'WorkflowRun has been cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+        if not runjob.ready_for_input:
+            return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
+        userdata = {}
         for k, v in request.POST.iteritems():
-            d[k] = v
+            userdata[k] = v
+
+        # read input values: actual path, and type
+        input_values = Input.objects.filter(run_job__pk=run_job_uuid).values(
+            'input_port__input_port_type__name',
+            'resource__compat_resource_file',
+            'resource__resource_type__mimetype')
+        inputs = {}
+        for input_value in input_values:
+            ipt_name = input_value['input_port__input_port_type__name']
+            if ipt_name not in inputs:
+                inputs[ipt_name] = []
+            inputs[ipt_name].append({
+                'resource_path': input_value['resource__compat_resource_file'],
+                'resource_type': input_value['resource__resource_type__mimetype'],
+            })
+        settings = runjob.job_settings
+        manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
+        try:
+            manual_task.validate_my_userdata(inputs, settings, userdata)
+        except APIException as e:
+            raise e
 
         runjob.needs_input = False
         runjob.ready_for_input = False
@@ -70,100 +94,8 @@ class InteractiveView(View):
         runjob.error_details = ''
         runjob.save()
         resource = runjob.outputs.first().resource
-        resource.compat_resource_file.save('', ContentFile(json.dumps(d)))
+        resource.compat_resource_file.save('', ContentFile(json.dumps(userdata)))
 
         # call master_task to continue workflowrun
         master_task.apply_async((runjob.workflow_run.uuid,))
-
-        return render(request, 'jobs/job_input_done.html')
-
-"""
-class PolyMaskView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/poly_mask/"
-        self.template_name = "poly_mask.html"
-        return super(PolyMaskView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(PolyMaskView, self).post(request, *args, **kwargs)
-
-
-class CropView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/crop/"
-        self.template_name = "crop.html"
-        return super(CropView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(CropView, self).post(request, *args, **kwargs)
-
-
-class BinariseView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/binarise/"
-        self.template_name = "simple-binarise.html"
-        return super(BinariseView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(BinariseView, self).post(request, *args, **kwargs)
-
-
-class DespeckleView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/despeckle/"
-        self.template_name = "despeckle.html"
-        return super(DespeckleView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(DespeckleView, self).post(request, *args, **kwargs)
-
-
-class RotateView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/rotate/"
-        self.template_name = "rotate.html"
-        return super(RotateView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(RotateView, self).post(request, *args, **kwargs)
-
-
-class SegmentView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/segment/"
-        self.template_name = "segmentation.html"
-        return super(SegmentView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(SegmentView, self).post(request, *args, **kwargs)
-
-
-class LuminanceView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/luminance/"
-        self.template_name = "luminance.html"
-        return super(LuminanceView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(LuminanceView, self).post(request, *args, **kwargs)
-
-
-class BarlineCorrectionView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/barlinecorrection/"
-        self.template_name = "barline-correction.html"
-        return super(BarlineCorrectionView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(BarlineCorrectionView, self).post(request, *args, **kwargs)
-
-
-class PixelSegmentView(RodanInteractiveBaseView):
-    def get(self, request, *args, **kwargs):
-        self.view_url = "/interactive/pixel_segment/"
-        self.template_name = "pixel_segment.html"
-        return super(PixelSegmentView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super(PixelSegmentView, self).post(request, *args, **kwargs)
-"""
+        return Response(status=status.HTTP_200_OK)

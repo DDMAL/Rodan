@@ -3,9 +3,9 @@ import sys
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 
-class PixelSegmentTask(RodanTask):
+class PixelSegmentTask(RodanAutomaticTask):
     COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
 
     name = 'gamera.custom.lyric_extraction.pixel_segment'
@@ -15,7 +15,6 @@ class PixelSegmentTask(RodanTask):
                 {'visibility': False, 'default': None, 'has_default': True, 'name': 'geometries', 'type': 'json'}]
     enabled = True
     category = "Lyric Extraction"
-    interactive = True
 
     input_port_types = [{
         'name': 'input',

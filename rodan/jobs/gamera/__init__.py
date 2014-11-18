@@ -63,10 +63,10 @@ try:
     from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
     from gamera.toolkits.rodan_plugins.plugins.rdn_despeckle import rdn_despeckle
     from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
-    load_gamera_module(rdn_rotate, interactive=True)
-    load_gamera_module(rdn_despeckle, interactive=True)
-    load_gamera_module(rdn_despeckle, interactive=False)
-    load_gamera_module(rdn_crop, interactive=True)
+    load_gamera_module(rdn_rotate)
+    load_gamera_module(rdn_despeckle)
+    load_gamera_module(rdn_despeckle)
+    load_gamera_module(rdn_crop)
 except ImportError as e:
     logger.warning("The Rodan Plugins have not been installed. Skipping.")
 

@@ -27,17 +27,24 @@ class RodanTaskType(TaskType):
     def __init__(cls, clsname, bases, attrs):
         super(RodanTaskType, cls).__init__(clsname, bases, attrs)
 
-        if attrs.get('__metaclass__') == RodanTaskType or attrs.get('_abstract') == True:  # not the base class or abstract class
+        if attrs.get('_abstract') == True:  # not the abstract class
             return
         else:
-            if not Job.objects.filter(job_name=attrs['name'], interactive=attrs.get('interactive', False)).exists():
+            if RodanAutomaticTask in bases:
+                interactive = False
+            elif RodanManualTask in bases:
+                interactive = True
+            else:
+                raise TypeError('Rodan tasks should always inherit either RodanAutomaticTask or RodanManualTask')
+
+            if not Job.objects.filter(job_name=attrs['name'], interactive=interactive).exists():
                 j = Job(job_name=attrs['name'],
                         author=attrs.get('author'),
                         description=attrs.get('description'),
                         settings=attrs.get('settings'),
                         enabled=attrs.get('enabled', False),
                         category=attrs.get('category'),
-                        interactive=attrs.get('interactive', False))
+                        interactive=interactive)
                 j.save()
 
                 for ipt in attrs['input_port_types']:
@@ -81,6 +88,10 @@ class RodanTaskType(TaskType):
 class RodanTask(Task):
     __metaclass__ = RodanTaskType
     abstract = True
+
+
+class RodanAutomaticTask(RodanTask):
+    abstract = True
     # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
     # Specific jobs that inherit the base class should not touch database.
 
@@ -120,7 +131,7 @@ class RodanTask(Task):
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
 
-    def error_information(self, exc, traceback):
+    def my_error_information(self, exc, traceback):
         raise NotImplementedError()
 
 
@@ -139,8 +150,9 @@ class RodanTask(Task):
         update = self._add_error_information_to_runjob(exc, einfo)
         update['status'] = RunJobStatus.FAILED
         RunJob.objects.filter(pk=runjob_id).update(**update)
-        shutil.rmtree(self._temp_dir)
-        del self._temp_dir
+        if hasattr(self, '_temp_dir'):
+            shutil.rmtree(self._temp_dir)
+            del self._temp_dir
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
@@ -150,13 +162,13 @@ class RodanTask(Task):
         # If any StandardError is raised in the process of retrieving the
         # values, the default values are used for both fields.
         try:
-            err_info = self.error_information(exc, einfo.traceback)
+            err_info = self.my_error_information(exc, einfo.traceback)
             err_summary = err_info['error_summary']
             err_details = err_info['error_details']
             if rodan_settings.TRACEBACK_IN_ERROR_DETAIL:
                 err_details = str(err_details) + "\n\n" + str(einfo.traceback)
         except Exception as e:
-            logger.warning("The error_information method is not implemented properly (or not implemented at all). Exception: ")
+            logger.warning("The my_error_information method is not implemented properly (or not implemented at all). Exception: ")
             logger.warning("%s: %s" % (e.__class__.__name__, e.__str__()))
             logger.warning("Using default sources for error information.")
             err_summary = exc.__class__.__name__
@@ -201,3 +213,32 @@ class RodanTask(Task):
                                       'resource_temp_path': output_res_temppath,
                                       'uuid': output_value['uuid']})
         return outputs
+
+
+class RodanManualTask(RodanTask):
+    abstract = True
+
+    def get_my_interface(self, inputs, settings):
+        """
+        inputs will contain:
+        resource_path, resource_type, resource_url, small_thumb_url, medium_thumb_url,
+        large_thumb_url
+
+        Should return: (template, context), template is a Django Template object,
+        and context should be a dictionary.
+
+        could raise rodan.exception.CustomAPIException
+        """
+        raise NotImplementedError()
+
+    def validate_my_userdata(self, inputs, settings, userdata):
+        """
+        inputs will contain:
+        resource_path, resource_type
+
+        could raise rodan.exception.CustomAPIException
+        """
+        raise NotImplementedError()
+
+    def run(self, *a, **k):
+        raise RuntimeError("Manual task should never be executed in Celery!")

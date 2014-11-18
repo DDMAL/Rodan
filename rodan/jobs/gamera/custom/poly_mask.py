@@ -3,10 +3,10 @@ from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 
 
-class PolyMaskTask(RodanTask):
+class PolyMaskTask(RodanAutomaticTask):
     name = 'gamera.custom.border_removal.poly_mask'
     author = "Deepanjan Roy"
     description = "TODO"

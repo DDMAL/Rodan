@@ -1,4 +1,4 @@
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
 from rodan.jobs.gamera import argconvert
 from gamera.core import load_image
 from gamera.toolkits.border_removal.plugins.border_removal import border_removal
@@ -7,14 +7,13 @@ from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
 
-class AutoBorderRemovalTask(RodanTask):
+class AutoBorderRemovalTask(RodanAutomaticTask):
     name = 'gamera.custom.border_removal.auto_border_removal'
     author = "Deepanjan Roy"
     description = "Automatically tries to remove the border of a page. Non-interactive."
     settings = argconvert.convert_arg_list(border_removal.args.list)
     enabled = True
     category = "Border Removal"
-    interactive = False
 
     input_port_types = [{
         'name': 'input',
@@ -54,7 +53,7 @@ class AutoBorderRemovalTask(RodanTask):
 
         result_image.save_image(outputs['output'][0]['resource_path'])
 
-class CropBorderRemovalTask(RodanTask):
+class CropBorderRemovalTask(RodanManualTask):
     name = 'gamera.custom.border_removal.crop_border_removal'
     author = "Deepanjan Roy"
     description = "Manual masking crop. Uses the crop interface. Interactive."
@@ -66,7 +65,6 @@ class CropBorderRemovalTask(RodanTask):
 
     enabled = True
     category = "Border Removal"
-    interactive = False
 
     input_port_types = [{
         'name': 'input',

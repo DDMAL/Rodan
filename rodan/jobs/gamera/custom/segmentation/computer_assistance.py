@@ -5,10 +5,10 @@ from PIL import Image
 from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 
 
-class ComputerAssistanceTask(RodanTask):
+class ComputerAssistanceTask(RodanAutomaticTask):
     name = 'gamera.custom.segmentation.computer_assistance'
     author = "Deepanjan Roy"
     description = "Finds the staves using Miyao Staff Finder and masks out everything else."
@@ -20,7 +20,6 @@ class ComputerAssistanceTask(RodanTask):
     ]
     enabled = True
     category = "Segmentation"
-    interactive = False
 
     input_port_types = [{
         'name': 'input',

@@ -1,10 +1,8 @@
 from gamera.core import init_gamera, load_image
 from rodan.jobs.gamera import argconvert
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 
-def load_gamera_module(gamera_module, interactive=False):
-    is_interactive = interactive  # just another name, avoid being masked by class scope below
-
+def load_gamera_module(gamera_module):
     for fn in gamera_module.module.functions:
         # we only want jobs that will return a result and has a known pixel type
         if not fn.return_type:
@@ -43,14 +41,13 @@ def load_gamera_module(gamera_module, interactive=False):
                 'maximum': 1,
             })
 
-        class gamera_module_task(RodanTask):
+        class gamera_module_task(RodanAutomaticTask):
             name = str(fn)
             author = fn.author
             description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
             settings = argconvert.convert_arg_list(fn.args.list)
             enabled = True
             category = gamera_module.module.category
-            interactive = is_interactive
             input_port_types = input_types
             output_port_types = output_types
 

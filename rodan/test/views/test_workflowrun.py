@@ -93,19 +93,17 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
         self.assertEqual(dummy_m_runjob.ready_for_input, True)
 
-        interactive_result = {'foo': 'bar'}
-        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), interactive_result)
+        user_input = {'foo': 'bar'}
+        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # then manual job should be flagged as finished and should have result
         with open(dummy_m_runjob.outputs.first().resource.compat_resource_file.path) as f:
-            self.assertEqual(json.load(f), interactive_result)
+            self.assertEqual(json.load(f), user_input)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
         self.assertEqual(dummy_m_runjob.status, RunJobStatus.HAS_FINISHED)
 
-        # then the workflowrun should re-run [TODO]
-
-    def test_failed_execution(self):
+    def test_automatic_job_fail(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
             workflowrun_obj = {
@@ -124,6 +122,29 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
             self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
             self.assertEqual(dummy_m_runjob.ready_for_input, False)
+
+    def test_manual_job_fail(self):
+        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+
+        workflowrun_obj = {
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
+        dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+
+        # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+        self.assertEqual(dummy_a_runjob.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+        self.assertEqual(dummy_m_runjob.ready_for_input, True)
+
+        user_input = {'fail': 'hahaha'}
+        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
     def test_cancel(self):
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))

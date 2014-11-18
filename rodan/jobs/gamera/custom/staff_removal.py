@@ -1,9 +1,9 @@
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask
 from gamera.core import load_image
 from gamera.toolkits.musicstaves import MusicStaves_rl_roach_tatem
 
 
-class RTStafflineRemovalTask(RodanTask):
+class RTStafflineRemovalTask(RodanAutomaticTask):
     name = 'gamera.custom.staff_removal.RT_staff_removal'
     author = "Deepanjan Roy"
     description = "Removes the staff lines usign Roach and Tatem Staffline removal algorithm."

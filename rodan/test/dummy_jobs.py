@@ -2,9 +2,12 @@ import os, sys, shutil
 from celery import task
 from django.core.files import File
 from rodan.models import Input, Output
-from rodan.jobs.base import RodanTask
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from django.template import Template
+from rodan.exception import CustomAPIException
+from rest_framework import status
 
-class dummy_automatic_job(RodanTask):
+class dummy_automatic_job(RodanAutomaticTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
     author = "Andrew Hankinson"
     description = "A Dummy Job for testing the Job loading and workflow system"
@@ -14,7 +17,6 @@ class dummy_automatic_job(RodanTask):
     )
     enabled = True
     category = "Dummy"
-    interactive = False
 
     input_port_types = (
         {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
@@ -41,12 +43,12 @@ class dummy_automatic_job(RodanTask):
                     with open(output['resource_path'], 'w') as g:
                         g.write('dummy')
 
-    def error_information(self, exc, traceback):
+    def my_error_information(self, exc, traceback):
         return {'error_summary': "dummy automatic job error",
                 'error_details': ''
             }
 
-class dummy_manual_job(RodanTask):
+class dummy_manual_job(RodanManualTask):
     name = "rodan.jobs.devel.dummy_manual_job"
     author = "Andrew Hankinson"
     description = "A Dummy Job for testing the Job loading and workflow system"
@@ -56,7 +58,6 @@ class dummy_manual_job(RodanTask):
     )
     enabled = True
     category = "Dummy"
-    interactive = True
 
     input_port_types = (
         {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
@@ -67,24 +68,13 @@ class dummy_manual_job(RodanTask):
         {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
     )
 
-    def run_my_task(self, inputs, settings, outputs):
-        in_resources = []
-        for ipt_name in inputs:
-            for input in inputs[ipt_name]:
-                in_resources.append(input['resource_path'])
+    def get_my_interface(self, inputs, settings):
+        t = Template("dummy")
+        c = {}
+        return (t, c)
 
-        for opt_name in outputs:
-            for output in outputs[opt_name]:
-                if len(in_resources) > 0:
-                    with open(in_resources[0], 'r') as f:
-                        if 'fail' in f.read():
-                            raise Exception('dummy manual job error')
-                    shutil.copyfile(in_resources[0], output['resource_path'])
-                else:
-                    with open(output['resource_path'], 'w') as g:
-                        g.write('dummy')
-
-    def error_information(self, exc, traceback):
-        return {'error_summary': "dummy manual job error",
-                'error_details': ''
-            }
+    def validate_my_userdata(self, inputs, settings, userdata):
+        if 'fail' in userdata:
+            raise CustomAPIException('dummy manual job error', status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return True
