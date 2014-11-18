@@ -89,6 +89,60 @@ class RodanTask(Task):
     __metaclass__ = RodanTaskType
     abstract = True
 
+    def _inputs(self, runjob_id, with_urls=False):
+        """
+        Return a dictionary of list of input file path and input resource type.
+        If with_urls=True, it also includes the compat resource url and thumbnail urls.
+        """
+        values = ['input_port__input_port_type__name',
+                  'resource__compat_resource_file',
+                  'resource__resource_type__mimetype']
+        if with_urls:
+            values.append('resource__uuid')
+        input_values = Input.objects.filter(run_job__pk=runjob_id).values(*values)
+
+        inputs = {}
+        for input_value in input_values:
+            ipt_name = input_value['input_port__input_port_type__name']
+            if ipt_name not in inputs:
+                inputs[ipt_name] = []
+            d = {'resource_path': input_value['resource__compat_resource_file'],
+                 'resource_type': input_value['resource__resource_type__mimetype']}
+
+            if with_urls:
+                r = Resource.objects.get(uuid=input_value['resource__uuid'])
+                d['resource_url'] = r.compat_file_url
+                d['small_thumb_url'] = r.small_thumb_url
+                d['medium_thumb_url'] = r.medium_thumb_url
+                d['large_thumb_url'] = r.large_thumb_url
+
+            inputs[ipt_name].append(d)
+        return inputs
+
+    def _outputs(self, runjob_id, temp_dir):
+        "Return a dictionary of list of output file path and output resource type."
+        output_values = Output.objects.filter(run_job__pk=runjob_id).values(
+            'output_port__output_port_type__name',
+            'resource__resource_type__mimetype',
+            'uuid')
+
+        outputs = {}
+        for output_value in output_values:
+            opt_name = output_value['output_port__output_port_type__name']
+            if opt_name not in outputs:
+                outputs[opt_name] = []
+
+            output_res_tempname = str(uuid.uuid4())
+            output_res_temppath = os.path.join(temp_dir, output_res_tempname)
+
+            outputs[opt_name].append({'resource_type': output_value['resource__resource_type__mimetype'],
+                                      'resource_temp_path': output_res_temppath,
+                                      'uuid': output_value['uuid']})
+        return outputs
+
+    def _settings(self, runjob_id):
+        return RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0]
+
 
 class RodanAutomaticTask(RodanTask):
     abstract = True
@@ -98,8 +152,8 @@ class RodanAutomaticTask(RodanTask):
     def run(self, runjob_id):
         settings = RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0]
         inputs = self._inputs(runjob_id)
-        self._temp_dir = tempfile.mkdtemp()
-        outputs = self._outputs(runjob_id, self._temp_dir)
+        _temp_dir = tempfile.mkdtemp()
+        outputs = self._outputs(runjob_id, _temp_dir)
 
         # build argument for run_my_task and mapping dictionary
         arg_outputs = {}
@@ -113,20 +167,24 @@ class RodanAutomaticTask(RodanTask):
                     'resource_type': output['resource_type']
                 })
                 temppath_map[output['resource_temp_path']] = output
-        retval = self.run_my_task(inputs, settings, arg_outputs)
 
-        # save outputs
-        for temppath, output in temppath_map.iteritems():
-            with open(temppath, 'rb') as f:
-                o = Output.objects.get(uuid=output['uuid'])
-                o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
-                path = o.resource.compat_resource_file.path
-                res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
-                res_query.update(compat_resource_file=path)
-
-        shutil.rmtree(self._temp_dir)
-        del self._temp_dir
-        return retval
+        try:
+            retval = self.run_my_task(inputs, settings, arg_outputs)
+        except:
+            raise
+        else:
+            # save outputs
+            for temppath, output in temppath_map.iteritems():
+                with open(temppath, 'rb') as f:
+                    o = Output.objects.get(uuid=output['uuid'])
+                    o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                    path = o.resource.compat_resource_file.path
+                    res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
+                    res_query.update(compat_resource_file=path)
+            return retval
+        finally:
+            shutil.rmtree(_temp_dir)
+            del _temp_dir
 
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
@@ -150,9 +208,6 @@ class RodanAutomaticTask(RodanTask):
         update = self._add_error_information_to_runjob(exc, einfo)
         update['status'] = RunJobStatus.FAILED
         RunJob.objects.filter(pk=runjob_id).update(**update)
-        if hasattr(self, '_temp_dir'):
-            shutil.rmtree(self._temp_dir)
-            del self._temp_dir
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
@@ -177,46 +232,14 @@ class RodanAutomaticTask(RodanTask):
         return {'error_summary': err_summary,
                 'error_details': err_details}
 
-    def _inputs(self, runjob_id):
-        "Return a dictionary of list of input file path and input resource type."
-        input_values = Input.objects.filter(run_job__pk=runjob_id).values(
-            'input_port__input_port_type__name',
-            'resource__compat_resource_file',
-            'resource__resource_type__mimetype')
-
-        inputs = {}
-        for input_value in input_values:
-            ipt_name = input_value['input_port__input_port_type__name']
-            if ipt_name not in inputs:
-                inputs[ipt_name] = []
-            inputs[ipt_name].append({'resource_path': input_value['resource__compat_resource_file'],
-                                     'resource_type': input_value['resource__resource_type__mimetype']})
-        return inputs
-
-    def _outputs(self, runjob_id, temp_dir):
-        "Return a dictionary of list of output file path and output resource type."
-        output_values = Output.objects.filter(run_job__pk=runjob_id).values(
-            'output_port__output_port_type__name',
-            'resource__resource_type__mimetype',
-            'uuid')
-
-        outputs = {}
-        for output_value in output_values:
-            opt_name = output_value['output_port__output_port_type__name']
-            if opt_name not in outputs:
-                outputs[opt_name] = []
-
-            output_res_tempname = str(uuid.uuid4())
-            output_res_temppath = os.path.join(temp_dir, output_res_tempname)
-
-            outputs[opt_name].append({'resource_type': output_value['resource__resource_type__mimetype'],
-                                      'resource_temp_path': output_res_temppath,
-                                      'uuid': output_value['uuid']})
-        return outputs
-
 
 class RodanManualTask(RodanTask):
     abstract = True
+
+    def get_interface(self, runjob_id):
+        inputs = self._inputs(runjob_id)
+        settings = self._settings(runjob_id)
+        return self.get_my_interface(inputs, settings)
 
     def get_my_interface(self, inputs, settings):
         """
@@ -231,7 +254,44 @@ class RodanManualTask(RodanTask):
         """
         raise NotImplementedError()
 
-    def validate_my_userdata(self, inputs, settings, userdata):
+    def save_user_input(self, runjob_id, user_input):
+        inputs = self._inputs(runjob_id)
+        settings = self._settings(runjob_id)
+        _temp_dir = tempfile.mkdtemp()
+        outputs = self._outputs(runjob_id, _temp_dir)
+
+        # build argument for run_my_task and mapping dictionary
+        arg_outputs = {}
+        temppath_map = {}
+        for opt_name, output_list in outputs.iteritems():
+            if opt_name not in arg_outputs:
+                arg_outputs[opt_name] = []
+            for output in output_list:
+                arg_outputs[opt_name].append({
+                    'resource_path': output['resource_temp_path'],
+                    'resource_type': output['resource_type']
+                })
+                temppath_map[output['resource_temp_path']] = output
+
+        try:
+            retval = self.save_my_user_input(inputs, settings, arg_outputs, user_input)
+        except:
+            raise
+        else:
+            # save outputs
+            for temppath, output in temppath_map.iteritems():
+                with open(temppath, 'rb') as f:
+                    o = Output.objects.get(uuid=output['uuid'])
+                    o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                    path = o.resource.compat_resource_file.path
+                    res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
+                    res_query.update(compat_resource_file=path)
+            return retval
+        finally:
+            shutil.rmtree(_temp_dir)
+            del _temp_dir
+
+    def save_my_user_input(self, inputs, settings, outputs, user_input):
         """
         inputs will contain:
         resource_path, resource_type

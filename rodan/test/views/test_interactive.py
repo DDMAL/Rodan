@@ -77,7 +77,6 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
     def test_post__success(self):
         response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), [1,2,3,4], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        t = Resource.objects.get(uuid=self.test_resource_out.uuid) # refetch
-        with open(t.compat_resource_file.path) as f:
+        path = Resource.objects.filter(uuid=self.test_resource_out.uuid).values_list('compat_resource_file', flat=True)[0]
+        with open(path) as f:
             self.assertEqual(json.load(f), [1, 2, 3, 4])

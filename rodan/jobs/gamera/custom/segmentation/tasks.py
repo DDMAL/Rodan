@@ -90,7 +90,7 @@ class ManualCorrectionTask(RodanManualTask):
             }
         return (t, c)
 
-    def validate_my_userdata(self, inputs, settings, userdata):
+    def save_my_user_input(self, inputs, settings, outputs, userdata):
         # [TODO]
         return True
 

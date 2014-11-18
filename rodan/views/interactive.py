@@ -1,4 +1,4 @@
-import json
+import json, tempfile
 from celery import registry
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -30,29 +30,8 @@ class InteractiveView(APIView):
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # read input values: urls, actual path, and type
-        input_values = Input.objects.filter(run_job__pk=run_job_uuid).values(
-            'input_port__input_port_type__name',
-            'resource__compat_resource_file',
-            'resource__resource_type__mimetype',
-            'resource__uuid')
-        inputs = {}
-        for input_value in input_values:
-            ipt_name = input_value['input_port__input_port_type__name']
-            if ipt_name not in inputs:
-                inputs[ipt_name] = []
-            r = Resource.objects.get(uuid=input_value['resource__uuid'])
-            inputs[ipt_name].append({
-                'resource_path': input_value['resource__compat_resource_file'],
-                'resource_type': input_value['resource__resource_type__mimetype'],
-                'resource_url': r.compat_file_url,
-                'small_thumb_url': r.small_thumb_url,
-                'medium_thumb_url': r.medium_thumb_url,
-                'large_thumb_url': r.large_thumb_url
-            })
-        settings = runjob.job_settings
         manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
-        template, context = manual_task.get_my_interface(inputs, settings)
+        template, context = manual_task.get_interface(run_job_uuid)
         c = RequestContext(request, context)
         return HttpResponse(template.render(c))
 
@@ -64,24 +43,9 @@ class InteractiveView(APIView):
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # read input values: actual path, and type
-        input_values = Input.objects.filter(run_job__pk=run_job_uuid).values(
-            'input_port__input_port_type__name',
-            'resource__compat_resource_file',
-            'resource__resource_type__mimetype')
-        inputs = {}
-        for input_value in input_values:
-            ipt_name = input_value['input_port__input_port_type__name']
-            if ipt_name not in inputs:
-                inputs[ipt_name] = []
-            inputs[ipt_name].append({
-                'resource_path': input_value['resource__compat_resource_file'],
-                'resource_type': input_value['resource__resource_type__mimetype'],
-            })
-        settings = runjob.job_settings
         manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
         try:
-            manual_task.validate_my_userdata(inputs, settings, request.DATA)
+            manual_task.save_user_input(run_job_uuid, request.DATA)
         except APIException as e:
             raise e
 
@@ -91,8 +55,6 @@ class InteractiveView(APIView):
         runjob.error_summary = ''
         runjob.error_details = ''
         runjob.save()
-        resource = runjob.outputs.first().resource
-        resource.compat_resource_file.save('', ContentFile(json.dumps(request.DATA)))
 
         # call master_task to continue workflowrun
         master_task.apply_async((runjob.workflow_run.uuid,))

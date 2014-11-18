@@ -77,8 +77,11 @@ class dummy_manual_job(RodanManualTask):
             c = {}
         return (t, c)
 
-    def validate_my_userdata(self, inputs, settings, userdata):
-        if 'fail' in userdata:
+    def save_my_user_input(self, inputs, settings, outputs, user_input):
+        if 'fail' in user_input:
             raise CustomAPIException('dummy manual job error', status=status.HTTP_400_BAD_REQUEST)
         else:
-            return True
+            for opt in outputs:
+                for o in outputs[opt]:
+                    with open(o['resource_path'], 'w') as f:
+                        json.dumps(user_input, f)
