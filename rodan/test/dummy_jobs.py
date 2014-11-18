@@ -1,4 +1,4 @@
-import os, sys, shutil
+import os, sys, shutil, json
 from celery import task
 from django.core.files import File
 from rodan.models import Input, Output
@@ -69,8 +69,12 @@ class dummy_manual_job(RodanManualTask):
     )
 
     def get_my_interface(self, inputs, settings):
-        t = Template("dummy")
-        c = {}
+        t = Template("dummy {{test}}")
+        if 'in_typeA' in inputs and len(inputs['in_typeA']) > 0:
+            with open(inputs['in_typeA'][0]['resource_path'], 'r') as f:
+                c = json.load(f)
+        else:
+            c = {}
         return (t, c)
 
     def validate_my_userdata(self, inputs, settings, userdata):

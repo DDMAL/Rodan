@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
-from rodan.models import RunJob, Input
+from rodan.models import RunJob, Input, Resource
 from rodan.models.runjob import RunJobStatus
 from rodan.jobs.master_task import master_task
 
@@ -41,7 +41,7 @@ class InteractiveView(APIView):
             ipt_name = input_value['input_port__input_port_type__name']
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
-            r = Resource.objects.get(input_value['resource__uuid'])
+            r = Resource.objects.get(uuid=input_value['resource__uuid'])
             inputs[ipt_name].append({
                 'resource_path': input_value['resource__compat_resource_file'],
                 'resource_type': input_value['resource__resource_type__mimetype'],
@@ -63,9 +63,6 @@ class InteractiveView(APIView):
             return Response({'message': 'WorkflowRun has been cancelled'}, status=status.HTTP_400_BAD_REQUEST)
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
-        userdata = {}
-        for k, v in request.POST.iteritems():
-            userdata[k] = v
 
         # read input values: actual path, and type
         input_values = Input.objects.filter(run_job__pk=run_job_uuid).values(
@@ -84,7 +81,7 @@ class InteractiveView(APIView):
         settings = runjob.job_settings
         manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
         try:
-            manual_task.validate_my_userdata(inputs, settings, userdata)
+            manual_task.validate_my_userdata(inputs, settings, request.DATA)
         except APIException as e:
             raise e
 
@@ -95,7 +92,7 @@ class InteractiveView(APIView):
         runjob.error_details = ''
         runjob.save()
         resource = runjob.outputs.first().resource
-        resource.compat_resource_file.save('', ContentFile(json.dumps(userdata)))
+        resource.compat_resource_file.save('', ContentFile(json.dumps(request.DATA)))
 
         # call master_task to continue workflowrun
         master_task.apply_async((runjob.workflow_run.uuid,))
