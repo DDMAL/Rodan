@@ -3,24 +3,65 @@ from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from rodan.exception import CustomAPIException
 
 
-class PolyMaskTask(RodanAutomaticTask):
-    name = 'gamera.custom.border_removal.poly_mask'
-    author = "Deepanjan Roy"
+class ManualMaskTask(RodanManualTask):
+    name = 'gamera.custom.border_removal.poly_mask.manual_mask'
+    author = "Ling-Xiao Yang"
     description = "TODO"
-
-    settings = [{'visibility': False, 'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'},
-                {'visibility': False, 'default': None, 'has_default': True, 'name': 'polygon_outer_points', 'type': 'json'}]
-
+    settings = []
     enabled = True
     category = "Border Removal"
-    interactive = True
 
     input_port_types = [{
-        'name': 'input',
+        'name': 'image',
         'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'polygon',
+        'resource_types': ['application/json'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+
+    def get_my_interface(self, inputs, settings):
+        t = get_template('gamera/interfaces/poly_mask.html')
+        # [TODO] don't let gamera run in Django thread. Try to find a more lightweight method.
+        task_image = load_image(inputs['image'][0]['resource_path'])
+        width = task_image.ncols
+        c = {
+            'image_url': inputs['image'][0]['large_thumb_url'],
+            'image_width': task_image.ncols
+        }
+        return (t, c)
+
+    def save_my_user_input(self, inputs, settings, outputs, userdata):
+        if 'polygon_outer_points' not in userdata:
+            raise CustomAPIException(status=400)
+        # [TODO] validate userdata
+        with open(outputs['polygon'][0]['resource_path'], 'w') as g:
+            json.dump(userdata, g['polygon_outer_points'])
+
+class ApplyMaskTask(RodanAutomaticTask):
+    name = 'gamera.custom.border_removal.poly_mask.manual_mask'
+    author = "Deepanjan Roy"
+    description = "TODO"
+    settings = []
+    enabled = True
+    category = "Border Removal"
+
+    input_port_types = [{
+        'name': 'image',
+        'resource_types': ['image/onebit+png'],
+        'minimum': 1,
+        'maximum': 1
+    }, {
+        'name': 'polygon',
+        'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
     }]
@@ -33,16 +74,13 @@ class PolyMaskTask(RodanAutomaticTask):
 
     def run_my_task(self, inputs, rodan_job_settings, outputs):
         settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
-        task_image = load_image(inputs['input'][0]['resource_path'])
+        task_image = load_image(inputs['image'][0]['resource_path'])
 
         mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
         mask_drawer = ImageDraw.Draw(mask_img)
 
-        try:
-            polygon_data = json.loads(settings['polygon_outer_points'])
-        except ValueError:
-            # There's a problem in the JSON - it may be malformed, or empty
-            polygon_data = []
+        with open(inputs['polygon'][0]['resource_path']) as f:
+            polygon_data = json.load(f)
 
         for polygon in polygon_data:
             flattened_poly = [j for i in polygon for j in i]
