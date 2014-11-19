@@ -80,7 +80,7 @@ class ManualCorrectionTask(RodanManualTask):
     }]
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/custom/segmentation/manual_correction.html')
+        t = get_template('gamera/interfaces/segmentation.html')
         with open(inputs['segmentation-data'][0]['resource_path'], 'r') as f:
             data = json.load(f)
             c = {
