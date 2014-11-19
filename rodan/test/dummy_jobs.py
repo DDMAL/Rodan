@@ -83,4 +83,4 @@ class dummy_manual_job(RodanManualTask):
             for opt in outputs:
                 for o in outputs[opt]:
                     with open(o['resource_path'], 'w') as f:
-                        json.dumps(user_input, f)
+                        json.dump(user_input, f)
