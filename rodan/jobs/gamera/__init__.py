@@ -60,10 +60,8 @@ except ImportError as e:
     logger.warning("No Music Staves Toolkit Installed. Skipping.")
 
 try:
-    from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
     from gamera.toolkits.rodan_plugins.plugins.rdn_despeckle import rdn_despeckle
     from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
-    load_gamera_module(rdn_rotate)
     load_gamera_module(rdn_despeckle)
     load_gamera_module(rdn_despeckle)
     load_gamera_module(rdn_crop)
@@ -74,10 +72,16 @@ try:
     from gamera.toolkits.staffline_removal.plugins import staff_removal
     load_gamera_module(staff_removal)
 except ImportError as e:
-    logger.warning("No Staff Removal Toolkit Installed. Skipping.")
+    logger.warning("No Staff Removal Toolkit Installed. Skipping. {0}".format(e))
 
 
 #### custom
+try:
+    from rodan.jobs.gamera.tasks import rdn_rotate
+except ImportError as e:
+    logger.warning("The Rodan Plugins (Rotate) have not been installed. Skipping. {0}".format(e))
+
+
 try:
     from rodan.jobs.gamera.custom import border_removal
 except ImportError as e:

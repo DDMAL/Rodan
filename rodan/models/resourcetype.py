@@ -77,3 +77,4 @@ def load_predefined_resource_types():
     load('application/zip', 'Package', 'zip')
     load('application/gamera+xml', 'Gamera classifier XML', 'xml')
     load('application/json', 'JSON', 'json')
+    load('text/plain', 'Plain text', 'txt')
