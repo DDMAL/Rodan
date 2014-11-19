@@ -2,9 +2,8 @@ import os, sys, shutil, json
 from celery import task
 from django.core.files import File
 from rodan.models import Input, Output
-from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 from django.template import Template
-from rodan.exception import CustomAPIException
 from rest_framework import status
 
 class dummy_automatic_job(RodanAutomaticTask):
@@ -79,7 +78,7 @@ class dummy_manual_job(RodanManualTask):
 
     def save_my_user_input(self, inputs, settings, outputs, user_input):
         if 'fail' in user_input:
-            raise CustomAPIException('dummy manual job error', status=status.HTTP_400_BAD_REQUEST)
+            raise ManualJobException('dummy manual job error')
         else:
             for opt in outputs:
                 for o in outputs[opt]:

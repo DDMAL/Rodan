@@ -7,6 +7,8 @@ from rodan.jobs.helpers import create_thumbnails
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
+from rodan.exception import CustomAPIException
+from rest_framework import status
 
 import logging
 logger = logging.getLogger('rodan')
@@ -250,7 +252,7 @@ class RodanManualTask(RodanTask):
         Should return: (template, context), template is a Django Template object,
         and context should be a dictionary.
 
-        could raise rodan.exception.CustomAPIException
+        could raise rodan.jobs.base.ManualJobException
         """
         raise NotImplementedError()
 
@@ -296,9 +298,14 @@ class RodanManualTask(RodanTask):
         inputs will contain:
         resource_path, resource_type
 
-        could raise rodan.exception.CustomAPIException
+        could raise rodan.jobs.base.ManualJobException
         """
         raise NotImplementedError()
 
     def run(self, *a, **k):
         raise RuntimeError("Manual task should never be executed in Celery!")
+
+
+class ManualJobException(CustomAPIException):
+    def __init__(self, errmsg):
+        super(ManualJobException, self).__init__(errmsg, status=status.HTTP_400_BAD_REQUEST)

@@ -3,8 +3,7 @@ from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
-from rodan.exception import CustomAPIException
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 
 
 class ManualMaskTask(RodanManualTask):
@@ -41,7 +40,7 @@ class ManualMaskTask(RodanManualTask):
 
     def save_my_user_input(self, inputs, settings, outputs, userdata):
         if 'polygon_outer_points' not in userdata:
-            raise CustomAPIException(status=400)
+            raise ManualJobException("Bad data")
         # [TODO] validate userdata
         with open(outputs['polygon'][0]['resource_path'], 'w') as g:
             json.dump(userdata, g['polygon_outer_points'])
