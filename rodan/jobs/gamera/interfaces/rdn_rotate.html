@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="  stylesheet" type="text/css" />
+        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/jquery.knob.js"></script>
-        <script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKRotate.js"></script>
+        <script>{% include 'gamera/interfaces/assets/jquery.knob.js' %}</script>
+        <script>{% include 'gamera/interfaces/assets/RKRotate.js' %}</script>
         <style>
             button
             {
@@ -98,7 +98,7 @@
             var precisionMultiplier = 40;
 
             $("#rotateView").RKRotate({
-                imageUrl: "{{ image_source.large_thumb_url }}",
+                imageUrl: "{{ image_url }}",
                 gridFadeTime: 800,
                 textBoxOutput: $('#currentAngleTextBox'),
                 controlOutput: $('#rotateKnob'),
@@ -144,11 +144,10 @@
 
             $("#submitButton").on('click', function()
             {
-                $.ajax("/interactive/rotate/", {
+                $.ajax(window.location.href, {
                     type: 'POST',
                     dataType: 'json',
-                    data: {angle: rkRotate.getCurrentAngle() * 180 / Math.PI,
-                           run_job_uuid: "{{ run_job_uuid }}"
+                    data: {angle: rkRotate.getCurrentAngle() * 180 / Math.PI
                           },
                     complete: close_window_callback
                 });
