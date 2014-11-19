@@ -3,22 +3,66 @@ import sys
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 
-class PixelSegmentTask(RodanAutomaticTask):
-    COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
 
-    name = 'gamera.custom.lyric_extraction.pixel_segment'
-    author = "Ryan Bannon"
-    description = "[TODO]"
-    settings = [{'visibility': False, 'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'image_width', 'type': 'int'},
-                {'visibility': False, 'default': None, 'has_default': True, 'name': 'geometries', 'type': 'json'}]
+class ManualMaskTask(RodanManualTask):
+    name = 'gamera.custom.lyric_extraction.pixel_segment.manual_segment'
+    author = "Ling-Xiao Yang"
+    description = "TODO"
+    settings = []
     enabled = True
     category = "Lyric Extraction"
 
     input_port_types = [{
-        'name': 'input',
+        'name': 'image',
         'resource_types': ['image/rgb+png'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+    output_port_types = [{
+        'name': 'geometries',
+        'resource_types': ['application/json'],
+        'minimum': 1,
+        'maximum': 1
+    }]
+
+    def get_my_interface(self, inputs, settings):
+        t = get_template('gamera/interfaces/pixel_segment.html')
+        # [TODO] don't let gamera run in Django thread. Try to find a more lightweight method.
+        task_image = load_image(inputs['image'][0]['resource_path'])
+        width = task_image.ncols
+        c = {
+            'image_url': inputs['image'][0]['large_thumb_url'],
+            'image_width': task_image.ncols
+        }
+        return (t, c)
+
+    def save_my_user_input(self, inputs, settings, outputs, userdata):
+        if 'geometries' not in userdata:
+            raise ManualJobException("Bad data")
+        # [TODO] validate userdata
+        with open(outputs['geometries'][0]['resource_path'], 'w') as g:
+            json.dump(userdata, g['geometries'])
+
+
+class ApplySegmentTask(RodanAutomaticTask):
+    COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
+
+    name = 'gamera.custom.lyric_extraction.pixel_segment.apply_segment'
+    author = "Ryan Bannon"
+    description = "[TODO]"
+    enabled = True
+    category = "Lyric Extraction"
+
+    input_port_types = [{
+        'name': 'image',
+        'resource_types': ['image/rgb+png'],
+        'minimum': 1,
+        'maximum': 1
+    }, {
+        'name': 'geometries',
+        'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
     }]
@@ -34,13 +78,9 @@ class PixelSegmentTask(RodanAutomaticTask):
     # specified colour.
     def run_my_task(self, inputs, rodan_job_settings, outputs):
         settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
-        task_image = load_image(inputs['input'][0]['resource_path'])
-
-        # Get the returned data.
-        try:
-            geometries = json.loads(settings['geometries'])
-        except ValueError:
-            geometries = []
+        task_image = load_image(inputs['image'][0]['resource_path'])
+        with open(inputs['geometries'][0]['resource_path']) as f:
+            geometries = json.load(f)
 
         # Make copy of original
         imageOriginal = task_image.to_pil()

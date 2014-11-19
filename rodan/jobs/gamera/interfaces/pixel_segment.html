@@ -1,13 +1,13 @@
-{% extends "jobs/job_base.html" %}
+{% extends "base.html" %}
 
 {% block resources %}
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKPixelSegment/kinetic-v5.0.1.min.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKPixelSegment/jquery-1.11.0.min.js"></script>
-<script src="{{ STATIC_URL }}Rodan/Frameworks/RodanKit/Resources/RKPixelSegment/RKPixelSegment.js"></script>
+<script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>{% include 'gamera/interfaces/assets/RKPixelSegment.js' %}</script>
 {% endblock %}
 
 {% block body %}
-{% csrf_token %}    
+{% csrf_token %}
 <div style="padding: 1em; overflow: hidden; min-width: 1450px">
     <div id="ui" style="float: left; width: 400px; margin-right: 5px; padding: 5px; background-color: #EEEEEE; border: 2px solid black; font-family: arial; font-size: 10pt;">
         <div style="float: left; font-size: 16pt; width: 100%">Pixel Segmentation</div><br/>
@@ -30,14 +30,14 @@
     <input type="hidden" name="geometries" value="" id="JSON-input" />
 </div>
 <script type="text/javascript">
-    $(document).ready(function() 
+    $(document).ready(function()
     {
-        var options = {image: {source: "{{ image_source.large_thumb_url }}", originalWidth: {{ image_width }}}};
+        var options = {image: {source: "{{ image_url }}", originalWidth: {{ image_width }}}};
         $("#container").PixelSegmentation(options);
         var instance = $("#container").data('PixelSegmentation');
-        $('#form').submit(function() 
+        $('#form').submit(function()
         {
-            $('#JSON-input').val(function() 
+            $('#JSON-input').val(function()
             {
                 var geometries = instance.getGeometries();
                 return JSON.stringify(geometries);
