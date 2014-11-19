@@ -46,7 +46,7 @@ class ManualMaskTask(RodanManualTask):
             json.dump(userdata, g['polygon_outer_points'])
 
 class ApplyMaskTask(RodanAutomaticTask):
-    name = 'gamera.custom.border_removal.poly_mask.manual_mask'
+    name = 'gamera.custom.border_removal.poly_mask.apply_mask'
     author = "Deepanjan Roy"
     description = "TODO"
     settings = []
