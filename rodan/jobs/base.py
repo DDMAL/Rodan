@@ -284,7 +284,7 @@ class RodanManualTask(RodanTask):
             for temppath, output in temppath_map.iteritems():
                 with open(temppath, 'rb') as f:
                     o = Output.objects.get(uuid=output['uuid'])
-                    o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                    o.resource.compat_resource_file.save('', File(f), save=False) # Django will resolve the path according to upload_to
                     path = o.resource.compat_resource_file.path
                     res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
                     res_query.update(compat_resource_file=path)

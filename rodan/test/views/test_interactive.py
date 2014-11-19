@@ -36,7 +36,8 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                              resource=self.test_resource_in)
         output_m = mommy.make('rodan.Output',
                               run_job=self.test_runjob,
-                              output_port__output_port_type=dummy_m_job.output_port_types.get(name='out_typeA'))
+                              output_port__output_port_type=dummy_m_job.output_port_types.get(name='out_typeA'),
+                              resource=self.test_resource_out)
         self.test_resource_out.origin = output_m
         self.test_resource_out.save()
         self.test_resource_in.compat_resource_file.save('dummy.txt', ContentFile('{"test": "hahaha"}'))
@@ -77,6 +78,6 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
     def test_post__success(self):
         response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), [1,2,3,4], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        path = Resource.objects.filter(uuid=self.test_resource_out.uuid).values_list('compat_resource_file', flat=True)[0]
+        path = Resource.objects.get(uuid=self.test_resource_out.uuid).compat_resource_file.path
         with open(path) as f:
             self.assertEqual(json.load(f), [1, 2, 3, 4])
