@@ -14,7 +14,7 @@ class ManualRotateTask(RodanManualTask):
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []
     enabled = True
-    category = rdn_rotate.module.category
+    category = rdn_despeckle.module.category
 
     input_port_types = [{
         'name': 'image',
@@ -59,7 +59,7 @@ class ApplyRotateTask(RodanAutomaticTask):
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []
     enabled = True
-    category = rdn_rotate.module.category
+    category = rdn_despeckle.module.category
 
     input_port_types = [{
         'name': 'image',
