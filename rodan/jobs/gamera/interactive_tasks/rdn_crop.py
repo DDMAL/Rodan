@@ -8,8 +8,8 @@ from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
 
 fn = rdn_crop.module.functions[0]
 
-class ManualRotateTask(RodanManualTask):
-    name = '{0}.manual'.format(str(fn))
+class ManualCropTask(RodanManualTask):
+    name = '{0}_manual'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []
@@ -67,8 +67,8 @@ class ManualRotateTask(RodanManualTask):
             json.dump(parameters, g)
 
 
-class ApplyRotateTask(RodanAutomaticTask):
-    name = '{0}.apply'.format(str(fn))
+class ApplyCropTask(RodanAutomaticTask):
+    name = '{0}_apply_crop'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []

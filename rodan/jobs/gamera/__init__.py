@@ -18,6 +18,7 @@ module_loader('gamera.toolkits.staffline_removal.plugins.staff_removal', load_ga
 
 module_loader('rodan.jobs.gamera.interactive_tasks.rdn_rotate')
 module_loader('rodan.jobs.gamera.interactive_tasks.rdn_despeckle')
+module_loader('gamera.toolkits.rodan_plugins.plugins.rdn_despeckle', load_gamera_module)
 module_loader('rodan.jobs.gamera.interactive_tasks.rdn_crop')
 module_loader('rodan.jobs.gamera.custom.border_removal')
 module_loader('rodan.jobs.gamera.custom.pixel_segment')

@@ -8,7 +8,7 @@ from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
 fn = rdn_rotate.module.functions[0]
 
 class ManualRotateTask(RodanManualTask):
-    name = '{0}.manual'.format(str(fn))
+    name = '{0}_manual'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []
@@ -49,7 +49,7 @@ class ManualRotateTask(RodanManualTask):
 
 
 class ApplyRotateTask(RodanAutomaticTask):
-    name = '{0}.apply'.format(str(fn))
+    name = '{0}_apply_rotate'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = []
