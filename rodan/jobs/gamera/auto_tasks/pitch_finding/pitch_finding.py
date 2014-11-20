@@ -14,7 +14,7 @@ from rodan.jobs.base import RodanAutomaticTask
 
 
 class PitchFindingTask(RodanAutomaticTask):
-    name = 'gamera.custom.pitch_finding.pitch_finding'
+    name = 'gamera.auto_tasks.pitch_finding.pitch_finding'
     author = "Deepanjan Roy"
     description = "Classifies the neumes detected in the page using the classifier interface."
     enabled = True

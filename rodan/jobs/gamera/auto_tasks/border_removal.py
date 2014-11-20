@@ -8,7 +8,7 @@ from gamera.plugins.pil_io import from_pil
 
 
 class AutoBorderRemovalTask(RodanAutomaticTask):
-    name = 'gamera.custom.border_removal.auto_border_removal'
+    name = 'gamera.auto_tasks.border_removal.auto_border_removal'
     author = "Deepanjan Roy"
     description = "Automatically tries to remove the border of a page. Non-interactive."
     settings = argconvert.convert_arg_list(border_removal.args.list)
@@ -54,7 +54,7 @@ class AutoBorderRemovalTask(RodanAutomaticTask):
         result_image.save_image(outputs['output'][0]['resource_path'])
 
 class CropBorderRemovalTask(RodanManualTask):
-    name = 'gamera.custom.border_removal.crop_border_removal'
+    name = 'gamera.interactive_tasks.border_removal.crop_border_removal'
     author = "Deepanjan Roy"
     description = "Manual masking crop. Uses the crop interface. Interactive."
 

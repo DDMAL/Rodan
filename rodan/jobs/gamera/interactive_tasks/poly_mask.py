@@ -7,7 +7,7 @@ from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobExcept
 
 
 class ManualMaskTask(RodanManualTask):
-    name = 'gamera.custom.border_removal.poly_mask.manual_mask'
+    name = 'gamera.interactive_tasks.border_removal.poly_mask.manual'
     author = "Ling-Xiao Yang"
     description = "TODO"
     settings = []
@@ -46,7 +46,7 @@ class ManualMaskTask(RodanManualTask):
             json.dump(userdata, g['polygon_outer_points'])
 
 class ApplyMaskTask(RodanAutomaticTask):
-    name = 'gamera.custom.border_removal.poly_mask.apply_mask'
+    name = 'gamera.interactive_tasks.border_removal.poly_mask.apply'
     author = "Deepanjan Roy"
     description = "TODO"
     settings = []

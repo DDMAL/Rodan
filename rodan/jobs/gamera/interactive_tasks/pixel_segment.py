@@ -6,8 +6,8 @@ from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 
 
-class ManualMaskTask(RodanManualTask):
-    name = 'gamera.custom.lyric_extraction.pixel_segment.manual_segment'
+class ManualTask(RodanManualTask):
+    name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'
     author = "Ling-Xiao Yang"
     description = "TODO"
     settings = []
@@ -49,7 +49,7 @@ class ManualMaskTask(RodanManualTask):
 class ApplySegmentTask(RodanAutomaticTask):
     COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
 
-    name = 'gamera.custom.lyric_extraction.pixel_segment.apply_segment'
+    name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'
     author = "Ryan Bannon"
     description = "[TODO]"
     enabled = True

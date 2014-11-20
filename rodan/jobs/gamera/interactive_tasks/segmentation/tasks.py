@@ -10,7 +10,7 @@ from django.template.loader import get_template
 
 
 class ComputerAssistanceTask(RodanAutomaticTask):
-    name = 'gamera.custom.segmentation.computer_assistance'
+    name = 'gamera.interactive_tasks.segmentation.computer_assistance'
     author = "Deepanjan Roy"
     description = "Finds the staves using Miyao Staff Finder and masks out everything else."
     settings = [
@@ -54,7 +54,7 @@ class ComputerAssistanceTask(RodanAutomaticTask):
             }, f)
 
 class ManualCorrectionTask(RodanManualTask):
-    name = 'gamera.custom.segmentation.manual_correction'
+    name = 'gamera.interactive_tasks.segmentation.manual_correction'
     author = 'Ling-Xiao Yang'
     description = 'Manual correction of computer-assisted segmentation.'
     settings = []
@@ -96,7 +96,7 @@ class ManualCorrectionTask(RodanManualTask):
 
 
 class ApplySegmentationTask(RodanAutomaticTask):
-    name = 'gamera.custom.segmentation.apply_segmentation'
+    name = 'gamera.interactive_tasks.segmentation.apply_segmentation'
     author = "Ling-Xiao Yang"
     description = "Apply segmentation."
     settings = []
