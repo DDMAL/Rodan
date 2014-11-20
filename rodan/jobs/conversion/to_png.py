@@ -25,3 +25,25 @@ class to_png(RodanAutomaticTask):
         image.save(outfile, 'PNG')
 
         return True
+
+    def test_my_task(self, testcase):
+        # [TODO] test more formats
+        inputs = {
+            'in': [
+                {'resource_type': 'image/jpeg',
+                 'resource_path': testcase.new_available_path()
+                }
+            ]
+        }
+        PIL.Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['in'][0]['resource_path'], 'JPEG')
+        outputs = {
+            'out': [
+                {'resource_type': 'image/rgb+png',
+                 'resource_path': testcase.new_available_path()
+                }
+            ]
+        }
+
+        self.run_my_task(inputs, {}, outputs)
+        result = PIL.Image.open(outputs['out'][0]['resource_path'])
+        testcase.assertEqual(result.format, 'PNG')

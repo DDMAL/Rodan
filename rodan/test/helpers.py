@@ -19,14 +19,6 @@ class RodanTestSetUpMixin(object):
         import rodan.test.dummy_jobs
         reload(rodan.test.dummy_jobs)
 
-    def new_temppath(self):
-        "This method will only return an available file path, not creating the file! But it creates the parent directory."
-        try:
-            os.makedirs(settings.MEDIA_ROOT)
-        except OSError:
-            pass
-        return os.path.join(settings.MEDIA_ROOT, str(uuid.uuid1()))
-
     def setUp_user(self):
         self.test_user = User.objects.create_user(username="ahankins", password="hahaha")
 

@@ -57,3 +57,38 @@ def load_gamera_module(gamera_module):
                 task_function = self.name.split(".")[-1]
                 result_image = getattr(task_image, task_function)(**settings)
                 result_image.save_image(outputs[outputs.keys()[0]][0]['resource_path'])
+
+            def test_my_task(self, testcase):
+                inputs = {}
+                for ipt_desc in input_types:
+                    ipt = ipt_desc['name']
+                    inputs[ipt] = [
+                        {'resource_type': None,  # TODO later
+                         'resource_path': testcase.new_available_path()}
+                    ]
+                outputs = {}
+                for opt_desc in output_types:
+                    opt = opt_desc['name']
+                    outputs[opt] = [
+                        {'resource_type': None,  # TODO later
+                         'resource_path': testcase.new_available_path()}
+                    ]
+
+                if self.name == "gamera.plugins.image_conversion.to_greyscale":
+                    from PIL import Image
+                    Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['input-0'][0]['resource_path'], 'png')
+                    inputs['input-0'][0]['resource_type'] = 'image/rgb+png'
+                    outputs['float'][0]['resource_type'] = 'image/float+png'
+                    self.run_my_task(inputs, {}, outputs)
+                    im = Image.open(outputs['float'][0]['resource_path'])
+                    testcase.assertEqual(im.mode, 'L')
+                elif self.name == "gamera.plugins.binarization.niblack_threshold":
+                    # test incompatible type
+                    from PIL import Image
+                    Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['input-0'][0]['resource_path'], 'png')
+                    inputs['input-0'][0]['resource_type'] = 'image/rgb+png'
+                    outputs['onebit'][0]['resource_type'] = 'image/onebit+png'
+                    testcase.assertRaises(TypeError, self.run_my_task, inputs, {}, outputs)
+                else:
+                    # [TODO] for other Gamera tasks
+                    pass

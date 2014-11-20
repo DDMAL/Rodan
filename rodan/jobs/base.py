@@ -234,6 +234,8 @@ class RodanAutomaticTask(RodanTask):
         return {'error_summary': err_summary,
                 'error_details': err_details}
 
+    def test_my_task(self, testcase):
+        raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
 
 class RodanManualTask(RodanTask):
     abstract = True
