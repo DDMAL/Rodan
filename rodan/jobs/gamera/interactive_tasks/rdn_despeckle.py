@@ -83,5 +83,5 @@ class ApplyDespeckleTask(RodanAutomaticTask):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['parameters'][0]['resource_path']) as f:
             parameters = json.load(f)
-        result_image = task_image.rdn_rotate(**parameters)
+        result_image = task_image.rdn_despeckle(**parameters)
         result_image.save_image(outputs['output'][0]['resource_path'])
