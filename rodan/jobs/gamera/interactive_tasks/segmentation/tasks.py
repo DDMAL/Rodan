@@ -91,8 +91,11 @@ class ManualCorrectionTask(RodanManualTask):
         return (t, c)
 
     def save_my_user_input(self, inputs, settings, outputs, userdata):
-        # [TODO]
-        return True
+        points = userdata.get('polygon_outer_points')
+        # [TODO] validate these points
+        with open(inputs['corrected-segmentation-data'][0]['resource_path'], 'w') as g:
+            json.dump(points, g)
+
 
 
 class ApplySegmentationTask(RodanAutomaticTask):
