@@ -52,6 +52,7 @@ class ApplySegmentTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'
     author = "Ryan Bannon"
     description = "[TODO]"
+    settings = []
     enabled = True
     category = "Lyric Extraction"
 
