@@ -1,5 +1,7 @@
 import logging
 logger = logging.getLogger('rodan')
 
-from rodan.jobs.conversion.to_png import to_png
-from rodan.jobs.conversion.to_jpeg2000 import to_jpeg2000
+from rodan.jobs import module_loader
+
+module_loader('rodan.jobs.conversion.to_png')
+module_loader('rodan.jobs.conversion.to_jpeg2000')

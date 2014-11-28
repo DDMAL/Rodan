@@ -40,7 +40,7 @@ class ensure_compatible(Task):
         new_processing_status = ResourceProcessingStatus.HAS_FINISHED
 
         if mimetype.startswith('image'):
-            from rodan.jobs.conversion import to_png
+            from rodan.jobs.conversion.to_png import to_png
             self._task_instance = to_png()
             self._task_instance.run_my_task(inputs, [], outputs)
             resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)

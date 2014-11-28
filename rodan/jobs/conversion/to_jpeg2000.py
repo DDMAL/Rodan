@@ -3,11 +3,14 @@ import subprocess
 import tempfile
 import shutil
 import os
-from django.core.files import File
 from rodan.jobs.base import RodanAutomaticTask
 
 PATH_TO_KDU = "/usr/local/bin/kdu_compress"
 PATH_TO_VIPS = "/usr/local/bin/vips"
+if not os.path.isfile(PATH_TO_KDU):
+    raise ImportError("file does not exist: {0}".format(PATH_TO_KDU))
+if not os.path.isfile(PATH_TO_VIPS):
+    raise ImportError("file does not exist: {0}".format(PATH_TO_VIPS))
 
 
 class to_jpeg2000(RodanAutomaticTask):
@@ -16,20 +19,19 @@ class to_jpeg2000(RodanAutomaticTask):
     description = "Converts an image to a JPEG2000 image suitable for display in Diva"
     settings = ()
     enabled = True
-    categroy = "Conversion"
+    category = "Conversion"
 
     input_port_types = ({'name': 'in',
                          'minimum': 1,
                          'maximum': 1,
-                         'resource_types': lambda mime: mime.starts_with('image/')})
+                         'resource_types': lambda mime: mime.startswith('image/')}, )
     output_port_types = ({'name': 'out',
                           'minimum': 1,
                           'maximum': 1,
-                          'resource_types': ['image/rgb+jpeg2000']})
+                          'resource_types': ['image/rgb+jpeg2000']}, )
 
     def run_my_task(self, inputs, settings, outputs):
         task_image = inputs['in'][0]['resource_path']
-        output_save_path = outputs['out'][0]['resource_path']
 
         tdir = tempfile.mkdtemp()
         name = os.path.basename(task_image)
@@ -57,9 +59,7 @@ class to_jpeg2000(RodanAutomaticTask):
                          "ORGtparts=R",
                          "-rate", "-,1,0.5,0.25"])
 
-        f = open(output_file, 'rb')
-        f.save(os.path.join(output_save_path, output_file), File(f))
-        f.close()
+        shutil.copyfile(output_file, outputs['out'][0]['resource_path'])
         shutil.rmtree(tdir)
 
         return True

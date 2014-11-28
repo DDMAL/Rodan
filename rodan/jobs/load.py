@@ -37,5 +37,4 @@ import rodan.helpers.resultspackagemanager
 
 import rodan.jobs.conversion
 import rodan.jobs.gamera
-import rodan.jobs.diva
 import rodan.jobs.neon
