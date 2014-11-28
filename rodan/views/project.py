@@ -4,6 +4,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectSerializer, ProjectListSerializer
+from rodan.serializers.user import UserSerializer
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -19,6 +20,11 @@ class ProjectList(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')
         return queryset
+
+    def create(self, request, *a, **k):  # [TODO] ugly
+        user_obj = UserSerializer(request.user, context={'request': request}).data
+        request.DATA['creator'] = user_obj['url']
+        return super(ProjectList, self).create(request, *a, **k)
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
