@@ -41,19 +41,19 @@ class RodanTaskType(TaskType):
 
             if not Job.objects.filter(job_name=attrs['name'], interactive=interactive).exists():
                 j = Job(job_name=attrs['name'],
-                        author=attrs.get('author'),
-                        description=attrs.get('description'),
-                        settings=attrs.get('settings'),
-                        enabled=attrs.get('enabled', False),
-                        category=attrs.get('category'),
+                        author=attrs['author'],
+                        description=attrs['description'],
+                        settings=attrs['settings'],
+                        enabled=attrs['enabled'],
+                        category=attrs['category'],
                         interactive=interactive)
                 j.save()
 
                 for ipt in attrs['input_port_types']:
                     i = InputPortType(job=j,
-                                      name=ipt.get('name'),
-                                      minimum=ipt.get('minimum'),
-                                      maximum=ipt.get('maximum'))
+                                      name=ipt['name'],
+                                      minimum=ipt['minimum'],
+                                      maximum=ipt['maximum'])
                     i.save()
                     resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
                     if len(resource_types) == 0:
@@ -62,9 +62,9 @@ class RodanTaskType(TaskType):
 
                 for opt in attrs['output_port_types']:
                     o = OutputPortType(job=j,
-                                       name=opt.get('name'),
-                                       minimum=opt.get('minimum'),
-                                       maximum=opt.get('maximum'))
+                                       name=opt['name'],
+                                       minimum=opt['minimum'],
+                                       maximum=opt['maximum'])
                     o.save()
                     resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
                     if len(resource_types) == 0:
