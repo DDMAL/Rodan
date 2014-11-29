@@ -12,7 +12,7 @@
     <div class="container">
       <section class="row" ng-controller="projectsCtrl">
         <h1>Projects</h1>
-        <div class="col-xs-6">
+        <div class="col-xs-8">
           <table class="table">
             <tr ng-repeat="p in projects">
               <td ng-bind="p.uuid"></td>
@@ -20,7 +20,7 @@
             </tr>
           </table>
         </div>
-        <div class="col-xs-6">
+        <div class="col-xs-4">
           <form ng-submit="newProject()">
             <fieldset>
               <legend>New Project</legend>
@@ -32,7 +32,7 @@
       </section>
       <section class="row" ng-controller="resourcesCtrl">
         <h1>Resources</h1>
-        <div class="col-xs-6">
+        <div class="col-xs-8">
           <table class="table">
             <tbody>
               <tr ng-repeat="r in resources">
@@ -44,7 +44,7 @@
             </tbody>
           </table>
         </div>
-        <div class="col-xs-6">
+        <div class="col-xs-4">
           <form ng-submit="newResource()">
             <fieldset>
               <legend>New Resource</legend>
@@ -58,7 +58,7 @@
       </section>
       <section class="row" ng-controller="workflowsCtrl">
         <h1>Workflows</h1>
-        <div class="col-xs-6">
+        <div class="col-xs-8">
           <table class="table">
             <tbody>
               <tr ng-repeat="w in workflows" ng-class="{success: w.valid, danger: !w.valid}">
@@ -69,13 +69,21 @@
             </tbody>
           </table>
         </div>
-        <div class="col-xs-6">
+        <div class="col-xs-4">
           <div><label>Project: <select ng-model="project" ng-options="p.url as p.name for p in projects"></select></label></div>
           <form ng-submit="newToGreyscaleWorkflow()">
             <fieldset>
               <legend>New to_greyscale Workflow</legend>
-              <div><label>Resources: <select ng-model="resources_greyscale" ng-options="r.url as (r.name + '--' + r.url) for r in resources" multiple></select></label></div>
+              <div><label>Resources: <select ng-model="resources_greyscale" ng-options="r.url as (r.name + '--' + r.uuid) for r in resources" multiple></select></label></div>
               <input type="name" placeholder="Workflow Name" ng-model="name_greyscale"/>
+              <button type="submit">Submit</button>
+            </fieldset>
+          </form>
+          <form ng-submit="newRotateCropWorkflow()">
+            <fieldset>
+              <legend>New rotate & crop Workflow</legend>
+              <div><label>Resources: <select ng-model="resources_rotatecrop" ng-options="r.url as (r.name + '--' + r.uuid) for r in resources" multiple></select></label></div>
+              <input type="name" placeholder="Workflow Name" ng-model="name_rotatecrop"/>
               <button type="submit">Submit</button>
             </fieldset>
           </form>
@@ -96,6 +104,7 @@
                   <td ng-bind="rj.job_name"></td>
                   <td>
                     <p ng-bind="status[rj.status]"></p>
+                    <a ng-show="rj.ready_for_input" ng-href="{{rj.interactive}}" target="_blank">Interactive</a>
                     <div ng-show="rj.status == -1">
                       <b>{{rj.error_summary}}</b>
                       <pre><code>{{rj.error_details}}</code></pre>

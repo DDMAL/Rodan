@@ -128,10 +128,11 @@ angular.module('rodanMockApp', [])
                     console.log(err);
                 });
         }, UPDATE_FREQ);
+
+        function errhandler (error, status, headers, config) {
+            console.log(error, config.url);
+        };
         $scope.newToGreyscaleWorkflow = function () {
-            function errhandler (error, status, headers, config) {
-                console.log(error, config.url);
-            };
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_greyscale}).success(function (wf) {
                 var job_greyscale = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
                 $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': job_greyscale.url}).success(function (wfjob) {
@@ -149,6 +150,63 @@ angular.module('rodanMockApp', [])
                 }).error(errhandler);
             }).error(errhandler);
         };
+        $scope.newRotateCropWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_rotatecrop}).success(function (wf) {
+                var jrm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_manual'});
+                var jra = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_apply_rotate'});
+
+                var jcm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop_manual'});
+                var jca = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop_apply_crop'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jrm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jra.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jcm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jca.url})
+                ]).then(function (things) {
+                    var wfjrm = things[0].data;
+                    var wfjra = things[1].data;
+                    var wfjcm = things[2].data;
+                    var wfjca = things[3].data;
+
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjrm.url, 'input_port_type': jrm.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjrm.url, 'output_port_type': jrm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra.input_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra.input_port_types[1].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjra.url, 'output_port_type': jra.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjcm.url, 'input_port_type': jcm.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjcm.url, 'output_port_type': jcm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca.input_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca.input_port_types[1].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjca.url, 'output_port_type': jca.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var iprm = things[0].data;
+                        var oprm = things[1].data;
+                        var ipra_img = things[2].data;
+                        var ipra_arg = things[3].data;
+                        var opra = things[4].data;
+                        var ipcm = things[5].data;
+                        var opcm = things[6].data;
+                        var ipca_img = things[7].data;
+                        var ipca_arg = things[8].data;
+                        var opca = things[9].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': iprm.url, 'resources': $scope.resources_rotatecrop}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipra_img.url, 'resources': $scope.resources_rotatecrop}),
+                            $http.post(ROOT + '/connections/', {'output_port': oprm.url, 'input_port': ipra_arg.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipcm.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipca_img.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opcm.url, 'input_port': ipca_arg.url})
+                        ]).then(function (things) {
+                            console.log('rotate-crop workflow created!');
+                        }, errhandler);
+                    }, errhandler);
+                }, errhandler);
+            });
+        };
+
         $scope.validateWorkflow = function (w) {
             $http.patch(w.url, {'valid': true})
                 .error(function (error) {
