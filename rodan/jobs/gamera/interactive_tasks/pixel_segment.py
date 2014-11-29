@@ -4,6 +4,7 @@ from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
+from django.template.loader import get_template
 
 
 class ManualTask(RodanManualTask):

@@ -4,6 +4,7 @@ from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 from rodan.jobs.gamera import argconvert
 from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
+from django.template.loader import get_template
 
 fn = rdn_rotate.module.functions[0]
 

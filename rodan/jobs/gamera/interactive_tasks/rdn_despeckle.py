@@ -5,6 +5,7 @@ from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 from rodan.jobs.gamera import argconvert
 from gamera.toolkits.rodan_plugins.plugins.rdn_despeckle import rdn_despeckle
+from django.template.loader import get_template
 
 fn = rdn_despeckle.module.functions[0]
 

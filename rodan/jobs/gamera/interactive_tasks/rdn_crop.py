@@ -5,6 +5,7 @@ from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 from rodan.jobs.gamera import argconvert
 from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
+from django.template.loader import get_template
 
 fn = rdn_crop.module.functions[0]
 
