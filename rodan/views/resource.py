@@ -107,7 +107,7 @@ class ResourceList(generics.ListCreateAPIView):
         return Response({'resources': response}, status=status.HTTP_201_CREATED)
 
 
-class ResourceDetail(generics.RetrieveUpdateAPIView):
+class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Perform operations on a single Resource instance.
     """
