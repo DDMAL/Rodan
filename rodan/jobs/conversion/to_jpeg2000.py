@@ -28,7 +28,7 @@ class to_jpeg2000(RodanAutomaticTask):
     output_port_types = ({'name': 'out',
                           'minimum': 1,
                           'maximum': 1,
-                          'resource_types': ['image/rgb+jpeg2000']}, )
+                          'resource_types': ['image/jp2']}, )
 
     def run_my_task(self, inputs, settings, outputs):
         task_image = inputs['in'][0]['resource_path']
@@ -75,7 +75,7 @@ class to_jpeg2000(RodanAutomaticTask):
         PIL.Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['in'][0]['resource_path'], 'JPEG')
         outputs = {
             'out': [
-                {'resource_type': 'image/rgb+png',
+                {'resource_type': 'image/jp2',
                  'resource_path': testcase.new_available_path()
                  }
             ]
