@@ -351,7 +351,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
 
         workflow_chain = []
         for workflow_job in workflow_jobs:
-            is_interactive = False if workflow_job.job_type == 0 else True
+            is_interactive = workflow_job.job.interactive
             runjob = RunJob(workflow_run=workflow_run,
                             workflow_job=workflow_job,
                             job_settings=workflow_job.job_settings,

@@ -207,11 +207,14 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             for conn in connections:
                 adj_wfjob = conn.input_port.workflow_job
                 if adj_wfjob not in adjacent_wfjobs:
+                    self._integrated_depth_first_search(adj_wfjob)
                     if self.disjoint_set.find(this_wfjob) is self.disjoint_set.find(adj_wfjob):
                         raise WorkflowValidationError(response=Response({'message': 'There appears to be a loop in the workflow'}, status=status.HTTP_409_CONFLICT))
-                    self.disjoint_set.union(this_wfjob, adj_wfjob)
-                    self._integrated_depth_first_search(adj_wfjob)
                     adjacent_wfjobs.add(adj_wfjob)
+
+            for adj_wfjob in adjacent_wfjobs:
+                self.disjoint_set.union(this_wfjob, adj_wfjob)
+
 
 
 class WorkflowValidationError(Exception):
