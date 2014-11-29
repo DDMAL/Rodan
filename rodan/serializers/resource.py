@@ -41,6 +41,7 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "origin",
                   "created",
                   "updated",
+                  "has_thumb",
                   "small_thumb",
                   "medium_thumb",
                   "large_thumb")

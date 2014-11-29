@@ -57,6 +57,8 @@ class Resource(models.Model):
     - `created`
     - `updated`
 
+    - `has_thumb` -- denote whether it has thumbnails
+
     **Properties**
 
     - `resource_path` -- local path of resource folder.
@@ -112,6 +114,8 @@ class Resource(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    has_thumb = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
@@ -163,18 +167,18 @@ class Resource(models.Model):
 
     @property
     def small_thumb_url(self):
-        if self.compat_resource_file:
+        if self.has_thumb:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.SMALL_THUMBNAIL))
 
     @property
     def medium_thumb_url(self):
-        if self.compat_resource_file:
+        if self.has_thumb:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
 
     @property
     def large_thumb_url(self):
-        if self.compat_resource_file:
+        if self.has_thumb:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))

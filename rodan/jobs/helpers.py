@@ -72,7 +72,8 @@ class ensure_compatible(Task):
 
 @task(name="rodan.core.create_thumbnails")
 def create_thumbnails(resource_id):
-    resource_object = Resource.objects.filter(uuid=resource_id).select_related('resource_type')[0]
+    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+    resource_object = resource_query[0]
     mimetype = resource_object.resource_type.mimetype
 
     if mimetype.startswith('image'):
@@ -92,6 +93,7 @@ def create_thumbnails(resource_id):
 
             del thumb_copy
         del image
+        resource_query.update(has_thumb=True)
         return True
     else:
         return False
