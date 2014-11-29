@@ -1,12 +1,20 @@
 angular.module('rodanMockApp', [])
     .constant('ROOT', 'http://localhost:8000')
-    .run(function ($http, $window, ROOT) {
+    .constant('UPDATE_FREQ', 2000)
+    .run(function ($http, $window, ROOT, $rootScope, getAllPages) {
         delete $window.sessionStorage.token;
         $http.post(ROOT + '/auth/token/', {'username': 'admin', 'password': 'admin'})
             .success(function (data) {
                 var token = data['token'];
                 $window.sessionStorage.token = token;
                 console.log("Token:", token);
+
+                getAllPages(ROOT + '/jobs/')
+                    .then(function (results) {
+                        $rootScope.jobs = results;
+                    }, function (err) {
+                        console.log(err);
+                    });
             });
     })
     .factory('authInterceptor', function ($window) {
@@ -19,6 +27,27 @@ angular.module('rodanMockApp', [])
                 return config;
             }
         }
+    })
+    .factory('getAllPages', function ($http, $q) {
+        return function (url) {
+            var results = [];
+            var deferred = $q.defer();
+            function getPage (url) {
+                $http.get(url)
+                    .success(function (data) {
+                        results = results.concat(data.results);
+                        if (data.next) {
+                            getPage(data.next);
+                        } else {
+                            deferred.resolve(results);
+                        }
+                    }).error(function (err) {
+                        deferred.reject(err);
+                    });
+            };
+            getPage(url);
+            return deferred.promise;
+        };
     })
     .config(function ($httpProvider) {
         $httpProvider.interceptors.push('authInterceptor');
@@ -40,13 +69,15 @@ angular.module('rodanMockApp', [])
         };
     }]) // http://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
 
-    .controller('projectsCtrl', function ($scope, $http, ROOT, $interval, $rootScope) {
+    .controller('projectsCtrl', function ($scope, $http, ROOT, $interval, $rootScope, getAllPages, UPDATE_FREQ) {
         $interval(function () {
-            $http.get(ROOT + '/projects/')
-                .success(function (data) {
-                    $rootScope.projects = data.results;
+            getAllPages(ROOT + '/projects/')
+                .then(function (results) {
+                    $rootScope.projects = results;
+                }, function (err) {
+                    console.log(err);
                 });
-        }, 2000);
+        }, UPDATE_FREQ);
         $scope.newProject = function () {
             $http.post(ROOT + '/projects/', {'name': $scope.name})
                 .success(function () {
@@ -55,13 +86,15 @@ angular.module('rodanMockApp', [])
         };
     })
 
-    .controller('resourcesCtrl', function ($scope, $http, ROOT, $interval, $rootScope) {
+    .controller('resourcesCtrl', function ($scope, $http, ROOT, $interval, $rootScope, getAllPages, UPDATE_FREQ) {
         $interval(function () {
-            $http.get(ROOT + '/resources/')
-                .success(function (data) {
-                    $rootScope.resources = data.results;
+            getAllPages(ROOT + '/resources/')
+                .then(function (results) {
+                    $rootScope.resources = results;
+                }, function (err) {
+                    console.log(err);
                 });
-        }, 2000);
+        }, UPDATE_FREQ);
         $scope.newResource = function () {
             var fd = new FormData();
             fd.append('project', $scope.project);
@@ -71,19 +104,93 @@ angular.module('rodanMockApp', [])
                 headers: {'Content-Type': undefined}
             });
         };
+        $scope.deleteResource = function (r) {
+            $http.delete(r.url)
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
     })
 
-    .controller('workflowsCtrl', function ($scope, $http, ROOT, $interval, $rootScope) {
+    .controller('workflowsCtrl', function ($scope, $http, ROOT, $interval, $rootScope, $q, getAllPages, UPDATE_FREQ) {
         $interval(function () {
-            $http.get(ROOT + '/workflows/')
-                .success(function (data) {
-                    $rootScope.workflows = data.results;
+            getAllPages(ROOT + '/workflows/')
+                .then(function (results) {
+                    $rootScope.workflows = results;
+                }, function (err) {
+                    console.log(err);
                 });
-        }, 2000);
-        $scope.newWorkflow = function () {
-            $http.post(ROOT + '/workflows/', $scope.fd)
-                .success(function () {
-                    $scope.fd = {};
+        }, UPDATE_FREQ);
+        $scope.newToGreyscaleWorkflow = function () {
+            function errhandler (error, status, headers, config) {
+                console.log(error, config.url);
+            };
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_greyscale}).success(function (wf) {
+                var job_greyscale = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
+                $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': job_greyscale.url}).success(function (wfjob) {
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjob.url, 'input_port_type': job_greyscale.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjob.url, 'output_port_type': job_greyscale.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var ip = things[0].data;
+                        var op = things[1].data;
+                        $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resources': $scope.resources_greyscale})
+                            .success(function (ra) {
+                                console.log('to_greyscale workflow created!');
+                            }).error(errhandler);
+                    }, errhandler);
+                }).error(errhandler);
+            }).error(errhandler);
+        };
+        $scope.validateWorkflow = function (w) {
+            $http.patch(w.url, {'valid': true})
+                .error(function (error) {
+                    console.log(error);
                 });
+        };
+        $scope.deleteWorkflow = function (w) {
+            $http.delete(w.url)
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+        $scope.runWorkflow = function (w) {
+            $http.post(ROOT + '/workflowruns/', {'workflow': w.url})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+    })
+
+    .controller('workflowrunsCtrl', function ($scope, $http, ROOT, $rootScope, $interval, getAllPages, UPDATE_FREQ) {
+        $interval(function () {
+            getAllPages(ROOT + '/workflowruns/')
+                .then(function (results) {
+                    $rootScope.workflowruns = results;
+                }, function (err) {
+                    console.log(err);
+                });
+        }, UPDATE_FREQ);
+        $interval(function () {
+            getAllPages(ROOT + '/runjobs/')
+                .then(function (results) {
+                    $rootScope.runjobs = [];
+                    angular.forEach(results, function (rj) {
+                        $rootScope.runjobs[rj.workflow_run] = $rootScope.runjobs[rj.workflow_run] || [];
+                        var job = _.find($rootScope.jobs, function (j) { return j.url == rj.job});
+                        rj.job_name = job.job_name;
+                        $rootScope.runjobs[rj.workflow_run].push(rj);
+                    });
+                }, function (err) {
+                    console.log(err);
+                });
+        }, UPDATE_FREQ);
+
+        $scope.status = {
+            '0': 'Not running',
+            '1': 'Running',
+            '4': 'Has finished',
+            '-1': 'Failed',
+            '9': 'Cancelled'
         };
     })
