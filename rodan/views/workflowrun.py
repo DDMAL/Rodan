@@ -96,7 +96,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
         workflowjob_runjob_map = {}
         resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-
         ra_collection = None
 
         for ra in resource_assignments:
@@ -230,12 +229,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
         return singleton_workflowjobs
 
     def _traversal(self, singleton_workflowjobs, wfjob):
-        singleton_workflowjobs.remove(wfjob)
+        if wfjob in singleton_workflowjobs:
+            singleton_workflowjobs.remove(wfjob)
         adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
-
-        if not adjacent_connections:
-            return None
-
         for conn in adjacent_connections:
             wfjob = WorkflowJob.objects.get(input_ports=conn.input_port)
             self._traversal(singleton_workflowjobs, wfjob)
