@@ -241,7 +241,7 @@ class RodanManualTask(RodanTask):
     abstract = True
 
     def get_interface(self, runjob_id):
-        inputs = self._inputs(runjob_id)
+        inputs = self._inputs(runjob_id, with_urls=True)
         settings = self._settings(runjob_id)
         return self.get_my_interface(inputs, settings)
 
