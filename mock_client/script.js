@@ -264,4 +264,10 @@ angular.module('rodanMockApp', [])
             '-1': 'Failed',
             '9': 'Cancelled'
         };
+        $scope.cancelWorkflowRun = function (wfrun) {
+            $http.patch(wfrun.url, {'cancelled': true})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
     })
