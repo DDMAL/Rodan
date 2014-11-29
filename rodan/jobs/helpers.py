@@ -9,6 +9,7 @@ import PIL.ImageFile
 from rodan.models import Resource, ResourceType
 from rodan.models.resource import ResourceProcessingStatus
 from celery import Task
+from rodan.jobs.base import RodanAutomaticTask
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"
@@ -97,3 +98,43 @@ def create_thumbnails(resource_id):
         return True
     else:
         return False
+
+
+class resource_thru(RodanAutomaticTask):
+    name = 'rodan.core.resource_thru'
+    author = 'Ling-Xiao Yang'
+    description = 'Copy input resource directly to output resource. Handy for branching a resource collection.'
+    settings = ()
+    enabled = True
+    category = "Core"
+
+    input_port_types = (
+        {'name': 'in', 'minimum': 1, 'maximum': 1, 'resource_types': lambda mime: True},
+    )
+    output_port_types = (
+        {'name': 'out', 'minimum': 1, 'maximum': 1, 'resource_types': lambda mime: True},
+    )
+
+    def run_my_task(self, inputs, settings, outputs):
+        shutil.copyfile(inputs['in'][0]['resource_path'], outputs['out'][0]['resource_path'])
+    def test_my_task(self, testcase):
+        inputs = {
+            'in': [
+                {'resource_type': 'text/plain',
+                 'resource_path': testcase.new_available_path()
+                }
+            ]
+        }
+        content = 'aaa'
+        with open(inputs['in'][0]['resource_path'], 'w') as f:
+            f.write(content)
+        outputs = {
+            'out': [
+                {'resource_type': 'text/plain',
+                 'resource_path': testcase.new_available_path()
+                }
+            ]
+        }
+        self.run_my_task(inputs, {}, outputs)
+        with open(outputs['out'][0]['resource_path']) as g:
+            testcase.assertEqual(g.read(), content)

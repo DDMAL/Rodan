@@ -3,7 +3,6 @@ from celery import Task
 from celery.app.task import TaskType
 from rodan.models.runjob import RunJobStatus
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType
-from rodan.jobs.helpers import create_thumbnails
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
@@ -201,6 +200,7 @@ class RodanAutomaticTask(RodanTask):
                                                  error_summary='',
                                                  error_details='')
         output_resources = Resource.objects.filter(outputs__run_job=runjob_id)
+        from rodan.jobs.helpers import create_thumbnails
         for output_resource in output_resources:
             create_thumbnails.si(str(output_resource.uuid)).apply_async()
 
