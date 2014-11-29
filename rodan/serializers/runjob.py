@@ -43,6 +43,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'outputs',
                   'job_settings',
                   'needs_input',
+                  'ready_for_input',
                   'status',
                   'created',
                   'updated',
