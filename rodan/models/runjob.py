@@ -62,7 +62,7 @@ class RunJob(models.Model):
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs")
 
-    job_settings = json.JSONField(blank=True, null=True)
+    job_settings = json.JSONField(blank=True, null=True, default="[]")
     needs_input = models.BooleanField(default=False)
     ready_for_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
