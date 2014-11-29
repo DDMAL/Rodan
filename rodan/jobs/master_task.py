@@ -13,7 +13,7 @@ def master_task(workflow_run_id):
     RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
         & Q(status=RunJobStatus.NOT_RUNNING)
-        & Q(needs_input=True)
+        & Q(workflow_job__job__interactive=True)
         & Q(ready_for_input=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
@@ -24,7 +24,7 @@ def master_task(workflow_run_id):
     runable_runjobs_query = RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
         & Q(status=RunJobStatus.NOT_RUNNING)
-        & Q(needs_input=False)
+        & Q(workflow_job__job__interactive=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
     )

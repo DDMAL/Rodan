@@ -33,8 +33,6 @@ class RunJob(models.Model):
     - `workflow_job` -- a reference to `WorkflowJob`.
     - `job_settings` -- the settings associated with the `WorkflowJob` that is
       being executed in the `RunJob`.
-    - `needs_input` -- a boolean. If true, indicate that the `RunJob` needs or will need
-      user input.
     - `ready_for_input` -- a boolean. If true, indicate that the `RunJob` is currently
       ready for user input.
     - `status` -- an integer indicating the status of `RunJob`.
@@ -67,7 +65,6 @@ class RunJob(models.Model):
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs")
 
     job_settings = json.JSONField(blank=True, null=True, default="[]")
-    needs_input = models.BooleanField(default=False)
     ready_for_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
@@ -79,7 +76,7 @@ class RunJob(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u"<RunJob {0} {1} ({2})>".format(str(self.uuid), self.workflow_job.job.job_name, self.needs_input)
+        return u"<RunJob {0} {1}{2}>".format(str(self.uuid), self.workflow_job.job.job_name, ' (interactive)' if self.workflow_job.job.interactive else '')
 
     @property
     def job(self):

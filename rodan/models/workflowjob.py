@@ -17,7 +17,6 @@ class WorkflowJob(models.Model):
     - `uuid`
     - `workflow` -- a reference to the `Workflow` that it belongs to.
     - `job` -- a reference to the `Job`.
-    - `job_type`  [TODO] what does it mean?
     - `job_settings` -- JSON field. Store user's settings which correspond to the
       preset requirements of `Job` settings.
 
@@ -30,15 +29,9 @@ class WorkflowJob(models.Model):
 
     - `save` and `delete` -- invalidate the referenced `Workflow`.
     """
-    WORKFLOW_JOB_TYPES = (
-        (0, "Non-Interactive"),
-        (1, "Interactive")
-    )
-
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow, related_name="workflow_jobs")
     job = models.ForeignKey(Job, related_name="workflow_jobs")
-    job_type = models.IntegerField(choices=WORKFLOW_JOB_TYPES, default=0)
     job_settings = json.JSONField(default="[]", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)

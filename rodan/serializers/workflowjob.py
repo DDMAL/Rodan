@@ -10,7 +10,6 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
     workflow = serializers.HyperlinkedRelatedField(view_name="workflow-detail", required=False)
     job = serializers.HyperlinkedRelatedField(view_name="job-detail")
     job_settings = serializers.CharField(required=False)  # this actually sends it as a JSON object
-    job_type = serializers.IntegerField(required=False)
 
     job_name = serializers.Field(source="job_name")
     job_description = serializers.Field(source="job_description")
@@ -25,7 +24,6 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "output_ports",
                   "job_name",
                   "job_description",
-                  "job_type",
                   "job",
                   "job_settings",
                   "created",

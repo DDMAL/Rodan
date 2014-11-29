@@ -49,7 +49,6 @@ class InteractiveView(APIView):
         except APIException as e:
             raise e
 
-        runjob.needs_input = False
         runjob.ready_for_input = False
         runjob.status = RunJobStatus.HAS_FINISHED
         runjob.error_summary = ''

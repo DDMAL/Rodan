@@ -26,7 +26,6 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_runjob = mommy.make('rodan.RunJob',
                                       workflow_job__workflow=self.test_workflow,
                                       workflow_job__job=dummy_m_job,
-                                      needs_input=True,
                                       ready_for_input=True,
                                       workflow_run__cancelled=False,
                                       workflow_run__workflow=self.test_workflow)

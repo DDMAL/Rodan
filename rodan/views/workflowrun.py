@@ -168,10 +168,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
         return runjob_A
 
     def _create_runjob_A(self, wfjob, workflow_run, arg_resource):
-        interactive = wfjob.job.interactive
         run_job = RunJob(workflow_job=wfjob,
-                         workflow_run=workflow_run,
-                         needs_input=interactive)
+                         workflow_run=workflow_run)
         run_job.save()
 
         outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
@@ -302,7 +300,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                 if celery_id is not None:
                     revoke(celery_id, terminate=True)
 
-            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED)
+            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED, ready_for_input=False)
 
         elif workflow_already_cancelled and workflow_newly_cancelled == False:
             return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
@@ -351,7 +349,6 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
             runjob = RunJob(workflow_run=workflow_run,
                             workflow_job=workflow_job,
                             job_settings=workflow_job.job_settings,
-                            needs_input=is_interactive,
                             page=page)
             runjob.save()
 
@@ -367,7 +364,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
         os.makedirs(runjob.runjob_path)
 
     def _update_settings(self, runjob):
-        runjob.needs_input = runjob.workflow_job.job.interactive
+        ###runjob.needs_input = runjob.workflow_job.job.interactive
         if runjob.workflow_job.workflow is not None:
             # i.e. if the workflow job was never deleted from the workflow
             runjob.job_settings = runjob.workflow_job.job_settings
