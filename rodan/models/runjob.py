@@ -48,7 +48,10 @@ class RunJob(models.Model):
     **Properties**
 
     - `job` -- the corresponding Rodan `Job` instance.
+    - `job_name` -- the corresponding Rodan `Job` name.
     - `workflow` -- the corresponding `Workflow` instance.
+    - `interactive` -- the relative URL of interactive interface of the RunJob that
+      needs user input.
     """
     STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
                       (RunJobStatus.RUNNING, "Running"),
@@ -81,6 +84,10 @@ class RunJob(models.Model):
     @property
     def job(self):
         return self.workflow_job.job
+
+    @property
+    def job_name(self):
+        return self.workflow_job.job.job_name
 
     @property
     def workflow(self):
