@@ -152,6 +152,7 @@ angular.module('rodanMockApp', [])
         };
         $scope.newRotateCropWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_rotatecrop}).success(function (wf) {
+                var jthru = _.find($rootScope.jobs, function (j) { return j.job_name == 'rodan.core.resource_thru'});
                 var jrm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_manual'});
                 var jra = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_apply_rotate'});
 
@@ -159,17 +160,21 @@ angular.module('rodanMockApp', [])
                 var jca = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop_apply_crop'});
 
                 $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jthru.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jrm.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jra.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jcm.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': jca.url})
                 ]).then(function (things) {
-                    var wfjrm = things[0].data;
-                    var wfjra = things[1].data;
-                    var wfjcm = things[2].data;
-                    var wfjca = things[3].data;
+                    var wfjthru = things[0].data;
+                    var wfjrm = things[1].data;
+                    var wfjra = things[2].data;
+                    var wfjcm = things[3].data;
+                    var wfjca = things[4].data;
 
                     $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjthru.url, 'input_port_type': jthru.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjthru.url, 'output_port_type': jthru.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjrm.url, 'input_port_type': jrm.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjrm.url, 'output_port_type': jrm.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra.input_port_types[0].url}),
@@ -181,20 +186,23 @@ angular.module('rodanMockApp', [])
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca.input_port_types[1].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjca.url, 'output_port_type': jca.output_port_types[0].url})
                     ]).then(function (things) {
-                        var iprm = things[0].data;
-                        var oprm = things[1].data;
-                        var ipra_img = things[2].data;
-                        var ipra_arg = things[3].data;
-                        var opra = things[4].data;
-                        var ipcm = things[5].data;
-                        var opcm = things[6].data;
-                        var ipca_img = things[7].data;
-                        var ipca_arg = things[8].data;
-                        var opca = things[9].data;
+                        var ipthru = things[0].data;
+                        var opthru = things[1].data;
+                        var iprm = things[2].data;
+                        var oprm = things[3].data;
+                        var ipra_img = things[4].data;
+                        var ipra_arg = things[5].data;
+                        var opra = things[6].data;
+                        var ipcm = things[7].data;
+                        var opcm = things[8].data;
+                        var ipca_img = things[9].data;
+                        var ipca_arg = things[10].data;
+                        var opca = things[11].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': iprm.url, 'resources': $scope.resources_rotatecrop}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipra_img.url, 'resources': $scope.resources_rotatecrop}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipthru.url, 'resources': $scope.resources_rotatecrop}),
+                            $http.post(ROOT + '/connections/', {'output_port': opthru.url, 'input_port': iprm.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opthru.url, 'input_port': ipra_img.url}),
                             $http.post(ROOT + '/connections/', {'output_port': oprm.url, 'input_port': ipra_arg.url}),
                             $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipcm.url}),
                             $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipca_img.url}),
@@ -242,8 +250,6 @@ angular.module('rodanMockApp', [])
                     $rootScope.runjobs = [];
                     angular.forEach(results, function (rj) {
                         $rootScope.runjobs[rj.workflow_run] = $rootScope.runjobs[rj.workflow_run] || [];
-                        var job = _.find($rootScope.jobs, function (j) { return j.url == rj.job});
-                        rj.job_name = job.job_name;
                         $rootScope.runjobs[rj.workflow_run].push(rj);
                     });
                 }, function (err) {
