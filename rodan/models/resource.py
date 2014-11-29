@@ -163,18 +163,18 @@ class Resource(models.Model):
 
     @property
     def small_thumb_url(self):
-        if self.thumb_url and self.filename:
+        if self.compat_resource_file:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.SMALL_THUMBNAIL))
 
     @property
     def medium_thumb_url(self):
-        if self.thumb_url and self.filename:
+        if self.compat_resource_file:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
 
     @property
     def large_thumb_url(self):
-        if self.thumb_url and self.filename:
+        if self.compat_resource_file:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))
