@@ -36,9 +36,9 @@
           <table class="table">
             <tbody>
               <tr ng-repeat="r in resources">
-                <td ng-bind="r.uuid"></td>
+                <td><a ng-bind="r.uuid" ng-href="{{r.compat_resource_file}}" target="_blank"></a></td>
                 <td ng-bind="r.name"></td>
-                <td><img ng-src="{{r.small_thumb}}" /></td>
+                <td><img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em></td>
                 <td><button ng-click="deleteResource(r)">Delete</button></td>
               </tr>
             </tbody>
