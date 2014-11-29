@@ -199,6 +199,9 @@ class RodanTestSetUpMixin(object):
         self.test_Dip2 = mommy.make('rodan.InputPort',
                                     workflow_job=self.test_wfjob_D,
                                     input_port_type=ipt_mB)
+        self.test_Dip3 = mommy.make('rodan.InputPort',
+                                    workflow_job=self.test_wfjob_D,
+                                    input_port_type=ipt_mA)
         self.test_Dop = mommy.make('rodan.OutputPort',
                                    workflow_job=self.test_wfjob_D,
                                    output_port_type=opt_mA)
@@ -235,6 +238,10 @@ class RodanTestSetUpMixin(object):
         mommy.make('rodan.Connection',
                    output_port=self.test_Dop,
                    input_port=self.test_Fip)
+        mommy.make('rodan.Connection',
+                   output_port=self.test_Bop,
+                   input_port=self.test_Dip3)
+
 
         mommy.make('rodan.ResourceAssignment',
                    input_port=self.test_Aip).resources.add(self.test_resource)
