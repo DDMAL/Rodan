@@ -349,3 +349,27 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_graph__branching_and_merging(self):
+        """
+        wfjob------------------->wfjob_2
+             `----->wfjob_3------^
+        """
+        self.test_workflowjob3 = mommy.make('rodan.WorkflowJob',
+                                            workflow=self.test_workflow,
+                                            job=self.test_job)
+        inputport3 = mommy.make('rodan.InputPort',
+                                workflow_job=self.test_workflowjob3,
+                                input_port_type=self.test_inputporttype)
+        outputport3 = mommy.make('rodan.OutputPort',
+                                 workflow_job=self.test_workflowjob3,
+                                 output_port_type=self.test_outputporttype)
+        inputport2_new = mommy.make('rodan.InputPort',
+                                    workflow_job=self.test_workflowjob2,
+                                    input_port_type=self.test_inputporttype)
+        outputport = self.test_workflowjob.output_ports.first()
+        mommy.make('rodan.Connection',
+                   output_port=outputport,
+                   input_port=inputport3)
+        mommy.make('rodan.Connection',
+                   output_port=outputport3,
+                   input_port=inputport2_new)
