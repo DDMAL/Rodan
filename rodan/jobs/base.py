@@ -2,7 +2,8 @@ import tempfile, shutil, os, uuid, copy, re, json
 from celery import Task
 from celery.app.task import TaskType
 from rodan.models.runjob import RunJobStatus
-from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType
+from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
+from rodan.models.workflowrun import WorkflowRunStatus
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
@@ -214,6 +215,8 @@ class RodanAutomaticTask(RodanTask):
         update = self._add_error_information_to_runjob(exc, einfo)
         update['status'] = RunJobStatus.FAILED
         RunJob.objects.filter(pk=runjob_id).update(**update)
+        wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
+        WorkflowRun.objects.filter(uuid=wfrun_id).update(status=WorkflowRunStatus.FAILED)
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information

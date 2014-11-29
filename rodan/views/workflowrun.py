@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rodan.models.workflow import Workflow
 from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
-from rodan.models.workflowrun import WorkflowRun
+from rodan.models.workflowrun import WorkflowRun, WorkflowRunStatus
 from rodan.models.runjob import RunJobStatus
 from rodan.models.connection import Connection
 from rodan.models.resourceassignment import ResourceAssignment
@@ -57,9 +57,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
             In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
             WorkflowRun object.
         """
-        cancelled = request.DATA.get('cancelled', None)
-        if cancelled:
-            return Response({"message": "Cannot create a cancelled WorkflowRun"}, status=status.HTTP_400_BAD_REQUEST)
+        wfrun_status = request.DATA.get('status', None)
+        if wfrun_status and wfrun_status is not WorkflowRunStatus.IN_PROGRESS:
+            return Response({"message": "Cannot create a cancelled, failed or finished WorkflowRun"}, status=status.HTTP_400_BAD_REQUEST)
 
         workflow = request.DATA.get('workflow', None)
         if not workflow:
@@ -240,7 +240,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     Performs operations on a single WorkflowRun instance.
 
     #### Parameters
-    - `cancelled` -- PATCH-only. A boolean value of `True` or `False`. Attempt of uncancelling will trigger an error.
+    - `status` -- PATCH-only. An integer. Attempt of uncancelling will trigger an error.
 
     [TODO] are they still effective??
 
@@ -289,10 +289,10 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
         except WorkflowRun.DoesNotExist:
             return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        workflow_already_cancelled = workflow_run.cancelled
-        workflow_newly_cancelled = request.DATA.get('cancelled', None)  # will retrieve a boolean value
+        old_status = workflow_run.status
+        new_status = request.DATA.get('status', None)
 
-        if not workflow_already_cancelled and workflow_newly_cancelled:
+        if old_status == WorkflowRunStatus.IN_PROGRESS and new_status == WorkflowRunStatus.CANCELLED:
             runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
@@ -301,9 +301,8 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                     revoke(celery_id, terminate=True)
 
             runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED, ready_for_input=False)
-
-        elif workflow_already_cancelled and workflow_newly_cancelled == False:
-            return Response({"message": "Workflowrun cannot be uncancelled."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "Invalid status update"}, status=status.HTTP_400_BAD_REQUEST)
 
         return self.partial_update(request, pk, *args, **kwargs)
 

@@ -1,6 +1,7 @@
 from celery import registry, task, chord
-from rodan.models import RunJob, Resource
+from rodan.models import RunJob, Resource, WorkflowRun
 from rodan.models.runjob import RunJobStatus
+from rodan.models.workflowrun import WorkflowRunStatus
 from django.db.models import Q
 
 # Read more on Django queries: https://docs.djangoproject.com/en/dev/topics/db/queries/
@@ -36,8 +37,10 @@ def master_task(workflow_run_id):
             runable_runjobs.append(rj_value)
             uuid_set.add(rj_value['uuid'])
 
-
     if len(runable_runjobs) == 0:
+        if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=RunJobStatus.HAS_FINISHED)).exists():
+            # WorkflowRun has finished!
+            WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=WorkflowRunStatus.HAS_FINISHED)
         return False
     else:
         task_group = []

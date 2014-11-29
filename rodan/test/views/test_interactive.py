@@ -4,6 +4,7 @@ from rest_framework import status
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Resource, Job, ResourceType
+from rodan.models.workflowrun import WorkflowRunStatus
 from django.core.files.base import ContentFile
 
 class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -27,7 +28,7 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                       workflow_job__workflow=self.test_workflow,
                                       workflow_job__job=dummy_m_job,
                                       ready_for_input=True,
-                                      workflow_run__cancelled=False,
+                                      workflow_run__status=WorkflowRunStatus.IN_PROGRESS,
                                       workflow_run__workflow=self.test_workflow)
         input_m = mommy.make('rodan.Input',
                              run_job=self.test_runjob,
@@ -47,15 +48,6 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         response = self.client.post("/interactive/{0}/".format(uuid.uuid1().hex), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_cancelled_workflowrun(self):
-        self.test_runjob.workflow_run.cancelled = True
-        self.test_runjob.workflow_run.save()
-        response = self.client.get("/interactive/{0}/".format(self.test_runjob.uuid), format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {'message': 'WorkflowRun has been cancelled'})
-        response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {'message': 'WorkflowRun has been cancelled'})
     def test_not_ready_for_input(self):
         self.test_runjob.ready_for_input = False
         self.test_runjob.save()

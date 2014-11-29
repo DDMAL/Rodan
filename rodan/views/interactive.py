@@ -25,8 +25,6 @@ class InteractiveView(APIView):
     def get(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
-        if runjob.workflow_run.cancelled:
-            return Response({'message': 'WorkflowRun has been cancelled'}, status=status.HTTP_400_BAD_REQUEST)
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -38,8 +36,6 @@ class InteractiveView(APIView):
     def post(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
-        if runjob.workflow_run.cancelled:
-            return Response({'message': 'WorkflowRun has been cancelled'}, status=status.HTTP_400_BAD_REQUEST)
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
