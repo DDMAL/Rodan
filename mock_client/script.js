@@ -49,6 +49,13 @@ angular.module('rodanMockApp', [])
             return deferred.promise;
         };
     })
+    .factory('intervalNow', function ($interval) {
+        return function (fn, args) {
+            $interval.apply(null, arguments);
+            fn();
+        };
+    })
+
     .config(function ($httpProvider) {
         $httpProvider.interceptors.push('authInterceptor');
     })
@@ -69,8 +76,8 @@ angular.module('rodanMockApp', [])
         };
     }]) // http://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
 
-    .controller('projectsCtrl', function ($scope, $http, ROOT, $interval, $rootScope, getAllPages, UPDATE_FREQ) {
-        $interval(function () {
+    .controller('projectsCtrl', function ($scope, $http, ROOT, intervalNow, $rootScope, getAllPages, UPDATE_FREQ) {
+        intervalNow(function () {
             getAllPages(ROOT + '/projects/')
                 .then(function (results) {
                     $rootScope.projects = results;
@@ -86,8 +93,8 @@ angular.module('rodanMockApp', [])
         };
     })
 
-    .controller('resourcesCtrl', function ($scope, $http, ROOT, $interval, $rootScope, getAllPages, UPDATE_FREQ) {
-        $interval(function () {
+    .controller('resourcesCtrl', function ($scope, $http, ROOT, intervalNow, $rootScope, getAllPages, UPDATE_FREQ) {
+        intervalNow(function () {
             getAllPages(ROOT + '/resources/')
                 .then(function (results) {
                     $rootScope.resources = results;
@@ -112,8 +119,8 @@ angular.module('rodanMockApp', [])
         };
     })
 
-    .controller('workflowsCtrl', function ($scope, $http, ROOT, $interval, $rootScope, $q, getAllPages, UPDATE_FREQ) {
-        $interval(function () {
+    .controller('workflowsCtrl', function ($scope, $http, ROOT, intervalNow, $rootScope, $q, getAllPages, UPDATE_FREQ) {
+        intervalNow(function () {
             getAllPages(ROOT + '/workflows/')
                 .then(function (results) {
                     $rootScope.workflows = results;
@@ -162,8 +169,8 @@ angular.module('rodanMockApp', [])
         };
     })
 
-    .controller('workflowrunsCtrl', function ($scope, $http, ROOT, $rootScope, $interval, getAllPages, UPDATE_FREQ) {
-        $interval(function () {
+    .controller('workflowrunsCtrl', function ($scope, $http, ROOT, $rootScope, intervalNow, getAllPages, UPDATE_FREQ) {
+        intervalNow(function () {
             getAllPages(ROOT + '/workflowruns/')
                 .then(function (results) {
                     $rootScope.workflowruns = results;
@@ -171,7 +178,7 @@ angular.module('rodanMockApp', [])
                     console.log(err);
                 });
         }, UPDATE_FREQ);
-        $interval(function () {
+        intervalNow(function () {
             getAllPages(ROOT + '/runjobs/')
                 .then(function (results) {
                     $rootScope.runjobs = [];
