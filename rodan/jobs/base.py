@@ -1,4 +1,4 @@
-import tempfile, shutil, os, uuid, copy, re
+import tempfile, shutil, os, uuid, copy, re, json
 from celery import Task
 from celery.app.task import TaskType
 from rodan.models.runjob import RunJobStatus
@@ -143,7 +143,7 @@ class RodanTask(Task):
         return outputs
 
     def _settings(self, runjob_id):
-        return RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0]
+        return json.loads(RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0])
 
 
 class RodanAutomaticTask(RodanTask):
@@ -152,7 +152,7 @@ class RodanAutomaticTask(RodanTask):
     # Specific jobs that inherit the base class should not touch database.
 
     def run(self, runjob_id):
-        settings = RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0]
+        settings = self._settings(runjob_id)
         inputs = self._inputs(runjob_id)
         _temp_dir = tempfile.mkdtemp()
         outputs = self._outputs(runjob_id, _temp_dir)
