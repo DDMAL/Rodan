@@ -2,6 +2,7 @@ import os
 import shutil
 from django.db import models
 from django_extensions.db.fields import json
+from django.core.urlresolvers import reverse
 from uuidfield import UUIDField
 from rodan.models.resource import Resource
 from rodan.models.input import Input
@@ -84,3 +85,8 @@ class RunJob(models.Model):
     @property
     def workflow(self):
         return self.workflow_run.workflow
+
+    @property
+    def interactive(self):
+        if self.ready_for_input:
+            return reverse('interactive', args=(self.uuid, ))
