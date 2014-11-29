@@ -48,27 +48,31 @@ class RodanTaskType(TaskType):
                         interactive=interactive)
                 j.save()
 
-                for ipt in attrs['input_port_types']:
-                    i = InputPortType(job=j,
-                                      name=ipt['name'],
-                                      minimum=ipt['minimum'],
-                                      maximum=ipt['maximum'])
-                    i.save()
-                    resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
-                    if len(resource_types) == 0:
-                        raise ValueError('No available resource types found for this InputPortType: {0}'.format(ipt['resource_types']))
-                    i.resource_types.add(*resource_types)
+                try:
+                    for ipt in attrs['input_port_types']:
+                        i = InputPortType(job=j,
+                                          name=ipt['name'],
+                                          minimum=ipt['minimum'],
+                                          maximum=ipt['maximum'])
+                        i.save()
+                        resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
+                        if len(resource_types) == 0:
+                            raise ValueError('No available resource types found for this InputPortType: {0}'.format(ipt['resource_types']))
+                        i.resource_types.add(*resource_types)
 
-                for opt in attrs['output_port_types']:
-                    o = OutputPortType(job=j,
-                                       name=opt['name'],
-                                       minimum=opt['minimum'],
-                                       maximum=opt['maximum'])
-                    o.save()
-                    resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
-                    if len(resource_types) == 0:
-                        raise ValueError('No available resource types found for this OutputPortType: {0}'.format(opt['resource_types']))
-                    o.resource_types.add(*resource_types)
+                    for opt in attrs['output_port_types']:
+                        o = OutputPortType(job=j,
+                                           name=opt['name'],
+                                           minimum=opt['minimum'],
+                                           maximum=opt['maximum'])
+                        o.save()
+                        resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
+                        if len(resource_types) == 0:
+                            raise ValueError('No available resource types found for this OutputPortType: {0}'.format(opt['resource_types']))
+                        o.resource_types.add(*resource_types)
+                except Exception as e:
+                    j.delete()  # clean the job
+                    raise e
 
     @staticmethod
     def _resolve_resource_types(value):
