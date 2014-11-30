@@ -99,8 +99,8 @@
             <div class="panel-heading">
               <h3 class="panel-title" ng-bind="wfrun.uuid"></h3>
               For <code ng-bind="wfrun.workflow"></code>
+              <b>Status: {{wfrun.status}}</b>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
-              <b ng-show="wfrun.cancelled">CANCELLED</b>
             </div>
             <div class="panel-body">
               <table class="table">
