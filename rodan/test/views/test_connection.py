@@ -50,7 +50,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         }
 
         response = self.client.post("/connections/", conn_obj, format='json')
-        anticipated_message = {'message': "Please specify an input port"}
+        anticipated_message = {'input_port': ['This field is required.']}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -61,9 +61,9 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         }
 
         response = self.client.post("/connections/", conn_obj, format='json')
-        anticipated_message = {'message': "Problem resolving input port object"}
+        anticipated_message = {'input_port': ['Invalid hyperlink - No URL match']}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_not_a_real_inputport(self):
         conn_obj = {
@@ -72,7 +72,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         }
 
         response = self.client.post("/connections/", conn_obj, format='json')
-        anticipated_message = {'message': "No input port with the specified uuid exists"}
+        anticipated_message = {'input_port': ['Invalid hyperlink - Object does not exist.']}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

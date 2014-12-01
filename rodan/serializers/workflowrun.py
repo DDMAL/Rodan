@@ -3,12 +3,9 @@ from rest_framework import serializers
 
 
 class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
-    creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
-    uuid = serializers.Field(source='uuid')
-
     class Meta:
         model = WorkflowRun
-        read_only_fields = ("created", "updated")
+        read_only_fields = ("created", "updated", 'creator')
         fields = ('url',
                   'uuid',
                   'workflow',
@@ -20,9 +17,6 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
-    creator = serializers.HyperlinkedRelatedField(view_name="user-detail")
-    uuid = serializers.Field(source='uuid')
-
     class Meta:
         model = WorkflowRun
         read_only_fields = ("created", "updated")

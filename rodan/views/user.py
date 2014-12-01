@@ -45,6 +45,10 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        queryset = User.objects.exclude(pk=-1)
+        return queryset
+
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

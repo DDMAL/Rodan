@@ -13,6 +13,7 @@ class InputPortTypeList(generics.ListAPIView):
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = InputPortType.objects.all()
 
 #    def post(self, request, *args, **kwargs):
 #        job = request.DATA.get('job', None)
@@ -36,3 +37,4 @@ class InputPortTypeDetail(generics.RetrieveAPIView):
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = InputPortType.objects.all()

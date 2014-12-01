@@ -26,6 +26,7 @@ class RunJobList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
     filter_class = RunJobFilter
+    queryset = RunJob.objects.all() # [TODO] filter according to the user?
 
 
 class RunJobDetail(generics.RetrieveAPIView):
@@ -35,3 +36,4 @@ class RunJobDetail(generics.RetrieveAPIView):
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
+    queryset = RunJob.objects.all() # [TODO] filter according to the user?

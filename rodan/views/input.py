@@ -14,6 +14,7 @@ class InputList(generics.ListAPIView):
     model = Input
     serializer_class = InputSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Input.objects.all() # [TODO] restrict to the user's inputs?
     filter_fields = ('run_job', )
 
 
@@ -24,3 +25,4 @@ class InputDetail(generics.RetrieveAPIView):
     model = Input
     serializer_class = InputSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Input.objects.all() # [TODO] restrict to the user's inputs?

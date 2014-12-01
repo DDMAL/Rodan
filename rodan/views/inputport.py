@@ -12,6 +12,7 @@ class InputPortList(generics.ListCreateAPIView):
     model = InputPort
     serializer_class = InputPortSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = InputPort.objects.all() # [TODO] restrict to the user's objects?
 
 
 class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -21,3 +22,4 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     model = InputPort
     serializer_class = InputPortSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = InputPort.objects.all() # [TODO] restrict to the user's objects?

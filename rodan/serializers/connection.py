@@ -7,13 +7,9 @@ from rodan.serializers.workflow import WorkflowSerializer
 
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
-    uuid = serializers.Field(source='uuid')
-    input_port = InputPortSerializer()
-    output_port = OutputPortSerializer()
-
-    input_workflow_job = WorkflowJobSerializer()
-    output_workflow_job = WorkflowJobSerializer()
-    workflow = WorkflowSerializer()
+    input_workflow_job = WorkflowJobSerializer(read_only=True)
+    output_workflow_job = WorkflowJobSerializer(read_only=True)
+    workflow = WorkflowSerializer(read_only=True)
 
     class Meta:
         model = Connection
@@ -27,8 +23,6 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ConnectionListSerializer(serializers.HyperlinkedModelSerializer):
-    uuid = serializers.Field(source='uuid')
-
     input_workflow_job = serializers.HyperlinkedRelatedField(view_name="workflowjob-detail", read_only=True)
     output_workflow_job = serializers.HyperlinkedRelatedField(view_name="workflowjob-detail", read_only=True)
     workflow = serializers.HyperlinkedRelatedField(view_name="workflow-detail", read_only=True)

@@ -22,8 +22,10 @@ class ConnectionList(generics.ListCreateAPIView):
     model = Connection
     serializer_class = ConnectionListSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = Connection.objects.all()  # [TODO] restrict to the users connections?
 
-    def post(self, request, *args, **kwargs):
+
+    def postaaaaaa(self, request, *args, **kwargs):
         input_port = request.DATA.get('input_port', None)
         output_port = request.DATA.get('output_port', None)
 
@@ -55,3 +57,4 @@ class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Connection
     serializer_class = ConnectionSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Connection.objects.all()  # [TODO] restrict to the users connections?

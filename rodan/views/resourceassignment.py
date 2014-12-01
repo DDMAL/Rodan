@@ -17,25 +17,12 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
 
     #### Parameters
     - input_port -- POST-only, URL to an InputPort object
-    - [TODO]: Resources?
+    - resources -- POST-only, a list of URL to Resource objects.
     """
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )
-
-    def post(self, request, *args, **kwargs):
-        input_port = request.DATA.get('input_port', None)
-        try:
-            resolve_to_object(input_port, InputPort)
-        except Resolver404:
-            return Response({'message': "Couldn't resolve InputPort object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except AttributeError:
-            return Response({'message': "Please specify an input port"}, status=status.HTTP_400_BAD_REQUEST)
-        except InputPort.DoesNotExist:
-            return Response({'message': "No input port with specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return self.create(request, *args, **kwargs)
-
+    queryset = ResourceAssignment.objects.all() # [TODO] filter according to the user?
 
 class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -44,3 +31,4 @@ class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = ResourceAssignment.objects.all() # [TODO] filter according to the user?

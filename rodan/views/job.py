@@ -16,6 +16,7 @@ class JobList(generics.ListAPIView):
     model = Job
     serializer_class = JobSerializer
     filter_fields = ('enabled', )
+    queryset = Job.objects.all()
 
     def get_queryset(self):
         filter_dict = {}
@@ -34,3 +35,4 @@ class JobDetail(generics.RetrieveAPIView):
     """
     model = Job
     serializer_class = JobSerializer
+    queryset = Job.objects.all()

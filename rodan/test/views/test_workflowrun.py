@@ -41,7 +41,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {"message": "You must specify a workflow ID"}
+        anticipated_message = {'workflow': ['This field is required.']}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -52,14 +52,14 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {"message": "You must specify an existing workflow"}
+        anticipated_message = {'workflow': ['Invalid hyperlink - Object does not exist.']}
         self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_patch_not_found(self):
         workflowrun_update = {'status': WorkflowRunStatus.CANCELLED}
         response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
-        anticipated_message = {'message': 'Workflow_run not found'}
+        anticipated_message = {'detail': 'Not found'}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -173,7 +173,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
         workflowrun_update = {'status': WorkflowRunStatus.IN_PROGRESS}
         response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format='json')
-        anticipated_message = {"message": "Invalid status update"}
+        anticipated_message = {"status": "Invalid status update"}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, WorkflowRunStatus.CANCELLED)

@@ -12,6 +12,7 @@ class OutputPortList(generics.ListCreateAPIView):
     model = OutputPort
     serializer_class = OutputPortSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = OutputPort.objects.all() # [TODO] restrict to the user's outputports?
 
 
 class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -21,3 +22,4 @@ class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     model = OutputPort
     serializer_class = OutputPortSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = OutputPort.objects.all() # [TODO] restrict to the user's outputports?

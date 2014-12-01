@@ -7,16 +7,11 @@ from rest_framework import serializers
 
 
 class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
-    workflow = serializers.HyperlinkedRelatedField(view_name="workflow-detail", required=False)
-    job = serializers.HyperlinkedRelatedField(view_name="job-detail")
-    job_settings = serializers.CharField(required=False)  # this actually sends it as a JSON object
-
-    job_name = serializers.Field(source="job_name")
-    job_description = serializers.Field(source="job_description")
+    job_settings = serializers.CharField(required=False)  # [TODO]: replace with JSON serializer
 
     class Meta:
         model = WorkflowJob
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', 'updated', 'input_ports', 'output_ports')
         fields = ("url",
                   "uuid",
                   "workflow",

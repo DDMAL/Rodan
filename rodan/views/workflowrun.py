@@ -10,6 +10,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from rodan.models.workflow import Workflow
 from rodan.models.runjob import RunJob
@@ -51,45 +52,20 @@ class WorkflowRunList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     filter_fields = ('workflow',)
+    queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
 
-    def post(self, request, *args, **kwargs):
-        """
-            In the Rodan RESTful architecture, "running" a workflow is accomplished by creating a new
-            WorkflowRun object.
-        """
-        wfrun_status = request.DATA.get('status', None)
-        if wfrun_status and wfrun_status is not WorkflowRunStatus.IN_PROGRESS:
-            return Response({"message": "Cannot create a cancelled, failed or finished WorkflowRun"}, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        wfrun_status = serializer.validated_data.get('status', WorkflowRunStatus.IN_PROGRESS)
+        if wfrun_status != WorkflowRunStatus.IN_PROGRESS:
+            raise ValidationError({'status': "Cannot create a cancelled, failed or finished WorkflowRun"})
+        wf = serializer.validated_data['workflow']
+        if not wf.valid:
+            raise ValidationError({'workflow': "Workflow must be valid before you can run it"})
 
-        workflow = request.DATA.get('workflow', None)
-        if not workflow:
-            return Response({"message": "You must specify a workflow ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-        value = urlparse.urlparse(workflow).path
-        try:
-            w = resolve(value)
-        except:
-            return Response({"message": "Could not resolve ID to workflow object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            workflow_obj = Workflow.objects.get(pk=w.kwargs.get('pk'))
-        except:
-            return Response({"message": "You must specify an existing workflow"}, status=status.HTTP_404_NOT_FOUND)
-
-        if not workflow_obj.valid:
-            return Response({"message": "workflow must be valid before you can run it"}, status=status.HTTP_400_BAD_REQUEST)
-
-        request.DATA['creator'] = UserSerializer(request.user, context={'request': request}).data['url']
-
-        created_wfrun = self.create(request, *args, **kwargs)
-
-        workflow_run_id = created_wfrun.data['uuid']
-        workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
-
-        self._create_workflow_run(workflow_obj, workflow_run)
-        master_task.apply_async((workflow_run_id,))
-
-        return created_wfrun
+        wfrun = serializer.save(creator=self.request.user)
+        wfrun_id = str(wfrun.uuid)
+        self._create_workflow_run(wf, wfrun)
+        master_task.apply_async((wfrun_id,))
 
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
@@ -254,6 +230,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
+    queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
 
     def get(self, request, pk, *args, **kwargs):
         by_page = self.request.QUERY_PARAMS.get('by_page', None)
@@ -283,17 +260,13 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
 
         return Response(workflow_run)
 
-    def patch(self, request, pk, *args, **kwargs):
-        try:
-            workflow_run = WorkflowRun.objects.get(pk=pk)
-        except WorkflowRun.DoesNotExist:
-            return Response({'message': "Workflow_run not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        old_status = workflow_run.status
-        new_status = request.DATA.get('status', None)
+    def perform_update(self, serializer):
+        wfrun_id = serializer.data['uuid']
+        old_status = WorkflowRun.objects.filter(uuid=wfrun_id).values_list('status', flat=True)[0]
+        new_status = serializer.validated_data.get('status', None)
 
         if old_status == WorkflowRunStatus.IN_PROGRESS and new_status == WorkflowRunStatus.CANCELLED:
-            runjobs_to_revoke_query = workflow_run.run_jobs.filter(status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
+            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun_id, status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
             for celery_id in runjobs_to_revoke_celery_id:
@@ -301,11 +274,10 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                     revoke(celery_id, terminate=True)
 
             runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED, ready_for_input=False)
-        else:
-            return Response({"message": "Invalid status update"}, status=status.HTTP_400_BAD_REQUEST)
+        elif new_status is not None:
+            raise ValidationError({'status': "Invalid status update"})
 
-        return self.partial_update(request, pk, *args, **kwargs)
-
+        serializer.save()
 
     def _backup_workflowrun(self, wf_run):
         source = wf_run.workflow_run_path

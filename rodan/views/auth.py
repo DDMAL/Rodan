@@ -101,8 +101,9 @@ class ObtainAuthToken(views.APIView):
                 login(request, user)
                 token, created = Token.objects.get_or_create(user=user)
                 userinfo = UserSerializer(user, context={'request': request})
-                userinfo.data['token'] = token.key
-                return Response(userinfo.data)
+                data = dict(userinfo.data)  # ReturnDict object is not writable
+                data['token'] = token.key
+                return Response(data)
             else:
                 # user exists, but is not allowed to log in
                 return Response({"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN)

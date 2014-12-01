@@ -18,6 +18,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
     filter_fields = ('workflow', )
+    queryset = WorkflowJob.objects.all() # [TODO] filter according to the user?
 
 
 class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -27,3 +28,4 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
+    queryset = WorkflowJob.objects.all() # [TODO] filter according to the user?

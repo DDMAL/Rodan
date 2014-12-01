@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rodan.serializers.user import UserListSerializer
 
 class AbsoluteURLField(serializers.Field):
-    def to_native(self, relative_url):
+    def to_representation(self, relative_url):
         """
         http://www.django-rest-framework.org/api-guide/fields/
         """
@@ -11,22 +11,20 @@ class AbsoluteURLField(serializers.Field):
             request = self.context['request']
             return request.build_absolute_uri(relative_url)
         else:
-            return super(AbsoluteURLField, self).to_native(relative_url)
+            return None
 
 
 class ResourceSerializer(serializers.HyperlinkedModelSerializer):
-    project = serializers.HyperlinkedRelatedField(view_name="project-detail")
     creator = UserListSerializer(read_only=True)
-    resource_file = AbsoluteURLField(source='resource_url')
-    compat_resource_file = AbsoluteURLField(source='compat_file_url')
-    resource_type = serializers.HyperlinkedRelatedField(view_name="resourcetype-detail")
-    small_thumb = AbsoluteURLField(source='small_thumb_url')
-    medium_thumb = AbsoluteURLField(source='medium_thumb_url')
-    large_thumb = AbsoluteURLField(source='large_thumb_url')
+    resource_file = AbsoluteURLField(source='resource_url', read_only=True)
+    compat_resource_file = AbsoluteURLField(source='compat_file_url', read_only=True)
+    small_thumb = AbsoluteURLField(source='small_thumb_url', read_only=True)
+    medium_thumb = AbsoluteURLField(source='medium_thumb_url', read_only=True)
+    large_thumb = AbsoluteURLField(source='large_thumb_url', read_only=True)
 
     class Meta:
         model = Resource
-        read_only_fields = ('created', 'updated', 'error_summary', 'error_details', 'processing_status', 'origin')
+        read_only_fields = ('created', 'updated', 'error_summary', 'error_details', 'processing_status', 'origin', 'has_thumb')
         fields = ("url",
                   "uuid",
                   "project",
@@ -45,9 +43,3 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
                   "small_thumb",
                   "medium_thumb",
                   "large_thumb")
-
-
-class OutputResourceSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = Resource

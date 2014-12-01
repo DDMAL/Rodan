@@ -39,6 +39,7 @@ class ResourceList(generics.ListCreateAPIView):
     filter_fields = ('project', )
 
     def get_queryset(self):
+        # [TODO] filter according to the user?
         # initial queryset (before filtering on `filter_fields`)
         queryset = Resource.objects.all()
         wfrun_uuid = self.request.QUERY_PARAMS.get('result_of_workflow_run', None)
@@ -114,3 +115,4 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Resource
     serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Resource.objects.all() # [TODO] filter according to the user?

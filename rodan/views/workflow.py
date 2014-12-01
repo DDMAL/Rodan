@@ -24,6 +24,7 @@ class WorkflowList(generics.ListCreateAPIView):
     permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
     filter_fields = ('project', )
+    queryset = Workflow.objects.all() # [TODO] filter according to the user?
 
     def post(self, request, *args, **kwargs):
         kwargs['partial'] = True
@@ -61,23 +62,9 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
       will be triggered.
     """
     model = Workflow
-
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
-
-    def put(self, request, pk, *args, **kwargs):
-        try:
-            workflow = Workflow.objects.get(pk=pk)
-        except Workflow.DoesNotExist:
-            return Response({'message': 'Workflow not found'}, status=status.HTTP_404_NOT_FOUND)
-        to_be_validated = request.DATA.get('valid', None)
-        if to_be_validated:
-            try:
-                self._validate(workflow)
-            except WorkflowValidationError as e:
-                return e.response
-
-        return self.update(request, *args, **kwargs)
+    queryset = Workflow.objects.all() # [TODO] filter according to the user?
 
     def patch(self, request, pk, *args, **kwargs):
         try:

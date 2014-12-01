@@ -15,6 +15,7 @@ class OutputList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = OutputListSerializer
     filter_fields = ('run_job', )
+    queryset = Output.objects.all() # [TODO] restrict to the user's outputs?
 
 
 class OutputDetail(generics.RetrieveAPIView):
@@ -24,3 +25,4 @@ class OutputDetail(generics.RetrieveAPIView):
     model = Output
     serializer_class = OutputSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Output.objects.all() # [TODO] restrict to the user's outputs?
