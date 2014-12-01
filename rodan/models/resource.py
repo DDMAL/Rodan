@@ -6,6 +6,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
+from django.core.exceptions import ObjectDoesNotExist
+import logging
+logger = logging.getLogger('rodan')
 
 def upload_path(resource_obj, filename):
     # user-uploaded file -- keep original extension
@@ -128,10 +131,13 @@ class Resource(models.Model):
         if os.path.exists(self.resource_path):
             shutil.rmtree(self.resource_path)
         for ra in self.resource_assignments.all():
-            wf = ra.input_port.workflow_job.workflow
-            if wf.valid:
-                wf.valid = False
-                wf.save(update_fields=['valid'])
+            try:
+                wf = ra.input_port.workflow_job.workflow
+                if wf.valid:
+                    wf.valid = False
+                    wf.save(update_fields=['valid'])
+            except ObjectDoesNotExist:
+                logger.warning("[models.resource.delete] There is an integrity problem within the database.")
         super(Resource, self).delete(*args, **kwargs)
 
     @property
