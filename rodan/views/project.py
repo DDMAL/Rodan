@@ -22,10 +22,8 @@ class ProjectList(generics.ListCreateAPIView):
         queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')
         return queryset
 
-    def create(self, request, *a, **k):  # [TODO] ugly
-        user_obj = UserSerializer(request.user, context={'request': request}).data
-        request.DATA['creator'] = user_obj['url']
-        return super(ProjectList, self).create(request, *a, **k)
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
