@@ -25,31 +25,6 @@ class ConnectionList(generics.ListCreateAPIView):
     queryset = Connection.objects.all()  # [TODO] restrict to the users connections?
 
 
-    def postaaaaaa(self, request, *args, **kwargs):
-        input_port = request.DATA.get('input_port', None)
-        output_port = request.DATA.get('output_port', None)
-
-        try:
-            ip_obj = resolve_to_object(input_port, InputPort)
-        except AttributeError:
-            return Response({'message': "Please specify an input port"}, status=status.HTTP_400_BAD_REQUEST)
-        except Resolver404:
-            return Response({'message': "Problem resolving input port object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except InputPort.DoesNotExist:
-            return Response({'message': "No input port with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            op_obj = resolve_to_object(output_port, OutputPort)
-        except AttributeError:
-            return Response({'message': "Please specify an output port"}, status=status.HTTP_400_BAD_REQUEST)
-        except Resolver404:
-            return Response({'message': "Problem resolving output port object"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except OutputPort.DoesNotExist:
-            return Response({'message': "No output port with the specified uuid exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return self.create(request, *args, **kwargs)
-
-
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Perform operations on a single Connection instance.
