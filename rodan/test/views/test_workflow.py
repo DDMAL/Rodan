@@ -30,7 +30,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_view__workflow_notfound(self):
         response = self._validate(uuid.uuid1().hex)
-        anticipated_message = {'message': 'Workflow not found'}
+        anticipated_message = {'detail': 'Not found'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     def test_view__posting_valid(self):
@@ -40,7 +40,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             'valid': True,
         }
         response = self.client.post("/workflows/", workflow_obj, format='json')
-        anticipated_message = {'message': "You can't POST a valid workflow - it must be validated through a PATCH request"}
+        anticipated_message = {'valid': ["You can't create a valid workflow - it must be validated through a PATCH request."]}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_view__post(self):
@@ -67,7 +67,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_workflowjob__no_output(self):
         self.test_workflowjob2.output_ports.all().delete()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The WorkflowJob {0} has no OutputPorts'.format(self.test_workflowjob2.uuid)}
+        anticipated_message = {'detail': 'The WorkflowJob {0} has no OutputPorts'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_workflowjob__inputport_number_not_satisfy(self):
@@ -76,7 +76,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    input_port__workflow_job=self.test_workflowjob2,
                    input_port__input_port_type=self.test_inputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
+        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_workflowjob__outputport_number_not_satisfy(self):
@@ -86,7 +86,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    input_port__workflow_job=self.test_workflowjob2,
                    input_port__input_port_type=self.test_inputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_workflowjob__settings_not_satisfy(self):
@@ -102,7 +102,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ra.resources.add(self.test_resources[0])
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(new_ip.uuid)}
+        anticipated_message = {'detail': 'InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(new_ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_input__multiple_resourceassignments(self):
@@ -111,7 +111,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                          input_port=ip)
         ra2.resources.add(*self.test_resources)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        anticipated_message = {'detail': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_input__multiple_connections(self):
@@ -120,7 +120,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    output_port=self.test_workflowjob.output_ports.all()[0],
                    input_port=ip)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        anticipated_message = {'detail': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_input__resourceassignment_and_connection(self):
@@ -129,7 +129,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                          input_port=ip)
         ra.resources.add(*self.test_resources)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
+        anticipated_message = {'detail': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_input__more_than_maximum(self):
@@ -141,7 +141,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             input_port=ip)
             ra.resources.add(self.test_resources[0])
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_input__fewer_than_minimum(self):
@@ -149,7 +149,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ip.resource_assignments.all().delete()
         ip.delete()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
 
@@ -161,7 +161,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             output_port_type=new_opt)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(new_op.uuid)}
+        anticipated_message = {'detail': 'OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(new_op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_output__more_than_maximum(self):
@@ -170,7 +170,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             workflow_job=self.test_workflowjob,
                             output_port_type=self.test_outputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_output__fewer_than_minimum(self):
@@ -179,8 +179,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                           minimum=1,
                           job=self.test_job)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message1 = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
-        anticipated_message2 = {'message': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
+        anticipated_message1 = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
+        anticipated_message2 = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
 
@@ -198,7 +198,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                           output_port=op,
                           input_port=new_ip)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(conn.output_port.uuid, conn.input_port.uuid)}
+        anticipated_message = {'detail': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(conn.output_port.uuid, conn.input_port.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
 
@@ -210,7 +210,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The resource {0} is not in the project'.format(resource.uuid)}
+        anticipated_message = {'detail': 'The resource {0} is not in the project'.format(resource.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__resource_null_compat_resource_file(self):
@@ -219,14 +219,14 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.add(resource)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The compatible resource file of resource {0} is not ready'.format(resource.uuid)}
+        anticipated_message = {'detail': 'The compatible resource file of resource {0} is not ready'.format(resource.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__no_resources(self):
         ra = self.test_workflowjob.input_ports.all()[0].resource_assignments.all()[0]
         ra.resources.clear()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'No resource assigned by ResourceAssignment {0}'.format(ra.uuid)}
+        anticipated_message = {'detail': 'No resource assigned by ResourceAssignment {0}'.format(ra.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_resourceassignment__resource_type_not_agree(self):
@@ -239,7 +239,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ra.input_port.uuid)}
+        anticipated_message = {'detail': 'The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ra.input_port.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
 
@@ -250,14 +250,14 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         test_resourceassignment2.resources.add(*self.test_resources)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'Multiple resource assignment collections found'}
+        anticipated_message = {'detail': 'Multiple resource assignment collections found'}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
 
     def test_graph__empty(self):
         test_workflow_no_jobs = mommy.make('rodan.Workflow', project=self.test_project)
         response = self._validate(test_workflow_no_jobs.uuid)
-        anticipated_message = {'message': 'No WorkflowJobs in Workflow'}
+        anticipated_message = {'detail': 'No WorkflowJobs in Workflow'}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_graph__not_connected(self):
@@ -285,7 +285,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                                  output_port_type=self.test_outputporttype)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'Workflow is not connected'}
+        anticipated_message = {'detail': 'Workflow is not connected'}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_graph__loop(self):
@@ -296,7 +296,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    output_port__workflow_job=self.test_workflowjob2)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'message': 'There appears to be a loop in the workflow'}
+        anticipated_message = {'detail': 'There appears to be a loop in the workflow'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
     def test_graph__merging_workflow(self):
