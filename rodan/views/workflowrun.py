@@ -57,10 +57,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         wfrun_status = serializer.validated_data.get('status', WorkflowRunStatus.IN_PROGRESS)
         if wfrun_status != WorkflowRunStatus.IN_PROGRESS:
-            raise ValidationError({'status': "Cannot create a cancelled, failed or finished WorkflowRun"})
+            raise ValidationError({'status': ["Cannot create a cancelled, failed or finished WorkflowRun."]})
         wf = serializer.validated_data['workflow']
         if not wf.valid:
-            raise ValidationError({'workflow': "Workflow must be valid before you can run it"})
+            raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
 
         wfrun = serializer.save(creator=self.request.user)
         wfrun_id = str(wfrun.uuid)
@@ -275,7 +275,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
 
             runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED, ready_for_input=False)
         elif new_status is not None:
-            raise ValidationError({'status': "Invalid status update"})
+            raise ValidationError({'status': ["Invalid status update"]})
 
         serializer.save()
 

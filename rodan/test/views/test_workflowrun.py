@@ -56,6 +56,43 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_post_status(self):
+        anticipated_message = {'status': ['Cannot create a cancelled, failed or finished WorkflowRun.']}
+        workflowrun_obj = {
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': WorkflowRunStatus.CANCELLED,
+        }
+
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        workflowrun_obj['status'] = WorkflowRunStatus.HAS_FINISHED
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        workflowrun_obj['status'] = WorkflowRunStatus.FAILED
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_invalid_workflow(self):
+        self.test_workflow.valid = False
+        self.test_workflow.save()
+        workflowrun_obj = {
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': WorkflowRunStatus.IN_PROGRESS,
+        }
+
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'workflow': ["Workflow must be valid before you can run it."]}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_patch_not_found(self):
         workflowrun_update = {'status': WorkflowRunStatus.CANCELLED}
         response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
@@ -81,6 +118,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': WorkflowRunStatus.IN_PROGRESS
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -173,7 +211,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
         workflowrun_update = {'status': WorkflowRunStatus.IN_PROGRESS}
         response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format='json')
-        anticipated_message = {"status": "Invalid status update"}
+        anticipated_message = {"status": ["Invalid status update"]}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, WorkflowRunStatus.CANCELLED)
