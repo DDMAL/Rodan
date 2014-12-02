@@ -1,5 +1,8 @@
-from gamera.core import init_gamera
-init_gamera()
+try:
+    from gamera.core import init_gamera
+    init_gamera()
+except ImportError as e:
+    pass
 
 from rodan.jobs import module_loader
 from rodan.jobs.gamera.base import load_gamera_module
