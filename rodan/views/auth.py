@@ -12,15 +12,23 @@ from rodan.serializers.user import UserSerializer
 
 
 class SessionStatus(views.APIView):
+    permission_classes = ()
+
     """
     Return session status to see if the user is logged in or they need to authenticate.
     """
     def get(self, request, *args, **kwargs):
-        is_auth = request.user.is_authenticated()
+        is_auth = request.user.is_authenticated() or request.auth
         if is_auth:
+            token = ""
+            if request.auth:
+                token, created = Token.objects.get_or_create(user=request.user)
             obj = User.objects.get(pk=request.user.id)
-            serializer = UserSerializer(obj, context={'request': request})
-            return Response(serializer.data)
+            userinfo = UserSerializer(obj, context={'request': request})
+            data = dict(userinfo.data)
+            data['token'] = token.key
+
+            return Response(data)
         else:
             return Response({'detail': "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
 
