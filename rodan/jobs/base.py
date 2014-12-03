@@ -7,7 +7,7 @@ from rodan.models.workflowrun import WorkflowRunStatus
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
-from rodan.exception import CustomAPIException
+from rodan.exceptions import CustomAPIException
 from rest_framework import status
 
 import logging

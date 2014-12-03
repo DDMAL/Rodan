@@ -8,7 +8,7 @@ from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
-from rodan.exception import CustomAPIException
+from rodan.exceptions import CustomAPIException
 
 class WorkflowList(generics.ListCreateAPIView):
     """
