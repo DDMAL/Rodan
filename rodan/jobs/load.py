@@ -35,6 +35,7 @@ import rodan.jobs.helpers
 import rodan.jobs.master_task
 import rodan.helpers.resultspackagemanager
 
-import rodan.jobs.conversion
-import rodan.jobs.gamera
-import rodan.jobs.neon
+from rodan.jobs import module_loader
+module_loader('rodan.jobs.conversion')
+module_loader('rodan.jobs.gamera')
+module_loader('rodan.jobs.neon')
