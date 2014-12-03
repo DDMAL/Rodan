@@ -9,11 +9,11 @@ from rest_framework.exceptions import ValidationError
 from django.core.urlresolvers import Resolver404
 from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import Project, Output, Resource, ResourceType
-from rodan.models.resource import ResourceProcessingStatus
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 from django.db.models import Q
+from rodan.constants import task_status
 
 
 class ResourceList(generics.ListCreateAPIView):
@@ -61,7 +61,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         initial_data = {
             'resource_type': ResourceTypeSerializer(ResourceType.cached('application/octet-stream'), context={'request': request}).data['url'],
-            'processing_status': ResourceProcessingStatus.WAITING
+            'processing_status': task_status.SCHEDULED
         }
         if 'project' in request.data:
             initial_data['project'] = request.data['project']

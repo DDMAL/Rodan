@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
-from rodan.models.runjob import RunJobStatus
 from rodan.jobs.master_task import master_task
+from rodan.constants import task_status
 
 
 class InteractiveView(APIView):
@@ -46,7 +46,7 @@ class InteractiveView(APIView):
             raise e
 
         runjob.ready_for_input = False
-        runjob.status = RunJobStatus.HAS_FINISHED
+        runjob.status = task_status.FINISHED
         runjob.error_summary = ''
         runjob.error_details = ''
         runjob.save()

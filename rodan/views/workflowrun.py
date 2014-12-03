@@ -15,8 +15,7 @@ from rest_framework.exceptions import ValidationError
 from rodan.models.workflow import Workflow
 from rodan.models.runjob import RunJob
 from rodan.models.workflowjob import WorkflowJob
-from rodan.models.workflowrun import WorkflowRun, WorkflowRunStatus
-from rodan.models.runjob import RunJobStatus
+from rodan.models.workflowrun import WorkflowRun
 from rodan.models.connection import Connection
 from rodan.models.resourceassignment import ResourceAssignment
 from rodan.models.resource import Resource
@@ -29,7 +28,7 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPa
 from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
 from rodan.jobs.master_task import master_task
-
+from rodan.constants import task_status
 
 class WorkflowRunList(generics.ListCreateAPIView):
     """
@@ -55,8 +54,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
     queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
-        wfrun_status = serializer.validated_data.get('status', WorkflowRunStatus.IN_PROGRESS)
-        if wfrun_status != WorkflowRunStatus.IN_PROGRESS:
+        wfrun_status = serializer.validated_data.get('status', task_status.PROCESSING)
+        if wfrun_status != task_status.PROCESSING:
             raise ValidationError({'status': ["Cannot create a cancelled, failed or finished WorkflowRun."]})
         wf = serializer.validated_data['workflow']
         if not wf.valid:
@@ -265,15 +264,15 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
         old_status = WorkflowRun.objects.filter(uuid=wfrun_id).values_list('status', flat=True)[0]
         new_status = serializer.validated_data.get('status', None)
 
-        if old_status == WorkflowRunStatus.IN_PROGRESS and new_status == WorkflowRunStatus.CANCELLED:
-            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun_id, status__in=(RunJobStatus.NOT_RUNNING, RunJobStatus.RUNNING))
+        if old_status == task_status.PROCESSING and new_status == task_status.CANCELLED:
+            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun_id, status__in=(task_status.SCHEDULED, task_status.PROCESSING))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
             for celery_id in runjobs_to_revoke_celery_id:
                 if celery_id is not None:
                     revoke(celery_id, terminate=True)
 
-            runjobs_to_revoke_query.update(status=RunJobStatus.CANCELLED, ready_for_input=False)
+            runjobs_to_revoke_query.update(status=task_status.CANCELLED, ready_for_input=False)
         elif new_status is not None:
             raise ValidationError({'status': ["Invalid status update"]})
 
@@ -296,7 +295,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
         shutil.copytree(source, destination)
 
     def _handle_deleted_pages(self, runjobs, pages):
-        unfinished_runjobs = runjobs.exclude(status=RunJobStatus.HAS_FINISHED)
+        unfinished_runjobs = runjobs.exclude(status=task_status.FINISHED)
         for rj in unfinished_runjobs:
             if rj.page not in pages:
                 rj.error_summary = "Page Deleted"

@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
+from rodan.constants import task_status
+
 import logging
 logger = logging.getLogger('rodan')
 
@@ -22,13 +24,6 @@ def compat_path(resource_obj, filename):
     if ext:
         ext = '.{0}'.format(ext)
     return os.path.join(resource_obj.resource_path, "compat_file{0}".format(ext))
-
-class ResourceProcessingStatus(object):
-    WAITING = 0
-    RUNNING = 1
-    HAS_FINISHED = 4
-    FAILED = -1
-    NOT_APPLICABLE = None
 
 class Resource(models.Model):
     """
@@ -88,10 +83,11 @@ class Resource(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    STATUS_CHOICES = [(ResourceProcessingStatus.WAITING, "Waiting to be processed"),
-                      (ResourceProcessingStatus.RUNNING, "Running"),
-                      (ResourceProcessingStatus.HAS_FINISHED, "Has finished"),
-                      (ResourceProcessingStatus.FAILED, "Failed")]
+    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
+                      (task_status.PROCESSING, "Processing"),
+                      (task_status.FINISHED, "Finished"),
+                      (task_status.FAILED, "Failed"),
+                      (task_status.NOT_APPLICABLE, "Not applicable")]
 
     @property
     def resource_path(self):

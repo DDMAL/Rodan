@@ -7,7 +7,7 @@ from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
 from rodan.models import Resource, ResourceType
-from rodan.models.resource import ResourceProcessingStatus
+from rodan.constants import task_status
 from celery import Task
 from rodan.jobs.base import RodanAutomaticTask
 
@@ -16,7 +16,7 @@ class ensure_compatible(Task):
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
-        resource_query.update(processing_status=ResourceProcessingStatus.RUNNING)
+        resource_query.update(processing_status=task_status.PROCESSING)
         resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
 
         if not claimed_mimetype:
@@ -38,7 +38,7 @@ class ensure_compatible(Task):
         }]}
 
         self._task_instance = None
-        new_processing_status = ResourceProcessingStatus.HAS_FINISHED
+        new_processing_status = task_status.FINISHED
 
         if mimetype.startswith('image'):
             from rodan.jobs.conversion.to_png import to_png
@@ -48,7 +48,7 @@ class ensure_compatible(Task):
         else:
             shutil.copy(infile_path, tmpfile)
             resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
-            new_processing_status = ResourceProcessingStatus.NOT_APPLICABLE
+            new_processing_status = task_status.NOT_APPLICABLE
 
         with open(tmpfile, 'rb') as f:
             resource_object = resource_query[0]
@@ -64,7 +64,7 @@ class ensure_compatible(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         resource_id = args[0]
         update = self._task_instance._add_error_information_to_runjob(exc, einfo)
-        update['processing_status'] = ResourceProcessingStatus.FAILED
+        update['processing_status'] = task_status.FAILED
         Resource.objects.filter(pk=resource_id).update(**update)
         shutil.rmtree(self._tmpdir)
         del self._tmpdir

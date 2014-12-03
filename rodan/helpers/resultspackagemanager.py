@@ -1,6 +1,6 @@
 import os
 import shutil
-from rodan.models.runjob import RunJobStatus
+from rodan.constants import task_status
 from rodan.models.resultspackage import ResultsPackage, ResultsPackageStatus
 from pybagit.bagit import BagIt
 from rodan.helpers.exceptions import BagNotValidError
@@ -14,7 +14,7 @@ def _add_result_to_bag(page_dir, runjob, bag):
     short_job_name = runjob.job_name.split('.')[-1]  # get the last part of job name
     runjob_dir = os.path.join(page_dir, "%s_%s" % (runjob.sequence, short_job_name))
 
-    if runjob.status == RunJobStatus.HAS_FINISHED:
+    if runjob.status == task_status.FINISHED:
         os.makedirs(runjob_dir)
         result_extenstion = os.path.splitext(runjob.result.get().result.path)[1]
         result_filename = "result" + result_extenstion  # use filename with proper extenstion
@@ -22,7 +22,7 @@ def _add_result_to_bag(page_dir, runjob, bag):
             with open(os.path.join(runjob_dir, result_filename), 'wb') as newf:
                 newf.write(f.read())
 
-    elif runjob.status == RunJobStatus.FAILED:
+    elif runjob.status == task_status.FAILED:
         os.makedirs(runjob_dir)
         with open(os.path.join(runjob_dir, 'error.txt'), 'w') as f:
             f.write("Error Summary: ")
@@ -50,7 +50,7 @@ class PackageResultTask(Task):
 
     def run(self, package_id, *args, **kwargs):
         resultspackage = ResultsPackage.objects.get(pk=package_id)
-        if resultspackage.status == RunJobStatus.CANCELLED:
+        if resultspackage.status == task_status.CANCELLED:
             return
 
         resultspackage.status = ResultsPackageStatus.PROCESSING

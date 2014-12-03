@@ -4,9 +4,8 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 
-from rodan.models.workflowrun import WorkflowRun, WorkflowRunStatus
+from rodan.models.workflowrun import WorkflowRun
 from rodan.models.workflow import Workflow
-from rodan.models.runjob import RunJobStatus
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.inputport import InputPort
 from rodan.models.inputporttype import InputPortType
@@ -21,6 +20,7 @@ from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 from django.core.files.base import ContentFile
 from rodan.models.resource import upload_path
+from rodan.constants import task_status
 
 class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -61,19 +61,19 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': WorkflowRunStatus.CANCELLED,
+            'status': task_status.CANCELLED,
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        workflowrun_obj['status'] = WorkflowRunStatus.HAS_FINISHED
+        workflowrun_obj['status'] = task_status.FINISHED
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        workflowrun_obj['status'] = WorkflowRunStatus.FAILED
+        workflowrun_obj['status'] = task_status.FAILED
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -84,7 +84,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': WorkflowRunStatus.IN_PROGRESS,
+            'status': task_status.PROCESSING
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -94,7 +94,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
 
     def test_patch_not_found(self):
-        workflowrun_update = {'status': WorkflowRunStatus.CANCELLED}
+        workflowrun_update = {'status': task_status.CANCELLED}
         response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
         anticipated_message = {'detail': 'Not found'}
         self.assertEqual(anticipated_message, response.data)
@@ -118,7 +118,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': WorkflowRunStatus.IN_PROGRESS
+            'status': task_status.PROCESSING
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -128,10 +128,10 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
         # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
-        self.assertEqual(dummy_a_runjob.status, RunJobStatus.HAS_FINISHED)
-        self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+        self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
+        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
         self.assertEqual(dummy_m_runjob.ready_for_input, True)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.IN_PROGRESS)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
         user_input = {'foo': 'bar'}
         response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
@@ -141,8 +141,8 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         with open(dummy_m_runjob.outputs.first().resource.compat_resource_file.path) as f:
             self.assertEqual(json.load(f), user_input)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
-        self.assertEqual(dummy_m_runjob.status, RunJobStatus.HAS_FINISHED)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.HAS_FINISHED)
+        self.assertEqual(dummy_m_runjob.status, task_status.FINISHED)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)
 
     def test_automatic_job_fail(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
@@ -160,11 +160,11 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
             # At this point, the automatic RunJob should fail, and the manual RunJob should not accept input
-            self.assertEqual(dummy_a_runjob.status, RunJobStatus.FAILED)
+            self.assertEqual(dummy_a_runjob.status, task_status.FAILED)
             self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
-            self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
             self.assertEqual(dummy_m_runjob.ready_for_input, False)
-            self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.FAILED)
+            self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FAILED)
 
     def test_manual_job_rejected(self):
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
@@ -181,16 +181,16 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
         # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
-        self.assertEqual(dummy_a_runjob.status, RunJobStatus.HAS_FINISHED)
-        self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
+        self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
+        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
         self.assertEqual(dummy_m_runjob.ready_for_input, True)
 
         user_input = {'fail': 'hahaha'}
         response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
-        self.assertEqual(dummy_m_runjob.status, RunJobStatus.NOT_RUNNING)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.IN_PROGRESS)
+        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
 
     def test_cancel(self):
@@ -203,24 +203,24 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_uuid = response.data['uuid']
 
-        response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), {'status': WorkflowRunStatus.CANCELLED}, format='json')
+        response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), {'status': task_status.CANCELLED}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
-        self.assertEqual(dummy_m_runjob.status, RunJobStatus.CANCELLED)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, WorkflowRunStatus.CANCELLED)
+        self.assertEqual(dummy_m_runjob.status, task_status.CANCELLED)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, task_status.CANCELLED)
 
-        workflowrun_update = {'status': WorkflowRunStatus.IN_PROGRESS}
+        workflowrun_update = {'status': task_status.PROCESSING}
         response = self.client.patch("/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format='json')
         anticipated_message = {"status": ["Invalid status update"]}
         self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, WorkflowRunStatus.CANCELLED)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, task_status.CANCELLED)
 
     def test_post_cancelled(self):
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': WorkflowRunStatus.CANCELLED
+            'status': task_status.CANCELLED
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -339,7 +339,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjFi in rjFs:
             self.assertFalse(rjEi.ready_for_input)
 
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.IN_PROGRESS)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
 
     def test_execution(self):
@@ -377,16 +377,16 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Fins = self.test_Eip1.inputs.all()
 
 
-        self.assertEqual(rjA.status, RunJobStatus.HAS_FINISHED)
-        self.assertEqual(rjB.status, RunJobStatus.NOT_RUNNING)
+        self.assertEqual(rjA.status, task_status.FINISHED)
+        self.assertEqual(rjB.status, task_status.SCHEDULED)
         self.assertEqual(rjB.ready_for_input, True)
-        self.assertEqual(rjC.status, RunJobStatus.NOT_RUNNING)
+        self.assertEqual(rjC.status, task_status.SCHEDULED)
         for rjDi in rjDs:
-            self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjDi.status, task_status.SCHEDULED)
         for rjEi in rjEs:
-            self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjEi.status, task_status.SCHEDULED)
         for rjFi in rjFs:
-            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
         self.assertTrue(Aout.resource.compat_resource_file)
         self.assertFalse(Bout.resource.compat_resource_file)
@@ -430,15 +430,15 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Ein2s = self.test_Eip2.inputs.all()
         Fins = self.test_Fip.inputs.all()
 
-        self.assertEqual(rjB.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(rjB.status, task_status.FINISHED)
         self.assertEqual(rjB.ready_for_input, False)
-        self.assertEqual(rjC.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(rjC.status, task_status.FINISHED)
         for rjDi in rjDs:
-            self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjDi.status, task_status.SCHEDULED)
         for rjEi in rjEs:
-            self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjEi.status, task_status.SCHEDULED)
         for rjFi in rjFs:
-            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
         self.assertTrue(Bout.resource.compat_resource_file)
         self.assertTrue(Cout1.resource.compat_resource_file)
@@ -489,12 +489,12 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Eout0 = rjE0.outputs.get(output_port__output_port_type__name='out_typeA')
         rjF0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
         Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeA')
-        self.assertEqual(rjD0.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(rjD0.status, task_status.FINISHED)
         self.assertEqual(rjD0.ready_for_input, False)
         self.assertTrue(Dout0.resource.compat_resource_file)
-        self.assertEqual(rjE0.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(rjE0.status, task_status.FINISHED)
         self.assertTrue(Eout0.resource.compat_resource_file)
-        self.assertEqual(rjF0.status, RunJobStatus.HAS_FINISHED)
+        self.assertEqual(rjF0.status, task_status.FINISHED)
         self.assertTrue(Fout0.resource.compat_resource_file)
 
         for rjDi in rjDremain:
@@ -503,15 +503,15 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Eouti = rjEi.outputs.get(output_port__output_port_type__name='out_typeA')
             rjFi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
             Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeA')
-            self.assertEqual(rjDi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjDi.status, task_status.SCHEDULED)
             self.assertEqual(rjDi.ready_for_input, True)
             self.assertFalse(Douti.resource.compat_resource_file)
-            self.assertEqual(rjEi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjEi.status, task_status.SCHEDULED)
             self.assertFalse(Eouti.resource.compat_resource_file)
-            self.assertEqual(rjFi.status, RunJobStatus.NOT_RUNNING)
+            self.assertEqual(rjFi.status, task_status.SCHEDULED)
             self.assertFalse(Fouti.resource.compat_resource_file)
 
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.IN_PROGRESS)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
         # Work with all Runjob Ds
         for rjDi in rjDremain:
@@ -545,17 +545,17 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Fins = self.test_Fip.inputs.all()
 
         for rjDi in rjDs:
-            self.assertEqual(rjDi.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjDi.status, task_status.FINISHED)
             self.assertEqual(rjDi.ready_for_input, False)
         for Douti in Douts:
             self.assertTrue(Douti.resource.compat_resource_file)
         for rjEi in rjEs:
-            self.assertEqual(rjEi.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjEi.status, task_status.FINISHED)
         for Eouti in Eouts:
             self.assertTrue(Eouti.resource.compat_resource_file)
         for rjFi in rjFs:
-            self.assertEqual(rjFi.status, RunJobStatus.HAS_FINISHED)
+            self.assertEqual(rjFi.status, task_status.FINISHED)
         for Fouti in Fouts:
             self.assertTrue(Fouti.resource.compat_resource_file)
 
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, WorkflowRunStatus.HAS_FINISHED)
+        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)

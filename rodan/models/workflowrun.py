@@ -1,12 +1,7 @@
 import os
 from django.db import models
 from uuidfield import UUIDField
-
-class WorkflowRunStatus:
-    IN_PROGRESS = 0
-    HAS_FINISHED = 1
-    FAILED = -1
-    CANCELLED = 9
+from rodan.constants import task_status
 
 class WorkflowRun(models.Model):
     """
@@ -29,10 +24,10 @@ class WorkflowRun(models.Model):
     - `workflow_run_path` [TODO]
     - `retry_backup_directory` [TODO]
     """
-    STATUS_CHOICES = [(WorkflowRunStatus.IN_PROGRESS, "In progress"),
-                      (WorkflowRunStatus.HAS_FINISHED, "Has finished"),
-                      (WorkflowRunStatus.FAILED, "Failed, ZOMG"),
-                      (WorkflowRunStatus.CANCELLED, "Cancelled")]
+    STATUS_CHOICES = [(task_status.PROCESSING, "Processing"),
+                      (task_status.FINISHED, "Finished"),
+                      (task_status.FAILED, "Failed, ZOMG"),
+                      (task_status.CANCELLED, "Cancelled")]
     @property
     def workflow_run_path(self):
         return os.path.join(self.workflow.workflow_path, "runs", str(self.pk))
@@ -44,7 +39,7 @@ class WorkflowRun(models.Model):
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs")
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
     test_run = models.BooleanField(default=False)  # [TODO]
-    status = models.IntegerField(choices=STATUS_CHOICES, default=WorkflowRunStatus.IN_PROGRESS)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.PROCESSING)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

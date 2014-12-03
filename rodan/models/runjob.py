@@ -7,17 +7,7 @@ from uuidfield import UUIDField
 from rodan.models.resource import Resource
 from rodan.models.input import Input
 from rodan.models.output import Output
-
-
-class RunJobStatus(object):
-    NOT_RUNNING = 0
-    RUNNING = 1
-    WAITING_FOR_INPUT = 2 # [TODO] deprecated
-    RUN_ONCE_WAITING = 3 # [TODO] deprecated
-    HAS_FINISHED = 4
-    FAILED = -1
-    CANCELLED = 9
-
+from rodan.constants import task_status
 
 class RunJob(models.Model):
     """
@@ -51,11 +41,11 @@ class RunJob(models.Model):
     - `interactive` -- the relative URL of interactive interface of the RunJob that
       needs user input.
     """
-    STATUS_CHOICES = [(RunJobStatus.NOT_RUNNING, "Not Running"),
-                      (RunJobStatus.RUNNING, "Running"),
-                      (RunJobStatus.HAS_FINISHED, "Has finished"),
-                      (RunJobStatus.FAILED, "Failed, ZOMG"),
-                      (RunJobStatus.CANCELLED, "Cancelled")]
+    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
+                      (task_status.PROCESSING, "Processing"),
+                      (task_status.FINISHED, "Finished"),
+                      (task_status.FAILED, "Failed, ZOMG"),
+                      (task_status.CANCELLED, "Cancelled")]
 
     class Meta:
         app_label = 'rodan'

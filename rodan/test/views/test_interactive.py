@@ -4,7 +4,7 @@ from rest_framework import status
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Resource, Job, ResourceType
-from rodan.models.workflowrun import WorkflowRunStatus
+from rodan.constants import task_status
 from django.core.files.base import ContentFile
 
 class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -28,7 +28,7 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                       workflow_job__workflow=self.test_workflow,
                                       workflow_job__job=dummy_m_job,
                                       ready_for_input=True,
-                                      workflow_run__status=WorkflowRunStatus.IN_PROGRESS,
+                                      workflow_run__status=task_status.PROCESSING,
                                       workflow_run__workflow=self.test_workflow)
         input_m = mommy.make('rodan.Input',
                              run_job=self.test_runjob,

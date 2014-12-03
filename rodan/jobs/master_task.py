@@ -1,7 +1,6 @@
 from celery import registry, task, chord
 from rodan.models import RunJob, Resource, WorkflowRun
-from rodan.models.runjob import RunJobStatus
-from rodan.models.workflowrun import WorkflowRunStatus
+from rodan.constants import task_status
 from django.db.models import Q
 
 # Read more on Django queries: https://docs.djangoproject.com/en/dev/topics/db/queries/
@@ -13,7 +12,7 @@ def master_task(workflow_run_id):
     # set interactive runjobs ready for input
     RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
-        & Q(status=RunJobStatus.NOT_RUNNING)
+        & Q(status=task_status.SCHEDULED)
         & Q(workflow_job__job__interactive=True)
         & Q(ready_for_input=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
@@ -24,7 +23,7 @@ def master_task(workflow_run_id):
     # find runable runjobs
     runable_runjobs_query = RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
-        & Q(status=RunJobStatus.NOT_RUNNING)
+        & Q(status=task_status.SCHEDULED)
         & Q(workflow_job__job__interactive=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
@@ -38,13 +37,13 @@ def master_task(workflow_run_id):
             uuid_set.add(rj_value['uuid'])
 
     if len(runable_runjobs) == 0:
-        if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=RunJobStatus.HAS_FINISHED)).exists():
+        if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=task_status.FINISHED)).exists():
             # WorkflowRun has finished!
-            WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=WorkflowRunStatus.HAS_FINISHED)
+            WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=task_status.FINISHED)
         return False
     else:
         task_group = []
-        runable_runjobs_query.update(status=RunJobStatus.RUNNING)  # in test, tasks are executed synchronously, therefore update the status before dispatching the task
+        runable_runjobs_query.update(status=task_status.PROCESSING)  # in test, tasks are executed synchronously, therefore update the status before dispatching the task
         for rj_value in runable_runjobs:
             task = registry.tasks[str(rj_value['workflow_job__job__job_name'])]
             runjob_id = str(rj_value['uuid'])
