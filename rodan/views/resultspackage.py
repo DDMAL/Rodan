@@ -10,6 +10,7 @@ from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPa
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
 from rodan.jobs.helpers import package_results
+from rodan.exceptions import CustomAPIError
 
 
 class ResultsPackageList(generics.ListCreateAPIView):
@@ -40,11 +41,29 @@ class ResultsPackageList(generics.ListCreateAPIView):
         package_task.apply_async((rp_id, True)) # TODO
 
 
-class ResultsPackageDetail(generics.RetrieveAPIView):
+class ResultsPackageDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieve a single ResultsPackage instance.
+    Perform operations on a single ResultsPackage instance.
     """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageSerializer
     queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
+
+    def perform_update(self, serializer):
+        rp_id = serializer.data['uuid']
+        rp = ResultsPackage.objects.get(uuid=rp_id)
+        old_status = rp.status
+        new_status = serializer.validated_data.get('status', None)
+
+        if old_status in (task_status.SCHEDULED, task_status.PROCESSING) and new_status == task_status.CANCELLED:
+            revoke(rp.celery_task_id, terminate=True)
+        elif new_status is not None:
+            raise ValidationError({'status': ["Invalid status update"]})
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.status in (task_status.SCHEDULED, task_status.PROCESSING):
+            raise CustomAPIError("Please cancel the processing of this package before deleting.", status=status.HTTP_400_BAD_REQUEST)
+        instance.delete()
