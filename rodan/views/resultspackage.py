@@ -10,7 +10,7 @@ from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPa
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
 from rodan.jobs.helpers import package_results
-from rodan.exceptions import CustomAPIError
+from rodan.exceptions import CustomAPIException
 
 
 class ResultsPackageList(generics.ListCreateAPIView):
@@ -65,5 +65,5 @@ class ResultsPackageDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         if instance.status in (task_status.SCHEDULED, task_status.PROCESSING):
-            raise CustomAPIError("Please cancel the processing of this package before deleting.", status=status.HTTP_400_BAD_REQUEST)
+            raise CustomAPIException("Please cancel the processing of this package before deleting.", status=status.HTTP_400_BAD_REQUEST)
         instance.delete()
