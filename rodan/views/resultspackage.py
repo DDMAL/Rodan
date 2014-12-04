@@ -13,6 +13,18 @@ from rodan.jobs.helpers import package_results
 
 
 class ResultsPackageList(generics.ListCreateAPIView):
+    """
+    Returns a list of all ResultsPackages. Accepts a POST request with a data body to
+    create a new ResultsPackage. POST requests will return the newly-created
+    ResultsPackage object.
+
+    Creating a new ResultsPackage instance starts the background packaging task.
+
+    #### Parameters
+    - `creator` -- GET-only. UUID of a User.
+    - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
+    - `output_ports` -- POST-only. Hyperlinks of OutputPorts.
+    """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageListSerializer
@@ -29,6 +41,9 @@ class ResultsPackageList(generics.ListCreateAPIView):
 
 
 class ResultsPackageDetail(generics.RetrieveAPIView):
+    """
+    Retrieve a single ResultsPackage instance.
+    """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageSerializer
