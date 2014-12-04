@@ -7,10 +7,28 @@ from rodan.constants import task_status
 
 class ResultsPackage(models.Model):
     """
-        A ResultsPackage contains a packaged files containing a subset of the results
-        produced by a WorkflowRun. It contains the download link to that file. A
-        ResultsPackage can be "ordered", and while it's being created, it shows its
-        progress in the status field.
+    A `ResultsPackage` contains a packaged files containing the produced results of a
+    subset of `Output`s in a `WorkflowRun`.
+
+    **Fields**
+
+    - `uuid`
+    - `status` -- an integer indicating the status of `ResultsPackage`.
+    - `percent_completed` -- an integer indicating the progress of packaging.
+    - `workflow_run` -- the reference to `WorkflowRun`.
+    - `output_ports` -- the `OutputPort`s selected in the `WorkflowRun`'s `Workflow`.
+    - `creator`
+    - `celery_task_id` -- the corresponding Celery task.
+    - `error_summary` -- summary of error when packaging fails.
+    - `error_details` -- details of error when packaging fails.
+    - `created`
+    - `updated`
+    - `expiry_time`
+
+    **Properties**
+
+    - `package_path` -- the local path of the package.
+    - `package_relurl` -- the relative URL of the package.
     """
 
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
@@ -33,7 +51,7 @@ class ResultsPackage(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    expiry_date = models.DateTimeField(blank=True, null=True)
+    expiry_time = models.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
         return u"<ResultsPackage {0}>".format(str(self.uuid))

@@ -18,9 +18,9 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
                   'error_details',
                   'created',
                   'updated',
-                  'expiry_date',
+                  'expiry_time',
                   'package_url')
-        read_only_fields = ('creator', )
+        read_only_fields = ('creator', 'percent_completed', 'error_summary', 'error_details')
 
 class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
     package_url = AbsoluteURLField(source="package_relurl", read_only=True)
@@ -38,6 +38,6 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'error_details',
                   'created',
                   'updated',
-                  'expiry_date',
+                  'expiry_time',
                   'package_url')
-        read_only_fields = ('creator', )
+        read_only_fields = ('creator', 'percent_completed', 'error_summary', 'error_details')
