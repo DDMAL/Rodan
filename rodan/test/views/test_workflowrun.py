@@ -36,9 +36,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_no_workflow_ID(self):
-        workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk)
-        }
+        workflowrun_obj = {}
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         anticipated_message = {'workflow': ['This field is required.']}
@@ -47,7 +45,6 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_post_no_existing_workflow(self):
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(uuid.uuid1()),
         }
 
@@ -59,7 +56,6 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
     def test_post_status(self):
         anticipated_message = {'status': ['Cannot create a cancelled, failed or finished WorkflowRun.']}
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'status': task_status.CANCELLED,
         }
@@ -82,7 +78,6 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_workflow.valid = False
         self.test_workflow.save()
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'status': task_status.PROCESSING
         }
@@ -115,13 +110,14 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'status': task_status.PROCESSING
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data['uuid']
+        wfrun = WorkflowRun.objects.get(uuid=wfrun_id)
+        self.assertEqual(wfrun.creator.pk, self.test_user.pk)
 
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -149,7 +145,6 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             workflowrun_obj = {
-                'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
                 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             }
 
@@ -173,7 +168,6 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -202,7 +196,6 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -224,7 +217,6 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_post_cancelled(self):
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'status': task_status.CANCELLED
         }
@@ -244,7 +236,6 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
     def test_creation(self):
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -350,7 +341,6 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
     def test_execution(self):
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
