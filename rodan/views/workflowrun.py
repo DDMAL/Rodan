@@ -25,10 +25,10 @@ from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
-from rodan.helpers.exceptions import WorkFlowTriedTooManyTimesError
 
 from rodan.jobs.master_task import master_task
 from rodan.constants import task_status
+from rodan.exceptions import CustomAPIException
 
 class WorkflowRunList(generics.ListCreateAPIView):
     """
@@ -289,7 +289,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                 dir_name = test_dir_name
                 break
         else:
-            raise WorkFlowTriedTooManyTimesError("You have tried this workflow 1000 times. Stop.")
+            raise CustomAPIException("You have tried this workflow 1000 times. Stop.")
 
         destination = os.path.join(wf_backup_dir, dir_name)
         shutil.copytree(source, destination)

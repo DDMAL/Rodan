@@ -6,8 +6,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from django.core.urlresolvers import Resolver404
-from rodan.helpers.object_resolving import resolve_to_object
+from django.core.urlresolvers import Resolver404, resolve
 from rodan.models import Project, Output, Resource, ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
@@ -54,7 +53,9 @@ class ResourceList(generics.ListCreateAPIView):
         if claimed_mimetype:
             try:
                 # try to see if user provide a url to ResourceType
-                restype_obj = resolve_to_object(claimed_mimetype, ResourceType)
+                match = resolve(claimed_mimetype)
+                restype_pk = match.kwargs.get('pk')
+                restype_obj = ResourceType.objects.get(pk=restype_pk)
                 claimed_mimetype = restype_obj.mimetype
             except (Resolver404, ResourceType.DoesNotExist):
                 pass

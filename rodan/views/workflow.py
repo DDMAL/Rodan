@@ -3,8 +3,6 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from django.core.urlresolvers import Resolver404
-from rodan.helpers.object_resolving import resolve_to_object
 from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
