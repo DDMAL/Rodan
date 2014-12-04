@@ -1,6 +1,6 @@
 from rodan.models.resultspackage import ResultsPackage
 from rest_framework import serializers
-from rodan.serializers.resource import AbsoluteURLField
+from rodan.serializers import AbsoluteURLField
 
 class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
     package_url = AbsoluteURLField(source="package_relurl", read_only=True)

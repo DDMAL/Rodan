@@ -1,6 +1,6 @@
 from rodan.models.runjob import RunJob
 from rest_framework import serializers
-from rodan.serializers.resource import AbsoluteURLField
+from rodan.serializers import AbsoluteURLField
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
