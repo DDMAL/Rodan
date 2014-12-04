@@ -123,17 +123,20 @@ class Resource(models.Model):
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
 
+        for ra in self.resource_assignments.all():
+            wf = ra.input_port.workflow_job.workflow
+            if wf.valid:
+                wf.valid = False
+                wf.save(update_fields=['valid'])
+
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):
             shutil.rmtree(self.resource_path)
         for ra in self.resource_assignments.all():
-            try:
-                wf = ra.input_port.workflow_job.workflow
-                if wf.valid:
-                    wf.valid = False
-                    wf.save(update_fields=['valid'])
-            except ObjectDoesNotExist:
-                logger.warning("[models.resource.delete] There is an integrity problem within the database.")
+            wf = ra.input_port.workflow_job.workflow
+            if wf.valid:
+                wf.valid = False
+                wf.save(update_fields=['valid'])
         super(Resource, self).delete(*args, **kwargs)
 
     @property
