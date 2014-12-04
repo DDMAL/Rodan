@@ -33,7 +33,6 @@ logger = logging.getLogger('rodan')
 logger.warning("Loading Rodan Jobs")
 import rodan.jobs.helpers
 import rodan.jobs.master_task
-import rodan.helpers.resultspackagemanager
 
 from rodan.jobs import module_loader
 module_loader('rodan.jobs.conversion')

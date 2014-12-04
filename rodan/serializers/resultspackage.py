@@ -1,36 +1,43 @@
 from rodan.models.resultspackage import ResultsPackage
 from rest_framework import serializers
-
+from rodan.serializers.resource import AbsoluteURLField
 
 class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
-    name = serializers.Field(source='bag_name')
+    package_url = AbsoluteURLField(source="package_relurl", read_only=True)
+
     class Meta:
         model = ResultsPackage
-        read_only_fields = ('created', 'status', 'percent_completed', 'download_url')
-        fields = ("url",
-                  "workflow_run_url",
-                  "name",
-                  "status",
-                  'percent_completed',
-                  "download_url",
-                  "job_urls",
-                  "creator",
-                  "created",
-                  "updated")
-
-
-class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
-    name = serializers.Field(source='bag_name')
-    class Meta:
-        model = ResultsPackage
-        read_only_fields = ('created', 'status', 'percent_completed', 'download_url')
         fields = ('url',
-                  'workflow_run_url',
-                  'name',
+                  'uuid',
                   'status',
                   'percent_completed',
-                  'download_url',
-                  'job_urls',
+                  'workflow_run',
+                  'output_ports',
                   'creator',
+                  'error_summary',
+                  'error_details',
                   'created',
-                  'updated')
+                  'updated',
+                  'expiry_date',
+                  'package_url')
+        read_only_fields = ('creator', )
+
+class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
+    package_url = AbsoluteURLField(source="package_relurl", read_only=True)
+
+    class Meta:
+        model = ResultsPackage
+        fields = ('url',
+                  'uuid',
+                  'status',
+                  'percent_completed',
+                  'workflow_run',
+                  'output_ports',
+                  'creator',
+                  'error_summary',
+                  'error_details',
+                  'created',
+                  'updated',
+                  'expiry_date',
+                  'package_url')
+        read_only_fields = ('creator', )

@@ -1,12 +1,14 @@
 import os
 import tempfile
 import shutil
+from pybagit.bagit import BagIt
 from celery import task
 from django.core.files import File
 from django.conf import settings
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource, ResourceType
+from rodan.models import Resource, ResourceType, ResultsPackage
+from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
 from rodan.jobs.base import RodanAutomaticTask
@@ -39,7 +41,7 @@ class ensure_compatible(Task):
 
         self._task_instance = None
         new_processing_status = task_status.FINISHED
-
+        # [TODO] write them into try..except..else..finally..
         if mimetype.startswith('image'):
             from rodan.jobs.conversion.to_png import to_png
             self._task_instance = to_png()
@@ -138,3 +140,71 @@ class resource_thru(RodanAutomaticTask):
         self.run_my_task(inputs, {}, outputs)
         with open(outputs['out'][0]['resource_path']) as g:
             testcase.assertEqual(g.read(), content)
+
+
+class package_results(Task):
+    name = "rodan.core.package_results"
+
+    def run(self, rp_id, include_failed_runjobs=False):
+        rp_query = ResultsPackage.objects.filter(uuid=rp_id)
+        rp_query.update(status=task_status.PROCESSING)
+        package_path = get_package_path(rp_id)
+
+        outputs = rp_query.values('output_ports__label',
+                                  'output_ports__workflow_job__uuid',
+                                  'output_ports__workflow_job__job__job_name',
+                                  'output_ports__outputs__resource__uuid',
+                                  'output_ports__outputs__resource__name',
+                                  'output_ports__outputs__resource__compat_resource_file',
+                                  'output_ports__outputs__run_job__status',
+                                  'output_ports__outputs__run_job__error_summary',
+                                  'output_ports__outputs__run_job__error_details')
+
+        tmp_dir = os.path.join(tempfile.mkdtemp(), 'new_folder')  # make sure it doesn't exist
+        bag = BagIt(tmp_dir)
+
+        if len(outputs) > 0:
+            percentage_increment = 70.00 / len(outputs)
+        completed = 0.0
+
+        for output in outputs:
+            wfj_name = output['output_ports__workflow_job__job__job_name'].split('.')[-1]
+            op_label = output['output_ports__label']
+            wfj_uuid = output['output_ports__workflow_job__uuid']
+            op_dir = os.path.join(tmp_dir, "{0}_{1}_{2}".format(wfj_name, op_label, wfj_uuid))
+
+            if not os.path.exists(op_dir):
+                os.makedirs(op_dir)
+
+            rj_status = output['output_ports__outputs__run_job__status']
+            if rj_status == task_status.FINISHED:
+                filepath = output['output_ports__outputs__resource__compat_resource_file']
+                ext = os.path.splitext(filepath)[1]
+                result_filename = "{0}_{1}{2}".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'], ext)
+                shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
+            elif include_failed_runjobs and rj.status == task_status.FAILED:
+                result_filename = "{0}_{1}.error.txt".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'])
+                with open(os.path.join(op_dir, result_filename), 'w') as f:
+                    f.write("Error Summary: ")
+                    f.write(output['output_ports__outputs__run_job__error_summary'])
+                    f.write("\n\nError Details:\n")
+                    f.write(output['output_ports__outputs__run_job__error_details'])
+
+            completed += percentage_increment
+            rp_query.update(percent_completed=int(completed))
+
+        #print [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn]   # DEBUG
+        bag.update()
+        errors = bag.validate()
+        if not bag.is_valid:
+            rp_query.update(status=task_status.FAILED,
+                            error_summary="The bag failed validation.",
+                            error_details=str(errors))
+            if os.path.exists(self.package_path):
+                shutil.rmtree(self.package_path)
+
+        bag.package(package_path, method='zip')
+        rp_query.update(status=task_status.FINISHED,
+                        percent_completed=100)  # [TODO] expiry_date
+
+        shutil.rmtree(tmp_dir)

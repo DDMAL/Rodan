@@ -1,18 +1,8 @@
-# [TODO]
-
 import os
 from django.db import models
 from uuidfield import UUIDField
 from django.conf import settings
-
-
-class ResultsPackageStatus(object):
-    SCHEDULED_FOR_PROCESSING = 0
-    PROCESSING = 1
-    COMPLETE = 2
-    FAILED = -1
-    EXPIRED = 8
-    CANCELLED = 9
+from rodan.constants import task_status
 
 
 class ResultsPackage(models.Model):
@@ -23,21 +13,23 @@ class ResultsPackage(models.Model):
         progress in the status field.
     """
 
-    STATUS_CHOICES = [(ResultsPackageStatus.SCHEDULED_FOR_PROCESSING, "Scheduled for processing"),
-                      (ResultsPackageStatus.PROCESSING, "Processing"),
-                      (ResultsPackageStatus.COMPLETE, "Complete"),
-                      (ResultsPackageStatus.EXPIRED, "Expired"),
-                      (ResultsPackageStatus.FAILED, "Failed, ZOMG"),
-                      (ResultsPackageStatus.CANCELLED, "Cancelled")]
+    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
+                      (task_status.PROCESSING, "Processing"),
+                      (task_status.FINISHED, "Finished"),
+                      (task_status.FAILED, "Failed, ZOMG"),
+                      (task_status.CANCELLED, "Cancelled")]
 
     uuid = UUIDField(primary_key=True, auto=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)
     percent_completed = models.IntegerField(default=0)
-    download_url = models.URLField(blank=True, default='', max_length=255)
 
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages")
-    jobs = models.ManyToManyField("rodan.Job", related_name="results_packages", blank=True)
+    output_ports = models.ManyToManyField("rodan.OutputPort", related_name="results_packages")
     creator = models.ForeignKey("auth.User", related_name="results_packages")
+    celery_task_id = models.CharField(max_length=255, blank=True, null=True)
+
+    error_summary = models.TextField(default="", blank=True, null=True)
+    error_details = models.TextField(default="", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -56,25 +48,13 @@ class ResultsPackage(models.Model):
 
     @property
     def package_path(self):
-        return os.path.join(settings.MEDIA_ROOT, 'results_packages', str(self.uuid))
+        return get_package_path(self.uuid)
 
     @property
-    def bag_name(self):
-        date_string = self.created.strftime("%Y_%m_%d_%I%M%p")
-        return "{0}__{1}".format(self.workflow_run.workflow.name, date_string)
+    def package_relurl(self):
+        return "{0}/{1}".format(settings.MEDIA_URL, get_package_relpath(self.uuid))
 
-    @property
-    def bag_path(self):
-        return os.path.join(self.package_path, self.bag_name)
-
-    @property
-    def bag_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.bag_path, settings.MEDIA_ROOT))
-
-    @property
-    def file_path(self, package_extension='zip'):
-        return '.'.join((str(self.bag_path), package_extension))
-
-    @property
-    def file_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.file_path, settings.MEDIA_ROOT))
+def get_package_relpath(rp_uuid):
+    return 'results_packages/{0}.zip'.format(rp_uuid)
+def get_package_path(rp_uuid):
+    return os.path.join(settings.MEDIA_ROOT, get_package_relpath(rp_uuid))
