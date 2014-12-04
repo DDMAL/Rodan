@@ -108,13 +108,12 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
-        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
     def test_successful_execution(self):
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -147,6 +146,8 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
     def test_automatic_job_fail(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
+            response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
             workflowrun_obj = {
                 'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
                 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -168,6 +169,8 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_manual_job_rejected(self):
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
@@ -195,6 +198,9 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_cancel(self):
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
