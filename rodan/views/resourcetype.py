@@ -12,6 +12,7 @@ class ResourceTypeList(generics.ListAPIView):
     model = ResourceType
     serializer_class = ResourceTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = ResourceType.objects.all()
 
 
 class ResourceTypeDetail(generics.RetrieveAPIView):
@@ -21,3 +22,4 @@ class ResourceTypeDetail(generics.RetrieveAPIView):
     model = ResourceType
     serializer_class = ResourceTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = ResourceType.objects.all()
