@@ -44,7 +44,7 @@ class RunJob(models.Model):
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
                       (task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed, ZOMG"),
+                      (task_status.FAILED, "Failed"),
                       (task_status.CANCELLED, "Cancelled")]
 
     class Meta:
