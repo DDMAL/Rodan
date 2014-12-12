@@ -45,7 +45,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_post_no_existing_workflow(self):
         workflowrun_obj = {
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(uuid.uuid1()),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(uuid.uuid1().hex),
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -90,10 +90,10 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_patch_not_found(self):
         workflowrun_update = {'status': task_status.CANCELLED}
-        response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
+        response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1().hex), workflowrun_update, format='json')
         anticipated_message = {'detail': 'Not found'}
-        self.assertEqual(anticipated_message, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anticipated_message, response.data)
 
 
 
