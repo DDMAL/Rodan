@@ -1,6 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+from rodan.models import InputPortType
 
 
 class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -9,8 +10,18 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.setUp_user()
         self.setUp_basic_workflow()
         self.client.login(username="ahankins", password="hahaha")
-"""
-    def test_post(self):
+
+    def test_get_list(self):
+        response = self.client.get("/inputporttypes/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_detail(self):
+        ipt = InputPortType.objects.first()
+        response = self.client.get("/inputporttype/{0}/".format(ipt.uuid.hex))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['uuid'], ipt.uuid.hex)
+
+    def test_post_not_allowed(self):
         ipt_obj = {
             'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
             'resource_types': ["http://localhost:8000/resourcetype/test/a1/", "http://localhost:8000/resourcetype/test/a2/"],
@@ -19,31 +30,4 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
             'maximum': 1
         }
         response = self.client.post("/inputporttypes/", ipt_obj, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_post_no_min_max(self):
-        opt_obj = {
-            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
-            'name': 'test',
-        }
-
-        response = self.client.post("/inputporttypes/", opt_obj, format='json')
-        anticipated_message = {'maximum': ['This field is required.'],
-                               'minimum': ['This field is required.']}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_post_no_name(self):
-        opt_obj = {
-            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ["http://localhost:8000/resourcetype/test/a1/"],
-            'minimum': 1,
-            'maximum': 1
-        }
-
-        response = self.client.post("/inputporttypes/", opt_obj, format='json')
-        anticipated_message = {'name': ['This field is required.']}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-"""
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
