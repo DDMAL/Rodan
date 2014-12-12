@@ -21,7 +21,7 @@ class ProjectResourceSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
     workflow_count = serializers.IntegerField(read_only=True)
     resource_count = serializers.IntegerField(read_only=True)
-    creator = ProjectCreatorSerializer()
+    creator = ProjectCreatorSerializer(read_only=True)
 
     class Meta:
         model = Project
@@ -31,9 +31,9 @@ class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
     workflow_count = serializers.IntegerField(read_only=True)
     resource_count = serializers.IntegerField(read_only=True)
-    workflows = ProjectWorkflowSerializer(many=True)
-    resources = ProjectResourceSerializer(many=True)
-    creator = ProjectCreatorSerializer()
+    workflows = ProjectWorkflowSerializer(many=True, read_only=True)
+    resources = ProjectResourceSerializer(many=True, read_only=True)
+    creator = ProjectCreatorSerializer(read_only=True)
 
     class Meta:
         model = Project

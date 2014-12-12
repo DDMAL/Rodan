@@ -32,9 +32,6 @@ class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         response = self.client.post("/projects/", proj_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_put(self):
-        pass
-
     def test_patch(self):
         proj_mod = {"name": "Changing the title"}
         response = self.client.patch("/project/{0}/".format(self.test_project.uuid), proj_mod, format='json')
