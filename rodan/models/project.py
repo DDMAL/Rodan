@@ -63,6 +63,10 @@ class Project(models.Model):
     def workflow_count(self):
         return self.workflows.count()
 
+    @property
+    def resource_count(self):
+        return self.resources.count()
+
 
 @receiver(pre_delete)
 def delete_project_dir(sender, instance, **kwargs):
