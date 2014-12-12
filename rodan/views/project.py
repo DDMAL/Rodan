@@ -3,7 +3,7 @@ from rest_framework import permissions
 from guardian.shortcuts import get_objects_for_user
 
 from rodan.models.project import Project
-from rodan.serializers.project import ProjectSerializer
+from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.serializers.user import UserSerializer
 
 
@@ -15,7 +15,7 @@ class ProjectList(generics.ListCreateAPIView):
     """
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectListSerializer
     queryset = Project.objects.all() # [TODO] restrict to the user's projects?
 
     def get_queryset(self):
@@ -32,5 +32,5 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectDetailSerializer
     queryset = Project.objects.all() # [TODO] restrict to the user's projects?
