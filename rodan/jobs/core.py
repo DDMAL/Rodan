@@ -1,6 +1,7 @@
 import os
 import tempfile
 import shutil
+import traceback
 from pybagit.bagit import BagIt
 from celery import task
 from django.core.files import File
@@ -142,30 +143,32 @@ class resource_thru(RodanAutomaticTask):
             testcase.assertEqual(g.read(), content)
 
 
-class package_results(Task):
-    name = "rodan.core.package_results"
 
-    def run(self, rp_id, include_failed_runjobs=False):
-        rp_query = ResultsPackage.objects.filter(uuid=rp_id)
-        rp_query.update(status=task_status.PROCESSING)
-        package_path = get_package_path(rp_id)
+@task(name="rodan.core.package_results")
+def package_results(rp_id, include_failed_runjobs=False):
+    rp_query = ResultsPackage.objects.filter(uuid=rp_id)
+    rp_query.update(status=task_status.PROCESSING)
+    package_path = get_package_path(rp_id)
 
-        outputs = rp_query.values('output_ports__label',
-                                  'output_ports__workflow_job__uuid',
-                                  'output_ports__workflow_job__job__job_name',
-                                  'output_ports__outputs__resource__uuid',
-                                  'output_ports__outputs__resource__name',
-                                  'output_ports__outputs__resource__compat_resource_file',
-                                  'output_ports__outputs__run_job__status',
-                                  'output_ports__outputs__run_job__error_summary',
-                                  'output_ports__outputs__run_job__error_details')
+    outputs = rp_query.values('output_ports__label',
+                              'output_ports__workflow_job__uuid',
+                              'output_ports__workflow_job__job__job_name',
+                              'output_ports__outputs__resource__uuid',
+                              'output_ports__outputs__resource__name',
+                              'output_ports__outputs__resource__compat_resource_file',
+                              'output_ports__outputs__run_job__status',
+                              'output_ports__outputs__run_job__error_summary',
+                              'output_ports__outputs__run_job__error_details')
 
+    if len(outputs) > 0:
+        percentage_increment = 70.00 / len(outputs)
+    else:
+        percentage_increment = 0
+    completed = 0.0
+
+    try:
         tmp_dir = os.path.join(tempfile.mkdtemp(), 'new_folder')  # make sure it doesn't exist
         bag = BagIt(tmp_dir)
-
-        if len(outputs) > 0:
-            percentage_increment = 70.00 / len(outputs)
-        completed = 0.0
 
         for output in outputs:
             wfj_name = output['output_ports__workflow_job__job__job_name'].split('.')[-1]
@@ -200,11 +203,18 @@ class package_results(Task):
             rp_query.update(status=task_status.FAILED,
                             error_summary="The bag failed validation.",
                             error_details=str(errors))
-            if os.path.exists(self.package_path):
-                shutil.rmtree(self.package_path)
 
         bag.package(package_path, method='zip')
+    except Exception as e:
+        rp_query.update(status=task_status.FAILED,
+                        error_summary=str(e),
+                        error_details=traceback.format_exc())
+        success = False
+    else:
         rp_query.update(status=task_status.FINISHED,
                         percent_completed=100)  # [TODO] expiry_date
-
+        success = True
+    finally:
         shutil.rmtree(tmp_dir)
+
+    return success

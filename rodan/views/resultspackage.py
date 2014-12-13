@@ -24,6 +24,8 @@ class ResultsPackageList(generics.ListCreateAPIView):
     - `creator` -- GET-only. UUID of a User.
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
     - `output_ports` -- POST-only. Hyperlinks of OutputPorts.
+    - `include_failed_runjobs` -- POST-only. If set, ResultsPackage will include
+    failed error messages of RunJobs.
     """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
@@ -36,7 +38,8 @@ class ResultsPackageList(generics.ListCreateAPIView):
         rp = serializer.save(creator=self.request.user) # expiry_date
         rp_id = str(rp.uuid)
 
-        registry.tasks['rodan.core.package_results'].apply_async((rp_id, True)) # TODO
+        include_failed_runjobs = 'include_failed_runjobs' in self.request.data
+        registry.tasks['rodan.core.package_results'].apply_async((rp_id, include_failed_runjobs))
 
 
 class ResultsPackageDetail(generics.RetrieveUpdateDestroyAPIView):
