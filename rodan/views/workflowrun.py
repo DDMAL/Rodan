@@ -26,7 +26,6 @@ from rodan.models.inputport import InputPort
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
-from rodan.jobs.master_task import master_task
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
 
@@ -64,7 +63,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         wfrun = serializer.save(creator=self.request.user)
         wfrun_id = str(wfrun.uuid)
         self._create_workflow_run(wf, wfrun)
-        master_task.apply_async((wfrun_id,))
+        registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
     def _create_workflow_run(self, workflow, workflow_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)

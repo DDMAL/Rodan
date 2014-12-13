@@ -31,7 +31,7 @@ load_predefined_resource_types()  # set up ResourceTypes
 import logging
 logger = logging.getLogger('rodan')
 logger.warning("Loading Rodan Jobs")
-import rodan.jobs.helpers
+import rodan.jobs.core
 import rodan.jobs.master_task
 
 from rodan.jobs import module_loader

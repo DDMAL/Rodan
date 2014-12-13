@@ -1,5 +1,5 @@
 import tempfile, shutil, os, uuid, copy, re, json
-from celery import Task
+from celery import Task, registry
 from celery.app.task import TaskType
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
 from rodan.constants import task_status
@@ -204,9 +204,8 @@ class RodanAutomaticTask(RodanTask):
                                                  error_summary='',
                                                  error_details='')
         output_resources = Resource.objects.filter(outputs__run_job=runjob_id)
-        from rodan.jobs.helpers import create_thumbnails
         for output_resource in output_resources:
-            create_thumbnails.si(str(output_resource.uuid)).apply_async()
+            registry.tasks['rodan.core.create_thumbnails'].si(str(output_resource.uuid)).apply_async()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         runjob_id = args[0]

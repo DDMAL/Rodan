@@ -10,7 +10,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
-from rodan.jobs.master_task import master_task
 from rodan.constants import task_status
 
 
@@ -52,5 +51,5 @@ class InteractiveView(APIView):
         runjob.save()
 
         # call master_task to continue workflowrun
-        master_task.apply_async((runjob.workflow_run.uuid,))
+        registry.tasks['rodan.core.master_task'].apply_async((runjob.workflow_run.uuid,))
         return Response(status=status.HTTP_200_OK)

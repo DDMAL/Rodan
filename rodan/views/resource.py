@@ -10,7 +10,6 @@ from django.core.urlresolvers import Resolver404, resolve
 from rodan.models import Project, Output, Resource, ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
-from rodan.jobs.helpers import ensure_compatible, create_thumbnails
 from django.db.models import Q
 from rodan.constants import task_status
 
@@ -77,7 +76,7 @@ class ResourceList(generics.ListCreateAPIView):
 
             resource_id = str(resource_obj.uuid)
             mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
-            (registry.tasks[ensure_compatible.name].si(resource_id, mimetype) | create_thumbnails.si(resource_id)).apply_async()
+            (registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype) | registry.tasks['rodan.core.create_thumbnails'].si(resource_id)).apply_async()
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)

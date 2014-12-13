@@ -9,7 +9,6 @@ from django.core.urlresolvers import resolve, Resolver404
 from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPackageListSerializer
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
-from rodan.jobs.helpers import package_results
 from rodan.exceptions import CustomAPIException
 
 
@@ -37,8 +36,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
         rp = serializer.save(creator=self.request.user) # expiry_date
         rp_id = str(rp.uuid)
 
-        package_task = registry.tasks[str(package_results.name)]
-        package_task.apply_async((rp_id, True)) # TODO
+        registry.tasks['rodan.core.package_results'].apply_async((rp_id, True)) # TODO
 
 
 class ResultsPackageDetail(generics.RetrieveUpdateDestroyAPIView):
