@@ -34,8 +34,9 @@ class ResultsPackage(models.Model):
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
                       (task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed, ZOMG"),
-                      (task_status.CANCELLED, "Cancelled")]
+                      (task_status.FAILED, "Failed"),
+                      (task_status.CANCELLED, "Cancelled"),
+                      (task_status.EXPIRED, "Expired")]
 
     uuid = UUIDField(primary_key=True, auto=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)

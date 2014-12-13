@@ -9,4 +9,6 @@ class task_status:
     FAILED = -1
     CANCELLED = 9
 
+    EXPIRED = 8
+
     NOT_APPLICABLE = None

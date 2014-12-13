@@ -212,9 +212,24 @@ def package_results(rp_id, include_failed_runjobs=False):
         success = False
     else:
         rp_query.update(status=task_status.FINISHED,
-                        percent_completed=100)  # [TODO] expiry_date
+                        percent_completed=100)
+        expiry_time = rp_query.values_list('expiry_time', flat=True)[0]
+        expire_package.apply_async((rp_id, ), eta=expiry_time)
         success = True
     finally:
         shutil.rmtree(tmp_dir)
 
     return success
+
+
+@task(name="rodan.core.expire_package")
+def expire_package(rp_id):
+    rp_query = ResultsPackage.objects.filter(uuid=rp_id)
+    package_path = get_package_path(rp_id)
+    try:
+        os.remove(package_path)
+    except Exception as e:
+        return False
+    else:
+        rp_query.update(status=task_status.EXPIRED)
+        return True
