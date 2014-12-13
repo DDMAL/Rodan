@@ -214,7 +214,8 @@ def package_results(rp_id, include_failed_runjobs=False):
         rp_query.update(status=task_status.FINISHED,
                         percent_completed=100)
         expiry_time = rp_query.values_list('expiry_time', flat=True)[0]
-        expire_package.apply_async((rp_id, ), eta=expiry_time)
+        if expiry_time:
+            expire_package.apply_async((rp_id, ), eta=expiry_time)
         success = True
     finally:
         shutil.rmtree(tmp_dir)
