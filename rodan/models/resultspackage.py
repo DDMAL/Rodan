@@ -57,11 +57,6 @@ class ResultsPackage(models.Model):
     def __unicode__(self):
         return u"<ResultsPackage {0}>".format(str(self.uuid))
 
-    def save(self, *args, **kwargs):
-        super(ResultsPackage, self).save(*args, **kwargs)
-        if not os.path.exists(self.package_path):
-            os.makedirs(self.package_path)
-
     class Meta:
         app_label = 'rodan'
 

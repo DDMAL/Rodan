@@ -167,26 +167,27 @@ def package_results(rp_id, include_failed_runjobs=False):
     completed = 0.0
 
     try:
-        tmp_dir = os.path.join(tempfile.mkdtemp(), 'new_folder')  # make sure it doesn't exist
+        tmp_dir = os.path.join(tempfile.mkdtemp(), rp_id)  # rp_id will be name of the packaged zip
         bag = BagIt(tmp_dir)
 
         for output in outputs:
             wfj_name = output['output_ports__workflow_job__job__job_name'].split('.')[-1]
             op_label = output['output_ports__label']
-            wfj_uuid = output['output_ports__workflow_job__uuid']
+            wfj_uuid = output['output_ports__workflow_job__uuid'].hex[0:6]
             op_dir = os.path.join(tmp_dir, "{0}_{1}_{2}".format(wfj_name, op_label, wfj_uuid))
-
-            if not os.path.exists(op_dir):
-                os.makedirs(op_dir)
 
             rj_status = output['output_ports__outputs__run_job__status']
             if rj_status == task_status.FINISHED:
                 filepath = output['output_ports__outputs__resource__compat_resource_file']
                 ext = os.path.splitext(filepath)[1]
-                result_filename = "{0}_{1}{2}".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'], ext)
+                result_filename = "{0}_{1}{2}".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'].hex[0:6], ext)
+                if not os.path.exists(op_dir):
+                    os.makedirs(op_dir)
                 shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
             elif include_failed_runjobs and rj.status == task_status.FAILED:
-                result_filename = "{0}_{1}.error.txt".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'])
+                result_filename = "error_{0}_{1}.txt".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'].hex[0:6])
+                if not os.path.exists(op_dir):
+                    os.makedirs(op_dir)
                 with open(os.path.join(op_dir, result_filename), 'w') as f:
                     f.write("Error Summary: ")
                     f.write(output['output_ports__outputs__run_job__error_summary'])
@@ -204,7 +205,10 @@ def package_results(rp_id, include_failed_runjobs=False):
                             error_summary="The bag failed validation.",
                             error_details=str(errors))
 
-        bag.package(package_path, method='zip')
+        target_dir_name = os.path.dirname(package_path)
+        if not os.path.isdir(target_dir_name):
+            os.mkdir(target_dir_name)
+        bag.package(target_dir_name, method='zip')
     except Exception as e:
         rp_query.update(status=task_status.FAILED,
                         error_summary=str(e),

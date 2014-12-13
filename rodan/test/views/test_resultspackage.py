@@ -1,4 +1,4 @@
-import os, json
+import os, json, zipfile
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -53,6 +53,10 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
-
+        #print rp.error_summary, rp.error_details
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
+
+        with zipfile.ZipFile(rp.package_path, 'r') as z:
+            files = z.namelist()
+            # TODO: test file names
