@@ -26,6 +26,7 @@ class Project(models.Model):
 
     - `project_path` -- the project directory in the filesystem.
     - `workflow_count` -- the count of `Workflow`s under the `Project`.
+    - `resource_count` --  the count of `Resource`s under the `Project`.
 
     **Methods**
 
