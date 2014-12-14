@@ -1,4 +1,4 @@
-angular.module('rodanMockApp', [])
+angular.module('rodanTestApp', [])
     .constant('ROOT', 'http://localhost:8000')
     .constant('UPDATE_FREQ', 2000)
     .run(function ($http, $window, ROOT, $rootScope, getAllPages) {
