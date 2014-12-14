@@ -38,7 +38,7 @@ class RodanTaskType(TaskType):
             else:
                 raise TypeError('Rodan tasks should always inherit either RodanAutomaticTask or RodanManualTask')
 
-            if not Job.objects.filter(job_name=attrs['name'], interactive=interactive).exists():
+            if not Job.objects.filter(job_name=attrs['name']).exists():
                 j = Job(job_name=attrs['name'],
                         author=attrs['author'],
                         description=attrs['description'],
@@ -73,6 +73,38 @@ class RodanTaskType(TaskType):
                 except Exception as e:
                     j.delete()  # clean the job
                     raise e
+            else:
+                # perform an integrity check
+                j = Job.objects.get(job_name=attrs['name'])
+                errmsg = "Integrity error: Job {0}. Delete this job in Django shell and restart Rodan?".format(attrs['name'])
+                assert j.author == attrs['author'], errmsg
+                assert j.description == attrs['description'], errmsg
+                #assert set(j.settings) == set(attrs['settings']), errmsg
+                assert j.enabled == attrs['enabled'], errmsg
+                assert j.category == attrs['category'], errmsg
+                assert j.interactive == interactive, errmsg
+
+                assert len(attrs['input_port_types']) == j.input_port_types.count(), errmsg
+                for ipt in j.input_port_types.all():
+                    ipt_name = ipt.name
+                    i = filter(lambda d: d['name'] == ipt_name, attrs['input_port_types'])
+                    assert len(i) == 1, errmsg
+                    i = i[0]
+                    assert i['minimum'] == ipt.minimum, errmsg
+                    assert i['maximum'] == ipt.maximum, errmsg
+                    resource_types = RodanTaskType._resolve_resource_types(i['resource_types'])
+                    assert set(map(lambda rt: rt.mimetype, resource_types)) == set(map(lambda rt: rt.mimetype, ipt.resource_types.all())), errmsg
+
+                assert len(attrs['output_port_types']) == j.output_port_types.count(), errmsg
+                for opt in j.output_port_types.all():
+                    opt_name = opt.name
+                    o = filter(lambda d: d['name'] == opt_name, attrs['output_port_types'])
+                    assert len(o) == 1, errmsg
+                    o = o[0]
+                    assert o['minimum'] == opt.minimum, errmsg
+                    assert o['maximum'] == opt.maximum, errmsg
+                    resource_types = RodanTaskType._resolve_resource_types(o['resource_types'])
+                    assert set(map(lambda rt: rt.mimetype, resource_types)) == set(map(lambda rt: rt.mimetype, opt.resource_types.all())), errmsg
 
     @staticmethod
     def _resolve_resource_types(value):
