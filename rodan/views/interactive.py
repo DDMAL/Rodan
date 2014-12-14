@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework import permissions
 from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
 from rodan.constants import task_status
@@ -21,6 +22,8 @@ class InteractiveView(APIView):
     #### Parameters
     - `**kwargs` -- POST-only. Job settings.
     """
+    permission_classes = (permissions.IsAuthenticated, )
+
     def get(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
