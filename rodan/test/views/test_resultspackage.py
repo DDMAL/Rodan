@@ -211,5 +211,4 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
-        ops = OutputPort.objects.filter(workflow_job__workflow=rp.workflow_run.workflow, connections__isnull=True)
-        self.assertEqual(set(ops), set(rp.output_ports.all()))
+        self.assertEqual(set([self.test_Cop2, self.test_Fop, self.test_Eop]), set(rp.output_ports.all()))
