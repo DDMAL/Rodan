@@ -69,6 +69,8 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
             return Response(serializer.data)
         elif new_status is not None:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise CustomAPIException({'status': ["Invalid update"]}, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_destroy(self, instance):
         if instance.status in (task_status.SCHEDULED, task_status.PROCESSING):

@@ -211,7 +211,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             self._traversal(singleton_workflowjobs, wfjob)
 
 
-class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
+class WorkflowRunDetail(generics.RetrieveAPIView):
     """
     Performs operations on a single WorkflowRun instance.
 
@@ -260,13 +260,13 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
 
         return Response(workflow_run)
 
-    def perform_update(self, serializer):
-        wfrun_id = serializer.data['uuid']
-        old_status = WorkflowRun.objects.filter(uuid=wfrun_id).values_list('status', flat=True)[0]
-        new_status = serializer.validated_data.get('status', None)
+    def patch(self, request, *args, **kwargs):
+        wfrun = self.get_object()
+        old_status = wfrun.status
+        new_status = request.data.get('status', None)
 
         if old_status == task_status.PROCESSING and new_status == task_status.CANCELLED:
-            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun_id, status__in=(task_status.SCHEDULED, task_status.PROCESSING))
+            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
             for celery_id in runjobs_to_revoke_celery_id:
@@ -274,10 +274,15 @@ class WorkflowRunDetail(generics.RetrieveUpdateAPIView):
                     revoke(celery_id, terminate=True)
 
             runjobs_to_revoke_query.update(status=task_status.CANCELLED, ready_for_input=False)
+            serializer = self.get_serializer(wfrun, data={'status': task_status.CANCELLED}, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
         elif new_status is not None:
-            raise ValidationError({'status': ["Invalid status update"]})
+            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise CustomAPIException({'status': ["Invalid update"]}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save()
 
     def _backup_workflowrun(self, wf_run):
         source = wf_run.workflow_run_path
