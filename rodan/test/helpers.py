@@ -11,9 +11,9 @@ class RodanTestSetUpMixin(object):
         # ResourceTypes
         load_predefined_resource_types()
         load = ResourceType.load
-        load('test/a1', '')
-        load('test/a2', '')
-        load('test/b', '')
+        load('test/a1', '', 'ext_a1')
+        load('test/a2', '', 'ext_a2')
+        load('test/b', '', 'ext_b')
         # Jobs
         import rodan.jobs.load     # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
         import rodan.test.dummy_jobs
