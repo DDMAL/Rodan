@@ -36,6 +36,8 @@ class ResultsPackageList(generics.ListCreateAPIView):
     filter_fields = ('creator', 'workflow_run')
 
     def perform_create(self, serializer):
+        # TODO: auto set expiry time
+
         rp_status = serializer.validated_data.get('status', task_status.PROCESSING)
         if rp_status != task_status.PROCESSING:
             raise ValidationError({'status': ["Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
