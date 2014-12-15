@@ -102,6 +102,7 @@
               <b>Status: {{wfrun.status}}</b>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
               <button ng-click="packageResults(wfrun)">Package Results</button>
+              <button ng-click="packageResults(wfrun, 10000)">Package Results (expire in 10sec)</button>
             </div>
             <div class="panel-body">
               <table class="table">
@@ -126,8 +127,9 @@
         <div class="col-xs-12">
           <table class="table">
             <tbody>
-              <tr ng-repeat="rp in resultspackages">
-                <td ng-bind="rp.uuid"></td>
+              <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, info: rp.status == 8}">
+                <td>For WorkflowRun {{rp.workflow_run}}</td>
+                <td>{{rp.percent_completed}}%</td>
                 <td ng-bind="status[rp.status]"></td>
                 <td><a ng-href="{{rp.package_url}}" target="_blank">Download</a></td>
                 <td><button ng-click="cancelResultsPackage(rp)">Cancel</button><button ng-click="deleteResultsPackage(rp)">Delete</button></td>

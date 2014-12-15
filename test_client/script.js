@@ -271,10 +271,15 @@ angular.module('rodanTestApp', [])
                     console.log(error);
                 });
         };
-        $scope.packageResults = function (wfrun) {
+        $scope.packageResults = function (wfrun, expiry_time) {
             var obj = {
                 'workflow_run': wfrun.url
             };
+            if (expiry_time) {
+                var d = Date.now() + expiry_time;
+                var d_obj = new Date(d);
+                obj['expiry_time'] = d_obj.toJSON();
+            }
             $http.post(ROOT + '/resultspackages/', obj)
                 .error(function (error) {
                     console.log(error);
