@@ -166,6 +166,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             if arg_resource:   # resource collection identifier
                 resource.name = arg_resource.name
+            else:
+                resource.name = 'output'  # assign a name for it
             resource.origin = output
             resource.save()
 
