@@ -59,4 +59,22 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
+            #print files
+            # TODO: test file names
+    def test_one_port(self):
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.output_a.output_port.uuid)
+            ]
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        rp_id = response.data['uuid']
+        rp = ResultsPackage.objects.get(uuid=rp_id)
+        self.assertEqual(rp.status, task_status.FINISHED)
+        self.assertEqual(rp.percent_completed, 100)
+
+        with zipfile.ZipFile(rp.package_path, 'r') as z:
+            files = z.namelist()
+            #print files
             # TODO: test file names
