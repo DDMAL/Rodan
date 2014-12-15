@@ -24,7 +24,6 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
 
 class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
     package_url = AbsoluteURLField(source="package_relurl", read_only=True)
-    output_ports = serializers.HyperlinkedRelatedField(many=True, view_name='outputport-detail', required=False, queryset=OutputPort.objects.all())
 
     class Meta:
         model = ResultsPackage
