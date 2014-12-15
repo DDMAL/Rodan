@@ -16,6 +16,15 @@ angular.module('rodanTestApp', [])
                         console.log(err);
                     });
             });
+
+        $rootScope.status = {
+            '0': 'Scheduled',
+            '1': 'Running',
+            '4': 'Finished',
+            '-1': 'Failed',
+            '9': 'Cancelled',
+            '8': 'Expired'
+        };
     })
     .factory('authInterceptor', function ($window) {
         return {
@@ -256,16 +265,39 @@ angular.module('rodanTestApp', [])
                     console.log(err);
                 });
         }, UPDATE_FREQ);
-
-        $scope.status = {
-            '0': 'Not running',
-            '1': 'Running',
-            '4': 'Has finished',
-            '-1': 'Failed',
-            '9': 'Cancelled'
-        };
         $scope.cancelWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 9})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+        $scope.packageResults = function (wfrun) {
+            var obj = {
+                'workflow_run': wfrun.url
+            };
+            $http.post(ROOT + '/resultspackages/', obj)
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+    })
+    .controller('resultspackageCtrl', function ($scope, $http, ROOT, intervalNow, getAllPages, UPDATE_FREQ, $rootScope) {
+        intervalNow(function () {
+            getAllPages(ROOT + '/resultspackages/')
+                .then(function (results) {
+                    $rootScope.resultspackages = results;
+                }, function (err) {
+                    console.log(err);
+                });
+        }, UPDATE_FREQ);
+        $scope.cancelResultsPackage = function (rp) {
+            $http.patch(rp.url, {'status': 9})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+        $scope.deleteResultsPackage = function (rp) {
+            $http.delete(rp.url)
                 .error(function (error) {
                     console.log(error);
                 });
