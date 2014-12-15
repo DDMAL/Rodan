@@ -19,8 +19,17 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_user()
         self.client.login(username="ahankins", password="hahaha")
 
+    def test_unfinished_workflowrun(self):
+        wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex)
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'workflow_run': ["Cannot package results of an unfinished or failed WorkflowRun."]})
+
     def test_nonexist_port(self):
-        wfr = mommy.make('rodan.WorkflowRun')
+        wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
             'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1().hex)
@@ -31,7 +40,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.data, {'output_ports': [u'Invalid hyperlink - Object does not exist.']})
 
     def test_post_invalid_status(self):
-        wfr = mommy.make('rodan.WorkflowRun')
+        wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
             'status': task_status.CANCELLED
