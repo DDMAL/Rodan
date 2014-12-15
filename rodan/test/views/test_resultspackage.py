@@ -1,8 +1,7 @@
-import os, json, zipfile
+import os, json, zipfile, uuid
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth.models import User
 
 from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType, ResultsPackage
 from model_mommy import mommy
@@ -13,6 +12,41 @@ from rodan.models.resource import upload_path
 from rodan.constants import task_status
 
 bag_metadata = ('bag-info.txt', 'bagit.txt', 'fetch.txt', 'manifest-sha1.txt', 'tagmanifest-sha1.txt')
+
+class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.client.login(username="ahankins", password="hahaha")
+
+    def test_nonexist_port(self):
+        wfr = mommy.make('rodan.WorkflowRun')
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1().hex)
+            ]
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'output_ports': [u'Invalid hyperlink - Object does not exist.']})
+
+    def test_patch_cancel(self):
+        wfr = mommy.make('rodan.ResultsPackage', status=task_status.SCHEDULED)
+        req = {
+            'status': task_status.CANCELLED
+        }
+        response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid.hex), req, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_patch_invalid_status_update(self):
+        wfr = mommy.make('rodan.ResultsPackage', status=task_status.EXPIRED)
+        req = {
+            'status': task_status.PROCESSING
+        }
+        response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid.hex), req, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'status': ["Invalid status update"]})
+
 
 class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -85,6 +119,18 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         #print files
         # TODO: test file names
 
+    def test_invalid_port(self):
+        invalid_op = mommy.make('rodan.OutputPort')
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid.hex),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid.hex)
+            ]
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid.hex, self.test_workflowrun.uuid.hex)]})
+
+
 class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
@@ -145,3 +191,14 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.assertEqual(len(files), 10)
         #print files
         # TODO: test file names
+
+    def test_default_ports(self):
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid)
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        rp_id = response.data['uuid']
+        rp = ResultsPackage.objects.get(uuid=rp_id)
+        ops = OutputPort.objects.filter(workflow_job__workflow=rp.workflow_run.workflow, connections__isnull=True)
+        self.assertEqual(set(ops), set(rp.output_ports.all()))

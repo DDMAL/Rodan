@@ -23,9 +23,10 @@ class ResultsPackageList(generics.ListCreateAPIView):
     #### Parameters
     - `creator` -- GET-only. UUID of a User.
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
-    - `output_ports` -- POST-only. Hyperlinks of OutputPorts.
+    - `output_ports` -- POST-only. Hyperlinks of OutputPorts. If not provided, Rodan
+      will select the ones that has no outgoing Connections by default.
     - `include_failed_runjobs` -- POST-only. If set, ResultsPackage will include
-    failed error messages of RunJobs.
+      failed error messages of RunJobs.
     """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
@@ -42,27 +43,32 @@ class ResultsPackageList(generics.ListCreateAPIView):
         registry.tasks['rodan.core.package_results'].apply_async((rp_id, include_failed_runjobs))
 
 
-class ResultsPackageDetail(generics.RetrieveUpdateDestroyAPIView):
+class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
     """
     Perform operations on a single ResultsPackage instance.
+
+    #### Parameters
+
+    - `status` -- PATCH-only. Only valid as cancellation of the ResultsPackage.
     """
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageSerializer
     queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
 
-    def perform_update(self, serializer):
-        rp_id = serializer.data['uuid']
-        rp = ResultsPackage.objects.get(uuid=rp_id)
+    def patch(self, request, *args, **kwargs):
+        rp = self.get_object()
         old_status = rp.status
-        new_status = serializer.validated_data.get('status', None)
+        new_status = request.data.get('status', None)
 
         if old_status in (task_status.SCHEDULED, task_status.PROCESSING) and new_status == task_status.CANCELLED:
             revoke(rp.celery_task_id, terminate=True)
+            serializer = self.get_serializer(rp, data={'status': task_status.CANCELLED}, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
         elif new_status is not None:
-            raise ValidationError({'status': ["Invalid status update"]})
-
-        serializer.save()
+            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_destroy(self, instance):
         if instance.status in (task_status.SCHEDULED, task_status.PROCESSING):
