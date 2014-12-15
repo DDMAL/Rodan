@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from celery import registry
 from celery.task.control import revoke
@@ -35,7 +36,10 @@ class ResultsPackageList(generics.ListCreateAPIView):
     filter_fields = ('creator', 'workflow_run')
 
     def perform_create(self, serializer):
-        # check status
+        rp_status = serializer.validated_data.get('status', task_status.PROCESSING)
+        if rp_status != task_status.PROCESSING:
+            raise ValidationError({'status': ["Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
+
         rp = serializer.save(creator=self.request.user) # expiry_date
         rp_id = str(rp.uuid)
 

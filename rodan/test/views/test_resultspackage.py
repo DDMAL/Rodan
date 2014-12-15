@@ -30,6 +30,17 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'output_ports': [u'Invalid hyperlink - Object does not exist.']})
 
+    def test_post_invalid_status(self):
+        wfr = mommy.make('rodan.WorkflowRun')
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
+            'status': task_status.CANCELLED
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'status': [u"Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
+
+
     def test_patch_cancel(self):
         wfr = mommy.make('rodan.ResultsPackage', status=task_status.SCHEDULED)
         req = {
