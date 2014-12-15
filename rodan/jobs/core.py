@@ -147,7 +147,7 @@ class resource_thru(RodanAutomaticTask):
 @task(name="rodan.core.package_results")
 def package_results(rp_id, include_failed_runjobs=False):
     rp_query = ResultsPackage.objects.filter(uuid=rp_id)
-    rp_query.update(status=task_status.PROCESSING)
+    rp_query.update(status=task_status.PROCESSING, celery_task_id=package_results.request.id)
     package_path = get_package_path(rp_id)
 
     outputs = rp_query.values('output_ports__label',
@@ -219,7 +219,11 @@ def package_results(rp_id, include_failed_runjobs=False):
                         percent_completed=100)
         expiry_time = rp_query.values_list('expiry_time', flat=True)[0]
         if expiry_time:
-            expire_package.apply_async((rp_id, ), eta=expiry_time)
+            async_task = expire_package.apply_async((rp_id, ), eta=expiry_time)
+            expire_task_id = async_task.task_id
+        else:
+            expire_task_id = None
+        rp_query.update(celery_task_id=expire_task_id)
         success = True
     finally:
         shutil.rmtree(tmp_dir)
@@ -236,5 +240,5 @@ def expire_package(rp_id):
     except Exception as e:
         return False
     else:
-        rp_query.update(status=task_status.EXPIRED)
+        rp_query.update(status=task_status.EXPIRED, celery_task_id=None)
         return True

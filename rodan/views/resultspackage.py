@@ -41,11 +41,10 @@ class ResultsPackageList(generics.ListCreateAPIView):
             raise ValidationError({'status': ["Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
 
         rp = serializer.save(creator=self.request.user) # expiry_date
-        rp_id = str(rp.uuid)
+        rp_id = rp.uuid.hex
 
         include_failed_runjobs = 'include_failed_runjobs' in self.request.data
         registry.tasks['rodan.core.package_results'].apply_async((rp_id, include_failed_runjobs))
-
 
 class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
     """
@@ -79,4 +78,6 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
     def perform_destroy(self, instance):
         if instance.status in (task_status.SCHEDULED, task_status.PROCESSING):
             raise CustomAPIException("Please cancel the processing of this package before deleting.", status=status.HTTP_400_BAD_REQUEST)
+        if instance.celery_task_id:
+            revoke(instance.celery_task_id, terminate=True)  # revoke scheduled expiry task
         instance.delete()

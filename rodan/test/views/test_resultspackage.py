@@ -1,4 +1,4 @@
-import os, json, zipfile, uuid
+import os, json, zipfile, uuid, datetime
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -142,6 +142,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid.hex, self.test_workflowrun.uuid.hex)]})
 
 
+
 class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
@@ -212,3 +213,15 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
         self.assertEqual(set([self.test_Cop2, self.test_Fop, self.test_Eop]), set(rp.output_ports.all()))
+
+    def test_expire(self):
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.test_Fop.uuid)
+                         ],
+            'expiry_time': datetime.datetime.now() + datetime.timedelta(minutes=1)
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        rp_id = response.data['uuid']
+        rp = ResultsPackage.objects.get(uuid=rp_id)
+        self.assertEqual(rp.status, task_status.EXPIRED)  # in test, scheduled expiry task is eagerly executed
