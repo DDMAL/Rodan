@@ -12,6 +12,8 @@ from django.core.files.base import ContentFile
 from rodan.models.resource import upload_path
 from rodan.constants import task_status
 
+bag_metadata = ('bag-info.txt', 'bagit.txt', 'fetch.txt', 'manifest-sha1.txt', 'tagmanifest-sha1.txt')
+
 class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
@@ -59,8 +61,10 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
-            #print files
-            # TODO: test file names
+        files = filter(lambda f: f not in bag_metadata, files)
+        self.assertEqual(len(files), 2)
+        #print files
+        # TODO: test file names
     def test_one_port(self):
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
@@ -76,5 +80,68 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
-            #print files
-            # TODO: test file names
+        files = filter(lambda f: f not in bag_metadata, files)
+        self.assertEqual(len(files), 1)
+        #print files
+        # TODO: test file names
+
+class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_complex_dummy_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+
+        # modify all manual job to automatic to save effort (and in/output ports)
+        job_a = self.test_wfjob_A.job
+        self.test_wfjob_B.job = job_a
+        self.test_wfjob_B.save()
+        self.test_wfjob_D.job = job_a
+        self.test_wfjob_D.save()
+
+        ipt_aA = self.test_Aip.input_port_type
+        ipt_aB = self.test_Cip2.input_port_type
+        opt_aA = self.test_Aop.output_port_type
+        self.test_Bop.output_port_type = opt_aA
+        self.test_Bop.save()
+        self.test_Dip1.input_port_type = ipt_aA
+        self.test_Dip1.save()
+        self.test_Dip2.input_port_type = ipt_aB
+        self.test_Dip2.save()
+        self.test_Dip3.input_port_type = ipt_aA
+        self.test_Dip3.save()
+        self.test_Dop.output_port_type = opt_aA
+        self.test_Dop.save()
+
+        # Run this dummy workflow
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        workflowrun_obj = {
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        wfrun_id = response.data['uuid']
+        self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
+        self.assertEqual(self.test_workflowrun.status, task_status.FINISHED)
+
+    def test_one_port(self):
+        resultspackage_obj = {
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.test_Fop.uuid)
+            ]
+        }
+        response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        rp_id = response.data['uuid']
+        rp = ResultsPackage.objects.get(uuid=rp_id)
+        self.assertEqual(rp.status, task_status.FINISHED)
+        self.assertEqual(rp.percent_completed, 100)
+
+        with zipfile.ZipFile(rp.package_path, 'r') as z:
+            files = z.namelist()
+        files = filter(lambda f: f not in bag_metadata, files)
+        self.assertEqual(len(files), 10)
+        #print files
+        # TODO: test file names
