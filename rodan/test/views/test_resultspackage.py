@@ -104,6 +104,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
 
+        self.assertEqual(os.path.isfile(rp.package_path), True)
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
@@ -123,6 +124,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
 
+        self.assertEqual(os.path.isfile(rp.package_path), True)
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
@@ -197,6 +199,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
 
+        self.assertEqual(os.path.isfile(rp.package_path), True)
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
@@ -225,3 +228,4 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
         self.assertEqual(rp.status, task_status.EXPIRED)  # in test, scheduled expiry task is eagerly executed
+        self.assertEqual(os.path.isfile(rp.package_path), False)

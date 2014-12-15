@@ -1,4 +1,4 @@
-import os
+import os, datetime
 from django.db import models
 from uuidfield import UUIDField
 from django.conf import settings
@@ -30,6 +30,7 @@ class ResultsPackage(models.Model):
     - `package_path` -- the local path of the package.
     - `package_relurl` -- the relative URL of the package.
     """
+    DEFAULT_EXPIRY_TIME = datetime.timedelta(days=30)
 
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
                       (task_status.PROCESSING, "Processing"),
