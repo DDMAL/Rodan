@@ -89,20 +89,20 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         ra.delete()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
-    def test_resourceassignment_add_resource(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        ra.resources.add(mommy.make('rodan.Resource', project=self.test_project))
+    def test_resourcecollection_add_resource(self):
+        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
+        rc.resources.add(mommy.make('rodan.Resource', project=self.test_project))
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
-    def test_resourceassignment_remove_resource(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        res = ra.resources.first()
-        ra.resources.remove(res)
+    def test_resourcecollection_remove_resource(self):
+        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
+        res = rc.resources.first()
+        rc.resources.remove(res)
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
-    def test_resourceassignment_clear_resource(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        ra.resources.clear()
+    def test_resourcecollection_clear_resource(self):
+        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
+        rc.resources.clear()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
     def test_workflowjob_save(self):
@@ -120,8 +120,8 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
     #    res.save()
     #    self.assertFalse(self.test_workflow.valid)
     def test_resource_delete(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        res = ra.resources.first()
+        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
+        res = rc.resources.first()
         res.delete()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)

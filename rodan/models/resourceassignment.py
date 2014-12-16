@@ -1,17 +1,21 @@
 from django.db import models
 from uuidfield import UUIDField
-from django.db.models.signals import m2m_changed
 
 class ResourceAssignment(models.Model):
     """
-    Describes the assignment of `Resource`s to an `InputPort`.
+    Describes the assignment of a `Resource` *or* a `ResourceCollection` to an `InputPort`.
+
+    The `InputPort` and `ResourceCollection` should be in the same `Workflow`, if a
+    `ResourceCollection` is assigned. Otherwise, the `InputPort` and `Resource` should
+    be in the same `Project`. (Validation implemented in serializer)
 
     **Fields**
 
     - `uuid`
     - `input_port` -- a reference to the specific `InputPort`.
-    - `resources` -- a many-to-many field referencing zero or more `Resource`s.
-      the "output" end of the connection.
+
+    - `resource` -- a reference to the specific `Resource`.
+    - `resource_collection` -- a reference to the specific `ResourceCollection`.
 
     **Properties**
 
@@ -21,15 +25,15 @@ class ResourceAssignment(models.Model):
     **Methods**
 
     - `save` and `delete` -- invalidate the associated `Workflow`.
-    - `resources.add`, `resource.remove` and `resource.clear` -- invalidate the
-      associated `Workflow`.
     """
     class Meta:
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
     input_port = models.ForeignKey('rodan.InputPort', related_name='resource_assignments')
-    resources = models.ManyToManyField('rodan.Resource', related_name='resource_assignments')
+
+    resource = models.ForeignKey('rodan.Resource', related_name='resource_assignments', blank=True, null=True)
+    resource_collection = models.ForeignKey('rodan.ResourceCollection', related_name='resource_assignments', blank=True, null=True)
 
     @property
     def workflow(self):
@@ -52,16 +56,3 @@ class ResourceAssignment(models.Model):
         if wf.valid:
             wf.valid = False
             wf.save(update_fields=['valid'])
-
-
-# Invalidate the workflow if ResourceAssignment.resources changed.
-def _invalidate_workflow_on_resources_change(sender, **kwargs):
-    action = kwargs['action']
-    if action in ('post_add', 'post_remove', 'post_clear'):
-        ra = kwargs['instance']
-        wf = ra.workflow
-        if wf.valid:
-            wf.valid = False
-            wf.save(update_fields=['valid'])
-
-m2m_changed.connect(_invalidate_workflow_on_resources_change, sender=ResourceAssignment.resources.through)

@@ -128,12 +128,22 @@ class Resource(models.Model):
             if wf.valid:
                 wf.valid = False
                 wf.save(update_fields=['valid'])
+        for rc in self.resource_collections.all():
+            wf = rc.workflow
+            if wf.valid:
+                wf.valid = False
+                wf.save(update_fields=['valid'])
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):
             shutil.rmtree(self.resource_path)
         for ra in self.resource_assignments.all():
             wf = ra.input_port.workflow_job.workflow
+            if wf.valid:
+                wf.valid = False
+                wf.save(update_fields=['valid'])
+        for rc in self.resource_collections.all():
+            wf = rc.workflow
             if wf.valid:
                 wf.valid = False
                 wf.save(update_fields=['valid'])

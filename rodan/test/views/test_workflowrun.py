@@ -241,7 +241,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         wfrun_id = response.data['uuid']
 
-        len_rc = len(self.test_resourcecollection)
+        len_rc = self.test_resourcecollection.resources.count()
         self.assertEqual(self.test_wfjob_A.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_B.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
@@ -262,7 +262,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(self.test_Eip1.inputs.count(), len_rc)
         self.assertEqual(self.test_Eip2.inputs.count(), len_rc)
         self.assertEqual(self.test_Eop.outputs.count(), len_rc)
-        self.assertEqual(self.test_Fip.inputs.count(), len_rc)
+        self.assertEqual(self.test_Fip1.inputs.count(), len_rc)
+        self.assertEqual(self.test_Fip2.inputs.count(), len_rc)
         self.assertEqual(self.test_Fop.outputs.count(), len_rc)
 
         def same_resources(queryA, queryB):
@@ -271,7 +272,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertTrue(same_resources(self.test_Bop.outputs, self.test_Cip2.inputs))
         self.assertTrue(same_resources(self.test_Cop1.outputs, self.test_Dip2.inputs))
         self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Eip1.inputs))
-        self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Fip.inputs))
+        self.assertTrue(same_resources(self.test_Dop.outputs, self.test_Fip2.inputs))
 
 
         def assert_same_resource_types(op):
@@ -298,7 +299,11 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         )
         self.assertEqual(
             set(self.test_Dip1.inputs.values_list('resource__uuid', flat=True)),
-            set(map(lambda res: res.uuid, self.test_resourcecollection))
+            set(map(lambda res: res.uuid, self.test_resourcecollection.resources.all()))
+        )
+        self.assertEqual(
+            set(self.test_Fip1.inputs.values_list('resource__uuid', flat=True)),
+            set(map(lambda res: res.uuid, self.test_resourcecollection.resources.all()))
         )
 
         # names for resource collection
@@ -424,7 +429,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din3s = self.test_Dip3.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
-        Fins = self.test_Fip.inputs.all()
+        Fin1s = self.test_Fip1.inputs.all()
+        Fin2s = self.test_Fip2.inputs.all()
 
         self.assertEqual(rjB.status, task_status.FINISHED)
         self.assertEqual(rjB.ready_for_input, False)
@@ -475,7 +481,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din3s = self.test_Dip3.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
-        Fins = self.test_Fip.inputs.all()
+        Fin1s = self.test_Fip1.inputs.all()
+        Fin2s = self.test_Fip2.inputs.all()
 
         rjD0 = rjDs[0]
         rjDremain = rjDs[1:]
@@ -538,7 +545,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Din3s = self.test_Dip3.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
-        Fins = self.test_Fip.inputs.all()
+        Fin1s = self.test_Fip1.inputs.all()
+        Fin2s = self.test_Fip2.inputs.all()
 
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, task_status.FINISHED)

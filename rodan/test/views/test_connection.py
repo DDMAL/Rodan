@@ -81,3 +81,42 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response = self.client.delete("/connection/{0}/.json".format(test_conn_uuid), format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Connection.objects.filter(pk=test_conn_uuid))
+
+    def test_post_conflict_workflow(self):
+        ip = mommy.make('rodan.InputPort')
+        op = mommy.make('rodan.OutputPort')
+        conn_obj = {
+            'input_port': "http://localhost:8000/inputport/{0}/".format(ip.uuid),
+            'output_port': "http://localhost:8000/outputport/{0}/".format(op.uuid)
+        }
+
+        response = self.client.post("/connections/", conn_obj, format='json')
+        anticipated_message = {'non_field_errors': ['The InputPort is not in the same workflow as the OutputPort.']}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_patch(self):
+        conn = mommy.make('rodan.Connection',
+                          input_port=self.test_inputport,
+                          output_port=self.test_outputport)
+        ip2 = mommy.make('rodan.InputPort', workflow_job__workflow=self.test_inputport.workflow_job.workflow)
+
+        req_obj = {
+            'input_port': "http://localhost:8000/inputport/{0}/".format(ip2.uuid),
+        }
+        response = self.client.patch("/connection/{0}/".format(conn.uuid.hex), req_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_patch_conflict_workflow(self):
+        conn = mommy.make('rodan.Connection',
+                          input_port=self.test_inputport,
+                          output_port=self.test_outputport)
+        ip2 = mommy.make('rodan.InputPort')
+
+        req_obj = {
+            'input_port': "http://localhost:8000/inputport/{0}/".format(ip2.uuid),
+        }
+        response = self.client.patch("/connection/{0}/".format(conn.uuid.hex), req_obj, format='json')
+        anticipated_message = {'non_field_errors': ['The InputPort is not in the same workflow as the OutputPort.']}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

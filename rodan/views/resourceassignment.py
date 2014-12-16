@@ -15,7 +15,8 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
 
     #### Parameters
     - input_port -- POST-only, URL to an InputPort object
-    - resources -- POST-only, a list of URL to Resource objects.
+    - resource -- POST-only, URL to a Resource object or null.
+    - resource_collection -- POST-only, URL to a ResourceCollection object or null.
     """
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer

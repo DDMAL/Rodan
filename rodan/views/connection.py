@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
-from rodan.serializers.connection import ConnectionListSerializer, ConnectionSerializer
+from rodan.serializers.connection import ConnectionSerializer
 
 
 class ConnectionList(generics.ListCreateAPIView):
@@ -18,7 +18,7 @@ class ConnectionList(generics.ListCreateAPIView):
     - output_port -- POST-only, URL to an OutputPort object
     """
     model = Connection
-    serializer_class = ConnectionListSerializer
+    serializer_class = ConnectionSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Connection.objects.all()  # [TODO] restrict to the users connections?
 

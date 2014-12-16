@@ -69,21 +69,16 @@ class WorkflowRunList(generics.ListCreateAPIView):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
         workflowjob_runjob_map = {}
-        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-        ra_collection = None
 
-        for ra in resource_assignments:
-            resources = Resource.objects.filter(resource_assignments=ra)
+        rc_multiple = None
+        for rc in workflow.resource_collections.all():
+            if rc.resources.count() > 1:
+                rc_multiple = rc
 
-            if resources.count() > 1:
-                ra_collection = ra
-
-        if ra_collection:
-            resources = Resource.objects.filter(resource_assignments=ra_collection)
-
+        if rc_multiple:
+            resources = rc_multiple.resources.all()
             for res in resources:
                 self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res)
-
         else:
             self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None)
 
@@ -128,10 +123,13 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 ra = None
 
             if ra:
-                if ra.resources.count() > 1:
-                    entry_res = arg_resource
+                if ra.resource_collection:
+                    if ra.resource_collection.resources.count() > 1:
+                        entry_res = arg_resource
+                    else:
+                        entry_res = ra.resource_collection.resources.first()
                 else:
-                    entry_res = ra.resources.first()
+                    entry_res = ra.resource
 
                 Input(run_job=runjob_A,
                       input_port=ra.input_port,
@@ -191,14 +189,12 @@ class WorkflowRunList(generics.ListCreateAPIView):
         for wfjob in WorkflowJob.objects.filter(workflow=workflow):
             singleton_workflowjobs.append(wfjob)
 
-        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-
-        for ra in resource_assignments:
-            resources = Resource.objects.filter(resource_assignments=ra)
-
-            if resources.count() > 1:
-                initial_wfjob = WorkflowJob.objects.get(input_ports=ra.input_port)
-                self._traversal(singleton_workflowjobs, initial_wfjob)
+        resource_collections = workflow.resource_collections.all()
+        for rc in resource_collections:
+            if rc.resources.count() > 1:
+                for ra in rc.resource_assignments.all():
+                    initial_wfjob = WorkflowJob.objects.get(input_ports=ra.input_port)
+                    self._traversal(singleton_workflowjobs, initial_wfjob)
 
         return singleton_workflowjobs
 

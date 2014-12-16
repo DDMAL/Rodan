@@ -4,7 +4,8 @@ from uuidfield import UUIDField
 
 class Connection(models.Model):
     """
-    Describes exactly how `WorkflowJob`s are connected together.
+    Describes exactly how `WorkflowJob`s are connected together. `InputPort` and
+    `OutputPort` should be in the same `Workflow`. (Validation implemented in serializer)
 
     **Fields**
 

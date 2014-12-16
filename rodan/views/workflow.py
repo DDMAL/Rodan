@@ -3,7 +3,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project
+from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project, ResourceCollection
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
 from rodan.exceptions import CustomAPIException
@@ -96,7 +96,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if op.output_port_type.job != op.workflow_job.job:
                 raise WorkflowValidationError('OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(op.uuid))
 
-        # validate Connections
+        # validate Connections (done in serializer)
         connections = Connection.objects.filter(input_port__workflow_job__workflow=workflow, output_port__workflow_job__workflow=workflow)
         for connection in connections:
             op = connection.output_port
@@ -107,24 +107,27 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if not set(in_types).intersection(set(out_types)):
                 raise WorkflowValidationError('The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid))
 
+        # validate ResourceCollections
+        resource_collections = ResourceCollection.objects.filter(workflow=workflow)
+        multiple_resources_found = False
+        for rc in resource_collections:
+            if rc.resources.count() == 0:
+                raise WorkflowValidationError("ResourceCollection {0} has no resources.".format(rc.uuid.hex))
+            elif rc.resources.count() > 1:
+                if multiple_resources_found:
+                    raise WorkflowValidationError("Multiple resource collections found.")
+                multiple_resources_found = True
+
         # validate ResourceAssignments
         resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-        multiple_resources_found = False
         for ra in resource_assignments:
-            number_of_resources = ra.resources.count()
-            if number_of_resources > 1:
-                if multiple_resources_found:
-                    raise WorkflowValidationError('Multiple resource assignment collections found')
-                multiple_resources_found = True
-            elif number_of_resources == 0:
-                raise WorkflowValidationError('No resource assigned by ResourceAssignment {0}'.format(ra.uuid))
-
             ip = ra.input_port
             types_of_ip = ip.input_port_type.resource_types.all()
-            resources = ra.resources.all()
+            if ra.resource:
+                resources = (ra.resource, )
+            else:
+                resources = ra.resource_collection.resources.all()
             for res in resources:
-                if res.project.uuid != ra.input_port.workflow_job.workflow.project.uuid:
-                    raise WorkflowValidationError('The resource {0} is not in the project'.format(res.uuid))
                 if not res.compat_resource_file:
                     raise WorkflowValidationError('The compatible resource file of resource {0} is not ready'.format(res.uuid))
                 type_of_res = res.resource_type
