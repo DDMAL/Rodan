@@ -216,8 +216,13 @@ class RodanAutomaticTask(RodanTask):
                     o = Output.objects.get(uuid=output['uuid'])
                     o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
                     path = o.resource.compat_resource_file.path
-                    res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
+                    res_query = Resource.objects.filter(uuid=o.resource.uuid.hex)
                     res_query.update(compat_resource_file=path)
+                    registry.tasks['rodan.core.create_thumbnails'].run(o.resource.uuid.hex) # call synchronously
+
+            RunJob.objects.filter(pk=runjob_id).update(status=task_status.FINISHED,
+                                                       error_summary='',
+                                                       error_details='')
             return retval
         finally:
             shutil.rmtree(_temp_dir)
@@ -228,16 +233,6 @@ class RodanAutomaticTask(RodanTask):
 
     def my_error_information(self, exc, traceback):
         raise NotImplementedError()
-
-
-    def on_success(self, retval, task_id, args, kwargs):
-        runjob_id = args[0]
-        RunJob.objects.filter(pk=runjob_id).update(status=task_status.FINISHED,
-                                                 error_summary='',
-                                                 error_details='')
-        output_resources = Resource.objects.filter(outputs__run_job=runjob_id)
-        for output_resource in output_resources:
-            registry.tasks['rodan.core.create_thumbnails'].si(str(output_resource.uuid)).apply_async()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         runjob_id = args[0]
