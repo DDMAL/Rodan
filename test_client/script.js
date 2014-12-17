@@ -139,7 +139,7 @@ angular.module('rodanTestApp', [])
         }, UPDATE_FREQ);
 
         function errhandler (error, status, headers, config) {
-            console.log(error, config.url);
+            console.log(error);
         };
         $scope.newToGreyscaleWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_greyscale}).success(function (wf) {
@@ -182,10 +182,10 @@ angular.module('rodanTestApp', [])
                     var wfjca = things[3].data;
                     var rc = things[4].data;
 
-                    var jra_ipt_image.find(jra.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var jra_ipt_angle.find(jra.input_port_types, function (ipt) { return ipt.name == 'angle'});
-                    var jca_ipt_image.find(jca.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var jca_ipt_parameters.find(jca.input_port_types, function (ipt) { return ipt.name == 'parameters'});
+                    var jra_ipt_image = _.find(jra.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var jra_ipt_angle = _.find(jra.input_port_types, function (ipt) { return ipt.name == 'angle'});
+                    var jca_ipt_image = _.find(jca.input_port_types, function (ipt) { return ipt.name == 'image'})
+                    var jca_ipt_parameters = _.find(jca.input_port_types, function (ipt) { return ipt.name == 'parameters'});
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjrm.url, 'input_port_type': jrm.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjrm.url, 'output_port_type': jrm.output_port_types[0].url}),
