@@ -1,4 +1,4 @@
-import mimetypes
+import mimetypes, os
 from celery import registry
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -71,7 +71,8 @@ class ResourceList(generics.ListCreateAPIView):
             serializer = ResourceSerializer(data=initial_data)
             serializer.is_valid(raise_exception=True)
 
-            resource_obj = serializer.save(name=fileobj.name, creator=request.user)
+            filename_without_ext = os.path.splitext(fileobj.name)[0]
+            resource_obj = serializer.save(name=filename_without_ext, creator=request.user)
             resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
 
             resource_id = str(resource_obj.uuid)
