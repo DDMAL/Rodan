@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project, ResourceCollection
 from rodan.serializers.user import UserSerializer
-from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer
+from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
 from rodan.exceptions import CustomAPIException
 
 class WorkflowList(generics.ListCreateAPIView):
@@ -37,6 +37,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     Performs operations on a single Workflow instance.
 
     #### Parameters
+    - `export` -- GET-only. If provided, Rodan will export the workflow into JSON format.
     - `valid` -- PATCH-only. If provided with non-empty string, workflow validation
       will be triggered.
     """
@@ -44,6 +45,14 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowSerializer
     queryset = Workflow.objects.all() # [TODO] filter according to the user?
+
+    def get(self, request, *a, **k):
+        if 'export' in request.query_params:
+            wf = self.get_object()
+            serialized = version_map[0.1].dump(wf)
+            return Response(serialized)
+        else:
+            return super(WorkflowDetail, self).get(request, *a, **k)
 
     def perform_update(self, serializer):
         to_be_validated = serializer.validated_data.get('valid', False)
