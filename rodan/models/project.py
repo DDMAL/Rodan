@@ -53,6 +53,11 @@ class Project(models.Model):
         if not os.path.exists(self.project_path):
             os.makedirs(self.project_path)
 
+    def delete(self, *args, **kwargs):
+        if os.path.exists(self.project_path):
+            os.rmtree(self.project_path)
+        super(Project, self).delete(*args, **kwargs)
+
     class Meta:
         app_label = 'rodan'
         ordering = ("created",)
@@ -67,14 +72,3 @@ class Project(models.Model):
     @property
     def resource_count(self):
         return self.resources.count()
-
-
-@receiver(pre_delete)
-def delete_project_dir(sender, instance, **kwargs):
-    """
-    Overridden model methods are not called on bulk operations. Must use signal.
-    https://docs.djangoproject.com/en/1.7/topics/db/models/#overriding-model-methods
-    """
-    if sender is Project:
-        if os.path.exists(instance.project_path):
-            shutil.rmtree(instance.project_path)
