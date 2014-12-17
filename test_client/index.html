@@ -35,10 +35,11 @@
         <div class="col-xs-8">
           <table class="table">
             <tbody>
-              <tr ng-repeat="r in resources">
+              <tr ng-repeat="r in resources" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}">
                 <td>
                   <span ng-bind="r.uuid" ng-show="!r.compat_resource_file"></span>
                   <a ng-bind="r.uuid" ng-show="r.compat_resource_file" ng-href="{{r.compat_resource_file}}" target="_blank"></a>
+                  <span ng-show="r.origin">[generated]</span>
                 </td>
                 <td ng-bind="r.name"></td>
                 <td><img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em></td>
@@ -99,7 +100,7 @@
             <div class="panel-heading">
               <h3 class="panel-title" ng-bind="wfrun.uuid"></h3>
               For <code ng-bind="wfrun.workflow"></code>
-              <b>Status: {{wfrun.status}}</b>
+              <b>Status: {{status[wfrun.status]}}</b>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
               <button ng-click="packageResults(wfrun)">Package Results</button>
               <button ng-click="packageResults(wfrun, 10000)">Package Results (expire in 10sec)</button>
