@@ -29,6 +29,10 @@ class ResultsPackage(models.Model):
 
     - `package_path` -- the local path of the package.
     - `package_relurl` -- the relative URL of the package.
+
+    **Methods**
+
+    - `delete` -- delete the package in the filesystem.
     """
     DEFAULT_EXPIRY_TIME = datetime.timedelta(days=30)
 
@@ -54,6 +58,12 @@ class ResultsPackage(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     expiry_time = models.DateTimeField(blank=True, null=True)
+
+    def delete(self, *a, **k):
+        path = self.package_path
+        if os.path.isfile(path):
+            os.remove(path)
+        super(ResultsPackage, self).delete(*a, **k)
 
     def __unicode__(self):
         return u"<ResultsPackage {0}>".format(str(self.uuid))
