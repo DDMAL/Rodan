@@ -182,16 +182,20 @@ angular.module('rodanTestApp', [])
                     var wfjca = things[3].data;
                     var rc = things[4].data;
 
+                    var jra_ipt_image.find(jra.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var jra_ipt_angle.find(jra.input_port_types, function (ipt) { return ipt.name == 'angle'});
+                    var jca_ipt_image.find(jca.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var jca_ipt_parameters.find(jca.input_port_types, function (ipt) { return ipt.name == 'parameters'});
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjrm.url, 'input_port_type': jrm.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjrm.url, 'output_port_type': jrm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra.input_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra.input_port_types[1].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra_ipt_angle.url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjra.url, 'output_port_type': jra.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjcm.url, 'input_port_type': jcm.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjcm.url, 'output_port_type': jcm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca.input_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca.input_port_types[1].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca_ipt_parameters.url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfjca.url, 'output_port_type': jca.output_port_types[0].url})
                     ]).then(function (things) {
                         var iprm = things[0].data;
