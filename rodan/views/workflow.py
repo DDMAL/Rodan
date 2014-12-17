@@ -89,6 +89,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             number_of_resource_assignment = ip.resource_assignments.count()
             if number_of_connection + number_of_resource_assignment > 1:
                 raise WorkflowValidationError('InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid))
+            elif number_of_connection + number_of_resource_assignment == 0:
+                raise WorkflowValidationError('InputPort {0} has no Connection or ResourceAssignment'.format(ip.uuid))
 
         # validate OutputPorts
         output_ports = OutputPort.objects.filter(workflow_job__workflow=workflow)

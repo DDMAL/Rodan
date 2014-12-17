@@ -139,6 +139,16 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         anticipated_message = {'detail': 'InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
+    def test_input__no_resourceassignment_or_connection(self):
+        ip = mommy.make('rodan.InputPort',
+                        workflow_job=self.test_workflowjob,
+                        input_port_type=self.test_inputporttype)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'detail': 'InputPort {0} has no Connection or ResourceAssignment'.format(ip.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+
+
     def test_input__more_than_maximum(self):
         for i in range(self.test_inputporttype.maximum):
             ip = mommy.make('rodan.InputPort',
