@@ -1,3 +1,4 @@
+import itertools
 from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, ResourceCollection, ResourceAssignment, Connection, Job
 from rest_framework import serializers
 from rodan.serializers.workflowjob import WorkflowJobSerializer
@@ -67,7 +68,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
                 self._serialized_field_name: validated_serialized
             }
         else:
-            return super(WorkflowSerializer, self).to_internal_value(data)
+            return super(WorkflowListSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
         if self._serialized_field_name in validated_data:
@@ -76,7 +77,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
             s_format = version_map[serialized['__version__']]
             return s_format.load(**validated_data)
         else:
-            return super(WorkflowSerializer, self).create(validated_data)
+            return super(WorkflowListSerializer, self).create(validated_data)
 
 #################
 class RodanWorkflowSerializationFormatBase(object):
@@ -101,9 +102,16 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             'connections': [],
             'resource_assignments': []
         }
-        for rc in wf.resource_collections.all():
+
+        ip_map = {}
+        op_map = {}
+        rc_map = {}
+        ids = itertools.count(start=1, step=1)
+
+        for i, rc in enumerate(wf.resource_collections.all()):
+            rc_map[rc.uuid.hex] = ids.next()
             rep_rc = {
-                'id': rc.uuid.hex
+                'id': rc_map[rc.uuid.hex]
             }
             rep['resource_collections'].append(rep_rc)
 
@@ -116,21 +124,22 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             }
 
             for ip in wfj.input_ports.all():
+                ip_map[ip.uuid.hex] = ids.next()
                 rep_ip = {
                     'label': ip.label,
                     'type': ip.input_port_type.name,
-                    'id': ip.uuid.hex
+                    'id': ip_map[ip.uuid.hex]
                 }
                 rep_wfj['input_ports'].append(rep_ip)
                 for ra in ip.resource_assignments.all():
                     rep_ra = {
-                        'input_port': ip.uuid.hex
+                        'input_port': ip_map[ip.uuid.hex]
                     }
                     if ra.resource_collection:
-                        rep_ra['resource_collection'] = ra.resource_collection.uuid.hex
+                        rep_ra['resource_collection'] = rc_map[ra.resource_collection.uuid.hex]
                     elif ra.resource:
                         # transform into resource collection
-                        transformed_rc_id = uuid.uuid1().hex
+                        transformed_rc_id = ids.next()
                         rep_rc = {
                             'id': transformed_rc_id
                         }
@@ -139,19 +148,21 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                     rep['resource_assignments'].append(rep_ra)
 
             for op in wfj.output_ports.all():
+                op_map[op.uuid.hex] = ids.next()
                 rep_op = {
                     'label': op.label,
                     'type': op.output_port_type.name,
-                    'id': op.uuid.hex
+                    'id': op_map[op.uuid.hex]
                 }
                 rep_wfj['output_ports'].append(rep_op)
-                for conn in op.connections.all():
-                    rep_conn = {
-                        'output_port': conn.output_port.uuid.hex,
-                        'input_port': conn.input_port.uuid.hex
-                    }
-                    rep['connections'].append(rep_conn)
             rep['workflow_jobs'].append(rep_wfj)
+
+        for conn in Connection.objects.filter(input_port__workflow_job__workflow=wf):
+            rep_conn = {
+                'output_port': op_map[conn.output_port.uuid.hex],
+                'input_port': ip_map[conn.input_port.uuid.hex]
+            }
+            rep['connections'].append(rep_conn)
 
         return rep
 
