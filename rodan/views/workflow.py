@@ -7,6 +7,7 @@ from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, Ou
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
 from rodan.exceptions import CustomAPIException
+from django.conf import settings
 
 class WorkflowList(generics.ListCreateAPIView):
     """
@@ -49,7 +50,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *a, **k):
         if 'export' in request.query_params:
             wf = self.get_object()
-            serialized = version_map[0.1].dump(wf)
+            serialized = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION].dump(wf)
             return Response(serialized)
         else:
             return super(WorkflowDetail, self).get(request, *a, **k)

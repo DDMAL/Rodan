@@ -88,7 +88,7 @@ class RodanWorkflowSerializationFormatBase(object):
     def load(self, serialized, project, **k):
         raise NotImplementedError()
 
-class RodanWorkflowSerializationFormat_v_0_1(object):
+class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBase):
     __version__ = 0.1
 
     def dump(self, wf):
