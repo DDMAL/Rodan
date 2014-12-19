@@ -55,7 +55,7 @@ class Project(models.Model):
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.project_path):
-            os.rmtree(self.project_path)
+            shutil.rmtree(self.project_path)
         super(Project, self).delete(*args, **kwargs)
 
     class Meta:

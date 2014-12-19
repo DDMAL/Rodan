@@ -159,13 +159,12 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
                 ],
             }
             try:
-                # Cannot figure out why Celery still raises exception with propagation turning off.
                 response = self.client.post("/resources/", resource_obj, format='multipart')
             except IOError:
                 pass
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.test_resource1 = Resource.objects.get(name="test_page1.png")
+            self.test_resource1 = Resource.objects.get(name="test_page1")
             self.assertFalse(self.test_resource1.compat_resource_file)
             self.assertEqual(self.test_resource1.processing_status, task_status.FAILED)
             self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
