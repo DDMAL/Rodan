@@ -25,6 +25,7 @@ gnureadline==6.3.3
 greenlet==0.4.5
 ipython==2.3.0
 jsonfield==1.0.0
+jsonschema==2.4.0
 kombu==3.0.23
 lxml==3.4.0
 mimeparse==0.1.3

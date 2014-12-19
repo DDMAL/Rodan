@@ -1,4 +1,5 @@
 import itertools
+import jsonschema
 from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, ResourceCollection, ResourceAssignment, Connection, Job
 from rest_framework import serializers
 from rodan.serializers.workflowjob import WorkflowJobSerializer
@@ -59,13 +60,13 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError({self._serialized_field_name: 'Unsupported version of serialization format: {0}'.format(version)})
 
             try:
-                validated_serialized = s_format.validate(serialized)
-            except ValueError as e:
-                raise serializers.ValidationError({self._serialized_field_name: str(e)})
+                s_format.validate(serialized)
+            except serializers.ValidationError as e:
+                raise serializers.ValidationError({self._serialized_field_name: e.detail})
 
             return {
                 'project': proj,
-                self._serialized_field_name: validated_serialized
+                self._serialized_field_name: serialized
             }
         else:
             return super(WorkflowListSerializer, self).to_internal_value(data)
@@ -82,15 +83,151 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 #################
 class RodanWorkflowSerializationFormatBase(object):
     __version__ = None
+    schema = {"type": "object"}  # a basic representation. Still need to verify uniqueness and id referencing in
+    ValidationError = serializers.ValidationError
+
+    def __init__(self):
+        self.schema_validator = jsonschema.Draft4Validator(self.schema)
     def dump(self, wf):
         raise NotImplementedError()
-    def validate(self, data):
+    def validate(self, serialized):
+        try:
+            self.schema_validator.validate(serialized)
+        except jsonschema.exceptions.ValidationError as e:
+            paths = []
+            for i, p in enumerate(e.relative_path):
+                if isinstance(p, int):   # array element
+                    paths.append("[{0}]".format(p))
+                else:
+                    if i == 0:
+                        paths.append(p)
+                    else:
+                        paths.append(".{0}".format(p))
+            path = ''.join(paths)
+            raise self.ValidationError({path: e.message})
+        try:
+            self.validate_ids(serialized)
+        except:
+            raise
+    def validate_ids(self, serialized):
         raise NotImplementedError()
     def load(self, serialized, project, **k):
         raise NotImplementedError()
 
 class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBase):
     __version__ = 0.1
+
+    schema = {
+        "type": "object",
+        "required": ["__version__", "name", "workflow_jobs", "resource_collections", "connections", "resource_assignments"],
+        "properties": {
+            "__version__": {"type": "number"},
+            "name": {"type": "string"},
+            "description": {"oneOf": [
+                {"type": "string"},
+                {"type": "null"}
+            ]},
+            "workflow_jobs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["input_ports", "output_ports", "job_name", "job_settings"],
+                    "properties": {
+                        "input_ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["type", "id", "label"],
+                                "properties": {
+                                    "type": {"type": "string"},
+                                    "id": {"type": "number"},
+                                    "label": {"type": "string"}
+                                }
+                            },
+                            "uniqueItems": True
+                        },
+                        "output_ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["type", "id", "label"],
+                                "properties": {
+                                    "type": {"type": "string"},
+                                    "id": {"type": "number"},
+                                    "label": {"type": "string"}
+                                }
+                            },
+                            "uniqueItems": True
+                        },
+                        "job_name": {"type": "string"},
+                        "job_settings": {"type": "array"}
+                    }
+                },
+                "uniqueItems": True
+            },
+            "resource_collections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                        "id": {"type": "number"}
+                    },
+                    "uniqueItems": True
+                }
+            },
+            "connections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["input_port", "output_port"],
+                    "properties": {
+                        "input_port": {"type": "number"},
+                        "output_port": {"type": "number"}
+                    },
+                    "uniqueItems": True
+                }
+            },
+            "resource_assignments": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["input_port", "resource_collection"],
+                    "properties": {
+                        "input_port": {"type": "number"},
+                        "resource_collection": {"type": "number"}
+                    },
+                    "uniqueItems": True
+                }
+            }
+        }
+    }
+    def validate_ids(self, serialized):
+        ip_ids = set()
+        op_ids = set()
+        rc_ids = set()
+        for i_wfj, wfj in enumerate(serialized['workflow_jobs']):
+            for i_ip, ip in enumerate(wfj['input_ports']):
+                if ip['id'] in ip_ids:
+                    raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}]'.format(i_wfj, i_ip): 'Duplicate InputPort ID found.'})
+                ip_ids.add(ip['id'])
+            for i_op, op in enumerate(wfj['output_ports']):
+                if op['id'] in op_ids:
+                    raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}]'.format(i_wfj, i_op): 'Duplicate OutputPort ID found.'})
+                op_ids.add(op['id'])
+        for i_rc, rc in enumerate(serialized['resource_collections']):
+            if rc['id'] in rc_ids:
+                raise self.ValidationError({'resource_collections[{0}]'.format(i_rc): 'Duplicate ResourceCollection ID found.'})
+        for i_conn, conn in enumerate(serialized['connections']):
+            if conn['input_port'] not in ip_ids:
+                raise self.ValidationError({'connections[{0}].input_port'.format(i_conn): 'Referencing an invalid InputPort ID.'})
+            if conn['output_port'] not in op_ids:
+                raise self.ValidationError({'connections[{0}].output_port'.format(i_conn): 'Referencing an invalid OutputPort ID.'})
+        for i_ra, ra in enumerate(serialized['resource_assignments']):
+            if ra['input_port'] not in ip_ids:
+                raise self.ValidationError({'resource_assignments[{0}].input_port'.format(i_ra): 'Referencing an invalid InputPort ID.'})
+            if ra['resource_collection'] not in rc_ids:
+                raise self.ValidationError({'resource_assignments[{0}].resource_collection'.format(i_ra): 'Referencing an invalid OutputPort ID.'})
 
     def dump(self, wf):
         rep = {
@@ -165,10 +302,6 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             rep['connections'].append(rep_conn)
 
         return rep
-
-    def validate(self, serialized):
-        # [TODO] raise errors
-        return serialized
 
     def load(self, serialized, project, **k):
         wf = Workflow.objects.create(name=serialized['name'],
