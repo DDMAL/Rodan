@@ -123,10 +123,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         "properties": {
             "__version__": {"type": "number"},
             "name": {"type": "string"},
-            "description": {"oneOf": [
-                {"type": "string"},
-                {"type": "null"}
-            ]},
+            "description": {"type": "string"},
             "workflow_jobs": {
                 "type": "array",
                 "items": {
@@ -233,12 +230,13 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         rep = {
             '__version__': self.__version__,
             'name': wf.name,
-            'description': wf.description,
             'workflow_jobs': [],
             'resource_collections': [],
             'connections': [],
             'resource_assignments': []
         }
+        if wf.description:
+            rep['description'] = wf.description
 
         ip_map = {}
         op_map = {}
