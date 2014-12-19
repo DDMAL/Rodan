@@ -8,6 +8,7 @@ from rest_framework import status
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
+from rodan.serializers.workflow import version_map
 
 class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     """
@@ -386,3 +387,33 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         mommy.make('rodan.Connection',
                    output_port=outputport3,
                    input_port=inputport2_new)
+
+
+class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    """
+        For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
+        https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
+    """
+
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_basic_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+    def test_export(self):
+        response = self.client.get("/workflow/{0}/?export=yes".format(self.test_workflow.uuid.hex))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        serializer = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION]
+        try:
+            serializer.validate(response.data)
+        except serializer.ValidationError as e:
+            self.fail('Exported workflow does not validate: {0}'.format(e.detail))
+    def test_import_0_1(self):
+        serializer = version_map[0.1]
+        serialized = serializer.dump(self.test_workflow)
+        response = self.client.post("/workflows/", {
+            'serialized': serialized,
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid.hex)
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.test_project.workflows.count(), 2)

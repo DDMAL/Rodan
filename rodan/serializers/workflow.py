@@ -215,6 +215,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         for i_rc, rc in enumerate(serialized['resource_collections']):
             if rc['id'] in rc_ids:
                 raise self.ValidationError({'resource_collections[{0}]'.format(i_rc): 'Duplicate ResourceCollection ID found.'})
+            rc_ids.add(rc['id'])
         for i_conn, conn in enumerate(serialized['connections']):
             if conn['input_port'] not in ip_ids:
                 raise self.ValidationError({'connections[{0}].input_port'.format(i_conn): 'Referencing an invalid InputPort ID.'})
