@@ -52,14 +52,14 @@ class Connection(models.Model):
         wf = self.workflow
         if wf.valid:
             wf.valid = False
-            wf.save(update_fields=['valid'])
+            wf.save()
 
     def delete(self, *args, **kwargs):
         wf = self.workflow
         super(Connection, self).delete(*args, **kwargs)
         if wf.valid:
             wf.valid = False
-            wf.save(update_fields=['valid'])
+            wf.save()
 
     def __unicode__(self):
         return u"<Connection {0}>".format(str(self.uuid))

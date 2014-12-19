@@ -34,6 +34,6 @@ def _invalidate_workflow_on_resources_change(sender, **kwargs):
         wf = rc.workflow
         if wf.valid:
             wf.valid = False
-            wf.save(update_fields=['valid'])
+            wf.save()
 
 m2m_changed.connect(_invalidate_workflow_on_resources_change, sender=ResourceCollection.resources.through)
