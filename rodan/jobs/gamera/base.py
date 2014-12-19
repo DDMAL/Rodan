@@ -63,14 +63,14 @@ def load_gamera_module(gamera_module):
                 for ipt_desc in input_types:
                     ipt = ipt_desc['name']
                     inputs[ipt] = [
-                        {'resource_type': None,  # TODO later
+                        {'resource_type': None,  # should be filled in later
                          'resource_path': testcase.new_available_path()}
                     ]
                 outputs = {}
                 for opt_desc in output_types:
                     opt = opt_desc['name']
                     outputs[opt] = [
-                        {'resource_type': None,  # TODO later
+                        {'resource_type': None,  # should be filled in later
                          'resource_path': testcase.new_available_path()}
                     ]
 
