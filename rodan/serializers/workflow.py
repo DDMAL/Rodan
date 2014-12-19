@@ -82,6 +82,18 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 #################
 class RodanWorkflowSerializationFormatBase(object):
+    """
+    Base class for Workflow Serialization and Deserialization.
+
+    Need to override:
+    - __version__ -- a float
+    - schema -- a Python dictionary
+    - dump(self, workflow) -> Python dictionary
+    - validate_ids(self, serialized) raises self.ValidationError
+    - load(self, serialized, project) -> Workflow object. Save all the related objects
+      in this field.
+    """
+
     __version__ = None
     schema = {"type": "object"}  # a basic representation. Still need to verify uniqueness and id referencing in
     ValidationError = serializers.ValidationError
