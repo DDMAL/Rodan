@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 
 class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
-    job_settings = serializers.CharField(required=False)  # [TODO]: replace with JSON serializer
+    #job_settings = serializers.CharField(required=False)  # [TODO]: replace with JSON serializer
 
     class Meta:
         model = WorkflowJob

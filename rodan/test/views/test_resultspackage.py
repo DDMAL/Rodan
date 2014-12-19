@@ -17,7 +17,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.login(username="super", password="hahaha")
 
     def test_unfinished_workflowrun(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
@@ -73,7 +73,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.login(username="super", password="hahaha")
 
         # Run this dummy workflow
         self.test_resource_content = 'dummy text'
@@ -159,7 +159,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.login(username="super", password="hahaha")
 
         # modify all manual job to automatic to save effort (and in/output ports)
         job_a = self.test_wfjob_A.job

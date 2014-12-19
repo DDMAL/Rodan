@@ -6,7 +6,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from celery import registry
 from celery.task.control import revoke
+from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
+from django.utils import timezone
 
 from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPackageListSerializer
 from rodan.models import ResultsPackage
@@ -37,9 +39,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
     filter_fields = ('creator', 'workflow_run')
 
     def perform_create(self, serializer):
-        # TODO: auto set expiry time
-
-
         wfrun = serializer.validated_data['workflow_run']
         if wfrun.status != task_status.FINISHED:
             raise ValidationError({'workflow_run': ["Cannot package results of an unfinished or failed WorkflowRun."]})
@@ -48,7 +47,29 @@ class ResultsPackageList(generics.ListCreateAPIView):
         if rp_status != task_status.PROCESSING:
             raise ValidationError({'status': ["Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
 
-        rp = serializer.save(creator=self.request.user) # expiry_date
+        auto_expiry_seconds = settings.RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS
+        now = timezone.now()
+        if auto_expiry_seconds:
+            user_set_expiry_time = serializer.validated_data.get('expiry_time')
+            if not user_set_expiry_time:
+                if self.request.user.is_staff: # [TODO] which users do we allow to create never-expire packages?
+                    expiry_time = None
+                else:
+                    decided_expiry = auto_expiry_seconds
+                    expiry_time = now + datetime.timedelta(seconds=decided_expiry)
+            else:
+                user_set_expiry_seconds = (user_set_expiry_time - now).total_seconds()
+                if user_set_expiry_seconds < auto_expiry_seconds:
+                    decided_expiry = auto_expiry_seconds
+                else:
+                    decided_expiry = user_set_expiry_seconds
+                expiry_time = now + datetime.timedelta(seconds=decided_expiry)
+
+            rp = serializer.save(creator=self.request.user,
+                                 expiry_time=expiry_time)
+        else:
+            rp = serializer.save(creator=self.request.user,
+                                 expiry_time=None)
         rp_id = rp.uuid.hex
 
         include_failed_runjobs = 'include_failed_runjobs' in self.request.data
