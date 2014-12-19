@@ -224,7 +224,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             if ra['input_port'] not in ip_ids:
                 raise self.ValidationError({'resource_assignments[{0}].input_port'.format(i_ra): 'Referencing an invalid InputPort ID.'})
             if ra['resource_collection'] not in rc_ids:
-                raise self.ValidationError({'resource_assignments[{0}].resource_collection'.format(i_ra): 'Referencing an invalid OutputPort ID.'})
+                raise self.ValidationError({'resource_assignments[{0}].resource_collection'.format(i_ra): 'Referencing an invalid ResourceCollection ID.'})
 
     def dump(self, wf):
         rep = {
