@@ -13,14 +13,18 @@ class ResourceCollectionList(generics.ListCreateAPIView):
     to create a new ResourceCollection. POST requests will return the newly-created
     ResourceCollection object.
 
-    #### Parameters
-    - workflow -- POST-only, URL to an Workflow object
-    - resources -- POST-only, a list of URL to Resource objects.
+    #### GET Parameters
+    - `workflow`
+
+    #### POST Parameters
+    - `workflow`
+    - `resources`
     """
     model = ResourceCollection
     serializer_class = ResourceCollectionSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = ResourceCollection.objects.all() # [TODO] filter according to the user?
+    filter_fields = ('workflow', )
 
 class ResourceCollectionDetail(generics.RetrieveUpdateDestroyAPIView):
     """

@@ -1,3 +1,4 @@
+import django_filters
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import permissions
@@ -13,15 +14,27 @@ class ResourceAssignmentList(generics.ListCreateAPIView):
     to create a new ResourceAssignments. POST requests will return the newly-created
     ResourceAssignment object.
 
-    #### Parameters
-    - input_port -- POST-only, URL to an InputPort object
-    - resource -- POST-only, URL to a Resource object or null.
-    - resource_collection -- POST-only, URL to a ResourceCollection object or null.
+    #### GET Parameters
+    - `workflow`
+    - `workflow_job`
+    - `input_port`
+
+    #### POST Parameters
+    - `input_port`
+    - `resource`
+    - `resource_collection`
     """
     model = ResourceAssignment
     serializer_class = ResourceAssignmentSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = ResourceAssignment.objects.all() # [TODO] filter according to the user?
+
+    class filter_class(django_filters.FilterSet):
+        workflow = django_filters.CharFilter(name='input_port__workflow_job__workflow')
+        workflow_job = django_filters.CharFilter(name='input_port__workflow_job')
+        class Meta:
+            model = ResourceAssignment
+            fields = ('workflow_job', 'workflow', 'input_port')
 
 class ResourceAssignmentDetail(generics.RetrieveUpdateDestroyAPIView):
     """

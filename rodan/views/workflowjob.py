@@ -11,8 +11,8 @@ class WorkflowJobList(generics.ListCreateAPIView):
     to create a new WorkflowJob. POST requests will return the newly-created
     WorkflowJob object.
 
-    #### Parameters
-    - `workflow` -- GET-only. UUID of a Workflow.
+    #### GET Parameters
+    - `workflow`
     """
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
