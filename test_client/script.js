@@ -100,6 +100,9 @@ angular.module('rodanTestApp', [])
                     $scope.name = null;
                 });
         };
+        $scope.deleteProject = function (p) {
+            $http.delete(p.url);
+        };
     })
 
     .controller('resourcesCtrl', function ($scope, $http, ROOT, intervalNow, $rootScope, getAllPages, UPDATE_FREQ) {

@@ -17,6 +17,7 @@
             <tr ng-repeat="p in projects">
               <td ng-bind="p.uuid"></td>
               <td ng-bind="p.name"></td>
+              <td><button ng-click="deleteProject(p)">Delete</button></td>
             </tr>
           </table>
         </div>
@@ -129,7 +130,13 @@
           <table class="table">
             <tbody>
               <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, info: rp.status == 8}">
-                <td>For WorkflowRun {{rp.workflow_run}}</td>
+                <td>
+                  <p>For WorkflowRun {{rp.workflow_run}}</p>
+                  <div ng-show="rp.status == -1">
+                    <code>{{rp.error_summary}}</code>
+                    <pre><code>{{rp.error_details}}</code></pre>
+                  </div>
+                </td>
                 <td>{{rp.percent_completed}}%</td>
                 <td ng-bind="status[rp.status]"></td>
                 <td><a ng-href="{{rp.package_url}}" target="_blank">Download</a></td>
