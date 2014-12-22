@@ -59,7 +59,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
                     expiry_time = now + datetime.timedelta(seconds=decided_expiry)
             else:
                 user_set_expiry_seconds = (user_set_expiry_time - now).total_seconds()
-                if user_set_expiry_seconds < auto_expiry_seconds:
+                if user_set_expiry_seconds > auto_expiry_seconds:
                     decided_expiry = auto_expiry_seconds
                 else:
                     decided_expiry = user_set_expiry_seconds
