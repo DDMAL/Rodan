@@ -1,4 +1,4 @@
-import tempfile, shutil, os, uuid, copy, re, json
+import tempfile, shutil, os, uuid, copy, re, json, contextlib
 from celery import Task, registry
 from celery.app.task import TaskType
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
@@ -189,27 +189,25 @@ class RodanAutomaticTask(RodanTask):
     def run(self, runjob_id):
         settings = self._settings(runjob_id)
         inputs = self._inputs(runjob_id)
-        _temp_dir = tempfile.mkdtemp()
-        outputs = self._outputs(runjob_id, _temp_dir)
 
-        # build argument for run_my_task and mapping dictionary
-        arg_outputs = {}
-        temppath_map = {}
-        for opt_name, output_list in outputs.iteritems():
-            if opt_name not in arg_outputs:
-                arg_outputs[opt_name] = []
-            for output in output_list:
-                arg_outputs[opt_name].append({
-                    'resource_path': output['resource_temp_path'],
-                    'resource_type': output['resource_type']
-                })
-                temppath_map[output['resource_temp_path']] = output
+        with TemporaryDirectory() as tmpdir:
+            outputs = self._outputs(runjob_id, tmpdir)
 
-        try:
+            # build argument for run_my_task and mapping dictionary
+            arg_outputs = {}
+            temppath_map = {}
+            for opt_name, output_list in outputs.iteritems():
+                if opt_name not in arg_outputs:
+                    arg_outputs[opt_name] = []
+                for output in output_list:
+                    arg_outputs[opt_name].append({
+                        'resource_path': output['resource_temp_path'],
+                        'resource_type': output['resource_type']
+                    })
+                    temppath_map[output['resource_temp_path']] = output
+
             retval = self.run_my_task(inputs, settings, arg_outputs)
-        except:
-            raise
-        else:
+
             # save outputs
             for temppath, output in temppath_map.iteritems():
                 with open(temppath, 'rb') as f:
@@ -220,13 +218,10 @@ class RodanAutomaticTask(RodanTask):
                     res_query.update(compat_resource_file=path)
                     registry.tasks['rodan.core.create_thumbnails'].run(o.resource.uuid.hex) # call synchronously
 
-            RunJob.objects.filter(pk=runjob_id).update(status=task_status.FINISHED,
-                                                       error_summary='',
-                                                       error_details='')
-            return retval
-        finally:
-            shutil.rmtree(_temp_dir)
-            del _temp_dir
+        RunJob.objects.filter(pk=runjob_id).update(status=task_status.FINISHED,
+                                                   error_summary=None,
+                                                   error_details=None)
+        return retval
 
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
@@ -260,7 +255,7 @@ class RodanAutomaticTask(RodanTask):
             logger.warning("The my_error_information method is not implemented properly (or not implemented at all). Exception: ")
             logger.warning("%s: %s" % (e.__class__.__name__, e.__str__()))
             logger.warning("Using default sources for error information.")
-            err_summary = exc.__class__.__name__
+            err_summary = "{0}: {1}".format(type(exc).__name__, str(exc))
             err_details = einfo.traceback
 
         return {'error_summary': err_summary,
@@ -268,6 +263,7 @@ class RodanAutomaticTask(RodanTask):
 
     def test_my_task(self, testcase):
         raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
+
 
 class RodanManualTask(RodanTask):
     abstract = True
@@ -343,3 +339,15 @@ class RodanManualTask(RodanTask):
 class ManualJobException(CustomAPIException):
     def __init__(self, errmsg):
         super(ManualJobException, self).__init__(errmsg, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@contextlib.contextmanager
+def TemporaryDirectory():
+    """
+    Temporary directory with automatic cleanup.
+    see -- http://stackoverflow.com/questions/13379742/right-way-to-clean-up-a-temporary-folder-in-python-class
+    """
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
