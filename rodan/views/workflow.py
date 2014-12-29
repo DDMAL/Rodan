@@ -58,11 +58,13 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         to_be_validated = serializer.validated_data.get('valid', False)
         if to_be_validated:
-            workflow = Workflow.objects.get(uuid=serializer.data['uuid'])
+            workflow = self.get_object()
             try:
                 self._validate(workflow)
             except WorkflowValidationError as e:
                 raise CustomAPIException(e.message, status=status.HTTP_409_CONFLICT)
+        else:
+            raise ValidationError({"valid": "Cannot invalidate a Workflow."})
         serializer.save()
 
     def _validate(self, workflow):

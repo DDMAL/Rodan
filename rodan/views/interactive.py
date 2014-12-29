@@ -30,7 +30,7 @@ class InteractiveView(APIView):
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
+        manual_task = registry.tasks[str(runjob.job_name)]
         template, context = manual_task.get_interface(run_job_uuid)
         c = RequestContext(request, context)
         return HttpResponse(template.render(c))
@@ -41,7 +41,7 @@ class InteractiveView(APIView):
         if not runjob.ready_for_input:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        manual_task = registry.tasks[str(runjob.workflow_job.job.job_name)]
+        manual_task = registry.tasks[str(runjob.job_name)]
         try:
             manual_task.save_user_input(run_job_uuid, request.DATA)
         except APIException as e:

@@ -25,18 +25,17 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                             compat_resource_file="",
                                             resource_type=ResourceType.cached('test/a1'))
         self.test_runjob = mommy.make('rodan.RunJob',
-                                      workflow_job__workflow=self.test_workflow,
-                                      workflow_job__job=dummy_m_job,
+                                      job_name=dummy_m_job.job_name,
                                       ready_for_input=True,
                                       workflow_run__status=task_status.PROCESSING,
                                       workflow_run__workflow=self.test_workflow)
         input_m = mommy.make('rodan.Input',
                              run_job=self.test_runjob,
-                             input_port__input_port_type=dummy_m_job.input_port_types.get(name='in_typeA'),
+                             input_port_type_name='in_typeA',
                              resource=self.test_resource_in)
         output_m = mommy.make('rodan.Output',
                               run_job=self.test_runjob,
-                              output_port__output_port_type=dummy_m_job.output_port_types.get(name='out_typeA'),
+                              output_port_type_name='out_typeA',
                               resource=self.test_resource_out)
         self.test_resource_out.origin = output_m
         self.test_resource_out.save()

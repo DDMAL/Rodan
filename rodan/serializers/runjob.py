@@ -5,9 +5,7 @@ from rodan.serializers import AbsoluteURLField
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     job = serializers.HyperlinkedRelatedField(view_name='job-detail', read_only=True)
-    job_name = serializers.CharField(read_only=True)
-    workflow = serializers.HyperlinkedRelatedField(view_name='workflow-detail', read_only=True)
-    interactive = AbsoluteURLField(read_only=True)
+    interactive_url = AbsoluteURLField(read_only=True, source="interactive_relurl")
 
     class Meta:
         model = RunJob
@@ -16,7 +14,6 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'uuid',
                   'job',
                   'job_name',
-                  'workflow',
                   'workflow_run',
                   'workflow_job',
                   'inputs',
@@ -28,4 +25,4 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'updated',
                   'error_summary',
                   'error_details',
-                  'interactive')
+                  'interactive_url')

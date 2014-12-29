@@ -9,11 +9,8 @@ class ResourceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.test_user = mommy.make(User)
-        self.test_output = mommy.make('rodan.Output')
-        self.test_project = self.test_output.run_job.workflow_job.workflow.project
-        self.test_inputport = mommy.make('rodan.InputPort',
-                                         workflow_job=self.test_output.run_job.workflow_job)
-        self.test_workflow = self.test_output.run_job.workflow_job.workflow
+        self.test_project = mommy.make('rodan.Project')
+        self.test_workflow = mommy.make('rodan.Workflow')
 
         self.test_resource_data = {
             "project": self.test_project,
