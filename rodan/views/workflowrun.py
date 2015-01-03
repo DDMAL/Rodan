@@ -134,6 +134,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
                 Input(run_job=runjob_A,
                       input_port=ra.input_port,
+                      input_port_type_name=ra.input_port.input_port_type.name,
                       resource=entry_res).save()
 
 
