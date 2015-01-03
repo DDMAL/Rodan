@@ -29,7 +29,7 @@
             _initialize();
             _layerImage.loadImage(_settings.image.source);
         };
-        
+
         /**
          * Initialization method.
          */
@@ -419,8 +419,7 @@
         {
             var newGeometry = {colour: _glyphColouring.colour,
                                points: _inputPolygon,
-                               workingWidth: _kineticImage.getWidth(),
-                               originalWidth: _settings.image.originalWidth};
+                               workingWidth: _kineticImage.getWidth()};
             _geometries.push(newGeometry);
         };
 
@@ -614,8 +613,7 @@
             // Image settings.
             image:
             {
-                source: null,
-                originalWidth: 0
+                source: null
             },
 
             // Debug.
@@ -643,7 +641,7 @@
         // Run.
         run();
     };
- 
+
 
     $.fn.PixelSegmentation = function(aOptions)
     {

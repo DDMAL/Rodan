@@ -30,12 +30,8 @@ class ManualTask(RodanManualTask):
 
     def get_my_interface(self, inputs, settings):
         t = get_template('gamera/interfaces/pixel_segment.html')
-        # [TODO] don't let gamera run in Django thread. Try to find a more lightweight method.
-        task_image = load_image(inputs['image'][0]['resource_path'])
-        width = task_image.ncols
         c = {
-            'image_url': inputs['image'][0]['large_thumb_url'],
-            'image_width': task_image.ncols
+            'image_url': inputs['image'][0]['large_thumb_url']
         }
         return (t, c)
 
@@ -83,6 +79,7 @@ class ApplySegmentTask(RodanAutomaticTask):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['geometries'][0]['resource_path']) as f:
             geometries = json.load(f)
+        geometries['originalWidth'] = task_image.ncols
 
         # Make copy of original
         imageOriginal = task_image.to_pil()
