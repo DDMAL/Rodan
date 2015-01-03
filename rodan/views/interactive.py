@@ -22,7 +22,6 @@ class InteractiveView(APIView):
     #### Parameters
     - `**kwargs` -- POST-only. Job settings.
     """
-    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, run_job_uuid, *a, **k):
         # check runjob
