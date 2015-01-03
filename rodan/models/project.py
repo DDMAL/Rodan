@@ -54,9 +54,10 @@ class Project(models.Model):
             os.makedirs(self.project_path)
 
     def delete(self, *args, **kwargs):
-        if os.path.exists(self.project_path):
-            shutil.rmtree(self.project_path)
+        proj_path = self.project_path
         super(Project, self).delete(*args, **kwargs)
+        if os.path.exists(proj_path):
+            shutil.rmtree(proj_path)
 
     class Meta:
         app_label = 'rodan'
