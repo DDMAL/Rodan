@@ -174,7 +174,7 @@ class package_results(Task):
 
             target_dir_name = os.path.dirname(package_path)
             if not os.path.isdir(target_dir_name):
-                os.mkdir(target_dir_name)
+                os.makedirs(target_dir_name)
             bag.package(target_dir_name, method='zip')
 
 
