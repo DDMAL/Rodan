@@ -4,6 +4,7 @@ from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
+from rodan.jobs.gamera import argconvert
 from django.template.loader import get_template
 
 
@@ -40,7 +41,8 @@ class ManualTask(RodanManualTask):
             raise ManualJobException("Bad data")
         # [TODO] validate userdata
         with open(outputs['geometries'][0]['resource_path'], 'w') as g:
-            json.dump(userdata, g['geometries'])
+            geometries = json.loads(userdata['geometries'])
+            json.dump(geometries, g)
 
 
 class ApplySegmentTask(RodanAutomaticTask):
@@ -79,7 +81,6 @@ class ApplySegmentTask(RodanAutomaticTask):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['geometries'][0]['resource_path']) as f:
             geometries = json.load(f)
-        geometries['originalWidth'] = task_image.ncols
 
         # Make copy of original
         imageOriginal = task_image.to_pil()
