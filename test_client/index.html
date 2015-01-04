@@ -84,11 +84,27 @@
               <button type="submit">Submit</button>
             </fieldset>
           </form>
+          <form ng-submit="newToOnebitWorkflow()">
+            <fieldset>
+              <legend>New to_onebit Workflow</legend>
+              <div><label>Resources: <select ng-model="resources_onebit" ng-options="r.url as (r.name + '--' + r.uuid) for r in resources" multiple></select></label></div>
+              <input type="name" placeholder="Workflow Name" ng-model="name_onebit"/>
+              <button type="submit">Submit</button>
+            </fieldset>
+          </form>
           <form ng-submit="newRotateCropWorkflow()">
             <fieldset>
               <legend>New rotate & crop Workflow</legend>
               <div><label>Resources: <select ng-model="resources_rotatecrop" ng-options="r.url as (r.name + '--' + r.uuid) for r in resources" multiple></select></label></div>
               <input type="name" placeholder="Workflow Name" ng-model="name_rotatecrop"/>
+              <button type="submit">Submit</button>
+            </fieldset>
+          </form>
+          <form ng-submit="newDespeckleWorkflow()">
+            <fieldset>
+              <legend>New despeckle Workflow</legend>
+              <div><label>Resources: <select ng-model="resources_despeckle" ng-options="r.url as (r.name + '--' + r.uuid) for r in resources" multiple></select></label></div>
+              <input type="name" placeholder="Workflow Name" ng-model="name_despeckle"/>
               <button type="submit">Submit</button>
             </fieldset>
           </form>

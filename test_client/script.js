@@ -164,6 +164,26 @@ angular.module('rodanTestApp', [])
                 }).error(errhandler);
             }).error(errhandler);
         };
+        $scope.newToOnebitWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_onebit}).success(function (wf) {
+                var job_onebit = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_onebit'});
+                $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job_type': 0, 'job': job_onebit.url}).success(function (wfjob) {
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjob.url, 'input_port_type': job_onebit.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjob.url, 'output_port_type': job_onebit.output_port_types[0].url}),
+                        $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_onebit})
+                    ]).then(function (things) {
+                        var ip = things[0].data;
+                        var op = things[1].data;
+                        var rc = things[2].data;
+                        $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resource_collection': rc.url})
+                            .success(function (ra) {
+                                console.log('to_onebit workflow created!');
+                            }).error(errhandler);
+                    }, errhandler);
+                }).error(errhandler);
+            }).error(errhandler);
+        };
         $scope.newRotateCropWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_rotatecrop}).success(function (wf) {
                 var jrm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_manual'});
@@ -221,6 +241,46 @@ angular.module('rodanTestApp', [])
                             $http.post(ROOT + '/connections/', {'output_port': opcm.url, 'input_port': ipca_arg.url})
                         ]).then(function (things) {
                             console.log('rotate-crop workflow created!');
+                        }, errhandler);
+                    }, errhandler);
+                }, errhandler);
+            });
+        };
+        $scope.newDespeckleWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_despeckle}).success(function (wf) {
+                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_manual'});
+                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_apply_despeckle'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_despeckle})
+                ]).then(function (things) {
+                    var wfjm = things[0].data;
+                    var wfja = things[1].data;
+                    var rc = things[2].data;
+
+                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var ja_ipt_parameters = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'parameters'});
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_parameters.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var ipm = things[0].data;
+                        var opm = things[1].data;
+                        var ipa_img = things[2].data;
+                        var ipa_par = things[3].data;
+                        var opa = things[4].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_par.url})
+                        ]).then(function (things) {
+                            console.log('despeckle workflow created!');
                         }, errhandler);
                     }, errhandler);
                 }, errhandler);
