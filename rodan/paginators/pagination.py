@@ -2,9 +2,11 @@ from rest_framework.pagination import BasePaginationSerializer, NextPageField, P
 from rest_framework import serializers
 from rest_framework.templatetags.rest_framework import replace_query_param
 
+
 class PaginationSerializer(BasePaginationSerializer):
     """
-    A default implementation of a pagination serializer.
+        This pagination serializer adds the 'current_page' and 'total_pages' properties
+        to the default Django Rest Framework pagination serializer.
     """
     count = serializers.ReadOnlyField(source='paginator.count')
     next = NextPageField(source='*')
