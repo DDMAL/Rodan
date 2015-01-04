@@ -12,7 +12,6 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
                   'status',
                   'percent_completed',
                   'workflow_run',
-                  'output_ports',
                   'creator',
                   'error_summary',
                   'error_details',
@@ -32,7 +31,6 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'status',
                   'percent_completed',
                   'workflow_run',
-                  'output_ports',
                   'creator',
                   'error_summary',
                   'error_details',
@@ -41,16 +39,3 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'expiry_time',
                   'package_url')
         read_only_fields = ('creator', 'percent_completed', 'error_summary', 'error_details')
-    def validate(self, data):
-        if 'output_ports' in data:
-            # validate if outputports are in the WorkflowRun's Workflow
-            wf = data['workflow_run'].workflow
-            for op in data['output_ports']:
-                if op.workflow_job.workflow != wf:
-                    raise serializers.ValidationError("Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(op.uuid.hex, data['workflow_run'].uuid.hex))
-        else:
-            # set default OutputPorts
-            wf = data['workflow_run'].workflow
-            ops = OutputPort.objects.filter(workflow_job__workflow=wf, connections__isnull=True)
-            data['output_ports'] = list(ops)
-        return data

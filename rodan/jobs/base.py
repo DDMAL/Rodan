@@ -131,7 +131,7 @@ class RodanTask(Task):
         Return a dictionary of list of input file path and input resource type.
         If with_urls=True, it also includes the compat resource url and thumbnail urls.
         """
-        values = ['input_port__input_port_type__name',
+        values = ['input_port_type_name',
                   'resource__compat_resource_file',
                   'resource__resource_type__mimetype']
         if with_urls:
@@ -140,7 +140,7 @@ class RodanTask(Task):
 
         inputs = {}
         for input_value in input_values:
-            ipt_name = input_value['input_port__input_port_type__name']
+            ipt_name = input_value['input_port_type_name']
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
             d = {'resource_path': input_value['resource__compat_resource_file'],
@@ -159,13 +159,13 @@ class RodanTask(Task):
     def _outputs(self, runjob_id, temp_dir):
         "Return a dictionary of list of output file path and output resource type."
         output_values = Output.objects.filter(run_job__pk=runjob_id).values(
-            'output_port__output_port_type__name',
+            'output_port_type_name',
             'resource__resource_type__mimetype',
             'uuid')
 
         outputs = {}
         for output_value in output_values:
-            opt_name = output_value['output_port__output_port_type__name']
+            opt_name = output_value['output_port_type_name']
             if opt_name not in outputs:
                 outputs[opt_name] = []
 

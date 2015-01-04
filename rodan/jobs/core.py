@@ -6,9 +6,10 @@ from pybagit.bagit import BagIt
 from celery import task, registry
 from django.core.files import File
 from django.conf import settings
+from django.db.models import Q
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource, ResourceType, ResultsPackage
+from rodan.models import Resource, ResourceType, ResultsPackage, Output
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
@@ -110,17 +111,21 @@ class package_results(Task):
     def run(self, rp_id, include_failed_runjobs=False):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
         rp_query.update(status=task_status.PROCESSING, celery_task_id=self.request.id)
+        rp = rp_query.first()
         package_path = get_package_path(rp_id)
 
-        outputs = rp_query.values('output_ports__label',
-                                  'output_ports__workflow_job__uuid',
-                                  'output_ports__workflow_job__job__job_name',
-                                  'output_ports__outputs__resource__uuid',
-                                  'output_ports__outputs__resource__name',
-                                  'output_ports__outputs__resource__compat_resource_file',
-                                  'output_ports__outputs__run_job__status',
-                                  'output_ports__outputs__run_job__error_summary',
-                                  'output_ports__outputs__run_job__error_details')
+        # Get endpoint outputs
+        output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run) &
+                                             (Q(resource__inputs__isnull=True) | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)))
+        outputs = output_query.values('output_port_type_name',
+                                      'run_job__uuid',
+                                      'run_job__job_name',
+                                      'resource__uuid',
+                                      'resource__name',
+                                      'resource__compat_resource_file',
+                                      'run_job__status',
+                                      'run_job__error_summary',
+                                      'run_job__error_details')
 
         if len(outputs) > 0:
             percentage_increment = 70.00 / len(outputs)
@@ -133,28 +138,28 @@ class package_results(Task):
             bag = BagIt(tmp_dir)
 
             for output in outputs:
-                wfj_name = output['output_ports__workflow_job__job__job_name'].split('.')[-1]
-                op_label = output['output_ports__label']
-                wfj_uuid = output['output_ports__workflow_job__uuid'].hex[0:6]
-                op_dir = os.path.join(tmp_dir, "{0}_{1}_{2}".format(wfj_name, op_label, wfj_uuid))
+                j_name = output['run_job__job_name'].split('.')[-1]
+                opt_name = output['output_port_type_name']
+                rj_uuid = output['run_job__uuid'].hex[0:6]
+                op_dir = os.path.join(tmp_dir, "{0}_{1}_{2}".format(j_name, opt_name, rj_uuid))
 
-                rj_status = output['output_ports__outputs__run_job__status']
+                rj_status = output['run_job__status']
                 if rj_status == task_status.FINISHED:
-                    filepath = output['output_ports__outputs__resource__compat_resource_file']
+                    filepath = output['resource__compat_resource_file']
                     ext = os.path.splitext(filepath)[1]
-                    result_filename = "{0}_{1}{2}".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'].hex[0:6], ext)
+                    result_filename = "{0}_{1}{2}".format(output['resource__name'], output['resource__uuid'].hex[0:6], ext)
                     if not os.path.exists(op_dir):
                         os.makedirs(op_dir)
                     shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
                 elif include_failed_runjobs and rj.status == task_status.FAILED:
-                    result_filename = "error_{0}_{1}.txt".format(output['output_ports__outputs__resource__name'], output['output_ports__outputs__resource__uuid'].hex[0:6])
+                    result_filename = "error_{0}_{1}.txt".format(output['resource__name'], output['resource__uuid'].hex[0:6])
                     if not os.path.exists(op_dir):
                         os.makedirs(op_dir)
                     with open(os.path.join(op_dir, result_filename), 'w') as f:
                         f.write("Error Summary: ")
-                        f.write(output['output_ports__outputs__run_job__error_summary'])
+                        f.write(output['run_job__error_summary'])
                         f.write("\n\nError Details:\n")
-                        f.write(output['output_ports__outputs__run_job__error_details'])
+                        f.write(output['run_job__error_details'])
 
                 completed += percentage_increment
                 rp_query.update(percent_completed=int(completed))
@@ -169,7 +174,7 @@ class package_results(Task):
 
             target_dir_name = os.path.dirname(package_path)
             if not os.path.isdir(target_dir_name):
-                os.mkdir(target_dir_name)
+                os.makedirs(target_dir_name)
             bag.package(target_dir_name, method='zip')
 
 

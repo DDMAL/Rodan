@@ -27,8 +27,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
     #### Parameters
     - `creator` -- GET-only. UUID of a User.
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
-    - `output_ports` -- POST-only. Hyperlinks of OutputPorts. If not provided, Rodan
-      will select the ones that has no outgoing Connections by default.
     - `include_failed_runjobs` -- POST-only. If set, ResultsPackage will include
       failed error messages of RunJobs.
     """

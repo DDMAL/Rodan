@@ -16,7 +16,6 @@ class ResultsPackage(models.Model):
     - `status` -- an integer indicating the status of `ResultsPackage`.
     - `percent_completed` -- an integer indicating the progress of packaging.
     - `workflow_run` -- the reference to `WorkflowRun`.
-    - `output_ports` -- the `OutputPort`s selected in the `WorkflowRun`'s `Workflow`.
     - `creator`
     - `celery_task_id` -- the corresponding Celery task.
     - `error_summary` -- summary of error when packaging fails.
@@ -48,7 +47,6 @@ class ResultsPackage(models.Model):
     percent_completed = models.IntegerField(default=0)
 
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages")
-    output_ports = models.ManyToManyField("rodan.OutputPort", related_name="results_packages", blank=True, null=True)
     creator = models.ForeignKey("auth.User", related_name="results_packages")
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 

@@ -60,7 +60,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if not wf.valid:
             raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
 
-        wfrun = serializer.save(creator=self.request.user)
+        wfrun = serializer.save(creator=self.request.user, project=wf.project)
         wfrun_id = str(wfrun.uuid)
         self._create_workflow_run(wf, wfrun)
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
@@ -112,6 +112,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             Input(run_job=runjob_A,
                   input_port=conn.input_port,
+                  input_port_type_name=conn.input_port.input_port_type.name,
                   resource=associated_output.resource).save()
 
         # entry inputs
@@ -133,6 +134,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
                 Input(run_job=runjob_A,
                       input_port=ra.input_port,
+                      input_port_type_name=ra.input_port.input_port_type.name,
                       resource=entry_res).save()
 
 
@@ -141,7 +143,10 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     def _create_runjob_A(self, wfjob, workflow_run, arg_resource):
         run_job = RunJob(workflow_job=wfjob,
-                         workflow_run=workflow_run)
+                         workflow_run=workflow_run,
+                         job_name=wfjob.job.job_name,
+                         interactive=wfjob.job.interactive,
+                         job_settings=wfjob.job_settings)
         run_job.save()
 
         outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
@@ -159,7 +164,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
             output = Output(output_port=op,
                             run_job=run_job,
-                            resource=resource)
+                            resource=resource,
+                            output_port_type_name=op.output_port_type.name)
             output.save()
 
             if arg_resource:   # resource collection identifier

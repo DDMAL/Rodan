@@ -11,10 +11,8 @@ class InputTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.test_runjob = mommy.make('rodan.RunJob')
-        self.test_inputport = mommy.make('rodan.InputPort',
-                                         input_port_type__job=self.test_runjob.workflow_job.job)
-        self.test_resource = mommy.make('rodan.Resource',
-                                        project=self.test_runjob.workflow_job.workflow.project)
+        self.test_inputport = mommy.make('rodan.InputPort')
+        self.test_resource = mommy.make('rodan.Resource')
 
     def test_save(self):
         input = Input(input_port=self.test_inputport, resource=self.test_resource, run_job=self.test_runjob)

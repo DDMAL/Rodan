@@ -32,7 +32,9 @@
 <script type="text/javascript">
     $(document).ready(function()
     {
-        var options = {image: {source: "{{ image_url }}", originalWidth: {{ image_width }}}};
+        var options = {
+            image: {source: "{{ image_url }}"}
+        };
         $("#container").PixelSegmentation(options);
         var instance = $("#container").data('PixelSegmentation');
         $('#form').submit(function()

@@ -13,7 +13,7 @@ def master_task(workflow_run_id):
     RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
         & Q(status=task_status.SCHEDULED)
-        & Q(workflow_job__job__interactive=True)
+        & Q(interactive=True)
         & Q(ready_for_input=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
@@ -24,11 +24,11 @@ def master_task(workflow_run_id):
     runable_runjobs_query = RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
         & Q(status=task_status.SCHEDULED)
-        & Q(workflow_job__job__interactive=False)
+        & Q(interactive=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
     )
-    runable_runjobs_repeated = runable_runjobs_query.values('uuid', 'workflow_job__job__job_name')  # CAUTION: underlying database performs an INNER JOIN operation, which could return repeated lines due to reverse foreign key query "inputs".
+    runable_runjobs_repeated = runable_runjobs_query.values('uuid', 'job_name')  # CAUTION: underlying database performs an INNER JOIN operation, which could return repeated lines due to reverse foreign key query "inputs".
     runable_runjobs = []
     uuid_set = set()
     for rj_value in runable_runjobs_repeated:
@@ -45,7 +45,7 @@ def master_task(workflow_run_id):
         task_group = []
         runable_runjobs_query.update(status=task_status.PROCESSING)  # in test, tasks are executed synchronously, therefore update the status before dispatching the task
         for rj_value in runable_runjobs:
-            task = registry.tasks[str(rj_value['workflow_job__job__job_name'])]
+            task = registry.tasks[str(rj_value['job_name'])]
             runjob_id = str(rj_value['uuid'])
             task_group.append(task.si(runjob_id))
 
