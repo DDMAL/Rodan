@@ -6,6 +6,7 @@ from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.interactive_tasks.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from rodan.jobs.gamera import argconvert
 from django.template.loader import get_template
 
 
@@ -23,13 +24,13 @@ class ComputerAssistanceTask(RodanAutomaticTask):
     category = "Segmentation"
 
     input_port_types = [{
-        'name': 'input',
+        'name': 'image',
         'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     }]
     output_port_types = [{
-        'name': 'segmentation-data',
+        'name': 'polygon',
         'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
@@ -37,7 +38,7 @@ class ComputerAssistanceTask(RodanAutomaticTask):
 
     def run_my_task(self, inputs, rodan_job_settings, outputs):
         settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
-        task_image = load_image(inputs['input'][0]['resource_path'])
+        task_image = load_image(inputs['image'][0]['resource_path'])
 
         ranked_page = task_image.rank(9, 9, 0)
         staff_finder = StaffFinder_miyao(ranked_page, 0, 0)
@@ -47,7 +48,7 @@ class ComputerAssistanceTask(RodanAutomaticTask):
         poly_list = fix_poly_point_list(poly_list, staff_finder.staffspace_height)
         poly_json_list = create_polygon_outer_points_json_dict(poly_list)
 
-        with open(outputs['output'][0]['resource_path'], 'w') as f:
+        with open(outputs['polygon'][0]['resource_path'], 'w') as f:
             json.dump({
                 'image_width': task_image.ncols,
                 'polygon_outer_points': poly_json_list
@@ -62,18 +63,18 @@ class ManualCorrectionTask(RodanManualTask):
     category = 'Segmentation'
 
     input_port_types = [{
-        'name': 'input-image',
+        'name': 'image',
         'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     }, {
-        'name': 'segmentation-data',
+        'name': 'polygon',
         'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
     }]
     output_port_types = [{
-        'name': 'corrected-segmentation-data',
+        'name': 'polygon',
         'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
@@ -81,19 +82,19 @@ class ManualCorrectionTask(RodanManualTask):
 
     def get_my_interface(self, inputs, settings):
         t = get_template('gamera/interfaces/segmentation.html')
-        with open(inputs['segmentation-data'][0]['resource_path'], 'r') as f:
+        with open(inputs['polygon'][0]['resource_path'], 'r') as f:
             data = json.load(f)
             c = {
-                'image_url': inputs['input-image'][0]['large_thumb_url'],
+                'image_url': inputs['image'][0]['large_thumb_url'],
                 'polygon_outer_points': data['polygon_outer_points'],
                 'image_width': data['image_width']
             }
         return (t, c)
 
     def save_my_user_input(self, inputs, settings, outputs, userdata):
-        points = userdata.get('polygon_outer_points')
+        points = json.loads(userdata.get('polygon_outer_points'))
         # [TODO] validate these points
-        with open(inputs['corrected-segmentation-data'][0]['resource_path'], 'w') as g:
+        with open(outputs['polygon'][0]['resource_path'], 'w') as g:
             json.dump(points, g)
 
 
@@ -107,18 +108,18 @@ class ApplySegmentationTask(RodanAutomaticTask):
     category = "Segmentation"
 
     input_port_types = [{
-        'name': 'input-image',
+        'name': 'image',
         'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     }, {
-        'name': 'segmentation-data',
+        'name': 'polygon',
         'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
     }]
     output_port_types = [{
-        'name': 'output-image',
+        'name': 'image',
         'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
@@ -126,12 +127,12 @@ class ApplySegmentationTask(RodanAutomaticTask):
 
 
     def run_my_task(self, inputs, rodan_job_settings, outputs):
-        task_image = load_image(inputs['input-image'][0]['resource_path'])
+        task_image = load_image(inputs['image'][0]['resource_path'])
         mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
         mask_drawer = ImageDraw.Draw(mask_img)
 
-        with open(inputs['segmentation-data'][0]['resource_path'], 'r') as f:
-            polygon_data = json.loads()
+        with open(inputs['polygon'][0]['resource_path'], 'r') as f:
+            polygon_data = json.load(f)
 
         for polygon in polygon_data:
             flattened_poly = [j for i in polygon for j in i]
@@ -143,4 +144,4 @@ class ApplySegmentationTask(RodanAutomaticTask):
         result_image_greyscale = task_image_greyscale.mask(segment_mask)
         result_image = result_image_greyscale.to_onebit()   # Get it back to one-bit
 
-        result_image.save_image(outputs['output'][0]['resource_path'])
+        result_image.save_image(outputs['image'][0]['resource_path'])

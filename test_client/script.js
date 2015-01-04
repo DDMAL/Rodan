@@ -326,6 +326,59 @@ angular.module('rodanTestApp', [])
                 }, errhandler);
             });
         };
+        $scope.newSegmentationWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_segmentation}).success(function (wf) {
+                var jc = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.computer_assistance'});
+                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.manual_correction'});
+                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.apply_segmentation'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jc.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_segmentation})
+                ]).then(function (things) {
+                    var wfjc = things[0].data;
+                    var wfjm = things[1].data;
+                    var wfja = things[2].data;
+                    var rc = things[3].data;
+
+                    var jm_ipt_image = _.find(jm.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var jm_ipt_polygon = _.find(jm.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var ja_ipt_polygon = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjc.url, 'input_port_type': jc.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjc.url, 'output_port_type': jc.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm_ipt_polygon.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_polygon.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var ipc = things[0].data;
+                        var opc = things[1].data;
+                        var ipm_img = things[2].data;
+                        var ipm_pol = things[3].data;
+                        var opm = things[4].data;
+                        var ipa_img = things[5].data;
+                        var ipa_pol = things[6].data;
+                        var opa = things[7].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipc.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm_img.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opc.url, 'input_port': ipm_pol.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_pol.url})
+                        ]).then(function (things) {
+                            console.log('segmentation workflow created!');
+                        }, errhandler);
+                    }, errhandler);
+                }, errhandler);
+            });
+        };
 
         $scope.validateWorkflow = function (w) {
             $http.patch(w.url, {'valid': true})
