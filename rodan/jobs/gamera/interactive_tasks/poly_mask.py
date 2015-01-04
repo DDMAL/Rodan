@@ -4,6 +4,7 @@ from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
+from rodan.jobs.gamera import argconvert
 from django.template.loader import get_template
 
 
@@ -44,7 +45,8 @@ class ManualMaskTask(RodanManualTask):
             raise ManualJobException("Bad data")
         # [TODO] validate userdata
         with open(outputs['polygon'][0]['resource_path'], 'w') as g:
-            json.dump(userdata, g['polygon_outer_points'])
+            points = json.loads(userdata['polygon_outer_points'])
+            json.dump(points, g)
 
 class ApplyMaskTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.border_removal.poly_mask.apply'

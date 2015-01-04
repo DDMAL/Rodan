@@ -44,7 +44,8 @@
         $("#segment-view").RKSegment(
         {
             image: "{{ image_url }}",
-            originalWidth: {{ image_width }}
+            originalWidth: {{ image_width }},
+            polyPoints: []
         });
         var rks = $("#segment-view").data('RKSegment');
 

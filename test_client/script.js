@@ -286,6 +286,46 @@ angular.module('rodanTestApp', [])
                 }, errhandler);
             });
         };
+        $scope.newPolyMaskWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_polymask}).success(function (wf) {
+                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.border_removal.poly_mask.manual'});
+                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.border_removal.poly_mask.apply'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_polymask})
+                ]).then(function (things) {
+                    var wfjm = things[0].data;
+                    var wfja = things[1].data;
+                    var rc = things[2].data;
+
+                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var ja_ipt_polygon = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_polygon.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var ipm = things[0].data;
+                        var opm = things[1].data;
+                        var ipa_img = things[2].data;
+                        var ipa_par = things[3].data;
+                        var opa = things[4].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_par.url})
+                        ]).then(function (things) {
+                            console.log('polymask workflow created!');
+                        }, errhandler);
+                    }, errhandler);
+                }, errhandler);
+            });
+        };
 
         $scope.validateWorkflow = function (w) {
             $http.patch(w.url, {'valid': true})
