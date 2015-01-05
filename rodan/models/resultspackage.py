@@ -21,7 +21,6 @@ class ResultsPackage(models.Model):
     - `error_summary` -- summary of error when packaging fails.
     - `error_details` -- details of error when packaging fails.
     - `created`
-    - `updated`
     - `expiry_time`
 
     **Properties**
@@ -54,7 +53,6 @@ class ResultsPackage(models.Model):
     error_details = models.TextField(default="", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
     expiry_time = models.DateTimeField(blank=True, null=True)
 
     def delete(self, *a, **k):
