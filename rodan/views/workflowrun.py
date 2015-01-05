@@ -219,48 +219,11 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
 
     #### Parameters
     - `status` -- PATCH-only. An integer. Attempt of uncancelling will trigger an error.
-
-    [TODO] are they still effective??
-
-    - `by_page=true`: If true, re-formats the returned workflow run object by returning it based on page-and-results, rather than runjob-and-page.
-    - `include_results=true|false`: Sets whether to include the results (per page) for the workflow run (GET only; only checked if `by_page` is present).
-
-    Sending a PATCH request retries the failed jobs in a workflowrun. It tries its best to have expected behavior. If the settings of the associated workflowjob of a runjob is changed, the new settings are picked up by the runjob. Of course, the jobs that have already succeeded will not be run again, so changing their workflowjob settings have no effect whatsoever. If you add a new page to workflow, that page is taken into the workflowrun and all the workflow jobs are run on it, so if you forgot to add one page to a workflow you can add it later and send the patch request to the workflowrun.
-
-    Note that it only tries the workflow starting from the first failed or cancelled job for each page. Under no conditions does it try to rerun a successful job, so for example, if you have already finished segmentation, you do not have to do it again. Also, by default, it will backup all the files of the previous try to MEDIA_ROOT/projects//workflowrun_retry_backup. This behavior is controlled by BACKUP_WORKFLOW_RUN_ON_RETRY variable in settings.py
     """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
-
-    def get(self, request, pk, *args, **kwargs):
-        by_page = self.request.QUERY_PARAMS.get('by_page', None)
-        include_results = self.request.QUERY_PARAMS.get('include_results', None)
-        if not by_page:
-            return self.retrieve(request, pk, *args, **kwargs)
-
-        # If we have ?by_page=true set, we should return the results
-        # by page, rather than by run_job. This makes it easier to display
-        # the results on a page-by-page basis.
-        workflow_run = WorkflowRun.objects.filter(pk=pk).select_related()
-        run_jobs = workflow_run[0].run_jobs.all()
-        pages = {}
-        for run_job in run_jobs:
-            # page_data = PageRunJobSerializer(run_job.page, context={'request': request}).data
-            k = page_data['url']
-            if k not in pages:
-                page_data["results"] = []
-                pages[k] = page_data
-
-            # [TODO] Remove result
-            #if include_results and run_job.result.all():
-            #    pages[k]['results'].append(ResultRunJobSerializer(run_job.result.all()[0], context={'request': request}).data)
-
-        workflow_run = WorkflowRunByPageSerializer(workflow_run, context={'request': request}).data[0]
-        workflow_run['pages'] = sorted(pages.values(), key=itemgetter('page_order'))
-
-        return Response(workflow_run)
 
     def patch(self, request, *args, **kwargs):
         wfrun = self.get_object()
@@ -283,74 +246,4 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
         elif new_status is not None:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise CustomAPIException({'status': ["Invalid update"]}, status=status.HTTP_400_BAD_REQUEST)
-
-
-    def _backup_workflowrun(self, wf_run):
-        source = wf_run.workflow_run_path
-        wf_backup_dir = wf_run.retry_backup_directory
-        dir_name_base = str(wf_run.uuid)
-        for i in range(1, 1000):
-            test_dir_name = "%s_%d" % (dir_name_base, i)
-            test_dest = os.path.join(wf_backup_dir, test_dir_name)
-            if not os.path.exists(test_dest):
-                dir_name = test_dir_name
-                break
-        else:
-            raise CustomAPIException("You have tried this workflow 1000 times. Stop.")
-
-        destination = os.path.join(wf_backup_dir, dir_name)
-        shutil.copytree(source, destination)
-
-    def _handle_deleted_pages(self, runjobs, pages):
-        unfinished_runjobs = runjobs.exclude(status=task_status.FINISHED)
-        for rj in unfinished_runjobs:
-            if rj.page not in pages:
-                rj.error_summary = "Page Deleted"
-                rj.error_details = "Looks like you have deleted this page from the workflow. The job cannot be rerun. You will have to add the acossiated page back into the workflow if you want to retry this job."
-                rj.save()
-
-    def _handle_new_page(self, workflow_run, page):
-        """
-        For the pages that has been added later but were not there during the original
-        run, we simply run the all the jobs in the workflow. The problem is, if someone
-        edited the workflow in the meantime, the new workflow jobs will be run against
-        the new pages, not the old workflow jobs.
-        """
-        # This method should be refactored. I literally copied code from up there.
-        # Maybe *after* I write some unit tests?
-        workflow_jobs = workflow_run.workflow.workflow_jobs.all()
-
-        workflow_chain = []
-        for workflow_job in workflow_jobs:
-            is_interactive = workflow_job.job.interactive
-            runjob = RunJob(workflow_run=workflow_run,
-                            workflow_job=workflow_job,
-                            job_settings=workflow_job.job_settings,
-                            page=page)
-            runjob.save()
-
-            rodan_task = registry.tasks[str(workflow_job.job_name)]
-            workflow_chain.append((rodan_task, str(runjob.uuid)))
-        first_job = workflow_chain[0]
-        res = chain([first_job[0].si(None, first_job[1])] + [job[0].s(job[1]) for job in workflow_chain[1:]])
-        res.apply_async()
-
-    def _clean_runjob_folder(self, runjob):
-        if os.path.exists(runjob.runjob_path):
-            shutil.rmtree(runjob.runjob_path)
-        os.makedirs(runjob.runjob_path)
-
-    def _update_settings(self, runjob):
-        ###runjob.needs_input = runjob.workflow_job.job.interactive
-        if runjob.workflow_job.workflow is not None:
-            # i.e. if the workflow job was never deleted from the workflow
-            runjob.job_settings = runjob.workflow_job.job_settings
-        else:
-            # We're trying to find a new workflow_job with the job_name.
-            new_workflowjobs = runjob.workflow_run.workflow.workflow_jobs.filter(job__job_name=runjob.job_name)
-            if new_workflowjobs.exists():
-                runjob.job_settings = new_workflowjobs[0].job_settings  # We just grab the first matching one.
-                runjob.workflowjob = new_workflowjobs[0]  # And also set the new workflow_job.
-                                                          # I'm not too sure about this one.
-        runjob.save()
+            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
