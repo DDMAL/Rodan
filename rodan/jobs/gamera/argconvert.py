@@ -44,6 +44,17 @@ def convert_output_type(output_type):
         del dict_repr['klass']
     return dict_repr
 
+def convert_mimetype_to_pixel(mimetype):
+    # Gamera pixel types can be found in gamera.enums module
+    mapp = {
+        'image/onebit+png': 0,
+        'image/greyscale+png': 1,
+        'image/grey16+png': 2,
+        'image/rgb+png': 3,
+        'image/float+png': 4,
+        'image/complex+png': 5
+    }
+    return mapp[mimetype]
 
 def convert_pixel_to_mimetype(pixel_t):
     # Gamera pixel types can be found in gamera.enums module

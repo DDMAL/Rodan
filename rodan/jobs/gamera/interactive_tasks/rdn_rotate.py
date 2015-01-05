@@ -3,6 +3,7 @@ from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
 from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
 from rodan.jobs.gamera import argconvert
+from rodan.jobs.gamera.base import ensure_pixel_type
 from gamera.toolkits.rodan_plugins.plugins.rdn_rotate import rdn_rotate
 from django.template.loader import get_template
 
@@ -80,4 +81,5 @@ class ApplyRotateTask(RodanAutomaticTask):
         with open(inputs['angle'][0]['resource_path']) as f:
             angle = float(f.read())
         result_image = task_image.rdn_rotate(angle)
+        result_image = ensure_pixel_type(result_image, outputs['output'][0]['resource_type'])
         result_image.save_PNG(outputs['output'][0]['resource_path'])
