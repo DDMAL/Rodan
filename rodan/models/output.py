@@ -17,8 +17,6 @@ class Output(models.Model):
     - `run_job` -- a reference to the `RunJob` associated with this `Output`.
     - `resource` -- the precise `Resource` that is output by the `RunJob` at
       the above-referenced `OutputPort`.
-    - `created`
-    - `updated`
 
     **Properties**
 

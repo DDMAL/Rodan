@@ -40,16 +40,14 @@ class WorkflowJob(models.Model):
     def save(self, *args, **kwargs):
         super(WorkflowJob, self).save(*args, **kwargs)
         wf = self.workflow
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
     def delete(self, *args, **kwargs):
         wf = self.workflow
         super(WorkflowJob, self).delete(*args, **kwargs)
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
 
     def __unicode__(self):
