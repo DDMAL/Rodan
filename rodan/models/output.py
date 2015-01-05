@@ -1,5 +1,6 @@
 from django.db import models
 from uuidfield import UUIDField
+from rodan.models import OutputPortType
 
 
 class Output(models.Model):
@@ -37,6 +38,6 @@ class Output(models.Model):
     @property
     def output_port_type(self):
         try:
-            return OutputPortType.objects.get(job=self.run_job, name=self.input_port_type_name)
+            return OutputPortType.objects.get(job=self.run_job, name=self.output_port_type_name)
         except OutputPortType.DoesNotExist:
             return None
