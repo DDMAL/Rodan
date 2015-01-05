@@ -38,6 +38,6 @@ class Output(models.Model):
     @property
     def output_port_type(self):
         try:
-            return OutputPortType.objects.get(job=self.run_job, name=self.output_port_type_name)
+            return OutputPortType.objects.get(job__job_name=self.run_job.job_name, name=self.output_port_type_name)
         except OutputPortType.DoesNotExist:
             return None
