@@ -42,7 +42,7 @@ def load_gamera_module(gamera_module):
                 task_image = load_image(inputs[inputs.keys()[0]][0]['resource_path'])
                 task_function = self.name.split(".")[-1]
                 result_image = getattr(task_image, task_function)(**settings)
-                result_image.save_image(outputs[outputs.keys()[0]][0]['resource_path'])
+                result_image.save_PNG(outputs['output'][0]['resource_path'])
 
             def test_my_task(self, testcase):
                 inputs = {}

@@ -144,4 +144,4 @@ class ApplySegmentationTask(RodanAutomaticTask):
         result_image_greyscale = task_image_greyscale.mask(segment_mask)
         result_image = result_image_greyscale.to_onebit()   # Get it back to one-bit
 
-        result_image.save_image(outputs['image'][0]['resource_path'])
+        result_image.save_PNG(outputs['image'][0]['resource_path'])

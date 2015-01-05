@@ -143,4 +143,4 @@ class CropBorderRemovalTask(RodanManualTask):
         if need_to_change_back:
             result_image = result_image.to_onebit()
 
-        result_image.save_image(outputs['output'][0]['resource_path'])
+        result_image.save_PNG(outputs['output'][0]['resource_path'])

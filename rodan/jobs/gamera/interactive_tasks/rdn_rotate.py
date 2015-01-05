@@ -80,4 +80,4 @@ class ApplyRotateTask(RodanAutomaticTask):
         with open(inputs['angle'][0]['resource_path']) as f:
             angle = float(f.read())
         result_image = task_image.rdn_rotate(angle)
-        result_image.save_image(outputs['output'][0]['resource_path'])
+        result_image.save_PNG(outputs['output'][0]['resource_path'])
