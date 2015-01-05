@@ -33,7 +33,7 @@ def load_gamera_module(gamera_module):
 
         output_types = []
         for i, t in enumerate(return_type):
-            tc = argconvert.convert_input_type(t)
+            tc = argconvert.convert_output_type(t)
             output_types.append({
                 'name': tc['name'] or "output-{0}".format(i),
                 'resource_types': map(argconvert.convert_pixel_to_mimetype, tc['pixel_types']),
