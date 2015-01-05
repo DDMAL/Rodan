@@ -15,6 +15,15 @@ angular.module('rodanTestApp', [])
                     }, function (err) {
                         console.log(err);
                     });
+                getAllPages(ROOT + '/resourcetypes/')
+                    .then(function (results) {
+                        $rootScope.resourcetypes_hash = {};
+                        _.each(results, function (rt) {
+                            $rootScope.resourcetypes_hash[rt.url] = rt;
+                        });
+                    }, function (err) {
+                        console.log(err);
+                    });
             });
 
         $rootScope.status = {
