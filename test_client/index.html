@@ -15,7 +15,6 @@
         <div class="col-xs-8">
           <table class="table">
             <tr ng-repeat="p in projects">
-              <td ng-bind="p.uuid"></td>
               <td ng-bind="p.name"></td>
               <td><button ng-click="deleteProject(p)">Delete</button></td>
             </tr>
