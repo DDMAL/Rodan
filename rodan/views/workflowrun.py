@@ -12,17 +12,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from rodan.models.workflow import Workflow
-from rodan.models.runjob import RunJob
-from rodan.models.workflowjob import WorkflowJob
-from rodan.models.workflowrun import WorkflowRun
-from rodan.models.connection import Connection
-from rodan.models.resourceassignment import ResourceAssignment
-from rodan.models.resource import Resource
-from rodan.models.input import Input
-from rodan.models.output import Output
-from rodan.models.outputport import OutputPort
-from rodan.models.inputport import InputPort
+from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, ResourceAssignment, Resource, Input, Output, OutputPort, InputPort, ResourceType
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
@@ -119,7 +109,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         for ip in InputPort.objects.filter(workflow_job=wfjob_A):
             try:
                 ra = ResourceAssignment.objects.get(input_port=ip)
-
             except ResourceAssignment.DoesNotExist:
                 ra = None
 
@@ -137,6 +126,28 @@ class WorkflowRunList(generics.ListCreateAPIView):
                       input_port_type_name=ra.input_port.input_port_type.name,
                       resource=entry_res).save()
 
+        # Determine ResourceType of the outputs of RunJob A.
+        for o in runjob_A.outputs.all():
+            resource_type_set = set(o.output_port.output_port_type.resource_types.all())
+            res = o.resource
+
+            if len(resource_type_set) > 1:
+                ## Eliminate this set by considering the connected InputPorts
+                for connection in o.output_port.connections.all():
+                    in_type_set = set(connection.input_port.input_port_type.resource_types.all())
+                    resource_type_set.intersection_update(in_type_set)
+
+            if len(resource_type_set) > 1:
+                ## Try to find a same resource type in the input resources.
+                for i in runjob_A.inputs.all():
+                    if i.resource.resource_type in resource_type_set:
+                        res.resource_type = i.resource.resource_type
+                        break
+                else:
+                    res.resource_type = resource_type_set.pop()
+            else:
+                res.resource_type = resource_type_set.pop()
+            res.save()
 
         workflowjob_runjob_map[wfjob_A] = runjob_A
         return runjob_A
@@ -152,14 +163,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
         outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
 
         for op in outputports:
-            resource_type_set = set(op.output_port_type.resource_types.all())
-            if op.connections.exists():
-                ipt_type_set = set(op.connections.first().input_port.input_port_type.resource_types.all())
-                resource_type_set = resource_type_set.intersection(ipt_type_set)
-            res_type = resource_type_set.pop()
-
             resource = Resource(project=workflow_run.workflow.project,
-                                resource_type=res_type)
+                                resource_type=ResourceType.cached('application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
             resource.save()
 
             output = Output(output_port=op,
