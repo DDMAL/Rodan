@@ -11,35 +11,21 @@ def load_gamera_module(gamera_module):
         if "pixel_types" not in fn.return_type.__dict__.keys():
             continue
 
-        if not hasattr(fn.self_type, '__iter__'):
-            self_type = (fn.self_type, )
-        else:
-            self_type = fn.self_type
+        i_type = argconvert.convert_input_type(fn.self_type)
+        input_types = [{
+            'name': i_type['name'] or "input",
+            'resource_types': map(argconvert.convert_pixel_to_mimetype, i_type['pixel_types']),
+            'minimum': 1,
+            'maximum': 1,
+        }]
 
-        if not hasattr(fn.return_type, '__iter__'):
-            return_type = (fn.return_type, )
-        else:
-            return_type = fn.return_type
-
-        input_types = []
-        for i, t in enumerate(self_type):
-            tc = argconvert.convert_input_type(t)
-            input_types.append({
-                'name': tc['name'] or "input-{0}".format(i),
-                'resource_types': map(argconvert.convert_pixel_to_mimetype, tc['pixel_types']),
-                'minimum': 1,
-                'maximum': 1,
-            })
-
-        output_types = []
-        for i, t in enumerate(return_type):
-            tc = argconvert.convert_output_type(t)
-            output_types.append({
-                'name': tc['name'] or "output-{0}".format(i),
-                'resource_types': map(argconvert.convert_pixel_to_mimetype, tc['pixel_types']),
-                'minimum': 1,
-                'maximum': 1,
-            })
+        o_type = argconvert.convert_output_type(fn.return_type)
+        output_types = [{
+            'name': o_type['name'] or "output",
+            'resource_types': map(argconvert.convert_pixel_to_mimetype, o_type['pixel_types']),
+            'minimum': 1,
+            'maximum': 1,
+        }]
 
         class gamera_module_task(RodanAutomaticTask):
             name = str(fn)
