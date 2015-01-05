@@ -109,17 +109,13 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         for op in output_ports:
             if op.output_port_type.job != op.workflow_job.job:
                 raise WorkflowValidationError('OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(op.uuid))
-
-        # validate Connections (done in serializer)
-        connections = Connection.objects.filter(input_port__workflow_job__workflow=workflow, output_port__workflow_job__workflow=workflow)
-        for connection in connections:
-            op = connection.output_port
-            out_types = op.output_port_type.resource_types.all()
-            ip = connection.input_port
-            in_types = ip.input_port_type.resource_types.all()
-
-            if not set(in_types).intersection(set(out_types)):
-                raise WorkflowValidationError('The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(op.uuid, ip.uuid))
+            resource_type_set = set(op.output_port_type.resource_types.all())
+            for connection in op.connections.all():
+                ip = connection.input_port
+                in_type_set = set(ip.input_port_type.resource_types.all())
+                resource_type_set = resource_type_set.intersection(in_type_set)
+                if not set(resource_type_set):
+                    raise WorkflowValidationError('There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid))
 
         # validate ResourceCollections
         resource_collections = ResourceCollection.objects.filter(workflow=workflow)

@@ -201,13 +201,12 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         anticipated_message2 = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
-
-    def test_connection__resource_type_not_agree(self):
+    def test_output__no_common_resource_type_simple(self):
         new_ipt = mommy.make('rodan.InputPortType',
                              maximum=1,
                              minimum=0,
                              job=self.test_job)
-        new_ipt.resource_types.add(ResourceType.cached('test/b'))
+        new_ipt.resource_types.add(ResourceType.cached('test/b')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ip = mommy.make('rodan.InputPort',
                             workflow_job=self.test_workflowjob2,
                             input_port_type=new_ipt)
@@ -216,7 +215,35 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                           output_port=op,
                           input_port=new_ip)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The resource type of OutputPort {0} does not agree with connected InputPort {1}'.format(conn.output_port.uuid, conn.input_port.uuid)}
+        anticipated_message = {'detail': 'There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+    def test_output__no_common_resource_type_complex(self):
+        new_ipt1 = mommy.make('rodan.InputPortType',
+                              maximum=1,
+                              minimum=0,
+                              job=self.test_job)
+        new_ipt1.resource_types.add(ResourceType.cached('test/a1')) # consider the type of opt is 'test/a1' and 'test/a2'
+        new_ipt2 = mommy.make('rodan.InputPortType',
+                              maximum=1,
+                              minimum=0,
+                              job=self.test_job)
+        new_ipt2.resource_types.add(ResourceType.cached('test/a2')) # consider the type of opt is 'test/a1' and 'test/a2'
+        new_ip1 = mommy.make('rodan.InputPort',
+                             workflow_job=self.test_workflowjob2,
+                             input_port_type=new_ipt1)
+        new_ip2 = mommy.make('rodan.InputPort',
+                             workflow_job=self.test_workflowjob2,
+                             input_port_type=new_ipt2)
+        op = self.test_workflowjob.output_ports.first()
+        conn1 = mommy.make('rodan.Connection',
+                           output_port=op,
+                           input_port=new_ip1)
+        conn2 = mommy.make('rodan.Connection',
+                           output_port=op,
+                           input_port=new_ip2)
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'detail': 'There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
 
