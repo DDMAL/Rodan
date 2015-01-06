@@ -1,3 +1,5 @@
+from gamera import enums
+
 def convert_arg_list(arglist):
     if not arglist:
         return []
@@ -35,38 +37,33 @@ def convert_input_type(input_type):
     dict_repr = input_type.__dict__
     if 'klass' in dict_repr.keys():
         del dict_repr['klass']
+
+    # convert pixel types to Rodan mimetypes
+    dict_repr['resource_types'] = []
+    for pt in dict_repr['pixel_types']:
+        if pt == enums.ONEBIT:
+            dict_repr['resource_types'].append('image/onebit+png')
+        elif pt == enums.GREYSCALE:
+            dict_repr['resource_types'].append('image/greyscale+png')
+        elif pt == enums.GREY16:
+            dict_repr['resource_types'].append('image/grey16+png')
+        elif pt == enums.RGB:
+            dict_repr['resource_types'].append('image/rgb+png')
+        # Drop COMPLEX and FLOAT pixel types, as they are only Gamera's internal representation and cannot be saved to a PNG file.
     return dict_repr
 
+convert_output_type = convert_input_type
 
-def convert_output_type(output_type):
-    dict_repr = output_type.__dict__
-    if 'klass' in dict_repr.keys():
-        del dict_repr['klass']
-    return dict_repr
 
 def convert_mimetype_to_pixel(mimetype):
-    # Gamera pixel types can be found in gamera.enums module
     mapp = {
-        'image/onebit+png': 0,
-        'image/greyscale+png': 1,
-        'image/grey16+png': 2,
-        'image/rgb+png': 3,
-        'image/float+png': 4,
-        'image/complex+png': 5
+        'image/onebit+png': enums.ONEBIT,
+        'image/greyscale+png': enums.GREYSCALE,
+        'image/grey16+png': enums.GREY16,
+        'image/rgb+png': enums.RGB
     }
     return mapp[mimetype]
 
-def convert_pixel_to_mimetype(pixel_t):
-    # Gamera pixel types can be found in gamera.enums module
-    mapp = {
-        0: 'image/onebit+png',
-        1: 'image/greyscale+png',
-        2: 'image/grey16+png',
-        3: 'image/rgb+png',
-        4: 'image/float+png',
-        5: 'image/complex+png',
-    }
-    return mapp[pixel_t]
 
 def convert_to_gamera_settings(rodan_job_settings):
     settings = {}

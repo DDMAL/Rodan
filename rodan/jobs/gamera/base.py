@@ -13,17 +13,21 @@ def load_gamera_module(gamera_module):
             continue
 
         i_type = argconvert.convert_input_type(fn.self_type)
+        if len(i_type['resource_types']) == 0:  # it deals with FLOAT and COMPLEX pixel types only -- we don't support them in Rodan
+            continue
         input_types = [{
             'name': "input",
-            'resource_types': map(argconvert.convert_pixel_to_mimetype, i_type['pixel_types']),
+            'resource_types': i_type['resource_types'],
             'minimum': 1,
             'maximum': 1,
         }]
 
         o_type = argconvert.convert_output_type(fn.return_type)
+        if len(o_type['resource_types']) == 0:  # it deals with FLOAT and COMPLEX pixel types only -- we don't support them in Rodan
+            continue
         output_types = [{
             'name': "output",
-            'resource_types': map(argconvert.convert_pixel_to_mimetype, o_type['pixel_types']),
+            'resource_types': o_type['resource_types'],
             'minimum': 1,
             'maximum': 1,
         }]
