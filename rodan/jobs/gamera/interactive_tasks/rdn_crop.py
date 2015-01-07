@@ -51,7 +51,7 @@ class ManualCropTask(RodanManualTask):
             "lrx": {"type": "number"},
             "lry": {"type": "number"},
             "imw": {
-                "description": "image width",
+                "description": "thumbnail image width",
                 "type": "integer",
                 "minimum": 0
             }
