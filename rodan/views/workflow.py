@@ -63,12 +63,14 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         to_be_validated = serializer.validated_data.get('valid', False)
         if to_be_validated:
             workflow = self.get_object()
+
             try:
                 self._validate(workflow)
             except WorkflowValidationError as e:
                 raise CustomAPIException(e.message, status=status.HTTP_409_CONFLICT)
         else:
             raise ValidationError({"valid": "Cannot invalidate a Workflow."})
+
         serializer.save()
 
     def _validate(self, workflow):
@@ -198,6 +200,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class WorkflowValidationError(Exception):
     message = None
+
     def __init__(self, message):
         super(WorkflowValidationError, self).__init__()
         self.message = message
@@ -220,6 +223,6 @@ class DisjointSet(object):
             return new_parent
 
     def union(self, x, y):
-        xRoot = self.find(x)
-        yRoot = self.find(y)
-        self._parent[xRoot] = yRoot
+        x_root = self.find(x)
+        y_root = self.find(y)
+        self._parent[x_root] = y_root
