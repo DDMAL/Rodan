@@ -125,3 +125,24 @@ class ApplyCropTask(RodanAutomaticTask):
         result_image = task_image.rdn_crop(**parameters)
         result_image = ensure_pixel_type(result_image, outputs['output'][0]['resource_type'])
         result_image.save_PNG(outputs['output'][0]['resource_path'])
+
+    def test_my_task(self, testcase):
+        inputs = {
+            'image': [{'resource_type': 'image/rgb+png',
+                       'resource_path': testcase.new_available_path()}],
+            'parameters': [{'resource_type': 'application/json',
+                            'resource_path': testcase.new_available_path()}]
+        }
+        settings = {}
+        outputs = {
+            'output': [{'resource_type': 'image/rgb+png',
+                       'resource_path': testcase.new_available_path()}]
+        }
+        from PIL import Image
+        Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['image'][0]['resource_path'], 'png')
+        with open(inputs['parameters'][0]['resource_path'], 'w') as g:
+            json.dump({'ulx': 2, 'uly': 2, 'lrx': 4, 'lry': 4, 'imw': 25}, g)
+
+        self.run_my_task(inputs, settings, outputs)
+        im = Image.open(outputs['output'][0]['resource_path'])
+        testcase.assertEqual(im.size, (4, 4))
