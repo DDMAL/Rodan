@@ -33,7 +33,8 @@ class WorkflowList(generics.ListCreateAPIView):
         valid = serializer.validated_data.get('valid', False)
         if valid:
             raise ValidationError({'valid': ["You can't create a valid workflow - it must be validated through a PATCH request."]})
-        wfrun = serializer.save(creator=self.request.user)
+
+        serializer.save(creator=self.request.user)
 
 
 class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
