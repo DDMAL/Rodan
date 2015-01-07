@@ -1,4 +1,4 @@
-import json
+import json, jsonschema
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
@@ -41,20 +41,53 @@ class ManualDespeckleTask(RodanManualTask):
         }
         return (t, c)
 
+    validator = jsonschema.Draft4Validator({
+        "type": "object",
+        "required": ["cc_size", "image_width"],
+        "properties": {
+            "cc_size": {
+                "description": "pixel size of connected components",
+                "type": "integer",
+                "minimum": 0   # inclusive
+            },
+            "image_width": {
+                "description": "thumbnail image width",
+                "type": "integer",
+                "minimum": 0   # inclusive
+            }
+        }
+    })
     def save_my_user_input(self, inputs, settings, outputs, userdata):
-        parameters = {}
         try:
-            parameters['cc_size'] = int(userdata.get('cc_size'))
-        except ValueError:
-            raise ManualJobException("Invalid cc_size")
+            self.validator.validate(userdata)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ManualJobException(e.message)
 
-        try:
-            parameters['image_width'] = int(userdata.get('image_width'))
-        except ValueError:
-            raise ManualJobException("Invalid image width")
-
+        parameters = {
+            'cc_size': userdata['cc_size'],
+            'image_width': userdata['image_width']
+        }
         with open(outputs['parameters'][0]['resource_path'], 'w') as g:
             json.dump(parameters, g)
+
+    def test_my_task(self, testcase):
+        inputs = {}
+        settings = {}
+        outputs = {
+            'parameters': [{'resource_type': 'application/json',
+                            'resource_path': testcase.new_available_path()}]
+        }
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15, 'image_width': 'aaa'})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15, 'image_width': 10.50})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15, 'image_width': -10})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': -15, 'image_width': 1000})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 1.5, 'image_width': 1000})
+
+        userdata = {'cc_size': 15, 'image_width': 1000}
+        self.save_my_user_input(inputs, settings, outputs, userdata)
+        with open(outputs['parameters'][0]['resource_path'], 'r') as f:
+            testcase.assertEqual(json.load(f), userdata)
 
 
 class ApplyDespeckleTask(RodanAutomaticTask):
