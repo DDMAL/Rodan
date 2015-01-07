@@ -3,7 +3,7 @@ from celery import registry
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from rodan.jobs.base import RodanTask
 import rodan.jobs.load   # load all jobs before adding methods for the TestCase class.
 
 class RodanJobsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -22,5 +22,5 @@ class RodanJobsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
 def wrapper_fn(task):
     return lambda testcase: task.test_my_task(testcase)
 for task in registry.tasks.values():
-    if isinstance(task, RodanAutomaticTask):
+    if isinstance(task, RodanTask):
         setattr(RodanJobsTestCase, 'test::{0}'.format(task.name), wrapper_fn(task))

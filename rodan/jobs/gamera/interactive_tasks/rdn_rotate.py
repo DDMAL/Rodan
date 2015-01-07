@@ -41,15 +41,37 @@ class ManualRotateTask(RodanManualTask):
 
     def save_my_user_input(self, inputs, settings, outputs, userdata):
         if 'angle' not in userdata:
-            raise ManualJobException("Bad data")
+            raise ManualJobException("Angle is required.")
         angle = userdata['angle']
         try:
-            float(angle)
+            val = float(angle)
         except ValueError:
             raise ManualJobException("Invalid angle")
 
         with open(outputs['angle'][0]['resource_path'], 'w') as g:
-            g.write(angle)
+            g.write(str(val))
+
+    def test_my_task(self, testcase):
+        inputs = {
+            'image': [{'large_thumb_url': '/fake/url'}]
+        }
+        settings = {}
+        outputs = {
+            'angle': [{'resource_type': 'text/plain',
+                            'resource_path': testcase.new_available_path()}]
+        }
+
+        try:
+            self.get_my_interface(inputs, settings)
+        except Exception as e:
+            testcase.fail('get_my_interface() raises an exception: {0}'.format(str(e)))
+
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'hahaha': 'hahaha'})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'angle': 'hahaha'})
+        self.save_my_user_input(inputs, settings, outputs, {'angle': 15.6})
+        with open(outputs['angle'][0]['resource_path'], 'r') as f:
+            testcase.assertEqual(f.read(), '15.6')
+
 
 
 class ApplyRotateTask(RodanAutomaticTask):

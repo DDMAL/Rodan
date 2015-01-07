@@ -1,4 +1,5 @@
 import json
+import jsonschema
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
@@ -41,35 +42,62 @@ class ManualCropTask(RodanManualTask):
         }
         return (t, c)
 
+    validator = jsonschema.Draft4Validator({
+        "type": "object",
+        "required": ["ulx", "uly", "lrx", "lry", "imw"],
+        "properties": {
+            "ulx": {"type": "number"},
+            "uly": {"type": "number"},
+            "lrx": {"type": "number"},
+            "lry": {"type": "number"},
+            "imw": {
+                "description": "thumbnail image width",
+                "type": "integer",
+                "minimum": 0
+            }
+        }
+    })
     def save_my_user_input(self, inputs, settings, outputs, userdata):
-        parameters = {}
         try:
-            parameters['ulx'] = float(userdata.get('ulx'))
-        except ValueError:
-            raise ManualJobException("Invalid ulx")
-
-        try:
-            parameters['uly'] = float(userdata.get('uly'))
-        except ValueError:
-            raise ManualJobException("Invalid uly")
-
-        try:
-            parameters['lrx'] = float(userdata.get('lrx'))
-        except ValueError:
-            raise ManualJobException("Invalid lrx")
-
-        try:
-            parameters['lry'] = float(userdata.get('lry'))
-        except ValueError:
-            raise ManualJobException("Invalid lry")
-
-        try:
-            parameters['imw'] = float(userdata.get('imw'))
-        except ValueError:
-            raise ManualJobException("Invalid imw")
-
+            self.validator.validate(userdata)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ManualJobException(e.message)
+        parameters = {
+            'ulx': userdata['ulx'],
+            'uly': userdata['uly'],
+            'lrx': userdata['lrx'],
+            'lry': userdata['lry'],
+            'imw': userdata['imw']
+        }
         with open(outputs['parameters'][0]['resource_path'], 'w') as g:
             json.dump(parameters, g)
+    def test_my_task(self, testcase):
+        inputs = {
+            'image': [{'large_thumb_url': '/fake/url'}]
+        }
+        settings = {}
+        outputs = {
+            'parameters': [{'resource_type': 'application/json',
+                            'resource_path': testcase.new_available_path()}]
+        }
+
+        try:
+            self.get_my_interface(inputs, settings)
+        except Exception as e:
+            testcase.fail('get_my_interface() raises an exception: {0}'.format(str(e)))
+
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 'hahaha'})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 123.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': -1})
+
+        userdata = {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 1500}
+        self.save_my_user_input(inputs, settings, outputs, userdata)
+        with open(outputs['parameters'][0]['resource_path'], 'r') as f:
+            testcase.assertEqual(json.load(f), userdata)
 
 
 class ApplyCropTask(RodanAutomaticTask):
@@ -105,3 +133,24 @@ class ApplyCropTask(RodanAutomaticTask):
         result_image = task_image.rdn_crop(**parameters)
         result_image = ensure_pixel_type(result_image, outputs['output'][0]['resource_type'])
         result_image.save_PNG(outputs['output'][0]['resource_path'])
+
+    def test_my_task(self, testcase):
+        inputs = {
+            'image': [{'resource_type': 'image/rgb+png',
+                       'resource_path': testcase.new_available_path()}],
+            'parameters': [{'resource_type': 'application/json',
+                            'resource_path': testcase.new_available_path()}]
+        }
+        settings = {}
+        outputs = {
+            'output': [{'resource_type': 'image/rgb+png',
+                       'resource_path': testcase.new_available_path()}]
+        }
+        from PIL import Image
+        Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['image'][0]['resource_path'], 'png')
+        with open(inputs['parameters'][0]['resource_path'], 'w') as g:
+            json.dump({'ulx': 2, 'uly': 2, 'lrx': 4, 'lry': 4, 'imw': 25}, g)
+
+        self.run_my_task(inputs, settings, outputs)
+        im = Image.open(outputs['output'][0]['resource_path'])
+        testcase.assertEqual(im.size, (4, 4))
