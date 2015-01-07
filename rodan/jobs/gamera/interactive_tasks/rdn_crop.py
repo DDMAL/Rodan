@@ -1,4 +1,5 @@
 import json
+import jsonschema
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
@@ -41,7 +42,22 @@ class ManualCropTask(RodanManualTask):
         }
         return (t, c)
 
+    validator = jsonschema.Draft4Validator({
+        "type": "object",
+        "required": ["ulx", "uly", "lrx", "lry", "imw"],
+        "properties": {
+            "ulx": {"type": "number"},
+            "uly": {"type": "number"},
+            "lrx": {"type": "number"},
+            "lry": {"type": "number"},
+            "imw": {"type": "number"}
+        }
+    })
     def save_my_user_input(self, inputs, settings, outputs, userdata):
+        try:
+            self.validator.validate(userdata) ## TODO: userdata
+        except jsonschema.exceptions.ValidationError as e:
+            raise ManualJobException(e.message)
         parameters = {}
         try:
             parameters['ulx'] = float(userdata.get('ulx'))
@@ -70,6 +86,23 @@ class ManualCropTask(RodanManualTask):
 
         with open(outputs['parameters'][0]['resource_path'], 'w') as g:
             json.dump(parameters, g)
+    def test_my_task(self, testcase):
+        inputs = {}
+        settings = {}
+        outputs = {
+            'parameters': [{'resource_type': 'application/json',
+                            'resource_path': testcase.new_available_path()}]
+        }
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 'hahaha'})
+
+        userdata = {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 1500}
+        self.save_my_user_input(inputs, settings, outputs, userdata)
+        with open(outputs['parameters'][0]['resource_path'], 'r') as f:
+            testcase.assertEqual(json.load(f), userdata)
 
 
 class ApplyCropTask(RodanAutomaticTask):

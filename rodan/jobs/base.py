@@ -180,6 +180,22 @@ class RodanTask(Task):
     def _settings(self, runjob_id):
         return json.loads(RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0])
 
+    def test_my_task(self, testcase):
+        """
+        This method is called when executing `manage.py test test_all_jobs`.
+
+        This method should call `run_my_task()` (for automatic job), or
+        `get_my_interface()` and/or `save_my_user_input` (for manual job). Before
+        calling the job code, this method needs to construct `inputs`, `settings`, and
+        `outputs` objects as parameters of the job code.
+
+        Its own parameter `testcase` refers to the Python TestCase object. Aside from
+        assertion methods like `assertEqual()` and `assertRaises()`, it provides
+        `new_available_path()` which returns a path to a nonexist file. `test_my_task`
+        method can thus create an input file and pass into the job code.
+        """
+        raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
+
 
 class RodanAutomaticTask(RodanTask):
     abstract = True
@@ -261,9 +277,6 @@ class RodanAutomaticTask(RodanTask):
 
         return {'error_summary': err_summary,
                 'error_details': err_details}
-
-    def test_my_task(self, testcase):
-        raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
 
 
 class RodanManualTask(RodanTask):
