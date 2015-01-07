@@ -372,7 +372,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cin2 = self.test_Cip2.inputs.first()
         Din1s = self.test_Dip1.inputs.all()
         Din2s = self.test_Dip2.inputs.all()
-        Din2s = self.test_Dip3.inputs.all()
+        Din3s = self.test_Dip3.inputs.all()
         Ein1s = self.test_Eip1.inputs.all()
         Ein2s = self.test_Eip2.inputs.all()
         Fins = self.test_Eip1.inputs.all()

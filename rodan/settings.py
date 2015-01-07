@@ -217,11 +217,12 @@ MEDIUM_THUMBNAIL = 400
 LARGE_THUMBNAIL = 1500
 THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
 
-# Supported versions -- see rodan.views.workflow.version_map
+# Supported Workflow serialization versions -- see rodan.views.workflow.version_map
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
+
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60  # 30 days. NULL: never expire
 
-BACKUP_WORKFLOWRUN_ON_RETRY = True
+# Add traceback in RunJob's error detail when it fails.
 TRACEBACK_IN_ERROR_DETAIL = True
 
 

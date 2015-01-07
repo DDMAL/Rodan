@@ -40,4 +40,4 @@ class RTStafflineRemovalTask(RodanAutomaticTask):
         staffremover.remove_staves(**staffremoval_settings)
         result_image = staffremover.image
 
-        result_image.save_image(outputs['output'][0]['resource_path'])
+        result_image.save_PNG(outputs['output'][0]['resource_path'])

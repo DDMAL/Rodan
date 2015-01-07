@@ -32,8 +32,7 @@ def _invalidate_workflow_on_resources_change(sender, **kwargs):
     if action in ('post_add', 'post_remove', 'post_clear'):
         rc = kwargs['instance']
         wf = rc.workflow
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
 m2m_changed.connect(_invalidate_workflow_on_resources_change, sender=ResourceCollection.resources.through)

@@ -37,16 +37,14 @@ class InputPort(models.Model):
         super(InputPort, self).save(*args, **kwargs)
 
         wf = self.workflow_job.workflow
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
     def delete(self, *args, **kwargs):
         wf = self.workflow_job.workflow
         super(InputPort, self).delete(*args, **kwargs)
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
     def __unicode__(self):
         return u"<InputPort {0}>".format(str(self.uuid))

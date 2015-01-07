@@ -16,7 +16,6 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
                   'error_summary',
                   'error_details',
                   'created',
-                  'updated',
                   'expiry_time',
                   'package_url')
         read_only_fields = ('creator', 'percent_completed', 'error_summary', 'error_details')
@@ -35,7 +34,6 @@ class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
                   'error_summary',
                   'error_details',
                   'created',
-                  'updated',
                   'expiry_time',
                   'package_url')
         read_only_fields = ('creator', 'percent_completed', 'error_summary', 'error_details')

@@ -6,58 +6,11 @@ from PIL import Image
 from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
-
-class AutoBorderRemovalTask(RodanAutomaticTask):
-    name = 'gamera.auto_tasks.border_removal.auto_border_removal'
-    author = "Deepanjan Roy"
-    description = "Automatically tries to remove the border of a page. Non-interactive."
-    settings = argconvert.convert_arg_list(border_removal.args.list)
-    enabled = True
-    category = "Border Removal"
-
-    input_port_types = [{
-        'name': 'input',
-        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
-        'minimum': 1,
-        'maximum': 1
-    }]
-    output_port_types = [{
-        'name': 'output',
-        'resource_types': ('image/onebit+png', 'image/greyscale+png', 'image/rgb+png'),
-        'minimum': 1,
-        'maximum': 1
-    }]
-
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
-        """
-        Note that if the incoming image is onebit, it will convert it to greyscale,
-        do the cropping, and then convert it back to onebit. This can sometimes
-        lead to unexpected behavior, especially because converting to greyscale
-        can do some interpolation, and converting back to onebit uses a default
-        binarizaiton algorithm (the otsu threshold). These can change the image.
-        """
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
-        task_image = load_image(inputs['input'][0]['resource_path'])
-        grey_image = task_image.to_greyscale()
-        crop_mask = grey_image.border_removal(**settings)
-
-        need_to_change_back = False
-        if task_image.data.pixel_type == 0:
-            task_image = task_image.to_greyscale()
-            need_to_change_back = True
-
-        result_image = task_image.mask(crop_mask)
-
-        if need_to_change_back:
-            result_image = result_image.to_onebit()
-
-        result_image.save_image(outputs['output'][0]['resource_path'])
-
 class CropBorderRemovalTask(RodanManualTask):
     name = 'gamera.interactive_tasks.border_removal.crop_border_removal'
     author = "Deepanjan Roy"
     description = "Manual masking crop. Uses the crop interface. Interactive."
-
+    # [TODO] interactive??
     # Ideally, Border Removal Settings should not be coupled with rdn_crop settings.
     # Need more robust argument system. [TODO]. This is ugly.
     from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
@@ -142,5 +95,5 @@ class CropBorderRemovalTask(RodanManualTask):
 
         if need_to_change_back:
             result_image = result_image.to_onebit()
-
-        result_image.save_image(outputs['output'][0]['resource_path'])
+        ## [TODO] ensure pixel type
+        result_image.save_PNG(outputs['output'][0]['resource_path'])

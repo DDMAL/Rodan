@@ -15,6 +15,15 @@ angular.module('rodanTestApp', [])
                     }, function (err) {
                         console.log(err);
                     });
+                getAllPages(ROOT + '/resourcetypes/')
+                    .then(function (results) {
+                        $rootScope.resourcetypes_hash = {};
+                        _.each(results, function (rt) {
+                            $rootScope.resourcetypes_hash[rt.url] = rt;
+                        });
+                    }, function (err) {
+                        console.log(err);
+                    });
             });
 
         $rootScope.status = {
@@ -450,7 +459,7 @@ angular.module('rodanTestApp', [])
                 });
         }, UPDATE_FREQ);
         intervalNow(function () {
-            getAllPages(ROOT + '/runjobs/')
+            getAllPages(ROOT + '/runjobs/?ordering=-created') // RunJobs are created in a reverse order.
                 .then(function (results) {
                     $rootScope.runjobs = [];
                     angular.forEach(results, function (rj) {

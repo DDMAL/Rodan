@@ -50,16 +50,14 @@ class Connection(models.Model):
     def save(self, *args, **kwargs):
         super(Connection, self).save(*args, **kwargs)
         wf = self.workflow
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
     def delete(self, *args, **kwargs):
         wf = self.workflow
         super(Connection, self).delete(*args, **kwargs)
-        if wf.valid:
-            wf.valid = False
-            wf.save()
+        wf.valid = False
+        wf.save()  # always touch workflow to update the `update` field.
 
     def __unicode__(self):
         return u"<Connection {0}>".format(str(self.uuid))

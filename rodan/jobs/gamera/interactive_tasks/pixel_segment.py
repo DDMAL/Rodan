@@ -95,7 +95,7 @@ class ApplySegmentTask(RodanAutomaticTask):
 
         # Convert back to gamera image and return.
         finalImage = from_pil(imageOriginal)
-        finalImage.save_image(outputs['output'][0]['resource_path'])
+        finalImage.save_PNG(outputs['output'][0]['resource_path'])
 
     # Returns true iff provided geometry points form a rectangle.
     # It assumes at least 3 points.

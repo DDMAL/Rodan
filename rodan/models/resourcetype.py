@@ -70,8 +70,6 @@ def load_predefined_resource_types():
     load('image/greyscale+png', '', 'png')
     load('image/grey16+png', '', 'png')
     load('image/rgb+png', '', 'png')
-    load('image/float+png', '', 'png')
-    load('image/complex+png', '', 'png')
     load('application/mei+xml', '', 'mei')
     load('image/jp2', 'jpeg2000', 'jp2')  # RFC 3745
     load('application/zip', 'Package', 'zip')
