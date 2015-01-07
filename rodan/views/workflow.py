@@ -5,11 +5,11 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from rodan.paginators.pagination import PaginationSerializer
-from rodan.models import Workflow, ResourceAssignment, Connection, InputPort, OutputPort, Project, ResourceCollection
-from rodan.serializers.user import UserSerializer
+from rodan.models import Workflow, ResourceAssignment, InputPort, OutputPort, ResourceCollection
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
 from rodan.exceptions import CustomAPIException
 from django.conf import settings
+
 
 class WorkflowList(generics.ListCreateAPIView):
     """
