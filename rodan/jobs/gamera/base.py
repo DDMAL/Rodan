@@ -64,7 +64,7 @@ def load_gamera_module(gamera_module):
                     from PIL import Image
                     Image.new("RGBA", size=(50, 50), color=(256, 0, 0)).save(inputs['input'][0]['resource_path'], 'png')
                     inputs['input'][0]['resource_type'] = 'image/rgb+png'
-                    outputs['output'][0]['resource_type'] = 'image/float+png'
+                    outputs['output'][0]['resource_type'] = 'image/greyscale+png'
                     self.run_my_task(inputs, {}, outputs)
                     im = Image.open(outputs['output'][0]['resource_path'])
                     testcase.assertEqual(im.mode, 'L')
