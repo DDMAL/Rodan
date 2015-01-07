@@ -1,4 +1,6 @@
 from rest_framework import generics
+
+from rodan.paginators.pagination import PaginationSerializer
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
 from rodan.models import Workflow
@@ -15,6 +17,7 @@ class JobList(generics.ListAPIView):
     """
     model = Job
     serializer_class = JobSerializer
+    pagination_serializer_class = PaginationSerializer
     filter_fields = ('enabled', )
     queryset = Job.objects.all()
 

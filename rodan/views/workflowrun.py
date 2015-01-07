@@ -24,6 +24,7 @@ from rodan.models.output import Output
 from rodan.models.outputport import OutputPort
 from rodan.models.inputport import InputPort
 from rodan.serializers.user import UserSerializer
+from rodan.paginators.pagination import PaginationSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
 from rodan.constants import task_status
@@ -49,8 +50,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
+    pagination_serializer_class = PaginationSerializer
     filter_fields = ('workflow',)
-    queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
+    queryset = WorkflowRun.objects.all()  # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
         wfrun_status = serializer.validated_data.get('status', task_status.PROCESSING)
