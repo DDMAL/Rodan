@@ -50,40 +50,25 @@ class ManualCropTask(RodanManualTask):
             "uly": {"type": "number"},
             "lrx": {"type": "number"},
             "lry": {"type": "number"},
-            "imw": {"type": "number"}
+            "imw": {
+                "description": "image width",
+                "type": "integer",
+                "minimum": 0
+            }
         }
     })
     def save_my_user_input(self, inputs, settings, outputs, userdata):
         try:
-            self.validator.validate(userdata) ## TODO: userdata
+            self.validator.validate(userdata)
         except jsonschema.exceptions.ValidationError as e:
             raise ManualJobException(e.message)
-        parameters = {}
-        try:
-            parameters['ulx'] = float(userdata.get('ulx'))
-        except ValueError:
-            raise ManualJobException("Invalid ulx")
-
-        try:
-            parameters['uly'] = float(userdata.get('uly'))
-        except ValueError:
-            raise ManualJobException("Invalid uly")
-
-        try:
-            parameters['lrx'] = float(userdata.get('lrx'))
-        except ValueError:
-            raise ManualJobException("Invalid lrx")
-
-        try:
-            parameters['lry'] = float(userdata.get('lry'))
-        except ValueError:
-            raise ManualJobException("Invalid lry")
-
-        try:
-            parameters['imw'] = float(userdata.get('imw'))
-        except ValueError:
-            raise ManualJobException("Invalid imw")
-
+        parameters = {
+            'ulx': userdata['ulx'],
+            'uly': userdata['uly'],
+            'lrx': userdata['lrx'],
+            'lry': userdata['lry'],
+            'imw': userdata['imw']
+        }
         with open(outputs['parameters'][0]['resource_path'], 'w') as g:
             json.dump(parameters, g)
     def test_my_task(self, testcase):
@@ -98,6 +83,8 @@ class ManualCropTask(RodanManualTask):
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 'hahaha'})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 123.5})
+        testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': -1})
 
         userdata = {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5, 'lry': 3.5, 'imw': 1500}
         self.save_my_user_input(inputs, settings, outputs, userdata)
