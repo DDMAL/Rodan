@@ -147,7 +147,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 if not res.compat_resource_file:
                     raise WorkflowValidationError('The compatible resource file of resource {0} is not ready'.format(res.uuid))
                 type_of_res = res.resource_type
-                if not type_of_res in types_of_ip:
+                if type_of_res not in types_of_ip:
                     raise WorkflowValidationError('The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid))
 
         # graph validation
