@@ -52,12 +52,20 @@ class ManualRotateTask(RodanManualTask):
             g.write(str(val))
 
     def test_my_task(self, testcase):
-        inputs = {}
+        inputs = {
+            'image': [{'large_thumb_url': '/fake/url'}]
+        }
         settings = {}
         outputs = {
             'angle': [{'resource_type': 'text/plain',
                             'resource_path': testcase.new_available_path()}]
         }
+
+        try:
+            self.get_my_interface(inputs, settings)
+        except Exception as e:
+            testcase.fail('get_my_interface() raises an exception: {0}'.format(str(e)))
+
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'hahaha': 'hahaha'})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'angle': 'hahaha'})
         self.save_my_user_input(inputs, settings, outputs, {'angle': 15.6})

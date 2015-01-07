@@ -72,12 +72,20 @@ class ManualCropTask(RodanManualTask):
         with open(outputs['parameters'][0]['resource_path'], 'w') as g:
             json.dump(parameters, g)
     def test_my_task(self, testcase):
-        inputs = {}
+        inputs = {
+            'image': [{'large_thumb_url': '/fake/url'}]
+        }
         settings = {}
         outputs = {
             'parameters': [{'resource_type': 'application/json',
                             'resource_path': testcase.new_available_path()}]
         }
+
+        try:
+            self.get_my_interface(inputs, settings)
+        except Exception as e:
+            testcase.fail('get_my_interface() raises an exception: {0}'.format(str(e)))
+
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'ulx': 2.2, 'uly': 2.3, 'lrx': 2.5})

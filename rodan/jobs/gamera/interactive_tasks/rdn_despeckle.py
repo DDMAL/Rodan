@@ -71,12 +71,21 @@ class ManualDespeckleTask(RodanManualTask):
             json.dump(parameters, g)
 
     def test_my_task(self, testcase):
-        inputs = {}
+        inputs = {
+            'image': [{'large_thumb_url': '/fake/url',
+                       'small_thumb_url': '/fake/url',}]
+        }
         settings = {}
         outputs = {
             'parameters': [{'resource_type': 'application/json',
                             'resource_path': testcase.new_available_path()}]
         }
+
+        try:
+            self.get_my_interface(inputs, settings)
+        except Exception as e:
+            testcase.fail('get_my_interface() raises an exception: {0}'.format(str(e)))
+
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15, 'image_width': 'aaa'})
         testcase.assertRaises(ManualJobException, self.save_my_user_input, inputs, settings, outputs, {'cc_size': 15, 'image_width': 10.50})
