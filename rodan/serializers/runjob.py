@@ -1,11 +1,12 @@
 from rodan.models.runjob import RunJob
 from rest_framework import serializers
-from rodan.serializers import AbsoluteURLField
+from rodan.serializers import AbsoluteURLField, TransparentField
 
 
 class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     job = serializers.HyperlinkedRelatedField(view_name='job-detail', read_only=True)
     interactive_url = AbsoluteURLField(read_only=True, source="interactive_relurl")
+    job_settings = TransparentField(required=False)
 
     class Meta:
         model = RunJob
@@ -18,7 +19,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'workflow_job',
                   'inputs',
                   'outputs',
-                  'job_settings', # [TODO] replace with a JSON serializer
+                  'job_settings',
                   'ready_for_input',
                   'status',
                   'created',

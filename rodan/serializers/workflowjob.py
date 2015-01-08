@@ -3,11 +3,12 @@ from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.outputport import OutputPortSerializer
+from rodan.serializers import TransparentField
+
 from rest_framework import serializers
 
-
 class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
-    #job_settings = serializers.CharField(required=False)  # [TODO]: replace with JSON serializer
+    job_settings = TransparentField(required=False)
 
     class Meta:
         model = WorkflowJob
