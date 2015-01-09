@@ -444,7 +444,7 @@ angular.module('rodanTestApp', [])
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_1.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_2.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_3.url, 'job_settings': [{'name':'threshold', 'default': 0, 'type': 'int'}, {'name': 'storage format', 'default': 0, 'type': 'int'}]}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_3.url, 'job_settings': {'threshold': 128, 'storage format': "dense"}}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4m.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4a.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5c.url}),
