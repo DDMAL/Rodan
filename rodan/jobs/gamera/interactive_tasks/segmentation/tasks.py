@@ -16,9 +16,9 @@ class ComputerAssistanceTask(RodanAutomaticTask):
     description = "Finds the staves using Miyao Staff Finder and masks out everything else."
     settings = {
         'type': 'object',
-        'required': ['num lines', 'scanlines', 'blackness', 'tolerance'],
+        'required': ['num_lines', 'scanlines', 'blackness', 'tolerance'],
         'properties': {
-            'num lines': {
+            'num_lines': {
                 'type': 'integer',
                 'default': 0,
                 'minimum': -1048576,
