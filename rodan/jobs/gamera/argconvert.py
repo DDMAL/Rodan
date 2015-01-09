@@ -69,6 +69,6 @@ def convert_to_gamera_settings(rodan_job_settings):
     settings = {}
     for s in rodan_job_settings:
         setting_name = "_".join(s['name'].split(" "))
-        setting_value = argconvert.convert_to_arg_type(s['type'], s['default'])
+        setting_value = convert_to_arg_type(s['type'], s['default'])
         settings[setting_name] = setting_value
     return settings
