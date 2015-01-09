@@ -1,6 +1,6 @@
 import itertools
 import jsonschema
-from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, ResourceCollection, ResourceAssignment, Connection, Job
+from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, ResourceCollection, ResourceAssignment, Connection, Job, InputPortType, OutputPortType
 from rest_framework import serializers
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer
@@ -118,10 +118,10 @@ class RodanWorkflowSerializationFormatBase(object):
             path = ''.join(paths)
             raise self.ValidationError({path: e.message})
         try:
-            self.validate_ids(serialized)
+            self.validate_extra(serialized)
         except:
             raise
-    def validate_ids(self, serialized):
+    def validate_extra(self, serialized):
         raise NotImplementedError()
     def load(self, serialized, project, **k):
         raise NotImplementedError()
@@ -211,19 +211,34 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             }
         }
     }
-    def validate_ids(self, serialized):
+    def validate_extra(self, serialized):
         ip_ids = set()
         op_ids = set()
         rc_ids = set()
         for i_wfj, wfj in enumerate(serialized['workflow_jobs']):
+            job_name = wfj['job_name']
+            if not Job.objects.filter(job_name=job_name).exists():
+                raise self.ValidationError({'workflow_jobs[{0}].job_name'.format(i_wfj): 'Job {0} does not exist in current Rodan installation.'.format(job_name)})
             for i_ip, ip in enumerate(wfj['input_ports']):
+                ipt_name = ip['type']
+                if not InputPortType.objects.filter(job__job_name=job_name, name=ipt_name).exists():
+                    raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}].type'.format(i_wfj, i_ip): 'InputPortType {0} of Job {1} does not exist in current Rodan installation.'.format(ipt_name, job_name)})
                 if ip['id'] in ip_ids:
-                    raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}]'.format(i_wfj, i_ip): 'Duplicate InputPort ID found.'})
+                    raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}].id'.format(i_wfj, i_ip): 'Duplicate InputPort ID found.'})
                 ip_ids.add(ip['id'])
             for i_op, op in enumerate(wfj['output_ports']):
+                opt_name = op['type']
+                if not OutputPortType.objects.filter(job__job_name=job_name, name=opt_name).exists():
+                    raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}].type'.format(i_wfj, i_op): 'OutputPortType {0} of Job {1} does not exist in current Rodan installation.'.format(opt_name, job_name)})
                 if op['id'] in op_ids:
-                    raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}]'.format(i_wfj, i_op): 'Duplicate OutputPort ID found.'})
+                    raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}].id'.format(i_wfj, i_op): 'Duplicate OutputPort ID found.'})
                 op_ids.add(op['id'])
+            j_settings = Job.objects.get(job_name=job_name).settings
+            try:
+                jsonschema.Draft4Validator(j_settings).validate(wfj['job_settings'])
+            except jsonschema.exceptions.ValidationError as e:
+                raise self.ValidationError({'workflow_jobs[{0}].job_settings'.format(i_wfj): 'Job settings is invalid: {0}.'.format(str(e))})
+
         for i_rc, rc in enumerate(serialized['resource_collections']):
             if rc['id'] in rc_ids:
                 raise self.ValidationError({'resource_collections[{0}]'.format(i_rc): 'Duplicate ResourceCollection ID found.'})
@@ -291,7 +306,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                         rep_rc = {
                             'id': transformed_rc_id
                         }
-                        rep['resource_collection'].append(rep_rc)
+                        rep['resource_collections'].append(rep_rc)
                         rep_ra['resource_collection'] = transformed_rc_id
                     rep['resource_assignments'].append(rep_ra)
 
