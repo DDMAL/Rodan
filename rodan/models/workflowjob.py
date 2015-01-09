@@ -1,7 +1,7 @@
 from django.db import models
 from rodan.models.job import Job
 from rodan.models.workflow import Workflow
-from django_extensions.db.fields import json
+from jsonfield import JSONField
 from uuidfield import UUIDField
 
 
@@ -32,7 +32,7 @@ class WorkflowJob(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey(Workflow, related_name="workflow_jobs")
     job = models.ForeignKey(Job, related_name="workflow_jobs")
-    job_settings = json.JSONField(default="{}", blank=True, null=True)
+    job_settings = JSONField(default={}, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

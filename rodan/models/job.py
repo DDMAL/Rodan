@@ -1,5 +1,5 @@
 from django.db import models
-from django_extensions.db.fields import json
+from jsonfield import JSONField
 from uuidfield import UUIDField
 
 
@@ -32,7 +32,7 @@ class Job(models.Model):
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
-    settings = json.JSONField(default='{"type": "object"}')
+    settings = JSONField(default={"type": "object"})
 
     enabled = models.BooleanField(default=False)
     interactive = models.BooleanField(default=False)

@@ -1,8 +1,8 @@
 import os
 import shutil
 from django.db import models
-from django_extensions.db.fields import json
 from django.core.urlresolvers import reverse
+from jsonfield import JSONField
 from uuidfield import UUIDField
 from rodan.models.resource import Resource
 from rodan.models.job import Job
@@ -57,7 +57,7 @@ class RunJob(models.Model):
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL)
     job_name = models.CharField(max_length=200)
 
-    job_settings = json.JSONField(default="{}")
+    job_settings = JSONField(default={})
     interactive = models.BooleanField(default=False)
     ready_for_input = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
