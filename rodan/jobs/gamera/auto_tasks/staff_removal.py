@@ -55,8 +55,7 @@ class RTStafflineRemovalTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+    def run_my_task(self, inputs, settings, outputs):
         task_image = load_image(inputs['input'][0]['resource_path'])
 
         clsss_init_settings = dict( [(k, settings[k]) for k in ('staffline_height', 'staffspace_height')] )

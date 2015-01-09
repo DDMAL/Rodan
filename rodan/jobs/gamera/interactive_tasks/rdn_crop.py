@@ -126,7 +126,7 @@ class ApplyCropTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['parameters'][0]['resource_path']) as f:
             parameters = json.load(f)

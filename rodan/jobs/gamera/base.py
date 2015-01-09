@@ -37,6 +37,7 @@ def load_gamera_module(gamera_module):
         except TypeError:  # we now exclude the function with argument <ImageType>
             continue
 
+
         class gamera_module_task(RodanAutomaticTask):
             name = str(fn)
             author = fn.author
@@ -47,10 +48,15 @@ def load_gamera_module(gamera_module):
             input_port_types = input_types
             output_port_types = output_types
 
-            def run_my_task(self, inputs, rodan_job_settings, outputs):
-                settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+            def run_my_task(self, inputs, settings, outputs):
                 task_image = load_image(inputs['input'][0]['resource_path'])
                 task_function = self.name.split(".")[-1]
+
+                ## Individual fixes:
+                if self.name == 'gamera.plugins.threshold.threshold':
+                    settings['storage_format'] = settings['storage format']
+                    del settings['storage format']
+
                 result_image = getattr(task_image, task_function)(**settings)
                 result_image = ensure_pixel_type(result_image, outputs['output'][0]['resource_type'])
                 result_image.save_PNG(outputs['output'][0]['resource_path'])

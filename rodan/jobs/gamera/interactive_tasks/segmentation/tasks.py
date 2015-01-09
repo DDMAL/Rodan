@@ -60,8 +60,7 @@ class ComputerAssistanceTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+    def run_my_task(self, inputs, settings, outputs):
         task_image = load_image(inputs['image'][0]['resource_path'])
 
         ranked_page = task_image.rank(9, 9, 0)

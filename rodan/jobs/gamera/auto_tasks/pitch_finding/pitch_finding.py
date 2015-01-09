@@ -51,8 +51,7 @@ class PitchFindingTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+    def run_my_task(self, inputs, settings, outputs):
         gamera_xml_path = inputs['Classifier Result'][0]['resource_path']
         segmented_image_path = inputs['Segmented Image'][0]['resource_path']
 

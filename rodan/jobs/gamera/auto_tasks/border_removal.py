@@ -27,7 +27,7 @@ class AutoBorderRemovalTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         """
         Note that if the incoming image is onebit, it will convert it to greyscale,
         do the cropping, and then convert it back to onebit. This can sometimes
@@ -38,7 +38,6 @@ class AutoBorderRemovalTask(RodanAutomaticTask):
         Format conversion is needed because that the `border_removal` function supports
         only GREYSCALE, and `mask` function supports only GREYSCALE and RGB.
         """
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
         task_image = load_image(inputs['input'][0]['resource_path'])
 
         if task_image.data.pixel_type != enums.GREYSCALE:

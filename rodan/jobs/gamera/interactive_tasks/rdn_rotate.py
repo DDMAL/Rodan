@@ -100,7 +100,7 @@ class ApplyRotateTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
+    def run_my_task(self, inputs, settings, outputs):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['angle'][0]['resource_path']) as f:
             angle = float(f.read())

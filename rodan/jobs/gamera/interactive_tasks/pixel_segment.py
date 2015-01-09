@@ -76,8 +76,7 @@ class ApplySegmentTask(RodanAutomaticTask):
     # Given an image and coloured geometries from the associated interactive
     # job, converts non-white pixels in each geometry in the image to the
     # specified colour.
-    def run_my_task(self, inputs, rodan_job_settings, outputs):
-        settings = argconvert.convert_to_gamera_settings(rodan_job_settings)
+    def run_my_task(self, inputs, settings, outputs):
         task_image = load_image(inputs['image'][0]['resource_path'])
         with open(inputs['geometries'][0]['resource_path']) as f:
             geometries = json.load(f)
