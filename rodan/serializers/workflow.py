@@ -169,7 +169,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                             "uniqueItems": True
                         },
                         "job_name": {"type": "string"},
-                        "job_settings": {"type": "array"}
+                        "job_settings": {"type": "object"}
                     }
                 },
                 "uniqueItems": True

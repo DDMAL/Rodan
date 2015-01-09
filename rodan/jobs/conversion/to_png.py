@@ -6,7 +6,7 @@ class to_png(RodanAutomaticTask):
     name = 'rodan.jobs.conversion.to_png'
     author = 'Andrew Hankinson'
     description = 'Convert image to png format'
-    settings = ()
+    settings = {}
     enabled = True
     category = "Conversion"
 

@@ -1,3 +1,4 @@
+import jsonschema
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
@@ -95,7 +96,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 if number_of_output_ports > opt.maximum or number_of_output_ports < opt.minimum:
                     raise WorkflowValidationError('The number of output ports on WorkflowJob {0} did not meet the requirements'.format(wfjob.uuid))
 
-            # [TODO] check settings argtype
+            v = jsonschema.Draft4Validator(dict(job.settings))  # convert JSONDict object to Python dict object.
+            try:
+                v.validate(wfjob.job_settings)
+            except jsonschema.exceptions.ValidationError as e:
+                raise WorkflowValidationError('WorkflowJob {0} has invalid settings.'.format(wfjob.uuid))
 
         # validate InputPorts
         input_ports = InputPort.objects.filter(workflow_job__workflow=workflow)

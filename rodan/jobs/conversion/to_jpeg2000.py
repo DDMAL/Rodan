@@ -17,7 +17,7 @@ class to_jpeg2000(RodanAutomaticTask):
     name = 'rodan.jobs.conversion.to_jpeg2000'
     author = 'Andrew Hankinson'
     description = "Converts an image to a JPEG2000 image suitable for display in Diva"
-    settings = ()
+    settings = {}
     enabled = True
     category = "Conversion"
 

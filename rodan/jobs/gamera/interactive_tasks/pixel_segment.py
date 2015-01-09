@@ -12,7 +12,7 @@ class ManualTask(RodanManualTask):
     name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'
     author = "Ling-Xiao Yang"
     description = "TODO"
-    settings = []
+    settings = {}
     enabled = True
     category = "Lyric Extraction"
 
@@ -51,7 +51,7 @@ class ApplySegmentTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'
     author = "Ryan Bannon"
     description = "[TODO]"
-    settings = []
+    settings = {}
     enabled = True
     category = "Lyric Extraction"
 

@@ -7,12 +7,37 @@ class RTStafflineRemovalTask(RodanAutomaticTask):
     name = 'gamera.auto_tasks.staff_removal.RT_staff_removal'
     author = "Deepanjan Roy"
     description = "Removes the staff lines usign Roach and Tatem Staffline removal algorithm."
-    settings = [
-        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'staffline_height', 'type': 'int'},
-        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'staffspace_height', 'type': 'int'},
-        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'num_lines', 'type': 'int'},
-        {'default': 3, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'resolution', 'type': 'real'}
-    ]
+    settings = {
+        'type': 'object',
+        'required': ['staffline_height', 'staffspace_height', 'num_lines', 'resolution'],
+        'properties': {
+            'staffline_height': {
+                'type': 'integer',
+                'default': 0,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'staffspace_height': {
+                'type': 'integer',
+                'default': 0,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'num_lines': {
+                'type': 'integer',
+                'default': 0,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'resolution': {
+                'type': 'number',
+                'default': 3,
+                'minimum': -1048576,
+                'maximum': 1048576
+            }
+        }
+    }
+
     enabled = True
     category = "Staff Removal"
     interactive = False

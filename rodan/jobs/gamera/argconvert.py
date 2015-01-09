@@ -1,21 +1,61 @@
-from gamera import enums
+from gamera import enums, args
 
 def convert_arg_list(arglist):
+    """
+    Convert Gamera argument list to a JSON schema
+
+    For Gamera argument class, see https://github.com/DDMAL/Gamera/blob/master/doc/src/args.txt
+    """
     if not arglist:
-        return []
-    ret = []
-    for a in arglist:
-        arg = a.__dict__
-        if 'klass' in arg.keys():
-            del arg['klass']
+        return {}
+    schema = {
+        'type': 'object',
+        'required': [],
+        'properties': {}
+    }
+    for i, a in enumerate(arglist):
+        key = a.name
+        schema['required'].append(key)
+        value = {}
+        if a.has_default:
+            # so we don't have to use Gamera's NoneType
+            if str(a.default) == 'None':
+                value['default'] = None
+            else:
+                value['default'] = a.default
 
-        arg['type'] = str(a).strip('<>').lower()
+        if isinstance(a, args.Int):
+            value['type'] = 'integer'
+            if a.rng:
+                value['minimum'] = a.rng[0]
+                value['maximum'] = a.rng[1]
+        elif isinstance(a, args.Real):
+            value['type'] = 'number'
+            if a.rng:
+                value['minimum'] = a.rng[0]
+                value['maximum'] = a.rng[1]
+        elif isinstance(a, args.ImageType):
+            raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')
+        elif isinstance(a, args.Choice):
+            value['enum'] = a.choices
+        elif isinstance(a, args.FloatVector):
+            value['type'] = 'array'
+            value['items'] = {'type': 'number'}
+            if a.length != -1:
+                value['minItems'] = a.length
+                value['maxItems'] = a.length
+        elif isinstance(a, args.IntVector):
+            value['type'] = 'array'
+            value['items'] = {'type': 'integer'}
+            if a.length != -1:
+                value['minItems'] = a.length
+                value['maxItems'] = a.length
+        else:
+            raise TypeError('Rodan does not support Gamera argument type {0}'.format(str(a)))
 
-        # so we don't have to use Gamera's NoneType
-        if str(arg['default']) == 'None':
-            arg['default'] = None
-        ret.append(arg)
-    return ret
+        value['_order'] = i  # JSON object is unordered.
+        schema['properties'][key] = value
+    return schema
 
 
 def convert_to_arg_type(atype, value):

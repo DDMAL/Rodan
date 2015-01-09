@@ -19,7 +19,19 @@ class PitchFindingTask(RodanAutomaticTask):
     description = "Classifies the neumes detected in the page using the classifier interface."
     enabled = True
     category = "Pitch Finding"
-    settings = [{'default': 2, 'has_default': True, 'rng': [1, 1048576], 'name': 'discard_size', 'type': 'int'}]
+    settings = {
+        'type': 'object',
+        'properties': {
+            'discard_size': {
+                'type': 'integer',
+                'default': 2,
+                'minimum': 1,
+                'maximum': 1048576,
+                'required': True,
+                '_order': 0
+            }
+        }
+    }
 
     input_port_types = [{
         'name': 'Segmented Image',

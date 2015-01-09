@@ -1,4 +1,4 @@
-import tempfile, shutil, os, uuid, copy, re, json, contextlib
+import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema
 from celery import Task, registry
 from celery.app.task import TaskType
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
@@ -39,10 +39,17 @@ class RodanTaskType(TaskType):
                 raise TypeError('Rodan tasks should always inherit either RodanAutomaticTask or RodanManualTask')
 
             if not Job.objects.filter(job_name=attrs['name']).exists():
+                try:
+                    # verify the schema
+                    jsonschema.Draft4Validator.check_schema(attrs['settings'])
+                except jsonschema.exceptions.SchemaError as e:
+                    raise e
+                schema = attrs['settings'] or {'type': 'object'}
+
                 j = Job(job_name=attrs['name'],
                         author=attrs['author'],
                         description=attrs['description'],
-                        settings=attrs['settings'],
+                        settings=schema,
                         enabled=attrs['enabled'],
                         category=attrs['category'],
                         interactive=interactive)

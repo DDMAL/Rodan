@@ -10,10 +10,20 @@ class dummy_automatic_job(RodanAutomaticTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
     author = "Andrew Hankinson"
     description = "A Dummy Job for testing the Job loading and workflow system"
-    settings = (
-        {'default': None, 'has_default': False, 'name': "mask", 'pixel_types': (0), 'type': "imagetype"},
-        {'default': [], 'has_default': False, 'name': "reference_histogram", 'list_of': False, 'length': -1, 'type': "floatvector"}
-    )
+    settings = {
+        'type': 'object',
+        'required': ['a', 'b'],
+        'properties': {
+            'a': {
+                'type': 'integer',
+                'minimum': 0,
+            },
+            'b': {
+                'type': 'array',
+                'items': {'type': 'number'}
+            }
+        }
+    }
     enabled = True
     category = "Dummy"
 
@@ -51,10 +61,20 @@ class dummy_manual_job(RodanManualTask):
     name = "rodan.jobs.devel.dummy_manual_job"
     author = "Andrew Hankinson"
     description = "A Dummy Job for testing the Job loading and workflow system"
-    settings = (
-        {'default': None, 'has_default': False, 'name': "mask", 'pixel_types': (0), 'type': "imagetype"},
-        {'default': [], 'has_default': False, 'name': "reference_histogram", 'list_of': False, 'length': -1, 'type': "floatvector"}
-    )
+    settings = {
+        'type': 'object',
+        'required': ['a', 'b'],
+        'properties': {
+            'a': {
+                'type': 'integer',
+                'minimum': 0,
+            },
+            'b': {
+                'type': 'array',
+                'items': {'type': 'number'}
+            }
+        }
+    }
     enabled = True
     category = "Dummy"
 

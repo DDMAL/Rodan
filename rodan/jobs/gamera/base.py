@@ -32,11 +32,16 @@ def load_gamera_module(gamera_module):
             'maximum': 1,
         }]
 
+        try:
+            settings_schema = argconvert.convert_arg_list(fn.args.list)
+        except TypeError:  # we now exclude the function with argument <ImageType>
+            continue
+
         class gamera_module_task(RodanAutomaticTask):
             name = str(fn)
             author = fn.author
             description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-            settings = argconvert.convert_arg_list(fn.args.list)
+            settings = settings_schema
             enabled = True
             category = gamera_module.module.category
             input_port_types = input_types

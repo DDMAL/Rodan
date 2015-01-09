@@ -91,8 +91,19 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data, anticipated_message)
     def test_workflowjob__settings_not_satisfy(self):
-        # [TODO]
-        pass
+        self.test_job.settings = {
+            'type': 'object',
+            'required': ['a'],
+            'properties': {'a': {'type': 'number'}}
+        }
+        self.test_job.save()
+        self.test_workflowjob.job_settings = {'b': []}
+        self.test_workflowjob.save()
+        response = self._validate(self.test_workflow.uuid)
+        anticipated_message = {'detail': 'WorkflowJob {0} has invalid settings.'.format(self.test_workflowjob.uuid)}
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, anticipated_message)
+
 
     def test_input__type_incompatible_with_job(self):
         new_ipt = mommy.make('rodan.InputPortType')

@@ -17,7 +17,7 @@ class ManualCropTask(RodanManualTask):
     name = '{0}_manual'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_crop.module.category
 
@@ -104,7 +104,7 @@ class ApplyCropTask(RodanAutomaticTask):
     name = '{0}_apply_crop'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_crop.module.category
 

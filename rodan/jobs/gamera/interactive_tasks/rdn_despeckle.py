@@ -16,7 +16,7 @@ class ManualDespeckleTask(RodanManualTask):
     name = '{0}_manual'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_despeckle.module.category
 
@@ -103,7 +103,7 @@ class ApplyDespeckleTask(RodanAutomaticTask):
     name = '{0}_apply_despeckle'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_despeckle.module.category
 

@@ -14,12 +14,36 @@ class ComputerAssistanceTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.segmentation.computer_assistance'
     author = "Deepanjan Roy"
     description = "Finds the staves using Miyao Staff Finder and masks out everything else."
-    settings = [
-        {'default': 0, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'num lines', 'type': 'int'},
-        {'default': 5, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'scanlines', 'type': 'int'},
-        {'default': 0.8, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'blackness', 'type': 'real'},
-        {'default': -1, 'has_default': True, 'rng': (-1048576, 1048576), 'name': 'tolerance', 'type': 'int'},
-    ]
+    settings = {
+        'type': 'object',
+        'required': ['num lines', 'scanlines', 'blackness', 'tolerance'],
+        'properties': {
+            'num lines': {
+                'type': 'integer',
+                'default': 0,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'scanlines': {
+                'type': 'integer',
+                'default': 5,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'blackness': {
+                'type': 'number',
+                'default': 0.8,
+                'minimum': -1048576,
+                'maximum': 1048576
+            },
+            'tolerance': {
+                'type': 'integer',
+                'default': -1,
+                'minimum': -1048576,
+                'maximum': 1048576
+            }
+        }
+    }
     enabled = True
     category = "Segmentation"
 
@@ -58,7 +82,7 @@ class ManualCorrectionTask(RodanManualTask):
     name = 'gamera.interactive_tasks.segmentation.manual_correction'
     author = 'Ling-Xiao Yang'
     description = 'Manual correction of computer-assisted segmentation.'
-    settings = []
+    settings = {}
     enabled = True
     category = 'Segmentation'
 
@@ -103,7 +127,7 @@ class ApplySegmentationTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.segmentation.apply_segmentation'
     author = "Ling-Xiao Yang"
     description = "Apply segmentation."
-    settings = []
+    settings = {}
     enabled = True
     category = "Segmentation"
 

@@ -15,7 +15,7 @@ class ManualRotateTask(RodanManualTask):
     name = '{0}_manual'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_rotate.module.category
 
@@ -78,7 +78,7 @@ class ApplyRotateTask(RodanAutomaticTask):
     name = '{0}_apply_rotate'.format(str(fn))
     author = "Ling-Xiao Yang"
     description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings = []
+    settings = {}
     enabled = True
     category = rdn_rotate.module.category
 

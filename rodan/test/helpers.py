@@ -51,7 +51,8 @@ class RodanTestSetUpMixin(object):
         # build this graph: test_workflowjob --> test_workflowjob2
         self.test_workflowjob = mommy.make('rodan.WorkflowJob',
                                            workflow=self.test_workflow,
-                                           job=self.test_job)
+                                           job=self.test_job,
+                                           job_settings={'a': 1, 'b': [0.4]})
         inputport = mommy.make('rodan.InputPort',
                                workflow_job=self.test_workflowjob,
                                input_port_type=self.test_inputporttype)
@@ -65,12 +66,12 @@ class RodanTestSetUpMixin(object):
                                              input_port=inputport,
                                              resource_collection=test_resourcecollection)
 
-
         test_connection = mommy.make('rodan.Connection',
                                      output_port=outputport,
                                      input_port__input_port_type=self.test_inputporttype,
                                      input_port__workflow_job__workflow=self.test_workflow,
-                                     input_port__workflow_job__job=self.test_job)
+                                     input_port__workflow_job__job=self.test_job,
+                                     input_port__workflow_job__job_settings={'a': 1, 'b': [0.4]})
         self.test_workflowjob2 = test_connection.input_port.workflow_job
         outputport2 = mommy.make('rodan.OutputPort',
                                  workflow_job=self.test_workflowjob2,
@@ -95,7 +96,8 @@ class RodanTestSetUpMixin(object):
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
         self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',
                                         workflow=self.test_workflow,
-                                        job=dummy_a_job)
+                                        job=dummy_a_job,
+                                        job_settings={'a': 1, 'b': [0.4]})
         inputport_a = mommy.make('rodan.InputPort',
                                  workflow_job=self.dummy_a_wfjob,
                                  input_port_type=dummy_a_job.input_port_types.first())
@@ -108,7 +110,8 @@ class RodanTestSetUpMixin(object):
 
         self.dummy_m_wfjob = mommy.make('rodan.WorkflowJob',
                                         workflow=self.test_workflow,
-                                        job=dummy_m_job)
+                                        job=dummy_m_job,
+                                        job_settings={'a': 1, 'b': [0.4]})
         inputport_m = mommy.make('rodan.InputPort',
                                  workflow_job=self.dummy_m_wfjob,
                                  input_port_type=dummy_m_job.input_port_types.first())
@@ -162,22 +165,28 @@ class RodanTestSetUpMixin(object):
 
         self.test_wfjob_A = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_a)
+                                       job=job_a,
+                                       job_settings={'a': 1, 'b': [0.4]})
         self.test_wfjob_B = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_m)
+                                       job=job_m,
+                                       job_settings={'a': 1, 'b': [0.4]})
         self.test_wfjob_C = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_a)
+                                       job=job_a,
+                                       job_settings={'a': 1, 'b': [0.4]})
         self.test_wfjob_D = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_m)
+                                       job=job_m,
+                                       job_settings={'a': 1, 'b': [0.4]})
         self.test_wfjob_E = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_a)
+                                       job=job_a,
+                                       job_settings={'a': 1, 'b': [0.4]})
         self.test_wfjob_F = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
-                                       job=job_a)
+                                       job=job_a,
+                                       job_settings={'a': 1, 'b': [0.4]})
 
         self.test_Aip = mommy.make('rodan.InputPort',
                                    workflow_job=self.test_wfjob_A,

@@ -12,7 +12,7 @@ class ManualMaskTask(RodanManualTask):
     name = 'gamera.interactive_tasks.border_removal.poly_mask.manual'
     author = "Ling-Xiao Yang"
     description = "TODO"
-    settings = []
+    settings = {}
     enabled = True
     category = "Border Removal"
 
@@ -52,7 +52,7 @@ class ApplyMaskTask(RodanAutomaticTask):
     name = 'gamera.interactive_tasks.border_removal.poly_mask.apply'
     author = "Deepanjan Roy"
     description = "TODO"
-    settings = []
+    settings = {}
     enabled = True
     category = "Border Removal"
 
