@@ -428,6 +428,111 @@ angular.module('rodanTestApp', [])
                 }, errhandler);
             });
         };
+        $scope.newCompleteWorkflow = function () {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_complete}).success(function (wf) {
+                var j_1 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.auto_task.auto_border_removal'});
+                var j_2 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
+                var j_3 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.threshold.threshold'});
+                var j_4m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_manual'});
+                var j_4a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_apply_despeckle'});
+                var j_5c = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.computer_assistance'});
+                var j_5m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.manual_correction'});
+                var j_5a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.apply_segmentation'});
+//                var j_6m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'});
+//                var j_6a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_1.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_2.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_3.url, 'job_settings': [{'name':'threshold', 'default': 0, 'type': 'int'}, {'name': 'storage format', 'default': 0, 'type': 'int'}]}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4m.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4a.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5c.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5m.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5a.url}),
+//                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_6m.url}),
+//                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_6a.url}),
+                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_complete})
+                ]).then(function (things) {
+                    var wfj_1 = things[0].data;
+                    var wfj_2 = things[1].data;
+                    var wfj_3 = things[2].data;
+                    var wfj_4m = things[3].data;
+                    var wfj_4a = things[4].data;
+                    var wfj_5c = things[5].data;
+                    var wfj_5m = things[6].data;
+                    var wfj_5a = things[7].data;
+                    //var wfj_6m = things[8].data;
+                    //var wfj_6a = things[9].data;
+                    var rc = things[8].data;
+
+                    var j_4a_ipt_image = _.find(j_4a.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var j_4a_ipt_parameters = _.find(j_4a.input_port_types, function (ipt) { return ipt.name == 'parameters'});
+                    var j_5m_ipt_image = _.find(j_5m.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var j_5m_ipt_polygon = _.find(j_5m.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+                    var j_5a_ipt_image = _.find(j_5a.input_port_types, function (ipt) { return ipt.name == 'image'});
+                    var j_5a_ipt_polygon = _.find(j_5a.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_1.url, 'input_port_type': j_1.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_1.url, 'output_port_type': j_1.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_2.url, 'input_port_type': j_2.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_2.url, 'output_port_type': j_2.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_3.url, 'input_port_type': j_3.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_3.url, 'output_port_type': j_3.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4m.url, 'input_port_type': j_4m.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_4m.url, 'output_port_type': j_4m.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4a.url, 'input_port_type': j_4a_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4a.url, 'input_port_type': j_4a_ipt_parameters.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_4a.url, 'output_port_type': j_4a.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5c.url, 'input_port_type': j_5c.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5c.url, 'output_port_type': j_5c.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5m.url, 'input_port_type': j_5m_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5m.url, 'input_port_type': j_5m_ipt_polygon.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5m.url, 'output_port_type': j_5m.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5a.url, 'input_port_type': j_5a_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5a.url, 'input_port_type': j_5a_ipt_polygon.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5a.url, 'output_port_type': j_5a.output_port_types[0].url}),
+                    ]).then(function (things) {
+                        var ip_1 = things[0].data;
+                        var op_1 = things[1].data;
+                        var ip_2 = things[2].data;
+                        var op_2 = things[3].data;
+                        var ip_3 = things[4].data;
+                        var op_3 = things[5].data;
+                        var ip_4m = things[6].data;
+                        var op_4m = things[7].data;
+                        var ip_4a_image = things[8].data;
+                        var ip_4a_parameters = things[9].data;
+                        var op_4a = things[10].data;
+                        var ip_5c = things[11].data;
+                        var op_5c = things[12].data;
+                        var ip_5m_image = things[13].data;
+                        var ip_5m_parameters = things[14].data;
+                        var op_5m = things[15].data;
+                        var ip_5a_image = things[16].data;
+                        var ip_5a_parameters = things[17].data;
+                        var op_5a = things[18].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_1.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_1.url, 'input_port': ip_2.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_2.url, 'input_port': ip_3.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_3.url, 'input_port': ip_4m.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_3.url, 'input_port': ip_4a_image.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_4m.url, 'input_port': ip_4a_parameters.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5c.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5m_image.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5a_image.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_5c.url, 'input_port': ip_5m_parameters.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_5m.url, 'input_port': ip_5a_parameters.url})
+                        ]).then(function (things) {
+                            console.log('complete workflow created!');
+                        }, errhandler);
+                    }, errhandler);
+                }, errhandler);
+            });
+        };
 
         $scope.validateWorkflow = function (w) {
             $http.patch(w.url, {'valid': true})

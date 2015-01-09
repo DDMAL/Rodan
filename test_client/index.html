@@ -134,6 +134,14 @@
               <button type="submit">Submit</button>
             </fieldset>
           </form>
+          <form ng-submit="newCompleteWorkflow()">
+            <fieldset>
+              <legend>New complete Workflow</legend>
+              <div><label>Resources: <select ng-model="resources_complete" ng-options="r.url as (r.name + '--' + r.uuid.slice(0, 6)) for r in resources" multiple></select></label></div>
+              <input type="name" placeholder="Workflow Name" ng-model="name_complete"/>
+              <button type="submit">Submit</button>
+            </fieldset>
+          </form>
         </div>
       </section>
       <section class="row" ng-controller="workflowrunsCtrl">
