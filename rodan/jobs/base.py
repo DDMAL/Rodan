@@ -185,7 +185,17 @@ class RodanTask(Task):
         return outputs
 
     def _settings(self, runjob_id):
-        return json.loads(RunJob.objects.filter(uuid=runjob_id).values_list('job_settings', flat=True)[0])
+        rj_vals = RunJob.objects.filter(uuid=runjob_id).values('job_settings', 'job_name')
+        rj_settings = rj_vals[0]['job_settings']
+        rj_settings = json.loads(rj_settings)
+        j_settings = Job.objects.filter(job_name=rj_vals[0]['job_name']).values_list('settings', flat=True)[0]
+        j_settings = json.loads(j_settings)
+
+        for properti, definition in j_settings.get('properties', {}).iteritems():
+            if 'enum' in definition:  # convert enum to integers
+                rj_settings[properti] = definition['enum'].index(rj_settings[properti])
+
+        return rj_settings
 
     def test_my_task(self, testcase):
         """
