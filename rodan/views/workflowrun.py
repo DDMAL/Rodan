@@ -158,7 +158,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         run_job = RunJob(workflow_job=wfjob,
                          workflow_run=workflow_run,
                          job_name=wfjob.job.job_name,
-                         interactive=wfjob.job.interactive,
                          job_settings=wfjob.job_settings)
         run_job.save()
 
@@ -238,14 +237,14 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
         new_status = request.data.get('status', None)
 
         if old_status == task_status.PROCESSING and new_status == task_status.CANCELLED:
-            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING))
+            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
             for celery_id in runjobs_to_revoke_celery_id:
                 if celery_id is not None:
                     revoke(celery_id, terminate=True)
 
-            runjobs_to_revoke_query.update(status=task_status.CANCELLED, ready_for_input=False)
+            runjobs_to_revoke_query.update(status=task_status.CANCELLED)
             serializer = self.get_serializer(wfrun, data={'status': task_status.CANCELLED}, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()

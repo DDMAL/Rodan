@@ -9,7 +9,7 @@ class RunJobList(generics.ListAPIView):
     Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
 
     #### Parameters
-    - `ready_for_input` -- GET-only. Boolean value: True/False.
+    - `status` -- GET-only. Status number.
     - `project` -- GET-only. UUID of a Project.
     - `workflow_run` -- GET-only. UUID of a WorkflowRun.
     """
@@ -22,7 +22,7 @@ class RunJobList(generics.ListAPIView):
         project = django_filters.CharFilter(name="workflow_run__workflow__project")
         class Meta:
             model = RunJob
-            fields = ('ready_for_input', 'project', 'workflow_run')
+            fields = ('status', 'project', 'workflow_run')
 
 
 class RunJobDetail(generics.RetrieveAPIView):

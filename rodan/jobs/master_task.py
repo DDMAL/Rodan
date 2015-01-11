@@ -7,27 +7,27 @@ from django.db.models import Q
 
 @task(name='rodan.core.master_task')
 def master_task(workflow_run_id):
-    # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
+    """
+    Code here are run asynchronously in Celery thread.
 
-    # set interactive runjobs ready for input
-    RunJob.objects.filter(
-        Q(workflow_run__uuid=workflow_run_id)
-        & Q(status=task_status.SCHEDULED)
-        & Q(interactive=True)
-        & Q(ready_for_input=False)
-        & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
-           | Q(inputs__isnull=True))      # OR no input
-    ).update(ready_for_input=True)
+    To prevent re-creating a deleted object, any write to database should use
+    one of the following:
+    + `queryset.update()`
+    + `obj.save(update_fields=[...])`
+    + `obj.file_field.save(..., save=False)` + `obj.save(update_fields=['file_field'])`
 
-
+    instead of:
+    + `obj.save()`
+    + `obj.file_field.save(..., save=True)`
+    """
     # find runable runjobs
     runable_runjobs_query = RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)
         & Q(status=task_status.SCHEDULED)
-        & Q(interactive=False)
         & (~Q(inputs__resource__compat_resource_file__exact='')   # no ANY input with compat_resource_file==''
            | Q(inputs__isnull=True))      # OR no input
     )
+
     runable_runjobs_repeated = runable_runjobs_query.values('uuid', 'job_name')  # CAUTION: underlying database performs an INNER JOIN operation, which could return repeated lines due to reverse foreign key query "inputs".
     runable_runjobs = []
     uuid_set = set()

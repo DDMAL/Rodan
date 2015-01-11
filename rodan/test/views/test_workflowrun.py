@@ -122,10 +122,9 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+        # At this point, the automatic RunJob should be finished, and the manual RunJob should wait for input
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
-        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
-        self.assertEqual(dummy_m_runjob.ready_for_input, True)
+        self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
         user_input = {'foo': 'bar'}
@@ -159,7 +158,6 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             self.assertEqual(dummy_a_runjob.status, task_status.FAILED)
             self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
             self.assertEqual(dummy_m_runjob.status, task_status.CANCELLED)
-            self.assertEqual(dummy_m_runjob.ready_for_input, False)
             self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FAILED)
 
     def test_manual_job_rejected(self):
@@ -177,16 +175,15 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        # At this point, the automatic RunJob should be finished, and the manual RunJob should accept input
+        # At this point, the automatic RunJob should be finished, and the manual RunJob should wait for input
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
-        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
-        self.assertEqual(dummy_m_runjob.ready_for_input, True)
+        self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
 
         user_input = {'fail': 'hahaha'}
         response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
-        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
+        self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
 
@@ -323,24 +320,6 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Fo_names_set.add(output.resource.name)
         self.assertEqual(rc_names_set, Fo_names_set)
 
-        # automatic and manual
-        rjA = self.test_wfjob_A.run_jobs.first()
-        rjB = self.test_wfjob_B.run_jobs.first()
-        rjC = self.test_wfjob_C.run_jobs.first()
-        rjDs = self.test_wfjob_D.run_jobs.all()
-        rjEs = self.test_wfjob_E.run_jobs.all()
-        rjFs = self.test_wfjob_F.run_jobs.all()
-
-        self.assertFalse(rjA.ready_for_input)
-        self.assertTrue(rjB.ready_for_input)
-        self.assertFalse(rjC.ready_for_input)
-        for rjDi in rjDs:
-            self.assertFalse(rjDi.ready_for_input)
-        for rjEi in rjEs:
-            self.assertFalse(rjEi.ready_for_input)
-        for rjFi in rjFs:
-            self.assertFalse(rjEi.ready_for_input)
-
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
 
@@ -379,8 +358,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
 
         self.assertEqual(rjA.status, task_status.FINISHED)
-        self.assertEqual(rjB.status, task_status.SCHEDULED)
-        self.assertEqual(rjB.ready_for_input, True)
+        self.assertEqual(rjB.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(rjC.status, task_status.SCHEDULED)
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, task_status.SCHEDULED)
@@ -433,10 +411,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Fin2s = self.test_Fip2.inputs.all()
 
         self.assertEqual(rjB.status, task_status.FINISHED)
-        self.assertEqual(rjB.ready_for_input, False)
         self.assertEqual(rjC.status, task_status.FINISHED)
         for rjDi in rjDs:
-            self.assertEqual(rjDi.status, task_status.SCHEDULED)
+            self.assertEqual(rjDi.status, task_status.WAITING_FOR_INPUT)
         for rjEi in rjEs:
             self.assertEqual(rjEi.status, task_status.SCHEDULED)
         for rjFi in rjFs:
@@ -493,7 +470,6 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjF0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
         Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeA')
         self.assertEqual(rjD0.status, task_status.FINISHED)
-        self.assertEqual(rjD0.ready_for_input, False)
         self.assertTrue(Dout0.resource.compat_resource_file)
         self.assertEqual(rjE0.status, task_status.FINISHED)
         self.assertTrue(Eout0.resource.compat_resource_file)
@@ -506,8 +482,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Eouti = rjEi.outputs.get(output_port__output_port_type__name='out_typeA')
             rjFi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
             Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeA')
-            self.assertEqual(rjDi.status, task_status.SCHEDULED)
-            self.assertEqual(rjDi.ready_for_input, True)
+            self.assertEqual(rjDi.status, task_status.WAITING_FOR_INPUT)
             self.assertFalse(Douti.resource.compat_resource_file)
             self.assertEqual(rjEi.status, task_status.SCHEDULED)
             self.assertFalse(Eouti.resource.compat_resource_file)
@@ -550,7 +525,6 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, task_status.FINISHED)
-            self.assertEqual(rjDi.ready_for_input, False)
         for Douti in Douts:
             self.assertTrue(Douti.resource.compat_resource_file)
         for rjEi in rjEs:

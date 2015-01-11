@@ -26,7 +26,7 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                             resource_type=ResourceType.cached('test/a1'))
         self.test_runjob = mommy.make('rodan.RunJob',
                                       job_name=dummy_m_job.job_name,
-                                      ready_for_input=True,
+                                      status=task_status.WAITING_FOR_INPUT,
                                       workflow_run__status=task_status.PROCESSING,
                                       workflow_run__workflow=self.test_workflow)
         input_m = mommy.make('rodan.Input',
@@ -47,8 +47,8 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         response = self.client.post("/interactive/{0}/".format(uuid.uuid1().hex), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_not_ready_for_input(self):
-        self.test_runjob.ready_for_input = False
+    def test_not_waiting_for_input(self):
+        self.test_runjob.status = task_status.SCHEDULED
         self.test_runjob.save()
         response = self.client.get("/interactive/{0}/".format(self.test_runjob.uuid), format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

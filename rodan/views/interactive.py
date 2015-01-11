@@ -26,7 +26,7 @@ class InteractiveView(APIView):
     def get(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
-        if not runjob.ready_for_input:
+        if runjob.status != task_status.WAITING_FOR_INPUT:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
         manual_task = registry.tasks[str(runjob.job_name)]
@@ -37,19 +37,19 @@ class InteractiveView(APIView):
     def post(self, request, run_job_uuid, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
-        if not runjob.ready_for_input:
+        if runjob.status != task_status.WAITING_FOR_INPUT:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
-            manual_task.save_user_input(run_job_uuid, request.DATA)
+            settings_update = manual_task.validate_user_input(run_job_uuid, request.DATA)
         except APIException as e:
             raise e
 
-        runjob.ready_for_input = False
-        runjob.status = task_status.FINISHED
+        runjob.status = task_status.SCHEDULED
         runjob.error_summary = ''
         runjob.error_details = ''
+        runjob.job_settings.update(settings_update)
         runjob.save()
 
         # call master_task to continue workflowrun

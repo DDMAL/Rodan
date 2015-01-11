@@ -21,13 +21,13 @@ class Job(models.Model):
     - `category` -- name of the category, used to group and organize the `Job`s.
     - `description` -- documentation.
     - `enabled`
-    - `interactive` -- denoting whether the `Job` needs user input.
+    - `interactive` -- whether the `Job` has manual phases.
     - `settings` -- description of `Job` settings.
 
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    job_name = models.CharField(max_length=200)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
+    job_name = models.CharField(max_length=200, unique=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -42,5 +42,3 @@ class Job(models.Model):
 
     class Meta:
         app_label = 'rodan'
-        ordering = ['category']
-        unique_together = ('job_name', 'interactive')

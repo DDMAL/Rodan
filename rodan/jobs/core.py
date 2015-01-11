@@ -13,7 +13,7 @@ from rodan.models import Resource, ResourceType, ResultsPackage, Output
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
-from rodan.jobs.base import RodanAutomaticTask, TemporaryDirectory
+from rodan.jobs.base import RodanTask, TemporaryDirectory
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"

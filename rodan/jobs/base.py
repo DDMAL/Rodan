@@ -1,4 +1,4 @@
-import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema
+import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema, inspect
 from celery import Task, registry
 from celery.app.task import TaskType
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
@@ -28,16 +28,23 @@ class RodanTaskType(TaskType):
     def __init__(cls, clsname, bases, attrs):
         super(RodanTaskType, cls).__init__(clsname, bases, attrs)
 
+        # check the number of arguments of implemented function
+        if 'run_my_task' in attrs:
+            argspec = inspect.getargspec(attrs['run_my_task'])
+            assert len(argspec.args) == 4, 'run_my_task'
+        if 'get_my_interface' in attrs:
+            argspec = inspect.getargspec(attrs['get_my_interface'])
+            assert len(argspec.args) == 3, 'get_my_interface'
+        if 'validate_my_user_input' in attrs:
+            argspec = inspect.getargspec(attrs['validate_my_user_input'])
+            assert len(argspec.args) == 4, 'validate_my_user_input'
+        if 'test_my_task' in attrs:
+            argspec = inspect.getargspec(attrs['test_my_task'])
+            assert len(argspec.args) == 2, 'test_my_task'
+
         if attrs.get('_abstract') == True:  # not the abstract class
             return
         else:
-            if RodanAutomaticTask in bases:
-                interactive = False
-            elif RodanManualTask in bases:
-                interactive = True
-            else:
-                raise TypeError('Rodan tasks should always inherit either RodanAutomaticTask or RodanManualTask')
-
             if not Job.objects.filter(job_name=attrs['name']).exists():
                 try:
                     # verify the schema
@@ -52,7 +59,7 @@ class RodanTaskType(TaskType):
                         settings=schema,
                         enabled=attrs['enabled'],
                         category=attrs['category'],
-                        interactive=interactive)
+                        interactive=attrs['interactive'])
                 j.save()
 
                 try:
@@ -89,7 +96,7 @@ class RodanTaskType(TaskType):
                 #assert set(j.settings) == set(attrs['settings']), errmsg
                 assert j.enabled == attrs['enabled'], errmsg
                 assert j.category == attrs['category'], errmsg
-                assert j.interactive == interactive, errmsg
+                assert j.interactive == attrs['interactive'], errmsg
 
                 assert len(attrs['input_port_types']) == j.input_port_types.count(), errmsg
                 for ipt in j.input_port_types.all():
@@ -133,7 +140,10 @@ class RodanTask(Task):
     __metaclass__ = RodanTaskType
     abstract = True
 
-    def _inputs(self, runjob_id, with_urls=False):
+    ################################
+    # Private retrieval methods
+    ################################
+    def _inputs(self, runjob, with_urls=False):
         """
         Return a dictionary of list of input file path and input resource type.
         If with_urls=True, it also includes the compat resource url and thumbnail urls.
@@ -143,7 +153,7 @@ class RodanTask(Task):
                   'resource__resource_type__mimetype']
         if with_urls:
             values.append('resource__uuid')
-        input_values = Input.objects.filter(run_job__pk=runjob_id).values(*values)
+        input_values = Input.objects.filter(run_job=runjob).values(*values)
 
         inputs = {}
         for input_value in input_values:
@@ -163,9 +173,9 @@ class RodanTask(Task):
             inputs[ipt_name].append(d)
         return inputs
 
-    def _outputs(self, runjob_id, temp_dir):
+    def _outputs(self, runjob, temp_dir):
         "Return a dictionary of list of output file path and output resource type."
-        output_values = Output.objects.filter(run_job__pk=runjob_id).values(
+        output_values = Output.objects.filter(run_job=runjob).values(
             'output_port_type_name',
             'resource__resource_type__mimetype',
             'uuid')
@@ -184,12 +194,9 @@ class RodanTask(Task):
                                       'uuid': output_value['uuid']})
         return outputs
 
-    def _settings(self, runjob_id):
-        rj_vals = RunJob.objects.filter(uuid=runjob_id).values('job_settings', 'job_name')
-        rj_settings = rj_vals[0]['job_settings']
-        rj_settings = json.loads(rj_settings)
-        j_settings = Job.objects.filter(job_name=rj_vals[0]['job_name']).values_list('settings', flat=True)[0]
-        j_settings = json.loads(j_settings)
+    def _settings(self, runjob):
+        rj_settings = runjob.job_settings
+        j_settings = Job.objects.get(job_name=runjob.job_name).settings
 
         for properti, definition in j_settings.get('properties', {}).iteritems():
             if 'enum' in definition:  # convert enum to integers
@@ -197,14 +204,17 @@ class RodanTask(Task):
 
         return rj_settings
 
+    ########################
+    # Test interface
+    ########################
     def test_my_task(self, testcase):
         """
         This method is called when executing `manage.py test test_all_jobs`.
 
-        This method should call `run_my_task()` (for automatic job), or
-        `get_my_interface()` and/or `save_my_user_input` (for manual job). Before
-        calling the job code, this method needs to construct `inputs`, `settings`, and
-        `outputs` objects as parameters of the job code.
+        This method should call `run_my_task()` and/or `get_my_interface()` and/or
+        `validate_my_user_input`. Before calling the job code, this method needs to
+        construct `inputs`, `settings`, and `outputs` objects as parameters of the
+        job code.
 
         Its own parameter `testcase` refers to the Python TestCase object. Aside from
         assertion methods like `assertEqual()` and `assertRaises()`, it provides
@@ -213,18 +223,41 @@ class RodanTask(Task):
         """
         raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
 
+    #############################################
+    # Automatic phase -- running in Celery thread
+    #############################################
+    class WAITING_FOR_INPUT(object):
+        """
+        As a possible return value of run_my_task() to indicate the interactive phase
+        of the job.
 
-class RodanAutomaticTask(RodanTask):
-    abstract = True
-    # code here are run asynchronously. Any write to database should use `queryset.update()` method, instead of `obj.save()`.
-    # Specific jobs that inherit the base class should not touch database.
+        It holds the settings that need to be updated. Example:
+
+            return self.WAITING_FOR_INPUT({'field1': newVal1, 'field2': newVal2})
+        """
+        def __init__(self, settings_update={}):
+            self.settings_update = settings_update
 
     def run(self, runjob_id):
-        settings = self._settings(runjob_id)
-        inputs = self._inputs(runjob_id)
+        """
+        Code here are run asynchronously in Celery thread.
+
+        To prevent re-creating a deleted object, any write to database should use
+        one of the following:
+        + `queryset.update()`
+        + `obj.save(update_fields=[...])`
+        + `obj.file_field.save(..., save=False)` + `obj.save(update_fields=['file_field'])`
+
+        instead of:
+        + `obj.save()`
+        + `obj.file_field.save(..., save=True)`
+        """
+        runjob = RunJob.objects.get(uuid=runjob_id)
+        settings = self._settings(runjob)
+        inputs = self._inputs(runjob)
 
         with TemporaryDirectory() as tmpdir:
-            outputs = self._outputs(runjob_id, tmpdir)
+            outputs = self._outputs(runjob, tmpdir)
 
             # build argument for run_my_task and mapping dictionary
             arg_outputs = {}
@@ -241,20 +274,28 @@ class RodanAutomaticTask(RodanTask):
 
             retval = self.run_my_task(inputs, settings, arg_outputs)
 
-            # save outputs
-            for temppath, output in temppath_map.iteritems():
-                with open(temppath, 'rb') as f:
-                    o = Output.objects.get(uuid=output['uuid'])
-                    o.resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
-                    path = o.resource.compat_resource_file.path
-                    res_query = Resource.objects.filter(uuid=o.resource.uuid.hex)
-                    res_query.update(compat_resource_file=path)
-                    registry.tasks['rodan.core.create_thumbnails'].run(o.resource.uuid.hex) # call synchronously
+            if isinstance(retval, self.WAITING_FOR_INPUT):
+                settings.update(retval.settings_update)
 
-        RunJob.objects.filter(pk=runjob_id).update(status=task_status.FINISHED,
-                                                   error_summary=None,
-                                                   error_details=None)
-        return retval
+                runjob.status = task_status.WAITING_FOR_INPUT
+                runjob.job_settings = settings
+                runjob.error_summary = None
+                runjob.error_details = None
+                runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
+            else:
+                # save outputs
+                for temppath, output in temppath_map.iteritems():
+                    with open(temppath, 'rb') as f:
+                        resource = Output.objects.get(uuid=output['uuid']).resource
+                        resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                        resource.save(update_fields=['compat_resource_file'])
+
+                        registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
+
+                runjob.status = task_status.FINISHED
+                runjob.error_summary = None
+                runjob.error_details = None
+                runjob.save(update_fields=['status', 'error_summary', 'error_details'])
 
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
@@ -270,7 +311,7 @@ class RodanAutomaticTask(RodanTask):
         RunJob.objects.filter(pk=runjob_id).update(**update)
         wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
-        RunJob.objects.filter(workflow_run=wfrun_id, status=task_status.SCHEDULED).update(status=task_status.CANCELLED, ready_for_input=False)
+        RunJob.objects.filter(workflow_run=wfrun_id, status=task_status.SCHEDULED).update(status=task_status.CANCELLED)
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
@@ -295,13 +336,13 @@ class RodanAutomaticTask(RodanTask):
         return {'error_summary': err_summary,
                 'error_details': err_details}
 
-
-class RodanManualTask(RodanTask):
-    abstract = True
-
+    ##########################################
+    # Manual phase -- running in Django thread
+    ##########################################
     def get_interface(self, runjob_id):
-        inputs = self._inputs(runjob_id, with_urls=True)
-        settings = self._settings(runjob_id)
+        runjob = RunJob.objects.get(uuid=runjob_id)
+        inputs = self._inputs(runjob, with_urls=True)
+        settings = self._settings(runjob)
         return self.get_my_interface(inputs, settings)
 
     def get_my_interface(self, inputs, settings):
@@ -313,63 +354,34 @@ class RodanManualTask(RodanTask):
         Should return: (template, context), template is a Django Template object,
         and context should be a dictionary.
 
-        could raise rodan.jobs.base.ManualJobException
+        could raise self.ManualPhaseException
         """
         raise NotImplementedError()
 
-    def save_user_input(self, runjob_id, user_input):
-        inputs = self._inputs(runjob_id)
-        settings = self._settings(runjob_id)
-        _temp_dir = tempfile.mkdtemp()
-        outputs = self._outputs(runjob_id, _temp_dir)
-
-        # build argument for run_my_task and mapping dictionary
-        arg_outputs = {}
-        temppath_map = {}
-        for opt_name, output_list in outputs.iteritems():
-            if opt_name not in arg_outputs:
-                arg_outputs[opt_name] = []
-            for output in output_list:
-                arg_outputs[opt_name].append({
-                    'resource_path': output['resource_temp_path'],
-                    'resource_type': output['resource_type']
-                })
-                temppath_map[output['resource_temp_path']] = output
+    def validate_user_input(self, runjob_id, user_input):
+        runjob = RunJob.objects.get(uuid=runjob_id)
+        inputs = self._inputs(runjob)
+        settings = self._settings(runjob)
 
         try:
-            retval = self.save_my_user_input(inputs, settings, arg_outputs, user_input)
-        except:
+            return self.validate_my_user_input(inputs, settings, user_input)
+        except self.ManualPhaseException:
             raise
-        else:
-            # save outputs
-            for temppath, output in temppath_map.iteritems():
-                with open(temppath, 'rb') as f:
-                    o = Output.objects.get(uuid=output['uuid'])
-                    o.resource.compat_resource_file.save('', File(f), save=False) # Django will resolve the path according to upload_to
-                    path = o.resource.compat_resource_file.path
-                    res_query = Resource.objects.filter(outputs__uuid=output['uuid'])
-                    res_query.update(compat_resource_file=path)
-            return retval
-        finally:
-            shutil.rmtree(_temp_dir)
-            del _temp_dir
 
-    def save_my_user_input(self, inputs, settings, outputs, user_input):
+    def validate_my_user_input(self, inputs, settings, user_input):
         """
         inputs will contain:
         resource_path, resource_type
 
         could raise rodan.jobs.base.ManualJobException
+
+        should return a dictionary of the update of settings
         """
         raise NotImplementedError()
 
-    def run(self, *a, **k):
-        raise RuntimeError("Manual task should never be executed in Celery!")
-
-
-class ManualJobException(CustomAPIException):
-    def __init__(self, errmsg):
-        super(ManualJobException, self).__init__(errmsg, status=status.HTTP_400_BAD_REQUEST)
+    class ManualPhaseException(CustomAPIException):
+        def __init__(self, errmsg):
+            super(RodanTask.ManualPhaseException, self).__init__(errmsg, status=status.HTTP_400_BAD_REQUEST)
 
 
 
