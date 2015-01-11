@@ -7,9 +7,9 @@ import gamera.classify
 import gamera.knn
 from gamera.core import load_image
 
-from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrObject import AomrObject
-from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrMeiOutput import AomrMeiOutput
-from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrExceptions import AomrUnableToFindStavesError
+from rodan.jobs.gamera.custom.pitch_finding.AomrObject import AomrObject
+from rodan.jobs.gamera.custom.pitch_finding.AomrMeiOutput import AomrMeiOutput
+from rodan.jobs.gamera.custom.pitch_finding.AomrExceptions import AomrUnableToFindStavesError
 from rodan.jobs.base import RodanTask
 
 

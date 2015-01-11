@@ -18,14 +18,14 @@ module_loader('gamera.toolkits.staffline_removal.plugins.staff_removal', load_ga
 module_loader('gamera.toolkits.rodan_plugins.plugins.rdn_despeckle', load_gamera_module)
 
 
-module_loader('rodan.jobs.gamera.interactive_tasks.pixel_segment')
-module_loader('rodan.jobs.gamera.interactive_tasks.poly_mask')
-module_loader('rodan.jobs.gamera.interactive_tasks.rdn_rotate')
-module_loader('rodan.jobs.gamera.interactive_tasks.rdn_despeckle')
-module_loader('rodan.jobs.gamera.interactive_tasks.rdn_crop')
-module_loader('rodan.jobs.gamera.interactive_tasks.segmentation.tasks')
+module_loader('rodan.jobs.gamera.custom.pixel_segment')
+module_loader('rodan.jobs.gamera.custom.poly_mask')
+module_loader('rodan.jobs.gamera.custom.rdn_rotate')
+module_loader('rodan.jobs.gamera.custom.rdn_despeckle')
+module_loader('rodan.jobs.gamera.custom.rdn_crop')
+module_loader('rodan.jobs.gamera.custom.segmentation.tasks')
 
 
-module_loader('rodan.jobs.gamera.auto_tasks.border_removal')
-module_loader('rodan.jobs.gamera.auto_tasks.pitch_finding.pitch_finding')
-module_loader('rodan.jobs.gamera.auto_tasks.staff_removal')
+module_loader('rodan.jobs.gamera.custom.border_removal')
+module_loader('rodan.jobs.gamera.custom.pitch_finding.pitch_finding')
+module_loader('rodan.jobs.gamera.custom.staff_removal')

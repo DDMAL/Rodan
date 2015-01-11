@@ -4,7 +4,7 @@ from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
-from rodan.jobs.gamera.interactive_tasks.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
+from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
 from django.template.loader import get_template
