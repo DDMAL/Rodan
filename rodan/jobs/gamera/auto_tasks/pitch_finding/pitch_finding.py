@@ -10,11 +10,11 @@ from gamera.core import load_image
 from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrObject import AomrObject
 from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrMeiOutput import AomrMeiOutput
 from rodan.jobs.gamera.auto_tasks.pitch_finding.AomrExceptions import AomrUnableToFindStavesError
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanTask
 
 
-class PitchFindingTask(RodanAutomaticTask):
-    name = 'gamera.auto_tasks.pitch_finding.pitch_finding'
+class PitchFindingTask(RodanTask):
+    name = 'gamera.custom.pitch_finding'
     author = "Deepanjan Roy"
     description = "Classifies the neumes detected in the page using the classifier interface."
     enabled = True
@@ -32,6 +32,7 @@ class PitchFindingTask(RodanAutomaticTask):
             }
         }
     }
+    interactive = False
 
     input_port_types = [{
         'name': 'Segmented Image',

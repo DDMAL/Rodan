@@ -3,7 +3,7 @@ import subprocess
 import tempfile
 import shutil
 import os
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanTask
 
 PATH_TO_KDU = "/usr/local/bin/kdu_compress"
 PATH_TO_VIPS = "/usr/local/bin/vips"
@@ -13,13 +13,14 @@ if not os.path.isfile(PATH_TO_VIPS):
     raise ImportError("file does not exist: {0}".format(PATH_TO_VIPS))
 
 
-class to_jpeg2000(RodanAutomaticTask):
+class to_jpeg2000(RodanTask):
     name = 'rodan.jobs.conversion.to_jpeg2000'
     author = 'Andrew Hankinson'
     description = "Converts an image to a JPEG2000 image suitable for display in Diva"
     settings = {}
     enabled = True
     category = "Conversion"
+    interactive = False
 
     input_port_types = ({'name': 'in',
                          'minimum': 1,

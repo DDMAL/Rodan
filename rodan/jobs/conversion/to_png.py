@@ -1,14 +1,15 @@
 import PIL.Image
 import PIL.ImageFile
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanTask
 
-class to_png(RodanAutomaticTask):
+class to_png(RodanTask):
     name = 'rodan.jobs.conversion.to_png'
     author = 'Andrew Hankinson'
     description = 'Convert image to png format'
     settings = {}
     enabled = True
     category = "Conversion"
+    interactive = False
 
     input_port_types = (
         {'name': 'in', 'minimum': 1, 'maximum': 1, 'resource_types': lambda mime: mime.startswith('image/')},

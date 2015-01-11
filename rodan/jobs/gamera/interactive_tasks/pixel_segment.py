@@ -3,66 +3,25 @@ import sys
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
-from rodan.jobs.base import RodanAutomaticTask, RodanManualTask, ManualJobException
+from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
 from django.template.loader import get_template
 
 
-class ManualTask(RodanManualTask):
-    name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'
+class PixelSegment(RodanTask):
+    COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
+
+    name = 'gamera.lyric_extraction.pixel_segment'
     author = "Ling-Xiao Yang"
     description = "TODO"
     settings = {}
     enabled = True
     category = "Lyric Extraction"
+    interactive = True
 
     input_port_types = [{
-        'name': 'image',
+        'name': 'input',
         'resource_types': ['image/rgb+png'],
-        'minimum': 1,
-        'maximum': 1
-    }]
-    output_port_types = [{
-        'name': 'geometries',
-        'resource_types': ['application/json'],
-        'minimum': 1,
-        'maximum': 1
-    }]
-
-    def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/pixel_segment.html')
-        c = {
-            'image_url': inputs['image'][0]['large_thumb_url']
-        }
-        return (t, c)
-
-    def save_my_user_input(self, inputs, settings, outputs, userdata):
-        if 'geometries' not in userdata:
-            raise ManualJobException("Bad data")
-        # [TODO] validate userdata
-        with open(outputs['geometries'][0]['resource_path'], 'w') as g:
-            geometries = json.loads(userdata['geometries'])
-            json.dump(geometries, g)
-
-
-class ApplySegmentTask(RodanAutomaticTask):
-    COLOUR_SWAP_PIXELS_BOX_HEIGHT = 100
-
-    name = 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'
-    author = "Ryan Bannon"
-    description = "[TODO]"
-    settings = {}
-    enabled = True
-    category = "Lyric Extraction"
-
-    input_port_types = [{
-        'name': 'image',
-        'resource_types': ['image/rgb+png'],
-        'minimum': 1,
-        'maximum': 1
-    }, {
-        'name': 'geometries',
-        'resource_types': ['application/json'],
         'minimum': 1,
         'maximum': 1
     }]
@@ -73,28 +32,30 @@ class ApplySegmentTask(RodanAutomaticTask):
         'maximum': 1
     }]
 
-    # Given an image and coloured geometries from the associated interactive
-    # job, converts non-white pixels in each geometry in the image to the
-    # specified colour.
     def run_my_task(self, inputs, settings, outputs):
-        task_image = load_image(inputs['image'][0]['resource_path'])
-        with open(inputs['geometries'][0]['resource_path']) as f:
-            geometries = json.load(f)
+        if '@geometries' not in settings:
+            return self.WAITING_FOR_INPUT()
+        else:
+            # Given an image and coloured geometries from the associated interactive
+            # job, converts non-white pixels in each geometry in the image to the
+            # specified colour.
+            task_image = load_image(inputs['input'][0]['resource_path'])
+            geometries = settings['@geometries']
 
-        # Make copy of original
-        imageOriginal = task_image.to_pil()
+            # Make copy of original
+            imageOriginal = task_image.to_pil()
 
-        # For each of the geometries provided, we have to apply the pixel colour to non-white pixels.
-        for geometry in geometries:
-            imageOriginal = self._apply_geometry(imageOriginal, geometry)
+            # For each of the geometries provided, we have to apply the pixel colour to non-white pixels.
+            for geometry in geometries:
+                imageOriginal = self._apply_geometry(imageOriginal, geometry)
 
-        # Convert red to white and black to green.
-        colour_swap = {(255, 0, 0): (255, 255, 255), (0, 255, 0): (0, 0, 0)}
-        imageOriginal = self._colour_swap_pixels(imageOriginal, colour_swap)
+            # Convert red to white and black to green.
+            colour_swap = {(255, 0, 0): (255, 255, 255), (0, 255, 0): (0, 0, 0)}
+            imageOriginal = self._colour_swap_pixels(imageOriginal, colour_swap)
 
-        # Convert back to gamera image and return.
-        finalImage = from_pil(imageOriginal)
-        finalImage.save_PNG(outputs['output'][0]['resource_path'])
+            # Convert back to gamera image and return.
+            finalImage = from_pil(imageOriginal)
+            finalImage.save_PNG(outputs['output'][0]['resource_path'])
 
     # Returns true iff provided geometry points form a rectangle.
     # It assumes at least 3 points.
@@ -210,3 +171,16 @@ class ApplySegmentTask(RodanAutomaticTask):
             del imageCrop
             count += 1
         return image
+
+    def get_my_interface(self, inputs, settings):
+        t = get_template('gamera/interfaces/pixel_segment.html')
+        c = {
+            'image_url': inputs['input'][0]['large_thumb_url']
+        }
+        return (t, c)
+
+    def validate_my_user_input(self, inputs, settings, user_input):
+        if 'geometries' not in userdata:
+            raise self.ManualPhaseException("Bad data")
+        # [TODO] validate userdata
+        return {'@geometries': user_input['geometries']}

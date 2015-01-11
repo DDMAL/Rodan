@@ -1,4 +1,4 @@
-from rodan.jobs.base import RodanAutomaticTask, RodanManualTask
+from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
 from gamera.core import load_image
 from gamera import enums
@@ -7,13 +7,15 @@ from PIL import Image
 from PIL import ImageDraw
 from gamera.plugins.pil_io import from_pil
 
-class AutoBorderRemovalTask(RodanAutomaticTask):
-    name = 'gamera.auto_task.auto_border_removal'
+class BorderRemovalTask(RodanTask):
+    name = 'gamera.custom.border_removal'
     author = 'Ling-Xiao Yang'
     description = 'Automatically detect and remove the border of a scanned score.'
     settings = argconvert.convert_arg_list(border_removal.args.list)
     enabled = True
     category = border_removal.module.category
+    interactive = False
+
     input_port_types = [{
         'name': 'input',
         'resource_types': ['image/rgb+png', 'image/greyscale+png', 'image/grey16+png', 'image/onebit+png'],

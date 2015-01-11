@@ -1,7 +1,7 @@
 from gamera.core import init_gamera, load_image
 from gamera import enums
 from rodan.jobs.gamera import argconvert
-from rodan.jobs.base import RodanAutomaticTask
+from rodan.jobs.base import RodanTask
 
 def load_gamera_module(gamera_module):
     for fn in gamera_module.module.functions:
@@ -38,13 +38,14 @@ def load_gamera_module(gamera_module):
             continue
 
 
-        class gamera_module_task(RodanAutomaticTask):
+        class gamera_module_task(RodanTask):
             name = str(fn)
             author = fn.author
             description = fn.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
             settings = settings_schema
             enabled = True
             category = gamera_module.module.category
+            interactive = False
             input_port_types = input_types
             output_port_types = output_types
 
