@@ -104,7 +104,7 @@
           </form>
           <form ng-submit="newDespeckleWorkflow()">
             <fieldset>
-              <legend>New despeckle Workflow</legend>
+              <legend>New despeckle (interactive) Workflow</legend>
               <div><label>Resources (select onebit): <select ng-model="resources_despeckle" ng-options="r.url as (r.name + '--' + r.uuid.slice(0, 6)) for r in resources" multiple></select></label></div>
               <input type="name" placeholder="Workflow Name" ng-model="name_despeckle"/>
               <button type="submit">Submit</button>
@@ -112,7 +112,7 @@
           </form>
           <form ng-submit="newPolyMaskWorkflow()">
             <fieldset>
-              <legend>New polymask Workflow</legend>
+              <legend>New polymask Workflow [TODO]</legend>
               <div><label>Resources (select onebit): <select ng-model="resources_polymask" ng-options="r.url as (r.name + '--' + r.uuid.slice(0, 6)) for r in resources" multiple></select></label></div>
               <input type="name" placeholder="Workflow Name" ng-model="name_polymask"/>
               <button type="submit">Submit</button>
@@ -120,7 +120,7 @@
           </form>
           <form ng-submit="newSegmentationWorkflow()">
             <fieldset>
-              <legend>New segmentation Workflow</legend>
+              <legend>New segmentation Workflow [TODO]</legend>
               <div><label>Resources (select onebit): <select ng-model="resources_segmentation" ng-options="r.url as (r.name + '--' + r.uuid.slice(0, 6)) for r in resources" multiple></select></label></div>
               <input type="name" placeholder="Workflow Name" ng-model="name_segmentation"/>
               <button type="submit">Submit</button>
@@ -162,7 +162,7 @@
                   <td ng-bind="rj.job_name"></td>
                   <td>
                     <p ng-bind="status[rj.status]"></p>
-                    <a ng-show="rj.ready_for_input" ng-href="{{rj.interactive_url}}" target="_blank">Interactive</a>
+                    <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">Interactive</a>
                     <div ng-show="rj.status == -1">
                       <b>{{rj.error_summary}}</b>
                       <pre><code>{{rj.error_details}}</code></pre>

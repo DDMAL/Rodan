@@ -32,7 +32,8 @@ angular.module('rodanTestApp', [])
             '4': 'Finished',
             '-1': 'Failed',
             '9': 'Cancelled',
-            '8': 'Expired'
+            '8': 'Expired',
+            '2': 'Waiting for input'
         };
     })
     .factory('authInterceptor', function ($window) {
@@ -195,59 +196,32 @@ angular.module('rodanTestApp', [])
         };
         $scope.newRotateCropWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_rotatecrop}).success(function (wf) {
-                var jrm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_manual'});
-                var jra = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate_apply_rotate'});
-
-                var jcm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop_manual'});
-                var jca = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop_apply_crop'});
+                var jr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate'});
+                var jc = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jrm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jra.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jcm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jca.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jr.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jc.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_rotatecrop})
                 ]).then(function (things) {
-                    var wfjrm = things[0].data;
-                    var wfjra = things[1].data;
-                    var wfjcm = things[2].data;
-                    var wfjca = things[3].data;
-                    var rc = things[4].data;
+                    var wfjr = things[0].data;
+                    var wfjc = things[1].data;
+                    var rc = things[2].data;
 
-                    var jra_ipt_image = _.find(jra.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var jra_ipt_angle = _.find(jra.input_port_types, function (ipt) { return ipt.name == 'angle'});
-                    var jca_ipt_image = _.find(jca.input_port_types, function (ipt) { return ipt.name == 'image'})
-                    var jca_ipt_parameters = _.find(jca.input_port_types, function (ipt) { return ipt.name == 'parameters'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjrm.url, 'input_port_type': jrm.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjrm.url, 'output_port_type': jrm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjra.url, 'input_port_type': jra_ipt_angle.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjra.url, 'output_port_type': jra.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjcm.url, 'input_port_type': jcm.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjcm.url, 'output_port_type': jcm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjca.url, 'input_port_type': jca_ipt_parameters.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjca.url, 'output_port_type': jca.output_port_types[0].url})
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjr.url, 'input_port_type': jr.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjr.url, 'output_port_type': jr.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjc.url, 'input_port_type': jc.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjc.url, 'output_port_type': jc.output_port_types[0].url}),
                     ]).then(function (things) {
-                        var iprm = things[0].data;
-                        var oprm = things[1].data;
-                        var ipra_img = things[2].data;
-                        var ipra_arg = things[3].data;
-                        var opra = things[4].data;
-                        var ipcm = things[5].data;
-                        var opcm = things[6].data;
-                        var ipca_img = things[7].data;
-                        var ipca_arg = things[8].data;
-                        var opca = things[9].data;
+                        var ipr = things[0].data;
+                        var opr = things[1].data;
+                        var ipc = things[2].data;
+                        var opc = things[3].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': iprm.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipra_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': oprm.url, 'input_port': ipra_arg.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipcm.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opra.url, 'input_port': ipca_img.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opcm.url, 'input_port': ipca_arg.url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipr.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': opr.url, 'input_port': ipc.url})
                         ]).then(function (things) {
                             console.log('rotate-crop workflow created!');
                         }, errhandler);
@@ -257,37 +231,24 @@ angular.module('rodanTestApp', [])
         };
         $scope.newDespeckleWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_despeckle}).success(function (wf) {
-                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_manual'});
-                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_apply_despeckle'});
+                var j = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_despeckle})
                 ]).then(function (things) {
-                    var wfjm = things[0].data;
-                    var wfja = things[1].data;
-                    var rc = things[2].data;
+                    var wfj = things[0].data;
+                    var rc = things[1].data;
 
-                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var ja_ipt_parameters = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'parameters'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_parameters.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj.url, 'input_port_type': j.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj.url, 'output_port_type': j.output_port_types[0].url})
                     ]).then(function (things) {
-                        var ipm = things[0].data;
-                        var opm = things[1].data;
-                        var ipa_img = things[2].data;
-                        var ipa_par = things[3].data;
-                        var opa = things[4].data;
+                        var ip = things[0].data;
+                        var op = things[1].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_par.url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resource_collection': rc.url})
                         ]).then(function (things) {
                             console.log('despeckle workflow created!');
                         }, errhandler);
@@ -297,37 +258,24 @@ angular.module('rodanTestApp', [])
         };
         $scope.newPolyMaskWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_polymask}).success(function (wf) {
-                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.border_removal.poly_mask.manual'});
-                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.border_removal.poly_mask.apply'});
+                var j = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_polymask})
                 ]).then(function (things) {
-                    var wfjm = things[0].data;
-                    var wfja = things[1].data;
-                    var rc = things[2].data;
+                    var wfj = things[0].data;
+                    var rc = things[1].data;
 
-                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var ja_ipt_polygon = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'polygon'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_polygon.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj.url, 'input_port_type': j.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj.url, 'output_port_type': j.output_port_types[0].url})
                     ]).then(function (things) {
-                        var ipm = things[0].data;
-                        var opm = things[1].data;
-                        var ipa_img = things[2].data;
-                        var ipa_par = things[3].data;
-                        var opa = things[4].data;
+                        var ip = things[0].data;
+                        var op = things[1].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_par.url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resource_collection': rc.url})
                         ]).then(function (things) {
                             console.log('polymask workflow created!');
                         }, errhandler);
@@ -337,50 +285,24 @@ angular.module('rodanTestApp', [])
         };
         $scope.newSegmentationWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_segmentation}).success(function (wf) {
-                var jc = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.computer_assistance'});
-                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.manual_correction'});
-                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.apply_segmentation'});
+                var j = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jc.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_segmentation})
                 ]).then(function (things) {
-                    var wfjc = things[0].data;
-                    var wfjm = things[1].data;
-                    var wfja = things[2].data;
-                    var rc = things[3].data;
+                    var wfj = things[0].data;
+                    var rc = things[1].data;
 
-                    var jm_ipt_image = _.find(jm.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var jm_ipt_polygon = _.find(jm.input_port_types, function (ipt) { return ipt.name == 'polygon'});
-                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var ja_ipt_polygon = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'polygon'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjc.url, 'input_port_type': jc.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjc.url, 'output_port_type': jc.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm_ipt_polygon.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_polygon.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj.url, 'input_port_type': j.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj.url, 'output_port_type': j.output_port_types[0].url})
                     ]).then(function (things) {
-                        var ipc = things[0].data;
-                        var opc = things[1].data;
-                        var ipm_img = things[2].data;
-                        var ipm_pol = things[3].data;
-                        var opm = things[4].data;
-                        var ipa_img = things[5].data;
-                        var ipa_pol = things[6].data;
-                        var opa = things[7].data;
+                        var ip = things[0].data;
+                        var op = things[1].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipc.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opc.url, 'input_port': ipm_pol.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_pol.url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resource_collection': rc.url})
                         ]).then(function (things) {
                             console.log('segmentation workflow created!');
                         }, errhandler);
@@ -390,37 +312,24 @@ angular.module('rodanTestApp', [])
         };
         $scope.newPixelSegmentWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_pixelsegment}).success(function (wf) {
-                var jm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'});
-                var ja = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'});
+                var j = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.lyric_extraction.pixel_segment'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jm.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': ja.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_pixelsegment})
                 ]).then(function (things) {
-                    var wfjm = things[0].data;
-                    var wfja = things[1].data;
-                    var rc = things[2].data;
+                    var wfj = things[0].data;
+                    var rc = things[1].data;
 
-                    var ja_ipt_image = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var ja_ipt_geometries = _.find(ja.input_port_types, function (ipt) { return ipt.name == 'geometries'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfjm.url, 'input_port_type': jm.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfjm.url, 'output_port_type': jm.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfja.url, 'input_port_type': ja_ipt_geometries.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfja.url, 'output_port_type': ja.output_port_types[0].url})
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj.url, 'input_port_type': j.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj.url, 'output_port_type': j.output_port_types[0].url})
                     ]).then(function (things) {
-                        var ipm = things[0].data;
-                        var opm = things[1].data;
-                        var ipa_img = things[2].data;
-                        var ipa_geo = things[3].data;
-                        var opa = things[4].data;
+                        var ip = things[0].data;
+                        var op = things[1].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipm.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipa_img.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': opm.url, 'input_port': ipa_geo.url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip.url, 'resource_collection': rc.url})
                         ]).then(function (things) {
                             console.log('pixel_segment workflow created!');
                         }, errhandler);
@@ -430,48 +339,29 @@ angular.module('rodanTestApp', [])
         };
         $scope.newCompleteWorkflow = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project, 'name': $scope.name_complete}).success(function (wf) {
-                var j_1 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.auto_task.auto_border_removal'});
+                var j_1 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.border_removal'});
                 var j_2 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
                 var j_3 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.threshold.threshold'});
-                var j_4m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_manual'});
-                var j_4a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_apply_despeckle'});
-                var j_5c = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.computer_assistance'});
-                var j_5m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.manual_correction'});
-                var j_5a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.segmentation.apply_segmentation'});
-//                var j_6m = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.manual'});
-//                var j_6a = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.interactive_tasks.lyric_extraction.pixel_segment.apply'});
+                var j_4 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
+                var j_5 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
+                //var j_6 = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.lyric_extraction.pixel_segment'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_1.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_2.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_3.url, 'job_settings': {'threshold': 128, 'storage format': "dense"}}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4m.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4a.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5c.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5m.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5a.url}),
-//                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_6m.url}),
-//                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_6a.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_4.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_5.url}),
+                    //$http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_6.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': $scope.resources_complete})
                 ]).then(function (things) {
                     var wfj_1 = things[0].data;
                     var wfj_2 = things[1].data;
                     var wfj_3 = things[2].data;
-                    var wfj_4m = things[3].data;
-                    var wfj_4a = things[4].data;
-                    var wfj_5c = things[5].data;
-                    var wfj_5m = things[6].data;
-                    var wfj_5a = things[7].data;
-                    //var wfj_6m = things[8].data;
-                    //var wfj_6a = things[9].data;
-                    var rc = things[8].data;
-
-                    var j_4a_ipt_image = _.find(j_4a.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var j_4a_ipt_parameters = _.find(j_4a.input_port_types, function (ipt) { return ipt.name == 'parameters'});
-                    var j_5m_ipt_image = _.find(j_5m.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var j_5m_ipt_polygon = _.find(j_5m.input_port_types, function (ipt) { return ipt.name == 'polygon'});
-                    var j_5a_ipt_image = _.find(j_5a.input_port_types, function (ipt) { return ipt.name == 'image'});
-                    var j_5a_ipt_polygon = _.find(j_5a.input_port_types, function (ipt) { return ipt.name == 'polygon'});
+                    var wfj_4 = things[3].data;
+                    var wfj_5 = things[4].data;
+                    //var wfj_6 = things[5].data;
+                    var rc = things[5].data;
 
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfj_1.url, 'input_port_type': j_1.input_port_types[0].url}),
@@ -480,19 +370,12 @@ angular.module('rodanTestApp', [])
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfj_2.url, 'output_port_type': j_2.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfj_3.url, 'input_port_type': j_3.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wfj_3.url, 'output_port_type': j_3.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4m.url, 'input_port_type': j_4m.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_4m.url, 'output_port_type': j_4m.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4a.url, 'input_port_type': j_4a_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4a.url, 'input_port_type': j_4a_ipt_parameters.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_4a.url, 'output_port_type': j_4a.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5c.url, 'input_port_type': j_5c.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5c.url, 'output_port_type': j_5c.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5m.url, 'input_port_type': j_5m_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5m.url, 'input_port_type': j_5m_ipt_polygon.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5m.url, 'output_port_type': j_5m.output_port_types[0].url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5a.url, 'input_port_type': j_5a_ipt_image.url}),
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5a.url, 'input_port_type': j_5a_ipt_polygon.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5a.url, 'output_port_type': j_5a.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_4.url, 'input_port_type': j_4.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_4.url, 'output_port_type': j_4.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wfj_5.url, 'input_port_type': j_5.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wfj_5.url, 'output_port_type': j_5.output_port_types[0].url}),
+                        //$http.post(ROOT + '/inputports/', {'workflow_job': wfj_6.url, 'input_port_type': j_6.input_port_types[0].url}),
+                        //$http.post(ROOT + '/outputports/', {'workflow_job': wfj_6.url, 'output_port_type': j_6.output_port_types[0].url})
                     ]).then(function (things) {
                         var ip_1 = things[0].data;
                         var op_1 = things[1].data;
@@ -500,32 +383,20 @@ angular.module('rodanTestApp', [])
                         var op_2 = things[3].data;
                         var ip_3 = things[4].data;
                         var op_3 = things[5].data;
-                        var ip_4m = things[6].data;
-                        var op_4m = things[7].data;
-                        var ip_4a_image = things[8].data;
-                        var ip_4a_parameters = things[9].data;
-                        var op_4a = things[10].data;
-                        var ip_5c = things[11].data;
-                        var op_5c = things[12].data;
-                        var ip_5m_image = things[13].data;
-                        var ip_5m_parameters = things[14].data;
-                        var op_5m = things[15].data;
-                        var ip_5a_image = things[16].data;
-                        var ip_5a_parameters = things[17].data;
-                        var op_5a = things[18].data;
+                        var ip_4 = things[6].data;
+                        var op_4 = things[7].data;
+                        var ip_5 = things[8].data;
+                        var op_5 = things[9].data;
+                        //var ip_6 = things[10].data;
+                        //var op_6 = things[11].data;
 
                         $q.all([
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_1.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_1.url, 'input_port': ip_2.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_2.url, 'input_port': ip_3.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_3.url, 'input_port': ip_4m.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_3.url, 'input_port': ip_4a_image.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_4m.url, 'input_port': ip_4a_parameters.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5c.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5m_image.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_4a.url, 'input_port': ip_5a_image.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_5c.url, 'input_port': ip_5m_parameters.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_5m.url, 'input_port': ip_5a_parameters.url})
+                            $http.post(ROOT + '/connections/', {'output_port': op_3.url, 'input_port': ip_4.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_4.url, 'input_port': ip_5.url})
+                            //$http.post(ROOT + '/connections/', {'output_port': op_5.url, 'input_port': ip_6.url})
                         ]).then(function (things) {
                             console.log('complete workflow created!');
                         }, errhandler);
