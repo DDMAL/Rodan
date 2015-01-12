@@ -16,7 +16,7 @@
 
 {% block body %}
 {% csrf_token %}
-<input type="hidden" name="polygon_outer_points" value="" id="JSON-input" />
+<input type="hidden" name="__serialized__" value="" id="JSON-input" />
 <div style="padding: 1em; overflow: hidden; min-width: 1450px">
     <div style="float: left; width: 350px; margin: 1em">
         <h2>Polygon Masking Interface</h2>
@@ -54,7 +54,7 @@
             $('#JSON-input').val(function()
             {
                 var points = rks.getPolyPoints();
-                return JSON.stringify(rks.getPolyPoints());
+                return JSON.stringify({'polygon_outer_points': rks.getPolyPoints()});
             });
         });
     });
