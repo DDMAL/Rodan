@@ -322,6 +322,38 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
+    def test_creation_test_run(self):
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'test_run': True
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        wfrun_id = response.data['uuid']
+
+        len_rc = self.test_resourcecollection.resources.count()
+        self.assertEqual(self.test_wfjob_A.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_B.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_D.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_E.run_jobs.count(), 1)
+        self.assertEqual(self.test_wfjob_F.run_jobs.count(), 1)
+
+        self.assertEqual(self.test_Aip.inputs.count(), 1)
+        self.assertEqual(self.test_Aop.outputs.count(), 1)
+        self.assertEqual(self.test_Bop.outputs.count(), 1)
+        self.assertEqual(self.test_Cip1.inputs.count(), 1)
+        self.assertEqual(self.test_Cip2.inputs.count(), 1)
+        self.assertEqual(self.test_Cop1.outputs.count(), 1)
+        self.assertEqual(self.test_Cop2.outputs.count(), 1)
+        self.assertEqual(self.test_Dip1.inputs.count(), 1)
+        self.assertEqual(self.test_Dip2.inputs.count(), 1)
+        self.assertEqual(self.test_Dop.outputs.count(), 1)
+        self.assertEqual(self.test_Eip1.inputs.count(), 1)
+        self.assertEqual(self.test_Eip2.inputs.count(), 1)
+        self.assertEqual(self.test_Eop.outputs.count(), 1)
+        self.assertEqual(self.test_Fip1.inputs.count(), 1)
+        self.assertEqual(self.test_Fip2.inputs.count(), 1)
+        self.assertEqual(self.test_Fop.outputs.count(), 1)
 
     def test_execution(self):
         workflowrun_obj = {
