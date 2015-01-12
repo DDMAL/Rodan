@@ -231,12 +231,17 @@ class RodanTask(Task):
         As a possible return value of run_my_task() to indicate the interactive phase
         of the job.
 
-        It holds the settings that need to be updated. Example:
+        It holds the settings that need to be updated. The name of the settings must
+        start with "@" in order to be distinguished from original settings. Keys not
+        starting with "@" will be removed. Example:
 
-            return self.WAITING_FOR_INPUT({'field1': newVal1, 'field2': newVal2})
+            return self.WAITING_FOR_INPUT({'@field1': newVal1, '@field2': newVal2})
         """
         def __init__(self, settings_update={}):
-            self.settings_update = settings_update
+            self.settings_update = {}
+            for k, v in settings_update.iteritems():
+                if isinstance(k, basestring) and k.startswith('@'):
+                    self.settings_update[k] = v
 
     def run(self, runjob_id):
         """
@@ -375,7 +380,8 @@ class RodanTask(Task):
 
         could raise rodan.jobs.base.ManualJobException
 
-        should return a dictionary of the update of settings
+        should return a dictionary of the update of settings. The keys should start with
+        '@' or they will be discarded.
         """
         raise NotImplementedError()
 

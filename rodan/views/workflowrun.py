@@ -249,7 +249,14 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
             return Response(serializer.data)
         elif old_status in (task_status.CANCELLED, task_status.FAILED) and new_status == task_status.RETRYING:
             runjobs_to_retry_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED))
-            runjobs_to_retry_query.update(status=task_status.SCHEDULED)
+            for rj in runjobs_to_retry_query:
+                rj.status = task_status.SCHEDULED
+                original_settings = {}
+                for k, v in rj.job_settings.iteritems():
+                    if not k.startswith('@'):
+                        original_settings[k] = v
+                rj.job_settings = original_settings
+                rj.save(update_fields=['status', 'job_settings'])
 
             registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
 
