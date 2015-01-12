@@ -417,8 +417,8 @@ angular.module('rodanTestApp', [])
                     console.log(error);
                 });
         };
-        $scope.runWorkflow = function (w) {
-            $http.post(ROOT + '/workflowruns/', {'workflow': w.url})
+        $scope.runWorkflow = function (w, test_run) {
+            $http.post(ROOT + '/workflowruns/', {'workflow': w.url, 'test_run': !!test_run})
                 .error(function (error) {
                     console.log(error);
                 });

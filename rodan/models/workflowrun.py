@@ -16,23 +16,15 @@ class WorkflowRun(models.Model):
     - `workflow` -- a reference to the `Workflow`. If the `Workflow` is deleted, this
       field will be set to None.
     - `creator` -- a reference to the `User`.
-    - `test_run` [TODO]
+    - `test_run` -- indicating if the `WorkflowRun` is a test run.
     - `status` -- indicating the status of the `WorkflowRun`.
     - `created`
     - `updated`
-
-    **Properties**
-
-    - `workflow_run_path` [TODO]
-    - `retry_backup_directory` [TODO]
     """
     STATUS_CHOICES = [(task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed, ZOMG"),
+                      (task_status.FAILED, "Failed"),
                       (task_status.CANCELLED, "Cancelled")]
-    @property
-    def workflow_run_path(self):
-        return os.path.join(self.workflow.workflow_path, "runs", str(self.pk))
 
     class Meta:
         app_label = 'rodan'
@@ -41,7 +33,7 @@ class WorkflowRun(models.Model):
     project = models.ForeignKey('rodan.Project', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
-    test_run = models.BooleanField(default=False)  # [TODO]
+    test_run = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.PROCESSING)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -50,6 +42,7 @@ class WorkflowRun(models.Model):
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))
 
+    # [TODO]: retry
     @property
     def retry_backup_directory(self):
         project_path = self.workflow.project.project_path

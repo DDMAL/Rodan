@@ -71,13 +71,15 @@
               <tr ng-repeat="w in workflows" ng-class="{success: w.valid, danger: !w.valid}">
                 <td ng-bind="w.uuid"></td>
                 <td ng-bind="w.name"></td>
-                <td><button ng-click="validateWorkflow(w)">Validate</button><button ng-click="deleteWorkflow(w)">Delete</button><button ng-click="runWorkflow(w)">Run</button></td>
+                <td><button ng-click="validateWorkflow(w)">Validate</button><button ng-click="deleteWorkflow(w)">Delete</button><button ng-click="runWorkflow(w)">Run</button><button ng-click="runWorkflow(w, true)">Test run</button></td>
               </tr>
             </tbody>
           </table>
         </div>
         <div class="col-xs-4">
-          <div><label>Project: <select ng-model="project" ng-options="p.url as p.name for p in projects"></select></label></div>
+          <div>
+            <label>Project: <select ng-model="project" ng-options="p.url as p.name for p in projects"></select></label>
+          </div>
           <form ng-submit="newToGreyscaleWorkflow()">
             <fieldset>
               <legend>New to_greyscale Workflow</legend>
@@ -150,7 +152,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <h3 class="panel-title" ng-bind="wfrun.uuid"></h3>
-              For <code>{{ wfrun.workflow || "[DELETED]" }}</code>
+              <b ng-show="wfrun.test_run">test run</b> for <code>{{ wfrun.workflow || "[DELETED]" }}</code>
               <b>Status: {{status[wfrun.status]}}</b>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
               <button ng-click="packageResults(wfrun)">Package Results</button>

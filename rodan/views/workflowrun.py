@@ -31,11 +31,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     #### Parameters
     - `workflow` -- GET-only. UUID(GET) or Hyperlink(POST) of a Workflow.
-
-
-    [TODO]: Deprecated parameters??
-    - test=true: Sets whether this is a test run or not. (POST only)
-    - page_id=$ID: If this is a test run, you must supply a page ID to test the workflow on. (POST only)
     """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
@@ -54,10 +49,11 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         wfrun = serializer.save(creator=self.request.user, project=wf.project)
         wfrun_id = str(wfrun.uuid)
-        self._create_workflow_run(wf, wfrun)
+        test_run = serializer.validated_data.get('test_run', True)
+        self._create_workflow_run(wf, wfrun, test_run)
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
-    def _create_workflow_run(self, workflow, workflow_run):
+    def _create_workflow_run(self, workflow, workflow_run, test_run):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
         workflowjob_runjob_map = {}
@@ -71,6 +67,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
             resources = rc_multiple.resources.all()
             for res in resources:
                 self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res)
+                if test_run:
+                    break
         else:
             self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None)
 
