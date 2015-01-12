@@ -127,8 +127,8 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
-        user_input = {'foo': 'bar'}
-        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
+        user_input = ['any', 'thing']
+        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # then manual job should be flagged as finished and should have result

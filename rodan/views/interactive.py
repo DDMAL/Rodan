@@ -40,7 +40,7 @@ class InteractiveView(APIView):
         if runjob.status != task_status.WAITING_FOR_INPUT:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if "__serialized__" in request.data:
+        if isinstance(request.data, dict) and "__serialized__" in request.data:
             user_input = json.loads(request.data['__serialized__'])
         else:
             user_input = request.data
