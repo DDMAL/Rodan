@@ -28,7 +28,7 @@ angular.module('rodanTestApp', [])
 
         $rootScope.status = {
             '0': 'Scheduled',
-            '1': 'Running',
+            '1': 'Processing',
             '4': 'Finished',
             '-1': 'Failed',
             '9': 'Cancelled',
