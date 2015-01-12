@@ -49,7 +49,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         wfrun = serializer.save(creator=self.request.user, project=wf.project)
         wfrun_id = str(wfrun.uuid)
-        test_run = serializer.validated_data.get('test_run', True)
+        test_run = serializer.validated_data.get('test_run', False)
         self._create_workflow_run(wf, wfrun, test_run)
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
