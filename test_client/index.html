@@ -154,6 +154,7 @@
               <h3 class="panel-title" ng-bind="wfrun.uuid"></h3>
               <b ng-show="wfrun.test_run">test run</b> for <code>{{ wfrun.workflow || "[DELETED]" }}</code>
               <b>Status: {{status[wfrun.status]}}</b>
+              <button ng-click="retryWorkflowRun(wfrun)">Retry</button>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
               <button ng-click="packageResults(wfrun)">Package Results</button>
               <button ng-click="packageResults(wfrun, 10000)">Package Results (expire in 10sec)</button>

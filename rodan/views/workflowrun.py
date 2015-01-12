@@ -234,20 +234,30 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
         old_status = wfrun.status
         new_status = request.data.get('status', None)
 
-        if old_status == task_status.PROCESSING and new_status == task_status.CANCELLED:
+        if old_status in (task_status.PROCESSING, task_status.RETRYING) and new_status == task_status.CANCELLED:
             runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))
             runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
             for celery_id in runjobs_to_revoke_celery_id:
                 if celery_id is not None:
                     revoke(celery_id, terminate=True)
-
             runjobs_to_revoke_query.update(status=task_status.CANCELLED)
+
             serializer = self.get_serializer(wfrun, data={'status': task_status.CANCELLED}, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        elif old_status in (task_status.CANCELLED, task_status.FAILED) and new_status == task_status.RETRYING:
+            runjobs_to_retry_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED))
+            runjobs_to_retry_query.update(status=task_status.SCHEDULED)
+
+            registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
+
+            serializer = self.get_serializer(wfrun, data={'status': task_status.RETRYING}, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
         elif new_status is not None:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+            raise CustomAPIException({'status': ["Invalid update"]}, status=status.HTTP_400_BAD_REQUEST)

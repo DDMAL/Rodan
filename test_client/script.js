@@ -33,7 +33,8 @@ angular.module('rodanTestApp', [])
             '-1': 'Failed',
             '9': 'Cancelled',
             '8': 'Expired',
-            '2': 'Waiting for input'
+            '2': 'Waiting for input',
+            '11': 'Retrying'
         };
     })
     .factory('authInterceptor', function ($window) {
@@ -446,6 +447,12 @@ angular.module('rodanTestApp', [])
                     console.log(err);
                 });
         }, UPDATE_FREQ);
+        $scope.retryWorkflowRun = function (wfrun) {
+            $http.patch(wfrun.url, {'status': 11})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
         $scope.cancelWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 9})
                 .error(function (error) {

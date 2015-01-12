@@ -24,7 +24,8 @@ class WorkflowRun(models.Model):
     STATUS_CHOICES = [(task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
                       (task_status.FAILED, "Failed"),
-                      (task_status.CANCELLED, "Cancelled")]
+                      (task_status.CANCELLED, "Cancelled"),
+                      (task_status.RETRYING, "Retrying")]
 
     class Meta:
         app_label = 'rodan'
@@ -41,9 +42,3 @@ class WorkflowRun(models.Model):
 
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))
-
-    # [TODO]: retry
-    @property
-    def retry_backup_directory(self):
-        project_path = self.workflow.project.project_path
-        return os.path.join(str(project_path), 'workflowrun_retry_backup')
