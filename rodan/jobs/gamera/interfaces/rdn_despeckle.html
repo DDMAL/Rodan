@@ -13,9 +13,8 @@
 <p>Client cc_size: <span id="cl_size">Not provided</span> </p>
     {% csrf_token %}
     <fieldset class="submit">
-        <input type="hidden" name="cc_size" value="12" id="size-input" />
-        <input type="hidden" name="image_width" value="0" id="imw-input" />
-        <input type="submit" name="submit" value="Despeckle" class="submit" />
+      <input type="hidden" name="__serialized__" id="serialized-input" />
+      <input type="submit" name="submit" value="Despeckle" class="submit" />
     </fieldset>
 
 <div id="slider"></div>

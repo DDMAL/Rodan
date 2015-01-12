@@ -219,7 +219,7 @@
             canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             bodyDOM = document.getElementsByTagName("body")[0];
-            
+
             function resizeWindow() {
                 viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
                 canvas.width = viewWidth;
@@ -233,11 +233,11 @@
                 boxY = viewBox.getY() / scaleVal;
                 despeckle(defSize, boxX, boxY);
             }
-            
+
             window.onresize = resizeWindow;
-            
+
             resizeWindow();
-            
+
             //Bool for whether mousedown started in the thumbnail frame
             pMouseDown = false;
 
@@ -394,11 +394,11 @@
             }
         });
         $('#form').submit(function () {
-            $('#size-input').val(defSize);
-            console.log(imageObj.width);
-            $('#imw-input').val(imageObj.width);
-
-
+            var serialized_data = JSON.stringify({
+                'cc_size': defSize,
+                'image_width': imageObj.width
+            });
+            $('#serialized-input').val(serialized_data);
         });
     });
 })(jQuery)

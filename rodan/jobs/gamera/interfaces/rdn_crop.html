@@ -10,12 +10,8 @@
 {% block body %}
         {% csrf_token %}
         <fieldset class="submit">
-            <input type="hidden" name="ulx" value="0" id="tlx-input" />
-            <input type="hidden" name="uly" value="0" id="tly-input" />
-            <input type="hidden" name="lrx" value="0" id="brx-input" />
-            <input type="hidden" name="lry" value="0" id="bry-input" />
-            <input type="hidden" name="imw" value="1.0" id="imw-input" />
-            <input type="submit" name="submit" value="Crop" class="submit" />
+          <input type="hidden" name="__serialized__" id="serialized-input" />
+          <input type="submit" name="submit" value="Crop" class="submit" />
         </fieldset>
 
         <div id="slider"></div>

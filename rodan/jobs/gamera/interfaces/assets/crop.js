@@ -12,7 +12,7 @@
 
     // Pixel margin size
     var margin = 0;
-    
+
     function update(group, activeAnchor) {
         var topLeft = group.get(".topLeft")[0];
         var topRight = group.get(".topRight")[0];
@@ -47,7 +47,7 @@
     function addAnchor(group, x, y, name) {
         var stage = group.getStage();
         var layer = group.getLayer();
-    
+
         var anchor = new Kinetic.Circle({
             x: x,
             y: y,
@@ -68,7 +68,7 @@
                 };
             }
         });
-    
+
         anchor.on("dragmove", function() {
             update(group, this);
             layer.draw();
@@ -94,7 +94,7 @@
             this.setStrokeWidth(1);
             layer.draw();
         });
-    
+
         group.add(anchor);
     }
 
@@ -105,12 +105,12 @@
             draggable: true,
             name: "box"
         });
-    
+
         var layer = new Kinetic.Layer();
-    
+
         layer.add(group);
         stage.add(layer);
-    
+
         var rect = new Kinetic.Rect({
             x: (imageObj.width / 20.0) + margin,
             y: (imageObj.height / 20.0) + margin,
@@ -142,10 +142,10 @@
         addAnchor(group, rect.getX() + rect.getWidth(), rect.getY(), "topRight");
         addAnchor(group, rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), "bottomRight");
         addAnchor(group, rect.getX(), rect.getY() + rect.getHeight(), "bottomLeft");
-    
+
         stage.draw();
     }
-    
+
     function logRect() {
         var group = stage.get(".box")[0];
         var topLeft = group.get(".topLeft")[0];
@@ -185,17 +185,20 @@
 
             makeRect();
         };
-    
+
         //Image path (TO BE REPLACED LATER)
         imageObj.src = $("#image-original").attr("src");
-    
+
         $('#form').submit(function () {
             var points = logRect();
-            $('#tlx-input').val(points[0]);
-            $('#tly-input').val(points[1]);
-            $('#brx-input').val(points[2]);
-            $('#bry-input').val(points[3]);
-            $('#imw-input').val(imageObj.width);
+            var serialized_data = JSON.stringify({
+                'ulx': points[0],
+                'uly': points[1],
+                'lrx': points[2],
+                'lry': points[3],
+                'imw': imageObj.width
+            });
+            $('#serialized-input').val(serialized_data);
         });
     });
 })(jQuery)
