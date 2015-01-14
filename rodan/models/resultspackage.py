@@ -16,6 +16,8 @@ class ResultsPackage(models.Model):
     - `status` -- an integer indicating the status of `ResultsPackage`.
     - `percent_completed` -- an integer indicating the progress of packaging.
     - `workflow_run` -- the reference to `WorkflowRun`.
+    - `packaging_mode` -- the packaging mode of the `ResultsPackage`, leading to different
+      directory structure and contents inside the package.
     - `creator`
     - `celery_task_id` -- the corresponding Celery task.
     - `error_summary` -- summary of error when packaging fails.
@@ -41,11 +43,16 @@ class ResultsPackage(models.Model):
                       (task_status.CANCELLED, "Cancelled"),
                       (task_status.EXPIRED, "Expired")]
 
+    PACKAGING_MODE_CHOICES = [(0, "By workflow jobs"),
+                              (1, "By resources"),
+                              (2, "Diagnosis")]
+
     uuid = UUIDField(primary_key=True, auto=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)
     percent_completed = models.IntegerField(default=0)
 
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages")
+    packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES)
     creator = models.ForeignKey("auth.User", related_name="results_packages")
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 

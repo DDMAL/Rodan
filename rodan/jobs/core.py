@@ -108,10 +108,11 @@ def create_thumbnails(resource_id):
 class package_results(Task):
     name = "rodan.core.package_results"
 
-    def run(self, rp_id, include_failed_runjobs=False):
+    def run(self, rp_id):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
         rp_query.update(status=task_status.PROCESSING, celery_task_id=self.request.id)
         rp = rp_query.first()
+        packaging_mode = rp.packaging_mode
         package_path = get_package_path(rp_id)
 
         # Get endpoint outputs
@@ -151,7 +152,7 @@ class package_results(Task):
                     if not os.path.exists(op_dir):
                         os.makedirs(op_dir)
                     shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
-                elif include_failed_runjobs and rj.status == task_status.FAILED:
+                elif packaging_mode == 2 and rj.status == task_status.FAILED:
                     result_filename = "error_{0}_{1}.txt".format(output['resource__name'], output['resource__uuid'].hex[0:6])
                     if not os.path.exists(op_dir):
                         os.makedirs(op_dir)

@@ -459,9 +459,10 @@ angular.module('rodanTestApp', [])
                     console.log(error);
                 });
         };
-        $scope.packageResults = function (wfrun, expiry_time) {
+        $scope.packageResults = function (wfrun, packaging_mode, expiry_time) {
             var obj = {
-                'workflow_run': wfrun.url
+                'workflow_run': wfrun.url,
+                'packaging_mode': packaging_mode
             };
             if (expiry_time) {
                 var d = Date.now() + expiry_time;

@@ -22,7 +22,8 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_unfinished_workflowrun(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex)
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -45,7 +46,8 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
-            'status': task_status.CANCELLED
+            'status': task_status.CANCELLED,
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -239,7 +241,8 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
             'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.test_Fop.uuid)
                          ],
-            'expiry_time': datetime.datetime.now() + datetime.timedelta(minutes=1)
+            'expiry_time': datetime.datetime.now() + datetime.timedelta(minutes=1),
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         rp_id = response.data['uuid']

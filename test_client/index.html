@@ -156,8 +156,16 @@
               <b>Status: {{status[wfrun.status]}}</b>
               <button ng-click="retryWorkflowRun(wfrun)">Retry</button>
               <button ng-click="cancelWorkflowRun(wfrun)">Cancel</button>
-              <button ng-click="packageResults(wfrun)">Package Results</button>
-              <button ng-click="packageResults(wfrun, 10000)">Package Results (expire in 10sec)</button>
+              <br />
+              <b>Package results --</b>
+              packaging mode:
+              <select ng-model="packaging_mode" ng-init="packaging_mode = 0">
+                <option ng-value="0">0</option>
+                <option ng-value="1">1</option>
+                <option ng-value="2">2</option>
+              </select>
+              <button ng-click="packageResults(wfrun, packaging_mode)">Package Results</button>
+              <button ng-click="packageResults(wfrun, packaging_mode, 10000)">Package Results (expire in 10sec)</button>
             </div>
             <div class="panel-body">
               <table class="table">
@@ -184,7 +192,7 @@
             <tbody>
               <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, info: rp.status == 8}">
                 <td>
-                  <p>For WorkflowRun {{rp.workflow_run}}</p>
+                  <p>For WorkflowRun {{rp.workflow_run}} <code>mode={{rp.packaging_mode}}</code></p>
                   <div ng-show="rp.status == -1">
                     <code>{{rp.error_summary}}</code>
                     <pre><code>{{rp.error_details}}</code></pre>
