@@ -151,7 +151,7 @@
         <div ng-repeat="wfrun in workflowruns" class="col-xs-12">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title" ng-bind="wfrun.uuid"></h3>
+              <h3 class="panel-title">{{wfrun.workflow_name}} @ {{wfrun.created}} <sub>({{wfrun.uuid}})</sub></h3>
               <b ng-show="wfrun.test_run">test run</b> for <code>{{ wfrun.workflow || "[DELETED]" }}</code>
               <b>Status: {{status[wfrun.status]}}</b>
               <button ng-click="retryWorkflowRun(wfrun)">Retry</button>

@@ -5,7 +5,7 @@ from rest_framework import serializers
 class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = WorkflowRun
-        read_only_fields = ("created", "updated", 'creator', 'project')
+        read_only_fields = ("created", "updated", 'creator', 'project', 'workflow_name')
         extra_kwargs = {
             'workflow': {'allow_null': False, 'required': True}
         }
@@ -13,6 +13,7 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
                   'uuid',
                   'project',
                   'workflow',
+                  'workflow_name',
                   'created',
                   'updated',
                   'test_run',
@@ -23,7 +24,7 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
 class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = WorkflowRun
-        read_only_fields = ("created", "updated", 'creator', 'project')
+        read_only_fields = ("created", "updated", 'creator', 'project', 'workflow_name')
         extra_kwargs = {
             'workflow': {'allow_null': False, 'required': True}
         }
@@ -31,6 +32,7 @@ class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
                   'uuid',
                   'project',
                   'workflow',
+                  'workflow_name',
                   'created',
                   'updated',
                   'test_run',

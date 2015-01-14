@@ -47,7 +47,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if not wf.valid:
             raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
 
-        wfrun = serializer.save(creator=self.request.user, project=wf.project)
+        wfrun = serializer.save(creator=self.request.user, project=wf.project, workflow_name=wf.name)
         wfrun_id = str(wfrun.uuid)
         test_run = serializer.validated_data.get('test_run', False)
         self._create_workflow_run(wf, wfrun, test_run)

@@ -15,6 +15,7 @@ class WorkflowRun(models.Model):
     - `project` -- a reference to the `Project`.
     - `workflow` -- a reference to the `Workflow`. If the `Workflow` is deleted, this
       field will be set to None.
+    - `workflow_name` -- a copy of the name of `Workflow`.
     - `creator` -- a reference to the `User`.
     - `test_run` -- indicating if the `WorkflowRun` is a test run.
     - `status` -- indicating the status of the `WorkflowRun`.
@@ -33,6 +34,7 @@ class WorkflowRun(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey('rodan.Project', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
+    workflow_name = models.CharField(max_length=255)
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
     test_run = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.PROCESSING)
