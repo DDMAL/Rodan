@@ -112,19 +112,24 @@ class package_results(Task):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
         rp_query.update(status=task_status.PROCESSING, celery_task_id=self.request.id)
         rp = rp_query.first()
-        packaging_mode = rp.packaging_mode
+        mode = rp.packaging_mode
         package_path = get_package_path(rp_id)
 
-        # Get endpoint outputs
-        output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run) &
-                                             (Q(resource__inputs__isnull=True) | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)))
+        if mode == 0:
+            # Get endpoint outputs
+            output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run) &
+                                                 (Q(resource__inputs__isnull=True) | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)))
+        else:
+            # Get all outputs
+            output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run))
         outputs = output_query.values('output_port_type_name',
-                                      'run_job__uuid',
+                                      'run_job__workflow_job_uuid',
+                                      'run_job__resource_uuid',
                                       'run_job__job_name',
-                                      'resource__uuid',
                                       'resource__name',
                                       'resource__compat_resource_file',
                                       'run_job__status',
+                                      'run_job__job_settings',
                                       'run_job__error_summary',
                                       'run_job__error_details')
 
@@ -138,29 +143,54 @@ class package_results(Task):
             tmp_dir = os.path.join(td, rp_id)  # because rp_id will be name of the packaged zip
             bag = BagIt(tmp_dir)
 
-            for output in outputs:
-                j_name = output['run_job__job_name'].split('.')[-1]
-                opt_name = output['output_port_type_name']
-                rj_uuid = output['run_job__uuid'].hex[0:6]
-                op_dir = os.path.join(tmp_dir, "{0}_{1}_{2}".format(j_name, opt_name, rj_uuid))
+            job_namefinder = self._NameFinder()
+            res_namefinder = self._NameFinder()
 
-                rj_status = output['run_job__status']
-                if rj_status == task_status.FINISHED:
-                    filepath = output['resource__compat_resource_file']
-                    ext = os.path.splitext(filepath)[1]
-                    result_filename = "{0}_{1}{2}".format(output['resource__name'], output['resource__uuid'].hex[0:6], ext)
-                    if not os.path.exists(op_dir):
-                        os.makedirs(op_dir)
-                    shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
-                elif packaging_mode == 2 and rj.status == task_status.FAILED:
-                    result_filename = "error_{0}_{1}.txt".format(output['resource__name'], output['resource__uuid'].hex[0:6])
-                    if not os.path.exists(op_dir):
-                        os.makedirs(op_dir)
-                    with open(os.path.join(op_dir, result_filename), 'w') as f:
-                        f.write("Error Summary: ")
-                        f.write(output['run_job__error_summary'])
-                        f.write("\n\nError Details:\n")
-                        f.write(output['run_job__error_details'])
+            for output in outputs:
+                if mode == 0:  # only endpoint resources, subdirectoried by different outputs
+                    j_name = job_namefinder.find(output['run_job__workflow_job_uuid'], output['run_job__job_name'])
+                    opt_name = output['output_port_type_name']
+                    op_dir = os.path.join(tmp_dir, "{0} - {1}".format(j_name, opt_name))
+
+                    rj_status = output['run_job__status']
+                    if rj_status == task_status.FINISHED:
+                        filepath = output['resource__compat_resource_file']
+                        ext = os.path.splitext(filepath)[1]
+
+                        res_name = res_namefinder.find(output['run_job__resource_uuid'], output['resource__name'])
+                        result_filename = "{0}{1}".format(res_name, ext)
+                        if not os.path.exists(op_dir):
+                            os.makedirs(op_dir)
+                        shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
+
+                elif mode == 1:
+                    res_name = res_namefinder.find(output['run_job__resource_uuid'], output['resource__name'])
+                    res_dir = os.path.join(tmp_dir, res_name)
+
+                    j_name = job_namefinder.find(output['run_job__workflow_job_uuid'], output['run_job__job_name'])
+                    opt_name = output['output_port_type_name']
+
+                    rj_status = output['run_job__status']
+                    if rj_status == task_status.FINISHED:
+                        filepath = output['resource__compat_resource_file']
+                        ext = os.path.splitext(filepath)[1]
+                        result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
+                        if not os.path.exists(res_dir):
+                            os.makedirs(res_dir)
+                        shutil.copyfile(filepath, os.path.join(res_dir, result_filename))
+                    elif rj_status == task_status.FAILED:
+                        result_filename = "{0} - {1} - ERROR.txt".format(j_name, opt_name)
+                        if not os.path.exists(res_dir):
+                            os.makedirs(res_dir)
+                        with open(os.path.join(res_dir, result_filename), 'w') as f:
+                            f.write("Error Summary: ")
+                            f.write(output['run_job__error_summary'])
+                            f.write("\n\nError Details:\n")
+                            f.write(output['run_job__error_details'])
+                elif mode == 2:
+                    raise NotImplementedError() # [TODO]
+                else:
+                    raise ValueError("mode {0} is not supported".format(mode))
 
                 completed += percentage_increment
                 rp_query.update(percent_completed=int(completed))
@@ -198,6 +228,27 @@ class package_results(Task):
                         error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
                         error_details=einfo.traceback,
                         celery_task_id=None)
+
+    class _NameFinder(object):
+        """
+        Find a name given unique identifier and a preferred original name.
+        """
+        def __init__(self, new_name_pattern="{0} ({1})"):
+            self.original_name_count = {}
+            self.id_name_map = {}
+        def find(self, identifier, original_name):
+            if identifier not in self.id_name_map:
+                if original_name not in self.original_name_count:
+                    self.original_name_count[original_name] = 1
+                    self.id_name_map[identifier] = original_name
+                    return original_name
+                else:
+                    self.original_name_count[original_name] += 1
+                    new_name = new_name_pattern.format(original_name, self.original_name_count[original_name])
+                    self.id_name_map[identifier] = new_name
+                    return new_name
+            else:
+                return self.id_name_map[identifier]
 
 class expire_package(Task):
     name = "rodan.core.expire_package"
