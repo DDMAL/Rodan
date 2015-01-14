@@ -97,7 +97,7 @@ class Resource(models.Model):
         return u"<Resource {0}>".format(self.uuid)
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=200, blank=True, null=True)
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
