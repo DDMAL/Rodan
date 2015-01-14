@@ -43,9 +43,9 @@ class ResultsPackage(models.Model):
                       (task_status.CANCELLED, "Cancelled"),
                       (task_status.EXPIRED, "Expired")]
 
-    PACKAGING_MODE_CHOICES = [(0, "By workflow jobs"),
-                              (1, "By resources"),
-                              (2, "Diagnosis")]
+    PACKAGING_MODE_CHOICES = [(0, "Only endpoint resources"),
+                              (1, "All resources -- subdirectoried by resource names"),
+                              (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names")]
 
     uuid = UUIDField(primary_key=True, auto=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)
