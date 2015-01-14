@@ -25,6 +25,9 @@ class RunJob(models.Model):
       this field will be set to None.
     - `workflow_job_uuid` -- a copy of the uuid of `WorkflowJob`, to provide an identifier
       of its origin after the `WorkflowJob` is deleted.
+    - `resource_uuid` -- a copy of the uuid of `Resource` in the `ResourceCollection`,
+      indicate the processing flow for every individual `Resource` in a batch. Allowed
+      to be null when it is singleton `RunJob`.
     - `job_name` -- the Rodan `Job` name of this `RunJob`.
     - `job_settings` -- the settings associated with the `WorkflowJob` that is
       being executed in the `RunJob`.
@@ -55,7 +58,9 @@ class RunJob(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL)
+
     workflow_job_uuid = models.CharField(max_length=32)
+    resource_uuid = models.CharField(max_length=32, blank=True, null=True)
     job_name = models.CharField(max_length=200)
 
     job_settings = JSONField(default={})

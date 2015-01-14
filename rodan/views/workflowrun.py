@@ -155,6 +155,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     def _create_runjob_A(self, wfjob, workflow_run, arg_resource):
         run_job = RunJob(workflow_job=wfjob,
                          workflow_job_uuid=wfjob.uuid.hex,
+                         resource_uuid=arg_resource.uuid.hex if arg_resource else None,
                          workflow_run=workflow_run,
                          job_name=wfjob.job.job_name,
                          job_settings=wfjob.job_settings)
