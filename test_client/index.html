@@ -72,6 +72,9 @@
                 <td ng-bind="w.uuid"></td>
                 <td ng-bind="w.name"></td>
                 <td><button ng-click="validateWorkflow(w)">Validate</button><button ng-click="deleteWorkflow(w)">Delete</button><button ng-click="runWorkflow(w)">Run</button><button ng-click="runWorkflow(w, true)">Test run</button></td>
+                <td>
+                  <a ng-href="{{w.url + '?export=true&format=json'}}" target="_blank">Export</a>
+                </td>
               </tr>
             </tbody>
           </table>
