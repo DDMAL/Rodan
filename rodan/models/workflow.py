@@ -21,7 +21,7 @@ class Workflow(models.Model):
     """
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
     project = models.ForeignKey("rodan.Project", related_name="workflows")
     description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey("auth.User", related_name="workflows")

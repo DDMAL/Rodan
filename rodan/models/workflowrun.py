@@ -34,7 +34,7 @@ class WorkflowRun(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     project = models.ForeignKey('rodan.Project', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL)
-    workflow_name = models.CharField(max_length=255)
+    workflow_name = models.CharField(max_length=100)
     creator = models.ForeignKey('auth.User', related_name="workflow_runs")
     test_run = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.PROCESSING)
