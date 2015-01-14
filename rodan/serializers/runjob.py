@@ -17,6 +17,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'job_name',
                   'workflow_run',
                   'workflow_job',
+                  'workflow_job_uuid',
                   'inputs',
                   'outputs',
                   'job_settings',
