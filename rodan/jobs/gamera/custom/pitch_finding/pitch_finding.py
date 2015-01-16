@@ -21,13 +21,13 @@ class PitchFindingTask(RodanTask):
     category = "Pitch Finding"
     settings = {
         'type': 'object',
+        'required': ['discard_size'],
         'properties': {
             'discard_size': {
                 'type': 'integer',
                 'default': 2,
                 'minimum': 1,
                 'maximum': 1048576,
-                'required': True,
                 '_order': 0
             }
         }
