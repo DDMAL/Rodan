@@ -210,8 +210,8 @@
 
 
         <div class="col-xs-8 well well-lg pull-left">
-          <h2>Workflow Runs <button class="btn btn-default btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Show All</button></h2>
-          <div ng-repeat="wfrun in workflowruns" ng-show="wfrun.workflow == wfrun_filter">
+          <h2>Workflow Runs <button class="btn btn-default btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
+          <div ng-repeat="wfrun in workflowruns" ng-show="!wfrun_filter || wfrun.workflow == wfrun_filter">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
