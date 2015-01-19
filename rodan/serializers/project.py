@@ -22,6 +22,7 @@ class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
     workflow_count = serializers.IntegerField(read_only=True)
     resource_count = serializers.IntegerField(read_only=True)
     creator = ProjectCreatorSerializer(read_only=True)
+    uuid = serializers.CharField(read_only=True)
 
     class Meta:
         model = Project
