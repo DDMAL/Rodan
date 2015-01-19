@@ -174,6 +174,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
     .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
         $scope.ui_showtypethumb = false;
+        $scope.ui_hidegenerated = true;
         $scope.resource_selected = {};
 
         $http.get(ROOT + '/project/' + $routeParams.projectId + '/')
@@ -185,13 +186,11 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         intervalNow(function () {
             getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'name'}})
                 .then(function (results) {
-                    $scope.uploaded_resources = [];
+                    $scope.resources = results;
                     $scope.generated_resources = {};
 
                     _.each(results, function (r) {
-                        if (!r.origin) {
-                            $scope.uploaded_resources.push(r);
-                        } else {
+                        if (r.origin) {
                             $scope.generated_resources[r.origin] = r;
                         }
 

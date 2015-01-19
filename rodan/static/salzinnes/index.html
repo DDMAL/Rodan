@@ -80,7 +80,9 @@
     <script type="text/ng-template" id="/templates/project.html">
       <div class="row">
         <div class="col-xs-4 well well-lg pull-left">
-            <h2>Uploaded Resources</h2>
+          <h2>Resources
+            <label style="font-size:14px;margin-bottom:0;margin-left:20px;background:lightyellow"><input type="checkbox" ng-model="ui_hidegenerated">Hide generated resources</label>
+          </h2>
 
             <div style="height:500px;overflow-y:scroll">
               <table class="table table-condensed">
@@ -93,7 +95,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="r in uploaded_resources" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}">
+                  <tr ng-repeat="r in resources" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}" ng-hide="ui_hidegenerated && r.origin">
                     <td>
                       <input type="checkbox" ng-model="resource_selected[r.url]" />
                     </td>
