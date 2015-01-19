@@ -11,11 +11,14 @@
     <script src="script.js"></script>
   </head>
   <body>
-    <header class="navbar navbar-default">
+    <header class="navbar navbar-default" ng-controller="ctrl_navbar">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
           <a class="navbar-brand" style="cursor:default">Rodan</a>
+        </div>
+        <div class="navbar-form navbar-right">
+          <button class="btn btn-default" ng-click="allProjects()">All projects</button>
         </div>
       </div><!-- /.container-fluid -->
     </header>

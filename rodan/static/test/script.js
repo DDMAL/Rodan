@@ -5,8 +5,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         return {
             'request': function (config) {
                 config.headers = config.headers || {};
-                if ($window.sessionStorage.token) {
-                    config.headers.Authorization = "Token " + $window.sessionStorage.token;
+                if ($window.sessionStorage.getItem('token')) {
+                    config.headers.Authorization = "Token " + $window.sessionStorage.getItem('token');
                 }
                 return config;
             }
@@ -104,17 +104,19 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     }])
     .run(function (getAllPages, ROOT, $rootScope) {
         /* initialization */
-        getAllPages(ROOT + '/jobs/')
-            .then(function (results) {
-                $rootScope.jobs = results;
-            });
-        getAllPages(ROOT + '/resourcetypes/')
-            .then(function (results) {
-                $rootScope.resourcetypes_hash = {};
-                _.each(results, function (rt) {
-                    $rootScope.resourcetypes_hash[rt.url] = rt;
+        $rootScope.$on('$routeChangeSuccess', function () {
+            getAllPages(ROOT + '/jobs/')
+                .then(function (results) {
+                    $rootScope.jobs = results;
                 });
-            });
+            getAllPages(ROOT + '/resourcetypes/')
+                .then(function (results) {
+                    $rootScope.resourcetypes_hash = {};
+                    _.each(results, function (rt) {
+                        $rootScope.resourcetypes_hash[rt.url] = rt;
+                    });
+                });
+        });
         $rootScope.status = {
             '0': 'Scheduled',
             '1': 'Processing',
@@ -126,14 +128,23 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             '11': 'Retrying'
         };
     })
+    .controller('ctrl_navbar', function ($scope, $location, $window) {
+        $scope.allProjects = function () {
+            $location.path('/projects/');
+        }
+        $scope.logout = function () {
+            $window.sessionStorage.removeItem('token');
+            $location.path('/login/');
+        };
+    })
 //////////////////
     .controller('ctrl_login', function ($scope, $http, $location, $window, ROOT, $cookies) {
         $scope.submit = function () {
-            delete $window.sessionStorage.token;
+            $window.sessionStorage.removeItem('token');
             $http.post(ROOT + '/auth/token/', $scope.inputs, {headers: {'X-CSRFToken': $cookies.csrftoken}})
                 .success(function (data) {
                     var token = data['token'];
-                    $window.sessionStorage.token = token;
+                    $window.sessionStorage.setItem('token', token);
                     $location.path('/projects/');
                 });
         };
