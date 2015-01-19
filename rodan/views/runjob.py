@@ -19,7 +19,7 @@ class RunJobList(generics.ListAPIView):
     queryset = RunJob.objects.all() # [TODO] filter according to the user?
 
     class filter_class(django_filters.FilterSet):
-        project = django_filters.CharFilter(name="workflow_run__workflow__project")
+        project = django_filters.CharFilter(name="workflow_run__project")
         class Meta:
             model = RunJob
             fields = ('status', 'project', 'workflow_run')

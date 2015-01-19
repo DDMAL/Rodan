@@ -36,7 +36,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('workflow',)
+    filter_fields = ('workflow', 'project')
     queryset = WorkflowRun.objects.all()  # [TODO] filter according to the user?
 
     def perform_create(self, serializer):

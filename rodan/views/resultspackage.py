@@ -9,6 +9,7 @@ from celery.task.control import revoke
 from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils import timezone
+import django_filters
 
 from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPackageListSerializer
 from rodan.models import ResultsPackage
@@ -32,7 +33,12 @@ class ResultsPackageList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageListSerializer
     queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
-    filter_fields = ('creator', 'workflow_run')
+
+    class filter_class(django_filters.FilterSet):
+        project = django_filters.CharFilter(name="workflow_run__project")
+        class Meta:
+            model = ResultsPackage
+            fields = ('creator', 'project', 'workflow_run')
 
     def perform_create(self, serializer):
         wfrun = serializer.validated_data['workflow_run']
