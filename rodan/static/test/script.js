@@ -93,7 +93,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 templateUrl: '/templates/projects.html'
                 ,controller: 'ctrl_projects'
             })
-            .when('/project/:projectId', {
+            .when('/project/:projectId/', {
                 templateUrl: '/templates/project.html'
                 ,controller: 'ctrl_project'
             })
@@ -181,10 +181,14 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 $scope.project = data;
             });
 
+        $scope.resource_uuid_name_map = {};
         intervalNow(function () {
             getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'uploaded': 'yes'}})
                 .then(function (results) {
                     $scope.uploaded_resources = results;
+                    _.each(results, function (r) {
+                        $scope.resource_uuid_name_map[r.uuid] = r.name;
+                    });
                 });
         }, UPDATE_FREQ);
 

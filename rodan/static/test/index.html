@@ -231,7 +231,8 @@
               <div class="panel-body">
                 <table class="table table-condensed">
                   <tr ng-repeat="rj in runjobs[wfrun.url]" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
-                    <td ng-bind="rj.job_name"></td>
+                    <td>{{rj.job_name}}</td>
+                    <td><span ng-show="rj.resource_uuid"><code>{{rj.resource_uuid.slice(0, 6)}}</code> {{resource_uuid_name_map[rj.resource_uuid] || "[DELETED]" }}</span></td>
                     <td class="text-right">
                       <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
                       <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
