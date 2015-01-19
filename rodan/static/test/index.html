@@ -88,7 +88,7 @@
                   <tr>
                     <th></th>
                     <th>#</th>
-                    <th>Detail <label style="margin-bottom:0;background:lightyellow"><input type="checkbox" ng-model="ui_showthumb">Show thumb</label></th>
+                    <th>Detail <label style="margin-bottom:0;margin-left:20px;background:lightyellow"><input type="checkbox" ng-model="ui_showtypethumb">Show thumb and type</label></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -102,18 +102,13 @@
                       <a ng-show="r.compat_resource_file" ng-href="{{r.compat_resource_file}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
                     </td>
                     <td>
-                      <table>
+                      {{r.name}}<button class="btn btn-default btn-xs" ng-click="updateResourceName(r)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                      <table ng-show="ui_showtypethumb">
                         <tr>
-                          <th>Name</th>
-                          <td>{{r.name}}<button class="btn btn-default btn-xs" ng-click="updateResourceName(r)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button></td>
-                        </tr>
-                        <tr>
-                          <th>Type</th>
-                          <td>{{ resourcetypes_hash[r.resource_type].mimetype }}</td>
-                        </tr>
-                        <tr ng-show="ui_showthumb">
-                          <th>Thumb</th>
-                          <td><img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em></td>
+                          <td>
+                            <img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em>
+                          </td>
+                          <td><code>{{ resourcetypes_hash[r.resource_type].mimetype }}</code></td>
                         </tr>
                       </table>
                     </td>

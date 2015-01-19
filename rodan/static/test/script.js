@@ -173,7 +173,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     })
 
     .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
-        $scope.ui_showthumb = false;
+        $scope.ui_showtypethumb = false;
         $scope.resource_selected = {};
 
         $http.get(ROOT + '/project/' + $routeParams.projectId + '/')
