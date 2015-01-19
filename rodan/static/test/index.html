@@ -223,20 +223,16 @@
                     <button ng-click="cancelWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right">Cancel</button>
                   </span>
                 </h3>
-                <b>Package Results --</b>
-                mode (default 0):
-                <select ng-model="packaging_modes[wfrun.url]">
-                  <option ng-value="0">0</option>
-                  <option ng-value="1">1</option>
-                  <option ng-value="2">2</option>
-                </select>
-                <button ng-click="packageResults(wfrun)" class="btn btn-primary btn-xs">Package Results</button>
+                <b>Package Results in </b>
+                <button ng-click="packageResults(wfrun, 0)" class="btn btn-default btn-xs">Mode 0</button>
+                <button ng-click="packageResults(wfrun, 1)" class="btn btn-default btn-xs">Mode 1</button>
+                <!--<button ng-click="packageResults(wfrun, 2)" class="btn btn-default btn-xs">Mode 2</button>-->
               </div>
               <div class="panel-body">
                 <table class="table table-condensed">
                   <tr ng-repeat="rj in runjobs[wfrun.url]" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
                     <td ng-bind="rj.job_name"></td>
-                    <td>
+                    <td class="text-right">
                       <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
                       <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
                       <div ng-show="rj.status == -1">

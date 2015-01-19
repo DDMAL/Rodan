@@ -314,11 +314,11 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     console.log(error);
                 });
         };
-        $scope.packaging_modes = {};
-        $scope.packageResults = function (wfrun) {
+
+        $scope.packageResults = function (wfrun, mode) {
             var obj = {
                 'workflow_run': wfrun.url,
-                'packaging_mode': $scope.packaging_modes[wfrun.url] || 0
+                'packaging_mode': mode
             };
             $http.post(ROOT + '/resultspackages/', obj);
         };
