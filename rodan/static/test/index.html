@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html ng-app="rodanTestApp">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rodan Test Client</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-route.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <header class="navbar navbar-default">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <a class="navbar-brand" style="cursor:default">Rodan</a>
+        </div>
+      </div><!-- /.container-fluid -->
+    </header>
+    <div class="container-fluid">
+      <div ng-view></div>
+    </div>
+
+    <script type="text/ng-template" id="/templates/login.html">
+      <div class="row">
+        <div class="col-xs-4 col-xs-offset-4">
+          <h2>Login</h2>
+          <form ng-submit="submit()">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" class="form-control" ng-model="inputs.username">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" ng-model="inputs.password">
+            </div>
+            <button type="submit" class="btn btn-primary"
+                    value="{% trans 'Login' %}">Login</button>
+          </form>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="/templates/projects.html">
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Projects</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>ID</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="p in projects">
+                <td ng-bind="p.name"></td>
+                <td ng-bind="p.uuid"></td>
+                <td><button class="btn btn-primary" ng-click="launch(p)">Launch</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <form ng-submit="newProject()">
+            <fieldset>
+              <legend>New Project</legend>
+              <input type="name" placeholder="Project Name" ng-model="newproj_name"/>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="/templates/project.html">
+      <div class="row">
+        <div class="col-xs-4 well well-lg pull-left">
+            <h2>Uploaded Resources</h2>
+
+            <div style="height:500px;overflow-y:scroll">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>#</th>
+                    <th>Detail <label style="margin-bottom:0;background:lightyellow"><input type="checkbox" ng-model="ui_showthumb">Show thumb</label></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="r in uploaded_resources" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}">
+                    <td>
+                      <input type="checkbox" ng-model="resource_selected[r.url]" />
+                    </td>
+                    <td>
+                      <span ng-show="!r.compat_resource_file">{{ r.uuid | limitTo: 6 }}</span>
+                      <a ng-show="r.compat_resource_file" ng-href="{{r.compat_resource_file}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
+                    </td>
+                    <td>
+                      <table>
+                        <tr>
+                          <th>Name</th>
+                          <td>{{r.name}}</td>
+                        </tr>
+                        <tr>
+                          <th>Type</th>
+                          <td>{{ resourcetypes_hash[r.resource_type].mimetype }}</td>
+                        </tr>
+                        <tr ng-show="ui_showthumb">
+                          <th>Thumb</th>
+                          <td><img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em></td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td><button ng-click="deleteResource(r)" class="btn btn-default btn-xs">Delete</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br/>
+            <form ng-submit="uploadResources()" class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Upload Resources</h3>
+              </div>
+              <div class="panel-body">
+                <input type="file" file-model="files" multiple class="pull-left"/>
+                <button type="submit" class="btn btn-primary pull-right">Upload</button>
+              </div>
+            </form>
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Create Workflow with selected resources</h3>
+              </div>
+              <div class="panel-body">
+                <div class="form-group" ng-class="{'has-error': new_workflow_error.name}">
+                  <input type="text" placeholder="Workflow Name" ng-model="new_workflow_name" class="form-control">
+                </div>
+                <button ng-click="createWorkflow_rotatecrop()" class="btn btn-default">Create a rotatecrop workflow</button>
+              </div>
+            </div>
+        </div>
+        <!----------- --->
+        <div class="col-xs-4 well well-lg pull-left">
+            <h2>Workflows</h2>
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Operations</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="w in workflows" ng-class="{success: w.valid, danger: !w.valid}">
+                  <td><a style="cursor:pointer" ng-click="$parent.wfrun_filter = w.url">{{w.uuid | limitTo: 6}}</a></td>
+                  <td ng-bind="w.name"></td>
+                  <td>
+                    <span ng-show="!w.valid">
+                      <button ng-click="validateWorkflow(w)" class="btn btn-default btn-xs">Validate</button>
+                    </span>
+                    <span ng-show="w.valid">
+                      <button ng-click="runWorkflow(w)" class="btn btn-default btn-xs">Run</button>
+                      <button ng-click="runWorkflow(w, true)" class="btn btn-default btn-xs">Test run</button>
+                    </span>
+                    <button ng-click="deleteWorkflow(w)" class="btn btn-default btn-xs">Delete</button>
+                    <div ng-show="workflow_validationerror[w.url]" ng-bind="workflow_validationerror[w.url]" style="color:red;font-weight:bold"></div>
+                  </td>
+                  <td>
+                    <a ng-href="{{w.url + '?export=true&format=json'}}" target="_blank">Export</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+
+
+        <div class="col-xs-4 well well-lg pull-left">
+          <h2>Results Packages</h2>
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>wfRun</th>
+                <th>Created</th>
+                <th>Mode</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, warning: rp.status == 8}">
+                <td>
+                  {{rp.workflow_run.slice(-33, -27)}}
+                </td>
+                <td>{{rp.created | date:"yyyy-MM-dd '@' h:mma"}}</td>
+                <td>{{rp.packaging_mode}}</td>
+                <td>
+                  <a ng-show="rp.status == 4" ng-href="{{rp.package_url}}" target="_blank">Download</a>
+                </td>
+                <td><button ng-click="cancelResultsPackage(rp)" class="btn btn-default btn-xs">Cancel</button><button ng-click="deleteResultsPackage(rp)" class="btn btn-default btn-xs">Delete</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="col-xs-8 well well-lg pull-left">
+          <h2>Workflow Runs <button class="btn btn-default btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Show All</button></h2>
+          <div ng-repeat="wfrun in workflowruns" ng-show="wfrun.workflow == wfrun_filter">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  {{wfrun.uuid | limitTo: 6}} <code>{{wfrun.workflow_name}}</code> created at <code>{{wfrun.created | date:"yyyy-MM-dd '@' h:mma"}}</code>
+                  <b ng-show="wfrun.test_run">test run</b> for Workflow <code>{{ wfrun.workflow.slice(-33, -27) || "[DELETED]" }}</code>.
+                  <b class="pull-right" style="margin-left:10px">Status: {{status[wfrun.status]}}</b>
+                  <span class="pull-right">
+                    <button ng-click="retryWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right clearfix">Retry</button>
+                    <button ng-click="cancelWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right">Cancel</button>
+                  </span>
+                </h3>
+                <b>Package Results --</b>
+                mode (default 0):
+                <select ng-model="packaging_modes[wfrun.url]">
+                  <option ng-value="0">0</option>
+                  <option ng-value="1">1</option>
+                  <option ng-value="2">2</option>
+                </select>
+                <button ng-click="packageResults(wfrun)" class="btn btn-primary btn-xs">Package Results</button>
+              </div>
+              <div class="panel-body">
+                <table class="table table-condensed">
+                  <tr ng-repeat="rj in runjobs[wfrun.url]" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
+                    <td ng-bind="rj.job_name"></td>
+                    <td>
+                      <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
+                      <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
+                      <div ng-show="rj.status == -1">
+                        <b>{{rj.error_summary}}</b>
+                        <pre><code>{{rj.error_details}}</code></pre>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </script>
+  </body>
+</html>
