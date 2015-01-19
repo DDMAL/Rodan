@@ -320,7 +320,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         }, UPDATE_FREQ);
 
-        $scope.showResults = {};
+        $scope.ui_showresults = false;
 
         $scope.retryWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 11})

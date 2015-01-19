@@ -9,6 +9,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-cookies.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
     <script src="script.js"></script>
+    <style>
+      html,body{height:100%;width:100%;overflow:hidden}
+      tbody{background:#fff}
+    </style>
   </head>
   <body>
     <header class="navbar navbar-default" ng-controller="ctrl_navbar">
@@ -78,13 +82,14 @@
     </script>
 
     <script type="text/ng-template" id="/templates/project.html">
-      <div class="row">
-        <div class="col-xs-4 well well-lg pull-left">
-          <h2>Resources
-            <label style="font-size:14px;margin-bottom:0;margin-left:20px;background:lightyellow"><input type="checkbox" ng-model="ui_hidegenerated">Hide generated resources</label>
-          </h2>
+      <div style="position:absolute;left:0;right:0;top:54px;bottom:0"> <!--wrapper -->
 
-            <div style="height:500px;overflow-y:scroll">
+        <div style="position:absolute;left:0;right:70%;top:0;bottom:0">
+          <div class="well well-lg" style="height:100%;overflow-y:auto">
+            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_hidegenerated">Hide generated resources</label>
+            <h2>Resources</h2>
+
+            <div>
               <table class="table table-condensed">
                 <thead>
                   <tr>
@@ -141,10 +146,13 @@
                 <button ng-click="createWorkflow_rotatecrop()" class="btn btn-default">Create a rotatecrop workflow</button>
               </div>
             </div>
+          </div>
         </div>
         <!----------- --->
-        <div class="col-xs-4 well well-lg pull-left">
+        <div style="position:absolute;left:30%;right:40%;top:0;bottom:70%">
+          <div class="well well-lg" style="height:100%;overflow-y:auto">
             <h2>Workflows</h2>
+
             <table class="table table-condensed">
               <thead>
                 <tr>
@@ -175,40 +183,45 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:60%;right:0;top:0;bottom:70%">
+          <div class="well well-lg" style="height:100%;overflow-y:auto">
+            <h2>Results Packages</h2>
+
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>wfRun</th>
+                  <th>Created</th>
+                  <th>Mode</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, warning: rp.status == 8}">
+                  <td>
+                    {{rp.workflow_run.slice(-33, -27)}}
+                  </td>
+                  <td>{{rp.created | date:"yyyy-MM-dd '@' h:mma"}}</td>
+                  <td>{{rp.packaging_mode}}</td>
+                  <td>
+                    <a ng-show="rp.status == 4" ng-href="{{rp.package_url}}" target="_blank">Download</a>
+                  </td>
+                  <td><button ng-click="cancelResultsPackage(rp)" class="btn btn-default btn-xs">Cancel</button><button ng-click="deleteResultsPackage(rp)" class="btn btn-default btn-xs">Delete</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
 
-        <div class="col-xs-4 well well-lg pull-left">
-          <h2>Results Packages</h2>
-          <table class="table table-condensed">
-            <thead>
-              <tr>
-                <th>wfRun</th>
-                <th>Created</th>
-                <th>Mode</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, warning: rp.status == 8}">
-                <td>
-                  {{rp.workflow_run.slice(-33, -27)}}
-                </td>
-                <td>{{rp.created | date:"yyyy-MM-dd '@' h:mma"}}</td>
-                <td>{{rp.packaging_mode}}</td>
-                <td>
-                  <a ng-show="rp.status == 4" ng-href="{{rp.package_url}}" target="_blank">Download</a>
-                </td>
-                <td><button ng-click="cancelResultsPackage(rp)" class="btn btn-default btn-xs">Cancel</button><button ng-click="deleteResultsPackage(rp)" class="btn btn-default btn-xs">Delete</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <div style="position:absolute;left:30%;right:0;top:30%;bottom:0">
+          <div class="well well-lg" style="height:100%;overflow-y:auto">
+            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_showresults">Show results</label>
+            <h2>Workflow Runs <button class="btn btn-primary btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
 
-
-        <div class="col-xs-8 well well-lg pull-left">
-          <h2>Workflow Runs <button class="btn btn-primary btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
-          <div style="height:600px;overflow-y:scroll">
             <div ng-repeat="wfrun in workflowruns" ng-show="!wfrun_filter || wfrun.workflow == wfrun_filter">
               <div class="panel panel-default">
                 <div class="panel-heading">
@@ -221,7 +234,6 @@
                       <button ng-click="cancelWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right">Cancel</button>
                     </span>
                   </h3>
-                  <label style="margin-bottom:0;margin-right:20px;background:lightyellow"><input type="checkbox" ng-model="showResults[wfrun.uuid]">Show results</label>
                   <b>Package Results in </b>
                   <button ng-click="packageResults(wfrun, 0)" class="btn btn-default btn-xs">Mode 0</button>
                   <button ng-click="packageResults(wfrun, 1)" class="btn btn-default btn-xs">Mode 1</button>
@@ -233,7 +245,7 @@
                       <td>{{rj.job_name}}</td>
                       <td>
                         <span ng-show="rj.resource_uuid"><code>{{rj.resource_uuid.slice(0, 6)}}</code> {{resource_uuid_name_map[rj.resource_uuid] || "[DELETED]" }}</span>
-                        <div ng-show="showResults[wfrun.uuid] && rj.status == 4">
+                        <div ng-show="ui_showresults && rj.status == 4">
                           <span ng-repeat="o in rj.outputs">
                             <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
                           </span>
