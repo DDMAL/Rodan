@@ -1,4 +1,4 @@
-angular.module('rodanTestApp', ['ngRoute'])
+angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     .constant('ROOT', '')
     .constant('UPDATE_FREQ', 2500)
     .factory('authInterceptor', function ($window) {
@@ -127,10 +127,10 @@ angular.module('rodanTestApp', ['ngRoute'])
         };
     })
 //////////////////
-    .controller('ctrl_login', function ($scope, $http, $location, $window, ROOT) {
+    .controller('ctrl_login', function ($scope, $http, $location, $window, ROOT, $cookies) {
         $scope.submit = function () {
             delete $window.sessionStorage.token;
-            $http.post(ROOT + '/auth/token/', $scope.inputs)
+            $http.post(ROOT + '/auth/token/', $scope.inputs, {headers: {'X-CSRFToken': $cookies.csrftoken}})
                 .success(function (data) {
                     var token = data['token'];
                     $window.sessionStorage.token = token;
