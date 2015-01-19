@@ -75,10 +75,17 @@ class Resource(models.Model):
 
     **Methods**
 
-    - `save` -- create local paths of resource folder and thumbnail folder.
+    - `__init__` -- keep an original copy of resource type. If the user changes the type,
+      detecting the change does not need to hit the database again.
+    - `save` -- create local paths of resource folder and thumbnail folder. Invalidate
+      all associated `Workflow`s when resource type is manually changed.
     - `delete` -- delete local paths of resource folder and thumbnail folder. Invalidate
       all associated `Workflow`s.
     """
+
+    def __init__(self, *a, **k):
+        super(Resource, self).__init__(*a, **k)
+        self.___original_resource_type = self.resource_type  # keep an original copy
 
     class Meta:
         app_label = 'rodan'
@@ -123,14 +130,15 @@ class Resource(models.Model):
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
 
-        for ra in self.resource_assignments.all():
-            wf = ra.input_port.workflow_job.workflow
-            wf.valid = False
-            wf.save()
-        for rc in self.resource_collections.all():
-            wf = rc.workflow
-            wf.valid = False
-            wf.save()
+        if self.resource_type != self.___original_resource_type:
+            for ra in self.resource_assignments.all():
+                wf = ra.input_port.workflow_job.workflow
+                wf.valid = False
+                wf.save()
+            for rc in self.resource_collections.all():
+                wf = rc.workflow
+                wf.valid = False
+                wf.save()
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):
