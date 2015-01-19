@@ -4,6 +4,7 @@ from rodan.serializers.user import UserListSerializer
 from rodan.serializers import AbsoluteURLField
 
 class ResourceSerializer(serializers.HyperlinkedModelSerializer):
+    uuid = serializers.CharField(read_only=True)
     creator = UserListSerializer(read_only=True)
     resource_file = AbsoluteURLField(source='resource_url', read_only=True)
     compat_resource_file = AbsoluteURLField(source='compat_file_url', read_only=True)
@@ -13,22 +14,4 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Resource
-        read_only_fields = ('created', 'updated', 'error_summary', 'error_details', 'processing_status', 'origin', 'has_thumb')
-        fields = ("url",
-                  "uuid",
-                  "project",
-                  "name",
-                  "resource_type",
-                  "resource_file",
-                  "compat_resource_file",
-                  "processing_status",
-                  "error_summary",
-                  "error_details",
-                  "creator",
-                  "origin",
-                  "created",
-                  "updated",
-                  "has_thumb",
-                  "small_thumb",
-                  "medium_thumb",
-                  "large_thumb")
+        read_only_fields = ('created', 'updated', 'error_summary', 'error_details', 'processing_status', 'origin', 'has_thumb')  # The only updatable fields are: name, resource_type
