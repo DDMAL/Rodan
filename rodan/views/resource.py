@@ -22,6 +22,7 @@ class ResourceList(generics.ListCreateAPIView):
 
     #### Parameters
     - `project` -- GET & POST. UUID of a Project.
+    - `uploaded` -- GET-only. If set, return only the `Resource`s with `origin==None`.
     - `result_of_workflow_run` -- GET-only. UUID of a WorkflowRun. Filters the results
       of a WorkflowRun.
     - `type` -- (optional) POST-only. User can claim the type of the files using
@@ -37,12 +38,17 @@ class ResourceList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # [TODO] filter according to the user?
-        # initial queryset (before filtering on `filter_fields`)
-        queryset = Resource.objects.all()
-        wfrun_uuid = self.request.QUERY_PARAMS.get('result_of_workflow_run', None)
+        condition = Q()  # "ground" value of Q
+
+        wfrun_uuid = self.request.query_params.get('result_of_workflow_run', None)
         if wfrun_uuid:
-            queryset = queryset.filter(Q(origin__run_job__workflow_run__uuid=wfrun_uuid) &
-                                       (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid)))
+            condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid))
+
+        uploaded = self.request.query_params.get('uploaded', None)
+        if uploaded:
+            condition &= Q(origin__isnull=True)
+
+        queryset = Resource.objects.filter(condition)  # then this queryset is filtered on `filter_fields`
         return queryset
 
     def post(self, request, *args, **kwargs):
