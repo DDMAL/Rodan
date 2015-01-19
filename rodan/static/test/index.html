@@ -233,9 +233,7 @@
                         <span ng-show="rj.resource_uuid"><code>{{rj.resource_uuid.slice(0, 6)}}</code> {{resource_uuid_name_map[rj.resource_uuid] || "[DELETED]" }}</span>
                         <div ng-show="showResults[wfrun.uuid] && rj.status == 4">
                           <span ng-repeat="o in rj.outputs">
-                            <span ng-repeat="r in generated_resources[o]">
-                              <a ng-href="{{r.compat_resource_file}}" target="_blank"><img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}"/><span ng-show="!r.has_thumb">Original file</span></a>
-                            </span>
+                            <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
                           </span>
                         </div>
                       </td>

@@ -192,10 +192,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         if (!r.origin) {
                             $scope.uploaded_resources.push(r);
                         } else {
-                            if (!$scope.generated_resources.hasOwnProperty(r.origin)) {
-                                $scope.generated_resources[r.origin] = [];
-                            }
-                            $scope.generated_resources[r.origin].push(r);
+                            $scope.generated_resources[r.origin] = r;
                         }
 
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
