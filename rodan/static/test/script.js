@@ -172,7 +172,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
     })
 
-    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q) {
+    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
         $scope.ui_showthumb = false;
         $scope.resource_selected = {};
 
@@ -183,7 +183,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         $scope.resource_uuid_name_map = {};
         intervalNow(function () {
-            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'uploaded': 'yes'}})
+            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'uploaded': 'yes', 'ordering': 'name'}})
                 .then(function (results) {
                     $scope.uploaded_resources = results;
                     _.each(results, function (r) {
@@ -210,6 +210,12 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .success(function () {
                     delete $scope.resource_selected[r.url];
                 });
+        };
+        $scope.updateResourceName = function (r) {
+            var new_name = $window.prompt('New resource name: ', r.name);
+            if (new_name) {
+                $http.patch(r.url, {'name': new_name});
+            }
         };
 
         ////// CREATE WORKFLOWS
