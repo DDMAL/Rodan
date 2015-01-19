@@ -236,6 +236,7 @@ class package_results(Task):
         def __init__(self, new_name_pattern="{0} ({1})"):
             self.original_name_count = {}
             self.id_name_map = {}
+            self.new_name_pattern = new_name_pattern
         def find(self, identifier, original_name):
             if identifier not in self.id_name_map:
                 if original_name not in self.original_name_count:
@@ -244,7 +245,7 @@ class package_results(Task):
                     return original_name
                 else:
                     self.original_name_count[original_name] += 1
-                    new_name = new_name_pattern.format(original_name, self.original_name_count[original_name])
+                    new_name = self.new_name_pattern.format(original_name, self.original_name_count[original_name])
                     self.id_name_map[identifier] = new_name
                     return new_name
             else:
