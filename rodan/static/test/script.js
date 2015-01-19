@@ -183,10 +183,21 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         $scope.resource_uuid_name_map = {};
         intervalNow(function () {
-            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'uploaded': 'yes', 'ordering': 'name'}})
+            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'name'}})
                 .then(function (results) {
-                    $scope.uploaded_resources = results;
+                    $scope.uploaded_resources = [];
+                    $scope.generated_resources = {};
+
                     _.each(results, function (r) {
+                        if (!r.origin) {
+                            $scope.uploaded_resources.push(r);
+                        } else {
+                            if (!$scope.generated_resources.hasOwnProperty(r.origin)) {
+                                $scope.generated_resources[r.origin] = [];
+                            }
+                            $scope.generated_resources[r.origin].push(r);
+                        }
+
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
                 });
@@ -312,6 +323,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     });
                 });
         }, UPDATE_FREQ);
+
+        $scope.showResults = {};
+
         $scope.retryWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 11})
                 .error(function (error) {
