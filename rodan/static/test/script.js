@@ -258,7 +258,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         ////// CREATE WORKFLOWS END
         intervalNow(function () {
-            getAllPages(ROOT + '/workflows/')
+            getAllPages(ROOT + '/workflows/', {params: {'project': $routeParams.projectId}})
                 .then(function (results) {
                     $scope.workflows = results;
                 });
@@ -287,13 +287,13 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
 
         intervalNow(function () {
-            getAllPages(ROOT + '/workflowruns/')
+            getAllPages(ROOT + '/workflowruns/', {params: {'project': $routeParams.projectId}})
                 .then(function (results) {
                     $scope.workflowruns = results;
                 });
         }, UPDATE_FREQ);
         intervalNow(function () {
-            getAllPages(ROOT + '/runjobs/?ordering=-created') // RunJobs are created in a reverse order.
+            getAllPages(ROOT + '/runjobs/?ordering=-created', {params: {'project': $routeParams.projectId}}) // RunJobs are created in a reverse order.
                 .then(function (results) {
                     $scope.runjobs = [];
                     angular.forEach(results, function (rj) {
@@ -324,7 +324,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
 
         intervalNow(function () {
-            getAllPages(ROOT + '/resultspackages/')
+            getAllPages(ROOT + '/resultspackages/', {params: {'project': $routeParams.projectId}})
                 .then(function (results) {
                     $scope.resultspackages = results;
                 }, function (err) {
