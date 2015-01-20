@@ -85,7 +85,7 @@
       <div style="position:absolute;left:0;right:0;top:51px;bottom:0"> <!--wrapper -->
 
         <div style="position:absolute;left:0;right:70%;top:0;bottom:0">
-          <div class="well well-lg" style="height:100%;overflow-y:auto">
+          <div class="well" style="height:100%;overflow-y:auto">
             <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_hidegenerated">Hide generated resources</label>
             <h2>Resources</h2>
 
@@ -93,7 +93,7 @@
               <table class="table table-condensed">
                 <thead>
                   <tr>
-                    <th></th>
+                    <th><input type="checkbox" ng-model="select_all_resources"></th>
                     <th>#</th>
                     <th>Detail <label style="margin-bottom:0;margin-left:20px;background:lightyellow"><input type="checkbox" ng-model="ui_showtypethumb">Show thumb and type</label></th>
                     <th></th>
@@ -143,14 +143,15 @@
                 <div class="form-group" ng-class="{'has-error': new_workflow_error.name}">
                   <input type="text" placeholder="Workflow Name" ng-model="new_workflow_name" class="form-control">
                 </div>
-                <button ng-click="createWorkflow_rotatecrop()" class="btn btn-default">Create a rotatecrop workflow</button>
+                <button ng-click="createWorkflow_complete()" class="btn btn-default">Create Workflow</button>
+                <div ng-show="new_workflow_error" style="color:red;font-weight:bold">{{ new_workflow_error }}</div>
               </div>
             </div>
           </div>
         </div>
         <!----------- --->
         <div style="position:absolute;left:30%;right:40%;top:0;bottom:70%">
-          <div class="well well-lg" style="height:100%;overflow-y:auto">
+          <div class="well" style="height:100%;overflow-y:auto">
             <h2>Workflows</h2>
 
             <table class="table table-condensed">
@@ -187,7 +188,7 @@
         </div>
 
         <div style="position:absolute;left:60%;right:0;top:0;bottom:70%">
-          <div class="well well-lg" style="height:100%;overflow-y:auto">
+          <div class="well" style="height:100%;overflow-y:auto">
             <h2>Results Packages</h2>
 
             <table class="table table-condensed">
@@ -218,7 +219,7 @@
 
 
         <div style="position:absolute;left:30%;right:0;top:30%;bottom:0">
-          <div class="well well-lg" style="height:100%;overflow-y:auto">
+          <div class="well" style="height:100%;overflow-y:auto">
             <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_showresults">Show results</label>
             <h2>Workflow Runs <button class="btn btn-primary btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
 

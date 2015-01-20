@@ -173,6 +173,15 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     })
 
     .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
+        $scope.select_all_resources = false;
+        $scope.$watch('select_all_resources', function (newVal, oldVal) {
+            if (newVal != oldVal) {
+                _.each($scope.resources, function (r) {
+                    $scope.resource_selected[r.url] = newVal;
+                });
+            }
+        });
+
         $scope.ui_showtypethumb = false;
         $scope.ui_hidegenerated = true;
         $scope.resource_selected = {};
@@ -264,6 +273,75 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                             $http.post(ROOT + '/connections/', {'output_port': opr.url, 'input_port': ipc.url})
                         ]).then(function (things) {
                             console.log('rotate-crop workflow created!');
+                        });
+                    });
+                });
+            }).error(function (errors) {
+                $scope.new_workflow_error = errors;
+            });
+        };
+
+        $scope.createWorkflow_complete = function () {
+            var resources = [];
+            _.each($scope.resource_selected, function (value, key) {
+                if (value) {
+                    resources.push(key);
+                };
+            });
+
+            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': $scope.new_workflow_name}).success(function (wf) {
+                var j_ob = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_onebit'});
+                var j_pm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
+                var j_dsp = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
+                var j_seg = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
+                var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.staff_removal.RT_staff_removal'});
+
+                $q.all([
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_ob.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pm.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_dsp.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_slr.url}),
+                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
+                ]).then(function (things) {
+                    var wf_ob = things[0].data;
+                    var wf_pm = things[1].data;
+                    var wf_dsp = things[2].data;
+                    var wf_seg = things[3].data;
+                    var wf_slr = things[4].data;
+                    var rc = things[5].data;
+
+                    $q.all([
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_ob.url, 'input_port_type': j_ob.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_ob.url, 'output_port_type': j_ob.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_pm.url, 'input_port_type': j_pm.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_pm.url, 'output_port_type': j_pm.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_dsp.url, 'input_port_type': j_dsp.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_dsp.url, 'output_port_type': j_dsp.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_seg.url, 'input_port_type': j_seg.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_seg.url, 'output_port_type': j_seg.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_slr.url, 'input_port_type': j_slr.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_slr.url, 'output_port_type': j_slr.output_port_types[0].url})
+                    ]).then(function (things) {
+                        var ip_ob = things[0].data;
+                        var op_ob = things[1].data;
+                        var ip_pm = things[2].data;
+                        var op_pm = things[3].data;
+                        var ip_dsp = things[4].data;
+                        var op_dsp = things[5].data;
+                        var ip_seg = things[6].data;
+                        var op_seg = things[7].data;
+                        var ip_slr = things[8].data;
+                        var op_slr = things[9].data;
+
+                        $q.all([
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_ob.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_ob.url, 'input_port': ip_pm.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_dsp.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_dsp.url, 'input_port': ip_seg.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url})
+                        ]).then(function (things) {
+                            console.log('created!');
                         });
                     });
                 });
