@@ -1,4 +1,4 @@
-import mimetypes, os
+import mimetypes, os, urlparse
 from celery import registry
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -58,12 +58,14 @@ class ResourceList(generics.ListCreateAPIView):
         if claimed_mimetype:
             try:
                 # try to see if user provide a url to ResourceType
-                match = resolve(claimed_mimetype)
-                restype_pk = match.kwargs.get('pk')
-                restype_obj = ResourceType.objects.get(pk=restype_pk)
-                claimed_mimetype = restype_obj.mimetype
-            except (Resolver404, ResourceType.DoesNotExist):
-                pass
+                path = urlparse.urlparse(claimed_mimetype).path  # convert to relative url
+                match = resolve(path)                            # find a url route
+                restype_pk = match.kwargs.get('pk')              # extract pk
+                restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
+                claimed_mimetype = restype_obj.mimetype          # find mimetype name
+            except (Resolver404, ResourceType.DoesNotExist) as e:
+                print str(e)
+
 
         initial_data = {
             'resource_type': ResourceTypeSerializer(ResourceType.cached('application/octet-stream'), context={'request': request}).data['url'],
