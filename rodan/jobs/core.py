@@ -49,7 +49,10 @@ class ensure_compatible(Task):
                 resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
             else:
                 shutil.copy(infile_path, tmpfile)
-                resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
+                try:
+                    resource_query.update(resource_type=ResourceType.cached(claimed_mimetype).uuid)
+                except:
+                    resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
                 new_processing_status = task_status.NOT_APPLICABLE
 
             with open(tmpfile, 'rb') as f:
