@@ -26,7 +26,7 @@ class Segmentation(RodanTask):
             },
             'scanlines': {
                 'type': 'integer',
-                'default': 5,
+                'default': 20,
                 'minimum': -1048576,
                 'maximum': 1048576
             },
