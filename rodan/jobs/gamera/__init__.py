@@ -24,6 +24,7 @@ module_loader('rodan.jobs.gamera.custom.rdn_rotate')
 module_loader('rodan.jobs.gamera.custom.rdn_despeckle')
 module_loader('rodan.jobs.gamera.custom.rdn_crop')
 module_loader('rodan.jobs.gamera.custom.segmentation.tasks')
+module_loader('rodan.jobs.gamera.custom.classification')
 
 
 module_loader('rodan.jobs.gamera.custom.border_removal')
