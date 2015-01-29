@@ -130,8 +130,16 @@
                 <h3 class="panel-title">Upload Resources</h3>
               </div>
               <div class="panel-body">
-                <input type="file" file-model="files" multiple class="pull-left"/>
-                <button type="submit" class="btn btn-primary pull-right">Upload</button>
+                <input type="file" file-model="files" multiple>
+                <div class="form-inline">
+                  <div class="form-group">
+                    <label>Resource Type</label>
+                    <select class="form-control" ng-model="upload_type" ng-options="rt.url as rt.mimetype for rt in resource_types">
+                      <option>---</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary pull-right">Upload</button>
+                </div>
               </div>
             </form>
 
@@ -143,8 +151,10 @@
                 <div class="form-group" ng-class="{'has-error': new_workflow_error.name}">
                   <input type="text" placeholder="Workflow Name" ng-model="new_workflow_name" class="form-control">
                 </div>
+                <p><em>Please select one classifier and multiple images in the resources.</em></p>
                 <button ng-click="createWorkflow_complete()" class="btn btn-default">Create Workflow</button>
-                <div ng-show="new_workflow_error" style="color:red;font-weight:bold">{{ new_workflow_error }}</div>
+              </div>
+              <div ng-show="new_workflow_error" style="color:red;font-weight:bold">{{ new_workflow_error }}</div>
               </div>
             </div>
           </div>

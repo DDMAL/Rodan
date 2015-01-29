@@ -111,6 +111,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
             getAllPages(ROOT + '/resourcetypes/')
                 .then(function (results) {
+                    $rootScope.resource_types = results;
                     $rootScope.resourcetypes_hash = {};
                     _.each(results, function (rt) {
                         $rootScope.resourcetypes_hash[rt.url] = rt;
@@ -177,7 +178,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         $scope.$watch('select_all_resources', function (newVal, oldVal) {
             if (newVal != oldVal) {
                 _.each($scope.resources, function (r) {
-                    $scope.resource_selected[r.url] = newVal;
+                    if (!r.origin) { // only selected uploaded resources
+                        $scope.resource_selected[r.url] = newVal;
+                    }
                 });
             }
         });
@@ -197,11 +200,14 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .then(function (results) {
                     $scope.resources = results;
                     $scope.generated_resources = {};
+                    $scope.resource_hash = {};  // url to object
 
                     _.each(results, function (r) {
                         if (r.origin) {
                             $scope.generated_resources[r.origin] = r;
                         }
+
+                        $scope.resource_hash[r.url] = r;
 
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
@@ -214,11 +220,18 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             _.each($scope.files, function (f) {
                 fd.append('files', f);
             });
+
+            console.log($scope.upload_type);
+            if ($scope.upload_type) {
+                fd.append('type', $scope.upload_type);
+            }
+
             $http.post(ROOT + '/resources/', fd, {
                 transformRequest: angular.identity,
                 headers: {'Content-Type': undefined}
             }).success(function () {
                 $scope.files = [];
+                $scope.upload_type = null;
             });
         };
         $scope.deleteResource = function (r) {
@@ -283,25 +296,33 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         $scope.createWorkflow_complete = function () {
             var resources = [];
-            _.each($scope.resource_selected, function (value, key) {
-                if (value) {
-                    resources.push(key);
+            var gamera_classifier_url;
+            _.each($scope.resource_selected, function (selected, url) {
+                if (selected) {
+                    var r = $scope.resource_hash[url];
+                    var m = $scope.resourcetypes_hash[r.resource_type].mimetype;
+                    if (m.indexOf('image/') == 0) { // start with image/
+                        resources.push(url);
+                    } else if (m == 'application/gamera+xml') {
+                        gamera_classifier_url = url;
+                    }
                 };
             });
-
             $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': $scope.new_workflow_name}).success(function (wf) {
                 var j_ob = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_onebit'});
                 var j_pm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
                 var j_dsp = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
                 var j_seg = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
-                var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.staff_removal.RT_staff_removal'});
+                var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
+                var j_cls = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.classification'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_ob.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pm.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_dsp.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url, 'job_settings': {'num_lines': 4, 'scanlines': 20, 'blackness': 0.8, 'tolerance': -1}}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_slr.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_cls.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
                     var wf_ob = things[0].data;
@@ -309,8 +330,11 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     var wf_dsp = things[2].data;
                     var wf_seg = things[3].data;
                     var wf_slr = things[4].data;
-                    var rc = things[5].data;
+                    var wf_cls = things[5].data;
+                    var rc = things[6].data;
 
+                    var j_cls_ipt_image = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Staffless Image'});
+                    var j_cls_ipt_clsfier = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Classifier'});
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_ob.url, 'input_port_type': j_ob.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_ob.url, 'output_port_type': j_ob.output_port_types[0].url}),
@@ -321,7 +345,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_seg.url, 'input_port_type': j_seg.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_seg.url, 'output_port_type': j_seg.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_slr.url, 'input_port_type': j_slr.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_slr.url, 'output_port_type': j_slr.output_port_types[0].url})
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_slr.url, 'output_port_type': j_slr.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_cls.url, 'input_port_type': j_cls_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_cls.url, 'input_port_type': j_cls_ipt_clsfier.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_cls.url, 'output_port_type': j_cls.output_port_types[0].url})
                     ]).then(function (things) {
                         var ip_ob = things[0].data;
                         var op_ob = things[1].data;
@@ -333,13 +360,17 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var op_seg = things[7].data;
                         var ip_slr = things[8].data;
                         var op_slr = things[9].data;
-
+                        var ip_cls_image = things[10].data;
+                        var ip_cls_clsfier = things[11].data;
+                        var op_cls = things[12].data;
                         $q.all([
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_ob.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_ob.url, 'input_port': ip_pm.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_dsp.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_dsp.url, 'input_port': ip_seg.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url})
+                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_slr.url, 'input_port': ip_cls_image.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_cls_clsfier.url, 'resource': gamera_classifier_url})
                         ]).then(function (things) {
                             console.log('created!');
                         });
