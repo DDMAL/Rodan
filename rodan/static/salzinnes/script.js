@@ -315,6 +315,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 var j_seg = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
                 var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
                 var j_cls = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.classification'});
+                var j_pf = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.pitch_finding'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_ob.url}),
@@ -323,6 +324,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url, 'job_settings': {'num_lines': 4, 'scanlines': 20, 'blackness': 0.8, 'tolerance': -1}}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_slr.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_cls.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pf.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
                     var wf_ob = things[0].data;
@@ -331,10 +333,13 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     var wf_seg = things[3].data;
                     var wf_slr = things[4].data;
                     var wf_cls = things[5].data;
-                    var rc = things[6].data;
+                    var wf_pf = things[6].data;
+                    var rc = things[7].data;
 
                     var j_cls_ipt_image = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Staffless Image'});
                     var j_cls_ipt_clsfier = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Classifier'});
+                    var j_pf_ipt_image = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Segmented Image'});
+                    var j_pf_ipt_clsf = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Classifier Result'});
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_ob.url, 'input_port_type': j_ob.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_ob.url, 'output_port_type': j_ob.output_port_types[0].url}),
@@ -348,7 +353,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_slr.url, 'output_port_type': j_slr.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_cls.url, 'input_port_type': j_cls_ipt_image.url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_cls.url, 'input_port_type': j_cls_ipt_clsfier.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_cls.url, 'output_port_type': j_cls.output_port_types[0].url})
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_cls.url, 'output_port_type': j_cls.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_pf.url, 'input_port_type': j_pf_ipt_image.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_pf.url, 'input_port_type': j_pf_ipt_clsf.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_pf.url, 'output_port_type': j_pf.output_port_types[0].url})
                     ]).then(function (things) {
                         var ip_ob = things[0].data;
                         var op_ob = things[1].data;
@@ -363,6 +371,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var ip_cls_image = things[10].data;
                         var ip_cls_clsfier = things[11].data;
                         var op_cls = things[12].data;
+                        var ip_pf_image = things[13].data;
+                        var ip_pf_clsf = things[14].data;
+                        var op_pf = things[15].data;
                         $q.all([
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_ob.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_ob.url, 'input_port': ip_pm.url}),
@@ -370,7 +381,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                             $http.post(ROOT + '/connections/', {'output_port': op_dsp.url, 'input_port': ip_seg.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_slr.url, 'input_port': ip_cls_image.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_cls_clsfier.url, 'resource': gamera_classifier_url})
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_cls_clsfier.url, 'resource': gamera_classifier_url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_cls.url, 'input_port': ip_pf_clsf.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_pf_image.url})
                         ]).then(function (things) {
                             console.log('created!');
                         });
