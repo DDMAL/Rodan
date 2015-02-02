@@ -160,7 +160,7 @@ class RodanTask(Task):
             ipt_name = input_value['input_port_type_name']
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
-            d = {'resource_path': input_value['resource__compat_resource_file'],
+            d = {'resource_path': str(input_value['resource__compat_resource_file']),   # convert 'unicode' object to 'str' object for consistency
                  'resource_type': input_value['resource__resource_type__mimetype']}
 
             if with_urls:
