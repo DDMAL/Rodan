@@ -24,9 +24,10 @@ module_loader('rodan.jobs.gamera.custom.rdn_rotate')
 module_loader('rodan.jobs.gamera.custom.rdn_despeckle')
 module_loader('rodan.jobs.gamera.custom.rdn_crop')
 module_loader('rodan.jobs.gamera.custom.segmentation.tasks')
-module_loader('rodan.jobs.gamera.custom.classification')
+module_loader('rodan.jobs.gamera.custom.simple_binarise_interactive')
 
 
 module_loader('rodan.jobs.gamera.custom.border_removal')
 module_loader('rodan.jobs.gamera.custom.pitch_finding.pitch_finding')
 module_loader('rodan.jobs.gamera.custom.staff_removal')
+module_loader('rodan.jobs.gamera.custom.classification')
