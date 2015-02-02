@@ -100,7 +100,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="r in resources track by r.url" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}" ng-hide="ui_hidegenerated && r.origin">
+                  <tr ng-repeat="r in (resources | orderBy:'name')  track by r.url" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}" ng-hide="ui_hidegenerated && r.origin">
                     <td>
                       <input type="checkbox" ng-model="resource_selected[r.url]" />
                     </td>
