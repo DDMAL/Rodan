@@ -382,7 +382,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var ip_pf_clsf = things[16].data;
                         var op_pf = things[17].data;
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_ob.url, 'resource_collection': rc.url}),
+                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_gs.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_gs.url, 'input_port': ip_bi.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_bi.url, 'input_port': ip_pm.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_dsp.url}),
