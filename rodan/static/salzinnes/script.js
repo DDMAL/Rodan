@@ -199,7 +199,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         $scope.resource_uuid_name_map = {};
         intervalNow(function () {
-            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'name'}})
+            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'uuid'}})
                 .then(function (results) {
                     $scope.resources = results;
                     $scope.generated_resources = {};
