@@ -36,6 +36,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     .success(function (data) {
                         results = results.concat(data.results);
                         if (data.next) {
+                            if (config && config.params) {
+                                delete config['params'];  // params are contained in the next URL
+                            }
                             getPage(data.next);
                         } else {
                             deferred.resolve(results);
