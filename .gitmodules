@@ -1,0 +1,4 @@
+[submodule "rodan/jobs/neon"]
+	path = rodan/jobs/neon
+	url = https://github.com/DDMAL/Neon.js.git
+	branch = rodan_job
