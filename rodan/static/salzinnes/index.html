@@ -265,7 +265,7 @@
                       <td class="text-right">
                         <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
                         <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
-                        <div ng-show="rj.status == -1">
+                        <div ng-show="rj.status == -1" class="text-left">
                           <b>{{rj.error_summary}}</b>
                           <pre><code>{{rj.error_details}}</code></pre>
                         </div>
