@@ -63,7 +63,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="p in projects">
+              <tr ng-repeat="p in projects track by p.url">
                 <td ng-bind="p.name"></td>
                 <td ng-bind="p.uuid"></td>
                 <td><button class="btn btn-primary" ng-click="launch(p)">Launch</button></td>
@@ -100,7 +100,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="r in resources" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}" ng-hide="ui_hidegenerated && r.origin">
+                  <tr ng-repeat="r in resources track by r.url" ng-class="{success: r.processing_status == 4, danger: r.processing_status == -1, active: r.processing_status == 1}" ng-hide="ui_hidegenerated && r.origin">
                     <td>
                       <input type="checkbox" ng-model="resource_selected[r.url]" />
                     </td>
@@ -174,7 +174,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="w in workflows" ng-class="{success: w.valid, danger: !w.valid}">
+                <tr ng-repeat="w in workflows track by w.url" ng-class="{success: w.valid, danger: !w.valid}">
                   <td><a style="cursor:pointer" ng-click="$parent.wfrun_filter = w.url">{{w.uuid | limitTo: 6}}</a></td>
                   <td ng-bind="w.name"></td>
                   <td>
@@ -211,7 +211,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="rp in resultspackages" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, warning: rp.status == 8}">
+                <tr ng-repeat="rp in resultspackages track by rp.url" ng-class="{success: rp.status == 4, danger: rp.status == -1, active: rp.status == 1, warning: rp.status == 8}">
                   <td>
                     {{rp.workflow_run.slice(-33, -27)}}
                   </td>
@@ -233,7 +233,7 @@
             <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_showresults">Show results</label>
             <h2>Workflow Runs <button class="btn btn-primary btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
 
-            <div ng-repeat="wfrun in workflowruns" ng-show="!wfrun_filter || wfrun.workflow == wfrun_filter">
+            <div ng-repeat="wfrun in workflowruns track by wfrun.url" ng-show="!wfrun_filter || wfrun.workflow == wfrun_filter">
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h3 class="panel-title">
@@ -252,12 +252,12 @@
                 </div>
                 <div class="panel-body">
                   <table class="table table-condensed">
-                    <tr ng-repeat="rj in runjobs[wfrun.url]" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
+                    <tr ng-repeat="rj in runjobs[wfrun.url] track by rj.url" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
                       <td>{{rj.job_name}}</td>
                       <td>
                         <span ng-show="rj.resource_uuid"><code>{{rj.resource_uuid.slice(0, 6)}}</code> {{resource_uuid_name_map[rj.resource_uuid] || "[DELETED]" }}</span>
                         <div ng-show="ui_showresults && rj.status == 4">
-                          <span ng-repeat="o in rj.outputs">
+                          <span ng-repeat="o in rj.outputs track by o.url">
                             <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
                           </span>
                         </div>
