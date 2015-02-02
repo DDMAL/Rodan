@@ -309,7 +309,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 };
             });
             $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': $scope.new_workflow_name}).success(function (wf) {
-                var j_ob = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_onebit'});
+                var j_gs = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
+                var j_bi = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.simple_binarise_interactive'});
                 var j_pm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
                 var j_dsp = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
                 var j_seg = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
@@ -318,7 +319,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 var j_pf = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.pitch_finding'});
 
                 $q.all([
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_ob.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_gs.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_bi.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pm.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_dsp.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url, 'job_settings': {'num_lines': 4, 'scanlines': 20, 'blackness': 0.8, 'tolerance': -1}}),
@@ -327,22 +329,25 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pf.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
-                    var wf_ob = things[0].data;
-                    var wf_pm = things[1].data;
-                    var wf_dsp = things[2].data;
-                    var wf_seg = things[3].data;
-                    var wf_slr = things[4].data;
-                    var wf_cls = things[5].data;
-                    var wf_pf = things[6].data;
-                    var rc = things[7].data;
+                    var wf_gs = things[0].data;
+                    var wf_bi = things[1].data;
+                    var wf_pm = things[2].data;
+                    var wf_dsp = things[3].data;
+                    var wf_seg = things[4].data;
+                    var wf_slr = things[5].data;
+                    var wf_cls = things[6].data;
+                    var wf_pf = things[7].data;
+                    var rc = things[8].data;
 
                     var j_cls_ipt_image = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Staffless Image'});
                     var j_cls_ipt_clsfier = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Classifier'});
                     var j_pf_ipt_image = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Segmented Image'});
                     var j_pf_ipt_clsf = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Classifier Result'});
                     $q.all([
-                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_ob.url, 'input_port_type': j_ob.input_port_types[0].url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_ob.url, 'output_port_type': j_ob.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_gs.url, 'input_port_type': j_gs.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_gs.url, 'output_port_type': j_gs.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_bi.url, 'input_port_type': j_bi.input_port_types[0].url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_bi.url, 'output_port_type': j_bi.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_pm.url, 'input_port_type': j_pm.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_pm.url, 'output_port_type': j_pm.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_dsp.url, 'input_port_type': j_dsp.input_port_types[0].url}),
@@ -358,25 +363,28 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_pf.url, 'input_port_type': j_pf_ipt_clsf.url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_pf.url, 'output_port_type': j_pf.output_port_types[0].url})
                     ]).then(function (things) {
-                        var ip_ob = things[0].data;
-                        var op_ob = things[1].data;
-                        var ip_pm = things[2].data;
-                        var op_pm = things[3].data;
-                        var ip_dsp = things[4].data;
-                        var op_dsp = things[5].data;
-                        var ip_seg = things[6].data;
-                        var op_seg = things[7].data;
-                        var ip_slr = things[8].data;
-                        var op_slr = things[9].data;
-                        var ip_cls_image = things[10].data;
-                        var ip_cls_clsfier = things[11].data;
-                        var op_cls = things[12].data;
-                        var ip_pf_image = things[13].data;
-                        var ip_pf_clsf = things[14].data;
-                        var op_pf = things[15].data;
+                        var ip_gs = things[0].data;
+                        var op_gs = things[1].data;
+                        var ip_bi = things[2].data;
+                        var op_bi = things[3].data;
+                        var ip_pm = things[4].data;
+                        var op_pm = things[5].data;
+                        var ip_dsp = things[6].data;
+                        var op_dsp = things[7].data;
+                        var ip_seg = things[8].data;
+                        var op_seg = things[9].data;
+                        var ip_slr = things[10].data;
+                        var op_slr = things[11].data;
+                        var ip_cls_image = things[12].data;
+                        var ip_cls_clsfier = things[13].data;
+                        var op_cls = things[14].data;
+                        var ip_pf_image = things[15].data;
+                        var ip_pf_clsf = things[16].data;
+                        var op_pf = things[17].data;
                         $q.all([
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_ob.url, 'resource_collection': rc.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_ob.url, 'input_port': ip_pm.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_gs.url, 'input_port': ip_bi.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_bi.url, 'input_port': ip_pm.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_dsp.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_dsp.url, 'input_port': ip_seg.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url}),
