@@ -148,7 +148,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
         self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
         self.assertEqual(self.test_resource1.processing_status, task_status.NOT_APPLICABLE)
-        self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
+        self.assertEqual(self.test_resource1.resource_type.mimetype, 'text/plain')
 
     def test_post_bad_image(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False):
