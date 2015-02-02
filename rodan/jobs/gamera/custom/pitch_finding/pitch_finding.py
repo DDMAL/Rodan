@@ -68,10 +68,10 @@ class PitchFindingTask(RodanTask):
             glyphs = gamera.gamera_xml.glyphs_from_xml(gamera_xml_path)
             recognized_glyphs = aomr_obj.run(glyphs)
             data = json.loads(recognized_glyphs)
-            mei_file = AomrMeiOutput(data, segmented_image_path, '')
+            mei_file = AomrMeiOutput(data, segmented_image_path, None)
         except AomrUnableToFindStavesError as e:
             #if something goes wrong, this will create an empty mei file (instead of crashing)
             print e
-            mei_file = AomrMeiOutput({}, segmented_image_path, '')
+            mei_file = AomrMeiOutput({}, segmented_image_path, None)
 
         pymei.write(mei_file.md, outputs['output'][0]['resource_path'])
