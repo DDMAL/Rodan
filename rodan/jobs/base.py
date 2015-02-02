@@ -223,13 +223,12 @@ class RodanTask(Task):
         """
         raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
 
-    #############################################
-    # Automatic phase -- running in Celery thread
-    #############################################
+
     class WAITING_FOR_INPUT(object):
         """
         As a possible return value of run_my_task() to indicate the interactive phase
-        of the job.
+        of the job, and return value of validate_my_user_input() to indicate the job
+        staying in interactive phase.
 
         It holds the settings that need to be updated. The name of the settings must
         start with "@" in order to be distinguished from original settings. Keys not
@@ -243,6 +242,9 @@ class RodanTask(Task):
                 if isinstance(k, basestring) and k.startswith('@'):
                     self.settings_update[k] = v
 
+    #############################################
+    # Automatic phase -- running in Celery thread
+    #############################################
     def run(self, runjob_id):
         """
         Code here are run asynchronously in Celery thread.

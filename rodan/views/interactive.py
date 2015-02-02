@@ -47,16 +47,21 @@ class InteractiveView(APIView):
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
-            settings_update = manual_task.validate_user_input(run_job_uuid, user_input)
+            retval = manual_task.validate_user_input(run_job_uuid, user_input)
         except APIException as e:
             raise e
 
-        runjob.status = task_status.SCHEDULED
-        runjob.error_summary = ''
-        runjob.error_details = ''
-        runjob.job_settings.update(settings_update)
-        runjob.save()
-
-        # call master_task to continue workflowrun
-        registry.tasks['rodan.core.master_task'].apply_async((runjob.workflow_run.uuid,))
+        if isinstance(retval, manual_task.WAITING_FOR_INPUT):
+            settings_update = retval.settings_update
+            runjob.job_settings.update(settings_update)
+            runjob.save()
+        else:
+            settings_update = retval
+            runjob.status = task_status.SCHEDULED
+            runjob.error_summary = ''
+            runjob.error_details = ''
+            runjob.job_settings.update(settings_update)
+            runjob.save()
+            # call master_task to continue workflowrun
+            registry.tasks['rodan.core.master_task'].apply_async((runjob.workflow_run.uuid,))
         return Response(status=status.HTTP_200_OK)
