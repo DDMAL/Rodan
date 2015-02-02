@@ -55,7 +55,7 @@ class RdnRotate(RodanTask):
         angle = user_input['angle']
         try:
             val = float(angle)
-        except ValueError:
+        except (TypeError, ValueError):
             raise self.ManualPhaseException("Invalid angle")
 
         return {'@angle': val}

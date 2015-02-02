@@ -50,24 +50,32 @@ class SimpleBinariseInteractive(RodanTask):
         }
         return (t, c)
 
-    validator = jsonschema.Draft4Validator({
-        "type": "object",
-        "required": ["threshold"],
-        "properties": {
-            "threshold": {
-                "type": "integer",
-                "minimum": 0   # inclusive
-            }
-        }
-    })
+    # [TODO] interface submit JSON instead of form-data
+    #validator = jsonschema.Draft4Validator({
+    #    "type": "object",
+    #    "required": ["threshold"],
+    #    "properties": {
+    #        "threshold": {
+    #            "type": "integer",
+    #            "minimum": 0   # inclusive
+    #        }
+    #    }
+    #})
     def validate_my_user_input(self, inputs, settings, user_input):
+        #try:
+        #    self.validator.validate(user_input)
+        #except jsonschema.exceptions.ValidationError as e:
+        #    raise self.ManualPhaseException(e.message)
+        if 'threshold' not in user_input:
+            raise self.ManualPhaseException("Threshold is required.")
+        threshold = user_input['threshold']
         try:
-            self.validator.validate(user_input)
-        except jsonschema.exceptions.ValidationError as e:
-            raise self.ManualPhaseException(e.message)
+            val = int(threshold)
+        except (TypeError, ValueError):
+            raise self.ManualPhaseException("Invalid threshold")
 
         return {
-            '@threshold': user_input['threshold']
+            '@threshold': val
         }
 
     def test_my_task(self, testcase):
