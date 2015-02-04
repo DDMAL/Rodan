@@ -320,6 +320,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
                 var j_cls = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.classification'});
                 var j_pf = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.pitch_finding'});
+                var j_neon = _.find($rootScope.jobs, function (j) { return j.job_name == 'neon'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_gs.url}),
@@ -330,6 +331,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_slr.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_cls.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pf.url}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_neon.url}),
                     $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
                     var wf_gs = things[0].data;
@@ -340,12 +342,15 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     var wf_slr = things[5].data;
                     var wf_cls = things[6].data;
                     var wf_pf = things[7].data;
-                    var rc = things[8].data;
+                    var wf_neon = things[8].data;
+                    var rc = things[9].data;
 
                     var j_cls_ipt_image = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Staffless Image'});
                     var j_cls_ipt_clsfier = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Classifier'});
                     var j_pf_ipt_image = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Segmented Image'});
                     var j_pf_ipt_clsf = _.find(j_pf.input_port_types, function (ipt) { return ipt.name == 'Classifier Result'});
+                    var j_neon_ipt_mei = _.find(j_neon.input_port_types, function (ipt) { return ipt.name == 'MEI'});
+                    var j_neon_ipt_bg = _.find(j_neon.input_port_types, function (ipt) { return ipt.name == 'Background Image'});
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_gs.url, 'input_port_type': j_gs.input_port_types[0].url}),
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_gs.url, 'output_port_type': j_gs.output_port_types[0].url}),
@@ -364,7 +369,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $http.post(ROOT + '/outputports/', {'workflow_job': wf_cls.url, 'output_port_type': j_cls.output_port_types[0].url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_pf.url, 'input_port_type': j_pf_ipt_image.url}),
                         $http.post(ROOT + '/inputports/', {'workflow_job': wf_pf.url, 'input_port_type': j_pf_ipt_clsf.url}),
-                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_pf.url, 'output_port_type': j_pf.output_port_types[0].url})
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_pf.url, 'output_port_type': j_pf.output_port_types[0].url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_neon.url, 'input_port_type': j_neon_ipt_mei.url}),
+                        $http.post(ROOT + '/inputports/', {'workflow_job': wf_neon.url, 'input_port_type': j_neon_ipt_bg.url}),
+                        $http.post(ROOT + '/outputports/', {'workflow_job': wf_neon.url, 'output_port_type': j_neon.output_port_types[0].url})
                     ]).then(function (things) {
                         var ip_gs = things[0].data;
                         var op_gs = things[1].data;
@@ -384,6 +392,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var ip_pf_image = things[15].data;
                         var ip_pf_clsf = things[16].data;
                         var op_pf = things[17].data;
+                        var ip_neon_mei = things[18].data;
+                        var ip_neon_bg = things[19].data;
+                        var op_neon = things[20].data;
                         $q.all([
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_gs.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_gs.url, 'input_port': ip_bi.url}),
@@ -394,7 +405,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                             $http.post(ROOT + '/connections/', {'output_port': op_slr.url, 'input_port': ip_cls_image.url}),
                             $http.post(ROOT + '/resourceassignments/', {'input_port': ip_cls_clsfier.url, 'resource': gamera_classifier_url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_cls.url, 'input_port': ip_pf_clsf.url}),
-                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_pf_image.url})
+                            $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_pf_image.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_pf.url, 'input_port': ip_neon_mei.url}),
+                            $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_neon_bg.url}),
                         ]).then(function (things) {
                             console.log('created!');
                         });
