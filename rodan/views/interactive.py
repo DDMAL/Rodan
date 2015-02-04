@@ -47,7 +47,7 @@ class InteractiveView(APIView):
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
-            setattr(user_input, 'url', additional_url)
+            user_input['__url__'] = additional_url  # HACK
             retval = manual_task.validate_user_input(run_job_uuid, user_input)
         except APIException as e:
             raise e
