@@ -98,7 +98,7 @@ urlpatterns += format_suffix_patterns(
              url(r'^resourceassignment/(?P<pk>[0-9a-f]{32})/$', ResourceAssignmentDetail.as_view(), name='resourceassignment-detail'),
              url(r'^resourcecollections/$', ResourceCollectionList.as_view(), name='resourcecollection-list'),
              url(r'^resourcecollection/(?P<pk>[0-9a-f]{32})/$', ResourceCollectionDetail.as_view(), name='resourcecollection-detail'),
-             url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/$', InteractiveView.as_view(), name='interactive'),
+             url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
          )
 )
 

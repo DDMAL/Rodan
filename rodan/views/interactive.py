@@ -34,7 +34,7 @@ class InteractiveView(APIView):
         c = RequestContext(request, context)
         return HttpResponse(template.render(c))
 
-    def post(self, request, run_job_uuid, *a, **k):
+    def post(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
         if runjob.status != task_status.WAITING_FOR_INPUT:
@@ -47,6 +47,7 @@ class InteractiveView(APIView):
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
+            setattr(user_input, 'url', additional_url)
             retval = manual_task.validate_user_input(run_job_uuid, user_input)
         except APIException as e:
             raise e
@@ -55,6 +56,8 @@ class InteractiveView(APIView):
             settings_update = retval.settings_update
             runjob.job_settings.update(settings_update)
             runjob.save()
+            if retval.response:
+                return HttpResponse(retval.response, status=status.HTTP_200_OK)
         else:
             settings_update = retval
             runjob.status = task_status.SCHEDULED

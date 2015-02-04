@@ -235,9 +235,12 @@ class RodanTask(Task):
         starting with "@" will be removed. Example:
 
             return self.WAITING_FOR_INPUT({'@field1': newVal1, '@field2': newVal2})
+
+        The `response` attribute is for the manual phase returning HTTP responses.
         """
-        def __init__(self, settings_update={}):
+        def __init__(self, settings_update={}, response=None):
             self.settings_update = {}
+            self.response = response
             for k, v in settings_update.iteritems():
                 if isinstance(k, basestring) and k.startswith('@'):
                     self.settings_update[k] = v
