@@ -86,6 +86,6 @@ class RunJob(models.Model):
     @property
     def interactive_relurl(self):
         if self.status == task_status.WAITING_FOR_INPUT:
-            return reverse('interactive', args=(self.uuid, ))
+            return reverse('interactive', args=(self.uuid, ''))
         else:
             return None
