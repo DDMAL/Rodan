@@ -39,7 +39,6 @@ class InteractiveView(APIView):
             return HttpResponse(template.render(c))
         else:
             # request for static files
-            # see http://stackoverflow.com/questions/2294507/how-to-return-static-files-passing-through-a-view-in-django
             ## find the path of the static file. Need to figure out the vendor module
             m = inspect.getmodule(manual_task)
             job_vendor_name = m.__name__[len('rodan.jobs.'):].split('.', 1)[0]   # e.g.: "gamera"
@@ -49,9 +48,9 @@ class InteractiveView(APIView):
                 raise Http404
             abspath = os.path.join(job_static_path, additional_url)
 
-            response = HttpResponse()
-            response['X-Sendfile'] = abspath
-            return response
+            fsock = open(abspath, 'rb')  # leave it open, let the gc deal with it
+            mime_type = mimetypes.guess_type(abspath)[0]
+            return HttpResponse(fsock, mimetype=mime_type)
 
     def post(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
