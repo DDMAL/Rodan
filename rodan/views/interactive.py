@@ -1,10 +1,11 @@
-import json, tempfile
+import json, tempfile, inspect, os
 from celery import registry
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.template import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -23,16 +24,33 @@ class InteractiveView(APIView):
     - `**kwargs` -- POST-only. Job settings.
     """
 
-    def get(self, request, run_job_uuid, *a, **k):
+    def get(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
         if runjob.status != task_status.WAITING_FOR_INPUT:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
         manual_task = registry.tasks[str(runjob.job_name)]
-        template, context = manual_task.get_interface(run_job_uuid)
-        c = RequestContext(request, context)
-        return HttpResponse(template.render(c))
+
+        if not additional_url:
+            # request for the interface
+            template, context = manual_task.get_interface(run_job_uuid)
+            c = RequestContext(request, context)
+            return HttpResponse(template.render(c))
+        else:
+            # request for static files
+            # see http://stackoverflow.com/questions/2294507/how-to-return-static-files-passing-through-a-view-in-django
+            ## find the path of the static file. Need to figure out the vendor module
+            m = inspect.getmodule(manual_task)
+            job_vendor_name = m.__name__[len('rodan.jobs.'):].split('.', 1)[0]   # e.g.: "gamera"
+            job_vendor_path = os.path.join(settings.PROJECT_PATH.rstrip(os.sep), 'jobs', job_vendor_name)  # e.g.: "/path/to/rodan/jobs/gamera"
+            if os.path.isabs(filename) or additional_url == '..' or additional_url.startswith('../'):  # prevent traversal (from flask https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py#L567-L591)
+                raise Http404
+            abspath = os.path.join(job_vendor_path, additional_url)
+
+            response = HttpResponse()
+            response['X-Sendfile'] = abspath
+            return response
 
     def post(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
@@ -47,8 +65,9 @@ class InteractiveView(APIView):
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
-            user_input['__url__'] = additional_url  # HACK
+            setattr(manual_task, 'url', additional_url)  # HACK
             retval = manual_task.validate_user_input(run_job_uuid, user_input)
+            del manual_task.url
         except APIException as e:
             raise e
 
