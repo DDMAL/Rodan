@@ -50,7 +50,7 @@ class InteractiveView(APIView):
 
             fsock = open(abspath, 'rb')  # leave it open, let the gc deal with it
             mime_type = mimetypes.guess_type(abspath)[0]
-            return HttpResponse(fsock, mimetype=mime_type)
+            return HttpResponse(fsock, content_type=mime_type)
 
     def post(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
