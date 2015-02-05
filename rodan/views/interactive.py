@@ -1,4 +1,4 @@
-import json, tempfile, inspect, os
+import json, tempfile, inspect, os, mimetypes
 from celery import registry
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
