@@ -44,9 +44,10 @@ class InteractiveView(APIView):
             m = inspect.getmodule(manual_task)
             job_vendor_name = m.__name__[len('rodan.jobs.'):].split('.', 1)[0]   # e.g.: "gamera"
             job_vendor_path = os.path.join(settings.PROJECT_PATH.rstrip(os.sep), 'jobs', job_vendor_name)  # e.g.: "/path/to/rodan/jobs/gamera"
+            job_static_path = os.path.join(job_vendor_path, 'static')  # e.g.: "/path/to/rodan/jobs/gamera/static"
             if os.path.isabs(filename) or additional_url == '..' or additional_url.startswith('../'):  # prevent traversal (from flask https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py#L567-L591)
                 raise Http404
-            abspath = os.path.join(job_vendor_path, additional_url)
+            abspath = os.path.join(job_static_path, additional_url)
 
             response = HttpResponse()
             response['X-Sendfile'] = abspath
