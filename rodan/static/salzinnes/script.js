@@ -481,6 +481,14 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         };
 
+        $scope.redo_runjob = function (rj) {
+            $http.patch(rj.url, {'status': 0})
+                .error(function (error) {
+                    console.log(error);
+                });
+        };
+
+
         $scope.packageResults = function (wfrun, mode) {
             var obj = {
                 'workflow_run': wfrun.url,

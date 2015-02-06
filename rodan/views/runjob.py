@@ -1,8 +1,15 @@
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework import status
+from rest_framework.response import Response
+from celery import registry
+
 import django_filters
+
 from rodan.models.runjob import RunJob
 from rodan.serializers.runjob import RunJobSerializer
+from rodan.constants import task_status
+from rodan.exceptions import CustomAPIException
 
 class RunJobList(generics.ListAPIView):
     """
@@ -28,8 +35,47 @@ class RunJobList(generics.ListAPIView):
 class RunJobDetail(generics.RetrieveAPIView):
     """
     Performs operations on a single RunJob instance.
+
+    #### Parameters
+    - `status` -- PATCH-only. An integer. Only Finished -> Scheduled --- to redo a
+      RunJob and its downstream RunJobs.
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
     queryset = RunJob.objects.all() # [TODO] filter according to the user?
+
+    def patch(self, request, *a, **k):
+        rj = self.get_object()
+        old_status = rj.status
+        new_status = request.data.get('status', None)
+
+        if old_status != task_status.FINISHED or new_status != task_status.SCHEDULED:
+            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            self._redo_runjobs(rj)
+            registry.tasks['rodan.core.master_task'].apply_async((rj.workflow_run.uuid.hex,))
+            updated_rj = self.get_object()
+            serializer = self.get_serializer(updated_rj)
+            return Response(serializer.data)
+
+    def _redo_runjobs(self, rj):
+        if rj.celery_task_id is not None:
+            revoke(celery_id, terminate=True)
+        if rj.status != task_status.SCHEDULED:
+            rj.status = task_status.SCHEDULED
+
+            # clear interactive data
+            original_settings = {}
+            for k, v in rj.job_settings.iteritems():
+                if not k.startswith('@'):
+                    original_settings[k] = v
+            rj.job_settings = original_settings
+
+            rj.save(update_fields=['status', 'job_settings'])
+            for o in rj.outputs.all():
+                r = o.resource
+                r.compat_resource_file = None
+                r.save(update_fields=['compat_resource_file'])
+                for i in r.inputs.filter(run_job__workflow_run=rj.workflow_run):
+                    self._redo_runjobs(i.run_job)
