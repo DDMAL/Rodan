@@ -23,6 +23,7 @@ class InteractiveView(APIView):
     #### Parameters
     - `**kwargs` -- POST-only. Job settings.
     """
+    authentication_classes = ()
 
     def get(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
