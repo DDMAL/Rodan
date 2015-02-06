@@ -105,6 +105,6 @@ class Segmentation(RodanTask):
         return (t, c)
 
     def validate_my_user_input(self, inputs, settings, user_input):
-        points = json.loads(user_input.get('polygon_outer_points'))
+        points = user_input['polygon_outer_points']
         # [TODO] validate input
         return {'@polygon_outer_points': points}

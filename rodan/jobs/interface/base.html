@@ -11,9 +11,8 @@
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-    <!-- [TODO]: CSS -->
-    <link rel="stylesheet" href="{{ STATIC_URL }}jobs/css/normalize.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}jobs/css/main.css">
+    <style>{% include 'interface/assets/normalize.css' %}</style>
+    <style>{% include 'interface/assets/main.css' %}</style>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -27,12 +26,7 @@
     <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
     <![endif]-->
 
-    {% block interface_content %}
+    {% block body %}
     {% endblock %}
-    <!-- id="form" is there because brian's javascript interactive job code depends on it -->
-    <form method="post" id="form">
-      {% block body %}
-      {% endblock %}
-    </form>
   </body>
 </html>

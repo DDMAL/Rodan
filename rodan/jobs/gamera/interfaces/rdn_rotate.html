@@ -1,171 +1,111 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-        <script>{% include 'gamera/interfaces/assets/jquery.knob.js' %}</script>
-        <script>{% include 'gamera/interfaces/assets/RKRotate.js' %}</script>
-        <style>
-            button
-            {
-                height: 21px;
+  <head>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script>{% include 'gamera/interfaces/assets/jquery.knob.js' %}</script>
+    <script>{% include 'gamera/interfaces/assets/RKRotate.js' %}</script>
+    <style>
+     button
+     {
+       height: 21px;
+     }
+     #currentAngleTextBox
+     {
+       width: 52px;
+       text-align: right;
+       display: inline-block;
             }
-            #currentAngleTextBox
-            {
-                width: 52px;
-                text-align: right;
-                display: inline-block;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Rotate</h1>
-        <p>
+    </style>
+  </head>
+  <body>
+    <h1>Rotate</h1>
+    <p>
             Use the dial, the text box, or click and drag on the image directly to choose a rotation angle.
-        </p>
-        <div class="knob-wrapper">
-            <input class="knob" id="rotateKnob" data-cursor=true data-thickness=".3"></input>
-        </div>
-        <div id="submitDiv">
-            <input type='text' id="currentAngleTextBox"></input><span>&deg;</span>
-            <button id="submitButton">Submit</button>
-        </div>
-        <!-- <div id="gridControls">
-            <button id="testButton">Test</button>
-        </div> -->
-        <div id="rotateView"></div>
-    </body>
-    <script type="text/javascript">
+    </p>
+    <div class="knob-wrapper">
+      <input class="knob" id="rotateKnob" data-cursor=true data-thickness=".3"></input>
+    </div>
+    <div id="submitDiv">
+      <input type='text' id="currentAngleTextBox"></input><span>&deg;</span>
+      <button id="submitButton">Submit</button>
+    </div>
+    <!-- <div id="gridControls">
+    <button id="testButton">Test</button>
+    </div> -->
+    <div id="rotateView"></div>
+  </body>
+  <script type="text/javascript">
 
-        $(document).ready(function() {
+   $(document).ready(function() {
+     var precisionMultiplier = 40;
 
-            var close_window_callback = function (jqxhr, textStatus) {
-              if (jqxhr.status === 200) {
-                top.window.close();
-              }
-            };
+     $("#rotateView").RKRotate({
+       imageUrl: "{{ image_url }}",
+       gridFadeTime: 800,
+       textBoxOutput: $('#currentAngleTextBox'),
+       controlOutput: $('#rotateKnob'),
+       controlOutputMultiplier: precisionMultiplier
+     });
 
-            //csrf stuff
-            function getCookie(name) {
-                  var cookieValue = null;
-                  if (document.cookie && document.cookie != '') {
-                   var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                      var cookie = jQuery.trim(cookies[i]);
-                      // Does this cookie string begin with the name we want?
-                      if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                          break;
-                      }
-                    }
-                  }
-                      return cookieValue;
-                 }
+     var rkRotate = $("#rotateView").data("RKRotate");
 
-            var csrftoken = getCookie('csrftoken');
+     $(".knob").knob({
+       'value': 0,
+       'width': 100,
+       'height': 100,
+       'displayPrevious': true,
+       'displayInput': false,
+       'min': 0,
+       'max': 360 * precisionMultiplier,
+       // 'step': 0.05,
+       'change': function(newValue) {
+         rkRotate.rotate(newValue / precisionMultiplier * Math.PI / 180);
+       }
+     });
 
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
+     $(".knob-wrapper").mousedown(function() {
+       rkRotate.showGrid();
+     });
 
-            function sameOrigin(url) {
-                // test that a given url is a same-origin URL
-                // url could be relative or scheme relative or absolute
-                var host = document.location.host; // host + port
-                var protocol = document.location.protocol;
-                var sr_origin = '//' + host;
-                var origin = protocol + sr_origin;
-                // Allow absolute or scheme relative URLs to same origin
-                return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                    (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                    // or any other URL that isn't scheme relative or absolute i.e relative.
-                    !(/^(\/\/|http:|https:).*/.test(url));
-            }
+     $(window).on('mouseup', function() {
+       rkRotate.hideGrid();
+     });
 
-            $.ajaxSetup({
-              beforeSend: function(xhr, settings) {
-                  if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-                      // Send the token to same-origin, relative URLs only.
-                      // Send the token only if the method warrants CSRF protection
-                      // Using the CSRFToken value acquired earlier
-                      xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                  }
-                }
-            });
+     $("#currentAngleTextBox").on('keypress', function(event) {
+       var keyPressed = event.keyCode || event.which,
+       enterKey = 13;
 
-            var precisionMultiplier = 40;
+       if (keyPressed === enterKey)
+       {
+         rkRotate.rotate(this.value * Math.PI / 180);
+       }
+     });
 
-            $("#rotateView").RKRotate({
-                imageUrl: "{{ image_url }}",
-                gridFadeTime: 800,
-                textBoxOutput: $('#currentAngleTextBox'),
-                controlOutput: $('#rotateKnob'),
-                controlOutputMultiplier: precisionMultiplier
-            });
+     $("#submitButton").on('click', function() {
+       $.ajax({
+         url: '',
+         type: 'POST',
+         data: JSON.stringify({angle: rkRotate.getCurrentAngle() * 180 / Math.PI}),
+         contentType: 'application/json',
+         complete: function () {
+           window.close();
+         }
+       });
+     });
 
-            var rkRotate = $("#rotateView").data("RKRotate");
+     $("#testButton").on('click', function() {
+       var swap = rkRotate.getGridBoxWidth();
 
-            $(".knob").knob({
-                'value': 0,
-                'width': 100,
-                'height': 100,
-                'displayPrevious': true,
-                'displayInput': false,
-                'min': 0,
-                'max': 360 * precisionMultiplier,
-                // 'step': 0.05,
-                'change': function(newValue) {
-                    rkRotate.rotate(newValue / precisionMultiplier * Math.PI / 180);
-                }
-            });
-
-            $(".knob-wrapper").mousedown(function()
-            {
-                rkRotate.showGrid();
-            });
-
-            $(window).on('mouseup', function()
-            {
-                rkRotate.hideGrid();
-            });
-
-            $("#currentAngleTextBox").on('keypress', function(event)
-            {
-                var keyPressed = event.keyCode || event.which,
-                    enterKey = 13;
-
-                if (keyPressed === enterKey)
-                {
-                    rkRotate.rotate(this.value * Math.PI / 180);
-                }
-            });
-
-            $("#submitButton").on('click', function()
-            {
-                $.ajax(window.location.href, {
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {angle: rkRotate.getCurrentAngle() * 180 / Math.PI
-                          },
-                    complete: close_window_callback
-                });
-
-            });
-
-            $("#testButton").on('click', function()
-            {
-                var swap = rkRotate.getGridBoxWidth();
-
-                rkRotate.setGridBoxWidth(rkRotate.getGridBoxHeight());
-                rkRotate.setGridBoxHeight(swap);
-                rkRotate.setGridFadeTime(200);
-                $('#rotateKnob')
-                    .val(180 * precisionMultiplier)
-                    .trigger('change');
-                $('#currentAngleTextBox').val(180);
-            });
-        });
-    </script>
+       rkRotate.setGridBoxWidth(rkRotate.getGridBoxHeight());
+       rkRotate.setGridBoxHeight(swap);
+       rkRotate.setGridFadeTime(200);
+       $('#rotateKnob')
+               .val(180 * precisionMultiplier)
+               .trigger('change');
+       $('#currentAngleTextBox').val(180);
+     });
+   });
+  </script>
 </html>

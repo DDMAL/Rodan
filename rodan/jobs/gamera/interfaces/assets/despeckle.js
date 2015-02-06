@@ -393,12 +393,21 @@
                 console.log(imageObj.width)
             }
         });
-        $('#form').submit(function () {
+
+        $('#submit').click(function () {
             var serialized_data = JSON.stringify({
                 'cc_size': defSize,
                 'image_width': imageObj.width
             });
-            $('#serialized-input').val(serialized_data);
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: serialized_data,
+                contentType: 'application/json',
+                complete: function () {
+                    window.close();
+                }
+            });
         });
     });
 })(jQuery)

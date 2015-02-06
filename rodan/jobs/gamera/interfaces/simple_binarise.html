@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "interface/base.html" %}
 
 {% block resources %}
 <script src="//d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.5.1.min.js"></script>
@@ -10,25 +10,21 @@
 
 {% block body %}
 <p>Adjust the slider until the foreground and background are separated</p>
-{% csrf_token %}
-<fieldset class="submit">
-    <input type="hidden" name="threshold" value="0" id="threshold-input" />
-    <input type="submit" name="submit" value="Binarise" class="submit" />
-</fieldset>
+<button id="submit">Binarise</button>
 
 <div id="slider"></div>
 <div class="images">
-    <div class="hidden">
-        <img id="image-full" src="{{ large_thumb_url }}"/>
-        <img id="image-thumb" src="{{ small_thumb_url }}"/>
-                <img id="image-mid" src="{{ large_thumb_url }}"/>
-    </div>
-        <div style="float:left" id="image-rightside">
-        <div id="image-miniframe"></div>
-                <canvas id="image-preview" alt="Image preview"></canvas>
-        </div>
-    <div style="float:left">
-        <canvas id="image-viewport" alt="Image viewport"></canvas>
-    </div>
+  <div class="hidden">
+    <img id="image-full" src="{{ large_thumb_url }}"/>
+    <img id="image-thumb" src="{{ small_thumb_url }}"/>
+    <img id="image-mid" src="{{ large_thumb_url }}"/>
+  </div>
+  <div style="float:left" id="image-rightside">
+    <div id="image-miniframe"></div>
+    <canvas id="image-preview" alt="Image preview"></canvas>
+  </div>
+  <div style="float:left">
+    <canvas id="image-viewport" alt="Image viewport"></canvas>
+  </div>
 </div>
 {% endblock %}

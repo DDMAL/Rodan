@@ -15,14 +15,14 @@
         globalThresh = 0;
         boxX = 0;
         boxY = 0;
-        
+
         //Image drawn to viewport
         imageObj = new Image();
         //Image used for brink thresholding
         imagePrev = new Image();
         //Image used for viewport controller
         imageThumb = new Image();
-        
+
         // Generates a PMF (Probability Mass Function) for the given image (required for Brink)
         function genPMF(imageO, canvas) {
             var canvas, context, i, imageData, data, pmf, brightness;
@@ -264,7 +264,7 @@
             canvas = document.getElementById("image-viewport");
             context = canvas.getContext("2d");
             bodyDOM = document.getElementsByTagName("body")[0];
-            
+
             function resizeWindow() {
                 viewWidth += $(window).height() - (canvas.offsetTop + viewWidth) - 10;
                 viewWidth = Math.min(imageObj.width, viewWidth);
@@ -279,11 +279,11 @@
                 boxY = viewBox.getY() / scaleVal;
                 binarise(imageObj, canvas, defThresh, boxX, boxY);
             }
-            
+
             window.onresize = resizeWindow;
-            
+
             resizeWindow();
-            
+
             pMouseDown = false;
 
             function pMoveBox(e) {
@@ -378,7 +378,7 @@
             $("#slider").width(viewWidth);
             imageThumb.src = $("#image-thumb").attr("src");
         };
-        
+
         imagePrev.onload = function () {
             var canvas, context, pmf;
             canvas = document.getElementById("image-preview");
@@ -408,8 +408,16 @@
             }
         });
 
-        $('#form').submit(function () {
-            $('#threshold-input').val(defThresh);
+        $('#submit').click(function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: JSON.stringify({'threshold': defThresh}),
+                contentType: 'application/json',
+                complete: function () {
+                    window.close();
+                }
+            });
         });
     });
 })(jQuery)

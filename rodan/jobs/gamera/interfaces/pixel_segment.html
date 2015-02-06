@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "interface/base.html" %}
 
 {% block resources %}
 <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.1.min.js"></script>
@@ -7,44 +7,45 @@
 {% endblock %}
 
 {% block body %}
-{% csrf_token %}
 <div style="padding: 1em; overflow: hidden; min-width: 1450px">
-    <div id="ui" style="float: left; width: 400px; margin-right: 5px; padding: 5px; background-color: #EEEEEE; border: 2px solid black; font-family: arial; font-size: 10pt;">
-        <div style="float: left; font-size: 16pt; width: 100%">Pixel Segmentation</div><br/>
-            <div>
-            <hr style="background: #333333; border:0; height:2px" />
-            <table>
-                <tbody>
-                    <tr>
-                        <th>State</th>
-                        <td id="state"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <input type="submit" name="submit" value="Submit" class="submit" />
-        </div>
+  <div id="ui" style="float: left; width: 400px; margin-right: 5px; padding: 5px; background-color: #EEEEEE; border: 2px solid black; font-family: arial; font-size: 10pt;">
+    <div style="float: left; font-size: 16pt; width: 100%">Pixel Segmentation</div><br/>
+    <div>
+      <hr style="background: #333333; border:0; height:2px" />
+      <table>
+        <tbody>
+          <tr>
+            <th>State</th>
+            <td id="state"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div id="container" style="float: left; border: 1px solid black; min-width: 1050px"></div>
-    <input type="hidden" name="geometries" value="" id="JSON-input" />
+    <div>
+      <input value="submit" class="submit" id="submit" />
+    </div>
+  </div>
+  <div id="container" style="float: left; border: 1px solid black; min-width: 1050px"></div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function()
-    {
-        var options = {
-            image: {source: "{{ image_url }}"}
-        };
-        $("#container").PixelSegmentation(options);
-        var instance = $("#container").data('PixelSegmentation');
-        $('#form').submit(function()
-        {
-            $('#JSON-input').val(function()
-            {
-                var geometries = instance.getGeometries();
-                return JSON.stringify(geometries);
-            });
-        });
-    });
+ $(document).ready(function() {
+   var options = {
+     image: {source: "{{ image_url }}"}
+   };
+   $("#container").PixelSegmentation(options);
+   var instance = $("#container").data('PixelSegmentation');
+
+   $('#submit').click(function () {
+     $.ajax({
+       url: '',
+       type: 'POST',
+       data: JSON.stringify({'geometries': instance.getGeometries()}),
+       contentType: 'application/json',
+       complete: function () {
+         window.close();
+       }
+     });
+   });
+ });
 </script>
 {% endblock %}

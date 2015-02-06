@@ -158,7 +158,7 @@
         return oCoords;
     }
 
-    //Setup
+    // setUp
     $(document).ready(function() {
         imageObj = new Image();
         //Calculate initial threshold with the Brink formula and draw binarized image
@@ -189,7 +189,7 @@
         //Image path (TO BE REPLACED LATER)
         imageObj.src = $("#image-original").attr("src");
 
-        $('#form').submit(function () {
+        $('#submit').click(function () {
             var points = logRect();
             var serialized_data = JSON.stringify({
                 'ulx': points[0],
@@ -198,7 +198,16 @@
                 'lry': points[3],
                 'imw': imageObj.width
             });
-            $('#serialized-input').val(serialized_data);
+
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: serialized_data,
+                contentType: 'application/json',
+                complete: function () {
+                    window.close();
+                }
+            });
         });
     });
 })(jQuery)
