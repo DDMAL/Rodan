@@ -40,7 +40,9 @@ def master_task(workflow_run_id):
         if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=task_status.FINISHED)).exists():
             # WorkflowRun has finished!
             WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=task_status.FINISHED)
-        return False
+            return "wfRun FINISHED"
+        else:
+            return "wfRun WAITING FOR INPUT"
     else:
         task_group = []
         runable_runjobs_query.update(status=task_status.PROCESSING)  # in test, tasks are executed synchronously, therefore update the status before dispatching the task
@@ -51,4 +53,4 @@ def master_task(workflow_run_id):
 
         async_task = chord(task_group)(master_task.si(workflow_run_id))
         runable_runjobs_query.update(celery_task_id=async_task.task_id)
-        return True
+        return "wfRun PROCESSING"

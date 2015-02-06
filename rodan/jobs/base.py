@@ -292,6 +292,7 @@ class RodanTask(Task):
                 runjob.error_summary = None
                 runjob.error_details = None
                 runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
+                return 'WAITING FOR INPUT'
             else:
                 # save outputs
                 for temppath, output in temppath_map.iteritems():
@@ -306,6 +307,7 @@ class RodanTask(Task):
                 runjob.error_summary = None
                 runjob.error_details = None
                 runjob.save(update_fields=['status', 'error_summary', 'error_details'])
+                return "FINISHED"
 
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()
