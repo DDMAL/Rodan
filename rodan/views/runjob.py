@@ -54,7 +54,10 @@ class RunJobDetail(generics.RetrieveAPIView):
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
         else:
             self._redo_runjobs(rj)
-            registry.tasks['rodan.core.master_task'].apply_async((rj.workflow_run.uuid.hex,))
+            wfrun = rj.workflow_run
+            registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
+            wfrun.status = task_status.RETRYING
+            wfrun.save(update_fields=['status'])
             updated_rj = self.get_object()
             serializer = self.get_serializer(updated_rj)
             return Response(serializer.data)
