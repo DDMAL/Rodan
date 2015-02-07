@@ -1,5 +1,8 @@
 from django.db import models
 from uuidfield import UUIDField
+from django.conf import settings
+import os
+import yaml
 
 _cache = {}
 
@@ -66,13 +69,19 @@ class ResourceType(models.Model):
 def load_predefined_resource_types():
     load = ResourceType.load  # short-hand
     load('application/octet-stream', 'Unknown type', '')  # RFC 2046
-    load('image/onebit+png', '', 'png')
-    load('image/greyscale+png', '', 'png')
-    load('image/grey16+png', '', 'png')
-    load('image/rgb+png', '', 'png')
-    load('application/mei+xml', '', 'mei')
-    load('image/jp2', 'jpeg2000', 'jp2')  # RFC 3745
     load('application/zip', 'Package', 'zip')
-    load('application/gamera+xml', 'Gamera classifier XML', 'xml')
     load('application/json', 'JSON', 'json')
     load('text/plain', 'Plain text', 'txt')
+
+    # load job vendor's types
+    job_path = os.path.join(settings.PROJECT_PATH, 'jobs')
+
+    for vendor in os.listdir(job_path):
+        vendor_path = os.path.join(job_path, vendor)
+        if os.path.isdir(vendor_path):
+            resource_type_path = os.path.join(vendor_path, 'resource_types.yaml')
+            if os.path.isfile(resource_type_path):
+                with open(resource_type_path, 'r') as f:
+                    resource_types = yaml.load(f)
+                    for rt in resource_types:
+                        load(rt['mimetype'], rt.get('description', ''), rt.get('extension', ''))

@@ -38,6 +38,7 @@ pyparsing==2.0.3
 pypng==0.0.17
 python-dateutil==2.2
 pytz==2014.7
+PyYAML==3.11
 readline==6.2.4.1
 six==1.8.0
 solrpy==0.9.6
