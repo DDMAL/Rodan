@@ -245,6 +245,15 @@ class RodanTask(Task):
                 if isinstance(k, basestring) and k.startswith('@'):
                     self.settings_update[k] = v
 
+    def tempdir(self):
+        """
+        A shortcut for all jobs.
+
+        Usage:
+            with self.tempdir() as tempdir:
+        """
+        return TemporaryDirectory()
+
     #############################################
     # Automatic phase -- running in Celery thread
     #############################################
@@ -266,7 +275,7 @@ class RodanTask(Task):
         settings = self._settings(runjob)
         inputs = self._inputs(runjob)
 
-        with TemporaryDirectory() as tmpdir:
+        with self.tempdir() as tmpdir:
             outputs = self._outputs(runjob, tmpdir)
 
             # build argument for run_my_task and mapping dictionary
