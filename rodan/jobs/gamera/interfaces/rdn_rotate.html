@@ -4,8 +4,8 @@
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-    <script>{% include 'gamera/interfaces/assets/jquery.knob.js' %}</script>
-    <script>{% include 'gamera/interfaces/assets/RKRotate.js' %}</script>
+    <script src="jquery.knob.js"></script>
+    <script src="RKRotate.js"></script>
     <style>
      button
      {
@@ -35,77 +35,77 @@
     <button id="testButton">Test</button>
     </div> -->
     <div id="rotateView"></div>
-  </body>
-  <script type="text/javascript">
+    <script type="text/javascript">
 
-   $(document).ready(function() {
-     var precisionMultiplier = 40;
+     $(document).ready(function() {
+       var precisionMultiplier = 40;
 
-     $("#rotateView").RKRotate({
-       imageUrl: "{{ image_url }}",
-       gridFadeTime: 800,
-       textBoxOutput: $('#currentAngleTextBox'),
-       controlOutput: $('#rotateKnob'),
-       controlOutputMultiplier: precisionMultiplier
-     });
+       $("#rotateView").RKRotate({
+         imageUrl: "{{ image_url }}",
+         gridFadeTime: 800,
+         textBoxOutput: $('#currentAngleTextBox'),
+         controlOutput: $('#rotateKnob'),
+         controlOutputMultiplier: precisionMultiplier
+       });
 
-     var rkRotate = $("#rotateView").data("RKRotate");
+       var rkRotate = $("#rotateView").data("RKRotate");
 
-     $(".knob").knob({
-       'value': 0,
-       'width': 100,
-       'height': 100,
-       'displayPrevious': true,
-       'displayInput': false,
-       'min': 0,
-       'max': 360 * precisionMultiplier,
-       // 'step': 0.05,
-       'change': function(newValue) {
-         rkRotate.rotate(newValue / precisionMultiplier * Math.PI / 180);
-       }
-     });
-
-     $(".knob-wrapper").mousedown(function() {
-       rkRotate.showGrid();
-     });
-
-     $(window).on('mouseup', function() {
-       rkRotate.hideGrid();
-     });
-
-     $("#currentAngleTextBox").on('keypress', function(event) {
-       var keyPressed = event.keyCode || event.which,
-       enterKey = 13;
-
-       if (keyPressed === enterKey)
-       {
-         rkRotate.rotate(this.value * Math.PI / 180);
-       }
-     });
-
-     $("#submitButton").on('click', function() {
-       $.ajax({
-         url: '',
-         type: 'POST',
-         data: JSON.stringify({angle: rkRotate.getCurrentAngle() * 180 / Math.PI}),
-         contentType: 'application/json',
-         complete: function () {
-           window.close();
+       $(".knob").knob({
+         'value': 0,
+         'width': 100,
+         'height': 100,
+         'displayPrevious': true,
+         'displayInput': false,
+         'min': 0,
+         'max': 360 * precisionMultiplier,
+         // 'step': 0.05,
+         'change': function(newValue) {
+           rkRotate.rotate(newValue / precisionMultiplier * Math.PI / 180);
          }
        });
-     });
 
-     $("#testButton").on('click', function() {
-       var swap = rkRotate.getGridBoxWidth();
+       $(".knob-wrapper").mousedown(function() {
+         rkRotate.showGrid();
+       });
 
-       rkRotate.setGridBoxWidth(rkRotate.getGridBoxHeight());
-       rkRotate.setGridBoxHeight(swap);
-       rkRotate.setGridFadeTime(200);
-       $('#rotateKnob')
-               .val(180 * precisionMultiplier)
-               .trigger('change');
-       $('#currentAngleTextBox').val(180);
+       $(window).on('mouseup', function() {
+         rkRotate.hideGrid();
+       });
+
+       $("#currentAngleTextBox").on('keypress', function(event) {
+         var keyPressed = event.keyCode || event.which,
+         enterKey = 13;
+
+         if (keyPressed === enterKey)
+         {
+           rkRotate.rotate(this.value * Math.PI / 180);
+         }
+       });
+
+       $("#submitButton").on('click', function() {
+         $.ajax({
+           url: '',
+           type: 'POST',
+           data: JSON.stringify({angle: rkRotate.getCurrentAngle() * 180 / Math.PI}),
+           contentType: 'application/json',
+           complete: function () {
+             window.close();
+           }
+         });
+       });
+
+       $("#testButton").on('click', function() {
+         var swap = rkRotate.getGridBoxWidth();
+
+         rkRotate.setGridBoxWidth(rkRotate.getGridBoxHeight());
+         rkRotate.setGridBoxHeight(swap);
+         rkRotate.setGridFadeTime(200);
+         $('#rotateKnob')
+                 .val(180 * precisionMultiplier)
+                 .trigger('change');
+         $('#currentAngleTextBox').val(180);
+       });
      });
-   });
-  </script>
+    </script>
+  </body>
 </html>

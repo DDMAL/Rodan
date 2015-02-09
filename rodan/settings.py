@@ -80,7 +80,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'rodan.urls'
 
 TEMPLATE_DIRS = (
-    PROJECT_PATH + '/jobs/',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

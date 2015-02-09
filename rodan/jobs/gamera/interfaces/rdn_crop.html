@@ -1,22 +1,40 @@
-{% extends "interface/base.html" %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
 
-{% block resources %}
-<script src="//d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.5.1.min.js"></script>
-<script>{% include 'gamera/interfaces/assets/Stats.js' %}</script>
-<script>{% include 'gamera/interfaces/assets/show_stats.js' %}</script>
-<script>{% include 'gamera/interfaces/assets/crop.js' %}</script>
-{% endblock %}
+    <!-- Place favicon.ico and apple-touch-icon.png in the static directory -->
+    <link rel="stylesheet" href='normalize.css' />
+    <link rel="stylesheet" href='main.css' />
 
-{% block body %}
-<fieldset>
-  <button id="submit">Crop</button>
-</fieldset>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 
-<div id="slider"></div>
-<div class="images">
-  <div class="hidden">
-    <img id="image-original" src="{{ image_url }}" />
-  </div>
-  <div id="image-preview"></div>
-</div>
-{% endblock %}
+
+    <script src="//d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.5.1.min.js"></script>
+    <script src="Stats.js"></script>
+    <script src="show_stats.js"></script>
+    <script src="crop.js"></script>
+  </head>
+  <body>
+    <fieldset>
+      <button id="submit">Crop</button>
+    </fieldset>
+
+    <div id="slider"></div>
+    <div class="images">
+      <div class="hidden">
+        <img id="image-original" src="{{ image_url }}" />
+      </div>
+      <div id="image-preview"></div>
+    </div>
+  </body>
+</html>
