@@ -221,7 +221,7 @@ class RodanTask(Task):
         `new_available_path()` which returns a path to a nonexist file. `test_my_task`
         method can thus create an input file and pass into the job code.
         """
-        raise NotImplementedError('{0}.test_my_task() is not implemented.'.format(type(self).__module__))
+        print 'WARNING: {0}.test_my_task() is not implemented.'.format(type(self).__module__)
 
 
     class WAITING_FOR_INPUT(object):
