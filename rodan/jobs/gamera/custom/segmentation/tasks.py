@@ -7,7 +7,6 @@ from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
 from rodan.jobs.gamera.custom.segmentation.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
-from django.template.loader import get_template
 
 
 class Segmentation(RodanTask):
@@ -96,7 +95,7 @@ class Segmentation(RodanTask):
             result_image.save_PNG(outputs['output'][0]['resource_path'])
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/segmentation.html')
+        t = 'interfaces/segmentation.html'
         c = {
             'image_url': inputs['input'][0]['large_thumb_url'],
             'polygon_outer_points': settings['@polygon_outer_points'],

@@ -5,7 +5,6 @@ from PIL import ImageDraw
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
 from gamera.plugins.threshold import threshold
-from django.template.loader import get_template
 
 fn = threshold
 i_type = argconvert.convert_input_type(fn.self_type)
@@ -43,7 +42,7 @@ class SimpleBinariseInteractive(RodanTask):
             result_image.save_PNG(outputs['output'][0]['resource_path'])
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/simple_binarise.html')
+        t = 'interfaces/simple_binarise.html'
         c = {
             'large_thumb_url': inputs['input'][0]['large_thumb_url'],
             'small_thumb_url': inputs['input'][0]['small_thumb_url'],

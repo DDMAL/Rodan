@@ -6,6 +6,7 @@ from rodan.constants import task_status
 from django.conf import settings as rodan_settings
 from django.core.files import File
 from django.db.models import Prefetch
+from django.template import Template
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
 
@@ -211,7 +212,7 @@ class RodanTask(Task):
         else:
             return None
     def _vendor_path(self):
-        return os.path.join(settings.PROJECT_PATH.rstrip(os.sep), 'jobs', self._vendor())  # e.g.: "/path/to/rodan/jobs/gamera"
+        return os.path.join(rodan_settings.PROJECT_PATH.rstrip(os.sep), 'jobs', self._vendor())  # e.g.: "/path/to/rodan/jobs/gamera"
 
     ########################
     # Test interface
@@ -372,10 +373,23 @@ class RodanTask(Task):
     # Manual phase -- running in Django thread
     ##########################################
     def get_interface(self, runjob_id):
+        global _django_template_cache
+
         runjob = RunJob.objects.get(uuid=runjob_id)
         inputs = self._inputs(runjob, with_urls=True)
         settings = self._settings(runjob)
-        return self.get_my_interface(inputs, settings)
+
+        partial_template_file, context = self.get_my_interface(inputs, settings)
+        template_file = os.path.join(self._vendor_path(), partial_template_file)
+
+        if template_file in _django_template_cache:
+            return (_django_template_cache[template_file], context)
+        else:
+            with open(template_file, 'r') as f:
+                t = Template(f.read())
+                _django_template_cache = t
+                return (t, context)
+
 
     def get_my_interface(self, inputs, settings):
         """
@@ -427,3 +441,6 @@ def TemporaryDirectory():
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     shutil.rmtree(temp_dir)
+
+
+_django_template_cache = {}

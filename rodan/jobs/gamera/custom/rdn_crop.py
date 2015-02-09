@@ -7,7 +7,6 @@ from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
 from rodan.jobs.gamera.base import ensure_pixel_type
 from gamera.toolkits.rodan_plugins.plugins.rdn_crop import rdn_crop
-from django.template.loader import get_template
 
 fn = rdn_crop.module.functions[0]
 i_type = argconvert.convert_input_type(fn.self_type)
@@ -49,7 +48,7 @@ class RdnCrop(RodanTask):
             result_image.save_PNG(outputs['output'][0]['resource_path'])
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/rdn_crop.html')
+        t = 'interfaces/rdn_crop.html'
         c = {
             'image_url': inputs['input'][0]['large_thumb_url'],
         }

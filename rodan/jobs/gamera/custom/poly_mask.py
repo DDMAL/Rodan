@@ -5,7 +5,6 @@ from PIL import Image
 from PIL import ImageDraw
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
-from django.template.loader import get_template
 
 
 class PolyMask(RodanTask):
@@ -55,7 +54,7 @@ class PolyMask(RodanTask):
             result_image.save_PNG(outputs['output'][0]['resource_path'])
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/poly_mask.html')
+        t = 'interfaces/poly_mask.html'
         c = {
             'image_url': inputs['input'][0]['large_thumb_url'],
             'image_width': settings['@image_width']

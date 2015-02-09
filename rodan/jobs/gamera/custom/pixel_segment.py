@@ -5,7 +5,6 @@ from gamera.plugins.pil_io import from_pil
 from PIL import ImageDraw
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
-from django.template.loader import get_template
 
 
 class PixelSegment(RodanTask):
@@ -173,7 +172,7 @@ class PixelSegment(RodanTask):
         return image
 
     def get_my_interface(self, inputs, settings):
-        t = get_template('gamera/interfaces/pixel_segment.html')
+        t = 'interfaces/pixel_segment.html'
         c = {
             'image_url': inputs['input'][0]['large_thumb_url']
         }
