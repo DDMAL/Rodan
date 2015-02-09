@@ -204,6 +204,15 @@ class RodanTask(Task):
 
         return rj_settings
 
+    def _vendor(self):
+        module_name = inspect.getmodule(self).__name__
+        if module_name.startswith('rodan.jobs.'):
+            return module_name[len('rodan.jobs.'):].split('.', 1)[0]
+        else:
+            return None
+    def _vendor_path(self):
+        return os.path.join(settings.PROJECT_PATH.rstrip(os.sep), 'jobs', self._vendor())  # e.g.: "/path/to/rodan/jobs/gamera"
+
     ########################
     # Test interface
     ########################
