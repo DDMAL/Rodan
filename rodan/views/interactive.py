@@ -49,9 +49,9 @@ class InteractiveView(APIView):
                 raise Http404
             abspath = os.path.join(job_static_path, additional_url)
 
-            fsock = open(abspath, 'rb')  # leave it open, let the gc deal with it
-            mime_type = mimetypes.guess_type(abspath)[0]
-            return HttpResponse(fsock, content_type=mime_type)
+            with open(abspath, 'rb') as fsock:
+                mime_type = mimetypes.guess_type(abspath)[0]
+                return HttpResponse(fsock, content_type=mime_type)
 
     def post(self, request, run_job_uuid, additional_url, *a, **k):
         # check runjob
