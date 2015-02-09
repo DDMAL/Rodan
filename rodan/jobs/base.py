@@ -232,7 +232,9 @@ class RodanTask(Task):
         """
         print 'WARNING: {0}.test_my_task() is not implemented.'.format(type(self).__module__)
 
-
+    #######################
+    # Utilities
+    #######################
     class WAITING_FOR_INPUT(object):
         """
         As a possible return value of run_my_task() to indicate the interactive phase
