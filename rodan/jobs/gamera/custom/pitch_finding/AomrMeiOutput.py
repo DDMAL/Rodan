@@ -100,14 +100,14 @@ class AomrMeiOutput(object):
         self.facsimile.addChild(self.surface)
         self.music.addChild(self.facsimile)
 
-        self.layout = self._create_layout_element()
-        self.pg = self._create_page_element()
-        if page_number:
-            # self.pg.attributes = {"n": page_number}
-            self.pg.addAttribute("n", page_number)
+        #self.layout = self._create_layout_element()
+        #self.pg = self._create_page_element()
+        #if page_number:
+        #    # self.pg.attributes = {"n": page_number}
+        #    self.pg.addAttribute("n", page_number)
 
-        self.layout.addChild(self.pg)
-        self.music.addChild(self.layout)
+        #self.layout.addChild(self.pg)
+        #self.music.addChild(self.layout)
 
         # self.body = mod.body_()
         self.body = MeiElement("body")
@@ -128,11 +128,11 @@ class AomrMeiOutput(object):
 
         # self.section = mod.section_()
         self.section = MeiElement("section")
-        self.pagebreak = self._create_pb_element()
+        #self.pagebreak = self._create_pb_element()
         # self.pagebreak.attributes = {"pageref": self.pg.id}
-        self.pagebreak.addAttribute("pageref", self.pg.id)
+        #self.pagebreak.addAttribute("pageref", self.pg.id)
 
-        self.section.addChild(self.pagebreak)
+        #self.section.addChild(self.pagebreak)
         self.score.addChild(self.section)
 
         self.staffgrp = self._create_staffgrp_element()
@@ -165,12 +165,7 @@ class AomrMeiOutput(object):
             z.addAttribute("lrx", str(self.system['coord'][2]))
             z.addAttribute("lry", str(self.system['coord'][3]))
             self.surface.addChild(z)
-            # self.system.facs = z.id
-            s = self._create_system_element()
-            s.facs = z.id
-            s.addAttribute("facs", s.facs)
-            self.pg.addChild(s)
-            self.systembreak.addAttribute("systemref", s.id)
+            self.systembreak.addAttribute("facs", z.id)
 
         self.mei.addChild(self.music)
 
