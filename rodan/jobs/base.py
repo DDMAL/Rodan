@@ -210,7 +210,7 @@ class RodanTask(Task):
         if module_name.startswith('rodan.jobs.'):
             return module_name[len('rodan.jobs.'):].split('.', 1)[0]
         else:
-            return None
+            raise ValueError('Invalid vendor: {0}'.format(module_name))
     def _vendor_path(self):
         return os.path.join(rodan_settings.PROJECT_PATH.rstrip(os.sep), 'jobs', self._vendor())  # e.g.: "/path/to/rodan/jobs/gamera"
 
@@ -380,6 +380,10 @@ class RodanTask(Task):
         settings = self._settings(runjob)
 
         partial_template_file, context = self.get_my_interface(inputs, settings)
+
+        if isinstance(partial_template_file, Template):   # only in dummy_manual_job!
+            return (partial_template_file, context)
+
         template_file = os.path.join(self._vendor_path(), partial_template_file)
 
         if template_file in _django_template_cache:
