@@ -9,6 +9,7 @@ from django.core.urlresolvers import resolve
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
@@ -219,7 +220,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             self._traversal(singleton_workflowjobs, wfjob)
 
 
-class WorkflowRunDetail(generics.RetrieveAPIView):
+class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
     """
     Performs operations on a single WorkflowRun instance.
 
@@ -236,39 +237,39 @@ class WorkflowRunDetail(generics.RetrieveAPIView):
         old_status = wfrun.status
         new_status = request.data.get('status', None)
 
-        if old_status in (task_status.PROCESSING, task_status.RETRYING) and new_status == task_status.CANCELLED:
-            runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))
-            runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
+        if new_status:
+            if old_status in (task_status.PROCESSING, task_status.RETRYING) and new_status == task_status.CANCELLED:
+                response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
 
-            for celery_id in runjobs_to_revoke_celery_id:
-                if celery_id is not None:
-                    revoke(celery_id, terminate=True)
-            runjobs_to_revoke_query.update(status=task_status.CANCELLED)
+                runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))
+                runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
 
-            serializer = self.get_serializer(wfrun, data={'status': task_status.CANCELLED}, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
-        elif old_status in (task_status.CANCELLED, task_status.FAILED) and new_status == task_status.RETRYING:
-            runjobs_to_retry_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED))
-            for rj in runjobs_to_retry_query:
-                rj.status = task_status.SCHEDULED
-                rj.error_summary = ''
-                rj.error_details = ''
-                original_settings = {}
-                for k, v in rj.job_settings.iteritems():
-                    if not k.startswith('@'):
-                        original_settings[k] = v
-                rj.job_settings = original_settings
-                rj.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
+                for celery_id in runjobs_to_revoke_celery_id:
+                    if celery_id is not None:
+                        revoke(celery_id, terminate=True)
+                runjobs_to_revoke_query.update(status=task_status.CANCELLED)
+                return response
+            elif old_status in (task_status.CANCELLED, task_status.FAILED) and new_status == task_status.RETRYING:
+                response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
 
-            registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
+                runjobs_to_retry_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED))
+                for rj in runjobs_to_retry_query:
+                    rj.status = task_status.SCHEDULED
+                    rj.error_summary = ''
+                    rj.error_details = ''
+                    original_settings = {}
+                    for k, v in rj.job_settings.iteritems():
+                        if not k.startswith('@'):
+                            original_settings[k] = v
+                    rj.job_settings = original_settings
+                    rj.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
 
-            serializer = self.get_serializer(wfrun, data={'status': task_status.RETRYING}, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
-        elif new_status is not None:
-            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+                registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
+
+                return Response(response)
+            elif new_status is not None:
+                raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+        else:  # not updating status
+            return self.partial_update(request, *args, **kwargs)

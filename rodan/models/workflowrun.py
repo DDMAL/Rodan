@@ -39,6 +39,9 @@ class WorkflowRun(models.Model):
     test_run = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.PROCESSING)
 
+    name = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

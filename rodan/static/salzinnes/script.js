@@ -489,6 +489,20 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
 
 
+        $scope.updateWorkflowRunName = function (wfrun) {
+            var new_name = $window.prompt('New WorkflowRun name: ', wfrun.name || '');
+            if (new_name) {
+                $http.patch(wfrun.url, {'name': new_name});
+            }
+        };
+        $scope.updateWorkflowRunDescription = function (wfrun) {
+            var new_desc = $window.prompt('New WorkflowRun description: ', wfrun.description || '');
+            if (new_desc) {
+                $http.patch(wfrun.url, {'description': new_desc});
+            }
+        };
+
+
         $scope.packageResults = function (wfrun, mode) {
             var obj = {
                 'workflow_run': wfrun.url,
