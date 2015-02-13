@@ -13,7 +13,7 @@ from rest_framework import permissions
 from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
 from rodan.constants import task_status
-
+import time
 
 class InteractiveView(APIView):
     """
@@ -34,10 +34,13 @@ class InteractiveView(APIView):
         manual_task = registry.tasks[str(runjob.job_name)]
 
         if not additional_url:
-            # request for the interface
+            # request for the interface. Track the time
             template, context = manual_task.get_interface(run_job_uuid)
             c = RequestContext(request, context)
-            return HttpResponse(template.render(c))
+            response = HttpResponse(template.render(c))
+            runjob.interactive_timings.append({'get': time.time()})
+            runjob.save(update_fields=['interactive_timings'])
+            return response
         else:
             # request for static files
             ## find the path of the static file. Need to figure out the vendor module
@@ -82,6 +85,7 @@ class InteractiveView(APIView):
             runjob.error_summary = ''
             runjob.error_details = ''
             runjob.job_settings.update(settings_update)
+            runjob.interactive_timings.append({'post': time.time()})
             runjob.save()
             # call master_task to continue workflowrun
             registry.tasks['rodan.core.master_task'].apply_async((runjob.workflow_run.uuid,))
