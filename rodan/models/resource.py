@@ -33,6 +33,7 @@ class Resource(models.Model):
 
     - `uuid`
     - `name` -- user-assigned name of this `Resource`.
+    - `description` -- description of this `Resource`.
     - `project` -- a reference to the `Project`.
 
     - `resource_file` -- original file uploaded by user. This can be null, if the
@@ -105,6 +106,7 @@ class Resource(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=200, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     project = models.ForeignKey('rodan.Project', related_name="resources")
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
