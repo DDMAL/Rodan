@@ -401,8 +401,9 @@ class RodanTask(Task):
         resource_path, resource_type, resource_url, small_thumb_url, medium_thumb_url,
         large_thumb_url
 
-        Should return: (template, context), template is a Django Template object,
-        and context should be a dictionary.
+        Should return: (template, context), template is the relative path (relative to
+        the path of vendor folder) to the interface HTML template file (in Django
+        template language), and context should be a dictionary.
 
         could raise self.ManualPhaseException
         """
