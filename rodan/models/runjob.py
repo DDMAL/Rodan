@@ -38,6 +38,7 @@ class RunJob(models.Model):
     - `error_details` -- details of error when the `RunJob` fails.
     - `created`
     - `updated`
+    - `interactive_timings` -- a JSON list that tracks the start and end of every manual phase of the job.
 
     **Properties**
 

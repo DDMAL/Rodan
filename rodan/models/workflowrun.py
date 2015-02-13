@@ -19,6 +19,10 @@ class WorkflowRun(models.Model):
     - `creator` -- a reference to the `User`.
     - `test_run` -- indicating if the `WorkflowRun` is a test run.
     - `status` -- indicating the status of the `WorkflowRun`.
+
+    - `name` -- user's name to the `WorkflowRun`.
+    - `description` -- user's description of the `WorkflowRun`.
+
     - `created`
     - `updated`
     """
