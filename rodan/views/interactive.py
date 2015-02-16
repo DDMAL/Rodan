@@ -35,7 +35,10 @@ class InteractiveView(APIView):
 
         if not additional_url:
             # request for the interface. Track the time
+            setattr(manual_task, 'params', request.query_params)  # Set additional information on the object
             template, context = manual_task.get_interface(run_job_uuid)
+            del manual_task.params
+
             c = RequestContext(request, context)
             response = HttpResponse(template.render(c))
             runjob.interactive_timings.append({'get': time.time()})
@@ -67,7 +70,7 @@ class InteractiveView(APIView):
 
         manual_task = registry.tasks[str(runjob.job_name)]
         try:
-            setattr(manual_task, 'url', additional_url)  # HACK
+            setattr(manual_task, 'url', additional_url)  # Set additional information on the object
             retval = manual_task.validate_user_input(run_job_uuid, user_input)
             del manual_task.url
         except APIException as e:
