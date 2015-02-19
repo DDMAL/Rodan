@@ -111,6 +111,10 @@ def create_thumbnails(resource_id):
         return False
 
 
+# if WITH_DIVA set, try to import conversion.to_jpeg2000 which may throw ImportError if kdu_compress or vips is not found.
+if getattr(settings, 'WITH_DIVA'):
+    from rodan.jobs.conversion import to_jpeg2000
+
 @task(name="rodan.core.create_diva")
 def create_diva(resource_id):
     if not getattr(settings, 'WITH_DIVA'):
