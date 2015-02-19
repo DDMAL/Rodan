@@ -39,7 +39,6 @@ MEDIA_URL = "/uploads/"
 # go clean up the code in these places.
 BASE_URL = 'http://localhost:8000'
 SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
-IIP_URL = 'http://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi'
 
 ###############################################################################
 ## Celery configuration
