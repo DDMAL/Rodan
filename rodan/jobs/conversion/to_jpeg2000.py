@@ -7,14 +7,14 @@ from rodan.jobs.base import RodanTask
 from django.conf import settings
 from distutils.spawn import find_executable
 
-# Find kdu_compress and vips upon loading
-BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS') or find_executable('kdu_compress')
+# Find kdu_compress and convert upon loading
+BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS', None) or find_executable('kdu_compress')
 if not BIN_KDU_COMPRESS:
     raise ImportError("cannot find kdu_compress")
 
-BIN_VIPS = getattr(settings, 'BIN_VIPS') or find_executable('vips')
-if not BIN_VIPS:
-    raise ImportError("cannot find vips")
+BIN_CONVERT = getattr(settings, 'BIN_CONVERT', None) or find_executable('convert')
+if not BIN_CONVERT:
+    raise ImportError("cannot find convert")
 
 
 class to_jpeg2000(RodanTask):
@@ -43,11 +43,15 @@ class to_jpeg2000(RodanTask):
             name, ext = os.path.splitext(name)
             tfile = os.path.join(tdir, "{0}.tiff".format(name))
 
-            subprocess.call([BIN_VIPS,
-                             "im_copy",
+            subprocess.call([BIN_CONVERT,
+                             "-compress", "None",
                              task_image,
                              tfile])
-            result_file = "{0}.jpx".format(name)
+            #subprocess.call([BIN_VIPS,
+            #                 "im_copy",
+            #                 task_image,
+            #                 tfile])
+            result_file = "{0}.jp2".format(name)
             output_file = os.path.join(tdir, result_file)
 
             subprocess.call([BIN_KDU_COMPRESS,
