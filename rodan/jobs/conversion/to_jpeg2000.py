@@ -4,13 +4,17 @@ import tempfile
 import shutil
 import os
 from rodan.jobs.base import RodanTask
+from django.conf import settings
+from distutils.spawn import find_executable
 
-PATH_TO_KDU = "/usr/local/bin/kdu_compress"
-PATH_TO_VIPS = "/usr/local/bin/vips"
-if not os.path.isfile(PATH_TO_KDU):
-    raise ImportError("file does not exist: {0}".format(PATH_TO_KDU))
-if not os.path.isfile(PATH_TO_VIPS):
-    raise ImportError("file does not exist: {0}".format(PATH_TO_VIPS))
+# Find kdu_compress and vips upon loading
+BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS') or find_executable('kdu_compress')
+if not BIN_KDU_COMPRESS:
+    raise ImportError("cannot find kdu_compress")
+
+BIN_VIPS = getattr(settings, 'BIN_VIPS') or find_executable('vips')
+if not BIN_VIPS:
+    raise ImportError("cannot find vips")
 
 
 class to_jpeg2000(RodanTask):
@@ -34,36 +38,33 @@ class to_jpeg2000(RodanTask):
     def run_my_task(self, inputs, settings, outputs):
         task_image = inputs['in'][0]['resource_path']
 
-        tdir = tempfile.mkdtemp()
-        name = os.path.basename(task_image)
-        name, ext = os.path.splitext(name)
-        tfile = os.path.join(tdir, "{0}.tiff".format(name))
+        with self.tempdir() as tdir:
+            name = os.path.basename(task_image)
+            name, ext = os.path.splitext(name)
+            tfile = os.path.join(tdir, "{0}.tiff".format(name))
 
-        subprocess.call([PATH_TO_VIPS,
-                         "im_copy",
-                         task_image,
-                         tfile])
-        result_file = "{0}.jpx".format(name)
-        output_file = os.path.join(tdir, result_file)
+            subprocess.call([BIN_VIPS,
+                             "im_copy",
+                             task_image,
+                             tfile])
+            result_file = "{0}.jpx".format(name)
+            output_file = os.path.join(tdir, result_file)
 
-        subprocess.call([PATH_TO_KDU,
-                         "-i", tfile,
-                         "-o", output_file,
-                         "-quiet",
-                         "Clevels=5",
-                         "Cblk={64,64}",
-                         "Cprecincts={256,256},{256,256},{128,128}",
-                         "Creversible=yes",
-                         "Cuse_sop=yes",
-                         "Corder=LRCP",
-                         "ORGgen_plt=yes",
-                         "ORGtparts=R",
-                         "-rate", "-,1,0.5,0.25"])
+            subprocess.call([BIN_KDU_COMPRESS,
+                             "-i", tfile,
+                             "-o", output_file,
+                             "-quiet",
+                             "Clevels=5",
+                             "Cblk={64,64}",
+                             "Cprecincts={256,256},{256,256},{128,128}",
+                             "Creversible=yes",
+                             "Cuse_sop=yes",
+                             "Corder=LRCP",
+                             "ORGgen_plt=yes",
+                             "ORGtparts=R",
+                             "-rate", "-,1,0.5,0.25"])
 
-        shutil.copyfile(output_file, outputs['out'][0]['resource_path'])
-        shutil.rmtree(tdir)
-
-        return True
+            shutil.copyfile(output_file, outputs['out'][0]['resource_path'])
 
     def test_my_task(self, testcase):
         inputs = {

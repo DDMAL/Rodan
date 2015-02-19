@@ -60,3 +60,20 @@ CELERY_RESULT_BACKEND = "amqp"
 #    'Set-Cookie',
 #    'Vary'
 #)
+
+###############################################################################
+## Rodan configuration
+###############################################################################
+WITH_DIVA = True
+
+# If None, Rodan will call `which kdu_compress` to find it.
+BIN_KDU_COMPRESS = None
+
+# If None, Rodan will call `which vips` to find it.
+BIN_VIPS = None
+
+# IIP Server URL
+IIPSRV_URL = '/fcgi-bin/iipsrv.fcgi'
+
+# IIP Server FILESYSTEM_PREFIX
+IIPSRV_FILESYSTEM_PREFIX = '/home/rodan/rodan_demo_data/'

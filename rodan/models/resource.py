@@ -132,6 +132,9 @@ class Resource(models.Model):
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
 
+        if getattr(settings, 'WITH_DIVA') and not os.path.exists(self.diva_path):
+            os.makedirs(self.diva_path)
+
         if self.resource_type != self.___original_resource_type:
             for ra in self.resource_assignments.all():
                 wf = ra.input_port.workflow_job.workflow
@@ -203,3 +206,24 @@ class Resource(models.Model):
         if self.has_thumb:
             return os.path.join(self.thumb_url,
                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+
+
+    @property
+    def diva_path(self):
+        return os.path.join(self.resource_path, "diva")
+
+    @property
+    def diva_jp2_path(self):
+        return os.path.join(self.diva_path, "image.jp2")
+
+    @property
+    def diva_json_path(self):
+        return os.path.join(self.diva_path, "measurement.json")
+
+    @property
+    def diva_jp2_url(self):
+        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_jp2_path, settings.MEDIA_ROOT))
+
+    @property
+    def diva_json_url(self):
+        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT))

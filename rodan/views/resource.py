@@ -85,7 +85,7 @@ class ResourceList(generics.ListCreateAPIView):
 
             resource_id = str(resource_obj.uuid)
             mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
-            (registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype) | registry.tasks['rodan.core.create_thumbnails'].si(resource_id)).apply_async()
+            registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype).apply_async()
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)

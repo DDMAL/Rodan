@@ -14,6 +14,7 @@ from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
 from rodan.jobs.base import RodanTask, TemporaryDirectory
+from diva_generate_json import GenerateJson
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"
@@ -45,7 +46,7 @@ class ensure_compatible(Task):
 
             if mimetype.startswith('image'):
                 self._task = registry.tasks['rodan.jobs.conversion.to_png']
-                self._task.run_my_task(inputs, [], outputs)
+                self._task.run_my_task(inputs, {}, outputs)
                 resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
             else:
                 shutil.copy(infile_path, tmpfile)
@@ -59,8 +60,11 @@ class ensure_compatible(Task):
                 resource_object = resource_query[0]
                 resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
                 compat_resource_file_path = resource_object.compat_resource_file.path
-                resource_query.update(compat_resource_file=compat_resource_file_path,
-                                      processing_status=new_processing_status)
+                resource_query.update(compat_resource_file=compat_resource_file_path)
+
+                registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
+                registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
+                resource_query.update(processing_status=new_processing_status)
         return True
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -76,7 +80,6 @@ class ensure_compatible(Task):
             resource_query.update(processing_status=task_status.FAILED,
                                   error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
                                   error_details=einfo.traceback)
-
 
 
 @task(name="rodan.core.create_thumbnails")
@@ -106,6 +109,39 @@ def create_thumbnails(resource_id):
         return True
     else:
         return False
+
+
+@task(name="rodan.core.create_diva")
+def create_diva(resource_id):
+    if not getattr(settings, 'WITH_DIVA'):
+        return False
+
+    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+    resource_object = resource_query[0]
+    mimetype = resource_object.resource_type.mimetype
+
+    if mimetype.startswith('image'):
+        inputs = {'in': [{
+            'resource_path': resource_object.compat_resource_file.path,
+            'resource_type': mimetype
+        }]}
+        outputs = {'out': [{
+            'resource_path': resource_object.diva_jp2_path,
+            'resource_type': 'image/jp2'
+        }]}
+
+        _task = registry.tasks['rodan.jobs.conversion.to_jpeg2000']
+        _task.run_my_task(inputs, {}, outputs)
+
+        gen = GenerateJson(input_directory=resource_object.diva_path,
+                           output_directory=resource_object.diva_path)
+        gen.title = 'measurement'
+        gen.generate()
+
+        return True
+    else:
+        return False
+
 
 
 class package_results(Task):
