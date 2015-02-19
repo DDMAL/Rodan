@@ -170,6 +170,9 @@ class RodanTask(Task):
                 d['small_thumb_url'] = r.small_thumb_url
                 d['medium_thumb_url'] = r.medium_thumb_url
                 d['large_thumb_url'] = r.large_thumb_url
+                d['diva_object_data'] = r.diva_json_url
+                d['diva_iip_server'] = getattr(rodan_settings, 'IIPSRV_URL')
+                d['diva_image_dir'] = r.diva_image_dir
 
             inputs[ipt_name].append(d)
         return inputs

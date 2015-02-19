@@ -221,8 +221,11 @@ class Resource(models.Model):
         return os.path.join(self.diva_path, "measurement.json")
 
     @property
-    def diva_jp2_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_jp2_path, settings.MEDIA_ROOT))
+    def diva_image_dir(self):
+        """
+        The relative path to IIP Server FILESYSTEM_PREFIX
+        """
+        return os.path.relpath(self.diva_path, getattr(settings, 'IIPSRV_FILESYSTEM_PREFIX', '/'))
 
     @property
     def diva_json_url(self):
