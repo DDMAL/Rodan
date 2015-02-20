@@ -320,7 +320,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
                 var j_cls = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.classification'});
                 var j_pf = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.pitch_finding'});
-                var j_neon = _.find($rootScope.jobs, function (j) { return j.job_name == 'neon'});
+                var j_neon = _.find($rootScope.jobs, function (j) { return j.job_name == 'neon.square_note_editor_with_meix'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_gs.url}),
