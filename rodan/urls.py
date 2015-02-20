@@ -30,7 +30,7 @@ from rodan.views.outputport import OutputPortList, OutputPortDetail
 from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
 from rodan.views.inputport import InputPortList, InputPortDetail
 from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
-from rodan.views.resource import ResourceList, ResourceDetail
+from rodan.views.resource import ResourceList, ResourceDetail, ResourceDetailDiva
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
@@ -101,6 +101,14 @@ urlpatterns += format_suffix_patterns(
              url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
          )
 )
+
+if settings.WITH_DIVA:
+    urlpatterns += format_suffix_patterns(
+        patterns('',
+                 url(r'^resource/(?P<pk>[0-9a-f]{32})/diva/$', ResourceDetailDiva.as_view(), name="resource-detail-diva"),
+             )
+    )
+
 
 # For serving stuff under MEDIA_ROOT in debug mode only
 if settings.DEBUG:

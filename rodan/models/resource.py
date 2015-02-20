@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from rodan.constants import task_status
 
 import logging
@@ -73,6 +74,8 @@ class Resource(models.Model):
     - `small_thumb_url` -- exposed URL of small thumbnail.
     - `medium_thumb_url` -- exposed URL of middle thumbnail.
     - `large_thumb_url` -- exposed URL of large thumbnail.
+
+    - `diva_viewer_relurl` -- exposed URL of diva.js image viewer
 
     **Methods**
 
@@ -230,3 +233,10 @@ class Resource(models.Model):
     @property
     def diva_json_url(self):
         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT))
+
+    @property
+    def diva_viewer_relurl(self):
+        if os.path.isfile(self.diva_jp2_path):
+            return reverse('resource-detail-diva', args=(self.uuid, ))
+        else:
+            return None

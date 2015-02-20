@@ -12,7 +12,9 @@ from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from django.db.models import Q
 from rodan.constants import task_status
-
+from django.http import Http404
+from django.conf import settings
+from django.shortcuts import render
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -101,3 +103,23 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = Resource.objects.all() # [TODO] filter according to the user?
+
+class ResourceDetailDiva(generics.RetrieveAPIView):
+    """
+    Get a diva viewer of the resource.
+    """
+    model = Resource
+    serializer_class = ResourceSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+    queryset = Resource.objects.all() # [TODO] filter according to the user?
+
+    def get(self, request, *a, **k):
+        resource = self.get_object()
+        if not resource.resource_type.mimetype.startswith('image'):
+            raise Http404
+        return render(request, 'diva.html', {
+            'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
+            'diva_object_data': resource.diva_json_url,
+            'diva_iip_server': settings.IIPSRV_URL,
+            'diva_image_dir': resource.diva_image_dir
+        }, content_type="text/html")

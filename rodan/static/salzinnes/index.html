@@ -113,7 +113,7 @@
                       <table ng-show="ui_showtypethumb">
                         <tr>
                           <td>
-                            <img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" /><em ng-show="!r.has_thumb">No thumbnail</em>
+                            <a ng-show="r.has_thumb" ng-href="{{ r.diva_viewer_url }}" target="_blank"><img ng-src="{{r.small_thumb}}" /></a><em ng-show="!r.has_thumb">No thumbnail</em>
                           </td>
                           <td><code>{{ resourcetypes_hash[r.resource_type].mimetype }}</code></td>
                         </tr>
