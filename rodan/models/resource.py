@@ -75,7 +75,13 @@ class Resource(models.Model):
     - `medium_thumb_url` -- exposed URL of middle thumbnail.
     - `large_thumb_url` -- exposed URL of large thumbnail.
 
-    - `diva_viewer_relurl` -- exposed URL of diva.js image viewer
+    - `diva_path` -- local path of diva data folder.
+    - `diva_jp2_path` -- local path of diva JPEG2000 file.
+    - `diva_json_path` -- local path of diva JSON measurement file.
+    - `diva_image_dir` -- the relative path to IIP server FILESYSTEM_PREFIX, exposed
+      to the client.
+    - `diva_json_url` -- exposed URL of JSON measurement file.
+    - `diva_viewer_relurl` -- exposed URL of diva.js image viewer.
 
     **Methods**
 
@@ -225,9 +231,6 @@ class Resource(models.Model):
 
     @property
     def diva_image_dir(self):
-        """
-        The relative path to IIP Server FILESYSTEM_PREFIX
-        """
         return os.path.relpath(self.diva_path, getattr(settings, 'IIPSRV_FILESYSTEM_PREFIX', '/'))
 
     @property
