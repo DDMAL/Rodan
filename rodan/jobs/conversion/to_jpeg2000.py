@@ -43,30 +43,28 @@ class to_jpeg2000(RodanTask):
             name, ext = os.path.splitext(name)
             tfile = os.path.join(tdir, "{0}.tiff".format(name))
 
-            subprocess.call([BIN_CONVERT,
-                             "-compress", "None",
-                             task_image,
-                             tfile])
-            #subprocess.call([BIN_VIPS,
-            #                 "im_copy",
-            #                 task_image,
-            #                 tfile])
+            subprocess.check_call([BIN_CONVERT,
+                                   "-depth", "8",         # output RGB
+                                   "-compress", "None",
+                                   task_image,
+                                   tfile])
             result_file = "{0}.jp2".format(name)
             output_file = os.path.join(tdir, result_file)
 
-            subprocess.call([BIN_KDU_COMPRESS,
-                             "-i", tfile,
-                             "-o", output_file,
-                             "-quiet",
-                             "Clevels=5",
-                             "Cblk={64,64}",
-                             "Cprecincts={256,256},{256,256},{128,128}",
-                             "Creversible=yes",
-                             "Cuse_sop=yes",
-                             "Corder=LRCP",
-                             "ORGgen_plt=yes",
-                             "ORGtparts=R",
-                             "-rate", "-,1,0.5,0.25"])
+
+            subprocess.check_call([BIN_KDU_COMPRESS,
+                                   "-i", tfile,
+                                   "-o", output_file,
+                                   "-quiet",
+                                   "Clevels=5",
+                                   "Cblk={64,64}",
+                                   "Cprecincts={256,256},{256,256},{128,128}",
+                                   "Creversible=yes",
+                                   "Cuse_sop=yes",
+                                   "Corder=LRCP",
+                                   "ORGgen_plt=yes",
+                                   "ORGtparts=R",
+                                   "-rate", "-,1,0.5,0.25"])
 
             shutil.copyfile(output_file, outputs['out'][0]['resource_path'])
 
