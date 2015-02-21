@@ -35,9 +35,7 @@ class InteractiveView(APIView):
 
         if not additional_url:
             # request for the interface. Track the time
-            setattr(manual_task, 'params', request.query_params)  # Set additional information on the object
             template, context = manual_task.get_interface(run_job_uuid)
-            del manual_task.params
 
             c = RequestContext(request, context)
             response = HttpResponse(template.render(c))
