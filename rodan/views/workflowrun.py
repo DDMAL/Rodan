@@ -269,7 +269,7 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
 
                 registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
 
-                return Response(response)
+                return response
             elif new_status is not None:
                 raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
             else:
