@@ -180,30 +180,30 @@ class Resource(models.Model):
 
     @property
     def small_thumb_url(self):
-        if not settings.WITH_DIVA:
-            if self.has_thumb:
+        if self.has_thumb:
+            if not settings.WITH_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.SMALL_THUMBNAIL))
-        else:
-            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
+            else:
+                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
 
     @property
     def medium_thumb_url(self):
-        if not settings.WITH_DIVA:
-            if self.has_thumb:
+        if self.has_thumb:
+            if not settings.WITH_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
-        else:
-            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
+            else:
+                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
 
     @property
     def large_thumb_url(self):
-        if not settings.WITH_DIVA:
-            if self.has_thumb:
+        if self.has_thumb:
+            if not settings.WITH_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.LARGE_THUMBNAIL))
-        else:
-            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
+            else:
+                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
 
 
     @property
