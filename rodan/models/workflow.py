@@ -6,7 +6,7 @@ from uuidfield import UUIDField
 
 class Workflow(models.Model):
     """
-    A `Workflow` is a container of jobs, their connections, and resource assignments.
+    A `Workflow` is a container of jobs and their connections.
 
     **Fields**
 

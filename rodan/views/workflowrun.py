@@ -12,8 +12,9 @@ from rest_framework import status
 from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.relations import HyperlinkedIdentityField
 
-from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, ResourceAssignment, Resource, Input, Output, OutputPort, InputPort, ResourceType
+from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, Resource, Input, Output, OutputPort, InputPort, ResourceType
 from rodan.serializers.user import UserSerializer
 from rodan.paginators.pagination import PaginationSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
@@ -32,6 +33,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
     #### Parameters
     - `workflow` -- GET-only. UUID(GET) or Hyperlink(POST) of a Workflow.
+    - `resource_assignments` -- POST-only. A JSON object. Keys are URLs of InputPorts
+      in the Workflow, and values are list of Resource URLs.
     """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
@@ -48,34 +51,110 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if not wf.valid:
             raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
 
+        ######################
+        # validate ResourceAssignments
+        if 'resource_assignments' not in self.request.data:
+            raise ValidationError({'resource_assignments': ['This field is required']})
+        resource_assignment_dict = self.request.data['resource_assignments']
+
+        if not isinstance(resource_assignment_dict, dict):
+            raise ValidationError({'resource_assignments': ['This field must be a JSON object']})
+        unsatisfied_ips = set(InputPort.objects.filter(workflow_job__in=serializer.validated_data['workflow'].workflow_jobs.all(), connections__isnull=True))
+        validated_resource_assignment_dict = {}
+        multiple_resource_set = None
+        for input_port, resources in resource_assignment_dict.iteritems():
+            # 1. InputPort is not satisfied
+            h_ip = HyperlinkedIdentityField(view_name="inputport-detail")
+            h_ip.queryset = InputPort.objects.all()
+            try:
+                ip = h_ip.to_internal_value(input_port)
+            except ValidationError as e:
+                e.detail = {'resource_assignments': {input_port: e.detail}}
+                raise e
+
+            if ip not in unsatisfied_ips:
+                raise ValidationError({'resource_assignments': {input_port: ['Assigned InputPort must be unsatisfied']}})
+            unsatisfied_ips.remove(ip)
+            types_of_ip = ip.input_port_type.resource_types.all()
+
+            # 2. Resources:
+            if not isinstance(resources, list):
+                raise ValidationError({'resource_assignments': {input_port: ['A list of resources is expected']}})
+
+            h_res = HyperlinkedIdentityField(view_name="resource-detail")
+            h_res.queryset = Resource.objects.all()
+            ress = []
+
+            for index, r in enumerate(resources):
+                try:
+                    ress.append(h_res.to_internal_value(r))
+                except ValidationError as e:
+                    e.detail = {'resource_assignments': {input_port: {index: e.detail}}}
+                    raise e
+
+
+            ## No empty resource set
+            if len(ress) == 0:
+                raise ValidationError({'resource_assignments': {input_port: ['It is not allowed to assign an empty resource set']}})
+
+            ## There must be at most one multiple resource set
+            if len(ress) > 1:
+                ress_set = set(map(lambda r: r.uuid, ress))
+                if not multiple_resource_set:
+                    multiple_resource_set = ress_set
+                else:
+                    if multiple_resource_set != ress_set:
+                        raise ValidationError({'resource_assignments': {input_port: ['It is not allowed to assign multiple resource sets']}})
+
+            ## Resource must be in project and resource types are matched
+            for index, res in enumerate(ress):
+                if res.project != serializer.validated_data['workflow'].project:
+                    raise ValidationError({'resource_assignments': {input_port: {index: ['Resource is not in the project of Workflow']}}})
+
+                if not res.compat_resource_file:
+                    raise ValidationError({'resource_assignments': {input_port: {index: ['The compatible resource file is not ready']}}})
+
+                type_of_res = res.resource_type
+                if type_of_res not in types_of_ip:
+                    raise ValidationError({'resource_assignments': {input_port: {index: ['The resource type does not match the InputPort']}}})
+
+            validated_resource_assignment_dict[ip] = ress
+
+        # Still we have unsatisfied input ports
+        if unsatisfied_ips:
+            raise ValidationError({'resource_assignments': ['There are still unsatisfied InputPorts: {0}'.format(
+                ' '.join([h_ip.get_url(ip, 'inputport-detail', self.request, None) for ip in unsatisfied_ips])
+            )]})
+        ###############
+
         wfrun = serializer.save(creator=self.request.user, project=wf.project, workflow_name=wf.name)
         wfrun_id = str(wfrun.uuid)
         test_run = serializer.validated_data.get('test_run', False)
-        self._create_workflow_run(wf, wfrun, test_run)
+        self._create_workflow_run(wf, wfrun, test_run, validated_resource_assignment_dict)
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
-    def _create_workflow_run(self, workflow, workflow_run, test_run):
+    def _create_workflow_run(self, workflow, workflow_run, test_run, resource_assignment_dict):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
-        singleton_workflowjobs = self._singleton_workflow_jobs(workflow)
+        singleton_workflowjobs = self._singleton_workflow_jobs(workflow, resource_assignment_dict)
         workflowjob_runjob_map = {}
 
-        rc_multiple = None
-        for rc in workflow.resource_collections.all():
-            if rc.resources.count() > 1:
-                rc_multiple = rc
+        ress_multiple = None
+        for ip, ress in resource_assignment_dict.iteritems():
+            if len(ress) > 1:
+                ress_multiple = ress
+                break
 
-        if rc_multiple:
-            resources = rc_multiple.resources.all()
-            for res in resources:
-                self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res)
+        if ress_multiple:
+            for res in ress_multiple:
+                self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res, resource_assignment_dict)
                 if test_run:
-                    break
+                    break    # only create one of them
         else:
-            self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None)
+            self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None, resource_assignment_dict)
 
-    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, arg_resource):
+    def _runjob_creation_loop(self, endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, arg_resource, resource_assignment_dict):
         for wfjob in endpoint_workflowjobs:
-            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run, arg_resource)
+            self._create_runjobs(wfjob, workflowjob_runjob_map, workflow_run, arg_resource, resource_assignment_dict)
 
         workflow_job_iteration = {}
 
@@ -86,7 +165,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             if wfjob not in singleton_workflowjobs:
                 del workflowjob_runjob_map[wfjob]
 
-    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, arg_resource):
+    def _create_runjobs(self, wfjob_A, workflowjob_runjob_map, workflow_run, arg_resource, resource_assignment_dict):
         if wfjob_A in workflowjob_runjob_map:
             return workflowjob_runjob_map[wfjob_A]
 
@@ -96,7 +175,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
         for conn in incoming_connections:
             wfjob_B = conn.output_workflow_job
-            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, arg_resource)
+            runjob_B = self._create_runjobs(wfjob_B, workflowjob_runjob_map, workflow_run, arg_resource, resource_assignment_dict)
 
             associated_output = Output.objects.get(output_port=conn.output_port,
                                                    run_job=runjob_B)
@@ -107,24 +186,17 @@ class WorkflowRunList(generics.ListCreateAPIView):
                   resource=associated_output.resource).save()
 
         # entry inputs
-        for ip in InputPort.objects.filter(workflow_job=wfjob_A):
-            try:
-                ra = ResourceAssignment.objects.get(input_port=ip)
-            except ResourceAssignment.DoesNotExist:
-                ra = None
-
-            if ra:
-                if ra.resource_collection:
-                    if ra.resource_collection.resources.count() > 1:
-                        entry_res = arg_resource
-                    else:
-                        entry_res = ra.resource_collection.resources.first()
+        for wfj_ip in wfjob_A.input_ports.all():
+            if wfj_ip in resource_assignment_dict:
+                ress = resource_assignment_dict[wfj_ip]
+                if len(ress) > 1:
+                    entry_res = arg_resource
                 else:
-                    entry_res = ra.resource
+                    entry_res = ress[0]
 
                 Input(run_job=runjob_A,
-                      input_port=ra.input_port,
-                      input_port_type_name=ra.input_port.input_port_type.name,
+                      input_port=wfj_ip,
+                      input_port_type_name=wfj_ip.input_port_type.name,
                       resource=entry_res).save()
 
         # Determine ResourceType of the outputs of RunJob A.
@@ -178,7 +250,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             resource.description = """Generated by workflow {0}.
 Output of {1}:{2}
 """.format(workflow_run.workflow_name, run_job.job_name, output.output_port_type_name)   # [TODO] could be better described.
-            if arg_resource:   # resource collection identifier
+            if arg_resource:   # which resource in multiple resources?
                 resource.name = arg_resource.name
             else:
                 resource.name = 'Output of workflow {0}'.format(workflow_run.workflow_name)  # assign a name for it
@@ -199,18 +271,16 @@ Output of {1}:{2}
 
         return endpoint_workflowjobs
 
-    def _singleton_workflow_jobs(self, workflow):
+    def _singleton_workflow_jobs(self, workflow, resource_assignment_dict):
         singleton_workflowjobs = []
 
         for wfjob in WorkflowJob.objects.filter(workflow=workflow):
             singleton_workflowjobs.append(wfjob)
 
-        resource_collections = workflow.resource_collections.all()
-        for rc in resource_collections:
-            if rc.resources.count() > 1:
-                for ra in rc.resource_assignments.all():
-                    initial_wfjob = WorkflowJob.objects.get(input_ports=ra.input_port)
-                    self._traversal(singleton_workflowjobs, initial_wfjob)
+        for ip, ress in resource_assignment_dict.iteritems():
+            if len(ress) > 1:
+                initial_wfjob = ip.workflow_job
+                self._traversal(singleton_workflowjobs, initial_wfjob)
 
         return singleton_workflowjobs
 

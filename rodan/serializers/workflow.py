@@ -1,6 +1,6 @@
 import itertools
 import jsonschema
-from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, ResourceCollection, ResourceAssignment, Connection, Job, InputPortType, OutputPortType
+from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType
 from rest_framework import serializers
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer
@@ -131,7 +131,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
 
     schema = {
         "type": "object",
-        "required": ["__version__", "name", "workflow_jobs", "resource_collections", "connections", "resource_assignments"],
+        "required": ["__version__", "name", "workflow_jobs", "connections"],
         "properties": {
             "__version__": {"type": "number"},
             "name": {"type": "string"},
@@ -174,17 +174,6 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 },
                 "uniqueItems": True
             },
-            "resource_collections": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "required": ["id"],
-                    "properties": {
-                        "id": {"type": "number"}
-                    },
-                    "uniqueItems": True
-                }
-            },
             "connections": {
                 "type": "array",
                 "items": {
@@ -193,18 +182,6 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                     "properties": {
                         "input_port": {"type": "number"},
                         "output_port": {"type": "number"}
-                    },
-                    "uniqueItems": True
-                }
-            },
-            "resource_assignments": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "required": ["input_port", "resource_collection"],
-                    "properties": {
-                        "input_port": {"type": "number"},
-                        "resource_collection": {"type": "number"}
                     },
                     "uniqueItems": True
                 }
@@ -239,44 +216,25 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             except jsonschema.exceptions.ValidationError as e:
                 raise self.ValidationError({'workflow_jobs[{0}].job_settings'.format(i_wfj): 'Job settings is invalid: {0}.'.format(str(e))})
 
-        for i_rc, rc in enumerate(serialized['resource_collections']):
-            if rc['id'] in rc_ids:
-                raise self.ValidationError({'resource_collections[{0}]'.format(i_rc): 'Duplicate ResourceCollection ID found.'})
-            rc_ids.add(rc['id'])
         for i_conn, conn in enumerate(serialized['connections']):
             if conn['input_port'] not in ip_ids:
                 raise self.ValidationError({'connections[{0}].input_port'.format(i_conn): 'Referencing an invalid InputPort ID.'})
             if conn['output_port'] not in op_ids:
                 raise self.ValidationError({'connections[{0}].output_port'.format(i_conn): 'Referencing an invalid OutputPort ID.'})
-        for i_ra, ra in enumerate(serialized['resource_assignments']):
-            if ra['input_port'] not in ip_ids:
-                raise self.ValidationError({'resource_assignments[{0}].input_port'.format(i_ra): 'Referencing an invalid InputPort ID.'})
-            if ra['resource_collection'] not in rc_ids:
-                raise self.ValidationError({'resource_assignments[{0}].resource_collection'.format(i_ra): 'Referencing an invalid ResourceCollection ID.'})
 
     def dump(self, wf):
         rep = {
             '__version__': self.__version__,
             'name': wf.name,
             'workflow_jobs': [],
-            'resource_collections': [],
-            'connections': [],
-            'resource_assignments': []
+            'connections': []
         }
         if wf.description:
             rep['description'] = wf.description
 
         ip_map = {}
         op_map = {}
-        rc_map = {}
         ids = itertools.count(start=1, step=1)
-
-        for i, rc in enumerate(wf.resource_collections.all()):
-            rc_map[rc.uuid.hex] = ids.next()
-            rep_rc = {
-                'id': rc_map[rc.uuid.hex]
-            }
-            rep['resource_collections'].append(rep_rc)
 
         for wfj in wf.workflow_jobs.all():
             rep_wfj = {
@@ -294,21 +252,6 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                     'id': ip_map[ip.uuid.hex]
                 }
                 rep_wfj['input_ports'].append(rep_ip)
-                for ra in ip.resource_assignments.all():
-                    rep_ra = {
-                        'input_port': ip_map[ip.uuid.hex]
-                    }
-                    if ra.resource_collection:
-                        rep_ra['resource_collection'] = rc_map[ra.resource_collection.uuid.hex]
-                    elif ra.resource:
-                        # transform into resource collection
-                        transformed_rc_id = ids.next()
-                        rep_rc = {
-                            'id': transformed_rc_id
-                        }
-                        rep['resource_collections'].append(rep_rc)
-                        rep_ra['resource_collection'] = transformed_rc_id
-                    rep['resource_assignments'].append(rep_ra)
 
             for op in wfj.output_ports.all():
                 op_map[op.uuid.hex] = ids.next()
@@ -337,11 +280,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                                      valid=False)
         ip_map = {}
         op_map = {}
-        rc_map = {}
-        for rc_s in serialized['resource_collections']:
-            # set up empty resource collections
-            rc = ResourceCollection.objects.create(workflow=wf)
-            rc_map[rc_s['id']] = rc
+
         for wfj_s in serialized['workflow_jobs']:
             j = Job.objects.get(job_name=wfj_s['job_name'])
             wfj = WorkflowJob.objects.create(workflow=wf,
@@ -360,9 +299,6 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         for conn_s in serialized['connections']:
             conn = Connection.objects.create(output_port=op_map[conn_s['output_port']],
                                              input_port=ip_map[conn_s['input_port']])
-        for ra_s in serialized['resource_assignments']:
-            ra = ResourceAssignment.objects.create(resource_collection=rc_map[ra_s['resource_collection']],
-                                                   input_port=ip_map[conn_s['input_port']])
         return wf
 
 

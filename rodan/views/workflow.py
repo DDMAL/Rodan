@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from rodan.paginators.pagination import PaginationSerializer
-from rodan.models import Workflow, ResourceAssignment, InputPort, OutputPort, ResourceCollection
+from rodan.models import Workflow, InputPort, OutputPort
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
 from rodan.exceptions import CustomAPIException
 from django.conf import settings
@@ -108,12 +108,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if ip.input_port_type.job != ip.workflow_job.job:
                 raise WorkflowValidationError('InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(ip.uuid))
 
-            number_of_connection = ip.connections.count()
-            number_of_resource_assignment = ip.resource_assignments.count()
-            if number_of_connection + number_of_resource_assignment > 1:
-                raise WorkflowValidationError('InputPort {0} has more than one Connection or ResourceAssignment'.format(ip.uuid))
-            elif number_of_connection + number_of_resource_assignment == 0:
-                raise WorkflowValidationError('InputPort {0} has no Connection or ResourceAssignment'.format(ip.uuid))
+            if ip.connections.count() > 1:
+                raise WorkflowValidationError('InputPort {0} has multiple Connections'.format(ip.uuid))
 
         # validate OutputPorts
         output_ports = OutputPort.objects.filter(workflow_job__workflow=workflow)
@@ -127,33 +123,6 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 resource_type_set = resource_type_set.intersection(in_type_set)
                 if not set(resource_type_set):
                     raise WorkflowValidationError('There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid))
-
-        # validate ResourceCollections
-        resource_collections = ResourceCollection.objects.filter(workflow=workflow)
-        multiple_resources_found = False
-        for rc in resource_collections:
-            if rc.resources.count() == 0:
-                raise WorkflowValidationError("ResourceCollection {0} has no resources.".format(rc.uuid.hex))
-            elif rc.resources.count() > 1:
-                if multiple_resources_found:
-                    raise WorkflowValidationError("Multiple resource collections found.")
-                multiple_resources_found = True
-
-        # validate ResourceAssignments
-        resource_assignments = ResourceAssignment.objects.filter(input_port__workflow_job__workflow=workflow)
-        for ra in resource_assignments:
-            ip = ra.input_port
-            types_of_ip = ip.input_port_type.resource_types.all()
-            if ra.resource:
-                resources = (ra.resource, )
-            else:
-                resources = ra.resource_collection.resources.all()
-            for res in resources:
-                if not res.compat_resource_file:
-                    raise WorkflowValidationError('The compatible resource file of resource {0} is not ready'.format(res.uuid))
-                type_of_res = res.resource_type
-                if type_of_res not in types_of_ip:
-                    raise WorkflowValidationError('The type of resource {0} assigned does not agree with InputPort {1}'.format(res.uuid, ip.uuid))
 
         # graph validation
         ## Step 0

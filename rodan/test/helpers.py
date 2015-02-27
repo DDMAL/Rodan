@@ -7,6 +7,10 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 
 class RodanTestSetUpMixin(object):
+    def url(self, obj):
+        model_name = obj.__class__.__name__.lower()
+        return "http://testserver/{0}/{1}/".format(model_name, obj.uuid.hex)
+
     def setUp_rodan(self):
         # ResourceTypes
         load_predefined_resource_types()
@@ -43,10 +47,6 @@ class RodanTestSetUpMixin(object):
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
-        self.test_resources = mommy.make('rodan.Resource', _quantity=10,
-                                         project=self.test_project,
-                                         compat_resource_file="dummy",
-                                         resource_type=ResourceType.cached('test/a1'))
 
         # build this graph: test_workflowjob --> test_workflowjob2
         self.test_workflowjob = mommy.make('rodan.WorkflowJob',
@@ -59,12 +59,6 @@ class RodanTestSetUpMixin(object):
         outputport = mommy.make('rodan.OutputPort',
                                 workflow_job=self.test_workflowjob,
                                 output_port_type=self.test_outputporttype)
-        test_resourcecollection = mommy.make('rodan.ResourceCollection',
-                                             workflow=self.test_workflow)
-        test_resourcecollection.resources.add(*self.test_resources)
-        test_resourceassignment = mommy.make('rodan.ResourceAssignment',
-                                             input_port=inputport,
-                                             resource_collection=test_resourcecollection)
 
         test_connection = mommy.make('rodan.Connection',
                                      output_port=outputport,
@@ -88,10 +82,6 @@ class RodanTestSetUpMixin(object):
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
-        self.test_resource = mommy.make('rodan.Resource',
-                                        project=self.test_project,
-                                        compat_resource_file="dummy",
-                                        resource_type=ResourceType.cached('test/a1'))
 
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
         self.dummy_a_wfjob = mommy.make('rodan.WorkflowJob',
@@ -101,12 +91,10 @@ class RodanTestSetUpMixin(object):
         inputport_a = mommy.make('rodan.InputPort',
                                  workflow_job=self.dummy_a_wfjob,
                                  input_port_type=dummy_a_job.input_port_types.first())
+        self.test_inputport_a = inputport_a
         outputport_a = mommy.make('rodan.OutputPort',
                                   workflow_job=self.dummy_a_wfjob,
                                   output_port_type=dummy_a_job.output_port_types.first())
-        resourceassignment = mommy.make('rodan.ResourceAssignment',
-                                        input_port=inputport_a,
-                                        resource=self.test_resource)
 
         self.dummy_m_wfjob = mommy.make('rodan.WorkflowJob',
                                         workflow=self.test_workflow,
@@ -122,6 +110,18 @@ class RodanTestSetUpMixin(object):
         test_connection = mommy.make('rodan.Connection',
                                      output_port=outputport_a,
                                      input_port=inputport_m)
+
+    def setUp_resources_for_simple_dummy_workflow(self):
+        self.test_resource = mommy.make(
+            'rodan.Resource',
+            project=self.test_project,
+            resource_type=ResourceType.cached('test/a1')
+        )
+        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+
+        return {
+            self.url(self.test_inputport_a): [self.url(self.test_resource)],
+        }
 
     def setUp_complex_dummy_workflow(self):
         """
@@ -143,25 +143,6 @@ class RodanTestSetUpMixin(object):
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
-
-        test_resources = mommy.make('rodan.Resource', _quantity=10,
-                                    project=self.test_project,
-                                    resource_type=ResourceType.cached('test/a1'))
-        for index, res in enumerate(test_resources):
-            res.name = str(index) # 0 to 9
-            res.save()
-            res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-        self.test_resourcecollection = mommy.make('rodan.ResourceCollection',
-                                                  workflow=self.test_workflow)
-        self.test_resourcecollection.resources.add(*test_resources)
-
-        self.test_resource = mommy.make('rodan.Resource',
-                                        project=self.test_project,
-                                        resource_type=ResourceType.cached('test/a1'))
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-        self.test_resource_singlecollection = mommy.make('rodan.ResourceCollection',
-                                                         workflow=self.test_workflow)
-        self.test_resource_singlecollection.resources.add(self.test_resource)
 
         self.test_wfjob_A = mommy.make('rodan.WorkflowJob',
                                        workflow=self.test_workflow,
@@ -263,20 +244,33 @@ class RodanTestSetUpMixin(object):
                    output_port=self.test_Bop,
                    input_port=self.test_Dip3)
 
+    def setUp_resources_for_complex_dummy_workflow(self):
+        self.test_resourcecollection = mommy.make(
+            'rodan.Resource', _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.cached('test/a1')
+        ) + mommy.make(
+            'rodan.Resource', _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.cached('test/a2')
+        )
+        for index, res in enumerate(self.test_resourcecollection):
+            res.name = str(index) # 0 to 9
+            res.save()
+            res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
-        mommy.make('rodan.ResourceAssignment',
-                   input_port=self.test_Aip,
-                   resource_collection=self.test_resource_singlecollection)
-        mommy.make('rodan.ResourceAssignment',
-                   input_port=self.test_Eip2,
-                   resource_collection=self.test_resource_singlecollection)
-        mommy.make('rodan.ResourceAssignment',
-                   input_port=self.test_Dip1,
-                   resource_collection=self.test_resourcecollection)
-        mommy.make('rodan.ResourceAssignment',
-                   input_port=self.test_Fip1,
-                   resource_collection=self.test_resourcecollection)
+        self.test_resource = mommy.make('rodan.Resource',
+                                        project=self.test_project,
+                                        resource_type=ResourceType.cached('test/a1'))
 
+        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+
+        return {
+            self.url(self.test_Dip1): map(self.url, self.test_resourcecollection),
+            self.url(self.test_Fip1): map(self.url, self.test_resourcecollection),
+            self.url(self.test_Aip): [self.url(self.test_resource)],
+            self.url(self.test_Eip2): [self.url(self.test_resource)]
+        }
 
 class RodanTestTearDownMixin(object):
     """

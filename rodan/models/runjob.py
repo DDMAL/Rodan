@@ -25,7 +25,7 @@ class RunJob(models.Model):
       this field will be set to None.
     - `workflow_job_uuid` -- a copy of the uuid of `WorkflowJob`, to provide an identifier
       of its origin after the `WorkflowJob` is deleted.
-    - `resource_uuid` -- a copy of the uuid of `Resource` in the `ResourceCollection`,
+    - `resource_uuid` -- a copy of the uuid of `Resource` in the resource collection,
       indicate the processing flow for every individual `Resource` in a batch. Allowed
       to be null when it is singleton `RunJob`.
     - `job_name` -- the Rodan `Job` name of this `RunJob`.

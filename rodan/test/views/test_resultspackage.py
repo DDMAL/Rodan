@@ -81,15 +81,17 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
         self.client.login(username="super", password="hahaha")
-
-        # Run this dummy workflow
-        self.test_resource_content = 'dummy text'
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile(self.test_resource_content))
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Run this dummy workflow
+        ra = self.setUp_resources_for_simple_dummy_workflow()
+        self.test_resource_content = 'dummy text'
+        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile(self.test_resource_content))
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -190,12 +192,15 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.test_Dop.output_port_type = opt_aA
         self.test_Dop.save()
 
-        # Run this dummy workflow
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Run this dummy workflow
+        ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
             'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

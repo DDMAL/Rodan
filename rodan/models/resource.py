@@ -87,10 +87,8 @@ class Resource(models.Model):
 
     - `__init__` -- keep an original copy of resource type. If the user changes the type,
       detecting the change does not need to hit the database again.
-    - `save` -- create local paths of resource folder and thumbnail folder. Invalidate
-      all associated `Workflow`s when resource type is manually changed.
-    - `delete` -- delete local paths of resource folder and thumbnail folder. Invalidate
-      all associated `Workflow`s.
+    - `save` -- create local paths of resource folder and thumbnail folder.
+    - `delete` -- delete local paths of resource folder and thumbnail folder.
     """
 
     def __init__(self, *a, **k):
@@ -144,27 +142,9 @@ class Resource(models.Model):
         if getattr(settings, 'WITH_DIVA') and not os.path.exists(self.diva_path):
             os.makedirs(self.diva_path)
 
-        if self.resource_type != self.___original_resource_type:
-            for ra in self.resource_assignments.all():
-                wf = ra.input_port.workflow_job.workflow
-                wf.valid = False
-                wf.save()
-            for rc in self.resource_collections.all():
-                wf = rc.workflow
-                wf.valid = False
-                wf.save()
-
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):
             shutil.rmtree(self.resource_path)
-        for ra in self.resource_assignments.all():
-            wf = ra.input_port.workflow_job.workflow
-            wf.valid = False
-            wf.save()
-        for rc in self.resource_collections.all():
-            wf = rc.workflow
-            wf.valid = False
-            wf.save()
         super(Resource, self).delete(*args, **kwargs)
 
     @property

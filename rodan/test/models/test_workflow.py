@@ -79,49 +79,11 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         op.delete()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
-    def test_resourceassignment_save(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        ra.save()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_resourceassignment_delete(self):
-        ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-        ra.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_resourcecollection_add_resource(self):
-        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
-        rc.resources.add(mommy.make('rodan.Resource', project=self.test_project))
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_resourcecollection_remove_resource(self):
-        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
-        res = rc.resources.first()
-        rc.resources.remove(res)
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_resourcecollection_clear_resource(self):
-        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
-        rc.resources.clear()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
     def test_workflowjob_save(self):
         self.test_workflowjob.save()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
     def test_workflowjob_delete(self):
         self.test_workflowjob.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    # [TODO]: should we allow fields of resource to be modified by user?
-    #def test_resource_save(self):
-    #    ra = self.test_workflowjob.input_ports.first().resource_assignments.first()
-    #    res = ra.resources.first()
-    #    res.save()
-    #    self.assertFalse(self.test_workflow.valid)
-    def test_resource_delete(self):
-        rc = self.test_workflowjob.input_ports.first().resource_assignments.first().resource_collection
-        res = rc.resources.first()
-        res.delete()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)

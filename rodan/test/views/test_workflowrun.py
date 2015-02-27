@@ -4,16 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 
-from rodan.models.workflowrun import WorkflowRun
-from rodan.models.workflow import Workflow
-from rodan.models.workflowjob import WorkflowJob
-from rodan.models.inputport import InputPort
-from rodan.models.inputporttype import InputPortType
-from rodan.models.outputport import OutputPort
-from rodan.models.outputporttype import OutputPortType
-from rodan.models.connection import Connection
-from rodan.models.job import Job
-from rodan.models.runjob import RunJob
+from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType
 from rodan.views.workflowrun import WorkflowRunList
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -96,6 +87,165 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(anticipated_message, response.data)
 
 
+class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_complex_dummy_workflow()
+        self.client.login(username="ahankins", password="hahaha")
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_valid_assignment(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_no_resource_assignments(self):
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': ['This field is required']}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_not_json_object(self):
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': []  # not a JSON object
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': ['This field must be a JSON object']}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_satisfied_input_port(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Eip1)] = [self.url(self.test_resource)]
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Eip1): ['Assigned InputPort must be unsatisfied']}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_invalid_input_port(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra["invalid url"] = [self.url(self.test_resource)]
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {'invalid url': [u'Invalid hyperlink - No URL match']}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_still_unsatisfied_input_port(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        del ra[self.url(self.test_Aip)]
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': ['There are still unsatisfied InputPorts: {0}'.format(self.url(self.test_Aip))]}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_resources_not_a_list(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Aip)] = self.url(self.test_resource)
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['A list of resources is expected']}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resources_empty(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Aip)] = []
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['It is not allowed to assign an empty resource set']}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_multiple_resource_sets(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Fip1)].pop()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): ['It is not allowed to assign multiple resource sets']}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): ['It is not allowed to assign multiple resource sets']}}
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resource_not_in_project(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        res = self.test_resourcecollection[5]
+        res.project = mommy.make('rodan.Project')
+        res.save()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['Resource is not in the project of Workflow']}}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['Resource is not in the project of Workflow']}}}
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resource_no_compat_resource_file(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        res = self.test_resourcecollection[5]
+        res.compat_resource_file.delete()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['The compatible resource file is not ready']}}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The compatible resource file is not ready']}}}
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resource_type_not_match(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        res = self.test_resourcecollection[5]
+        res.resource_type = ResourceType.cached('test/b')
+        res.save()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['The resource type does not match the InputPort']}}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The resource type does not match the InputPort']}}}
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 
 class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -103,15 +253,15 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
         self.client.login(username="ahankins", password="hahaha")
-
-    def test_successful_execution(self):
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_successful_execution(self):
+        ra = self.setUp_resources_for_simple_dummy_workflow()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': task_status.PROCESSING
+            'status': task_status.PROCESSING,
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -140,11 +290,12 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_automatic_job_fail(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
+            ra = self.setUp_resources_for_simple_dummy_workflow()
             self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
-            response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
             workflowrun_obj = {
                 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+                'resource_assignments': ra
             }
 
             response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -161,12 +312,12 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FAILED)
 
     def test_manual_job_rejected(self):
+        ra = self.setUp_resources_for_simple_dummy_workflow()
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -188,12 +339,12 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
 
     def test_cancel(self):
+        ra = self.setUp_resources_for_simple_dummy_workflow()
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
-        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -213,9 +364,11 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_uuid).status, task_status.CANCELLED)
 
     def test_post_cancelled(self):
+        ra = self.setUp_resources_for_simple_dummy_workflow()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'status': task_status.CANCELLED
+            'status': task_status.CANCELLED,
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -232,13 +385,16 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_creation(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data['uuid']
 
-        len_rc = self.test_resourcecollection.resources.count()
+        len_rc = len(self.test_resourcecollection)
         self.assertEqual(self.test_wfjob_A.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_B.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
@@ -296,11 +452,11 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         )
         self.assertEqual(
             set(self.test_Dip1.inputs.values_list('resource__uuid', flat=True)),
-            set(map(lambda res: res.uuid, self.test_resourcecollection.resources.all()))
+            set(map(lambda res: res.uuid, self.test_resourcecollection))
         )
         self.assertEqual(
             set(self.test_Fip1.inputs.values_list('resource__uuid', flat=True)),
-            set(map(lambda res: res.uuid, self.test_resourcecollection.resources.all()))
+            set(map(lambda res: res.uuid, self.test_resourcecollection))
         )
 
         # names for resource collection
@@ -323,14 +479,16 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
     def test_creation_test_run(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'test_run': True
+            'test_run': True,
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         wfrun_id = response.data['uuid']
 
-        len_rc = self.test_resourcecollection.resources.count()
+        len_rc = len(self.test_resourcecollection)
         self.assertEqual(self.test_wfjob_A.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_B.run_jobs.count(), 1)
         self.assertEqual(self.test_wfjob_C.run_jobs.count(), 1)
@@ -356,8 +514,10 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(self.test_Fop.outputs.count(), 1)
 
     def test_execution(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
