@@ -177,20 +177,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     })
 
     .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
-        $scope.select_all_resources = false;
-        $scope.$watch('select_all_resources', function (newVal, oldVal) {
-            if (newVal != oldVal) {
-                _.each($scope.resources, function (r) {
-                    if (!r.origin) { // only selected uploaded resources
-                        $scope.resource_selected[r.url] = newVal;
-                    }
-                });
-            }
-        });
-
         $scope.ui_showtypethumb = false;
         $scope.ui_hidegenerated = true;
-        $scope.resource_selected = {};
 
         $http.get(ROOT + '/project/' + $routeParams.projectId + '/')
             .success(function (data) {
@@ -224,7 +212,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 fd.append('files', f);
             });
 
-            console.log($scope.upload_type);
             if ($scope.upload_type) {
                 fd.append('type', $scope.upload_type);
             }
@@ -238,10 +225,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             });
         };
         $scope.deleteResource = function (r) {
-            $http.delete(r.url)
-                .success(function () {
-                    delete $scope.resource_selected[r.url];
-                });
+            $http.delete(r.url);
         };
         $scope.updateResourceName = function (r) {
             var new_name = $window.prompt('New resource name: ', r.name);
@@ -253,25 +237,16 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         ////// CREATE WORKFLOWS
 
         $scope.createWorkflow_rotatecrop = function () {
-            var resources = [];
-            _.each($scope.resource_selected, function (value, key) {
-                if (value) {
-                    resources.push(key);
-                };
-            });
-
-            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': $scope.new_workflow_name}).success(function (wf) {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': 'noname', 'description': 'no description'}).success(function (wf) {
                 var jr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate'});
                 var jc = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jr.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jc.url}),
-                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
                     var wfjr = things[0].data;
                     var wfjc = things[1].data;
-                    var rc = things[2].data;
 
                     $q.all([
                         $http.post(ROOT + '/inputports/', {'workflow_job': wfjr.url, 'input_port_type': jr.input_port_types[0].url}),
@@ -285,7 +260,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var opc = things[3].data;
 
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ipr.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': opr.url, 'input_port': ipc.url})
                         ]).then(function (things) {
                             console.log('rotate-crop workflow created!');
@@ -298,6 +272,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
 
         $scope.createWorkflow_complete = function () {
+            /*
             var resources = [];
             var gamera_classifier_url;
             _.each($scope.resource_selected, function (selected, url) {
@@ -310,8 +285,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         gamera_classifier_url = url;
                     }
                 };
-            });
-            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': $scope.new_workflow_name}).success(function (wf) {
+            });*/
+            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': 'noname', 'description': 'no description'}).success(function (wf) {
                 var j_gs = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
                 var j_bi = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.simple_binarise_interactive'});
                 var j_pm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
@@ -332,7 +307,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_cls.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pf.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_neon.url}),
-                    $http.post(ROOT + '/resourcecollections/', {'workflow': wf.url, 'resources': resources})
                 ]).then(function (things) {
                     var wf_gs = things[0].data;
                     var wf_bi = things[1].data;
@@ -343,7 +317,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     var wf_cls = things[6].data;
                     var wf_pf = things[7].data;
                     var wf_neon = things[8].data;
-                    var rc = things[9].data;
 
                     var j_cls_ipt_image = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Staffless Image'});
                     var j_cls_ipt_clsfier = _.find(j_cls.input_port_types, function (ipt) { return ipt.name == 'Classifier'});
@@ -396,14 +369,12 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         var ip_neon_bg = things[19].data;
                         var op_neon = things[20].data;
                         $q.all([
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_gs.url, 'resource_collection': rc.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_gs.url, 'input_port': ip_bi.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_bi.url, 'input_port': ip_pm.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_pm.url, 'input_port': ip_dsp.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_dsp.url, 'input_port': ip_seg.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_slr.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_slr.url, 'input_port': ip_cls_image.url}),
-                            $http.post(ROOT + '/resourceassignments/', {'input_port': ip_cls_clsfier.url, 'resource': gamera_classifier_url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_cls.url, 'input_port': ip_pf_clsf.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_seg.url, 'input_port': ip_pf_image.url}),
                             $http.post(ROOT + '/connections/', {'output_port': op_pf.url, 'input_port': ip_neon_mei.url}),
@@ -417,6 +388,24 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 $scope.new_workflow_error = errors;
             });
         };
+
+        $scope.createWorkflow_import = function () {
+            var serialized = $window.prompt('Serialized JSON:');
+            if (!serialized) return;
+            serialized = JSON.parse(serialized);
+
+            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': name, 'description': description, 'serialized': serialized}).success(function (wf) {
+                console.log('imported!')
+            }).error(function (errors) {
+                $scope.new_workflow_error = errors;
+            });
+        }
+
+        $scope.rename_workflow = function (wf) {
+            var name = $window.prompt("New Workflow name:");
+            if (!name) return;
+            $http.patch(wf.url, {'name': name});
+        }
 
 
         ////// CREATE WORKFLOWS END
@@ -442,8 +431,64 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     console.log(error);
                 });
         };
-        $scope.runWorkflow = function (w, test_run) {
-            $http.post(ROOT + '/workflowruns/', {'workflow': w.url, 'test_run': !!test_run})
+
+        $scope.resource_select_init = function () {
+            $scope.resource_select = {
+                now: null,
+                data: []
+            };
+        };
+        $scope.resource_select_init();
+        $scope.runWorkflow_select_resources = function (w) {
+            // 1. figure out the unsatisfied inputports.
+            getAllPages(ROOT + '/inputports/', {params: {'workflow': w.uuid}})
+                .then(function (inputports) {
+                    var unsatisfied_ips = _.filter(inputports, function (ip) {return ip.connections.length == 0;});
+
+                    // get information of workflowjob name
+                    $q.all(_.map(unsatisfied_ips, function (ip) {return $http.get(ip.workflow_job)}))
+                        .then(function (things) {
+                            // 2. start resource select GUI
+                            $scope.resource_select_init();
+                            $scope.resource_select.now = w;
+                            _.each(unsatisfied_ips, function (ip, index) {
+                                ip.job_name = things[index].data.job_name;
+                                $scope.resource_select.data.push({
+                                    'ip_url': ip.url,
+                                    'ip_description': ip.job_name.split('.').slice(-1)[0] + ' - ' + ip.label,
+                                    'resources_selected': {}
+                                });
+                            });
+                            $scope.resource_select.selected = 0;
+
+                        });
+
+                });
+        };
+        $scope.count_trues = function (obj) {
+            var count = 0;
+            for (var prop in obj) {
+                if (obj.hasOwnProperty(prop) && obj[prop]) {
+                    count += 1;
+                }
+            }
+            return count;
+        };
+
+        $scope.runWorkflow = function (w) {
+            var resource_assignments = {};
+            _.each($scope.resource_select.data, function (ip, index) {
+                var ress = [];
+                _.each(ip.resources_selected, function (value, key) {
+                    if (value === true)
+                        ress.push(key);
+                });
+                resource_assignments[ip.ip_url] = ress;
+            });
+            $http.post(ROOT + '/workflowruns/', {'workflow': w.url, 'resource_assignments': resource_assignments})
+                .success(function () {
+                    $scope.resource_select_init();
+                })
                 .error(function (error) {
                     console.log(error);
                 });
