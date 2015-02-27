@@ -490,6 +490,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $scope.resource_select_init();
                 })
                 .error(function (error) {
+                    $scope.resource_select.error = error;
                     console.log(error);
                 });
         };
