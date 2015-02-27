@@ -180,21 +180,30 @@ class Resource(models.Model):
 
     @property
     def small_thumb_url(self):
-        if self.has_thumb:
-            return os.path.join(self.thumb_url,
-                                self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+        if not settings.WITH_DIVA:
+            if self.has_thumb:
+                return os.path.join(self.thumb_url,
+                                    self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+        else:
+            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
 
     @property
     def medium_thumb_url(self):
-        if self.has_thumb:
-            return os.path.join(self.thumb_url,
-                                self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+        if not settings.WITH_DIVA:
+            if self.has_thumb:
+                return os.path.join(self.thumb_url,
+                                    self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+        else:
+            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
 
     @property
     def large_thumb_url(self):
-        if self.has_thumb:
-            return os.path.join(self.thumb_url,
-                                self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+        if not settings.WITH_DIVA:
+            if self.has_thumb:
+                return os.path.join(self.thumb_url,
+                                    self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+        else:
+            return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
 
 
     @property
@@ -212,6 +221,10 @@ class Resource(models.Model):
     @property
     def diva_image_dir(self):
         return os.path.relpath(self.diva_path, getattr(settings, 'IIPSRV_FILESYSTEM_PREFIX', '/'))
+
+    @property
+    def diva_image_url(self):
+        return "{0}?FIF={1}/image.jp2".format(settings.IIPSRV_URL, self.diva_image_dir)
 
     @property
     def diva_json_url(self):

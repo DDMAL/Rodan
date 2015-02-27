@@ -62,8 +62,10 @@ class ensure_compatible(Task):
                 compat_resource_file_path = resource_object.compat_resource_file.path
                 resource_query.update(compat_resource_file=compat_resource_file_path)
 
-                registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
-                registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
+                if not settings.WITH_DIVA:
+                    registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
+                else:
+                    registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
                 resource_query.update(processing_status=new_processing_status)
         return True
 
@@ -142,6 +144,7 @@ def create_diva(resource_id):
         gen.title = 'measurement'
         gen.generate()
 
+        resource_query.update(has_thumb=True)
         return True
     else:
         return False
