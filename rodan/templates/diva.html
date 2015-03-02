@@ -18,22 +18,35 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
     <script src="{% static 'diva/js/diva.min.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
-            $('#diva-wrapper').diva({
-                enableAutoTitle: false,
-                blockMobileMove: false,
-                enableAutoHeight: false,
-                enableAutoWidth: false,
-                fixedHeightGrid: false,
-                iipServerURL: "{{ diva_iip_server }}",
-                objectData: "{{ diva_object_data }}",
-                imageDir: "{{ diva_image_dir }}",
-                enableHighlight: true,
-                enableCanvas: true,
-                enableDownload: true
-            });
-        });
+     $(document).ready(function() {
+       $('#diva-wrapper').diva({
+         enableAutoTitle: false,
+         blockMobileMove: false,
+         enableAutoHeight: false,
+         enableAutoWidth: false,
+         fixedHeightGrid: false,
+         iipServerURL: "{{ diva_iip_server }}",
+         objectData: "{{ diva_object_data }}",
+         imageDir: "{{ diva_image_dir }}",
+         enableHighlight: true,
+         enableCanvas: true,
+         enableDownload: true
+       });
+
+       // make sure that the viewer occupies the whole screen height
+       function adjustHeight() {
+         $('#1-diva-outer').height(function(index, height) {
+           return window.innerHeight - $(this).offset().top;
+         });
+       }
+       $(window).resize(adjustHeight);
+       adjustHeight();
+     });
     </script>
+
+    <style>
+     html,body {height:100%;width:100%;overflow:hidden}
+    </style>
 
     <!--[if lt IE 9]>
     <script src="{% static 'diva/js/vendor/html5-3.6-respond-1.1.0.min.js"></script>
