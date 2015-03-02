@@ -51,14 +51,31 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if not wf.valid:
             raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
 
-        ######################
-        # validate ResourceAssignments
         if 'resource_assignments' not in self.request.data:
             raise ValidationError({'resource_assignments': ['This field is required']})
         resource_assignment_dict = self.request.data['resource_assignments']
 
+        try:
+            validated_resource_assignment_dict = self._validate_resource_assignments(resource_assignment_dict, serializer)
+        except ValidationError as e:
+            e.detail = {'resource_assignments': e.detail}
+            raise e
+
+        wfrun = serializer.save(creator=self.request.user, project=wf.project)
+        wfrun_id = str(wfrun.uuid)
+        self._create_workflow_run(wf, wfrun, validated_resource_assignment_dict)
+        registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
+
+    def _validate_resource_assignments(self, resource_assignment_dict, serializer):
+        """
+        Validates the resource assignments
+
+        May throw ValidationError.
+        Returns a validated dictionary.
+        """
         if not isinstance(resource_assignment_dict, dict):
-            raise ValidationError({'resource_assignments': ['This field must be a JSON object']})
+            raise ValidationError(['This field must be a JSON object'])
+
         unsatisfied_ips = set(InputPort.objects.filter(workflow_job__in=serializer.validated_data['workflow'].workflow_jobs.all(), connections__isnull=True))
         validated_resource_assignment_dict = {}
         multiple_resource_set = None
@@ -69,17 +86,17 @@ class WorkflowRunList(generics.ListCreateAPIView):
             try:
                 ip = h_ip.to_internal_value(input_port)
             except ValidationError as e:
-                e.detail = {'resource_assignments': {input_port: e.detail}}
+                e.detail = {input_port: e.detail}
                 raise e
 
             if ip not in unsatisfied_ips:
-                raise ValidationError({'resource_assignments': {input_port: ['Assigned InputPort must be unsatisfied']}})
+                raise ValidationError({input_port: ['Assigned InputPort must be unsatisfied']})
             unsatisfied_ips.remove(ip)
             types_of_ip = ip.input_port_type.resource_types.all()
 
             # 2. Resources:
             if not isinstance(resources, list):
-                raise ValidationError({'resource_assignments': {input_port: ['A list of resources is expected']}})
+                raise ValidationError({input_port: ['A list of resources is expected']})
 
             h_res = HyperlinkedIdentityField(view_name="resource-detail")
             h_res.queryset = Resource.objects.all()
@@ -89,13 +106,13 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 try:
                     ress.append(h_res.to_internal_value(r))
                 except ValidationError as e:
-                    e.detail = {'resource_assignments': {input_port: {index: e.detail}}}
+                    e.detail = {input_port: {index: e.detail}}
                     raise e
 
 
             ## No empty resource set
             if len(ress) == 0:
-                raise ValidationError({'resource_assignments': {input_port: ['It is not allowed to assign an empty resource set']}})
+                raise ValidationError({input_port: ['It is not allowed to assign an empty resource set']})
 
             ## There must be at most one multiple resource set
             if len(ress) > 1:
@@ -104,33 +121,29 @@ class WorkflowRunList(generics.ListCreateAPIView):
                     multiple_resource_set = ress_set
                 else:
                     if multiple_resource_set != ress_set:
-                        raise ValidationError({'resource_assignments': {input_port: ['It is not allowed to assign multiple resource sets']}})
+                        raise ValidationError({input_port: ['It is not allowed to assign multiple resource sets']})
 
             ## Resource must be in project and resource types are matched
             for index, res in enumerate(ress):
                 if res.project != serializer.validated_data['workflow'].project:
-                    raise ValidationError({'resource_assignments': {input_port: {index: ['Resource is not in the project of Workflow']}}})
+                    raise ValidationError({input_port: {index: ['Resource is not in the project of Workflow']}})
 
                 if not res.compat_resource_file:
-                    raise ValidationError({'resource_assignments': {input_port: {index: ['The compatible resource file is not ready']}}})
+                    raise ValidationError({input_port: {index: ['The compatible resource file is not ready']}})
 
                 type_of_res = res.resource_type
                 if type_of_res not in types_of_ip:
-                    raise ValidationError({'resource_assignments': {input_port: {index: ['The resource type does not match the InputPort']}}})
+                    raise ValidationError({input_port: {index: ['The resource type does not match the InputPort']}})
 
             validated_resource_assignment_dict[ip] = ress
 
         # Still we have unsatisfied input ports
         if unsatisfied_ips:
-            raise ValidationError({'resource_assignments': ['There are still unsatisfied InputPorts: {0}'.format(
+            raise ValidationError(['There are still unsatisfied InputPorts: {0}'.format(
                 ' '.join([h_ip.get_url(ip, 'inputport-detail', self.request, None) for ip in unsatisfied_ips])
-            )]})
-        ###############
+            )])
 
-        wfrun = serializer.save(creator=self.request.user, project=wf.project)
-        wfrun_id = str(wfrun.uuid)
-        self._create_workflow_run(wf, wfrun, validated_resource_assignment_dict)
-        registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
+        return validated_resource_assignment_dict
 
     def _create_workflow_run(self, workflow, workflow_run, resource_assignment_dict):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
