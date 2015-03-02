@@ -127,13 +127,12 @@ class WorkflowRunList(generics.ListCreateAPIView):
             )]})
         ###############
 
-        wfrun = serializer.save(creator=self.request.user, project=wf.project, workflow_name=wf.name)
+        wfrun = serializer.save(creator=self.request.user, project=wf.project)
         wfrun_id = str(wfrun.uuid)
-        test_run = serializer.validated_data.get('test_run', False)
-        self._create_workflow_run(wf, wfrun, test_run, validated_resource_assignment_dict)
+        self._create_workflow_run(wf, wfrun, validated_resource_assignment_dict)
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
-    def _create_workflow_run(self, workflow, workflow_run, test_run, resource_assignment_dict):
+    def _create_workflow_run(self, workflow, workflow_run, resource_assignment_dict):
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(workflow, resource_assignment_dict)
         workflowjob_runjob_map = {}
@@ -147,8 +146,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         if ress_multiple:
             for res in ress_multiple:
                 self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, res, resource_assignment_dict)
-                if test_run:
-                    break    # only create one of them
         else:
             self._runjob_creation_loop(endpoint_workflowjobs, singleton_workflowjobs, workflowjob_runjob_map, workflow_run, None, resource_assignment_dict)
 
