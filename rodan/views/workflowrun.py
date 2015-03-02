@@ -250,7 +250,7 @@ Output of {1}:{2}
             if arg_resource:   # which resource in multiple resources?
                 resource.name = arg_resource.name
             else:
-                resource.name = 'Output of workflow {0}'.format(workflow_run.workflow_name)  # assign a name for it
+                resource.name = 'Output of workflow {0}'.format(workflow_run.name)  # assign a name for it
             resource.origin = output
             resource.save()
 
