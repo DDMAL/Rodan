@@ -53,7 +53,7 @@ class RunJobDetail(generics.RetrieveAPIView):
         if old_status != task_status.FINISHED or new_status != task_status.SCHEDULED:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            self._redo_runjobs(rj)
+            self._reset_runjob_tree(rj)
             wfrun = rj.workflow_run
             registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex,))
             wfrun.status = task_status.RETRYING
@@ -62,7 +62,7 @@ class RunJobDetail(generics.RetrieveAPIView):
             serializer = self.get_serializer(updated_rj)
             return Response(serializer.data)
 
-    def _redo_runjobs(self, rj):
+    def _reset_runjob_tree(self, rj):
         if rj.celery_task_id is not None:
             revoke(celery_id, terminate=True)
         if rj.status != task_status.SCHEDULED:
@@ -81,4 +81,4 @@ class RunJobDetail(generics.RetrieveAPIView):
                 r.compat_resource_file = None
                 r.save(update_fields=['compat_resource_file'])
                 for i in r.inputs.filter(run_job__workflow_run=rj.workflow_run):
-                    self._redo_runjobs(i.run_job)
+                    self._reset_runjob_tree(i.run_job)
