@@ -31,9 +31,9 @@
     <div id="slider"></div>
     <div class="images">
       <div class="hidden">
-        <img id="image-full" src="{{ large_thumb_url }}"/>
-        <img id="image-thumb" src="{{ small_thumb_url }}"/>
-        <img id="image-mid" src="{{ large_thumb_url }}"/>
+        <img id="image-full" src="{{ large_thumb_url | safe }}"/>
+        <img id="image-thumb" src="{{ small_thumb_url | safe }}"/>
+        <img id="image-mid" src="{{ large_thumb_url | safe }}"/>
       </div>
       <div style="float:left" id="image-rightside">
         <div id="image-miniframe"></div>

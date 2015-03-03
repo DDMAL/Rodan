@@ -45,7 +45,7 @@
     <script type="text/javascript">
      $(document).ready(function() {
        var options = {
-         image: {source: "{{ image_url }}"}
+         image: {source: "{{ image_url | safe }}"}
        };
        $("#container").PixelSegmentation(options);
        var instance = $("#container").data('PixelSegmentation');

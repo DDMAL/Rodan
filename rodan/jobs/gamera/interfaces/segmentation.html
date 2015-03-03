@@ -52,7 +52,7 @@
      $(document).ready(function() {
        $("#segment-view").RKSegment(
          {
-           image: "{{ image_url }}",
+           image: "{{ image_url | safe }}",
            polyPoints: {{ polygon_outer_points }},
            originalWidth: {{ image_width }}
          });

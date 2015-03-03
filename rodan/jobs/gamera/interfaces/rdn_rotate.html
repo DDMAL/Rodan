@@ -41,7 +41,7 @@
        var precisionMultiplier = 40;
 
        $("#rotateView").RKRotate({
-         imageUrl: "{{ image_url }}",
+         imageUrl: "{{ image_url | safe }}",
          gridFadeTime: 800,
          textBoxOutput: $('#currentAngleTextBox'),
          controlOutput: $('#rotateKnob'),
