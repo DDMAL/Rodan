@@ -11,7 +11,6 @@ class OutputSerializer(serializers.HyperlinkedModelSerializer):
         model = Output
         fields = ("url",
                   "uuid",
-                  "output_port",
                   "output_port_type_name",
                   "output_port_type",
                   "run_job",
@@ -24,7 +23,6 @@ class OutputListSerializer(serializers.HyperlinkedModelSerializer):
         model = Output
         fields = ("url",
                   "uuid",
-                  "output_port",
                   "output_port_type_name",
                   "output_port_type",
                   "run_job",

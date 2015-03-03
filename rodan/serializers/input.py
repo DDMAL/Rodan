@@ -12,7 +12,6 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
         model = Input
         fields = ("url",
                   "uuid",
-                  "input_port",
                   "input_port_type_name",
                   "input_port_type",
                   "run_job",
