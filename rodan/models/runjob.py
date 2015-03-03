@@ -38,7 +38,12 @@ class RunJob(models.Model):
     - `error_details` -- details of error when the `RunJob` fails.
     - `created`
     - `updated`
-    - `interactive_timings` -- a JSON list that tracks the start and end of every manual phase of the job.
+    - `interactive_timings` -- a JSON list that tracks the start and end of every manual
+      phase of the job.
+
+    - `lock` -- (internal use) stores the thread identifier of one of Celery workers, or
+      None. For a worker thread to lock the RunJobs and avoid competition. (see
+      `rodan.jobs.master_task`)
 
     **Properties**
 
@@ -75,6 +80,8 @@ class RunJob(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
+
+    lock = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
         return u"<RunJob {0} {1}{2}>".format(str(self.uuid), self.workflow_job.job.job_name, ' (interactive)' if self.workflow_job.job.interactive else '')
