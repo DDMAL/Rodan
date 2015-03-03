@@ -3,6 +3,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from celery import registry
+from celery.task.control import revoke
 
 import django_filters
 
