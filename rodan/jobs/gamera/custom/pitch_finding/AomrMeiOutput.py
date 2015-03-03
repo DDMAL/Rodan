@@ -150,7 +150,8 @@ class AomrMeiOutput(object):
         self.section.addChild(self.staffel)
         self.staffel.addChild(self.layer)
 
-        for sysnum in sorted(self._recognition_results.keys()):
+        for sysnum in sorted(map(int, self._recognition_results.keys())):
+            sysnum = str(sysnum)
             syst = self._recognition_results[sysnum]
             lg.debug("sysnum:{0}".format(sysnum))
             self.system = syst
