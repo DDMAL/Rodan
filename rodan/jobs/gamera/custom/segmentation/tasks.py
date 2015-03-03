@@ -1,4 +1,4 @@
-import json
+import json, jsonschema
 from gamera.core import load_image
 from gamera.plugins.pil_io import from_pil
 from PIL import Image
@@ -61,12 +61,19 @@ class Segmentation(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-        if '@polygon_outer_points' not in settings:
+        if not settings.get('@polygon_outer_points'):
             task_image = load_image(inputs['input'][0]['resource_path'])
 
             ranked_page = task_image.rank(9, 9, 0)
             staff_finder = StaffFinder_miyao(ranked_page, 0, 0)
-            staff_finder.find_staves(**settings)
+
+            fn_kwargs = {
+                'num_lines': settings.get('@num_lines', settings['num_lines']),
+                'scanlines': settings.get('@scanlines', settings['scanlines']),
+                'blackness': settings.get('@blackness', settings['blackness']),
+                'tolerance': settings.get('@tolerance', settings['tolerance']),
+            }
+            staff_finder.find_staves(**fn_kwargs)
 
             poly_list = staff_finder.get_polygon()
             poly_list = fix_poly_point_list(poly_list, staff_finder.staffspace_height)
@@ -99,11 +106,34 @@ class Segmentation(RodanTask):
         c = {
             'image_url': inputs['input'][0]['large_thumb_url'],
             'polygon_outer_points': settings['@polygon_outer_points'],
-            'image_width': settings['@image_width']
+            'image_width': settings['@image_width'],
+            'settings': {
+                'num_lines': settings.get('@num_lines', settings['num_lines']),
+                'scanlines': settings.get('@scanlines', settings['scanlines']),
+                'blackness': settings.get('@blackness', settings['blackness']),
+                'tolerance': settings.get('@tolerance', settings['tolerance']),
+            }
         }
         return (t, c)
 
     def validate_my_user_input(self, inputs, settings, user_input):
-        points = user_input['polygon_outer_points']
-        # [TODO] validate input
-        return {'@polygon_outer_points': points}
+        if 'new_settings' in user_input:
+            # update settings
+            new_settings = user_input['new_settings']
+            v = jsonschema.Draft4Validator(self.settings)
+            try:
+                v.validate(new_settings)
+            except jsonschema.exceptions.ValidationError as e:
+                raise self.ManualPhaseException(e.message)
+            return {
+                '@polygon_outer_points': None,    # let computer do it again
+                '@num_lines': new_settings['num_lines'],
+                '@scanlines': new_settings['scanlines'],
+                '@blackness': new_settings['blackness'],
+                '@tolerance': new_settings['tolerance'],
+            }
+        else:
+            # store result
+            points = user_input['polygon_outer_points']
+            # [TODO] validate input
+            return {'@polygon_outer_points': points}

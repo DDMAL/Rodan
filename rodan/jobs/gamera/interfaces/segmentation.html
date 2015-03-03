@@ -44,6 +44,30 @@
         <div style="margin-bottom: 1em;">
           <button id="submit">Segment</button>
         </div>
+
+        <h4>Segmentation Parameters</h4>
+        <table>
+          <tr>
+            <td>Num lines</td>
+            <td><input type="text" value="{{ settings.num_lines }}" id="new_settings_1"></td>
+          </tr>
+          <tr>
+            <td>Scanlines</td>
+            <td><input type="text" value="{{ settings.scanlines }}" id="new_settings_2"></td>
+          </tr>
+          <tr>
+            <td>Blackness</td>
+            <td><input type="text" value="{{ settings.blackness }}" id="new_settings_3"></td>
+          </tr>
+          <tr>
+            <td>Tolerance</td>
+            <td><input type="text" value="{{ settings.tolerance }}" id="new_settings_4"></td>
+          </tr>
+        </table>
+        <button id="update-settings">Update</button>
+        <div>
+          <b id="info"></b>
+        </div>
       </div>
       <div id="segment-view" style="border: 2px solid; margin: 1em; float: left">
       </div>
@@ -58,14 +82,38 @@
          });
        var rks = $("#segment-view").data('RKSegment');
 
-       $('#submit').click(function () {
+       $('#submit').click(function() {
          $.ajax({
            url: '',
            type: 'POST',
            data: JSON.stringify({'polygon_outer_points': rks.getPolyPoints()}),
            contentType: 'application/json',
-           complete: function () {
+           success: function() {
              window.close();
+           }
+         });
+       });
+
+       $('#update-settings').click(function() {
+         $.ajax({
+           url: '?format=json',
+           type: 'POST',
+           data: JSON.stringify({
+             'new_settings': {
+               'num_lines': Number($('#new_settings_1').val()),
+               'scanlines': Number($('#new_settings_2').val()),
+               'blackness': Number($('#new_settings_3').val()),
+               'tolerance': Number($('#new_settings_4').val())
+             }
+           }),
+           contentType: 'application/json',
+           success: function() {
+             $('#info').text('Settings updated! Please refresh the page after a few seconds to fetch the new result.');
+             $('#submit').attr('disabled', 'disabled');
+             $('#update-settings').hide();
+           },
+           error: function(jqXHR) {
+             $('#info').text('Error: ' + JSON.parse(jqXHR.responseText).detail);
            }
          });
        });
