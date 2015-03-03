@@ -65,7 +65,7 @@ class RunJobDetail(generics.RetrieveAPIView):
 
     def _reset_runjob_tree(self, rj):
         if rj.celery_task_id is not None:
-            revoke(celery_id, terminate=True)
+            revoke(rj.celery_task_id, terminate=True)
         if rj.status != task_status.SCHEDULED:
             rj.status = task_status.SCHEDULED
 
