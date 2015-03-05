@@ -308,7 +308,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             # At this point, the automatic RunJob should fail, and the manual RunJob should not accept input
             self.assertEqual(dummy_a_runjob.status, task_status.FAILED)
             self.assertEqual(dummy_a_runjob.error_summary, 'dummy automatic job error')
-            self.assertEqual(dummy_m_runjob.status, task_status.CANCELLED)
+            self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
             self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FAILED)
 
     def test_manual_job_rejected(self):
