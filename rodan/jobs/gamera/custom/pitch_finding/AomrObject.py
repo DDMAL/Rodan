@@ -447,9 +447,12 @@ class AomrObject(object):
                 if glyph_type == 'division' or glyph_type == 'alteration':
                     strt_pos = None
                 elif glyph_type == "neume" or glyph_type == "custos" or glyph_type == "clef":
-                    line_or_space, line_num = self._return_line_or_space_no(g, center_of_mass, staff_locations, miyao_line)  # line (0) or space (1), no
-                    strt_pos = self.strt_pos_find(g, line_or_space, line_num)
-
+                    try:
+                        line_or_space, line_num = self._return_line_or_space_no(g, center_of_mass, staff_locations, miyao_line)  # line (0) or space (1), no
+                        strt_pos = self.strt_pos_find(g, line_or_space, line_num)
+                    except ZeroDivisionError as e:
+                        print str(e), "glyph: {0}, miyao_line: {1}, staff_locations:{2}".format(g, miyao_line, staff_locations)
+                        continue
                 else:
                     strt_pos = None
                     staff_number = None
@@ -604,7 +607,6 @@ class AomrObject(object):
                 Line = 0
                 Space = 1
         """
-
         horz_diff = float(st[0][miyao_line][0] - st[0][miyao_line-1][0])
 
         for i, stf in enumerate(st[1:]):
