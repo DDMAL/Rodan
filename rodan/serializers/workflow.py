@@ -226,7 +226,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         rep = {
             '__version__': self.__version__,
             'name': wf.name,
-            'description': wf.description,
+            'description': wf.description or '',
             'workflow_jobs': [],
             'connections': []
         }
