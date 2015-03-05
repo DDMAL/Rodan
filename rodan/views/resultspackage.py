@@ -41,10 +41,6 @@ class ResultsPackageList(generics.ListCreateAPIView):
             fields = ('creator', 'project', 'workflow_run')
 
     def perform_create(self, serializer):
-        wfrun = serializer.validated_data['workflow_run']
-        if wfrun.status != task_status.FINISHED:
-            raise ValidationError({'workflow_run': ["Cannot package results of an unfinished or failed WorkflowRun."]})
-
         rp_status = serializer.validated_data.get('status', task_status.PROCESSING)
         if rp_status != task_status.PROCESSING:
             raise ValidationError({'status': ["Cannot create a cancelled, failed, finished or expired ResultsPackage."]})
