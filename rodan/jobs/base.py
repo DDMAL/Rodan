@@ -348,7 +348,6 @@ class RodanTask(Task):
         RunJob.objects.filter(pk=runjob_id).update(**update)
         wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
-        RunJob.objects.filter(workflow_run=wfrun_id, status=task_status.SCHEDULED).update(status=task_status.CANCELLED)
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
