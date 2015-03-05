@@ -131,7 +131,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
 
     schema = {
         "type": "object",
-        "required": ["__version__", "name", "workflow_jobs", "connections"],
+        "required": ["__version__", "name", "description", "workflow_jobs", "connections"],
         "properties": {
             "__version__": {"type": "number"},
             "name": {"type": "string"},
@@ -226,11 +226,10 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         rep = {
             '__version__': self.__version__,
             'name': wf.name,
+            'description': wf.description,
             'workflow_jobs': [],
             'connections': []
         }
-        if wf.description:
-            rep['description'] = wf.description
 
         ip_map = {}
         op_map = {}
@@ -275,7 +274,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
     def load(self, serialized, project, **k):
         wf = Workflow.objects.create(name=serialized['name'],
                                      project=project,
-                                     description=serialized.get('description'),
+                                     description=serialized['description'],
                                      creator=k.get('creator'),
                                      valid=False)
         ip_map = {}
