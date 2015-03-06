@@ -49,7 +49,7 @@ def master_task(workflow_run_id):
         for rj_value in runable_runjobs:
             task = registry.tasks[str(rj_value['job_name'])]
             runjob_id = str(rj_value['uuid'])
-            async_task = (task.si(runjob_id) | master_task.si(workflow_run_id)).apply_async()
+            async_task = task.si(runjob_id).apply_async()  # task will call master_task synchronously. Don't use Celery's chain, it's hard to revoke.
             RunJob.objects.filter(uuid=runjob_id).update(celery_task_id=async_task.task_id)
 
         return "wfRun PROCESSING"

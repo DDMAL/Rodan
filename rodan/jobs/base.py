@@ -315,7 +315,8 @@ class RodanTask(Task):
                 runjob.job_settings = settings
                 runjob.error_summary = None
                 runjob.error_details = None
-                runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
+                runjob.celery_task_id = None
+                runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details', 'celery_task_id'])
                 return 'WAITING FOR INPUT'
             else:
                 # save outputs
@@ -331,8 +332,14 @@ class RodanTask(Task):
                 runjob.status = task_status.FINISHED
                 runjob.error_summary = None
                 runjob.error_details = None
-                runjob.save(update_fields=['status', 'error_summary', 'error_details'])
-                return "FINISHED"
+                runjob.celery_task_id = None
+                runjob.save(update_fields=['status', 'error_summary', 'error_details', 'celery_task_id'])
+
+                # Call master task.
+                master_task = registry.tasks['rodan.core.master_task']
+                wfrun_id = str(runjob.workflow_run.uuid)
+                mt_retval = master_task.run(wfrun_id)
+                return "FINISHED  |  master_task: {0}".format(mt_retval)
 
     def run_my_task(self, inputs, settings, outputs):
         raise NotImplementedError()

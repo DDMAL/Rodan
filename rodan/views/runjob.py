@@ -66,6 +66,7 @@ class RunJobDetail(generics.RetrieveAPIView):
     def _reset_runjob_tree(self, rj):
         if rj.celery_task_id is not None:
             revoke(rj.celery_task_id, terminate=True)
+
         if rj.status != task_status.SCHEDULED:
             rj.status = task_status.SCHEDULED
 
@@ -79,7 +80,8 @@ class RunJobDetail(generics.RetrieveAPIView):
             rj.save(update_fields=['status', 'job_settings'])
             for o in rj.outputs.all():
                 r = o.resource
-                r.compat_resource_file = None
-                r.save(update_fields=['compat_resource_file'])
                 for i in r.inputs.filter(run_job__workflow_run=rj.workflow_run):
                     self._reset_runjob_tree(i.run_job)
+                r.compat_resource_file = None
+                r.has_thumb = False
+                r.save(update_fields=['compat_resource_file', 'has_thumb'])
