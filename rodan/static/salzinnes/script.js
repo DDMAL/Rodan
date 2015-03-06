@@ -1,6 +1,6 @@
 angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     .constant('ROOT', '')
-    .constant('UPDATE_FREQ', 2000)
+    .constant('UPDATE_FREQ', 5000)
     .factory('authInterceptor', function ($window) {
         return {
             'request': function (config) {
@@ -49,12 +49,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             };
             getPage(url);
             return deferred.promise;
-        };
-    })
-    .factory('intervalNow', function ($interval) {
-        return function (fn, args) {
-            $interval.apply(null, arguments);
-            fn();
         };
     })
 
@@ -176,7 +170,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
     })
 
-    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, intervalNow, UPDATE_FREQ, $q, $window) {
+    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, $timeout, UPDATE_FREQ, $q, $window) {
         $scope.ui_showtypethumb = false;
         $scope.ui_hidegenerated = true;
 
@@ -186,7 +180,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             });
 
         $scope.resource_uuid_name_map = {};
-        intervalNow(function () {
+        function fetchResources () {
             getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'uuid'}})
                 .then(function (results) {
                     $scope.resources = results;
@@ -202,8 +196,11 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
+                }).finally(function () {
+                    $timeout(fetchResources, UPDATE_FREQ);
                 });
-        }, UPDATE_FREQ);
+        }
+        fetchResources();
 
         $scope.uploadResources = function () {
             var fd = new FormData();
@@ -409,12 +406,16 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
 
         ////// CREATE WORKFLOWS END
-        intervalNow(function () {
+        function fetchWorkflows () {
             getAllPages(ROOT + '/workflows/', {params: {'project': $routeParams.projectId}})
                 .then(function (results) {
                     $scope.workflows = results;
+                }).finally(function () {
+                    $timeout(fetchWorkflows, UPDATE_FREQ);
                 });
-        }, UPDATE_FREQ);
+        }
+        fetchWorkflows();
+
         $scope.workflow_validationerror = {};
         $scope.validateWorkflow = function (w) {
             $http.patch(w.url, {'valid': true})
@@ -495,13 +496,16 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         };
 
-        intervalNow(function () {
+        function fetchWorkflowruns () {
             getAllPages(ROOT + '/workflowruns/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}})
                 .then(function (results) {
                     $scope.workflowruns = results;
+                }).finally(function () {
+                    $timeout(fetchWorkflowruns, UPDATE_FREQ)
                 });
-        }, UPDATE_FREQ);
-        intervalNow(function () {
+        }
+        fetchWorkflowruns();
+        function fetchRunjobs () {
             getAllPages(ROOT + '/runjobs/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}}) // RunJobs are created in a reverse order.
                 .then(function (results) {
                     $scope.runjobs = [];
@@ -509,8 +513,11 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $scope.runjobs[rj.workflow_run] = $scope.runjobs[rj.workflow_run] || [];
                         $scope.runjobs[rj.workflow_run].push(rj);
                     });
+                }).finally(function () {
+                    $timeout(fetchRunjobs, UPDATE_FREQ);
                 });
-        }, UPDATE_FREQ);
+        }
+        fetchRunjobs();
 
         $scope.ui_showresults = false;
 
@@ -557,14 +564,16 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             $http.post(ROOT + '/resultspackages/', obj);
         };
 
-        intervalNow(function () {
+        function fetchResultspackages () {
             getAllPages(ROOT + '/resultspackages/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}})
                 .then(function (results) {
                     $scope.resultspackages = results;
                 }, function (err) {
                     console.log(err);
+                }).finally(function () {
+                    $timeout(fetchResultspackages, UPDATE_FREQ);
                 });
-        }, UPDATE_FREQ);
+        }
         $scope.cancelResultsPackage = function (rp) {
             $http.patch(rp.url, {'status': 9})
                 .error(function (error) {
