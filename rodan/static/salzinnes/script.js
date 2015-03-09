@@ -1,6 +1,6 @@
 angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     .constant('ROOT', '')
-    .constant('UPDATE_FREQ', 5000)
+    .constant('UPDATE_FREQ', 500)
     .factory('authInterceptor', function ($window) {
         return {
             'request': function (config) {
