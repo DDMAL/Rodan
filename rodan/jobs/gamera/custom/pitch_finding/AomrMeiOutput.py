@@ -200,7 +200,10 @@ class AomrMeiOutput(object):
                 if self.glyph['form'][0] not in self.NEUME_NOTES.keys():
                     continue
                 else:
-                    self.layer.addChild(self._create_neume_element())
+                    try:
+                        self.layer.addChild(self._create_neume_element())
+                    except AomrMeiNoteIntervalMismatchError:
+                        continue
 
             elif c['type'] == 'clef':
                 self.layer.addChild(self._create_clef_element())
