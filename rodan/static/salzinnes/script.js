@@ -535,10 +535,12 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
 
         $scope.redo_runjob = function (rj) {
-            $http.patch(rj.url, {'status': 0})
-                .error(function (error) {
-                    console.log(error);
-                });
+            if ($window.confirm('Do you really want to redo this RunJob? All interactive results will be lost.')) {
+                $http.patch(rj.url, {'status': 0})
+                    .error(function (error) {
+                        console.log(error);
+                    });
+            }
         };
 
 
