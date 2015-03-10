@@ -352,6 +352,7 @@ class RodanTask(Task):
 
         update = self._add_error_information_to_runjob(exc, einfo)
         update['status'] = task_status.FAILED
+        update['celery_task_id'] = None
         RunJob.objects.filter(pk=runjob_id).update(**update)
         wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
