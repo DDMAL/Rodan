@@ -586,8 +586,11 @@ class AomrObject(object):
         for i, s in enumerate(self.staff_coordinates):
             staff_number = i + 1
             if 0.5 * (3 * s[1] - s[3]) <= g.offset_y + center_of_mass < 0.5 * (3 * s[3] - s[1]):
-                staff_location = self.staff_locations[i]['line_positions']
-                return staff_location, staff_number
+                ulx, lrx = self.x_bounding_box(g)
+                x_center = (ulx + lrx) / 2.0
+                if s[0] <= x_center <= s[2]:
+                    staff_location = self.staff_locations[i]['line_positions']
+                    return staff_location, staff_number
 
     def _return_vertical_line(self, g, st):
         """
@@ -742,6 +745,17 @@ class AomrObject(object):
         avg_punctum_col = wide / i
 
         self.avg_punctum = avg_punctum_col
+
+    def x_bounding_box(self, glyph):
+        """
+        Returns (ulx, lrx)
+        """
+        if glyph.ncols < self.avg_punctum:
+            this_punctum_size = glyph.ncols
+        else:
+            this_punctum_size = self.avg_punctum
+
+        return (glyph.offset_x, glyph.offset_x + this_punctum_size - 1)
 
     def x_projection_vector(self, glyph):
         """ Projection Vector
