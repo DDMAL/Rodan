@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import json
 from gamera.core import *
 from gamera.toolkits import musicstaves
@@ -227,6 +227,88 @@ class AomrObject(object):
         all_line_positions = []
         # stave_fix = self.__fix_poly_point_list(self.staves)
         # print "STAVES_FIXED:{0}".format(stave_fix)
+
+
+        # Reorder staves
+        ## The staves are ordered solely by uly. It may give reverse order for two staves on the same row in
+        ## the score. Thus we first find the logical rows, and order the staves first by row, then by uly.
+        rows = []
+        for staff in self.staves:
+            # find bounding box
+            yv = []
+            xv = []
+            line_positions = []
+
+            for staffline in staff:
+                pts = staffline.vertices
+                yv += [p.y for p in pts]
+                xv += [p.x for p in pts]
+                line_positions.append([(p.x, p.y) for p in pts])
+
+            ulx, uly = min(xv), min(yv)
+            lrx, lry = max(xv), max(yv)
+
+            # find if the stave belongs to a detected row (i.e., has uly~lry overlapped with a row)
+            detected_row = None
+            for row in rows:
+                if row["uly"] <= uly <= row["lry"] or row["uly"] <= lry <= row["lry"]:
+                    detected_row = row
+                    break
+            # if it belongs to a detected row, insert it according to ulx, and update the row's uly~lry
+            if detected_row:
+                insert_position = None
+                for i, s in enumerate(detected_row['staves']):
+                    if s['bounding_box']['ulx'] > ulx:
+                        insert_position = i
+                        break
+
+                insert_stave = {
+                    'bounding_box': {
+                        'ulx': ulx,
+                        'uly': uly,
+                        'lrx': lrx,
+                        'lry': lry
+                    },
+                    'stave': staff
+                }
+                if insert_position is not None:
+                    detected_row['staves'].insert(insert_position, insert_stave)
+                else:
+                    detected_row['staves'].append(insert_stave)
+
+                # update row's uly~lry
+                detected_row['uly'] = min(detected_row['uly'], uly)
+                detected_row['lry'] = max(detected_row['lry'], lry)
+            else:  # if not, create a new row
+                insert_position = None
+                for i, r in enumerate(rows):
+                    if r['uly'] > uly:
+                        insert_position = i
+                        break
+
+                insert_row = {
+                    "uly": uly,
+                    "lry": lry,
+                    "staves": [{
+                        'bounding_box': {
+                            'ulx': ulx,
+                            'uly': uly,
+                            'lrx': lrx,
+                            'lry': lry
+                        },
+                        "stave": staff  # stave obj
+                    }]
+                };
+                if insert_position is not None:
+                    rows.insert(insert_position, insert_row)
+                else:
+                    rows.append(insert_row)
+        ## Then go through all rows and doing the reorder
+        self.staves = []
+        for row in rows:
+            for stave in row['staves']:
+                self.staves.append(stave['stave'])
+
 
         for i, staff in enumerate(self.staves):
             yv = []
