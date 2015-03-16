@@ -576,6 +576,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $timeout(fetchResultspackages, UPDATE_FREQ);
                 });
         }
+        fetchResultspackages();
+
         $scope.cancelResultsPackage = function (rp) {
             $http.patch(rp.url, {'status': 9})
                 .error(function (error) {
