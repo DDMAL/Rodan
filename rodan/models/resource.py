@@ -81,7 +81,8 @@ class Resource(models.Model):
     - `diva_image_dir` -- the relative path to IIP server FILESYSTEM_PREFIX, exposed
       to the client.
     - `diva_json_url` -- exposed URL of JSON measurement file.
-    - `diva_viewer_relurl` -- exposed URL of diva.js image viewer.
+
+    - `viewer_relurl` -- exposed URL of resource viewer.
 
     **Methods**
 
@@ -231,8 +232,5 @@ class Resource(models.Model):
         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT))
 
     @property
-    def diva_viewer_relurl(self):
-        if os.path.isfile(self.diva_jp2_path):
-            return reverse('resource-detail-diva', args=(self.uuid, ))
-        else:
-            return None
+    def viewer_relurl(self):
+        return reverse('resource-viewer', args=(self.uuid, ))

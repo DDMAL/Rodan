@@ -104,9 +104,13 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     queryset = Resource.objects.all() # [TODO] filter according to the user?
 
-class ResourceDetailDiva(generics.RetrieveAPIView):
+class ResourceViewer(generics.RetrieveAPIView):
     """
-    Get a diva viewer of the resource.
+    Get a viewer of the resource.
+
+    Currently supports:
+    + Diva.js: for all images
+    + Neon.js: for MEI
     """
     model = Resource
     serializer_class = ResourceSerializer
@@ -115,11 +119,17 @@ class ResourceDetailDiva(generics.RetrieveAPIView):
 
     def get(self, request, *a, **k):
         resource = self.get_object()
-        if not resource.resource_type.mimetype.startswith('image'):
+        if resource.resource_type.mimetype.startswith('image') and settings.WITH_DIVA:
+            return render(request, 'diva.html', {
+                'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
+                'diva_object_data': resource.diva_json_url,
+                'diva_iip_server': settings.IIPSRV_URL,
+                'diva_image_dir': resource.diva_image_dir
+            }, content_type="text/html")
+        elif resource.resource_type.mimetype.startswith("application/mei+xml"):
+            return render(request, 'neon_square_viewer.html', {
+                'mei_name': resource.name or resource.uuid.hex,
+                'mei_url': resource.compat_file_url
+            }, content_type="text/html")
+        else:
             raise Http404
-        return render(request, 'diva.html', {
-            'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
-            'diva_object_data': resource.diva_json_url,
-            'diva_iip_server': settings.IIPSRV_URL,
-            'diva_image_dir': resource.diva_image_dir
-        }, content_type="text/html")

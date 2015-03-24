@@ -30,7 +30,7 @@ from rodan.views.outputport import OutputPortList, OutputPortDetail
 from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
 from rodan.views.inputport import InputPortList, InputPortDetail
 from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
-from rodan.views.resource import ResourceList, ResourceDetail, ResourceDetailDiva
+from rodan.views.resource import ResourceList, ResourceDetail, ResourceViewer
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
@@ -86,6 +86,7 @@ urlpatterns += format_suffix_patterns(
              url(r'^inputport/(?P<pk>[0-9a-f]{32})/$', InputPortDetail.as_view(), name="inputport-detail"),
              url(r'^resources/$', ResourceList.as_view(), name="resource-list"),
              url(r'^resource/(?P<pk>[0-9a-f]{32})/$', ResourceDetail.as_view(), name="resource-detail"),
+             url(r'^resource/(?P<pk>[0-9a-f]{32})/viewer/$', ResourceViewer.as_view(), name="resource-viewer"),
              url(r'^resourcetypes/$', ResourceTypeList.as_view(), name="resourcetype-list"),
              url(r'^resourcetype/(?P<pk>[0-9a-f]{32})/$', ResourceTypeDetail.as_view(), name="resourcetype-detail"),
              url(r'^outputs/$', OutputList.as_view(), name="output-list"),
@@ -95,14 +96,6 @@ urlpatterns += format_suffix_patterns(
              url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
          )
 )
-
-if settings.WITH_DIVA:
-    urlpatterns += format_suffix_patterns(
-        patterns('',
-                 url(r'^resource/(?P<pk>[0-9a-f]{32})/diva/$', ResourceDetailDiva.as_view(), name="resource-detail-diva"),
-             )
-    )
-
 
 # For serving stuff under MEDIA_ROOT in debug mode only
 if settings.DEBUG:

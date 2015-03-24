@@ -106,14 +106,15 @@
                     </td>
                     <td>
                       <span ng-show="!r.compat_resource_file">{{ r.uuid | limitTo: 6 }}</span>
-                      <a ng-show="r.compat_resource_file" ng-href="{{r.compat_resource_file}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
+                      <a ng-show="r.compat_resource_file" ng-href="{{r.viewer_url}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
                     </td>
                     <td>
                       {{r.name}}<button class="btn btn-default btn-xs" ng-click="updateResourceName(r)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
                       <table ng-show="ui_showtypethumb">
                         <tr>
                           <td>
-                            <a ng-show="r.has_thumb" ng-href="{{ r.diva_viewer_url }}" target="_blank"><img ng-src="{{r.small_thumb}}" /></a><em ng-show="!r.has_thumb">No thumbnail</em>
+                            <img ng-show="r.has_thumb" ng-src="{{r.small_thumb}}" />
+                            <em ng-show="!r.has_thumb">No thumbnail</em>
                           </td>
                           <td><code>{{ resourcetypes_hash[r.resource_type].mimetype }}</code></td>
                         </tr>
