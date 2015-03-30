@@ -391,7 +391,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             if (!serialized) return;
             serialized = JSON.parse(serialized);
 
-            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': name, 'description': description, 'serialized': serialized}).success(function (wf) {
+            $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'serialized': serialized}).success(function (wf) {
                 console.log('imported!')
             }).error(function (errors) {
                 $scope.new_workflow_error = errors;
