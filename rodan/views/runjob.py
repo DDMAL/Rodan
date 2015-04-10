@@ -33,6 +33,19 @@ class RunJobList(generics.ListAPIView):
             model = RunJob
             fields = ('status', 'project', 'workflow_run')
 
+    def get_queryset(self):
+        condition = Q()  # "ground" value of Q
+
+        resource_uuid = self.request.query_params.get('resource_uuid', None)
+        if resource_uuid:
+            if resource_uuid != 'null':
+                condition &= Q(resource_uuid=resource_uuid)
+            else:
+                condition &= Q(resource_uuid__isnull=True)
+
+        queryset = RunJob.objects.filter(condition) # then this queryset is filtered on `filter_class`
+        return queryset
+
 
 class RunJobDetail(generics.RetrieveAPIView):
     """

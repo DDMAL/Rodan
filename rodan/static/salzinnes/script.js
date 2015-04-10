@@ -180,8 +180,14 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             });
 
         $scope.resource_uuid_name_map = {};
+        $scope.fetch_generated_resources = true;
         function fetchResources () {
-            getAllPages(ROOT + '/resources/', {params: {'project': $routeParams.projectId, 'ordering': 'uuid'}})
+            var params = {'project': $routeParams.projectId, 'ordering': 'uuid'};
+            if ($scope.fetch_generated_resources) {
+                params['uploaded'] = 'yes';
+                $scope.fetch_generated_resources = false;
+            }
+            getAllPages(ROOT + '/resources/', {params: params})
                 .then(function (results) {
                     $scope.resources = results;
                     $scope.generated_resources = {};
@@ -500,26 +506,89 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             getAllPages(ROOT + '/workflowruns/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}})
                 .then(function (results) {
                     $scope.workflowruns = results;
+                    _.each($scope.workflowruns, function (wfrun) {
+                        wfrun.origin_resources_pair = _.map(wfrun.origin_resources, function (ores) {
+                            if (ores) {
+                                return {
+                                    'uuid': ores,
+                                    'name': $scope.resource_uuid_name_map[ores] || "[DELETED]"
+                                };
+                            } else {
+                                return {
+                                    'uuid': null,
+                                    'name': 'All'
+                                };
+                            }
+                        })
+                        wfrun.origin_resources_pair.sort(function (p1, p2) {
+                            if (p1.name < p2.name) {
+                                return -1;
+                            } else if (p1.name > p2.name) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                    });
                 }).finally(function () {
-                    $timeout(fetchWorkflowruns, UPDATE_FREQ)
+                    $timeout(fetchWorkflowruns, UPDATE_FREQ);
                 });
         }
         fetchWorkflowruns();
-        function fetchRunjobs () {
-            getAllPages(ROOT + '/runjobs/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}}) // RunJobs are created in a reverse order.
-                .then(function (results) {
-                    $scope.runjobs = [];
-                    angular.forEach(results, function (rj) {
-                        $scope.runjobs[rj.workflow_run] = $scope.runjobs[rj.workflow_run] || [];
-                        $scope.runjobs[rj.workflow_run].push(rj);
-                    });
-                }).finally(function () {
-                    $timeout(fetchRunjobs, UPDATE_FREQ);
-                });
-        }
-        fetchRunjobs();
 
-        $scope.ui_showresults = false;
+        $scope.wfrun_open = {};
+        $scope.runjob_open = {};
+        $scope.runjob_showresults = {};
+        $scope.runjob_classified = {};
+
+        function fetchRunjobs_fine () {
+            var promises = []
+            _.each($scope.runjob_open, function (value, wfrun_uuid) {
+                if (!$scope.wfrun_open[wfrun_uuid]) {
+                    _.each(value, function (open, origin_resource_uuid) {
+                        if (open) {
+                            var promise = getAllPages(ROOT + '/runjobs/', {params: {'workflow_run': wfrun_uuid, 'resource_uuid': origin_resource_uuid.toString(), 'ordering': '-created'}}) // RunJobs are created in a reverse order.
+                                .then(function (results) {
+                                    if (!$scope.runjob_classified.hasOwnProperty(wfrun_uuid)) {
+                                        $scope.runjob_classified[wfrun_uuid] = {};
+                                    }
+                                    $scope.runjob_classified[wfrun_uuid][origin_resource_uuid] = results;
+                                });
+                            promises.push(promise);
+                        }
+                    });
+                }
+            });
+            $q.all(promises).then(function (things) {
+                $timeout(fetchRunjobs_fine, UPDATE_FREQ);
+            });
+        }
+        fetchRunjobs_fine();
+
+        function fetchRunjobs_coarse () {
+            var promises = [];
+            _.each($scope.wfrun_open, function (open, wfrun_uuid) {
+                if (open) {
+                    var promise = getAllPages(ROOT + '/runjobs/', {params: {'workflow_run': wfrun_uuid, 'ordering': '-created'}}).then(function (results) {
+                        $scope.runjob_classified[wfrun_uuid] = {};
+                        var d = $scope.runjob_classified[wfrun_uuid];
+                        _.each(results, function (rj) {
+                            if (!d.hasOwnProperty(rj.resource_uuid)) {
+                                d[rj.resource_uuid] = [];
+                            }
+                            d[rj.resource_uuid].push(rj);
+                        });
+                    });
+                    promises.push(promise);
+                }
+            });
+
+            // request for next fetch after this fetch has finished.
+            $q.all(promises).then(function (things) {
+                $timeout(fetchRunjobs_coarse, UPDATE_FREQ);
+            });
+        }
+        fetchRunjobs_coarse();
 
         $scope.retryWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 11})
