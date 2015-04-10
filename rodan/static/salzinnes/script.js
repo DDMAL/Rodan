@@ -147,8 +147,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         };
     })
-    .controller('ctrl_projects', function ($scope, $http, $location, ROOT, $rootScope, getAllPages) {
-
+    .controller('ctrl_projects', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $window) {
         var loadProjects = function () {
             getAllPages(ROOT + '/projects/')
                 .then(function (results) {
@@ -171,6 +170,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
     })
 
     .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, $timeout, UPDATE_FREQ, $q, $window) {
+        $scope.alert = function (msg) {
+            $window.alert(msg);
+        };
+
         $scope.ui_showtypethumb = false;
         $scope.ui_hidegenerated = true;
 
