@@ -21,6 +21,7 @@ class RunJobList(generics.ListAPIView):
     - `status` -- GET-only. Status number.
     - `project` -- GET-only. UUID of a Project.
     - `workflow_run` -- GET-only. UUID of a WorkflowRun.
+    - `resource_uuid` -- GET-only. UUID of the working resource. Provide "null" (as string) to get null fields.
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
