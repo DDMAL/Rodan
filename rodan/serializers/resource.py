@@ -11,7 +11,7 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     small_thumb = AbsoluteURLField(source='small_thumb_url', read_only=True)
     medium_thumb = AbsoluteURLField(source='medium_thumb_url', read_only=True)
     large_thumb = AbsoluteURLField(source='large_thumb_url', read_only=True)
-    diva_viewer_url = AbsoluteURLField(read_only=True, source="diva_viewer_relurl")
+    viewer_url = AbsoluteURLField(read_only=True, source="viewer_relurl")
 
     class Meta:
         model = Resource
