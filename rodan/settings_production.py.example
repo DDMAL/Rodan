@@ -65,6 +65,10 @@ CELERY_RESULT_BACKEND = "amqp"
 ###############################################################################
 WITH_DIVA = True
 
+# If None, Rodan will call `which convert` to find it.
+# It may be "gm convert" on Mac
+BIN_CONVERT = None
+
 # If None, Rodan will call `which kdu_compress` to find it.
 BIN_KDU_COMPRESS = None
 
