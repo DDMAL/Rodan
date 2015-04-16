@@ -15,7 +15,7 @@ if not BIN_KDU_COMPRESS:
 BIN_CONVERT = getattr(settings, 'BIN_CONVERT', None) or find_executable('convert')
 if not BIN_CONVERT:
     raise ImportError("cannot find convert")
-
+BIN_CONVERT_LIST = BIN_CONVERT.strip().split()  # because it may be "gm convert"
 
 class to_jpeg2000(RodanTask):
     name = 'rodan.jobs.conversion.to_jpeg2000'
@@ -43,11 +43,13 @@ class to_jpeg2000(RodanTask):
             name, ext = os.path.splitext(name)
             tfile = os.path.join(tdir, "{0}.tiff".format(name))
 
-            subprocess.check_call([BIN_CONVERT,
-                                   "-depth", "8",         # output RGB
-                                   "-compress", "None",
-                                   task_image,
-                                   tfile])
+            subprocess.check_call(
+                BIN_CONVERT_LIST + [
+                    "-depth", "8",         # output RGB
+                    "-compress", "None",
+                    task_image,
+                    tfile]
+            )
             result_file = "{0}.jp2".format(name)
             output_file = os.path.join(tdir, result_file)
 
