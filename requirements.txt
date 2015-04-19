@@ -23,6 +23,7 @@ flower==0.7.3
 flup==1.0.3.dev-20110405
 gnureadline==6.3.3
 greenlet==0.4.5
+gunicorn==18.0
 ipython==2.3.0
 jsonfield==1.0.0
 jsonschema==2.4.0
