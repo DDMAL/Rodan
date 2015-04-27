@@ -22,6 +22,7 @@
           <a class="navbar-brand" style="cursor:default">Rodan</a>
         </div>
         <div class="navbar-form navbar-right">
+          <button class="btn btn-default" ng-click="logout()">Logout</button>
           <button class="btn btn-default" ng-click="allProjects()">All projects</button>
         </div>
       </div><!-- /.container-fluid -->
@@ -239,54 +240,76 @@
 
         <div style="position:absolute;left:50%;right:0;top:0;bottom:0">
           <div class="well" style="height:100%;overflow-y:auto">
-            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="ui_showresults">Show results</label>
             <h2>Workflow Runs <button class="btn btn-primary btn-xs" ng-click="wfrun_filter = null" ng-show="wfrun_filter">Remove filtering on Workflow {{wfrun_filter.slice(-33, -27)}}</button></h2>
 
             <div ng-repeat="wfrun in workflowruns track by wfrun.url" ng-show="!wfrun_filter || wfrun.workflow == wfrun_filter">
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h3 class="panel-title">
-                    {{wfrun.uuid | limitTo: 6}} <code>{{wfrun.workflow_name}}</code> created at <code>{{wfrun.created | date:"yyyy-MM-dd '@' h:mma"}}</code>
-                    <b ng-show="wfrun.test_run">test run</b> for Workflow <code>{{ wfrun.workflow.slice(-33, -27) || "[DELETED]" }}</code>.
+                    {{wfrun.name || "(no name)"}}<button class="btn btn-default btn-xs" ng-click="updateWorkflowRunName(wfrun)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button> <code>{{wfrun.uuid | limitTo: 6}}</code>
                     <b class="pull-right" style="margin-left:10px">Status: {{status[wfrun.status]}}</b>
                     <span class="pull-right">
                       <button ng-click="retryWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right clearfix">Retry</button>
                       <button ng-click="cancelWorkflowRun(wfrun)" class="btn btn-default btn-xs pull-right">Cancel</button>
                     </span>
                   </h3>
-                  <b>Package Results in </b>
-                  <button ng-click="packageResults(wfrun, 0)" class="btn btn-default btn-xs">Mode 0</button>
-                  <button ng-click="packageResults(wfrun, 1)" class="btn btn-default btn-xs">Mode 1</button>
-                  <!--<button ng-click="packageResults(wfrun, 2)" class="btn btn-default btn-xs">Mode 2</button>-->
+                  {{wfrun.description || "(no description)"}}<button class="btn btn-default btn-xs" ng-click="updateWorkflowRunDescription(wfrun)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
                 </div>
                 <div class="panel-body">
-                  <p>
-                    <b>Name:</b> {{wfrun.name}}<button class="btn btn-default btn-xs" ng-click="updateWorkflowRunName(wfrun)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
-                    <br>
-                    <b>Description:</b> {{wfrun.description}}<button class="btn btn-default btn-xs" ng-click="updateWorkflowRunDescription(wfrun)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                  <p class="pull-right">
+                    <b>Package Results in </b>
+                    <button ng-click="packageResults(wfrun, 0)" class="btn btn-default btn-xs">Mode 0</button>
+                    <button ng-click="packageResults(wfrun, 1)" class="btn btn-default btn-xs">Mode 1</button>
+                    <!--<button ng-click="packageResults(wfrun, 2)" class="btn btn-default btn-xs">Mode 2</button>-->
                   </p>
+                  <p>
+                    Created: {{wfrun.created | date:"yyyy-MM-dd '@' h:mma"}}
+                    <br>
+                    Origin workflow: <code>{{ wfrun.workflow.slice(-33, -27) || "[DELETED]" }}</code>
+                  </p>
+                  <p>
+                    <label style="margin-bottom:0;background:lightyellow;"><input type="checkbox" ng-model="wfrun_open[wfrun.uuid]">Show All RunJobs</label>
+                  </p>
+                  <div ng-repeat="origin_resource in wfrun.origin_resources_pair track by origin_resource.uuid">
+                    <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                          <th>
+                            <code ng-show="origin_resource.uuid">{{origin_resource.uuid.slice(0, 6)}}</code> {{origin_resource.name}}
+                          </th>
+                          <th>
+                            <label style="margin-bottom:0;background:lightyellow;" ng-show="runjob_open[wfrun.uuid][origin_resource.uuid] || wfrun_open[wfrun.uuid]"><input type="checkbox" ng-model="runjob_showresults[wfrun.uuid][origin_resource.uuid]">Show Results</label>
+                          </th>
+                          <th>
+                            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="runjob_open[wfrun.uuid][origin_resource.uuid]">Show RunJobs</label>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody ng-show="wfrun_open[wfrun.uuid] || runjob_open[wfrun.uuid][origin_resource.uuid]">
+                        <tr ng-repeat="rj in runjob_classified[wfrun.uuid][origin_resource.uuid] track by rj.url" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
+                          <td><a style="cursor:pointer" ng-click="alert('Full job name: ' + rj.job_name)">{{ rj.job_name.split(".").pop() }}</a></td>
+                          <td>
+                            <div ng-show="runjob_showresults[wfrun.uuid][origin_resource.uuid] && rj.status == 4">
+                              <span ng-repeat="o in rj.outputs track by o.url">
+                                <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
+                              </span>
+                            </div>
+                          </td>
+                          <td class="text-right">
+                            <button ng-show="rj.status != 0 && rj.status != 9" class="btn btn-default btn-xs" ng-click="redo_runjob(rj)">Redo</button>
+                            <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
+                            <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
+                            <div ng-show="rj.status == -1" class="text-left">
+                              <b>{{rj.error_summary}}</b>
+                              <pre><code>{{rj.error_details}}</code></pre>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                   <table class="table table-condensed">
-                    <tr ng-repeat="rj in runjobs[wfrun.url] track by rj.url" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
-                      <td>{{rj.job_name}}</td>
-                      <td>
-                        <span ng-show="rj.resource_uuid"><code>{{rj.resource_uuid.slice(0, 6)}}</code> {{resource_uuid_name_map[rj.resource_uuid] || "[DELETED]" }}</span>
-                        <div ng-show="ui_showresults && rj.status == 4">
-                          <span ng-repeat="o in rj.outputs track by o.url">
-                            <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
-                          </span>
-                        </div>
-                      </td>
-                      <td class="text-right">
-                        <button ng-show="rj.status != 0 && rj.status != 9" class="btn btn-default btn-xs" ng-click="redo_runjob(rj)">Redo</button>
-                        <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
-                        <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
-                        <div ng-show="rj.status == -1" class="text-left">
-                          <b>{{rj.error_summary}}</b>
-                          <pre><code>{{rj.error_details}}</code></pre>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
+
                 </div>
               </div>
             </div>

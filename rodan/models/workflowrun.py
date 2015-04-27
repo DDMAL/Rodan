@@ -23,6 +23,10 @@ class WorkflowRun(models.Model):
 
     - `created`
     - `updated`
+
+    **Properties**
+
+    - `origin_resources` -- a list of origin `Resource` UUIDs.
     """
     STATUS_CHOICES = [(task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
@@ -44,6 +48,10 @@ class WorkflowRun(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def origin_resources(self):
+        return list(set(self.run_jobs.values_list('resource_uuid', flat=True)))
 
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))

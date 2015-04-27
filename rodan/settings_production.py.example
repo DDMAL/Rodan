@@ -65,11 +65,18 @@ CELERY_RESULT_BACKEND = "amqp"
 ###############################################################################
 WITH_DIVA = True
 
+# If None, Rodan will call `which convert` to find it.
+# It may be "gm convert" on Mac
+BIN_CONVERT = None
+
 # If None, Rodan will call `which kdu_compress` to find it.
 BIN_KDU_COMPRESS = None
 
 # If None, Rodan will call `which vips` to find it.
 BIN_VIPS = None
+
+# If None, Rodan will call `which xmllint` to find it.
+BIN_XMLLINT = None
 
 # IIP Server URL
 IIPSRV_URL = '/fcgi-bin/iipsrv.fcgi'
