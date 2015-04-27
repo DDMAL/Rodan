@@ -4,6 +4,9 @@ from django.conf import settings
 import os
 import yaml
 
+import logging
+logger = logging.getLogger('rodan')
+
 _cache = {}
 
 class ResourceType(models.Model):
@@ -79,9 +82,12 @@ def load_predefined_resource_types():
     for vendor in os.listdir(job_path):
         vendor_path = os.path.join(job_path, vendor)
         if os.path.isdir(vendor_path):
+            logger.info("vendor path '" + vendor_path + "' found")
             resource_type_path = os.path.join(vendor_path, 'resource_types.yaml')
             if os.path.isfile(resource_type_path):
+                logger.info("searching " + resource_type_path + " for custom MIME resource types")
                 with open(resource_type_path, 'r') as f:
                     resource_types = yaml.load(f)
                     for rt in resource_types:
                         load(rt['mimetype'], rt.get('description', ''), rt.get('extension', ''))
+                        logger.info("resource type " + rt['mimetype'] + " loaded")
