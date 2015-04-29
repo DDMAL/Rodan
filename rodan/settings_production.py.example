@@ -19,6 +19,11 @@ ALLOWED_HOSTS = [
 
 ## Absolute filesystem path to the directory that holds the base of the projct.
 ## Example: "/srv/webapps/project/"
+## If your project directory is symlinked, you'll probably want to hardcode
+## the path instead of using 'os.path.dirname'. This is because celery tasks
+## will use the unlinked path when saving resource files, while the Rodan server
+## will use the symlink path (depengin on the celery task, of course). Having
+## the path hardcoded here is a quick fix to the issue.
 PROJECT_DIR = os.path.dirname(__file__)
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
