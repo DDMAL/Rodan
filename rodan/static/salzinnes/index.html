@@ -292,7 +292,7 @@
                           <td>
                             <div ng-show="runjob_showresults[wfrun.uuid][origin_resource.uuid] && rj.status == 4">
                               <span ng-repeat="o in rj.outputs track by o.url">
-                                <a ng-href="{{generated_resources[o].compat_resource_file}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">Original file</span></a>
+                                <a ng-href="{{generated_resources[o].viewer_url}}" target="_blank"><img ng-show="generated_resources[o].has_thumb" ng-src="{{generated_resources[o].small_thumb}}"/><span ng-show="!generated_resources[o].has_thumb">View Resource</span></a>
                               </span>
                             </div>
                           </td>
