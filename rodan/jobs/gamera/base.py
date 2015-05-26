@@ -13,8 +13,13 @@ def load_gamera_module(gamera_module):
             continue
 
         i_type = argconvert.convert_input_type(fn.self_type)
+        convert_input_float = False
         if len(i_type['resource_types']) == 0:  # it deals with FLOAT and COMPLEX pixel types only -- we don't support them in Rodan
-            continue
+            if i_type['has_float']:
+                convert_input_float = True
+                i_type['resource_types'].append("image/greyscale+png")
+            else:
+                continue
         input_types = [{
             'name': "input",
             'resource_types': i_type['resource_types'],
@@ -23,8 +28,13 @@ def load_gamera_module(gamera_module):
         }]
 
         o_type = argconvert.convert_output_type(fn.return_type)
+        convert_output_float = False
         if len(o_type['resource_types']) == 0:  # it deals with FLOAT and COMPLEX pixel types only -- we don't support them in Rodan
-            continue
+            if o_type['has_float']:
+                convert_output_float = True
+                o_type['resource_types'].append("image/greyscale+png")
+            else:
+                continue
         output_types = [{
             'name': "output",
             'resource_types': o_type['resource_types'],
@@ -37,7 +47,6 @@ def load_gamera_module(gamera_module):
         except TypeError:  # we now exclude the function with argument <ImageType>
             continue
 
-
         class gamera_module_task(RodanTask):
             name = str(fn)
             author = fn.author
@@ -48,9 +57,15 @@ def load_gamera_module(gamera_module):
             interactive = False
             input_port_types = input_types
             output_port_types = output_types
+            _convert_input_float = convert_input_float
+            _convert_output_float = convert_output_float
 
             def run_my_task(self, inputs, settings, outputs):
                 task_image = load_image(inputs['input'][0]['resource_path'])
+
+                if self._convert_input_float:
+                    task_image = task_image.to_float()
+
                 task_function = self.name.split(".")[-1]
 
                 ## Individual fixes:

@@ -80,6 +80,8 @@ def convert_input_type(input_type):
 
     # convert pixel types to Rodan mimetypes
     dict_repr['resource_types'] = []
+    dict_repr['has_float'] = False
+    dict_repr['has_complex'] = False
     for pt in dict_repr['pixel_types']:
         if pt == enums.ONEBIT:
             dict_repr['resource_types'].append('image/onebit+png')
@@ -90,6 +92,11 @@ def convert_input_type(input_type):
         elif pt == enums.RGB:
             dict_repr['resource_types'].append('image/rgb+png')
         # Drop COMPLEX and FLOAT pixel types, as they are only Gamera's internal representation and cannot be saved to a PNG file.
+        # But tell the caller that it has COMPLEX or FLOAT types.
+        elif pt == enums.FLOAT:
+            dict_repr['has_float'] = True
+        elif pt == enums.COMPLEX:
+            dict_repr['has_complex'] = True
     return dict_repr
 
 convert_output_type = convert_input_type
