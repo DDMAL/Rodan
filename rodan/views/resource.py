@@ -12,7 +12,7 @@ from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from django.db.models import Q
 from rodan.constants import task_status
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import render
 
@@ -106,10 +106,10 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ResourceViewer(generics.RetrieveAPIView):
     """
-    Get a viewer of the resource.
+    Get a viewer of the resource. If there is no viewer, redirect to compat resource file.
 
     Currently supports:
-    + Diva.js: for all images
+    + Diva.js: for all images (if jp2 and measurement json exist)
     + Neon.js: for MEI
     """
     model = Resource
@@ -119,7 +119,7 @@ class ResourceViewer(generics.RetrieveAPIView):
 
     def get(self, request, *a, **k):
         resource = self.get_object()
-        if resource.resource_type.mimetype.startswith('image') and settings.WITH_DIVA:
+        if resource.resource_type.mimetype.startswith('image') and settings.WITH_DIVA and os.path.isfile(resource.diva_jp2_path) and os.path.isfile(resource.diva_json_path):
             return render(request, 'diva.html', {
                 'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
                 'diva_object_data': resource.diva_json_url,
@@ -132,4 +132,4 @@ class ResourceViewer(generics.RetrieveAPIView):
                 'mei_url': resource.compat_file_url
             }, content_type="text/html")
         else:
-            raise Http404
+            return HttpResponseRedirect(resource.compat_file_url)
