@@ -114,7 +114,7 @@ class ResourceViewer(generics.RetrieveAPIView):
     """
     model = Resource
     serializer_class = ResourceSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.AllowAny, )
     queryset = Resource.objects.all() # [TODO] filter according to the user?
 
     def get(self, request, *a, **k):
