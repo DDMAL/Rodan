@@ -157,6 +157,7 @@
                   </label>
                 </div>
                 <div ng-show="resource_select.error" style="color:red;font-weight:bold">{{ resource_select.error }}</div>
+                <div><button class="btn btn-default btn-sm" ng-click="resource_select_by_regex()">Select by regex</button></div>
               </div>
               <div class="panel-footer text-right">
                 <button class="btn btn-default" ng-click="resource_select_init()">Cancel</button>

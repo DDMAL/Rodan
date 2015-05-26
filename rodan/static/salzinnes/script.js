@@ -449,6 +449,30 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             };
         };
         $scope.resource_select_init();
+
+        $scope.resource_select_by_regex = function () {
+            var regex_str = $window.prompt("Enter regex (e.g. ^CF-1\d+$):");
+            if (regex_str) {
+                var regex = new RegExp(regex_str);
+                var newly_selected_count = 0;
+
+                var d = $scope.resource_select.data[$scope.resource_select.selected].resources_selected;
+                _.each($scope.resources, function (r) {
+                    if ((!$scope.ui_hidegenerated) || ($scope.ui_hidegenerated) && (!r.origin)) {
+                        if (regex.test(r.name)) {
+                            if (!d[r.url]) {
+                                d[r.url] = true;
+                                newly_selected_count += 1;
+                            }
+                        }
+                    }
+                });
+                $timeout(function () {
+                    $window.alert("Newly selected resources: " + newly_selected_count);
+                });
+            }
+        };
+
         $scope.runWorkflow_select_resources = function (w) {
             // 1. figure out the unsatisfied inputports.
             getAllPages(ROOT + '/inputports/', {params: {'workflow': w.uuid}})
