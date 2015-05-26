@@ -25,6 +25,7 @@ are already Job-related objects in the production database, and we cannot test w
 there are errors in job definitions. Therefore, we write imports in a submodule that will
 never be executed when importing `rodan.jobs` or other submodules under `rodan.jobs`.
 """
+from django.conf import settings
 from rodan.models.resourcetype import load_predefined_resource_types
 load_predefined_resource_types()  # set up ResourceTypes
 
@@ -35,6 +36,5 @@ import rodan.jobs.core
 import rodan.jobs.master_task
 
 from rodan.jobs import module_loader
-module_loader('rodan.jobs.conversion')
-module_loader('rodan.jobs.gamera')
-module_loader('rodan.jobs.neon')
+for package_name in settings.RODAN_JOB_PACKAGES:
+    module_loader(package_name)
