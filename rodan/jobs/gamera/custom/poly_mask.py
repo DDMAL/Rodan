@@ -5,12 +5,12 @@ from PIL import Image
 from PIL import ImageDraw
 from rodan.jobs.base import RodanTask
 from rodan.jobs.gamera import argconvert
-
+from rodan.jobs.gamera.base import ensure_pixel_type
 
 class PolyMask(RodanTask):
     name = 'gamera.border_removal.poly_mask'
     author = "Ling-Xiao Yang"
-    description = "TODO"
+    description = "Interactive border removal."
     settings = {}
     enabled = True
     category = "Border Removal"
@@ -18,13 +18,13 @@ class PolyMask(RodanTask):
 
     input_port_types = [{
         'name': 'input',
-        'resource_types': ['image/onebit+png'],
+        'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
         'minimum': 1,
         'maximum': 1
     }]
     output_port_types = [{
         'name': 'output',
-        'resource_types': ['image/onebit+png'],
+        'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
         'minimum': 1,
         'maximum': 1
     }]
@@ -46,10 +46,10 @@ class PolyMask(RodanTask):
                 mask_drawer.polygon(flattened_poly, outline='black', fill='black')
             del mask_drawer
 
-            task_image_greyscale = task_image.to_greyscale()    # Because gamera masking doesn't work on one-bit images
+            task_image_rgb = task_image.to_rgb()    # Because gamera masking doesn't work on onebit or grey16 images.
             segment_mask = from_pil(mask_img).to_onebit()
-            result_image_greyscale = task_image_greyscale.mask(segment_mask)
-            result_image = result_image_greyscale.to_onebit()   # Get it back to one-bit
+            result_image_rgb = task_image_rgb.mask(segment_mask)
+            result_image = ensure_pixel_type(result_image_rgb, outputs['output'][0]['resource_type'])
 
             result_image.save_PNG(outputs['output'][0]['resource_path'])
 
