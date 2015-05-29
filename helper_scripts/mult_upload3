@@ -1,0 +1,16 @@
+#!/bin/bash
+#Obtains and displays user token id
+var=`curl -v -XPOST -d username=admin -d password=admin http://rodan-dev.simssa.ca/auth/token/ | egrep '"token":"[^\, ]+' -o`
+tokenid=${var:9:40}
+
+#Obtains a list of projects uuid and asks user to input their choice of project 
+curl -v -XGET -H "Authorization: Token $tokenid" http://rodan-dev.simssa.ca/projects/ | egrep 'project/[^\/]+' -o 
+echo "Please input the uuid of a project to which you would like to upload"
+read projectid
+
+#for N files in the directory where the script is located, N Post requests are created to upload all image files 
+for file in *
+do
+	curl -X POST -i -H "Authorization: Token $tokenid" -H "Accept: application/json" --form "files=@$file" --form "project=http://rodan-dev.simssa.ca/project/$projectid/" http://rodan-dev.simssa.ca/resources/ 
+done # file
+
