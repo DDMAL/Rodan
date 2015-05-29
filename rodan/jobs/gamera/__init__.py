@@ -6,6 +6,7 @@ from rodan.jobs import module_loader
 
 module_loader('gamera.plugins.binarization', load_gamera_module)
 module_loader('gamera.plugins.color', load_gamera_module)
+module_loader('gamera.plugins.misc_filters', load_gamera_module)
 module_loader('gamera.plugins.morphology', load_gamera_module)
 module_loader('gamera.plugins.threshold', load_gamera_module)
 module_loader('gamera.plugins.image_conversion', load_gamera_module)
