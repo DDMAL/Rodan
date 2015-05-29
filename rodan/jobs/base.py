@@ -9,6 +9,7 @@ from django.db.models import Prefetch
 from django.template import Template
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
+from rodan.jobs.deep_eq import deep_eq
 
 import logging
 logger = logging.getLogger('rodan')
@@ -94,7 +95,7 @@ class RodanTaskType(TaskType):
                 errmsg = "Integrity error: Job {0}. Delete this job in Django shell and restart Rodan?".format(attrs['name'])
                 assert j.author == attrs['author'], errmsg
                 assert j.description == attrs['description'], errmsg
-                #assert set(j.settings) == set(attrs['settings']), errmsg
+                assert deep_eq(j.settings, attrs['settings'] or {'type': 'object'}), errmsg
                 assert j.enabled == attrs['enabled'], errmsg
                 assert j.category == attrs['category'], errmsg
                 assert j.interactive == attrs['interactive'], errmsg
