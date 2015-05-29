@@ -402,6 +402,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
             $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'serialized': serialized}).success(function (wf) {
                 console.log('imported!')
+                $scope.new_workflow_error = null;
             }).error(function (errors) {
                 $scope.new_workflow_error = errors;
             });
