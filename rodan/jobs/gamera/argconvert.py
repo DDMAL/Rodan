@@ -14,7 +14,7 @@ def convert_arg_list(arglist):
         'properties': {}
     }
     for i, a in enumerate(arglist):
-        key = a.name
+        key = a.name.replace(' ', '_')  # some Gamera fns have the argument name problem.
         schema['required'].append(key)
         value = {}
         if a.has_default:

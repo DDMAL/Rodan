@@ -68,11 +68,6 @@ def load_gamera_module(gamera_module):
 
                 task_function = self.name.split(".")[-1]
 
-                ## Individual fixes:
-                if self.name == 'gamera.plugins.threshold.threshold':
-                    settings['storage_format'] = settings['storage format']
-                    del settings['storage format']
-
                 result_image = getattr(task_image, task_function)(**settings)
                 result_image = ensure_pixel_type(result_image, outputs['output'][0]['resource_type'])
                 result_image.save_PNG(outputs['output'][0]['resource_path'])
