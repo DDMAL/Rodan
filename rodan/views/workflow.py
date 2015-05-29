@@ -131,7 +131,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             raise WorkflowValidationError('No WorkflowJobs in Workflow')
 
         ## Step 1
-        self.visited_set_global = set()
+        self.permanent_marks_global = set()
+        self.temporary_marks_global = set()
 
         ## Step 2
         self.disjoint_set = DisjointSet(workflow_jobs)
@@ -139,7 +140,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         ## Step 3&4
         for wfjob in workflow_jobs:
             try:
-                self._integrated_depth_first_search(wfjob)
+                if wfjob not in self.permanent_marks_global:
+                    self._integrated_depth_first_search(wfjob)
             except WorkflowValidationError as e:
                 raise e
 
@@ -153,23 +155,23 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         return True
 
     def _integrated_depth_first_search(self, this_wfjob):
-        if this_wfjob in self.visited_set_global:
-            return
-        self.visited_set_global.add(this_wfjob)
+        if this_wfjob in self.temporary_marks_global:
+            raise WorkflowValidationError('There is a cycle in the workflow')
+        if this_wfjob not in self.permanent_marks_global:
+            self.temporary_marks_global.add(this_wfjob)
 
-        for op in this_wfjob.output_ports.all():
-            adjacent_wfjobs = set()
-            connections = op.connections.all()
-            for conn in connections:
-                adj_wfjob = conn.input_port.workflow_job
-                if adj_wfjob not in adjacent_wfjobs:
-                    self._integrated_depth_first_search(adj_wfjob)
-                    if self.disjoint_set.find(this_wfjob) is self.disjoint_set.find(adj_wfjob):
-                        raise WorkflowValidationError('There appears to be a loop in the workflow')
+            for op in this_wfjob.output_ports.all():
+                adjacent_wfjobs = set()   # find unique adjacent nodes
+                connections = op.connections.all()
+                for conn in connections:
+                    adj_wfjob = conn.input_port.workflow_job
+                    if adj_wfjob not in adjacent_wfjobs:
+                        self._integrated_depth_first_search(adj_wfjob)
+                        self.disjoint_set.union(this_wfjob, adj_wfjob)
                     adjacent_wfjobs.add(adj_wfjob)
 
-            for adj_wfjob in adjacent_wfjobs:
-                self.disjoint_set.union(this_wfjob, adj_wfjob)
+            self.permanent_marks_global.add(this_wfjob)
+            self.temporary_marks_global.remove(this_wfjob)
 
 
 
