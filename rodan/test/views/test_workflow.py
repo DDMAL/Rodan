@@ -257,7 +257,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    output_port__workflow_job=self.test_workflowjob2)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'There appears to be a loop in the workflow'}
+        anticipated_message = {'detail': 'There is a cycle in the workflow'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
     def test_graph__merging_workflow(self):
@@ -312,28 +312,54 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     def test_graph__branching_and_merging(self):
         """
-        wfjob------------------->wfjob_2
-             `----->wfjob_3------^
+        wfjob------>wfjob_2------------>wfjob_5
+             `----->wfjob_3----wfjob_4--^
         """
         self.test_workflowjob3 = mommy.make('rodan.WorkflowJob',
                                             workflow=self.test_workflow,
                                             job=self.test_job)
+        self.test_workflowjob4 = mommy.make('rodan.WorkflowJob',
+                                            workflow=self.test_workflow,
+                                            job=self.test_job)
+        self.test_workflowjob5 = mommy.make('rodan.WorkflowJob',
+                                            workflow=self.test_workflow,
+                                            job=self.test_job)
+        outputport1 = self.test_workflowjob.output_ports.first()
+        outputport2 = self.test_workflowjob2.output_ports.first()
         inputport3 = mommy.make('rodan.InputPort',
                                 workflow_job=self.test_workflowjob3,
                                 input_port_type=self.test_inputporttype)
         outputport3 = mommy.make('rodan.OutputPort',
                                  workflow_job=self.test_workflowjob3,
                                  output_port_type=self.test_outputporttype)
-        inputport2_new = mommy.make('rodan.InputPort',
-                                    workflow_job=self.test_workflowjob2,
-                                    input_port_type=self.test_inputporttype)
-        outputport = self.test_workflowjob.output_ports.first()
+        inputport4 = mommy.make('rodan.InputPort',
+                                workflow_job=self.test_workflowjob4,
+                                input_port_type=self.test_inputporttype)
+        outputport4 = mommy.make('rodan.OutputPort',
+                                 workflow_job=self.test_workflowjob4,
+                                 output_port_type=self.test_outputporttype)
+        inputport5A = mommy.make('rodan.InputPort',
+                                workflow_job=self.test_workflowjob5,
+                                input_port_type=self.test_inputporttype)
+        inputport5B = mommy.make('rodan.InputPort',
+                                workflow_job=self.test_workflowjob5,
+                                input_port_type=self.test_inputporttype)
+        outputport5 = mommy.make('rodan.OutputPort',
+                                 workflow_job=self.test_workflowjob5,
+                                 output_port_type=self.test_outputporttype)
         mommy.make('rodan.Connection',
-                   output_port=outputport,
+                   output_port=outputport1,
                    input_port=inputport3)
         mommy.make('rodan.Connection',
                    output_port=outputport3,
-                   input_port=inputport2_new)
+                   input_port=inputport4)
+        mommy.make('rodan.Connection',
+                   output_port=outputport4,
+                   input_port=inputport5A)
+
+        mommy.make('rodan.Connection',
+                   output_port=outputport2,
+                   input_port=inputport5B)
 
 
 class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
