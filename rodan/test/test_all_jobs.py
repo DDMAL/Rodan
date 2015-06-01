@@ -1,10 +1,9 @@
-import os, tempfile, shutil, uuid, types
+import os, tempfile, shutil, uuid, types, traceback, sys
 from celery import registry
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.jobs.base import RodanTask
-import rodan.jobs.load   # load all jobs before adding methods for the TestCase class.
 
 class RodanJobsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -18,9 +17,32 @@ class RodanJobsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
             pass
         return os.path.join(settings.MEDIA_ROOT, str(uuid.uuid1()))
 
-# dynamically add test methods for all jobs
-def wrapper_fn(task):
-    return lambda testcase: task.test_my_task(testcase)
-for task in registry.tasks.values():
-    if isinstance(task, RodanTask):
-        setattr(RodanJobsTestCase, 'test::{0}'.format(task.name), wrapper_fn(task))
+    def test_all_jobs(self):
+        import rodan.jobs.load   # load all jobs
+
+        rodan_tasks = []
+        for task in registry.tasks.values():
+            if isinstance(task, RodanTask):
+                rodan_tasks.append(task)
+
+        total = len(rodan_tasks)
+        failed = []
+        for i, task in enumerate(rodan_tasks):
+            print "{0}/{1}: {2} ... ".format(i+1, total, task.name),
+            try:
+                task.test_my_task(self)
+            except Exception as e:
+                print "FAILED"
+                tb = traceback.format_exc()
+                failed.append((task.name, tb))
+            else:
+                print "PASSED"
+
+        if failed:
+            self.fail("{0} job(s) out of {1} failed.\n\n{2}".format(
+                len(failed),
+                total,
+                '\n\n'.join(
+                    map(lambda f: "{0}\n{1}".format(f[0], f[1]), failed)
+                )
+            ))
