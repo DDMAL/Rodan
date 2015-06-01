@@ -320,6 +320,12 @@ class RodanTask(Task):
                 runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details', 'celery_task_id'])
                 return 'WAITING FOR INPUT'
             else:
+                # ensure the job has produced all output files
+                for opt_name, output_list in outputs.iteritems():
+                    for output in output_list:
+                        if not os.path.isfile(output['resource_temp_path']):
+                            raise RuntimeError("The job did not produce the output file for {0}".format(opt_name))
+
                 # save outputs
                 for temppath, output in temppath_map.iteritems():
                     with open(temppath, 'rb') as f:
