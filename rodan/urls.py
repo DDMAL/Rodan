@@ -43,9 +43,10 @@ import rodan.jobs.load
 
 urlpatterns = []
 
-urlpatterns += patterns('',
-    url(r'^admin/', include(admin.site.urls)),
-)
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^admin/', include(admin.site.urls)),
+    )
 
 urlpatterns += format_suffix_patterns(
     patterns('',
