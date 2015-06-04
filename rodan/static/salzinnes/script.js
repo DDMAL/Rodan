@@ -308,7 +308,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_bi.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pm.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_dsp.url}),
-                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url, 'job_settings': {'num_lines': 4, 'scanlines': 20, 'blackness': 0.8, 'tolerance': -1}}),
+                    $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_seg.url, 'job_settings': {'num_lines': 4, 'scanlines': 20, 'blackness': 0.8, 'tolerance': -1, 'manual': true}}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_slr.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_cls.url}),
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_pf.url}),
