@@ -51,9 +51,9 @@ class ResultsPackage(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)
     percent_completed = models.IntegerField(default=0)
 
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages")
+    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages", on_delete=models.CASCADE)
     packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES)
-    creator = models.ForeignKey("auth.User", related_name="results_packages")
+    creator = models.ForeignKey("auth.User", related_name="results_packages", on_delete=models.SET_NULL, blank=True, null=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 
     error_summary = models.TextField(default="", blank=True, null=True)

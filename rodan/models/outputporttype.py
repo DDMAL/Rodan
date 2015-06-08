@@ -24,7 +24,7 @@ class OutputPortType(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    job = models.ForeignKey('rodan.Job', related_name='output_port_types')
+    job = models.ForeignKey('rodan.Job', related_name='output_port_types', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     resource_types = models.ManyToManyField('rodan.ResourceType', related_name='output_port_types')
     minimum = models.IntegerField()

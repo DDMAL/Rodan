@@ -62,7 +62,7 @@ class RunJob(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs")
+    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE)
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL)
 
     workflow_job_uuid = models.CharField(max_length=32)

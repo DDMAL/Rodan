@@ -40,7 +40,7 @@ class Project(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey(User, related_name="projects")
+    creator = models.ForeignKey(User, related_name="projects", blank=True, null=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

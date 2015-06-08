@@ -115,17 +115,17 @@ class Resource(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey('rodan.Project', related_name="resources")
+    project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE)
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
-    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources')
+    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources', on_delete=models.PROTECT)
 
     processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True)
     error_summary = models.TextField(default="")
     error_details = models.TextField(default="")
 
-    creator = models.ForeignKey(User, related_name="resources", null=True, blank=True)
-    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True)  # no backward reference
+    creator = models.ForeignKey(User, related_name="resources", null=True, blank=True, on_delete=models.SET_NULL)
+    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL)  # no backward reference
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

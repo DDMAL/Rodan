@@ -29,8 +29,8 @@ class Output(models.Model):
     uuid = UUIDField(primary_key=True, auto=True)
     output_port = models.ForeignKey('rodan.OutputPort', related_name='outputs', blank=True, null=True, on_delete=models.SET_NULL)
     output_port_type_name = models.CharField(max_length=255)
-    run_job = models.ForeignKey('rodan.RunJob', related_name='outputs')
-    resource = models.ForeignKey('rodan.Resource', related_name='outputs')
+    run_job = models.ForeignKey('rodan.RunJob', related_name='outputs', on_delete=models.CASCADE)
+    resource = models.ForeignKey('rodan.Resource', related_name='outputs', on_delete=models.PROTECT)
 
     def __unicode__(self):
         return u"<Output {0}>".format(str(self.uuid))

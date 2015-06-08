@@ -22,9 +22,9 @@ class Workflow(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     name = models.CharField(max_length=100)
-    project = models.ForeignKey("rodan.Project", related_name="workflows")
+    project = models.ForeignKey("rodan.Project", related_name="workflows", on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey("auth.User", related_name="workflows")
+    creator = models.ForeignKey("auth.User", related_name="workflows", null=True, blank=True, on_delete=models.SET_NULL)
     valid = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
