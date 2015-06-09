@@ -113,9 +113,18 @@ def create_thumbnails(resource_id):
         return False
 
 
-# if WITH_DIVA set, try to import conversion.to_jpeg2000 which may throw ImportError if kdu_compress or vips is not found.
+# if WITH_DIVA set, try to import the executables kdu_compress and convert.
 if getattr(settings, 'WITH_DIVA'):
-    from rodan.jobs.conversion import to_jpeg2000
+    from distutils.spawn import find_executable
+
+    BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS', None) or find_executable('kdu_compress')
+    if not BIN_KDU_COMPRESS:
+        raise ImportError("cannot find kdu_compress")
+
+    BIN_CONVERT = getattr(settings, 'BIN_CONVERT', None) or find_executable('convert')
+    if not BIN_CONVERT:
+        raise ImportError("cannot find convert")
+
 
 @task(name="rodan.core.create_diva")
 def create_diva(resource_id):
