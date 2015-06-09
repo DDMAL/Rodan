@@ -1,5 +1,5 @@
 from AomrExceptions import AomrMeiNoteIntervalMismatchError
-from pymei import MeiElement, XmlExport, MeiDocument
+from pymei import MeiElement, MeiDocument, documentToFile, documentToText, elementToText
 
 import logging
 lg = logging.getLogger('aomr')
@@ -94,7 +94,7 @@ class AomrMeiOutput(object):
         self.facsimile = self._create_facsimile_element()
         self.surface = self._create_surface_element()
         self.graphic = self._create_graphic_element(original_image)
-        lg.debug("SELF GRAPHIC:{0}".format(XmlExport.meiElementToText(self.graphic)))
+        lg.debug("SELF GRAPHIC:{0}".format(elementToText(self.graphic)))
 
         self.surface.addChild(self.graphic)
         self.facsimile.addChild(self.surface)
@@ -179,7 +179,7 @@ class AomrMeiOutput(object):
         # self.md.addelement(self.mei)
         self.md = MeiDocument()
         self.md.setRootElement(self.mei)
-        print XmlExport.meiElementToText(self.md.getElementById(self.graphic.getId()))
+        print elementToText(self.md.getElementById(self.graphic.getId()))
 
     def _parse_system(self, sysnum, syst):
         sysbrk = self._create_sb_element()

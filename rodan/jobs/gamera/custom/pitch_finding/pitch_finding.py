@@ -74,4 +74,4 @@ class PitchFindingTask(RodanTask):
             print e
             mei_file = AomrMeiOutput({}, segmented_image_path, None)
 
-        pymei.write(mei_file.md, outputs['output'][0]['resource_path'])
+        pymei.documentToFile(mei_file.md, outputs['output'][0]['resource_path'])
