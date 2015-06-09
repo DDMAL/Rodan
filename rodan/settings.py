@@ -92,9 +92,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.admin',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -103,9 +101,11 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'guardian',
-    # 'rodan.jobs',
     'corsheaders',
 )
+
+if DEBUG:
+    INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.admin', 'django.contrib.sessions')
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

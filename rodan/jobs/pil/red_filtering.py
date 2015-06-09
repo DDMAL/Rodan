@@ -2,9 +2,9 @@ from PIL import Image, ImageOps, ImageEnhance
 from rodan.jobs.base import RodanTask
 
 class RedFilter(RodanTask):
-    name = "PRF.red_filtering"
-    author = "Rivu Khoda"
-    description = "Filters a spectrum of red color from image"
+    name = "pil.red_filtering"
+    author = "Rivu Khoda & Yihong Lui"
+    description = "Filters a spectrum of red color from image" 
     settings = {} 
     enabled = True
     category = "Filter"
@@ -37,6 +37,11 @@ class RedFilter(RodanTask):
         notes = red_layer.point(lambda i: i > 120 and 255).convert('1')
         notes.save(outputs['Staffless Image'][0]['resource_path'], "PNG")
 		 
+        for x in range(0, sal.size[0]):
+	        for y in range(0, sal.size[1]):
+	            if sal.getpixel((x, y)) == (255, 255, 255):
+		        sal.putpixel((x, y), (0, 0, 0))
+
         enhancer = ImageEnhance.Color(sal)
         enh_red_layer = enhancer.enhance(4).split()[0]
         staff = enh_red_layer.point(lambda i: i < 255 and 255).convert('1')

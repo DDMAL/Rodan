@@ -135,6 +135,9 @@ def create_diva(resource_id):
     resource_object = resource_query[0]
     mimetype = resource_object.resource_type.mimetype
 
+    if not os.path.exists(resource_object.diva_path):
+        os.makedirs(resource_object.diva_path)
+
     if mimetype.startswith('image'):
         inputs = {'in': [{
             'resource_path': resource_object.compat_resource_file.path,
