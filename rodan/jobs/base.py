@@ -10,6 +10,7 @@ from django.template import Template
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
 from rodan.jobs.deep_eq import deep_eq
+from rodan.jobs.convert_to_unicode import convert_to_unicode
 
 import logging
 logger = logging.getLogger('rodan')
@@ -90,37 +91,138 @@ class RodanTaskType(TaskType):
                     j.delete()  # clean the job
                     raise e
             else:
-                # perform an integrity check
+                UPDATE_JOBS = getattr(rodan_settings, "_rodan_update_jobs", False)
+                # perform an integrity check, and update jobs if demanded.
                 j = Job.objects.get(job_name=attrs['name'])
-                errmsg = "Integrity error: Job {0}. Delete this job in Django shell and restart Rodan?".format(attrs['name'])
-                assert j.author == attrs['author'], errmsg
-                assert j.description == attrs['description'], errmsg
-                assert deep_eq(j.settings, attrs['settings'] or {'type': 'object'}), errmsg
-                assert j.enabled == attrs['enabled'], errmsg
-                assert j.category == attrs['category'], errmsg
-                assert j.interactive == attrs['interactive'], errmsg
 
-                assert len(attrs['input_port_types']) == j.input_port_types.count(), errmsg
-                for ipt in j.input_port_types.all():
-                    ipt_name = ipt.name
-                    i = filter(lambda d: d['name'] == ipt_name, attrs['input_port_types'])
-                    assert len(i) == 1, errmsg
-                    i = i[0]
-                    assert i['minimum'] == ipt.minimum, errmsg
-                    assert i['maximum'] == ipt.maximum, errmsg
-                    resource_types = RodanTaskType._resolve_resource_types(i['resource_types'])
-                    assert set(map(lambda rt: rt.mimetype, resource_types)) == set(map(lambda rt: rt.mimetype, ipt.resource_types.all())), errmsg
+                def check_field(field_name, original_value, new_value, compare_fn=lambda x, y: x == y):
+                    if not compare_fn(original_value, new_value):
+                        if not UPDATE_JOBS:
+                            raise ValueError("The field `{0}` of Job `{1}` seems to be updated: {2} --> {3}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(field_name, j.job_name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
+                        else:
+                            confirm_update = raw_input("The field `{0}` of Job `{1}` seems to be updated: \n{2}\n  -->\n{3}\n\nConfirm (y/N)? ".format(field_name, j.job_name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
+                            if confirm_update.lower() == 'y':
+                                setattr(j, field_name, new_value)
+                                j.save()
+                                print "  ..updated.\n\n"
+                            else:
+                                print "  ..not updated.\n\n"
 
-                assert len(attrs['output_port_types']) == j.output_port_types.count(), errmsg
-                for opt in j.output_port_types.all():
-                    opt_name = opt.name
-                    o = filter(lambda d: d['name'] == opt_name, attrs['output_port_types'])
-                    assert len(o) == 1, errmsg
-                    o = o[0]
-                    assert o['minimum'] == opt.minimum, errmsg
-                    assert o['maximum'] == opt.maximum, errmsg
-                    resource_types = RodanTaskType._resolve_resource_types(o['resource_types'])
-                    assert set(map(lambda rt: rt.mimetype, resource_types)) == set(map(lambda rt: rt.mimetype, opt.resource_types.all())), errmsg
+                check_field("author", j.author, attrs['author'])
+                check_field("description", j.description, attrs['description'])
+                check_field("settings", j.settings, attrs['settings'] or {'type': 'object'}, compare_fn=lambda x, y: deep_eq(x, y))
+                check_field("enabled", j.enabled, attrs['enabled'])
+                check_field("category", j.category, attrs['category'])
+                check_field("interactive", j.interactive, attrs['interactive'])
+
+
+                # Input Port Types
+                def check_port_types(which):
+                    "which == 'in' or 'out'"
+                    if which == 'in':
+                        attrs_pts = list(copy.deepcopy(attrs['input_port_types']))
+                        db_pts = list(j.input_port_types.all())
+                        msg = 'Input'
+                    elif which == 'out':
+                        attrs_pts = list(copy.deepcopy(attrs['output_port_types']))
+                        db_pts = list(j.output_port_types.all())
+                        msg = 'Output'
+
+                    for pt in db_pts:
+                        pt_name = pt.name
+
+                        idx = next((i for (i, this_pt) in enumerate(attrs_pts) if this_pt['name'] == pt_name), None)
+                        if idx is not None:  # pt exists in database and in code. Check values
+                            attrs_pt = attrs_pts[idx]
+
+                            # Compare values
+                            if attrs_pt['minimum'] != pt.minimum:
+                                if not UPDATE_JOBS:
+                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('minimum', pt_name, j.job_name, pt.minimum, attrs_pt['minimum'], msg))
+                                else:
+                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('minimum', pt_name, j.job_name, pt.minimum, attrs_pt['minimum'], msg))
+                                    if confirm_update.lower() == 'y':
+                                        pt.minimum = attrs_pt['minimum']
+                                        pt.save()
+                                        print "  ..updated.\n\n"
+                                    else:
+                                        print "  ..not updated.\n\n"
+
+                            if attrs_pt['maximum'] != pt.maximum:
+                                if not UPDATE_JOBS:
+                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('maximum', pt_name, j.job_name, pt.maximum, attrs_pt['maximum'], msg))
+                                else:
+                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('maximum', pt_name, j.job_name, pt.maximum, attrs_pt['maximum'], msg))
+                                    if confirm_update.lower() == 'y':
+                                        pt.maximum = attrs_pt['maximum']
+                                        pt.save()
+                                        print "  ..updated.\n\n"
+                                    else:
+                                        print "  ..not updated.\n\n"
+
+
+                            resource_types = RodanTaskType._resolve_resource_types(attrs_pt['resource_types'])
+                            rt_code = set(map(lambda rt: rt.mimetype, resource_types))
+                            rt_db = set(map(lambda rt: rt.mimetype, pt.resource_types.all()))
+                            if rt_code != rt_db:
+                                if not UPDATE_JOBS:
+                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('resource_types', pt_name, j.job_name, rt_db, rt_code, msg))
+                                else:
+                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('resource_types', pt_name, j.job_name, rt_db, rt_code, msg))
+                                    if confirm_update.lower() == 'y':
+                                        pt.resource_types.clear()
+                                        pt.resource_types.add(*resource_types)
+                                        print "  ..updated.\n\n"
+                                    else:
+                                        print "  ..not updated.\n\n"
+
+                            del attrs_pts[idx]
+
+                        else:  # pt exists in database but not in code. Should be deleted.
+                            if not UPDATE_JOBS:
+                                raise ValueError("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Try to run `manage.py rodan_update_jobs` to confirm this deletion.".format(pt_name, j.job_name, msg))
+                            else:
+                                confirm_delete = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Confirm (y/N)? ".format(pt_name, j.job_name, msg))
+                                if confirm_delete.lower() == 'y':
+                                    try:
+                                        pt.delete()
+                                        print "  ..deleted.\n\n"
+                                    except Exception as e:
+                                        print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                                else:
+                                    print "  ..not deleted.\n\n"
+
+                    if attrs_pts:  # ipt exists in code but not in database. Should be added to the database.
+                        for pt in attrs_pts:
+                            if not UPDATE_JOBS:
+                                raise ValueError("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(pt['name'], j.job_name, msg))
+                            else:
+                                confirm_update = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Confirm (y/N)? ".format(pt['name'], j.job_name, msg))
+                                if confirm_update.lower() == 'y':
+                                    if which == 'in':
+                                        Model = InputPortType
+                                    elif which == 'out':
+                                        Model = OutputPortType
+                                    i = Model(job=j,
+                                              name=pt['name'],
+                                              minimum=pt['minimum'],
+                                              maximum=pt['maximum'])
+                                    i.save()
+                                    resource_types = RodanTaskType._resolve_resource_types(pt['resource_types'])
+                                    if len(resource_types) == 0:
+                                        raise ValueError('No available resource types found for this {1}PortType: {0}'.format(pt['resource_types'], msg))
+                                    i.resource_types.add(*resource_types)
+                                    print "  ..updated.\n\n"
+                                else:
+                                    print "  ..not updated.\n\n"
+
+                check_port_types('in')
+                check_port_types('out')
+
+            # Process done
+            from rodan.jobs.load import job_list
+            if attrs['name'] in job_list:
+                job_list.remove(attrs['name'])
 
     @staticmethod
     def _resolve_resource_types(value):

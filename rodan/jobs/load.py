@@ -36,5 +36,25 @@ import rodan.jobs.core
 import rodan.jobs.master_task
 
 from rodan.jobs import module_loader
+
+from rodan.models import Job
+
+job_list = list(Job.objects.all().values_list("job_name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
-    module_loader(package_name)
+    module_loader(package_name)  # RodanTaskType will update `job_list`
+
+UPDATE_JOBS = getattr(settings, "_rodan_update_jobs", False)
+if job_list:  # there are database jobs that are not registered. Should delete them.
+    if not UPDATE_JOBS:
+        raise ValueError("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py rodan_update_jobs` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
+    else:
+        for j_name in job_list:
+            confirm_delete = raw_input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
+            if confirm_delete.lower() == 'y':
+                try:
+                    Job.objects.get(job_name=j_name).delete()
+                    print "  ..deleted.\n\n"
+                except Exception as e:
+                    print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+            else:
+                print "  ..not deleted.\n\n"
