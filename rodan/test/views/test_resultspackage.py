@@ -19,6 +19,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_user()
         self.client.login(username="super", password="hahaha")
 
+    """
     def test_unfinished_workflowrun(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
         resultspackage_obj = {
@@ -29,7 +30,6 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'workflow_run': ["Cannot package results of an unfinished or failed WorkflowRun."]})
 
-    """
     def test_nonexist_port(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
