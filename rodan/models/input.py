@@ -37,6 +37,6 @@ class Input(models.Model):
     @property
     def input_port_type(self):
         try:
-            return InputPortType.objects.get(job__job_name=self.run_job.job_name, name=self.input_port_type_name)
+            return InputPortType.objects.get(job__name=self.run_job.job_name, name=self.input_port_type_name)
         except InputPortType.DoesNotExist:
             return None

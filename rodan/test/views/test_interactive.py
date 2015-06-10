@@ -13,7 +13,7 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.setUp_user()
         self.client.login(username='ahankins', password='hahaha')
 
-        dummy_m_job = Job.objects.get(job_name='rodan.jobs.devel.dummy_manual_job')
+        dummy_m_job = Job.objects.get(name='rodan.jobs.devel.dummy_manual_job')
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource_in = mommy.make('rodan.Resource',
@@ -25,7 +25,7 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                             compat_resource_file="",
                                             resource_type=ResourceType.cached('test/a1'))
         self.test_runjob = mommy.make('rodan.RunJob',
-                                      job_name=dummy_m_job.job_name,
+                                      job_name=dummy_m_job.name,
                                       status=task_status.WAITING_FOR_INPUT,
                                       workflow_run__status=task_status.PROCESSING,
                                       workflow_run__workflow=self.test_workflow)

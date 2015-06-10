@@ -23,7 +23,7 @@ class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
 
     def test_post_not_allowed(self):
         job_obj = {
-            'job_name': 'hahaha'
+            'name': 'hahaha'
         }
         response = self.client.post("/jobs/", job_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

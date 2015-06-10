@@ -244,8 +244,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         $scope.createWorkflow_rotatecrop = function () {
             $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': 'noname', 'description': 'no description'}).success(function (wf) {
-                var jr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate'});
-                var jc = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop'});
+                var jr = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.toolkits.rodan_plugins.plugins.rdn_rotate.rdn_rotate'});
+                var jc = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.toolkits.rodan_plugins.plugins.rdn_crop.rdn_crop'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': jr.url}),
@@ -293,15 +293,15 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 };
             });*/
             $http.post(ROOT + '/workflows/', {'project': $scope.project.url, 'name': 'noname', 'description': 'no description'}).success(function (wf) {
-                var j_gs = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.plugins.image_conversion.to_greyscale'});
-                var j_bi = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.simple_binarise_interactive'});
-                var j_pm = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.border_removal.poly_mask'});
-                var j_dsp = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
-                var j_seg = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.segmentation.segmentation'});
-                var j_slr = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
-                var j_cls = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.classification'});
-                var j_pf = _.find($rootScope.jobs, function (j) { return j.job_name == 'gamera.custom.pitch_finding'});
-                var j_neon = _.find($rootScope.jobs, function (j) { return j.job_name == 'neon.square_note_editor_with_meix'});
+                var j_gs = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.plugins.image_conversion.to_greyscale'});
+                var j_bi = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.custom.simple_binarise_interactive'});
+                var j_pm = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.border_removal.poly_mask'});
+                var j_dsp = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.toolkits.rodan_plugins.plugins.rdn_despeckle.rdn_despeckle_interactive'});
+                var j_seg = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.segmentation.segmentation'});
+                var j_slr = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.toolkits.staffline_removal.plugins.staff_removal.staff_removal'});
+                var j_cls = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.custom.classification'});
+                var j_pf = _.find($rootScope.jobs, function (j) { return j.name == 'gamera.custom.pitch_finding'});
+                var j_neon = _.find($rootScope.jobs, function (j) { return j.name == 'neon.square_note_editor_with_meix'});
 
                 $q.all([
                     $http.post(ROOT + '/workflowjobs/', {'workflow': wf.url, 'job': j_gs.url}),

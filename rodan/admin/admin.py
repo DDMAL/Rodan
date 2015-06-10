@@ -24,7 +24,7 @@ from rodan.models.resource import Resource
 
 
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('job_name', 'enabled', 'category')
+    list_display = ('name', 'enabled', 'category')
 
 
 class ProjectAdmin(GuardedModelAdmin):

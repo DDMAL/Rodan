@@ -16,7 +16,7 @@ class Job(models.Model):
     **Fields**
 
     - `uuid`
-    - `job_name` -- unique name that corresponds to a Celery task.
+    - `name` -- unique name that corresponds to a Celery task.
     - `author` -- name of the author who is responsible for the job.
     - `category` -- name of the category, used to group and organize the `Job`s.
     - `description` -- documentation.
@@ -27,7 +27,7 @@ class Job(models.Model):
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    job_name = models.CharField(max_length=200, unique=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
+    name = models.CharField(max_length=200, unique=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -38,7 +38,7 @@ class Job(models.Model):
     interactive = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u"<Job {0}>".format(self.job_name)
+        return u"<Job {0}>".format(self.name)
 
     class Meta:
         app_label = 'rodan'

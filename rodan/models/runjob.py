@@ -84,12 +84,12 @@ class RunJob(models.Model):
     lock = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return u"<RunJob {0} {1}{2}>".format(str(self.uuid), self.workflow_job.job.job_name, ' (interactive)' if self.workflow_job.job.interactive else '')
+        return u"<RunJob {0} {1}{2}>".format(str(self.uuid), self.workflow_job.job.name, ' (interactive)' if self.workflow_job.job.interactive else '')
 
     @property
     def job(self):
         try:
-            return Job.objects.get(job_name=self.job_name)
+            return Job.objects.get(name=self.job_name)
         except Job.DoesNotExist:
             return None
 

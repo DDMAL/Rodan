@@ -9,18 +9,18 @@ class JobTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
         self.setUp_rodan()
 
     def test_save(self):
-        job = Job(job_name="test job")
+        job = Job(name="test job")
         job.save()
 
-        retr_job = Job.objects.get(job_name="test job")
-        self.assertEqual(retr_job.job_name, job.job_name)
+        retr_job = Job.objects.get(name="test job")
+        self.assertEqual(retr_job.name, job.name)
 
     def test_delete(self):
-        job = Job(job_name="test job")
+        job = Job(name="test job")
         job.save()
 
-        retr_job = Job.objects.get(job_name="test job")
+        retr_job = Job.objects.get(name="test job")
         retr_job.delete()
 
-        retr_job2 = Job.objects.filter(job_name="test job")
+        retr_job2 = Job.objects.filter(name="test job")
         self.assertFalse(retr_job2.exists())

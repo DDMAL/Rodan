@@ -58,7 +58,7 @@ class WorkflowJob(models.Model):
 
     @property
     def job_name(self):
-        return self.job.job_name
+        return self.job.name
 
     @property
     def job_description(self):

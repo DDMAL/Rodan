@@ -227,23 +227,23 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         rc_ids = set()
         for i_wfj, wfj in enumerate(serialized['workflow_jobs']):
             job_name = wfj['job_name']
-            if not Job.objects.filter(job_name=job_name).exists():
+            if not Job.objects.filter(name=job_name).exists():
                 raise self.ValidationError({'workflow_jobs[{0}].job_name'.format(i_wfj): 'Job {0} does not exist in current Rodan installation.'.format(job_name)})
             for i_ip, ip in enumerate(wfj['input_ports']):
                 ipt_name = ip['type']
-                if not InputPortType.objects.filter(job__job_name=job_name, name=ipt_name).exists():
+                if not InputPortType.objects.filter(job__name=job_name, name=ipt_name).exists():
                     raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}].type'.format(i_wfj, i_ip): 'InputPortType {0} of Job {1} does not exist in current Rodan installation.'.format(ipt_name, job_name)})
                 if ip['id'] in ip_ids:
                     raise self.ValidationError({'workflow_jobs[{0}].input_ports[{1}].id'.format(i_wfj, i_ip): 'Duplicate InputPort ID found.'})
                 ip_ids.add(ip['id'])
             for i_op, op in enumerate(wfj['output_ports']):
                 opt_name = op['type']
-                if not OutputPortType.objects.filter(job__job_name=job_name, name=opt_name).exists():
+                if not OutputPortType.objects.filter(job__name=job_name, name=opt_name).exists():
                     raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}].type'.format(i_wfj, i_op): 'OutputPortType {0} of Job {1} does not exist in current Rodan installation.'.format(opt_name, job_name)})
                 if op['id'] in op_ids:
                     raise self.ValidationError({'workflow_jobs[{0}].output_ports[{1}].id'.format(i_wfj, i_op): 'Duplicate OutputPort ID found.'})
                 op_ids.add(op['id'])
-            j_settings = Job.objects.get(job_name=job_name).settings
+            j_settings = Job.objects.get(name=job_name).settings
             try:
                 jsonschema.Draft4Validator(j_settings).validate(wfj['job_settings'])
             except jsonschema.exceptions.ValidationError as e:
@@ -270,7 +270,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
 
         for wfj in wf.workflow_jobs.all():
             rep_wfj = {
-                'job_name': wfj.job.job_name,
+                'job_name': wfj.job.name,
                 'job_settings': wfj.job_settings,
                 'input_ports': [],
                 'output_ports': []
@@ -314,7 +314,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         op_map = {}
 
         for wfj_s in serialized['workflow_jobs']:
-            j = Job.objects.get(job_name=wfj_s['job_name'])
+            j = Job.objects.get(name=wfj_s['job_name'])
             wfj = WorkflowJob.objects.create(workflow=wf,
                                              job=j,
                                              job_settings=wfj_s['job_settings'])

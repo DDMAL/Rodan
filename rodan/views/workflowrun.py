@@ -160,7 +160,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                              workflow_job_uuid=wfjob.uuid.hex,
                              resource_uuid=arg_resource.uuid.hex if arg_resource else None,
                              workflow_run=workflow_run,
-                             job_name=wfjob.job.job_name,
+                             job_name=wfjob.job.name,
                              job_settings=wfjob.job_settings)
             run_job.save()
 

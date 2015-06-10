@@ -39,7 +39,7 @@ from rodan.jobs import module_loader
 
 from rodan.models import Job
 
-job_list = list(Job.objects.all().values_list("job_name", flat=True))
+job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
     module_loader(package_name)  # RodanTaskType will update `job_list`
 
@@ -52,7 +52,7 @@ if job_list:  # there are database jobs that are not registered. Should delete t
             confirm_delete = raw_input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
             if confirm_delete.lower() == 'y':
                 try:
-                    Job.objects.get(job_name=j_name).delete()
+                    Job.objects.get(name=j_name).delete()
                     print "  ..deleted.\n\n"
                 except Exception as e:
                     print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
