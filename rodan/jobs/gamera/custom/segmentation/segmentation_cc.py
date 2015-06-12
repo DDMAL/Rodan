@@ -58,8 +58,6 @@ class Segmentation(RodanTask):
             rb = (points.offset_x + points.ncols, points.offset_y + points.nrows)
             staff_regions.append([lt, rt, lb, rb]) #returns a list of tuples (coordinates)
 
-        # pops the border of the image that is not a staff 
-        staff_regions.pop()
         # loads the resource image using PIL
         resource_image = Image.open(inputs['input'][0]['resource_path'])
         # creates an image drawer object from the resource image 
@@ -76,10 +74,10 @@ class Segmentation(RodanTask):
             bottom_y = max(polygon[2][1], polygon[3][1])
             
             coordinates = [
-                (polygon[0][0] - 3, top_y - 50),
-                (polygon[1][0] + 3, top_y - 50),
-                (polygon[1][0] + 3, bottom_y + 50),
-                (polygon[0][0] - 3, bottom_y + 50)]
+                (polygon[0][0] - 0, top_y - 50),
+                (polygon[1][0] + 0, top_y - 50),
+                (polygon[1][0] + 0, bottom_y + 50),
+                (polygon[0][0] - 0, bottom_y + 50)]
 
             image_drawer.polygon(coordinates, outline='white', fill=None)
         del image_drawer
@@ -113,13 +111,14 @@ class Segmentation(RodanTask):
 
          # for each corner cooridnates of a cc, add it list of valid images if it falls within in region occupied by the staff 
         for staff in staff_regions:
-            for index, cc in enumerate(cc_regions):
-                for corner in cc:
-                    if staff[0][0] - 2 <= corner[0] <= staff[1][0] + 2 and staff[0][1] - 10 <= corner[1] <= staff[2][1] + 10:
-                        # (EFFECT: Removes some of the large ornaments and letters)
-                        if staff[0][1] - cc[0][1] < 51 and cc[2][1] - staff[2][1] < 51:
-                            valid_images.append(ccs[index])
-                            break
+            if staff[2][1] < 5500 and staff[0][1] > 300:
+                for index, cc in enumerate(cc_regions):
+                    for corner in cc:
+                        if staff[0][0] - 5 <= corner[0] <= staff[1][0] + 5 and staff[0][1] - 10 <= corner[1] <= staff[2][1] + 10:
+                            # (EFFECT: Removes some of the large ornaments and letters)
+                            if staff[0][1] - cc[0][1] < 51 and cc[2][1] - staff[2][1] < 51:
+                                valid_images.append(ccs[index])
+                                break
 
         # combines all cc images that satisfied the established restriction in line 49
         combined_images = image_utilities.union_images([image for image in valid_images])
@@ -131,9 +130,10 @@ class Segmentation(RodanTask):
         # draws the a black masking polygon according to the points defining the staff region
         for polygon in staff_regions:
             # reassigns ordering of polygon points so that a proper rectangle is drawn
-            reassign = [polygon[0], polygon[1], polygon[3], polygon[2]]
-            cooridnates = [(coordinate[0], coordinate[1]) for coordinate in reassign]
-            mask_drawer.polygon(cooridnates, outline='black', fill='black')
+            if polygon[2][1] < 5500 and polygon[0][1] > 300:
+                reassign = [polygon[0], polygon[1], polygon[3], polygon[2]]
+                cooridnates = [(coordinate[0], coordinate[1]) for coordinate in reassign]
+                mask_drawer.polygon(cooridnates, outline='black', fill='black')
         del mask_drawer
 
         # converts the blank image which has black polygones drawn on it to format accetable by gamera
@@ -208,13 +208,14 @@ class Segmentation(RodanTask):
 
          # for each corner cooridnates of a cc, add it list of valid images if it falls within in region occupied by the staff 
         for staff in staff_regions:
-            for index, cc in enumerate(cc_regions):
-                for corner in cc:
-                    if staff[0].x - 10 <= corner[0] <= staff[1].x + 10 and staff[0].y - 10 <= corner[1] <= staff[2].y + 10:
-                        #(EFFECT: Removes some of the large ornaments and letters)
-                        if staff[0].y - cc[0][1] < 51 and cc[2][1] - staff[2].y < 51:
-                            valid_images.append(ccs[index])
-                            break
+            if staff[2].y < 5500 and staff[0].y > 300:
+                for index, cc in enumerate(cc_regions):
+                    for corner in cc:
+                        if staff[0].x - 10 <= corner[0] <= staff[1].x + 10 and staff[0].y - 10 <= corner[1] <= staff[2].y + 10:
+                            #(EFFECT: Removes some of the large ornaments and letters)
+                            if staff[0].y - cc[0][1] < 51 and cc[2][1] - staff[2].y < 51:
+                                valid_images.append(ccs[index])
+                                break
 
         # combines all cc images that satisfied the established restriction in line 49
         combined_images = image_utilities.union_images([image for image in valid_images])
@@ -226,9 +227,10 @@ class Segmentation(RodanTask):
         # draws the a black polygon according to the points defining the staff region
         for polygon in staff_regions:
             # reassigns ordering of polygon points so that a proper rectangle is drawn
-            reassign = [polygon[0], polygon[1], polygon[3], polygon[2]]
-            cooridnates = [(coordinate.x, coordinate.y) for coordinate in reassign]
-            mask_drawer.polygon(cooridnates, outline='black', fill='black')
+            if polygon[2].y < 5500 and polygon[0].y > 300:
+                reassign = [polygon[0], polygon[1], polygon[3], polygon[2]]
+                cooridnates = [(coordinate.x, coordinate.y) for coordinate in reassign]
+                mask_drawer.polygon(cooridnates, outline='black', fill='black')
         del mask_drawer
 
         mask_img = from_pil(blank_image).to_onebit()
