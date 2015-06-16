@@ -9,11 +9,15 @@ class InputPortTypeList(generics.ListAPIView):
     """
     Returns a list of InputPortTypes. Does not accept POST requests, since
     InputPortTypes should be defined and loaded server-side.
+
+    #### Parameters
+    - `job` -- GET. UUID of a Job.
     """
     model = InputPortType
     serializer_class = InputPortTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = InputPortType.objects.all()
+    filter_fields = ('job', )
 
 
 class InputPortTypeDetail(generics.RetrieveAPIView):
