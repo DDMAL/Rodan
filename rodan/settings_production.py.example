@@ -94,4 +94,6 @@ RODAN_JOB_PACKAGES = (
     "rodan.jobs.conversion",
     "rodan.jobs.gamera",
     "rodan.jobs.neon"
+    "rodan.jobs.pil"
 )
+

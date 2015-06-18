@@ -38,9 +38,12 @@ def master_task(workflow_run_id):
         if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=task_status.FINISHED)).exists():
             # WorkflowRun has finished!
             WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=task_status.FINISHED)
-            return "wfRun FINISHED"
+
+            # return value is ignored, and provided as information in Celery stdout.
+            return "wfRun {0} FINISHED".format(workflow_run_id)
         else:
-            return "wfRun NO RUNABLE RUNJOBS NOW"
+            # return value is ignored, and provided as information in Celery stdout.
+            return "wfRun {0} NO RUNABLE RUNJOBS NOW".format(workflow_run_id)
     else:
         runable_runjobs_query = RunJob.objects.filter(lock=thread_id)
         runable_runjobs = list(runable_runjobs_query.values('uuid', 'job_name'))  # immediate evaluation
@@ -52,4 +55,5 @@ def master_task(workflow_run_id):
             async_task = task.si(runjob_id).apply_async()  # task will call master_task synchronously. Don't use Celery's chain, it's hard to revoke.
             RunJob.objects.filter(uuid=runjob_id).update(celery_task_id=async_task.task_id)
 
-        return "wfRun PROCESSING"
+        # return value is ignored, and provided as information in Celery stdout.
+        return "wfRun {0} PROCESSING".format(workflow_run_id)

@@ -26,6 +26,11 @@ class ClassificationTask(RodanTask):
         'resource_types': ['application/gamera+xml'],
         'minimum': 1,
         'maximum': 1
+    }, {
+        'name': 'Feature Selection',
+        'resource_types': ['application/gamera+xml'],
+        'minimum': 1,
+        'maximum': 1
     }]
     output_port_types = [{
         'name': 'Classification Result',
@@ -37,9 +42,11 @@ class ClassificationTask(RodanTask):
     def run_my_task(self, inputs, settings, outputs):
         staffless_image_path = inputs['Staffless Image'][0]['resource_path']
         classifier_path = inputs['Classifier'][0]['resource_path']
+        selection_path = inputs['Feature Selection'][0]['resource_path']
         result_path = outputs['Classification Result'][0]['resource_path']
 
         cknn = gamera.knn.kNNNonInteractive(classifier_path, 'all', True, 1)
+        cknn.load_settings(selection_path)
         func = gamera.classify.BoundingBoxGroupingFunction(4)
         input_image = gamera.core.load_image(staffless_image_path)
         ccs = input_image.cc_analysis()
