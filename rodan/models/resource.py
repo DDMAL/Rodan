@@ -92,10 +92,6 @@ class Resource(models.Model):
     - `delete` -- delete local paths of resource folder and thumbnail folder.
     """
 
-    def __init__(self, *a, **k):
-        super(Resource, self).__init__(*a, **k)
-        self.___original_resource_type = self.resource_type  # keep an original copy
-
     class Meta:
         app_label = 'rodan'
 
