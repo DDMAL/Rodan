@@ -333,7 +333,7 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
         new_status = request.data.get('status', None)
 
         if new_status:
-            if old_status in (task_status.PROCESSING, task_status.RETRYING) and new_status == task_status.CANCELLED:
+            if old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED) and new_status == task_status.CANCELLED:
                 response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
 
                 runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))

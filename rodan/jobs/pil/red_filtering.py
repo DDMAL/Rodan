@@ -3,7 +3,7 @@ from rodan.jobs.base import RodanTask
 
 class RedFilter(RodanTask):
     name = "pil.red_filtering"
-    author = "Rivu Khoda & Yihong Lui"
+    author = "Rivu Khoda & Yihong Luo"
     description = "Filters a spectrum of red color from image" 
     settings = {} 
     enabled = True
