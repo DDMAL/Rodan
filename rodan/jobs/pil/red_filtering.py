@@ -12,18 +12,18 @@ class RedFilter(RodanTask):
 		
     input_port_types = [{
         'name': 'input',
-	    'resource_types': ['image/rgb+png'], 
+	'resource_types': ['image/rgb+png'], 
         'minimum': 1,
-	    'maximum': 1
+	'maximum': 1
     }]	
     output_port_types = [{
         'name':'Neumeless Image',
         'resource_types': ['image/onebit+png'],
-	    'minimum': 1,
-	    'maximum': 1 
+        'minimum': 1,
+	'maximum': 1 
     }, {
-	    'name': 'Staffless Image',
-	    'resource_types': ['image/onebit+png'],
+	'name': 'Staffless Image',
+	'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     }]
