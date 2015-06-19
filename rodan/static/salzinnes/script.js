@@ -442,6 +442,12 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                     console.log(error);
                 });
         };
+        $scope.exportWorkflow = function (w) {
+            $http.get(w.url + '?export=true&format=json')
+                .success(function (obj) {
+                    $window.alert(angular.toJson(obj));
+                });
+        };
 
         $scope.resource_select_init = function () {
             $scope.resource_select = {

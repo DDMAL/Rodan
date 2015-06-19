@@ -200,7 +200,7 @@
                     <div ng-show="workflow_validationerror[w.url]" ng-bind="workflow_validationerror[w.url]" style="color:red;font-weight:bold"></div>
                   </td>
                   <td>
-                    <a ng-href="{{w.url + '?export=true&format=json'}}" target="_blank">Export</a>
+                    <a style="cursor:pointer" ng-click="exportWorkflow(w)">Export</a>
                   </td>
                 </tr>
               </tbody>
