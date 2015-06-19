@@ -40,7 +40,7 @@ class RedFilter(RodanTask):
         for x in range(0, sal.size[0]):
             for y in range(0, sal.size[1]):
                 if sal.getpixel((x, y)) == (255, 255, 255):
-                sal.putpixel((x, y), (0, 0, 0))
+                    sal.putpixel((x, y), (0, 0, 0))
 
         enhancer = ImageEnhance.Color(sal)
         enh_red_layer = enhancer.enhance(4).split()[0]
