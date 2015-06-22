@@ -7,6 +7,7 @@ if not os.path.exists('./Converted'):
 
 # prompts user to input a path where the files are located ex: /Users/Jacob/Documents/...
 path = raw_input('Please enter a path to a directory containing the files to be converted:\n')
+# prompts user to input the target format of the image to be converted (ex: 'png', 'jpeg')
 img_type = raw_input('Please enter the desired converted format\n')
 # loads all the names of the images in the directory
 images = [f for f in os.listdir(path) if os.path.isfile(path + f)]
