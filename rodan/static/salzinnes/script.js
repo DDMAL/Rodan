@@ -646,6 +646,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             }
         };
 
+        $scope.alertFullJobName = function (rj) {
+            $window.alert("Full job name: " + rj.job_name);
+        };
 
         $scope.updateWorkflowRunName = function (wfrun) {
             var new_name = $window.prompt('New WorkflowRun name: ', wfrun.name || '');

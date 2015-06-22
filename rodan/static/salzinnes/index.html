@@ -288,7 +288,7 @@
                       </thead>
                       <tbody ng-show="wfrun_open[wfrun.uuid] || runjob_open[wfrun.uuid][origin_resource.uuid]">
                         <tr ng-repeat="rj in runjob_classified[wfrun.uuid][origin_resource.uuid] track by rj.url" ng-class="{success: rj.status == 4, danger: rj.status == -1, active: rj.status == 1}">
-                          <td><a style="cursor:pointer" ng-click="alert('Full job name: ' + rj.job_name)">{{ rj.job_name.split(".").pop() }}</a></td>
+                          <td><a style="cursor:pointer" ng-click="alertFullJobName(rj)">{{ rj.job_name.split(".").pop() }}</a></td>
                           <td>
                             <div ng-show="runjob_showresults[wfrun.uuid][origin_resource.uuid] && rj.status == 4">
                               <span ng-repeat="o in rj.outputs track by o">
