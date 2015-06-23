@@ -4,8 +4,8 @@
 echo "Please enter the number corresponding to the server you would like to upload to"
     select server in "rodan-dev.simssa.ca" "rodan.simssa.ca"; do
         case $server in
-          rodan-dev.simssa.ca ) username=admin; password=admin; break;;
-          rodan.simssa.ca ) username=rodan; password=rodan98flp; break;;
+          rodan-dev.simssa.ca ) read -p "username: " username; read -p "password: " password; break;;
+          rodan.simssa.ca ) read -p "username: " username; read -p "password: " password; break;;
         esac
     done
 
@@ -21,9 +21,9 @@ read projectid
 # For N files in the directory where the script is located, N Post requests are created to upload all image files 
 for file in *
 do
-	if [ "$file" = "mult_upload" ]; then 
-		continue
-	fi
+    if [ "$file" = "mult_upload" ]; then
+        continue
+    fi
     curl -X POST -i -H "Authorization: Token $tokenid" -H "Accept: application/json" --form "files=@$file" --form "project=http://$server/project/$projectid/" http://$server/resources/
 done # file
 
