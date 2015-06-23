@@ -9,7 +9,6 @@ echo "Please enter the number corresponding to the server you would like to uplo
         esac
     done
 
-
 # Obtains and displays user token id
 var=`curl -v -XPOST -d username=$username -d password=$password http://$server/auth/token/ | egrep '"token":"[^\, ]+' -o`
 tokenid=${var:9:40}
