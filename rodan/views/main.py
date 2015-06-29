@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+import rodan
 
 @api_view(('GET',))
 @ensure_csrf_cookie
@@ -40,7 +41,8 @@ def api_root(request, format=None):
                      'taskqueue-config': reverse('taskqueue-config', request=request, format=format)},
         'configuration': {
             'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']
-        }
+        },
+        'version': rodan.__version__
     }
 
     return Response(response)
