@@ -68,18 +68,16 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_workflowjob__no_output(self):
         self.test_workflowjob2.output_ports.all().delete()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The WorkflowJob {0} has no OutputPorts'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_NO_OP')
     def test_workflowjob__inputport_number_not_satisfy(self):
         mommy.make('rodan.Connection', _quantity=10,
                    output_port=self.test_workflowjob.output_ports.all()[0],
                    input_port__workflow_job=self.test_workflowjob2,
                    input_port__input_port_type=self.test_inputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_MANY_IP')
     def test_workflowjob__outputport_number_not_satisfy(self):
         mommy.make('rodan.Connection', _quantity=10,
                    output_port__workflow_job=self.test_workflowjob,
@@ -87,9 +85,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    input_port__workflow_job=self.test_workflowjob2,
                    input_port__input_port_type=self.test_inputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_MANY_OP')
     def test_workflowjob__settings_not_satisfy(self):
         self.test_job.settings = {
             'type': 'object',
@@ -100,9 +97,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_workflowjob.job_settings = {'b': []}
         self.test_workflowjob.save()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'WorkflowJob {0} has invalid settings.'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_INVALID_SETTINGS')
 
 
     def test_input__type_incompatible_with_job(self):
@@ -112,18 +108,16 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             input_port_type=new_ipt)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(new_ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'IP_TYPE_MISMATCH')
     def test_input__multiple_connections(self):
         ip = self.test_workflowjob2.input_ports.all()[0]
         mommy.make('rodan.Connection',
                    output_port=self.test_workflowjob.output_ports.all()[0],
                    input_port=ip)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'InputPort {0} has multiple Connections'.format(ip.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'IP_TOO_MANY_CONNECTIONS')
 
     def test_input__more_than_maximum(self):
         for i in range(self.test_inputporttype.maximum):
@@ -131,16 +125,14 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             workflow_job=self.test_workflowjob,
                             input_port_type=self.test_inputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_MANY_IP')
     def test_input__fewer_than_minimum(self):
         ip = self.test_workflowjob.input_ports.all()[0]
         ip.delete()
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The number of input ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_FEW_IP')
 
 
     def test_output__type_incompatible_with_job(self):
@@ -150,28 +142,24 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                             output_port_type=new_opt)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(new_op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'OP_TYPE_MISMATCH')
     def test_output__more_than_maximum(self):
         for o in range(self.test_outputporttype.maximum):
             op = mommy.make('rodan.OutputPort',
                             workflow_job=self.test_workflowjob,
                             output_port_type=self.test_outputporttype)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_MANY_OP')
     def test_output__fewer_than_minimum(self):
         opt2 = mommy.make('rodan.OutputPortType',
                           maximum=3,
                           minimum=1,
                           job=self.test_job)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message1 = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob.uuid)}
-        anticipated_message2 = {'detail': 'The number of output ports on WorkflowJob {0} did not meet the requirements'.format(self.test_workflowjob2.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.data['error_code'], 'WFJ_TOO_FEW_OP')
     def test_output__no_common_resource_type_simple(self):
         new_ipt = mommy.make('rodan.InputPortType',
                              maximum=1,
@@ -186,9 +174,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                           output_port=op,
                           input_port=new_ip)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'NO_COMMON_RESOURCETYPE')
     def test_output__no_common_resource_type_complex(self):
         new_ipt1 = mommy.make('rodan.InputPortType',
                               maximum=1,
@@ -214,16 +201,14 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                            output_port=op,
                            input_port=new_ip2)
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid)}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'NO_COMMON_RESOURCETYPE')
 
     def test_graph__empty(self):
         test_workflow_no_jobs = mommy.make('rodan.Workflow', project=self.test_project)
         response = self._validate(test_workflow_no_jobs.uuid)
-        anticipated_message = {'detail': 'No WorkflowJobs in Workflow'}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WF_EMPTY')
     def test_graph__not_connected(self):
         workflowjob = mommy.make('rodan.WorkflowJob',
                                  workflow=self.test_workflow,
@@ -246,9 +231,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                                  output_port_type=self.test_outputporttype)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'Workflow is not connected'}
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.data['error_code'], 'WF_NOT_CONNECTED')
     def test_graph__loop(self):
         mommy.make('rodan.Connection',
                    input_port__input_port_type=self.test_inputporttype,
@@ -257,9 +241,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    output_port__workflow_job=self.test_workflowjob2)
 
         response = self._validate(self.test_workflow.uuid)
-        anticipated_message = {'detail': 'There is a cycle in the workflow'}
-        self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error_code'], 'WF_HAS_CYCLES')
     def test_graph__merging_workflow(self):
         test_no_input_workflowjob = mommy.make('rodan.WorkflowJob',
                                                workflow=self.test_workflow)
