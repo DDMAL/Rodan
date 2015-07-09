@@ -81,9 +81,9 @@ def notify_socket_subscribers(sender, instance, created, **kwargs):
 
     publisher = RedisPublisher(facility='rodan', broadcast=True)
     if created:
-        message = RedisMessage("CREATED {0}".format(instance.get_absolute_url()))
+        message = RedisMessage("CREATED")
     else:
-        message = RedisMessage("UPDATED {0}".format(instance.get_absolute_url()))
+        message = RedisMessage("UPDATED")
     print('publishing a message')
 
     publisher.publish_message(message)
