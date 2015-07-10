@@ -339,8 +339,9 @@
                 heartbeat_interval = setInterval(function() {
                     try {
                         missed_heartbeats++;
-                        if (missed_heartbeats >= 3)
+                        if (missed_heartbeats >= 3) {
                             throw new Error("Too many missed heartbeats.");
+			}
                         ws.send(heartbeat_msg);
                     } catch(e) {
                         clearInterval(heartbeat_interval);
@@ -357,7 +358,7 @@
                 missed_heartbeats = 0;
                 return;
             }
-            console.log("Received: " + e.data);
+            alert("Received: " + e.data);
         }
 
         function on_error(e) {
