@@ -9,6 +9,8 @@ from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from rodan.constants import task_status
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
 
 import logging
 logger = logging.getLogger('rodan')
@@ -230,3 +232,17 @@ class Resource(models.Model):
     @property
     def viewer_relurl(self):
         return reverse('resource-viewer', args=(self.uuid, ))
+
+@receiver(post_save, sender=Resource)
+def notify_socket_subscribers(sender, instance, created, **kwargs):
+    from ws4redis.publisher import RedisPublisher
+    from ws4redis.redis_store import RedisMessage
+
+    publisher = RedisPublisher(facility='rodan', broadcast=True)
+    if created:
+        message = RedisMessage("CREATED resource")
+    else:
+        message = RedisMessage("UPDATED resource")
+    print('publishing a message')
+
+    publisher.publish_message(message)

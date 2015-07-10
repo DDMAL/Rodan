@@ -3,7 +3,8 @@ from django.db import models
 from uuidfield import UUIDField
 from django.conf import settings
 from rodan.constants import task_status
-
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
 
 class ResultsPackage(models.Model):
     """
@@ -86,3 +87,17 @@ def get_package_relpath(rp_uuid):
     return 'results_packages/{0}.zip'.format(rp_uuid)
 def get_package_path(rp_uuid):
     return os.path.join(settings.MEDIA_ROOT, get_package_relpath(rp_uuid))
+
+@receiver(post_save, sender=ResultsPackage)
+def notify_socket_subscribers(sender, instance, created, **kwargs):
+    from ws4redis.publisher import RedisPublisher
+    from ws4redis.redis_store import RedisMessage
+
+    publisher = RedisPublisher(facility='rodan', broadcast=True)
+    if created:
+        message = RedisMessage("CREATED results package")
+    else:
+        message = RedisMessage("UPDATED results package")
+    print('publishing a message')
+
+    publisher.publish_message(message)
