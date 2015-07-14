@@ -316,6 +316,7 @@
         </div>
       </div>
     </script>
+<!--
     <script>
         var ws = new WebSocket('ws://127.0.0.1:8000/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
         var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0;
@@ -359,6 +360,7 @@
                 return;
             }
             console.log("Received: " + e.data);
+	    get_request(e);
         }
 
         function on_error(e) {
@@ -377,6 +379,17 @@
         function send_message(msg) {
             ws.send(msg);
         }
+
+        function get_request(e) {
+            var message = JSON.parse(e);
+            if (message.model == "Workflow") {
+                fetchWorkflows();
+            }
+	    else if (message.model == "ResultsPackage") {
+		fetchResultspackages();
+	    }
+	}
     </script>
+-->
   </body>
 </html>

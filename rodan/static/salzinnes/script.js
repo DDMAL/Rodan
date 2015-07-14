@@ -206,7 +206,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
                 }).finally(function () {
-                    $timeout(fetchResources, UPDATE_FREQ);
+		    pass;
+                    // $timeout(fetchResources, UPDATE_FREQ);
                 });
         }
         fetchResources();
@@ -421,7 +422,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .then(function (results) {
                     $scope.workflows = results;
                 }).finally(function () {
-                    $timeout(fetchWorkflows, UPDATE_FREQ);
+		    pass;
+                    // $timeout(fetchWorkflows, UPDATE_FREQ);
                 });
         }
         fetchWorkflows();
@@ -565,7 +567,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         });
                     });
                 }).finally(function () {
-                    $timeout(fetchWorkflowruns, UPDATE_FREQ);
+		    pass;
+                    // $timeout(fetchWorkflowruns, UPDATE_FREQ);
                 });
         }
         fetchWorkflowruns();
@@ -679,7 +682,8 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }, function (err) {
                     console.log(err);
                 }).finally(function () {
-                    $timeout(fetchResultspackages, UPDATE_FREQ);
+		    pass;
+                    // $timeout(fetchResultspackages, UPDATE_FREQ);
                 });
         }
         fetchResultspackages();
@@ -695,5 +699,91 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .error(function (error) {
                     console.log(error);
                 });
-        };
+        }; 
+
+        var ws = new WebSocket('ws://127.0.0.1:8000/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
+        var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0;
+        console.log ("Web Socket created with the state" + ws.readyState);
+
+        if (window.WebSocket){
+            console.log("Browser supports Websocket");
+        } else{
+            console.log("Browser doesn't support sockets");
+        }
+
+        ws.onopen = on_open;
+        ws.onmessage = on_message;
+        ws.onerror = on_error;
+        ws.onclose = on_close;
+
+	function on_open() {
+            console.log("Websocket connected");
+            if (heartbeat_interval === null) {
+                missed_heartbeats = 0;
+                heartbeat_interval = setInterval(function() {
+                    try {
+                        missed_heartbeats++;
+                        if (missed_heartbeats >= 3) {
+                            throw new Error("Too many missed heartbeats.");
+			}
+                        ws.send(heartbeat_msg);
+                    } catch(e) {
+                        clearInterval(heartbeat_interval);
+                        heartbeat_interval = null;
+                        console.warn("Closing connection. Reason: " + e.message);
+                        ws.close();
+                    }
+                }, 5000);
+            }
+        }
+ 
+        function on_message(e) {
+            if (e.data === heartbeat_msg) {
+                missed_heartbeats = 0;
+                return;
+            }
+	    get_request(e);
+            console.log("Received: " + e.data);
+        }
+	
+        function on_error(e) {
+            console.error(e);
+        }
+
+        function on_close(e) {
+            if (e.wasClean) {
+                console.log("Connection was closed properly");
+            } else {
+                console.log ("Connection not properly closed");
+            }
+            console.log("Code: " + e.code + "Reason: " + e.reason);
+        }
+
+        function send_message(msg) {
+            ws.send(msg);
+        }
+
+        function get_request(e) {
+	/*
+	    fetchWorkflows();
+	    fetchResultspackages();
+	    fetchResources();
+	    fetchWorkflowruns();
+	*/
+            var message = JSON.parse(e.data);
+            if (message.model == "Workflow") {
+		console.log("Workflow detected");
+                fetchWorkflows();
+            }
+            else if (message.model == "ResultsPackage") {
+                fetchResultspackages();
+            }
+	    else if (message.model == "Resource") {
+		fetchResources();
+	    }
+	    else if (message.model == "WorkflowRun") {
+		fetchWorkflowruns();
+	    }
+	
+        }
     })
