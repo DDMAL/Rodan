@@ -3,8 +3,6 @@ from uuidfield import UUIDField
 from django.conf import settings
 import os
 import yaml
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
 
 import logging
 logger = logging.getLogger('rodan')
@@ -93,17 +91,3 @@ def load_predefined_resource_types():
                     for rt in resource_types:
                         load(rt['mimetype'], rt.get('description', ''), rt.get('extension', ''))
                         logger.info("resource type " + rt['mimetype'] + " loaded")
-
-@receiver(post_save, sender=ResourceType)
-def notify_socket_subscribers(sender, instance, created, **kwargs):
-    from ws4redis.publisher import RedisPublisher
-    from ws4redis.redis_store import RedisMessage
-
-    publisher = RedisPublisher(facility='rodan', broadcast=True)
-    if created:
-        message = RedisMessage("CREATED resource type")
-    else:
-        message = RedisMessage("UPDATED resource type")
-    print('publishing a message')
-
-    publisher.publish_message(message)

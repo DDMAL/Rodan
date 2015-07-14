@@ -9,8 +9,6 @@ from rodan.models.job import Job
 from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.constants import task_status
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
 
 class RunJob(models.Model):
     """
@@ -101,17 +99,3 @@ class RunJob(models.Model):
             return reverse('interactive', args=(self.uuid, ''))
         else:
             return None
-
-@receiver(post_save, sender=RunJob)
-def notify_socket_subscribers(sender, instance, created, **kwargs):
-    from ws4redis.publisher import RedisPublisher
-    from ws4redis.redis_store import RedisMessage
-
-    publisher = RedisPublisher(facility='rodan', broadcast=True)
-    if created:
-        message = RedisMessage("CREATED runjob")
-    else:
-        message = RedisMessage("UPDATED runjob")
-    print('publishing a message')
-
-    publisher.publish_message(message)

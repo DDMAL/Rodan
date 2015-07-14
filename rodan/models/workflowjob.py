@@ -3,8 +3,6 @@ from rodan.models.job import Job
 from rodan.models.workflow import Workflow
 from jsonfield import JSONField
 from uuidfield import UUIDField
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
 
 class WorkflowJob(models.Model):
     """
@@ -64,17 +62,3 @@ class WorkflowJob(models.Model):
     @property
     def job_description(self):
         return self.job.description
-
-@receiver(post_save, sender=WorkflowJob)
-def notify_socket_subscribers(sender, instance, created, **kwargs):
-    from ws4redis.publisher import RedisPublisher
-    from ws4redis.redis_store import RedisMessage
-
-    publisher = RedisPublisher(facility='rodan', broadcast=True)
-    if created:
-        message = RedisMessage("CREATED workflowjob")
-    else:
-        message = RedisMessage("UPDATED workflowjob")
-    print('publishing a message')
-
-    publisher.publish_message(message)

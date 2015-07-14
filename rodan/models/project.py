@@ -4,9 +4,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
-
 
 class Project(models.Model):
     """
@@ -73,18 +70,3 @@ class Project(models.Model):
     @property
     def resource_count(self):
         return self.resources.count()
-
-@receiver(post_save, sender=Project)
-def notify_socket_subscribers(sender, instance, created, **kwargs):
-    from ws4redis.publisher import RedisPublisher
-    from ws4redis.redis_store import RedisMessage
-
-    publisher = RedisPublisher(facility='rodan', broadcast=True)
-    if created:
-        message = RedisMessage("CREATED")
-    else:
-        message = RedisMessage("UPDATED")
-    print('publishing a message')
-
-    publisher.publish_message(message)
-

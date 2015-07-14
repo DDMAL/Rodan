@@ -1,7 +1,6 @@
 from django.db import models
 from uuidfield import UUIDField
 
-
 class OutputPortType(models.Model):
     """
     Defines what types of `Resource`s a `Job` will produce. Each `Job` must have
