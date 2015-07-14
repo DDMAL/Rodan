@@ -742,7 +742,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 missed_heartbeats = 0;
                 return;
             }
-	    get_request(e);
+            get_request(e);
             console.log("Received: " + e.data);
         }
 	
@@ -772,18 +772,18 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 	*/
             var message = JSON.parse(e.data);
             if (message.model == "Workflow") {
-		console.log("Workflow detected");
+	        console.log("Workflow detected");
                 fetchWorkflows();
             }
             else if (message.model == "ResultsPackage") {
                 fetchResultspackages();
             }
-	    else if (message.model == "Resource") {
-		fetchResources();
-	    }
-	    else if (message.model == "WorkflowRun") {
-		fetchWorkflowruns();
-	    }
+            else if (message.model == "Resource") {
+                fetchResources();
+            }
+            else if (message.model == "WorkflowRun") {
+                fetchWorkflowruns();
+            }
 	
         }
     })
