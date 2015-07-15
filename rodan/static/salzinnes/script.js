@@ -206,7 +206,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
                 }).finally(function () {
-		    pass;
                     // $timeout(fetchResources, UPDATE_FREQ);
                 });
         }
@@ -422,7 +421,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .then(function (results) {
                     $scope.workflows = results;
                 }).finally(function () {
-		    pass;
                     // $timeout(fetchWorkflows, UPDATE_FREQ);
                 });
         }
@@ -567,7 +565,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         });
                     });
                 }).finally(function () {
-		    pass;
                     // $timeout(fetchWorkflowruns, UPDATE_FREQ);
                 });
         }
@@ -682,7 +679,6 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }, function (err) {
                     console.log(err);
                 }).finally(function () {
-		    pass;
                     // $timeout(fetchResultspackages, UPDATE_FREQ);
                 });
         }
@@ -701,7 +697,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         }; 
 
-        var ws = new WebSocket('ws://127.0.0.1:8000/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
+        var ws = new WebSocket('ws://' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
         var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0;
         console.log ("Web Socket created with the state" + ws.readyState);
 
@@ -716,7 +712,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         ws.onerror = on_error;
         ws.onclose = on_close;
 
-	function on_open() {
+        function on_open() {
             console.log("Websocket connected");
             if (heartbeat_interval === null) {
                 missed_heartbeats = 0;
@@ -764,26 +760,25 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
 
         function get_request(e) {
-	/*
+	    /*
 	    fetchWorkflows();
 	    fetchResultspackages();
 	    fetchResources();
 	    fetchWorkflowruns();
-	*/
+	    */
             var message = JSON.parse(e.data);
-            if (message.model == "Workflow") {
+            if (message.model === "Workflow") {
 	        console.log("Workflow detected");
                 fetchWorkflows();
             }
-            else if (message.model == "ResultsPackage") {
+            else if (message.model === "ResultsPackage") {
                 fetchResultspackages();
             }
-            else if (message.model == "Resource") {
+            else if (message.model === "Resource") {
                 fetchResources();
             }
-            else if (message.model == "WorkflowRun") {
+            else if (message.model === "WorkflowRun") {
                 fetchWorkflowruns();
             }
-	
         }
     })
