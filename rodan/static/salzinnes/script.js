@@ -211,6 +211,33 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
         fetchResources();
 
+        function fetchResources_fine(uuid) {
+            var params = {'project': $routeParams.projectId, 'ordering': 'uuid'};
+            if ($scope.fetch_generated_resources) {
+                params['uploaded'] = 'yes';
+                $scope.fetch_generated_resources = false;
+            }
+            getAllPages(ROOT + '/resources/', {params: params})
+                .then(function (results) {
+                    $scope.resources = results;
+                    $scope.generated_resources = {};
+                    $scope.resource_hash = {};  // url to object
+
+                    _.each(results, function (r) {
+                        if (uuid === r.uuid){
+                            if (r.origin) {
+                                $scope.generated_resources[r.origin] = r;
+                            }
+
+                            $scope.resource_hash[r.url] = r;
+
+                            $scope.resource_uuid_name_map[r.uuid] = r.name;
+                        };
+                    })
+                }).finally(function () {
+            });
+        }
+
         $scope.uploadResources = function () {
             var fd = new FormData();
             fd.append('project', $scope.project.url);
@@ -760,22 +787,15 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
 
         function get_request(e) {
-	    /*
-	    fetchWorkflows();
-	    fetchResultspackages();
-	    fetchResources();
-	    fetchWorkflowruns();
-	    */
             var message = JSON.parse(e.data);
             if (message.model === "Workflow") {
-	        console.log("Workflow detected");
                 fetchWorkflows();
             }
             else if (message.model === "ResultsPackage") {
                 fetchResultspackages();
             }
             else if (message.model === "Resource") {
-                fetchResources();
+                fetchResources_fine(message.UUID);
             }
             else if (message.model === "WorkflowRun") {
                 fetchWorkflowruns();
