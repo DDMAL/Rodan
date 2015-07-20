@@ -211,7 +211,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
         fetchResources();
 
-        function fetchResources_fine(uuid) {
+        function fetchResource(uuid) {
             var params = {'project': $routeParams.projectId, 'ordering': 'uuid'};
             if ($scope.fetch_generated_resources) {
                 params['uploaded'] = 'yes';
@@ -724,15 +724,15 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         }; 
 
-        var ws = new WebSocket('ws://' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
-        var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0;
-        console.log ("Web Socket created with the state" + ws.readyState);
-
         if (window.WebSocket){
             console.log("Browser supports Websocket");
         } else{
             console.log("Browser doesn't support sockets");
         }
+
+        var ws = new WebSocket('ws://' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
+        var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0, max_missed_heartbeats = 3;
+        console.log ("Web Socket created with the state" + ws.readyState);
 
         ws.onopen = on_open;
         ws.onmessage = on_message;
@@ -746,7 +746,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 heartbeat_interval = setInterval(function() {
                     try {
                         missed_heartbeats++;
-                        if (missed_heartbeats >= 3) {
+                        if (missed_heartbeats >= max_missed_heartbeats) {
                             throw new Error("Too many missed heartbeats.");
 			}
                         ws.send(heartbeat_msg);
@@ -795,7 +795,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 fetchResultspackages();
             }
             else if (message.model === "Resource") {
-                fetchResources_fine(message.UUID);
+                fetchResource(message.UUID);
             }
             else if (message.model === "WorkflowRun") {
                 fetchWorkflowruns();

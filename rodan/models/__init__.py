@@ -25,18 +25,12 @@ def notify_socket_subscribers(sender, instance, created, **kwargs):
     from ws4redis.redis_store import RedisMessage
 
     publisher = RedisPublisher(facility='rodan', broadcast=True)
-
-    data = {"status": "", "model": instance.__class__.__name__, "UUID": ""} 
-    if created:
-	data["Status"] = "created"
-	data["UUID"] = "{0}".format(instance.uuid)
-	message = RedisMessage(json.dumps(data))
-	#message = RedisMessage("status: created, model: {0}, UUID: {1}".format(instance.__class__.__name__, instance.uuid))
-    else:
-	data["Status"] = "updated"
-	data["UUID"] = "{0}".format(instance.uuid)
-	message = RedisMessage(json.dumps(data))
-	#message = RedisMessage("status: updated, model: {0}, UUID: {1}".format(instance.__class__.__name__, instance.uuid))
-    print('publishing a message')
-
+    status = "created" if created else "updated"
+    uuid = "{0}".format(instance.uuid) if hasattr(instance, "uuid") else ""
+    data = {
+        'status': status,
+        'model': instance.__class__.__name__,
+        'uuid': uuid
+    }
+    message = RedisMessage(json.dumps(data))
     publisher.publish_message(message)
