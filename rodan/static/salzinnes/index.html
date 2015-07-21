@@ -269,7 +269,7 @@
                     Origin workflow: <code>{{ wfrun.workflow.slice(-33, -27) || "[DELETED]" }}</code>
                   </p>
                   <p>
-                    <label style="margin-bottom:0;background:lightyellow;"><input type="checkbox" ng-model="wfrun_open[wfrun.uuid]">Show All RunJobs</label>
+                    <label style="margin-bottom:0;background:lightyellow;"><input type="checkbox" ng-change="change_coarse()" ng-model="wfrun_open[wfrun.uuid]">Show All RunJobs</label>
                   </p>
                   <div ng-repeat="origin_resource in wfrun.origin_resources_pair track by origin_resource.uuid">
                     <table class="table table-condensed">
@@ -279,10 +279,10 @@
                             <code ng-show="origin_resource.uuid">{{origin_resource.uuid.slice(0, 6)}}</code> {{origin_resource.name}}
                           </th>
                           <th>
-                            <label style="margin-bottom:0;background:lightyellow;" ng-show="runjob_open[wfrun.uuid][origin_resource.uuid] || wfrun_open[wfrun.uuid]"><input type="checkbox" ng-model="runjob_showresults[wfrun.uuid][origin_resource.uuid]">Show Results</label>
+                            <label style="margin-bottom:0;background:lightyellow;" ng-show="runjob_open[wfrun.uuid][origin_resource.uuid] || wfrun_open[wfrun.uuid]"><input type="checkbox" ng-change="change_fine()" ng-model="runjob_showresults[wfrun.uuid][origin_resource.uuid]">Show Results</label>
                           </th>
                           <th>
-                            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-model="runjob_open[wfrun.uuid][origin_resource.uuid]">Show RunJobs</label>
+                            <label style="margin-bottom:0;margin-left:20px;background:lightyellow;" class="pull-right"><input type="checkbox" ng-change="change_fine()" ng-model="runjob_open[wfrun.uuid][origin_resource.uuid]">Show RunJobs</label>
                           </th>
                         </tr>
                       </thead>

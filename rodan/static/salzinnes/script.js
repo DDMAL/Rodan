@@ -597,6 +597,40 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
         fetchWorkflowruns();
 
+        function fetchWorkflowrun (uuid) {
+            getAllPages(ROOT + '/workflowruns/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}})
+                .then(function (results) {
+                    $scope.workflowruns = results;
+                    _.each($scope.workflowruns, function (wfrun) {
+                        if (uuid === wfrun.uuid) {
+                            wfrun.origin_resources_pair = _.map(wfrun.origin_resources, function (ores) {
+                                if (ores) {
+                                    return {
+                                        'uuid': ores,
+                                        'name': $scope.resource_uuid_name_map[ores] || "[DELETED]"
+                                    };
+                                } else {
+                                    return {
+                                        'uuid': null,
+                                        'name': 'All'
+                                    };
+                                }
+                            })
+                            wfrun.origin_resources_pair.sort(function (p1, p2) {
+                                if (p1.name < p2.name) {
+                                    return -1;
+                                } else if (p1.name > p2.name) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                        }
+                    });
+                }).finally(function () {
+                });
+        }
+
         $scope.wfrun_open = {};
         $scope.runjob_open = {};
         $scope.runjob_showresults = {};
@@ -621,7 +655,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }
             });
             $q.all(promises).then(function (things) {
-                $timeout(fetchRunjobs_fine, UPDATE_FREQ);
+                //$timeout(fetchRunjobs_fine, UPDATE_FREQ);
             });
         }
         fetchRunjobs_fine();
@@ -646,10 +680,17 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
             // request for next fetch after this fetch has finished.
             $q.all(promises).then(function (things) {
-                $timeout(fetchRunjobs_coarse, UPDATE_FREQ);
+                //$timeout(fetchRunjobs_coarse, UPDATE_FREQ);
             });
         }
         fetchRunjobs_coarse();
+
+        $scope.change_coarse = function () { 
+            fetchRunjobs_coarse();
+        }
+        $scope.change_fine = function () {
+            fetchRunjobs_fine();
+        }
 
         $scope.retryWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 11})
@@ -798,7 +839,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 fetchResource(message.UUID);
             }
             else if (message.model === "WorkflowRun") {
-                fetchWorkflowruns();
+                fetchWorkflowrun(message.uuid);
+            }
+            else if (message.model === "RunJob" ) {
+                fetchRunjobs_coarse();
             }
         }
     })

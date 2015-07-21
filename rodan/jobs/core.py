@@ -537,6 +537,6 @@ def retry_workflowrun(wfrun_id):
 
 def publish_message(model, uuid):
     publisher = RedisPublisher(facility='rodan', broadcast=True)
-    data = {"status": "updated", "model": model.__name__, "UUID": "{0}".format(uuid)}
+    data = {"status": "updated", "model": model.__name__, "uuid": "{0}".format(uuid)}
     message = RedisMessage(json.dumps(data))
     publisher.publish_message(message)
