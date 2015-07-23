@@ -22,5 +22,6 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "job_description",
                   "job",
                   "job_settings",
+                  "name",
                   "created",
                   "updated")

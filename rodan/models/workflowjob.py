@@ -19,6 +19,7 @@ class WorkflowJob(models.Model):
     - `job` -- a reference to the `Job`.
     - `job_settings` -- JSON field. Store user's settings which correspond to the
       preset requirements of `Job` settings.
+    - `name` -- user-defined name. Default: the same as `job_name`.
 
     **Properties**
 
@@ -33,11 +34,14 @@ class WorkflowJob(models.Model):
     workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", on_delete=models.CASCADE)
     job = models.ForeignKey(Job, related_name="workflow_jobs", on_delete=models.PROTECT)
     job_settings = JSONField(default={}, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.job_name.split('.')[-1]
         super(WorkflowJob, self).save(*args, **kwargs)
         wf = self.workflow
         wf.valid = False
