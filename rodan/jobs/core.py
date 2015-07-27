@@ -52,7 +52,7 @@ class ensure_compatible(Task):
                 self._task = registry.tasks['rodan.jobs.conversion.to_png']
                 self._task.run_my_task(inputs, {}, outputs)
                 resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
-                publish_message(Resource, resource_id)
+                #publish_message(Resource, resource_id)
             else:
                 shutil.copy(infile_path, tmpfile)
                 try:
@@ -66,7 +66,7 @@ class ensure_compatible(Task):
                 resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
                 compat_resource_file_path = resource_object.compat_resource_file.path
                 resource_query.update(compat_resource_file=compat_resource_file_path)
-                publish_message(Resource, resource_id)
+                #publish_message(Resource, resource_id)
 
                 if not settings.WITH_DIVA:
                     registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
@@ -114,7 +114,7 @@ def create_thumbnails(resource_id):
             del thumb_copy
         del image
         resource_query.update(has_thumb=True)
-        publish_message(Resource, resource_id)
+        #publish_message(Resource, resource_id)
         return True
     else:
         return False
@@ -164,7 +164,7 @@ def create_diva(resource_id):
         gen.generate()
 
         resource_query.update(has_thumb=True)
-        publish_message(Resource, resource_id)
+        #publish_message(Resource, resource_id)
         return True
     else:
         return False
@@ -516,7 +516,7 @@ def cancel_workflowrun(wfrun_id):
         if celery_id is not None:
             revoke(celery_id, terminate=True)
     runjobs_to_revoke_query.update(status=task_status.CANCELLED)
-    publish_message(WorkflowRun, wfrun_id)
+    #publish_message(WorkflowRun, wfrun_id)
 
 @task(name="rodan.core.retry_workflowrun")
 def retry_workflowrun(wfrun_id):

@@ -141,6 +141,12 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': 'rodan.log',
             'formatter': 'verbose'
+        },
+        'dblog': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'database.log',
+            'formatter': 'verbose'
         }
     },
     'loggers': {
@@ -159,6 +165,11 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['dblog'],
+            'propagate': False,
         }
     }
 }
