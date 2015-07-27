@@ -9,10 +9,33 @@ class Command(BaseCommand):
         setattr(settings, "_update_database", True)
         import psycopg2
         import psycopg2.extensions
+        from django.db.models.signals import post_save, pre_delete
+        from django.dispatch import receiver
+        from ws4redis.publisher import RedisPublisher
+        from ws4redis.redis_store import RedisMessage
+        import json
         import datetime
         import os
 
+        def notify_socket_subscribers(notify):
+            publisher = RedisPublisher(facility='rodan', broadcast=True)
+            info = notify.split('/')
+            status = info[0]
+            model = info[1]
+            model = model.replace('rodan_', '')
+            uuid = info[2]
+            uuid = uuid.replace('-', '')
+
+            data = {
+                'status': status,
+                'model': model,
+                'uuid': uuid
+            }
+            message = RedisMessage(json.dumps(data))
+            publisher.publish_message(message) 
+
         def handle_notification(notify):
+            notify_socket_subscribers(notify.payload) 
             print "Got NOTIFY:", notify.pid, notify.channel, notify.payload
             print datetime.datetime.now().time()
         
@@ -28,16 +51,22 @@ class Command(BaseCommand):
           ;""")
         print curs.fetchall()
         curs.execute('LISTEN "test";')
-        curs.execute('NOTIFY "test";')
         print "Waiting for notifications on channel 'test'"
 
         # Create trigger
         trigger = '''
             CREATE OR REPLACE FUNCTION object_notify() RETURNS trigger AS $$
             DECLARE
+                status text;
             BEGIN
-                PERFORM pg_notify('test', CAST(NEW.name AS text));
-                PERFORM pg_notify('test', CAST(NEW.uuid AS text));
+                IF (TG_OP = 'INSERT') THEN
+                    status = 'created';
+                ELSIF (TG_OP = 'UPDATE') THEN
+                    status = 'updated';
+                ELSIF (TG_OP = 'DELETE') THEN
+                    status = 'deleted';
+                END IF;
+                PERFORM pg_notify('test', status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text));
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;

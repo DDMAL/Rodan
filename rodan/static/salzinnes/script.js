@@ -829,19 +829,19 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
         function get_request(e) {
             var message = JSON.parse(e.data);
-            if (message.model === "Workflow") {
+            if (message.model.toUpperCase() === "Workflow".toUpperCase()) {
                 fetchWorkflows();
             }
-            else if (message.model === "ResultsPackage") {
+            else if (message.model.toUpperCase() === "ResultsPackage".toUpperCase()) {
                 fetchResultspackages();
             }
-            else if (message.model === "Resource") {
+            else if (message.model.toUpperCase() === "Resource".toUpperCase()) {
                 fetchResource(message.UUID);
             }
-            else if (message.model === "WorkflowRun") {
+            else if (message.model.toUpperCase() === "WorkflowRun".toUpperCase()) {
                 fetchWorkflowrun(message.uuid);
             }
-            else if (message.model === "RunJob" ) {
+            else if (message.model.toUpperCase() === "RunJob".toUpperCase()) {
                 fetchRunjobs_coarse();
             }
         }
