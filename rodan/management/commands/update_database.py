@@ -1,23 +1,24 @@
 from django.core.management.base import BaseCommand, CommandError
-
+from django.conf import settings
+import psycopg2
+import psycopg2.extensions
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
+import json
+import datetime
+import os
 
 class Command(BaseCommand):
-    help = 'Any update in the database will trigger a notification.'
+    help = 'Running the command update_database will work as a daemon running in the backend and any update in the database will trigger a notification that will be broadcasted as a Redis message.'
 
     def handle(self, *args, **options):
-        from django.conf import settings
         setattr(settings, "_update_database", True)
-        import psycopg2
-        import psycopg2.extensions
-        from django.db.models.signals import post_save, pre_delete
-        from django.dispatch import receiver
-        from ws4redis.publisher import RedisPublisher
-        from ws4redis.redis_store import RedisMessage
-        import json
-        import datetime
-        import os
 
         def notify_socket_subscribers(notify):
+            ''' Convert the notify message into a Redis message and broadcast to all subscribers '''
+
             publisher = RedisPublisher(facility='rodan', broadcast=True)
             info = notify.split('/')
             status = info[0]
@@ -35,6 +36,8 @@ class Command(BaseCommand):
             publisher.publish_message(message) 
 
         def handle_notification(notify):
+            ''' Send the notify message to Redis message queue, and print the notification with the time '''
+
             notify_socket_subscribers(notify.payload) 
             print "Got NOTIFY:", notify.pid, notify.channel, notify.payload
             print datetime.datetime.now().time()
@@ -53,7 +56,7 @@ class Command(BaseCommand):
         curs.execute('LISTEN "test";')
         print "Waiting for notifications on channel 'test'"
 
-        # Create trigger
+        # Create trigger that sends information about the status, the table name, and the uuid of the modified element
         trigger = '''
             CREATE OR REPLACE FUNCTION object_notify() RETURNS trigger AS $$
             DECLARE
@@ -71,6 +74,7 @@ class Command(BaseCommand):
             END;
             $$ LANGUAGE plpgsql;
             '''
+
         # Loop through selected models to create trigger, if the trigger already exists, it gets destroyed before a new one is created
         create_trigger = '''
             CREATE OR REPLACE FUNCTION name() RETURNS void AS $$
