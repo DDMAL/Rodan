@@ -52,6 +52,11 @@ class Command(BaseCommand):
           FROM information_schema.tables
           WHERE table_schema='public'
           ;""")
+        curs.execute('''
+                    SELECT table_name FROM information_schema.tables
+                    WHERE table_schema='public' AND table_type='BASE TABLE'
+                    AND table_name LIKE 'rodan_%';
+                    ''')
         print curs.fetchall()
         curs.execute('LISTEN "test";')
         print "Waiting for notifications on channel 'test'"
@@ -79,19 +84,20 @@ class Command(BaseCommand):
         create_trigger = '''
             CREATE OR REPLACE FUNCTION name() RETURNS void AS $$
             DECLARE
-                tablename text;
+                tablename name;
             BEGIN
                 FOR tablename IN
                     SELECT table_name FROM information_schema.tables
                     WHERE table_schema='public' AND table_type='BASE TABLE'
                     AND table_name LIKE 'rodan_%'
-                    LOOP
-                        DROP TRIGGER IF EXISTS object_post_insert_notify ON tablename;
-                        CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON tablename FOR EACH ROW EXECUTE PROCEDURE object_notify();
-                    END LOOP;
+                LOOP
+                    EXECUTE format('DROP TRIGGER IF EXISTS object_post_insert_notify ON %I', tablename);
+                    EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
+                END LOOP;
             END;
             $$ LANGUAGE plpgsql;
-        '''
+            SELECT name();
+            '''
 
         curs.execute(trigger)
         curs.execute(create_trigger)
