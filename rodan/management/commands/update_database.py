@@ -47,17 +47,6 @@ class Command(BaseCommand):
 
         curs = conn.cursor()
 
-        # Print all tables inside the database
-        curs.execute("""SELECT *
-          FROM information_schema.tables
-          WHERE table_schema='public'
-          ;""")
-        curs.execute('''
-                    SELECT table_name FROM information_schema.tables
-                    WHERE table_schema='public' AND table_type='BASE TABLE'
-                    AND table_name LIKE 'rodan_%';
-                    ''')
-        print curs.fetchall()
         curs.execute('LISTEN "test";')
         print "Waiting for notifications on channel 'test'"
 
