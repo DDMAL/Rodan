@@ -155,7 +155,7 @@ LOGGING = {
         },
         'rodan': {
             'handlers': ['file'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'propagate': True,
         }
     }
