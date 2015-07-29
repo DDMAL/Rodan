@@ -54,8 +54,13 @@ class Project(models.Model):
             os.makedirs(self.project_path)
 
     def delete(self, *args, **kwargs):
+        # remove protected links from input/output to resource by deleting all workflowruns prior to resources
+        from rodan.models import WorkflowRun
+        WorkflowRun.objects.filter(project=self).delete()
+
+        # delete project folder
         proj_path = self.project_path
-        super(Project, self).delete(*args, **kwargs)
+        super(Project, self).delete(*args, **kwargs)   # cascade deletion of resources
         if os.path.exists(proj_path):
             shutil.rmtree(proj_path)
 
