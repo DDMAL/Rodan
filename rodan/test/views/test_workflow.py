@@ -82,8 +82,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         mommy.make('rodan.Connection', _quantity=10,
                    output_port__workflow_job=self.test_workflowjob,
                    output_port__output_port_type=self.test_outputporttype,
-                   input_port__workflow_job=self.test_workflowjob2,
-                   input_port__input_port_type=self.test_inputporttype)
+                   input_port__workflow_job__job=self.test_workflowjob2.job)
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data['error_code'], 'WFJ_TOO_MANY_OP')
