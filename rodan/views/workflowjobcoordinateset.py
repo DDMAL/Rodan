@@ -15,6 +15,7 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
     #### GET Parameters
     - `workflow`
     - `workflow_job`
+    - `user_agent`
     """
     model = WorkflowJobCoordinateSet
     permission_classes = (permissions.IsAuthenticated, )
@@ -26,7 +27,7 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
         workflow = django_filters.CharFilter(name="workflow_job__workflow")
         class Meta:
             model = WorkflowJobCoordinateSet
-            fields = ('workflow', 'workflow_job')
+            fields = ('workflow', 'workflow_job', 'user_agent')
 
 
 class WorkflowJobCoordinateSetDetail(generics.RetrieveUpdateDestroyAPIView):
