@@ -30,3 +30,4 @@ class WorkflowJobCoordinateSet(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        unique_together = ('user_agent', 'workflow_job')
