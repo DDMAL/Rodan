@@ -21,6 +21,10 @@ class WorkflowJob(models.Model):
       preset requirements of `Job` settings.
     - `name` -- user-defined name. Default: the same as `job_name`.
 
+    - `group` -- an integer field indicating the grouping of `WorkflowJob`s.
+    - `origin` -- a nullable reference to the `Workflow` indicating where it comes
+      from.
+
     **Properties**
 
     - `job_name` -- name of the referenced `Job`.
@@ -35,6 +39,9 @@ class WorkflowJob(models.Model):
     job = models.ForeignKey(Job, related_name="workflow_jobs", on_delete=models.PROTECT)
     job_settings = JSONField(default={}, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
+
+    group = models.IntegerField(blank=True, null=True)
+    origin = models.ForeignKey(Workflow, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
