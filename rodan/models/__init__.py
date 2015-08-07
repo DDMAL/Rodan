@@ -14,3 +14,5 @@ from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
+
+from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet

@@ -35,6 +35,9 @@ from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
 
+from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
+from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
+
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
 from rodan.views.interactive import InteractiveView
 
@@ -95,6 +98,9 @@ urlpatterns += format_suffix_patterns(
              url(r'^inputs/$', InputList.as_view(), name="input-list"),
              url(r'^input/(?P<pk>[0-9a-f]{32})/$', InputDetail.as_view(), name='input-detail'),
              url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
+
+             url(r'^workflowjobcoordinatesets/$', WorkflowJobCoordinateSetList.as_view(), name="workflowjobcoordinateset-list"),
+             url(r'^workflowjobcoordinateset/(?P<pk>[0-9a-f]{32})/$', WorkflowJobCoordinateSetDetail.as_view(), name="workflowjobcoordinateset-detail"),
          )
 )
 
