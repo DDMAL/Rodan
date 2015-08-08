@@ -17,6 +17,7 @@ def api_root(request, format=None):
         'routes': {'projects': reverse('project-list', request=request, format=format),
                      'workflows': reverse('workflow-list', request=request, format=format),
                      'workflowjobs': reverse('workflowjob-list', request=request, format=format),
+                     'workflowjobgroups': reverse('workflowjobgroup-list', request=request, format=format),
                      'workflowruns': reverse('workflowrun-list', request=request, format=format),
                      'runjobs': reverse('runjob-list', request=request, format=format),
                      'jobs': reverse('job-list', request=request, format=format),

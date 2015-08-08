@@ -1,6 +1,4 @@
 from django.db import models
-from rodan.models.job import Job
-from rodan.models.workflow import Workflow
 from jsonfield import JSONField
 from uuidfield import UUIDField
 
@@ -21,9 +19,7 @@ class WorkflowJob(models.Model):
       preset requirements of `Job` settings.
     - `name` -- user-defined name. Default: the same as `job_name`.
 
-    - `group` -- an integer field indicating the grouping of `WorkflowJob`s.
-    - `origin` -- a nullable reference to the `Workflow` indicating where it comes
-      from.
+    - `group` -- a nullable reference to the `WorkflowGroup` object.
 
     **Properties**
 
@@ -35,14 +31,12 @@ class WorkflowJob(models.Model):
     - `save` and `delete` -- invalidate the referenced `Workflow`.
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, related_name="workflow_jobs", on_delete=models.PROTECT)
+    workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE)
+    job = models.ForeignKey("rodan.Job", related_name="workflow_jobs", on_delete=models.PROTECT)
     job_settings = JSONField(default={}, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
 
-    group = models.IntegerField(blank=True, null=True)
-    origin = models.ForeignKey(Workflow, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
-
+    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
