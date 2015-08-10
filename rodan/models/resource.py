@@ -136,7 +136,7 @@ class Resource(models.Model):
         if not os.path.exists(self.thumb_path):
             os.makedirs(self.thumb_path)
 
-        if getattr(settings, 'WITH_DIVA') and not os.path.exists(self.diva_path):
+        if getattr(settings, 'ENABLE_DIVA') and not os.path.exists(self.diva_path):
             os.makedirs(self.diva_path)
 
     def delete(self, *args, **kwargs):
@@ -178,7 +178,7 @@ class Resource(models.Model):
     @property
     def small_thumb_url(self):
         if self.has_thumb:
-            if not settings.WITH_DIVA:
+            if not settings.ENABLE_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.SMALL_THUMBNAIL))
             else:
@@ -187,7 +187,7 @@ class Resource(models.Model):
     @property
     def medium_thumb_url(self):
         if self.has_thumb:
-            if not settings.WITH_DIVA:
+            if not settings.ENABLE_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
             else:
@@ -196,7 +196,7 @@ class Resource(models.Model):
     @property
     def large_thumb_url(self):
         if self.has_thumb:
-            if not settings.WITH_DIVA:
+            if not settings.ENABLE_DIVA:
                 return os.path.join(self.thumb_url,
                                     self.thumb_filename(size=settings.LARGE_THUMBNAIL))
             else:

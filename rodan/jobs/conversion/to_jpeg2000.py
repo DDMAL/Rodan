@@ -7,15 +7,14 @@ from rodan.jobs.base import RodanTask
 from django.conf import settings
 from distutils.spawn import find_executable
 
-# Find kdu_compress and convert upon loading
+# Find kdu_compress and graphicsmagick upon loading
 BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS', None) or find_executable('kdu_compress')
 if not BIN_KDU_COMPRESS:
     raise ImportError("cannot find kdu_compress")
 
-BIN_CONVERT = getattr(settings, 'BIN_CONVERT', None) or find_executable('convert')
-if not BIN_CONVERT:
-    raise ImportError("cannot find convert")
-BIN_CONVERT_LIST = BIN_CONVERT.strip().split()  # because it may be "gm convert"
+BIN_GM = getattr(settings, 'BIN_GM', None) or find_executable('gm')
+if not BIN_GM:
+    raise ImportError("cannot find gm")
 
 class to_jpeg2000(RodanTask):
     name = 'rodan.jobs.conversion.to_jpeg2000'
@@ -43,13 +42,12 @@ class to_jpeg2000(RodanTask):
             name, ext = os.path.splitext(name)
             tfile = os.path.join(tdir, "{0}.tiff".format(name))
 
-            subprocess.check_call(
-                BIN_CONVERT_LIST + [
-                    "-depth", "8",         # output RGB
-                    "-compress", "None",
-                    task_image,
-                    tfile]
-            )
+            subprocess.check_call([BIN_GM,
+                                   'convert',
+                                   "-depth", "8",         # output RGB
+                                   "-compress", "None",
+                                   task_image,
+                                   tfile])
             result_file = "{0}.jp2".format(name)
             output_file = os.path.join(tdir, result_file)
 

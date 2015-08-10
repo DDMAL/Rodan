@@ -8,7 +8,7 @@ db.sqlite
 .XcodeSupport/*
 rodan.log
 rodan_env
-.DS_Store 
+.DS_Store
 rodan/migrations/*
 gunicorn_start.sh
 celery_start.sh
@@ -17,7 +17,11 @@ rodan/static/Rodan
 
 /.DS_Store
 
+# autoconf
+configure
+config.status
+config.log
+autom4te.cache
+
 # ignore emacs autosave file
 *~
-
-.DS_Store
