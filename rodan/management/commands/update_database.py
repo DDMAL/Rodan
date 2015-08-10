@@ -2,14 +2,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import psycopg2
 import psycopg2.extensions
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
-import json
-import datetime
 import os
-import time
+
 
 class Command(BaseCommand):
     help = 'Running the command update_database will work as a daemon running in the backend and any update in the database will trigger a notification that will be broadcasted as a Redis message.'
@@ -32,6 +26,7 @@ class Command(BaseCommand):
                 import sys
                 import json
                 import redis
+                import socket
 
                 info = notify.split('/')
                 status = info[0]
@@ -44,7 +39,14 @@ class Command(BaseCommand):
                     'uuid': uuid
                 }
 
-                r = redis.StrictRedis(host='localhost', port=6379, db=0)
+                try:
+                    HOSTNAME = socket.gethostname()
+                except:
+                    HOSTNAME = 'localhost'
+
+                PORT = 6379
+
+                r = redis.StrictRedis(HOSTNAME, PORT, db=0)
                 r.publish('rodan:broadcast:rodan', json.dumps(data))
 
                 print "Got NOTIFY:", notify
