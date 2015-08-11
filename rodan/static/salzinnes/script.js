@@ -827,8 +827,24 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             ws.send(msg);
         }
 
+        function IsJsonString(str) {
+            try {
+                JSON.parse(str);
+            }
+            catch (e) {
+                return false;
+            }
+            return true;
+        }
+
         function get_request(e) {
-            var message = JSON.parse(e.data);
+            var message = ''
+            if (IsJsonString(e.data)) {
+                message = JSON.parse(e.data);
+            }
+            else {
+                message = ''
+            }
             if (message.model === "workflow") {
                 fetchWorkflows();
             }
