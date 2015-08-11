@@ -1,0 +1,10 @@
+[fcgi-program:iipserver]
+command=/srv/fcgi-bin/iipsrv.fcgi
+socket=unix:///tmp/%(program_name)s_1.sock
+user=www-data
+autostart=true
+autorestart=unexpected
+redirect_stderr=true
+redirect_stdout=true
+# KEEP FILESYSTEM_PREFIX same as the media path
+environment=JPEG_QUALITY='100',MAX_LAYERS='4',MAX_CVT='7000',FILESYSTEM_PREFIX='@RODAN_DATA_DIR@'

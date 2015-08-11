@@ -23,5 +23,11 @@ config.status
 config.log
 autom4te.cache
 
+etc/supervisor/conf.d/rodan.conf
+etc/supervisor/conf.d/rodan-celery.conf
+etc/supervisor/conf.d/iipserver.conf
+etc/nginx/sites-available/rodan_with_diva
+etc/nginx/sites-available/rodan_without_diva
+
 # ignore emacs autosave file
 *~

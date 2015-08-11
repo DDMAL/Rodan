@@ -177,6 +177,27 @@ AC_SUBST(CELERY_BROKER_URL)
 AC_SUBST(DOMAIN_NAME)
 
 
+# IIPServer bin
+AC_ARG_VAR([IIPSRV_FCGI], [IIPServer fcgi binary (required if --enable-diva)])
+
+if test "x$ENABLE_DIVA" = "xTrue"; then
+  if test -z "$IIPSRV_FCGI"; then
+    AC_MSG_ERROR([IIPSRV_FCGI required when --enable-diva=yes])
+  fi
+  if test ! -f "$IIPSRV_FCGI"; then
+    AC_MSG_ERROR([IIPSRV_FCGI fcgi binary not found])
+  fi
+fi
+
 
 # output
-AC_OUTPUT(celery_start.sh gunicorn_start.sh rodan/settings_production.py)
+AC_CONFIG_FILES(celery_start.sh gunicorn_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-celery.conf)
+
+if test "x$ENABLE_DIVA" = "xTrue"; then
+  AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
+  AC_CONFIG_FILES(etc/nginx/sites-available/rodan_with_diva)
+  AC_OUTPUT()
+else
+  AC_CONFIG_FILES(etc/nginx/sites-available/rodan_without_diva)
+  AC_OUTPUT()
+fi

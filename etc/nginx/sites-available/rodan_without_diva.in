@@ -1,0 +1,40 @@
+upstream rodan {
+        server unix:/tmp/rodan.sock fail_timeout=0;
+}
+
+server {
+        root /usr/share/nginx/www;
+        index index.html index.htm;
+        server_name @DOMAIN_NAME@;
+        error_log /var/log/nginx/error.log;
+        access_log /var/log/nginx/access.log;
+
+        # Static files
+        location /static {
+            root @RODAN_APP_DIR@rodan;
+            autoindex off;
+        }
+
+        # Media files
+        location /uploads {
+            alias @RODAN_DATA_DIR@;
+            autoindex off;
+        }
+
+        location / {
+            add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+
+            # Proxy pass to Rodan.
+            proxy_http_version 1.1;
+            proxy_pass http://rodan;
+            proxy_pass_header Server;
+            proxy_pass_header Set-Cookie;
+            proxy_redirect off;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 10;
+            proxy_read_timeout 60;
+        }
+}

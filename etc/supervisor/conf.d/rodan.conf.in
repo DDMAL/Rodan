@@ -1,0 +1,10 @@
+[program:rodan]
+command=@RODAN_APP_DIR@gunicorn_start.sh
+environment=PYTHON_EGG_CACHE="/tmp",DJANGO_SETTINGS_MODULE="rodan.settings"
+directory=@RODAN_APP_DIR@
+chown=www-data:www-data
+user=www-data
+autostart=true
+autorestart=true
+redirect_stderr=true
+redirect_stdout=true
