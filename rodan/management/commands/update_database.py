@@ -11,6 +11,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         setattr(settings, "_update_database", True)
 
+        base_url = settings.BASE_URL.split('//')[1].replace(':8000','')
+
         conn = psycopg2.connect(database="postgres", host=os.environ.get('HOSTNAME'), user=os.environ.get('USER'), password="")
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -33,27 +35,20 @@ class Command(BaseCommand):
                 model = info[1].replace('rodan_','')
                 uuid = info[2].replace('-','')
 
-                data = {
+                data = {{
                     'status': status,
                     'model': model,
                     'uuid': uuid
-                }
+                }}
 
-                try:
-                    HOSTNAME = socket.gethostname()
-                except:
-                    HOSTNAME = 'localhost'
-
-                PORT = 6379
-
-                r = redis.StrictRedis(HOSTNAME, PORT, db=0)
+                r = redis.StrictRedis("{0}", 6379, db=0)
                 r.publish('rodan:broadcast:rodan', json.dumps(data))
 
                 print "Got NOTIFY:", notify
                 print datetime.datetime.now().time()
 
             $$ LANGUAGE plpythonu;
-            '''
+            '''.format(base_url)
 
 
         # Create trigger that sends information about the status, the table name, and the uuid of the modified element
