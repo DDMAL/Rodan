@@ -1,7 +1,7 @@
 [fcgi-program:iipserver]
-command=/srv/fcgi-bin/iipsrv.fcgi
+command=@IIPSRV_FCGI@
 socket=unix:///tmp/%(program_name)s_1.sock
-user=www-data
+user=@WWW_USER@
 autostart=true
 autorestart=unexpected
 redirect_stderr=true

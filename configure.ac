@@ -189,6 +189,18 @@ if test "x$ENABLE_DIVA" = "xTrue"; then
   fi
 fi
 
+# User and Group that runs Rodan
+AC_ARG_VAR([WWW_USER], [The user to run as (default: www-data)])
+AC_ARG_VAR([WWW_GROUP], [The group to run as (default: www-data)])
+if test -z "$WWW_USER"; then
+  WWW_USER=www-data
+fi
+if test -z "$WWW_GROUP"; then
+  WWW_GROUP=www-data
+fi
+
+
+
 
 # output
 AC_CONFIG_FILES(celery_start.sh gunicorn_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-celery.conf)
