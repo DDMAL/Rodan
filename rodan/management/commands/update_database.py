@@ -11,24 +11,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         setattr(settings, "_update_database", True)
 
-        base_url = settings.BASE_URL.split('//')[1].replace(':8000','')
+        HOST = settings.ALLOWED_HOSTS[0].replace(':8000', '')
 
-        conn = psycopg2.connect(database="postgres", host=os.environ.get('HOSTNAME'), user=os.environ.get('USER'), password="")
+        conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
         curs = conn.cursor()
 
-        curs.execute('LISTEN "test";')
-        print "Waiting for notifications on channel 'test'"
-
-        print_notify = '''
-            CREATE OR REPLACE FUNCTION print_notify(notify text) RETURNS void AS $$
-                import datetime
-                import os
-                import sys
+        publish_message = '''
+            CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
                 import json
                 import redis
-                import socket
 
                 info = notify.split('/')
                 status = info[0]
@@ -41,14 +34,11 @@ class Command(BaseCommand):
                     'uuid': uuid
                 }}
 
-                r = redis.StrictRedis("{0}", 6379, db=0)
+                r = redis.StrictRedis("{0}", {1}, db={2})
                 r.publish('rodan:broadcast:rodan', json.dumps(data))
 
-                print "Got NOTIFY:", notify
-                print datetime.datetime.now().time()
-
             $$ LANGUAGE plpythonu;
-            '''.format(base_url)
+            '''
 
 
         # Create trigger that sends information about the status, the table name, and the uuid of the modified element
@@ -66,8 +56,7 @@ class Command(BaseCommand):
                     status = 'deleted';
                 END IF;
                 notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
-                -- PERFORM pg_notify('test', notify);
-                PERFORM print_notify(notify);
+                PERFORM publish_message(notify);
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;
@@ -92,6 +81,6 @@ class Command(BaseCommand):
             SELECT name();
             '''
 
-        curs.execute(print_notify)
+        curs.execute(publish_message.format(HOST, settings.REDIS_PORT, settings.DB))
         curs.execute(trigger)
         curs.execute(create_trigger)
