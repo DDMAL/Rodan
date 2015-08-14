@@ -25,9 +25,8 @@ import os
 
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
-    HOST = settings.ALLOWED_HOSTS[0]
 
-    conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
+    conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     curs = conn.cursor()
@@ -94,6 +93,6 @@ def update_database(sender, **kwargs):
         SELECT name();
         '''
 
-    curs.execute(publish_message.format(HOST, settings.REDIS_PORT, settings.DB))
+    curs.execute(publish_message.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB))
     curs.execute(trigger)
     curs.execute(create_trigger)
