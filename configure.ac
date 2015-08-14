@@ -200,8 +200,6 @@ if test -z "$WWW_GROUP"; then
 fi
 
 
-
-
 # output
 AC_CONFIG_FILES(celery_start.sh gunicorn_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-celery.conf)
 
@@ -209,7 +207,11 @@ if test "x$ENABLE_DIVA" = "xTrue"; then
   AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
   AC_CONFIG_FILES(etc/nginx/sites-available/rodan_with_diva)
   AC_OUTPUT()
+  mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan
+  AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan])
 else
   AC_CONFIG_FILES(etc/nginx/sites-available/rodan_without_diva)
   AC_OUTPUT()
+  mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan
+  AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan])
 fi
