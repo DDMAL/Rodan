@@ -118,4 +118,6 @@ RUN     service postgresql start && source ./rodan_env/bin/activate && echo "fro
 
 ## Start server!
 EXPOSE  80
+EXPOSE  5432
+EXPOSE  5672
 CMD     service rabbitmq-server start && service postgresql start && service nginx start && /usr/bin/supervisord -n
