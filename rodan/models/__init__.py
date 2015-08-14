@@ -25,7 +25,7 @@ import os
 
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
-    HOST = settings.ALLOWED_HOSTS[0].replace(':8000', '')
+    HOST = settings.ALLOWED_HOSTS[0]
 
     conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
