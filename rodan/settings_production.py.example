@@ -3,7 +3,7 @@ import os
 DEBUG = True
 
 DATABASES = {
-    'default': {
+    'user': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'rodan.sqlite3',
         #'USER': 'ahankins',
@@ -11,6 +11,15 @@ DATABASES = {
         #'HOST': 'localhost',
         #'PORT': '5432'
     }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',                      
+        'USER': 'yihong',
+        'PASSWORD': '',
+        #'HOST': 'localhost',
+        #'PORT': '5432',
+    }
+
 }
 
 ALLOWED_HOSTS = [
@@ -96,4 +105,10 @@ RODAN_JOB_PACKAGES = (
     "rodan.jobs.neon",
     "rodan.jobs.pil"
 )
+
+###############################################################################
+## Websocket configuration
+###############################################################################
+REDIS_PORT = 6379
+DB = 0
 
