@@ -47,7 +47,7 @@ RUN	apt-get -y install libpq-dev
 RUN	source ./rodan_env/bin/activate && pip install psycopg2
 
 @IF_SERVER@## Configure PostgreSQL
-@IF_SERVER@RUN	service postgresql start && sudo -u postgres psql --command "create user rodan with password 'tOX?&s+m]*F0_^r';" && sudo -u postgres psql --command 'create database rodan;' && sudo -u postgres psql --command 'grant all privileges on database "rodan" to rodan;'
+@IF_SERVER@RUN	service postgresql start && sudo -u postgres psql --command "create user @DB_USER@ with password '@DB_PASSWORD@';" && sudo -u postgres psql --command 'create database @DB_NAME@;' && sudo -u postgres psql --command 'grant all privileges on database "@DB_NAME@" to @DB_USER@;'
 
 @IF_SERVER@## Set up Celery Queue
 @IF_SERVER@RUN	service rabbitmq-server start && rabbitmqctl add_user rodanuser DDMALrodan && rabbitmqctl add_vhost DDMAL && rabbitmqctl set_permissions -p DDMAL rodanuser ".*" ".*" ".*"
@@ -126,5 +126,4 @@ RUN     cp etc/supervisor/conf.d/rodan-celery.conf /etc/supervisor/conf.d/
 @IF_SERVER@EXPOSE  80
 @IF_SERVER@EXPOSE  5432
 @IF_SERVER@EXPOSE  5672
-@IF_SERVER@CMD     service rabbitmq-server start && service postgresql start && service nginx start
-CMD     /usr/bin/supervisord -n
+CMD     if test -z "@IF_SERVER@"; then service rabbitmq-server start && service postgresql start && service nginx start; fi && /usr/bin/supervisord -n
