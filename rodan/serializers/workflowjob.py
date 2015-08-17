@@ -32,7 +32,9 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
             g = data['group']
             g_wf = g.workflow_jobs.first()
             if g_wf:
-                wf = data.get('workflow', self.instance.workflow)
+                wf = data.get('workflow')
+                if not wf:
+                    wf = self.instance.workflow
                 if wf.uuid != g_wf.uuid:
                     raise serializers.ValidationError({"group": ["The assigned group does not belong to the Workflow of this WorkflowJob."]})
         return data
