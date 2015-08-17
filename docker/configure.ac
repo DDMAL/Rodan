@@ -62,6 +62,8 @@ AC_ARG_VAR([DB_NAME], [Database name (default rodan)])
 AC_ARG_VAR([DB_USER], [Database user (default rodan)])
 AC_ARG_VAR([DB_PASSWORD], [Database password])
 AC_ARG_VAR([DB_HOST], [Database host (default localhost)])
+AC_ARG_VAR([DB_PORT], [Database port (default 5432)])
+AC_ARG_VAR([WORKERS_SUBNET], [Workers subnet (only MODE=server)])
 
 if test -z "$DB_NAME"; then
   AC_MSG_WARN(set default: DB_NAME=rodan)
@@ -82,12 +84,18 @@ if test -z "$DB_PORT"; then
   AC_MSG_WARN(set default: DB_PORT=5432)
   DB_PORT=5432
 fi
+if test -z "$WORKERS_SUBNET"; then
+  if test "x$MODE" = "xserver"; then
+    AC_MSG_ERROR([WORKERS_SUBNET required when MODE=server (e.g. 192.168.1.0/24)])
+  fi
+fi
 
 AC_SUBST(DB_NAME)
 AC_SUBST(DB_USER)
 AC_SUBST(DB_PASSWORD)
 AC_SUBST(DB_HOST)
 AC_SUBST(DB_PORT)
+AC_SUBST(WORKERS_SUBNET)
 
 # admin account (only MODE=server)
 AC_ARG_VAR([ADMIN_USER], [Admin user name (default admin, only MODE=server)])

@@ -122,6 +122,9 @@ RUN     cp etc/supervisor/conf.d/rodan-celery.conf /etc/supervisor/conf.d/
 ## create super user for Rodan
 @IF_SERVER@RUN     service postgresql start && source ./rodan_env/bin/activate && echo "from django.contrib.auth.models import User; User.objects.create_superuser('@ADMIN_USER@', '', '@ADMIN_PASSWORD@')" | python manage.py shell
 
+## expose PostgreSQL to allow access from workers' subnet
+@IF_SERVER@RUN     echo "listen_addresses = '*'" >> /etc/postgresql/9.3/main/postgresql.conf && echo "host  all  all  @WORKERS_SUBNET@  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+
 ## Start server!
 @IF_SERVER@EXPOSE  80
 @IF_SERVER@EXPOSE  5432
