@@ -20,7 +20,8 @@ class WorkflowJobGroupViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTes
             'workflow_jobs': [
                 "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob1.uuid),
                 "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob2.uuid)
-            ]
+            ],
+            "name": "test group"
         }
         response = self.client.post("/workflowjobgroups/", wfjgroup_obj, format='json')
         anticipated_message = {'workflow_jobs': ["All WorkflowJobs should belong to the same Workflow."]}
@@ -32,7 +33,8 @@ class WorkflowJobGroupViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTes
         wfjgroup_obj = {
             'workflow_jobs': [
                 "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob1.uuid)
-            ]
+            ],
+            "name": "test group"
         }
         response = self.client.post("/workflowjobgroups/", wfjgroup_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
