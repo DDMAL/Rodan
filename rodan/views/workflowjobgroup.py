@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
-
+import django_filters
 from rodan.paginators.pagination import PaginationSerializer
 from rodan.models import WorkflowJobGroup
 from rodan.serializers.workflowjobgroup import WorkflowJobGroupSerializer
@@ -14,6 +14,8 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
 
     #### GET Parameters
     - `origin`
+    - `workflow`
+    - `project`
 
     #### POST Parameters
     - `workflow_jobs`
@@ -24,6 +26,13 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     pagination_serializer_class = PaginationSerializer
     filter_fields = ('origin', )
     queryset = WorkflowJobGroup.objects.all() # [TODO] filter according to the user?
+
+    class filter_class(django_filters.FilterSet):
+        workflow = django_filters.CharFilter(name="workflow_jobs__workflow")
+        project = django_filters.CharFilter(name="workflow_jobs__workflow__project")
+        class Meta:
+            model = WorkflowJobGroup
+            fields = ('origin', 'project', 'workflow')
 
 class WorkflowJobGroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
