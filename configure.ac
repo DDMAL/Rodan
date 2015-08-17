@@ -21,6 +21,19 @@ AC_SUBST(ENABLE_DEBUG)
 AC_SUBST(ENABLE_DIVA)
 
 
+# MODE: server or worker
+AC_ARG_VAR([MODE], [Automated setup mode: server | worker])
+
+# check values
+if test "x$MODE" = "xserver"; then
+   IF_SERVER=""
+elif test "x$MODE" = "xworker"; then
+   IF_SERVER='# '
+else
+  AC_MSG_ERROR(MODE must be either server or worker)
+fi
+
+
 
 # Checks for programs for jobs
 # graphicsmagick
@@ -136,18 +149,22 @@ AC_ARG_VAR([DB_HOST], [Database host (default localhost)])
 AC_ARG_VAR([DB_PORT], [Database port (default 5432)])
 
 if test -z "$DB_NAME"; then
+  AC_MSG_WARN(set default: DB_NAME=rodan)
   DB_NAME=rodan
 fi
 if test -z "$DB_USER"; then
+  AC_MSG_WARN(set default: DB_USER=rodan)
   DB_USER=rodan
 fi
 if test -z "$DB_PASSWORD"; then
   AC_MSG_ERROR(DB_PASSWORD missing in arguments)
 fi
 if test -z "$DB_HOST"; then
+  AC_MSG_WARN(set default: DB_HOST=localhost)
   DB_HOST=localhost
 fi
 if test -z "$DB_PORT"; then
+  AC_MSG_WARN(set default: DB_PORT=5432)
   DB_PORT=5432
 fi
 
@@ -156,15 +173,20 @@ fi
 AC_ARG_VAR([CELERY_BROKER_URL], [Celery broker URL (default amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL)])
 
 if test -z "$CELERY_BROKER_URL"; then
-   CELERY_BROKER_URL=amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL
+  AC_MSG_WARN(set default: CELERY_BROKER_URL=amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL)
+  CELERY_BROKER_URL=amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL
 fi
 
 
 # Domain name
-AC_ARG_VAR([DOMAIN_NAME], [Domain name])
+AC_ARG_VAR([DOMAIN_NAME], [Domain name (only MODE=server)])
 
-if test -z "$DOMAIN_NAME"; then
-  AC_MSG_ERROR(DOMAIN_NAME missing in arguments)
+if test "x$MODE" = "xserver"; then
+  if test -z "$DOMAIN_NAME"; then
+    AC_MSG_ERROR(DOMAIN_NAME missing in arguments)
+  fi
+else
+  DOMAIN_NAME="rodan-worker"
 fi
 
 # substitute variables
@@ -178,40 +200,52 @@ AC_SUBST(DOMAIN_NAME)
 
 
 # IIPServer bin
-AC_ARG_VAR([IIPSRV_FCGI], [IIPServer fcgi binary (required if --enable-diva)])
+AC_ARG_VAR([IIPSRV_FCGI], [IIPServer fcgi binary (required if --enable-diva and MODE=server)])
 
-if test "x$ENABLE_DIVA" = "xTrue"; then
-  if test -z "$IIPSRV_FCGI"; then
-    AC_MSG_ERROR([IIPSRV_FCGI required when --enable-diva=yes])
+if test "x$MODE" = "xserver"; then
+  if test "x$ENABLE_DIVA" = "xTrue"; then
+    if test -z "$IIPSRV_FCGI"; then
+      AC_MSG_ERROR([IIPSRV_FCGI required when --enable-diva=yes])
+    fi
+    if test ! -f "$IIPSRV_FCGI"; then
+      AC_MSG_ERROR([IIPSRV_FCGI fcgi binary not found])
+    fi
   fi
-  if test ! -f "$IIPSRV_FCGI"; then
-    AC_MSG_ERROR([IIPSRV_FCGI fcgi binary not found])
-  fi
+else
+  IIPSRV_FCGI="rodan-worker"
 fi
 
 # User and Group that runs Rodan
 AC_ARG_VAR([WWW_USER], [The user to run as (default: www-data)])
 AC_ARG_VAR([WWW_GROUP], [The group to run as (default: www-data)])
 if test -z "$WWW_USER"; then
+  AC_MSG_WARN(set default: WWW_USER=www-data)
   WWW_USER=www-data
 fi
 if test -z "$WWW_GROUP"; then
+  AC_MSG_WARN(set default: WWW_GROUP=www-data)
   WWW_GROUP=www-data
 fi
 
 
 # output
-AC_CONFIG_FILES(celery_start.sh gunicorn_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-celery.conf)
+AC_CONFIG_FILES(celery_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan-celery.conf)
 
-if test "x$ENABLE_DIVA" = "xTrue"; then
-  AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
-  AC_CONFIG_FILES(etc/nginx/sites-available/rodan_with_diva)
-  AC_OUTPUT()
-  mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan
-  AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan])
+if test "x$MODE" = "xserver"; then
+  AC_CONFIG_FILES(gunicorn_start.sh etc/supervisor/conf.d/rodan.conf)
+
+  if test "x$ENABLE_DIVA" = "xTrue"; then
+    AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
+    AC_CONFIG_FILES(etc/nginx/sites-available/rodan_with_diva)
+    AC_OUTPUT()
+    mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan
+    AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan])
+  else
+    AC_CONFIG_FILES(etc/nginx/sites-available/rodan_without_diva)
+    AC_OUTPUT()
+    mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan
+    AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan])
+  fi
 else
-  AC_CONFIG_FILES(etc/nginx/sites-available/rodan_without_diva)
   AC_OUTPUT()
-  mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan
-  AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan])
 fi

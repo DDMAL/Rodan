@@ -27,6 +27,8 @@ etc/supervisor/conf.d/rodan.conf
 etc/supervisor/conf.d/rodan-celery.conf
 etc/supervisor/conf.d/iipserver.conf
 etc/nginx/sites-available/rodan
+docker/Dockerfile
+docker/deploy.sh
 
 # ignore emacs autosave file
 *~
