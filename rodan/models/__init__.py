@@ -23,6 +23,12 @@ import psycopg2
 import psycopg2.extensions
 import os
 
+'''
+This function is executed after the post-migrate signal.
+It first connects to the Postgres database using psycopg2.
+It then loops through all tables that begin with 'rodan_', destroys triggers if they already exist in that table, and then creates the triggers.
+After each INSERT, UPDATE, or DELETE action, a message containing information with the status, the model name and the uuid will be published through Redis.
+'''
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
 
