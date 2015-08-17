@@ -92,7 +92,7 @@ RUN     echo "trigger update" && git pull && git checkout autoconf
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
 RUN     apt-get -y install libvips-tools
-RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_PASSWORD="@DB_PASSWORD@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@"
+RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_NAME="@DB_NAME@" DB_USER="@DB_USER@" DB_PASSWORD="@DB_PASSWORD@" DB_HOST="@DB_HOST@" DB_PORT="@DB_PORT@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@" CELERY_BROKER_URL="@CELERY_BROKER_URL@"
 @IF_SERVER@RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && python manage.py migrate
 RUN	chmod a+x /srv/webapps/Rodan/celery_start.sh
 @IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/gunicorn_start.sh
