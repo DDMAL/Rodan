@@ -40,8 +40,11 @@ RUN	apt-get -y install libpython-dev lib32ncurses5-dev libxml2-dev libxslt1-dev 
 RUN     source ./rodan_env/bin/activate && pip install -r requirements.txt
 
 @IF_SERVER@## Install PostgreSQL
-@IF_SERVER@RUN	apt-get -y install postgresql postgresql-contrib libpq-dev
-@IF_SERVER@RUN	source ./rodan_env/bin/activate && pip install psycopg2
+@IF_SERVER@RUN	apt-get -y install postgresql postgresql-contrib
+
+## Install PostgreSQL Python binding
+RUN	apt-get -y install libpq-dev
+RUN	source ./rodan_env/bin/activate && pip install psycopg2
 
 @IF_SERVER@## Configure PostgreSQL
 @IF_SERVER@RUN	service postgresql start && sudo -u postgres psql --command "create user rodan with password 'tOX?&s+m]*F0_^r';" && sudo -u postgres psql --command 'create database rodan;' && sudo -u postgres psql --command 'grant all privileges on database "rodan" to rodan;'
@@ -89,9 +92,10 @@ RUN     echo "trigger update" && git pull && git checkout autoconf
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
 RUN     apt-get -y install libvips-tools
-RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_PASSWORD="@CONFIGURE_DB_PASSWORD@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@"
-RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && python manage.py migrate
-RUN     chmod a+x /srv/webapps/Rodan/celery_start.sh /srv/webapps/Rodan/gunicorn_start.sh
+RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_PASSWORD="@DB_PASSWORD@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@"
+@IF_SERVER@RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && python manage.py migrate
+RUN	chmod a+x /srv/webapps/Rodan/celery_start.sh
+@IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/gunicorn_start.sh
 
 @IF_SERVER@RUN     apt-get -y install nginx
 
