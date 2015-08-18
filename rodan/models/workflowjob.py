@@ -1,6 +1,4 @@
 from django.db import models
-from rodan.models.job import Job
-from rodan.models.workflow import Workflow
 from jsonfield import JSONField
 from uuidfield import UUIDField
 
@@ -18,6 +16,9 @@ class WorkflowJob(models.Model):
     - `job` -- a reference to the `Job`.
     - `job_settings` -- JSON field. Store user's settings which correspond to the
       preset requirements of `Job` settings.
+    - `name` -- user-defined name. Default: the same as `job_name`.
+
+    - `group` -- a nullable reference to the `WorkflowGroup` object.
 
     **Properties**
 
@@ -29,14 +30,18 @@ class WorkflowJob(models.Model):
     - `save` and `delete` -- invalidate the referenced `Workflow`.
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey(Workflow, related_name="workflow_jobs", on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, related_name="workflow_jobs", on_delete=models.PROTECT)
+    workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE)
+    job = models.ForeignKey("rodan.Job", related_name="workflow_jobs", on_delete=models.PROTECT)
     job_settings = JSONField(default={}, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
 
+    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.job_name.split('.')[-1]
         super(WorkflowJob, self).save(*args, **kwargs)
         wf = self.workflow
         wf.valid = False

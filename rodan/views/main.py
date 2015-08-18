@@ -17,6 +17,7 @@ def api_root(request, format=None):
         'routes': {'projects': reverse('project-list', request=request, format=format),
                      'workflows': reverse('workflow-list', request=request, format=format),
                      'workflowjobs': reverse('workflowjob-list', request=request, format=format),
+                     'workflowjobgroups': reverse('workflowjobgroup-list', request=request, format=format),
                      'workflowruns': reverse('workflowrun-list', request=request, format=format),
                      'runjobs': reverse('runjob-list', request=request, format=format),
                      'jobs': reverse('job-list', request=request, format=format),
@@ -38,7 +39,9 @@ def api_root(request, format=None):
                      'taskqueue-active': reverse('taskqueue-active', request=request, format=format),
                      'taskqueue-scheduled': reverse('taskqueue-scheduled', request=request, format=format),
                      'taskqueue-status': reverse('taskqueue-status', request=request, format=format),
-                     'taskqueue-config': reverse('taskqueue-config', request=request, format=format)},
+                     'taskqueue-config': reverse('taskqueue-config', request=request, format=format),
+                     'workflowjobcoordinatesets': reverse('workflowjobcoordinateset-list', request=request, format=format),
+        },
         'configuration': {
             'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']
         },

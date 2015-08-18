@@ -4,6 +4,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.reverse import reverse
 
 from rodan.paginators.pagination import PaginationSerializer
 from rodan.models import Workflow, InputPort, OutputPort
@@ -69,7 +70,21 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 try:
                     self._validate(workflow)
                 except WorkflowValidationError as e:
-                    raise CustomAPIException(e.message, status=status.HTTP_409_CONFLICT)
+                    def object_to_url(o):
+                        return reverse('{0}-detail'.format(o.__class__.__name__.lower()), args=[o.uuid], request=self.request)
+
+                    associated_objects_dict = {}
+                    for o in e.associated_objects:
+                        clsname = o.__class__.__name__.lower() + 's'
+                        if clsname not in associated_objects_dict:
+                            associated_objects_dict[clsname] = []
+                        associated_objects_dict[clsname].append(object_to_url(o))
+
+                    raise CustomAPIException({
+                        'error_code': e.error_code,
+                        'details': [e.details],
+                        'associated_objects': associated_objects_dict
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 raise ValidationError({"valid": "Cannot invalidate a Workflow."})
 
@@ -81,7 +96,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         for wfjob in workflow_jobs:
             number_of_output_ports = wfjob.output_ports.count()
             if number_of_output_ports == 0:
-                raise WorkflowValidationError('The WorkflowJob {0} has no OutputPorts'.format(wfjob.uuid))
+                raise WorkflowValidationError('WFJ_NO_OP', 'The WorkflowJob {0} has no OutputPort.'.format(wfjob.job_name), [wfjob])
 
             job = wfjob.job
             input_port_types = job.input_port_types.all()
@@ -89,46 +104,54 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
             for ipt in input_port_types:
                 number_of_input_ports = wfjob.input_ports.filter(input_port_type=ipt).count()
-                if number_of_input_ports > ipt.maximum or number_of_input_ports < ipt.minimum:
-                    raise WorkflowValidationError('The number of input ports on WorkflowJob {0} did not meet the requirements'.format(wfjob.uuid))
+                if number_of_input_ports < ipt.minimum:
+                    raise WorkflowValidationError('WFJ_TOO_FEW_IP', 'The WorkflowJob {0} has too few InputPorts of type {1}.'.format(wfjob.job_name, ipt.name), [wfjob, ipt])
+                elif number_of_input_ports > ipt.maximum:
+                    raise WorkflowValidationError('WFJ_TOO_MANY_IP', 'The WorkflowJob {0} has too many InputPorts of type {1}.'.format(wfjob.job_name, ipt.name), [wfjob, ipt])
 
             for opt in output_port_types:
                 number_of_output_ports = wfjob.output_ports.filter(output_port_type=opt).count()
-                if number_of_output_ports > opt.maximum or number_of_output_ports < opt.minimum:
-                    raise WorkflowValidationError('The number of output ports on WorkflowJob {0} did not meet the requirements'.format(wfjob.uuid))
+                if number_of_output_ports < opt.minimum:
+                    raise WorkflowValidationError('WFJ_TOO_FEW_OP', 'The WorkflowJob {0} has too few OutputPorts of type {1}.'.format(wfjob.job_name, opt.name), [wfjob, opt])
+                elif number_of_output_ports > opt.maximum:
+                    raise WorkflowValidationError('WFJ_TOO_MANY_OP', 'The WorkflowJob {0} has too many OutputPorts of type {1}.'.format(wfjob.job_name, opt.name), [wfjob, opt])
+
 
             v = jsonschema.Draft4Validator(dict(job.settings))  # convert JSONDict object to Python dict object.
             try:
                 v.validate(wfjob.job_settings)
             except jsonschema.exceptions.ValidationError as e:
-                raise WorkflowValidationError('WorkflowJob {0} has invalid settings.'.format(wfjob.uuid))
+                raise WorkflowValidationError('WFJ_INVALID_SETTINGS', 'The WorkflowJob {0} has invalid settings.'.format(wfjob.job_name), [wfjob])
 
         # validate InputPorts
         input_ports = InputPort.objects.filter(workflow_job__workflow=workflow)
         for ip in input_ports:
             if ip.input_port_type.job != ip.workflow_job.job:
-                raise WorkflowValidationError('InputPort {0} has an InputPortType incompatible with its WorkflowJob'.format(ip.uuid))
+                raise WorkflowValidationError('IP_TYPE_MISMATCH', 'The type of InputPort {0} is incompatible with its associated WorkflowJob.'.format(ip.label), [ip])
 
             if ip.connections.count() > 1:
-                raise WorkflowValidationError('InputPort {0} has multiple Connections'.format(ip.uuid))
+                raise WorkflowValidationError('IP_TOO_MANY_CONNECTIONS', 'The InputPort {0} has more than one Connections'.format(ip.label), [ip])
 
         # validate OutputPorts
         output_ports = OutputPort.objects.filter(workflow_job__workflow=workflow)
         for op in output_ports:
             if op.output_port_type.job != op.workflow_job.job:
-                raise WorkflowValidationError('OutputPort {0} has an OutputPortType incompatible with its WorkflowJob'.format(op.uuid))
+                raise WorkflowValidationError('OP_TYPE_MISMATCH', 'The type of OutputPort {0} is incompatible with its associated WorkflowJob.'.format(op.label), [op])
+
             resource_type_set = set(op.output_port_type.resource_types.all())
+            ips = []
             for connection in op.connections.all():
-                ip = connection.input_port
+                ips.append(connection.input_port)
+            for ip in ips:
                 in_type_set = set(ip.input_port_type.resource_types.all())
                 resource_type_set = resource_type_set.intersection(in_type_set)
                 if not set(resource_type_set):
-                    raise WorkflowValidationError('There is no common resource type between OutputPort {0} and its connected InputPorts'.format(op.uuid))
+                    raise WorkflowValidationError('NO_COMMON_RESOURCETYPE', 'There is no common ResourceType between OutputPort {0} and its connected InputPorts.'.format(op.label), [op]+ips)
 
         # graph validation
         ## Step 0
         if len(workflow_jobs) == 0:
-            raise WorkflowValidationError('No WorkflowJobs in Workflow')
+            raise WorkflowValidationError('WF_EMPTY', 'The Workflow is empty.', [])
 
         ## Step 1
         self.permanent_marks_global = set()
@@ -149,14 +172,14 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
         one_set = self.disjoint_set.find(workflow_jobs[0])
         for wfjob in workflow_jobs:
             if self.disjoint_set.find(wfjob) is not one_set:
-                raise WorkflowValidationError('Workflow is not connected')
+                raise WorkflowValidationError('WF_NOT_CONNECTED', 'The Workflow is not connected.')
 
         # Valid!
         return True
 
     def _integrated_depth_first_search(self, this_wfjob):
         if this_wfjob in self.temporary_marks_global:
-            raise WorkflowValidationError('There is a cycle in the workflow')
+            raise WorkflowValidationError('WF_HAS_CYCLES', 'There is a cycle in the Workflow.', [])
         if this_wfjob not in self.permanent_marks_global:
             self.temporary_marks_global.add(this_wfjob)
 
@@ -167,6 +190,8 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                     adj_wfjob = conn.input_port.workflow_job
                     if adj_wfjob not in adjacent_wfjobs:
                         self._integrated_depth_first_search(adj_wfjob)
+                        if adj_wfjob in self.temporary_marks_global:
+                            raise WorkflowValidationError('WF_HAS_CYCLES', 'There is a cycle in the Workflow.', [conn])
                         self.disjoint_set.union(this_wfjob, adj_wfjob)
                     adjacent_wfjobs.add(adj_wfjob)
 
@@ -176,11 +201,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class WorkflowValidationError(Exception):
-    message = None
-
-    def __init__(self, message):
+    def __init__(self, error_code, details, associated_objects=[]):
         super(WorkflowValidationError, self).__init__()
-        self.message = message
+        self.error_code = error_code
+        self.details = details
+        self.associated_objects = associated_objects
 
 
 class DisjointSet(object):

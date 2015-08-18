@@ -16,6 +16,8 @@ from rodan.views.workflow import WorkflowList
 from rodan.views.workflow import WorkflowDetail
 from rodan.views.workflowjob import WorkflowJobList
 from rodan.views.workflowjob import WorkflowJobDetail
+from rodan.views.workflowjobgroup import WorkflowJobGroupList
+from rodan.views.workflowjobgroup import WorkflowJobGroupDetail
 from rodan.views.workflowrun import WorkflowRunList
 from rodan.views.workflowrun import WorkflowRunDetail
 from rodan.views.runjob import RunJobList
@@ -34,6 +36,9 @@ from rodan.views.resource import ResourceList, ResourceDetail, ResourceViewer
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
+
+from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
+from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
 
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
 from rodan.views.interactive import InteractiveView
@@ -65,6 +70,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^workflow/(?P<pk>[0-9a-f]{32})/$', WorkflowDetail.as_view(), name="workflow-detail"),
              url(r'^workflowjobs/$', WorkflowJobList.as_view(), name="workflowjob-list"),
              url(r'^workflowjob/(?P<pk>[0-9a-f]{32})/$', WorkflowJobDetail.as_view(), name="workflowjob-detail"),
+             url(r'^workflowjobgroups/$', WorkflowJobGroupList.as_view(), name="workflowjobgroup-list"),
+             url(r'^workflowjobgroup/(?P<pk>[0-9a-f]{32})/$', WorkflowJobGroupDetail.as_view(), name="workflowjobgroup-detail"),
              url(r'^jobs/$', JobList.as_view(), name="job-list"),
              url(r'^job/(?P<pk>[0-9a-f]{32})/$', JobDetail.as_view(), name="job-detail"),
              url(r'^users/$', UserList.as_view(), name="user-list"),
@@ -95,6 +102,9 @@ urlpatterns += format_suffix_patterns(
              url(r'^inputs/$', InputList.as_view(), name="input-list"),
              url(r'^input/(?P<pk>[0-9a-f]{32})/$', InputDetail.as_view(), name='input-detail'),
              url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
+
+             url(r'^workflowjobcoordinatesets/$', WorkflowJobCoordinateSetList.as_view(), name="workflowjobcoordinateset-list"),
+             url(r'^workflowjobcoordinateset/(?P<pk>[0-9a-f]{32})/$', WorkflowJobCoordinateSetDetail.as_view(), name="workflowjobcoordinateset-detail"),
          )
 )
 

@@ -36,7 +36,8 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "job_name",
                   "job_description",
                   "job",
-                  "job_settings")
+                  "job_settings",
+                  "name")
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)

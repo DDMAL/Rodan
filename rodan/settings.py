@@ -95,6 +95,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.sessions',
     'django.contrib.staticfiles',
     'ws4redis',
     'rodan',
@@ -106,7 +107,7 @@ INSTALLED_APPS = (
 )
 
 if DEBUG:
-    INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.admin', 'django.contrib.sessions')
+    INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.admin', )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
