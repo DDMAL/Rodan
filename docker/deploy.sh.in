@@ -1,5 +1,7 @@
 #!/bin/bash
 docker build -t rodan .
+status=$?; if test $status != 0 ; then exit $status; fi  # exit if build fails
+
 
 OPEN_PORTS="--net=host"
 @IF_SERVER@OPEN_PORTS="-p 0.0.0.0:80:80 -p 0.0.0.0:5432:5432 -p 0.0.0.0:5672:5672"  # Docker has problem with net=host + service...
