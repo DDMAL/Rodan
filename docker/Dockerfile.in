@@ -36,7 +36,7 @@ RUN	virtualenv --no-site-packages rodan_env
 RUN	source ./rodan_env/bin/activate
 
 ## Install Python packages
-RUN	apt-get -y install libpython-dev lib32ncurses5-dev libxml2-dev libxslt1-dev zlib1g-dev lib32z1-dev
+RUN	apt-get -y install libpython-dev lib32ncurses5-dev libxml2-dev libxslt1-dev zlib1g-dev lib32z1-dev libjpeg-dev
 RUN     source ./rodan_env/bin/activate && pip install -r requirements.txt
 
 @IF_SERVER@## Install PostgreSQL
