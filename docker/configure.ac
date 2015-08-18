@@ -140,6 +140,17 @@ fi
 AC_SUBST(DOMAIN_NAME)
 
 
+# Client max body size (only MODE=server)
+AC_ARG_VAR([CLIENT_MAX_BODY_SIZE], [Max size of HTTP request, related to the size of resource file (default 20M, only MODE=server)])
+if test "x$MODE" = "xserver"; then
+  if test -z "$CLIENT_MAX_BODY_SIZE"; then
+    AC_MSG_WARN([set default: CLIENT_MAX_BODY_SIZE=20M])
+    CLIENT_MAX_BODY_SIZE=20M
+  fi
+fi
+
+AC_SUBST(CLIENT_MAX_BODY_SIZE)
+
 # output
 AC_CONFIG_FILES(Dockerfile deploy.sh)
 AC_OUTPUT()

@@ -189,6 +189,15 @@ else
   DOMAIN_NAME="rodan-worker"
 fi
 
+# Client max body size (only MODE=server)
+AC_ARG_VAR([CLIENT_MAX_BODY_SIZE], [Max size of HTTP request, related to the size of resource file (default 20M, only MODE=server)])
+if test "x$MODE" = "xserver"; then
+  if test -z "$CLIENT_MAX_BODY_SIZE"; then
+    AC_MSG_WARN([set default: CLIENT_MAX_BODY_SIZE=20M])
+    CLIENT_MAX_BODY_SIZE=20M
+  fi
+fi
+
 # substitute variables
 AC_SUBST(DB_NAME)
 AC_SUBST(DB_USER)
@@ -197,7 +206,7 @@ AC_SUBST(DB_HOST)
 AC_SUBST(DB_PORT)
 AC_SUBST(CELERY_BROKER_URL)
 AC_SUBST(DOMAIN_NAME)
-
+AC_SUBST(CLIENT_MAX_BODY_SIZE)
 
 # IIPServer bin
 AC_ARG_VAR([IIPSRV_FCGI], [IIPServer fcgi binary (required if --enable-diva and MODE=server)])
