@@ -39,6 +39,10 @@ def update_database(sender, **kwargs):
 
     curs = conn.cursor()
 
+    create_language = '''
+        CREATE OR REPLACE LANGUAGE plpythonu;
+        '''
+            
     publish_message = '''
         CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
             import json
@@ -101,6 +105,7 @@ def update_database(sender, **kwargs):
         SELECT name();
         '''
 
+    curs.execute(create_language)
     curs.execute(publish_message.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB))
     curs.execute(trigger)
     curs.execute(create_trigger)
