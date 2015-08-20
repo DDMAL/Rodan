@@ -48,5 +48,5 @@ solrpy==0.9.6
 tornado==4.0.2
 
 # For Postgres support, you will need the following:
-#psycopg2==2.5.4
+psycopg2==2.5.4
 wsgiref==0.1.2
