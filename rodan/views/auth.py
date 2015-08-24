@@ -26,7 +26,7 @@ class SessionStatus(views.APIView):
             obj = User.objects.get(pk=request.user.id)
             userinfo = UserSerializer(obj, context={'request': request})
             data = dict(userinfo.data)
-            data['token'] = token
+            data['token'] = token.key
 
             return Response(data)
         else:
