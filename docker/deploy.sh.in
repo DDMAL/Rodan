@@ -1,9 +1,12 @@
 #!/bin/bash
+modprobe nfs
+@IF_SERVER@modprobe nfsd
+
 docker build -t rodan .
 status=$?; if test $status != 0 ; then exit $status; fi  # exit if build fails
 
 
-OPEN_PORTS="--net=host"
-@IF_SERVER@OPEN_PORTS="-p 0.0.0.0:80:80 -p 0.0.0.0:5432:5432 -p 0.0.0.0:5672:5672"  # Docker has problem with net=host + service...
+PARAMS="--net=host"
+@IF_SERVER@PARAMS="--privileged -v @RODAN_DATA_DIR@:/mnt/rodan_data -p 0.0.0.0:80:80 -p 0.0.0.0:5432:5432 -p 0.0.0.0:5672:5672 -p 0.0.0.0:111:111/udp -p 0.0.0.0:2049:2049"  # Docker has problem with net=host + service...
 
-eval "docker run $OPEN_PORTS -t -i rodan:latest"
+eval "docker run $PARAMS -t -i rodan:latest"

@@ -130,8 +130,15 @@ RUN     cp etc/supervisor/conf.d/rodan-celery.conf /etc/supervisor/conf.d/
 ## create super user for Rodan
 @IF_SERVER@RUN     service postgresql start && source ./rodan_env/bin/activate && echo "from django.contrib.auth.models import User; User.objects.create_superuser('@ADMIN_USER@', '', '@ADMIN_PASSWORD@')" | python manage.py shell
 
+## Set up NFS
+RUN	apt-get install -y nfs-common inotify-tools
+@IF_SERVER@RUN     apt-get install -y nfs-kernel-server runit
+@IF_SERVER@RUN     echo "/mnt/rodan_data @WORKERS_SUBNET@(rw,sync,fsid=0,no_subtree_check,no_root_squash)" >> /etc/exports
+
 ## Start server!
 @IF_SERVER@EXPOSE  80
-@IF_SERVER@EXPOSE  5432
+@IF_SERVER@EXPOSE  @DB_PORT@
 @IF_SERVER@EXPOSE  5672
-CMD     if test -z "@IF_SERVER@"; then service rabbitmq-server start && service postgresql start && service nginx start; fi && /usr/bin/supervisord -n
+@IF_SERVER@EXPOSE  111/udp
+@IF_SERVER@EXPOSE  2049/tcp
+CMD     if test -z "@IF_SERVER@"; then service rabbitmq-server start && service postgresql start && service nginx start && service rpcbind start && service nfs-kernel-server start; fi && /usr/bin/supervisord -n

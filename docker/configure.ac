@@ -151,6 +151,18 @@ fi
 
 AC_SUBST(CLIENT_MAX_BODY_SIZE)
 
+
+# Rodan data folder mount point (only MODE=server)
+AC_ARG_VAR([RODAN_DATA_DIR], [Mount point of Rodan data directory (only MODE=server)])
+if test "x$MODE" = "xserver"; then
+  if test -z "$RODAN_DATA_DIR"; then
+    AC_MSG_ERROR([RODAN_DATA_DIR required when MODE=server])
+  fi
+fi
+
+AC_SUBST(RODAN_DATA_DIR)
+
+
 # output
 AC_CONFIG_FILES(Dockerfile deploy.sh)
 AC_OUTPUT()
