@@ -15,12 +15,14 @@ django-filter==0.9.1
 django-guardian==1.2.4
 django-picklefield==0.3.1
 django-uuidfield==0.5.0
+django-websocket-redis==0.4.4
 djangorestframework==3.0.0
 ecdsa==0.11
 eventlet==0.15.2
 flower==0.7.3
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405
+gevent==1.0.2
 gnureadline==6.3.3
 greenlet==0.4.5
 gunicorn==18.0
@@ -40,9 +42,11 @@ python-dateutil==2.2
 pytz==2014.7
 PyYAML==3.11
 readline==6.2.4.1
+redis==2.10.3
 six==1.8.0
 solrpy==0.9.6
 tornado==4.0.2
 
 # For Postgres support, you will need the following:
-#psycopg2==2.5.4
+psycopg2==2.5.4
+wsgiref==0.1.2

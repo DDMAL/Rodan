@@ -2,7 +2,6 @@ from django.db import models
 from uuidfield import UUIDField
 from rodan.models.inputporttype import InputPortType
 
-
 class Input(models.Model):
     """
     Links a `RunJob` to one of its input `Resource`s. There must be

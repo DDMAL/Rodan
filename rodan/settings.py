@@ -97,6 +97,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+    'ws4redis',
     'rodan',
     'django_extensions',
     'rest_framework',
@@ -141,6 +142,12 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': 'rodan.log',
             'formatter': 'verbose'
+        },
+        'dblog': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'database.log',
+            'formatter': 'verbose'
         }
     },
     'loggers': {
@@ -152,12 +159,18 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'ERROR',
+            #'level': 'DEBUG',
             'propagate': True,
         },
         'rodan': {
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['dblog'],
+            'propagate': False,
         }
     }
 }
@@ -169,6 +182,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
+    'ws4redis.context_processors.default',
     # "rodan.context_processors.list_projects",
     # "rodan.context_processors.login_url",
 )
@@ -246,3 +260,13 @@ if TEST:
 if TEST:
     import tempfile as _tempfile
     MEDIA_ROOT = _tempfile.mkdtemp() + '/'
+
+
+#######################
+## Websocket configuration
+#######################
+WEBSOCKET_URL = '/ws/'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WS4REDIS_EXPIRE = 3600
+WS4REDIS_HEARTBEAT = '--heartbeat--'
+WS4REDIS_PREFIX = 'rodan'

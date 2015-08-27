@@ -3,7 +3,6 @@ import shutil
 from django.db import models
 from uuidfield import UUIDField
 
-
 class Workflow(models.Model):
     """
     A `Workflow` is a container of jobs and their connections.

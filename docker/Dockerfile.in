@@ -96,11 +96,11 @@ RUN     apt-get -y install libxml2-utils
 
 ## Configure Rodan
 WORKDIR	"/srv/webapps/Rodan"
-RUN     echo "trigger update" && git pull && git checkout autoconf
+RUN     echo "trigger update 0827" && git pull && git checkout autoconf
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
 RUN     apt-get -y install libvips-tools
-RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_NAME="@DB_NAME@" DB_USER="@DB_USER@" DB_PASSWORD="@DB_PASSWORD@" DB_HOST="@DB_HOST@" DB_PORT="@DB_PORT@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@" CELERY_BROKER_URL="@CELERY_BROKER_URL@" CLIENT_MAX_BODY_SIZE="@CLIENT_MAX_BODY_SIZE@"
+RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_NAME="@DB_NAME@" DB_USER="@DB_USER@" DB_PASSWORD="@DB_PASSWORD@" DB_HOST="@DB_HOST@" DB_PORT="@DB_PORT@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@" CELERY_BROKER_URL="@CELERY_BROKER_URL@" CLIENT_MAX_BODY_SIZE="@CLIENT_MAX_BODY_SIZE@" REDIS_HOST="@REDIS_HOST@"
 @IF_SERVER@RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && python manage.py migrate
 RUN	chmod a+x /srv/webapps/Rodan/celery_start.sh
 @IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/gunicorn_start.sh
@@ -135,10 +135,13 @@ RUN	apt-get install -y nfs-common inotify-tools
 @IF_SERVER@RUN     apt-get install -y nfs-kernel-server runit
 @IF_SERVER@RUN     echo "/mnt/rodan_data @WORKERS_SUBNET@(rw,sync,fsid=0,no_subtree_check,no_root_squash)" >> /etc/exports
 
+## Set up Redis queue
+@IF_SERVER@RUN     apt-get install -y redis-server
+
 ## Start server!
 @IF_SERVER@EXPOSE  80
 @IF_SERVER@EXPOSE  @DB_PORT@
 @IF_SERVER@EXPOSE  5672
 @IF_SERVER@EXPOSE  111/udp
 @IF_SERVER@EXPOSE  2049/tcp
-CMD     if test -z "@IF_SERVER@"; then service rabbitmq-server start && service postgresql start && service nginx start && service rpcbind start && service nfs-kernel-server start; else service rpcbind start && mount -t nfs -o proto=tcp,port=2049 @SERVER_IP@:/ /mnt/rodan_data; fi && /usr/bin/supervisord -n
+CMD     if test -z "@IF_SERVER@"; then service rabbitmq-server start && service postgresql start && service redis-server start && service nginx start && service rpcbind start && service nfs-kernel-server start; else service rpcbind start && mount -t nfs -o proto=tcp,port=2049 @SERVER_IP@:/ /mnt/rodan_data; fi && /usr/bin/supervisord -n

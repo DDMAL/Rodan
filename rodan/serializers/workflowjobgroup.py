@@ -8,6 +8,8 @@ class WorkflowJobGroupSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ('created', 'updated', 'origin')
         fields = ("url",
                   "uuid",
+                  "name",
+                  "description",
                   "origin",
                   "workflow_jobs",
                   "created",

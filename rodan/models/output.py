@@ -2,7 +2,6 @@ from django.db import models
 from uuidfield import UUIDField
 from rodan.models import OutputPortType
 
-
 class Output(models.Model):
     """
     An `Output` is the result of performing a job on the specific input `Resource`s.

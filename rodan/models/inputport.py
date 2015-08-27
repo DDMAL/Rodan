@@ -1,7 +1,6 @@
 from django.db import models
 from uuidfield import UUIDField
 
-
 class InputPort(models.Model):
     """
     Represents what a `WorkflowJob` will take when it is executed.

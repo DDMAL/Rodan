@@ -77,3 +77,11 @@ RODAN_JOB_PACKAGES = (
     "rodan.jobs.neon",
     "rodan.jobs.pil"
 )
+
+###############################################################################
+## Websocket configuration
+###############################################################################
+REDIS_HOST = '@REDIS_HOST@'
+REDIS_PORT = 6379
+DB = 0
+

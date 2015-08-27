@@ -4,7 +4,6 @@ from uuidfield import UUIDField
 from django.conf import settings
 from rodan.constants import task_status
 
-
 class ResultsPackage(models.Model):
     """
     A `ResultsPackage` contains a packaged files containing the produced results of a

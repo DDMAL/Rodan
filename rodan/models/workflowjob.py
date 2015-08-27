@@ -2,7 +2,6 @@ from django.db import models
 from jsonfield import JSONField
 from uuidfield import UUIDField
 
-
 class WorkflowJob(models.Model):
     """
     A `WorkflowJob` is an "instance" of a `Job`. `WorkflowJob`s connect to other

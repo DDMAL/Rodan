@@ -16,6 +16,9 @@ from celery import Task
 from celery.task.control import revoke
 from rodan.jobs.base import RodanTask, TemporaryDirectory
 from diva_generate_json import GenerateJson
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
+import json
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"
@@ -509,7 +512,6 @@ def cancel_workflowrun(wfrun_id):
         if celery_id is not None:
             revoke(celery_id, terminate=True)
     runjobs_to_revoke_query.update(status=task_status.CANCELLED)
-
 
 @task(name="rodan.core.retry_workflowrun")
 def retry_workflowrun(wfrun_id):

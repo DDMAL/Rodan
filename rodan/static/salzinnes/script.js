@@ -206,10 +206,37 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         $scope.resource_uuid_name_map[r.uuid] = r.name;
                     });
                 }).finally(function () {
-                    $timeout(fetchResources, UPDATE_FREQ);
+                    // $timeout(fetchResources, UPDATE_FREQ);
                 });
         }
         fetchResources();
+
+        function fetchResource(uuid) {
+            var params = {'project': $routeParams.projectId, 'ordering': 'uuid'};
+            if ($scope.fetch_generated_resources) {
+                params['uploaded'] = 'yes';
+                $scope.fetch_generated_resources = false;
+            }
+            getAllPages(ROOT + '/resources/', {params: params})
+                .then(function (results) {
+                    $scope.resources = results;
+                    $scope.generated_resources = {};
+                    $scope.resource_hash = {};  // url to object
+
+                    _.each(results, function (r) {
+                        if (uuid === r.uuid){
+                            if (r.origin) {
+                                $scope.generated_resources[r.origin] = r;
+                            }
+
+                            $scope.resource_hash[r.url] = r;
+
+                            $scope.resource_uuid_name_map[r.uuid] = r.name;
+                        };
+                    })
+                }).finally(function () {
+            });
+        }
 
         $scope.uploadResources = function () {
             var fd = new FormData();
@@ -421,7 +448,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .then(function (results) {
                     $scope.workflows = results;
                 }).finally(function () {
-                    $timeout(fetchWorkflows, UPDATE_FREQ);
+                    // $timeout(fetchWorkflows, UPDATE_FREQ);
                 });
         }
         fetchWorkflows();
@@ -565,10 +592,44 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         });
                     });
                 }).finally(function () {
-                    $timeout(fetchWorkflowruns, UPDATE_FREQ);
+                    // $timeout(fetchWorkflowruns, UPDATE_FREQ);
                 });
         }
         fetchWorkflowruns();
+
+        function fetchWorkflowrun (uuid) {
+            getAllPages(ROOT + '/workflowruns/', {params: {'project': $routeParams.projectId, 'ordering': '-created'}})
+                .then(function (results) {
+                    $scope.workflowruns = results;
+                    _.each($scope.workflowruns, function (wfrun) {
+                        if (uuid === wfrun.uuid) {
+                            wfrun.origin_resources_pair = _.map(wfrun.origin_resources, function (ores) {
+                                if (ores) {
+                                    return {
+                                        'uuid': ores,
+                                        'name': $scope.resource_uuid_name_map[ores] || "[DELETED]"
+                                    };
+                                } else {
+                                    return {
+                                        'uuid': null,
+                                        'name': 'All'
+                                    };
+                                }
+                            })
+                            wfrun.origin_resources_pair.sort(function (p1, p2) {
+                                if (p1.name < p2.name) {
+                                    return -1;
+                                } else if (p1.name > p2.name) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                        }
+                    });
+                }).finally(function () {
+                });
+        }
 
         $scope.wfrun_open = {};
         $scope.runjob_open = {};
@@ -594,7 +655,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }
             });
             $q.all(promises).then(function (things) {
-                $timeout(fetchRunjobs_fine, UPDATE_FREQ);
+                //$timeout(fetchRunjobs_fine, UPDATE_FREQ);
             });
         }
         fetchRunjobs_fine();
@@ -619,10 +680,17 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
 
             // request for next fetch after this fetch has finished.
             $q.all(promises).then(function (things) {
-                $timeout(fetchRunjobs_coarse, UPDATE_FREQ);
+                //$timeout(fetchRunjobs_coarse, UPDATE_FREQ);
             });
         }
         fetchRunjobs_coarse();
+
+        $scope.change_coarse = function () { 
+            fetchRunjobs_coarse();
+        }
+        $scope.change_fine = function () {
+            fetchRunjobs_fine();
+        }
 
         $scope.retryWorkflowRun = function (wfrun) {
             $http.patch(wfrun.url, {'status': 11})
@@ -679,7 +747,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }, function (err) {
                     console.log(err);
                 }).finally(function () {
-                    $timeout(fetchResultspackages, UPDATE_FREQ);
+                    // $timeout(fetchResultspackages, UPDATE_FREQ);
                 });
         }
         fetchResultspackages();
@@ -695,5 +763,102 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .error(function (error) {
                     console.log(error);
                 });
-        };
+        }; 
+
+        if (window.WebSocket){
+            console.log("Browser supports Websocket");
+        } else{
+            console.log("Browser doesn't support sockets");
+        }
+
+        var ws = new WebSocket('ws://' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
+        var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0, max_missed_heartbeats = 3;
+        console.log ("Web Socket created with the state" + ws.readyState);
+
+        ws.onopen = on_open;
+        ws.onmessage = on_message;
+        ws.onerror = on_error;
+        ws.onclose = on_close;
+
+        function on_open() {
+            console.log("Websocket connected");
+            if (heartbeat_interval === null) {
+                missed_heartbeats = 0;
+                heartbeat_interval = setInterval(function() {
+                    try {
+                        missed_heartbeats++;
+                        if (missed_heartbeats >= max_missed_heartbeats) {
+                            throw new Error("Too many missed heartbeats.");
+			}
+                        ws.send(heartbeat_msg);
+                    } catch(e) {
+                        clearInterval(heartbeat_interval);
+                        heartbeat_interval = null;
+                        console.warn("Closing connection. Reason: " + e.message);
+                        ws.close();
+                    }
+                }, 5000);
+            }
+        }
+ 
+        function on_message(e) {
+            if (e.data === heartbeat_msg) {
+                missed_heartbeats = 0;
+                return;
+            }
+            get_request(e);
+            console.log("Received: " + e.data);
+        }
+	
+        function on_error(e) {
+            console.error(e);
+        }
+
+        function on_close(e) {
+            if (e.wasClean) {
+                console.log("Connection was closed properly");
+            } else {
+                console.log ("Connection not properly closed");
+            }
+            console.log("Code: " + e.code + "Reason: " + e.reason);
+        }
+
+        function send_message(msg) {
+            ws.send(msg);
+        }
+
+        function IsJsonString(str) {
+            try {
+                JSON.parse(str);
+            }
+            catch (e) {
+                return false;
+            }
+            return true;
+        }
+
+        function get_request(e) {
+            var message = ''
+            if (IsJsonString(e.data)) {
+                message = JSON.parse(e.data);
+            }
+            else {
+                message = ''
+            }
+            if (message.model === "workflow") {
+                fetchWorkflows();
+            }
+            else if (message.model === "resultspackage") {
+                fetchResultspackages();
+            }
+            else if (message.model === "resource") {
+                fetchResource(message.UUID);
+            }
+            else if (message.model === "workflowrun") {
+                fetchWorkflowrun(message.uuid);
+            }
+            else if (message.model === "runjob") {
+                fetchRunjobs_coarse();
+            }
+        }
     })

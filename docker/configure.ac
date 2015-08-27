@@ -108,6 +108,14 @@ AC_SUBST(DB_PORT)
 AC_SUBST(WORKERS_SUBNET)
 AC_SUBST(SERVER_IP)
 
+# Redis
+if test "x$MODE" = "xserver"; then
+   REDIS_HOST="localhost"
+elif test "x$MODE" = "xworker"; then
+   REDIS_HOST="$SERVER_IP"
+fi
+AC_SUBST(REDIS_HOST)
+
 # admin account (only MODE=server)
 AC_ARG_VAR([ADMIN_USER], [Admin user name (default admin, only MODE=server)])
 AC_ARG_VAR([ADMIN_PASSWORD], [Admin user password (default admin, only MODE=server)])

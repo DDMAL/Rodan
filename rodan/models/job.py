@@ -2,7 +2,6 @@ from django.db import models
 from jsonfield import JSONField
 from uuidfield import UUIDField
 
-
 class Job(models.Model):
     """
     `Job`s are the "templates" that make up the executable tasks in a `Workflow`.

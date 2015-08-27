@@ -9,10 +9,17 @@ class WorkflowJobGroup(models.Model):
     **Fields**
 
     - `uuid`
+    - `name`
+    - `description`
     - `origin` -- a nullable reference to the `Workflow` indicating where it comes
       from.
+
+    - `created`
+    - `updated`
     """
     uuid = UUIDField(primary_key=True, auto=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
     origin = models.ForeignKey("rodan.Workflow", related_name="workflow_job_groups", blank=True, null=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(auto_now_add=True)
