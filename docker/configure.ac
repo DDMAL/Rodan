@@ -64,6 +64,8 @@ AC_ARG_VAR([DB_PASSWORD], [Database password])
 AC_ARG_VAR([DB_HOST], [Database host (default localhost)])
 AC_ARG_VAR([DB_PORT], [Database port (default 5432)])
 AC_ARG_VAR([WORKERS_SUBNET], [Workers subnet (only MODE=server)])
+AC_ARG_VAR([SERVER_IP], [Server IP (only MODE=worker)])
+
 
 if test -z "$DB_NAME"; then
   AC_MSG_WARN(set default: DB_NAME=rodan)
@@ -89,6 +91,12 @@ if test -z "$WORKERS_SUBNET"; then
     AC_MSG_ERROR([WORKERS_SUBNET required when MODE=server (e.g. 192.168.1.0/24)])
   fi
 fi
+if test -z "$SERVER_IP"; then
+  if test "x$MODE" = "xworker"; then
+    AC_MSG_ERROR([SERVER_IP required when MODE=worker (e.g. 192.168.1.2)])
+  fi
+fi
+
 
 AC_SUBST(DB_NAME)
 AC_SUBST(DB_USER)
@@ -96,6 +104,7 @@ AC_SUBST(DB_PASSWORD)
 AC_SUBST(DB_HOST)
 AC_SUBST(DB_PORT)
 AC_SUBST(WORKERS_SUBNET)
+AC_SUBST(SERVER_IP)
 
 # admin account (only MODE=server)
 AC_ARG_VAR([ADMIN_USER], [Admin user name (default admin, only MODE=server)])
