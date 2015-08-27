@@ -40,11 +40,13 @@ AC_SUBST(IF_SERVER)
 
 
 # Set directories
-AC_ARG_VAR([RODAN_DATA_DIR], [Rodan data directory (full path)])
+AC_ARG_VAR([RODAN_DATA_DIR], [Shared Rodan data directory (full path, required when MODE=server)])
 
 # check values
 if test -z "$RODAN_DATA_DIR"; then
-  AC_MSG_ERROR(RODAN_DATA_DIR missing in arguments)
+  if test "x$MODE" = "xserver"; then
+    AC_MSG_ERROR(RODAN_DATA_DIR required when MODE=server)
+  fi
 fi
 
 # always add training slash for directories
