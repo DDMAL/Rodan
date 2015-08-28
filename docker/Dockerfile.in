@@ -96,7 +96,7 @@ RUN     apt-get -y install libxml2-utils
 
 ## Configure Rodan
 WORKDIR	"/srv/webapps/Rodan"
-RUN     echo "trigger update 0827" && git pull && git checkout autoconf
+RUN     echo "trigger update 0828" && git pull && git checkout autoconf
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
 RUN     apt-get -y install libvips-tools
