@@ -43,17 +43,16 @@ AC_SUBST(IF_SERVER)
 AC_ARG_VAR([RODAN_DATA_DIR], [Shared Rodan data directory (full path, required when MODE=server)])
 
 # check values
-if test -z "$RODAN_DATA_DIR"; then
-  if test "x$MODE" = "xserver"; then
+if test "x$MODE" = "xserver"; then
+  if test -z "$RODAN_DATA_DIR"; then
     AC_MSG_ERROR(RODAN_DATA_DIR required when MODE=server)
   fi
+
+  # always add training slash for directories
+  length=${#RODAN_DATA_DIR}
+  last_char=${RODAN_DATA_DIR:length-1:1}
+  [[ $last_char != "/" ]] && RODAN_DATA_DIR="$RODAN_DATA_DIR/"; :
 fi
-
-# always add training slash for directories
-length=${#RODAN_DATA_DIR}
-last_char=${RODAN_DATA_DIR:length-1:1}
-[[ $last_char != "/" ]] && RODAN_DATA_DIR="$RODAN_DATA_DIR/"; :
-
 
 # substitute variables
 AC_SUBST(RODAN_DATA_DIR)
