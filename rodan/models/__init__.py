@@ -39,31 +39,7 @@ def update_database(sender, **kwargs):
 
     curs = conn.cursor()
 
-    create_language = '''
-        CREATE OR REPLACE LANGUAGE plpythonu;
-        '''
-            
-    publish_message = '''
-        CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
-            import json
-            import redis
-
-            info = notify.split('/')
-            status = info[0]
-            model = info[1].replace('rodan_','')
-            uuid = info[2].replace('-','')
-
-            data = {{
-                'status': status,
-                'model': model,
-                'uuid': uuid
-            }}
-
-            r = redis.StrictRedis("{0}", {1}, db={2})
-            r.publish('rodan:broadcast:rodan', json.dumps(data))
-
-        $$ LANGUAGE plpythonu;
-        '''
+    # Language plpythonu and function publish_message(text) should exist.
 
     # Create trigger that sends information about the status, the table name, and the uuid of the modified element
     trigger = '''
@@ -105,7 +81,5 @@ def update_database(sender, **kwargs):
         SELECT name();
         '''
 
-    curs.execute(create_language)
-    curs.execute(publish_message.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB))
     curs.execute(trigger)
     curs.execute(create_trigger)
