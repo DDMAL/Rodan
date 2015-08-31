@@ -46,6 +46,7 @@ redis==2.10.3
 six==1.8.0
 solrpy==0.9.6
 tornado==4.0.2
+uWSGI==2.0.11.1
 
 # For Postgres support, you will need the following:
 psycopg2==2.5.4

@@ -33,37 +33,14 @@ After each INSERT, UPDATE, or DELETE action, a message containing information wi
 '''
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
+    print "Registering Rodan database triggers..."
 
     conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     curs = conn.cursor()
 
-    create_language = '''
-        CREATE OR REPLACE LANGUAGE plpythonu;
-        '''
-            
-    publish_message = '''
-        CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
-            import json
-            import redis
-
-            info = notify.split('/')
-            status = info[0]
-            model = info[1].replace('rodan_','')
-            uuid = info[2].replace('-','')
-
-            data = {{
-                'status': status,
-                'model': model,
-                'uuid': uuid
-            }}
-
-            r = redis.StrictRedis("{0}", {1}, db={2})
-            r.publish('rodan:broadcast:rodan', json.dumps(data))
-
-        $$ LANGUAGE plpythonu;
-        '''
+    # Language plpythonu and function publish_message(text) should exist.
 
     # Create trigger that sends information about the status, the table name, and the uuid of the modified element
     trigger = '''
@@ -71,15 +48,19 @@ def update_database(sender, **kwargs):
         DECLARE
             status text;
             notify text;
+            uuid text;
         BEGIN
             IF (TG_OP = 'INSERT') THEN
                 status = 'created';
+                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'UPDATE') THEN
                 status = 'updated';
+                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'DELETE') THEN
                 status = 'deleted';
+                uuid = CAST(OLD.uuid AS text);
             END IF;
-            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || uuid;
             PERFORM publish_message(notify);
             RETURN NEW;
         END;
@@ -95,17 +76,15 @@ def update_database(sender, **kwargs):
             FOR tablename IN
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema='public' AND table_type='BASE TABLE'
-                AND table_name LIKE 'rodan_%'
+                AND table_name SIMILAR TO 'rodan_[a-z]+'
             LOOP
                 EXECUTE format('DROP TRIGGER IF EXISTS object_post_insert_notify ON %I', tablename);
-                EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
+                EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
             END LOOP;
         END;
         $$ LANGUAGE plpgsql;
         SELECT name();
         '''
 
-    curs.execute(create_language)
-    curs.execute(publish_message.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB))
     curs.execute(trigger)
     curs.execute(create_trigger)

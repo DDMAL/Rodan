@@ -119,7 +119,7 @@ class ResourceViewer(generics.RetrieveAPIView):
 
     def get(self, request, *a, **k):
         resource = self.get_object()
-        if resource.resource_type.mimetype.startswith('image') and settings.WITH_DIVA and os.path.isfile(resource.diva_jp2_path) and os.path.isfile(resource.diva_json_path):
+        if resource.resource_type.mimetype.startswith('image') and settings.ENABLE_DIVA and os.path.isfile(resource.diva_jp2_path) and os.path.isfile(resource.diva_json_path):
             return render(request, 'diva.html', {
                 'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
                 'diva_object_data': resource.diva_json_url,

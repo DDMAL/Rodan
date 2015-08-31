@@ -1,0 +1,10 @@
+[program:rodan-celery]
+command=@RODAN_APP_DIR@celery_start.sh
+environment=PYTHON_EGG_CACHE="/tmp"
+directory=@RODAN_APP_DIR@
+chown=@WWW_USER@:@WWW_GROUP@
+user=@WWW_USER@
+autostart=true
+autorestart=true
+redirect_stderr=true
+redirect_stdout=true

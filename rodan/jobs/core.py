@@ -66,7 +66,7 @@ class ensure_compatible(Task):
                 compat_resource_file_path = resource_object.compat_resource_file.path
                 resource_query.update(compat_resource_file=compat_resource_file_path)
 
-                if not settings.WITH_DIVA:
+                if not settings.ENABLE_DIVA:
                     registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
                 else:
                     registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
@@ -117,22 +117,22 @@ def create_thumbnails(resource_id):
         return False
 
 
-# if WITH_DIVA set, try to import the executables kdu_compress and convert.
-if getattr(settings, 'WITH_DIVA'):
+# if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
+if getattr(settings, 'ENABLE_DIVA'):
     from distutils.spawn import find_executable
 
     BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS', None) or find_executable('kdu_compress')
     if not BIN_KDU_COMPRESS:
         raise ImportError("cannot find kdu_compress")
 
-    BIN_CONVERT = getattr(settings, 'BIN_CONVERT', None) or find_executable('convert')
-    if not BIN_CONVERT:
-        raise ImportError("cannot find convert")
+    BIN_GM = getattr(settings, 'BIN_GM', None) or find_executable('gm')
+    if not BIN_GM:
+        raise ImportError("cannot find gm")
 
 
 @task(name="rodan.core.create_diva")
 def create_diva(resource_id):
-    if not getattr(settings, 'WITH_DIVA'):
+    if not getattr(settings, 'ENABLE_DIVA'):
         return False
 
     resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')

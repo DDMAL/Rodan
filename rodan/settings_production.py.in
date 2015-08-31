@@ -1,62 +1,43 @@
 import os
 
-DEBUG = True
+DEBUG = @ENABLE_DEBUG@
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',                      
-        'USER': 'yihong',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': '@DB_NAME@',
+        'USER': '@DB_USER@',
+        'PASSWORD': '@DB_PASSWORD@',
+        'HOST': '@DB_HOST@',
+        'PORT': '@DB_PORT@'
     }
-
 }
 
 ALLOWED_HOSTS = [
-    'localhost:8000',
+    '@DOMAIN_NAME@'
 ]
-
-## Absolute filesystem path to the directory that holds the base of the projct.
-## Example: "/srv/webapps/project/"
-## If your project directory is symlinked, you'll probably want to hardcode
-## the path instead of using 'os.path.dirname'. This is because celery tasks
-## will use the unlinked path when saving resource files, while the Rodan server
-## will use the symlink path (depengin on the celery task, of course). Having
-## the path hardcoded here is a quick fix to the issue.
-PROJECT_DIR = os.path.dirname(__file__)
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'uploads/')
+MEDIA_ROOT = '@RODAN_DATA_DIR@'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = "/uploads/"
+MEDIA_URL = '/uploads/'
 
-# The base_url below is hardcoded. This setting needs to be properly configured when you deploy Rodan.
-# Here is a list of places where this variable is used:
-#
-#    rodan.models.pageglyphs.PageGlyphs.get_absolute_url()
-#
-# When you find a better solution for returning the absolute url from a celery job,
-# go clean up the code in these places.
-BASE_URL = 'http://localhost:8000'
-SOLR_URL = 'http://rodan.simssa.ca:8080/rodan-search-dev'
 
 ###############################################################################
 ## Celery configuration
 ###############################################################################
 BROKER_CONNECTION_MAX_RETRIES = '0'
-BROKER_URL = 'amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL'
+BROKER_URL = '@CELERY_BROKER_URL@'
 CELERY_RESULT_BACKEND = "amqp"
 
 ###############################################################################
 ## Django CORS configuration
 ###############################################################################
-#CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = False
 #CORS_ORIGIN_WHITELIST = (
 #    'some domain or IP'
 #)
@@ -69,26 +50,25 @@ CELERY_RESULT_BACKEND = "amqp"
 ###############################################################################
 ## Rodan configuration
 ###############################################################################
-WITH_DIVA = True
+ENABLE_DIVA = @ENABLE_DIVA@
 
-# If None, Rodan will call `which convert` to find it.
-# It may be "gm convert" on Mac
-BIN_CONVERT = None
+# If None, Rodan will call `which gm` to find it.
+BIN_GM = @BIN_GM@
 
 # If None, Rodan will call `which kdu_compress` to find it.
-BIN_KDU_COMPRESS = None
+BIN_KDU_COMPRESS = @BIN_KDU_COMPRESS@
 
 # If None, Rodan will call `which vips` to find it.
-BIN_VIPS = None
+BIN_VIPS = @BIN_VIPS@
 
 # If None, Rodan will call `which xmllint` to find it.
-BIN_XMLLINT = None
+BIN_XMLLINT = @BIN_XMLLINT@
 
 # IIP Server URL
 IIPSRV_URL = '/fcgi-bin/iipsrv.fcgi'
 
 # IIP Server FILESYSTEM_PREFIX
-IIPSRV_FILESYSTEM_PREFIX = '/home/rodan/rodan_demo_data/'
+IIPSRV_FILESYSTEM_PREFIX = '@RODAN_DATA_DIR@'
 
 # Job Packages
 RODAN_JOB_PACKAGES = (
@@ -101,7 +81,7 @@ RODAN_JOB_PACKAGES = (
 ###############################################################################
 ## Websocket configuration
 ###############################################################################
-REDIS_HOST = 'localhost'
+REDIS_HOST = '@REDIS_HOST@'
 REDIS_PORT = 6379
 DB = 0
 
