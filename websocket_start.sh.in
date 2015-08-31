@@ -1,0 +1,23 @@
+#!/bin/bash
+
+VIRTUAL_ENV=@RODAN_VENV_DIR@            # name of virtual_env directory
+DJANGODIR=@RODAN_APP_DIR@               # Django project directory
+SOCKFILE=/tmp/rodan_websocket.sock      # we will communicte using this unix socket
+USER=@WWW_USER@                         # the user to run as
+GROUP=@WWW_GROUP@                       # the group to run as
+NUM_WORKERS=2                           # how many worker processes should uWSGI spawn
+DJANGO_SETTINGS_MODULE=rodan.settings   # which settings file should Django use
+DJANGO_WSGI_MODULE=rodan.wsgi_websocket # uWSGI module name
+
+echo "Starting Rodan Websocket"
+
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec ${VIRTUAL_ENV}/bin/uwsgi \
+  --virtualenv $VIRTUAL_ENV \
+  --http-socket $SOCKFILE \
+  --gevent 1000 \
+  --http-websockets
+  --workers=$NUM_WORKERS \
+  --uid=$USER --gid=$GROUP \
+  --master \
+  --module $DJANGO_WSGI_MODULE

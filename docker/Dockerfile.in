@@ -96,13 +96,13 @@ RUN     apt-get -y install libxml2-utils
 
 ## Configure Rodan
 WORKDIR	"/srv/webapps/Rodan"
-RUN     echo "trigger update 0828" && git pull && git checkout autoconf
+RUN     echo "trigger update 0831_2" && git pull && git checkout autoconf
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
-RUN     apt-get -y install libvips-tools
+RUN     apt-get update && apt-get -y install libvips-tools
 RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webapps/Rodan/rodan_env/ RODAN_DATA_DIR=/mnt/rodan_data DB_NAME="@DB_NAME@" DB_USER="@DB_USER@" DB_PASSWORD="@DB_PASSWORD@" DB_HOST="@DB_HOST@" DB_PORT="@DB_PORT@" DOMAIN_NAME="@DOMAIN_NAME@" IIPSRV_FCGI=/srv/fcgi-bin/iipsrv.fcgi MODE="@MODE@" CELERY_BROKER_URL="@CELERY_BROKER_URL@" CLIENT_MAX_BODY_SIZE="@CLIENT_MAX_BODY_SIZE@" REDIS_HOST="@REDIS_HOST@"
 @IF_SERVER@RUN  apt-get -y install postgresql-plpython
-@IF_SERVER@RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && sudo -u postgres psql -d rodan --command ''; echo $'create language plpythonu;\
+@IF_SERVER@RUN	service postgresql start && source ./rodan_env/bin/activate && python manage.py makemigrations && sudo -u postgres psql -d rodan --command $'create language plpythonu;\
 @IF_SERVER@        CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$\n\
 @IF_SERVER@            import json\n\
 @IF_SERVER@            import redis\n\
@@ -110,24 +110,27 @@ RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webap
 @IF_SERVER@            status = info[0]\n\
 @IF_SERVER@            model = info[1].replace("rodan_","")\n\
 @IF_SERVER@            uuid = info[2].replace("-","")\n\
-@IF_SERVER@            data = {{\n\
+@IF_SERVER@            data = {\n\
 @IF_SERVER@                "status": status,\n\
 @IF_SERVER@                "model": model,\n\
 @IF_SERVER@                "uuid": uuid\n\
-@IF_SERVER@            }}\n\
+@IF_SERVER@            }\n\
 @IF_SERVER@            r = redis.StrictRedis("@REDIS_HOST@", 6379, db=0)\n\
 @IF_SERVER@            r.publish("rodan:broadcast:rodan", json.dumps(data))\n\
 @IF_SERVER@        $$ LANGUAGE plpythonu;\n\
-@IF_SERVER@        GRANT EXECUTE ON FUNCTION publish_message(text) TO rodan;' && python manage.py migrate
+@IF_SERVER@        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO rodan;' && python manage.py migrate
 RUN	chmod a+x /srv/webapps/Rodan/celery_start.sh
 @IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/gunicorn_start.sh
 
 @IF_SERVER@RUN     apt-get -y install nginx
+## [TODO] don't use global python package
+@IF_SERVER@RUN     pip install redis
 
 ## Set up permission
 RUN     touch /srv/webapps/Rodan/rodan.log
+RUN	touch /srv/webapps/Rodan/database.log
 RUN	chgrp -R www-data /srv/webapps/Rodan
-RUN     chmod g+w /srv/webapps/Rodan/rodan.log
+RUN     chmod g+w /srv/webapps/Rodan/rodan.log /srv/webapps/Rodan/database.log
 RUN     chown www-data:www-data /mnt/rodan_data
 
 
