@@ -72,6 +72,7 @@ def update_database(sender, **kwargs):
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema='public' AND table_type='BASE TABLE'
                 AND table_name LIKE 'rodan_%'
+                AND table_name NOT LIKE 'rodan_%_%'
             LOOP
                 EXECUTE format('DROP TRIGGER IF EXISTS object_post_insert_notify ON %I', tablename);
                 EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
