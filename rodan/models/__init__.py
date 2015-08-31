@@ -33,6 +33,7 @@ After each INSERT, UPDATE, or DELETE action, a message containing information wi
 '''
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
+    print "Registering Rodan database triggers..."
 
     conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -71,8 +72,7 @@ def update_database(sender, **kwargs):
             FOR tablename IN
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema='public' AND table_type='BASE TABLE'
-                AND table_name LIKE 'rodan_%'
-                AND table_name NOT LIKE 'rodan_%_%'
+                AND table_name SIMILAR TO 'rodan_[a-z]+'
             LOOP
                 EXECUTE format('DROP TRIGGER IF EXISTS object_post_insert_notify ON %I', tablename);
                 EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
