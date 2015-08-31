@@ -48,15 +48,19 @@ def update_database(sender, **kwargs):
         DECLARE
             status text;
             notify text;
+            uuid text;
         BEGIN
             IF (TG_OP = 'INSERT') THEN
                 status = 'created';
+                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'UPDATE') THEN
                 status = 'updated';
+                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'DELETE') THEN
                 status = 'deleted';
+                uuid = CAST(OLD.uuid AS text);
             END IF;
-            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || uuid;
             PERFORM publish_message(notify);
             RETURN NEW;
         END;
@@ -75,7 +79,7 @@ def update_database(sender, **kwargs):
                 AND table_name SIMILAR TO 'rodan_[a-z]+'
             LOOP
                 EXECUTE format('DROP TRIGGER IF EXISTS object_post_insert_notify ON %I', tablename);
-                EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
+                EXECUTE format('CREATE TRIGGER object_post_insert_notify AFTER INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE PROCEDURE object_notify()', tablename);
             END LOOP;
         END;
         $$ LANGUAGE plpgsql;
