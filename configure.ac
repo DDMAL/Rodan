@@ -263,7 +263,7 @@ fi
 AC_CONFIG_FILES(celery_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan-celery.conf)
 
 if test "x$MODE" = "xserver"; then
-  AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan_websocket.conf)
+  AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-websocket.conf)
 
   if test "x$ENABLE_DIVA" = "xTrue"; then
     AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
