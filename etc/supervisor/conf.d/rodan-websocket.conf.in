@@ -1,4 +1,4 @@
-[program:rodan]
+[program:rodan-websocket]
 command=@RODAN_APP_DIR@websocket_start.sh
 environment=PYTHON_EGG_CACHE="/tmp",DJANGO_SETTINGS_MODULE="rodan.settings"
 directory=@RODAN_APP_DIR@

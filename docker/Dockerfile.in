@@ -96,7 +96,9 @@ RUN     apt-get -y install libxml2-utils
 
 ## Configure Rodan
 WORKDIR	"/srv/webapps/Rodan"
-RUN     echo "trigger update 0831_2" && git pull && git checkout autoconf
+RUN     echo "trigger update 0831_3" && git pull && git checkout autoconf
+RUN     source ./rodan_env/bin/activate && pip install -r requirements.txt
+
 RUN     autoconf
 RUN     mkdir /mnt/rodan_data
 RUN     apt-get update && apt-get -y install libvips-tools
@@ -121,6 +123,8 @@ RUN     ./configure --enable-debug=no @CONFIGURE_DIVA@ RODAN_VENV_DIR=/srv/webap
 @IF_SERVER@        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO rodan;' && python manage.py migrate
 RUN	chmod a+x /srv/webapps/Rodan/celery_start.sh
 @IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/gunicorn_start.sh
+@IF_SERVER@RUN     chmod a+x /srv/webapps/Rodan/websocket_start.sh
+
 
 @IF_SERVER@RUN     apt-get -y install nginx
 ## [TODO] don't use global python package
@@ -144,6 +148,7 @@ RUN	apt-get -y install supervisor
 ## Configure supervisor
 RUN     cp etc/supervisor/conf.d/rodan-celery.conf /etc/supervisor/conf.d/
 @IF_SERVER@RUN     cp etc/supervisor/conf.d/rodan.conf /etc/supervisor/conf.d/
+@IF_SERVER@RUN     cp etc/supervisor/conf.d/rodan-websocket.conf /etc/supervisor/conf.d/
 @IF_SERVER@@IF_DIVA@RUN     cp etc/supervisor/conf.d/iipserver.conf /etc/supervisor/conf.d/
 
 
