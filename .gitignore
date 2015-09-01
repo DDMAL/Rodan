@@ -24,14 +24,9 @@ config.log
 autom4te.cache
 
 etc/supervisor/conf.d/rodan.conf
-etc/supervisor/conf.d/rodan-celery.conf
-etc/supervisor/conf.d/iipserver.conf
-etc/supervisor/conf.d/rodan-websocket.conf
 websocket_start.sh
 
 etc/nginx/sites-available/rodan
-docker/Dockerfile
-docker/deploy.sh
 
 # ignore emacs autosave file
 *~

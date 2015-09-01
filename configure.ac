@@ -14,11 +14,18 @@ AS_IF([test "x$enable_debug" = "xyes"], [ENABLE_DEBUG=True], [ENABLE_DEBUG=False
 # diva.js (default enable)
 AC_ARG_ENABLE([diva],
         AS_HELP_STRING([--disable-diva], [disable Diva.js]))
-AS_IF([test "x$enable_diva" != "xno"], [ENABLE_DIVA=True], [ENABLE_DIVA=False])
+if test "x$enable_diva" != "xno"; then
+   ENABLE_DIVA=True
+   IF_DIVA=""
+else
+   ENABLE_DIVA=False
+   IF_DIVA="# "
+fi
 
 # substitute variables
 AC_SUBST(ENABLE_DEBUG)
 AC_SUBST(ENABLE_DIVA)
+AC_SUBST(IF_DIVA)
 
 
 # MODE: server or worker
@@ -33,6 +40,7 @@ else
   AC_MSG_ERROR(MODE must be either server or worker)
 fi
 
+AC_SUBST(IF_SERVER)
 
 
 # Checks for programs for jobs
@@ -126,7 +134,7 @@ length=${#RODAN_APP_DIR}
 last_char=${RODAN_APP_DIR:length-1:1}
 [[ $last_char != "/" ]] && RODAN_APP_DIR="$RODAN_APP_DIR/"; :
 
-length=${#RODAN_VENE_DIR}
+length=${#RODAN_VENV_DIR}
 last_char=${RODAN_VENV_DIR:length-1:1}
 [[ $last_char != "/" ]] && RODAN_VENV_DIR="$RODAN_VENV_DIR/"; :
 
@@ -242,8 +250,9 @@ if test "x$MODE" = "xserver"; then
       AC_MSG_ERROR([IIPSRV_FCGI fcgi binary not found])
     fi
   fi
-else
-  IIPSRV_FCGI="rodan-worker"
+fi
+if test -z "$IIPSRV_FCGI"; then
+  IIPSRV_FCGI="N/A"
 fi
 
 # User and Group that runs Rodan
@@ -260,23 +269,9 @@ fi
 
 
 # output
-AC_CONFIG_FILES(celery_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan-celery.conf)
-
+AC_CONFIG_FILES(celery_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf)
 if test "x$MODE" = "xserver"; then
-  AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/supervisor/conf.d/rodan.conf etc/supervisor/conf.d/rodan-websocket.conf)
-
-  if test "x$ENABLE_DIVA" = "xTrue"; then
-    AC_CONFIG_FILES(etc/supervisor/conf.d/iipserver.conf)
-    AC_CONFIG_FILES(etc/nginx/sites-available/rodan_with_diva)
-    AC_OUTPUT()
-    mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan
-    AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_with_diva etc/nginx/sites-available/rodan])
-  else
-    AC_CONFIG_FILES(etc/nginx/sites-available/rodan_without_diva)
-    AC_OUTPUT()
-    mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan
-    AC_MSG_NOTICE([mv etc/nginx/sites-available/rodan_without_diva etc/nginx/sites-available/rodan])
-  fi
-else
-  AC_OUTPUT()
+  AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/nginx/sites-available/rodan)
 fi
+
+AC_OUTPUT()
