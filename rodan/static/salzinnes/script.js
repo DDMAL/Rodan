@@ -126,13 +126,26 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             '11': 'Retrying'
         };
     })
-    .controller('ctrl_navbar', function ($scope, $location, $window) {
+    .controller('ctrl_navbar', function ($scope, $location, $window, $http, ROOT) {
         $scope.allProjects = function () {
             $location.path('/projects/');
         }
         $scope.logout = function () {
             $window.sessionStorage.removeItem('token');
             $location.path('/login/');
+        };
+        $scope.getWorkers = function () {
+            $http.get(ROOT + '/taskqueue/active/')
+                .success(function (data) {
+                    var msg = '';
+                    var i;
+                    for (i in data) {
+                        if (data.hasOwnProperty(i)) {
+                            msg += i + ": " + data[i].length + " job(s)\n";
+                        }
+                    }
+                    $window.alert(msg);
+                });
         };
     })
 //////////////////
