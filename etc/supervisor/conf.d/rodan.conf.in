@@ -19,6 +19,8 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 redirect_stdout=true
+# Give it enough time to finish current task.
+stopwaitsecs=600
 
 @IF_SERVER@[program:rodan]
 @IF_SERVER@command=@RODAN_APP_DIR@gunicorn_start.sh
@@ -41,3 +43,4 @@ redirect_stdout=true
 @IF_SERVER@autorestart=true
 @IF_SERVER@redirect_stderr=true
 @IF_SERVER@redirect_stdout=true
+@IF_SERVER@stopwaitsecs=10
