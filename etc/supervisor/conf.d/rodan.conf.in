@@ -1,13 +1,13 @@
-@IF_DIVA@[fcgi-program:iipserver]
-@IF_DIVA@command=@IIPSRV_FCGI@
-@IF_DIVA@socket=unix:///tmp/%(program_name)s_1.sock
-@IF_DIVA@user=@WWW_USER@
-@IF_DIVA@autostart=true
-@IF_DIVA@autorestart=unexpected
-@IF_DIVA@redirect_stderr=true
-@IF_DIVA@redirect_stdout=true
-@IF_DIVA@# KEEP FILESYSTEM_PREFIX same as the media path
-@IF_DIVA@environment=JPEG_QUALITY='100',MAX_LAYERS='4',MAX_CVT='7000',FILESYSTEM_PREFIX='@RODAN_DATA_DIR@'
+@IF_SERVER@@IF_DIVA@[fcgi-program:iipserver]
+@IF_SERVER@@IF_DIVA@command=@IIPSRV_FCGI@
+@IF_SERVER@@IF_DIVA@socket=unix:///tmp/%(program_name)s_1.sock
+@IF_SERVER@@IF_DIVA@user=@WWW_USER@
+@IF_SERVER@@IF_DIVA@autostart=true
+@IF_SERVER@@IF_DIVA@autorestart=unexpected
+@IF_SERVER@@IF_DIVA@redirect_stderr=true
+@IF_SERVER@@IF_DIVA@redirect_stdout=true
+@IF_SERVER@@IF_DIVA@# KEEP FILESYSTEM_PREFIX same as the media path
+@IF_SERVER@@IF_DIVA@environment=JPEG_QUALITY='100',MAX_LAYERS='4',MAX_CVT='7000',FILESYSTEM_PREFIX='@RODAN_DATA_DIR@'
 
 [program:rodan-celery]
 command=@RODAN_APP_DIR@celery_start.sh
