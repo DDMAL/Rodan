@@ -343,6 +343,9 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    output_port=outputport2,
                    input_port=inputport5B)
 
+        response = self._validate(self.test_workflow.uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     """
