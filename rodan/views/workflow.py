@@ -174,6 +174,16 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if self.disjoint_set.find(wfjob) is not one_set:
                 raise WorkflowValidationError('WF_NOT_CONNECTED', 'The Workflow is not connected.')
 
+        ## label all extern input/output ports
+        InputPort.objects.filter(workflow_job__workflow=workflow).update(extern=False)
+        OutputPort.objects.filter(workflow_job__workflow=workflow).update(extern=False)
+
+        extern_ips_query = InputPort.objects.filter(workflow_job__workflow=workflow, connections__isnull=True)
+        extern_ips_query.update(extern=True)
+
+        extern_ops_query = OutputPort.objects.filter(workflow_job__workflow=workflow, connections__isnull=True)
+        extern_ops_query.update(extern=True)
+
         # Valid!
         return True
 

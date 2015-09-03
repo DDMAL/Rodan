@@ -383,3 +383,104 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'serialized': {'workflow_jobs[0].job_name': u'Job hahahaha does not exist in current Rodan installation.'}})
+
+
+class WorkflowExternPortsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.client.login(username="ahankins", password="hahaha")
+
+    def _validate(self, workflow_uuid):
+        workflow_update = {
+            'valid': True,
+        }
+        return self.client.patch("/workflow/{0}/".format(workflow_uuid), workflow_update, format='json')
+
+    def test_simple_workflow(self):
+        self.setUp_simple_dummy_workflow()
+        response = self._validate(self.test_workflow.uuid)
+        assert response.status_code == status.HTTP_200_OK
+
+        ip_a = self.dummy_a_wfjob.input_ports.first()
+        op_a = self.dummy_a_wfjob.output_ports.first()
+        ip_m = self.dummy_m_wfjob.input_ports.first()
+        op_m = self.dummy_m_wfjob.output_ports.first()
+
+        self.assertTrue(ip_a.extern)
+        self.assertFalse(op_a.extern)
+        self.assertFalse(ip_m.extern)
+        self.assertTrue(op_m.extern)
+
+    def test_simple_workflow_update_all(self):
+        self.setUp_simple_dummy_workflow()
+        ip_a = self.dummy_a_wfjob.input_ports.first()
+        op_a = self.dummy_a_wfjob.output_ports.first()
+        ip_m = self.dummy_m_wfjob.input_ports.first()
+        op_m = self.dummy_m_wfjob.output_ports.first()
+
+        ip_a.extern = False
+        ip_a.save()
+        op_a.extern = True
+        op_a.save()
+        ip_m.extern = True
+        ip_m.save()
+        op_m.extern = False
+        op_m.save()
+
+        response = self._validate(self.test_workflow.uuid)
+        assert response.status_code == status.HTTP_200_OK
+
+        ip_a = self.dummy_a_wfjob.input_ports.first()
+        op_a = self.dummy_a_wfjob.output_ports.first()
+        ip_m = self.dummy_m_wfjob.input_ports.first()
+        op_m = self.dummy_m_wfjob.output_ports.first()
+
+        self.assertTrue(ip_a.extern)
+        self.assertFalse(op_a.extern)
+        self.assertFalse(ip_m.extern)
+        self.assertTrue(op_m.extern)
+
+    def test_complex_workflow(self):
+        self.setUp_complex_dummy_workflow()
+        response = self._validate(self.test_workflow.uuid)
+        assert response.status_code == status.HTTP_200_OK
+
+        # refetch and test
+        Aip = InputPort.objects.get(uuid=self.test_Aip.uuid)
+        self.assertTrue(Aip.extern)
+        Aop = OutputPort.objects.get(uuid=self.test_Aop.uuid)
+        self.assertFalse(Aop.extern)
+
+        Bop = OutputPort.objects.get(uuid=self.test_Bop.uuid)
+        self.assertFalse(Bop.extern)
+
+        Cip1 = InputPort.objects.get(uuid=self.test_Cip1.uuid)
+        self.assertFalse(Cip1.extern)
+        Cip2 = InputPort.objects.get(uuid=self.test_Cip2.uuid)
+        self.assertFalse(Cip2.extern)
+        Cop1 = OutputPort.objects.get(uuid=self.test_Cop1.uuid)
+        self.assertFalse(Cop1.extern)
+        Cop2 = OutputPort.objects.get(uuid=self.test_Cop2.uuid)
+        self.assertTrue(Cop2.extern)
+
+        Dip1 = InputPort.objects.get(uuid=self.test_Dip1.uuid)
+        self.assertTrue(Dip1.extern)
+        Dip2 = InputPort.objects.get(uuid=self.test_Dip2.uuid)
+        self.assertFalse(Dip2.extern)
+        Dop = OutputPort.objects.get(uuid=self.test_Dop.uuid)
+        self.assertFalse(Dop.extern)
+
+        Eip1 = InputPort.objects.get(uuid=self.test_Eip1.uuid)
+        self.assertFalse(Eip1.extern)
+        Eip2 = InputPort.objects.get(uuid=self.test_Eip2.uuid)
+        self.assertTrue(Eip2.extern)
+        Eop = OutputPort.objects.get(uuid=self.test_Eop.uuid)
+        self.assertTrue(Eop.extern)
+
+        Fip1 = InputPort.objects.get(uuid=self.test_Fip1.uuid)
+        self.assertTrue(Fip1.extern)
+        Fip2 = InputPort.objects.get(uuid=self.test_Fip2.uuid)
+        self.assertFalse(Fip2.extern)
+        Fop = OutputPort.objects.get(uuid=self.test_Fop.uuid)
+        self.assertTrue(Fop.extern)
