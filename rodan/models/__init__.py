@@ -33,6 +33,10 @@ After each INSERT, UPDATE, or DELETE action, a message containing information wi
 '''
 @receiver(post_migrate)
 def update_database(sender, **kwargs):
+    # don't register triggers in test database
+    if settings.TEST:
+        return
+
     print "Registering Rodan database triggers..."
 
     conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
