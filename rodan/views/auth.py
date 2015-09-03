@@ -20,13 +20,14 @@ class SessionStatus(views.APIView):
     def get(self, request, *args, **kwargs):
         is_auth = request.user.is_authenticated() or request.auth
         if is_auth:
-            token = ""
+            token = None
             if request.auth:
                 token, created = Token.objects.get_or_create(user=request.user)
+                token = token.key
             obj = User.objects.get(pk=request.user.id)
             userinfo = UserSerializer(obj, context={'request': request})
             data = dict(userinfo.data)
-            data['token'] = token.key
+            data['token'] = token
 
             return Response(data)
         else:
