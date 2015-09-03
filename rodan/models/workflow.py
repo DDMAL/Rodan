@@ -2,6 +2,7 @@ import os
 import shutil
 from django.db import models
 from uuidfield import UUIDField
+from django.apps import apps
 
 class Workflow(models.Model):
     """
@@ -17,6 +18,13 @@ class Workflow(models.Model):
     - `valid` -- a boolean, indicating whether the contents of `Workflow` is valid.
     - `created`
     - `updated`
+
+    **Properties**
+
+    - `workflow_input_ports` -- if the `Workflow` is valid, returns all `InputPorts`
+      with extern=True. If the `Workflow` is not valid, returns empty list.
+    - `workflow_output_ports` -- if the `Workflow` is valid, returns all `OutputPorts`
+      with extern=True. If the `Workflow` is not valid, returns empty list.
     """
 
     uuid = UUIDField(primary_key=True, auto=True)
@@ -35,3 +43,17 @@ class Workflow(models.Model):
     class Meta:
         app_label = 'rodan'
         ordering = ('created',)
+
+    @property
+    def workflow_input_ports(self):
+        if not self.valid:
+            return []
+        else:
+            return apps.get_model(app_label='rodan', model_name='InputPort').objects.filter(workflow_job__workflow=self, extern=True)
+
+    @property
+    def workflow_output_ports(self):
+        if not self.valid:
+            return []
+        else:
+            return apps.get_model(app_label='rodan', model_name='OutputPort').objects.filter(workflow_job__workflow=self, extern=True)

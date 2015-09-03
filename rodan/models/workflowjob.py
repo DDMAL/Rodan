@@ -30,7 +30,7 @@ class WorkflowJob(models.Model):
     - `save` and `delete` -- invalidate the referenced `Workflow`.
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE)
+    workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE, db_index=True)
     job = models.ForeignKey("rodan.Job", related_name="workflow_jobs", on_delete=models.PROTECT)
     job_settings = JSONField(default={}, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)

@@ -12,6 +12,7 @@ class InputPortSerializer(serializers.HyperlinkedModelSerializer):
                   "uuid",
                   "input_port_type",
                   "label",
+                  "extern",
                   "connections")
 
 class OutputPortSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,6 +22,7 @@ class OutputPortSerializer(serializers.HyperlinkedModelSerializer):
                   "uuid",
                   "output_port_type",
                   "label",
+                  "extern",
                   "connections")
 
 class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
@@ -41,9 +43,11 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)
+    workflow_input_ports = InputPortSerializer(many=True, read_only=True)
+    workflow_output_ports = OutputPortSerializer(many=True, read_only=True)
     class Meta:
         model = Workflow
-        read_only_fields = ('creator', 'created', 'updated', 'workflow_jobs', 'workflow_runs')
+        read_only_fields = ('creator', 'created', 'updated', 'workflow_jobs', 'workflow_runs', 'workflow_input_ports', 'workflow_output_ports')
         fields = ("url",
                   "uuid",
                   "name",
@@ -53,7 +57,9 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "created",
                   "updated",
                   "valid",
-                  "workflow_runs")
+                  "workflow_runs",
+                  "workflow_input_ports",
+                  "workflow_output_ports")
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):

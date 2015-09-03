@@ -15,6 +15,9 @@ class InputPort(models.Model):
     - `input_port_type` -- a foreign key reference to associated `InputPortType`.
     - `label` -- an optional name unique to the other `InputPort`s in the `WorkflowJob`
       (only for the user).
+    - `extern` -- an automatically set flag to distinguish an entry `InputPort` in a
+      validated `Workflow`. If the `Workflow` is not valid, this field should be
+      ignored.
 
     **Methods**
 
@@ -26,9 +29,10 @@ class InputPort(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='input_ports', on_delete=models.CASCADE)
+    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='input_ports', on_delete=models.CASCADE, db_index=True)
     input_port_type = models.ForeignKey('rodan.InputPortType', on_delete=models.PROTECT)
     label = models.CharField(max_length=255, null=True, blank=True)
+    extern = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.label:

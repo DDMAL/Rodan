@@ -16,6 +16,9 @@ class OutputPort(models.Model):
     - `output_port_type` -- a foreign key reference to associated `OutputPortType`.
     - `label` -- an optional name unique to the other `OutputPort`s in the `WorkflowJob`
       (only for the user).
+    - `extern` -- an automatically set flag to distinguish an exit `OuputPort` in a
+      validated `Workflow`. If the `Workflow` is not valid, this field should be
+      ignored.
 
     **Methods**
 
@@ -27,9 +30,10 @@ class OutputPort(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_ports', on_delete=models.CASCADE)
+    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_ports', on_delete=models.CASCADE, db_index=True)
     output_port_type = models.ForeignKey('rodan.OutputPortType', on_delete=models.PROTECT)
     label = models.CharField(max_length=255, null=True, blank=True)
+    extern = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.label:

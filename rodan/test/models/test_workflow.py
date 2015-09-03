@@ -87,3 +87,33 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.test_workflowjob.delete()
         self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
         self.assertFalse(self.test_workflow.valid)
+
+
+class WorkflowPortsTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_basic_workflow()
+        self.test_ip1 = self.test_workflowjob.input_ports.first()
+        self.test_ip2 = self.test_workflowjob2.input_ports.first()
+        self.test_op1 = self.test_workflowjob.output_ports.first()
+        self.test_op2 = self.test_workflowjob2.output_ports.first()
+        self.test_ip1.extern = True
+        self.test_ip1.save()
+        self.test_op2.extern = True
+        self.test_op2.save()
+
+    def test_valid(self):
+        self.test_workflow.valid = True
+        self.test_workflow.save()
+
+        self.assertEqual(len(self.test_workflow.workflow_input_ports), 1)
+        self.assertEqual(self.test_workflow.workflow_input_ports[0], self.test_ip1)
+
+        self.assertEqual(len(self.test_workflow.workflow_output_ports), 1)
+        self.assertEqual(self.test_workflow.workflow_output_ports[0], self.test_op2)
+
+    def test_invalid(self):
+        self.test_workflow.valid = False
+        self.test_workflow.save()
+        self.assertEqual(self.test_workflow.workflow_input_ports, [])
+        self.assertEqual(self.test_workflow.workflow_output_ports, [])
