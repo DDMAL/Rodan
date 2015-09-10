@@ -10,6 +10,7 @@ from django.core.urlresolvers import Resolver404, resolve
 from rodan.models import Project, Output, Resource, ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
+from rodan.paginators.pagination import PaginationSerializer
 from django.db.models import Q
 from rodan.constants import task_status
 from django.http import Http404, HttpResponseRedirect
@@ -36,6 +37,7 @@ class ResourceList(generics.ListCreateAPIView):
     model = Resource
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
+    pagination_serializer_class = PaginationSerializer
     filter_fields = ('project', )
 
     def get_queryset(self):
