@@ -40,6 +40,7 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
         model = Project
         fields = ('url',
                   'name',
+                  'description',
                   'creator',
                   'workflows',
                   'resources',
