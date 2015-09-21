@@ -35,12 +35,12 @@ class Project(models.Model):
         return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey(User, related_name="projects", blank=True, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, db_index=True)
+    description = models.TextField(blank=True, null=True, db_index=True)
+    creator = models.ForeignKey(User, related_name="projects", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     def __unicode__(self):
         return u"<Project {0}>".format(self.name)

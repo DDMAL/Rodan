@@ -47,19 +47,19 @@ class ResultsPackage(models.Model):
                               (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names")]
 
     uuid = UUIDField(primary_key=True, auto=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED)
-    percent_completed = models.IntegerField(default=0)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED, db_index=True)
+    percent_completed = models.IntegerField(default=0, db_index=True)
 
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages", on_delete=models.CASCADE)
-    packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES)
-    creator = models.ForeignKey("auth.User", related_name="results_packages", on_delete=models.SET_NULL, blank=True, null=True)
+    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages", on_delete=models.CASCADE, db_index=True)
+    packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES, db_index=True)
+    creator = models.ForeignKey("auth.User", related_name="results_packages", on_delete=models.SET_NULL, blank=True, null=True, db_index=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 
     error_summary = models.TextField(default="", blank=True, null=True)
     error_details = models.TextField(default="", blank=True, null=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    expiry_time = models.DateTimeField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    expiry_time = models.DateTimeField(blank=True, null=True, db_index=True)
 
     def delete(self, *a, **k):
         path = self.package_path

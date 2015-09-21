@@ -28,14 +28,14 @@ class Workflow(models.Model):
     """
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=100)
-    project = models.ForeignKey("rodan.Project", related_name="workflows", on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, db_index=True)
+    project = models.ForeignKey("rodan.Project", related_name="workflows", on_delete=models.CASCADE, db_index=True)
     description = models.TextField(blank=True, null=True)
-    creator = models.ForeignKey("auth.User", related_name="workflows", null=True, blank=True, on_delete=models.SET_NULL)
-    valid = models.BooleanField(default=False)
+    creator = models.ForeignKey("auth.User", related_name="workflows", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    valid = models.BooleanField(default=False, db_index=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     def __unicode__(self):
         return u"<Workflow {0}>".format(self.name)

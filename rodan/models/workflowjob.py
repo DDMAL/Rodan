@@ -31,13 +31,13 @@ class WorkflowJob(models.Model):
     """
     uuid = UUIDField(primary_key=True, auto=True)
     workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE, db_index=True)
-    job = models.ForeignKey("rodan.Job", related_name="workflow_jobs", on_delete=models.PROTECT)
+    job = models.ForeignKey("rodan.Job", related_name="workflow_jobs", on_delete=models.PROTECT, db_index=True)
     job_settings = JSONField(default={}, blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
-    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     def save(self, *args, **kwargs):
         if not self.name:

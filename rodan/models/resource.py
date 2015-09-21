@@ -109,24 +109,24 @@ class Resource(models.Model):
         return u"<Resource {0}>".format(self.uuid)
 
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=200, blank=True, null=True)
+    name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE)
+    project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE, db_index=True)
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
     compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
-    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources', on_delete=models.PROTECT)
+    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources', on_delete=models.PROTECT, db_index=True)
 
-    processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True)
+    processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True, db_index=True)
     error_summary = models.TextField(default="")
     error_details = models.TextField(default="")
 
-    creator = models.ForeignKey(User, related_name="resources", null=True, blank=True, on_delete=models.SET_NULL)
-    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL)  # no backward reference
+    creator = models.ForeignKey(User, related_name="resources", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)  # no backward reference
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    has_thumb = models.BooleanField(default=False)
+    has_thumb = models.BooleanField(default=False, db_index=True)
 
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)

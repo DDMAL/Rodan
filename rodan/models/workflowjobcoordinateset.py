@@ -18,12 +18,12 @@ class WorkflowJobCoordinateSet(models.Model):
     - `updated`
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name="workflow_job_coordinate_sets", on_delete=models.CASCADE)
+    workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name="workflow_job_coordinate_sets", on_delete=models.CASCADE, db_index=True)
     data = JSONField(default={}, blank=True, null=True)
-    user_agent = models.CharField(max_length=255, blank=True, null=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     def __unicode__(self):
         return u"<WorkflowJobCoordinateSet {0}>".format(str(self.uuid))

@@ -62,26 +62,26 @@ class RunJob(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE)
-    workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL)
+    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE, db_index=True)
+    workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
 
-    workflow_job_uuid = models.CharField(max_length=32)
-    resource_uuid = models.CharField(max_length=32, blank=True, null=True)
-    job_name = models.CharField(max_length=200)
+    workflow_job_uuid = models.CharField(max_length=32, db_index=True)
+    resource_uuid = models.CharField(max_length=32, blank=True, null=True, db_index=True)
+    job_name = models.CharField(max_length=200, db_index=True)
 
     job_settings = JSONField(default={})
-    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0, db_index=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 
     error_summary = models.TextField(default="", blank=True, null=True)
     error_details = models.TextField(default="", blank=True, null=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
 
-    lock = models.CharField(max_length=50, blank=True, null=True)
+    lock = models.CharField(max_length=50, blank=True, null=True, db_index=True)
 
     def __unicode__(self):
         return u"<RunJob {0} {1}>".format(str(self.uuid), self.job_name)

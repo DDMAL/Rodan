@@ -30,9 +30,9 @@ class InputPort(models.Model):
 
     uuid = UUIDField(primary_key=True, auto=True)
     workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='input_ports', on_delete=models.CASCADE, db_index=True)
-    input_port_type = models.ForeignKey('rodan.InputPortType', on_delete=models.PROTECT)
-    label = models.CharField(max_length=255, null=True, blank=True)
-    extern = models.BooleanField(default=False)
+    input_port_type = models.ForeignKey('rodan.InputPortType', on_delete=models.PROTECT, db_index=True)
+    label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+    extern = models.BooleanField(default=False, db_index=True)
 
     def save(self, *args, **kwargs):
         if not self.label:

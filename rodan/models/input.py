@@ -25,10 +25,10 @@ class Input(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    input_port = models.ForeignKey('rodan.InputPort', related_name='inputs', blank=True, null=True, on_delete=models.SET_NULL)
-    input_port_type_name = models.CharField(max_length=255)
-    resource = models.ForeignKey('rodan.Resource', related_name='inputs', on_delete=models.PROTECT)
-    run_job = models.ForeignKey('rodan.RunJob', related_name='inputs', on_delete=models.CASCADE)
+    input_port = models.ForeignKey('rodan.InputPort', related_name='inputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
+    input_port_type_name = models.CharField(max_length=255, db_index=True)
+    resource = models.ForeignKey('rodan.Resource', related_name='inputs', on_delete=models.PROTECT, db_index=True)
+    run_job = models.ForeignKey('rodan.RunJob', related_name='inputs', on_delete=models.CASCADE, db_index=True)
 
     def __unicode__(self):
         return u"<Input {0}>".format(str(self.uuid))

@@ -37,9 +37,9 @@ class ResourceType(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    mimetype = models.CharField(max_length=50, unique=True)
-    description = models.CharField(max_length=255, blank=True)
-    extension = models.CharField(max_length=50, blank=True)
+    mimetype = models.CharField(max_length=50, unique=True, db_index=True)
+    description = models.CharField(max_length=255, blank=True, db_index=True)
+    extension = models.CharField(max_length=50, blank=True, db_index=True)
 
     def __unicode__(self):
         return u"<ResourceType {0}>".format(self.mimetype)

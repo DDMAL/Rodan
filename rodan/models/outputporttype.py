@@ -23,11 +23,11 @@ class OutputPortType(models.Model):
         app_label = 'rodan'
 
     uuid = UUIDField(primary_key=True, auto=True)
-    job = models.ForeignKey('rodan.Job', related_name='output_port_types', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
+    job = models.ForeignKey('rodan.Job', related_name='output_port_types', on_delete=models.CASCADE, db_index=True)
+    name = models.CharField(max_length=255, db_index=True)
     resource_types = models.ManyToManyField('rodan.ResourceType', related_name='output_port_types')
-    minimum = models.IntegerField()
-    maximum = models.IntegerField()
+    minimum = models.IntegerField(db_index=True)
+    maximum = models.IntegerField(db_index=True)
 
     def __unicode__(self):
         return u"<OutputPortType {0}>".format(str(self.uuid))

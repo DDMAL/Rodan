@@ -26,15 +26,15 @@ class Job(models.Model):
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
     uuid = UUIDField(primary_key=True, auto=True)
-    name = models.CharField(max_length=200, unique=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
-    author = models.CharField(max_length=255, blank=True, null=True)
-    category = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=200, unique=True, db_index=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
+    author = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    category = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
 
     settings = JSONField(default={"type": "object"})
 
-    enabled = models.BooleanField(default=False)
-    interactive = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=False, db_index=True)
+    interactive = models.BooleanField(default=False, db_index=True)
 
     def __unicode__(self):
         return u"<Job {0}>".format(self.name)
