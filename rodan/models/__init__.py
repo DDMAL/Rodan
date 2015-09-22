@@ -128,7 +128,7 @@ def update_database(sender, **kwargs):
                 if 'RODAN_PSQL_SUPERUSER_USERNAME' in os.environ and 'RODAN_PSQL_SUPERUSER_PASSWORD' in os.environ:
                     print "Environment variables RODAN_PSQL_SUPERUSER_USERNAME and RODAN_PSQL_SUPERUSER_PASSWORD detected."
                     choice = '1'
-                elif 'PSQL_SUPERUSER_COMMAND' in os.environ:
+                elif 'RODAN_PSQL_SUPERUSER_COMMAND' in os.environ:
                     print "Environment variables RODAN_PSQL_SUPERUSER_COMMAND detected."
                     choice = '2'
 
