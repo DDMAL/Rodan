@@ -205,7 +205,7 @@ def update_database(sender, **kwargs):
             print "Please start redis-server at {0}:{1}.".format(settings.REDIS_HOST, settings.REDIS_PORT)
         else:
             raise
-        sys.exit()
+        sys.exit(2)
 
     print "Registering Rodan database triggers...",
     curs.execute(trigger)
