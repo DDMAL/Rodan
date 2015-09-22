@@ -23,7 +23,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import psycopg2
 import psycopg2.extensions
-import os
+import os, sys
+import traceback
+import getpass
+import subprocess
 
 '''
 This function is executed after the post-migrate signal.
@@ -37,14 +40,36 @@ def update_database(sender, **kwargs):
     if settings.TEST:
         return
 
-    print "Registering Rodan database triggers..."
-
     conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     curs = conn.cursor()
 
-    # Language plpythonu and function publish_message(text) should exist.
+    # Python function to add message to redis
+    publish_message = '''
+        CREATE OR REPLACE LANGUAGE plpythonu;
+        CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
+            import json
+            import redis
+            info = notify.split('/')
+            status = info[0]
+            model = info[1].replace('rodan_','')
+            uuid = info[2].replace('-','')
+            data = {{
+                'status': status,
+                'model': model,
+                'uuid': uuid
+            }}
+            r = redis.StrictRedis("{0}", {1}, db={2})
+            r.publish('rodan:broadcast:rodan', json.dumps(data))
+        $$ LANGUAGE plpythonu;
+        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {3};
+    '''.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB, settings.DATABASES['default']['USER'])
+
+    # Testing publish_message function
+    test_publish_message = '''
+        SELECT "publish_message"('test/test/00000000000000000000000000000000');
+    '''
 
     # Create trigger that sends information about the status, the table name, and the uuid of the modified element
     trigger = '''
@@ -52,24 +77,20 @@ def update_database(sender, **kwargs):
         DECLARE
             status text;
             notify text;
-            uuid text;
         BEGIN
             IF (TG_OP = 'INSERT') THEN
                 status = 'created';
-                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'UPDATE') THEN
                 status = 'updated';
-                uuid = CAST(NEW.uuid AS text);
             ELSIF (TG_OP = 'DELETE') THEN
                 status = 'deleted';
-                uuid = CAST(OLD.uuid AS text);
             END IF;
-            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || uuid;
+            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
             PERFORM publish_message(notify);
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
-        '''
+    '''
 
     # Loop through selected models to create trigger, if the trigger already exists, it gets destroyed before a new one is created
     create_trigger = '''
@@ -88,7 +109,109 @@ def update_database(sender, **kwargs):
         END;
         $$ LANGUAGE plpgsql;
         SELECT name();
-        '''
+        DROP FUNCTION name();
+    '''
 
+
+    try:
+        curs.execute(publish_message)
+    except psycopg2.ProgrammingError as e:
+        if 'superuser' in str(e):
+            # needs database superuser
+            traceback.print_exc()
+            solved = False
+
+            while not solved:
+                choice = '?'
+
+                # If there are environment variables, don't ask from user due to stdin reading issue of Python raw_input.
+                if 'RODAN_PSQL_SUPERUSER_USERNAME' in os.environ and 'RODAN_PSQL_SUPERUSER_PASSWORD' in os.environ:
+                    print "Environment variables RODAN_PSQL_SUPERUSER_USERNAME and RODAN_PSQL_SUPERUSER_PASSWORD detected."
+                    choice = '1'
+                elif 'PSQL_SUPERUSER_COMMAND' in os.environ:
+                    print "Environment variables RODAN_PSQL_SUPERUSER_COMMAND detected."
+                    choice = '2'
+
+                while choice not in ('1', '2'):
+                    print "================================================================"
+                    print "Rodan needs PostgreSQL superuser permission to proceed. Options:"
+                    print "  1. Provide the username and password of a superuser."
+                    print "  2. Provide the shell command to log in PostgreSQL console as a superuser (typically `sudo -u postgres psql --dbname={0}`)".format(settings.DATABASES['default']['NAME'])
+                    print "(Please inform Rodan developers if there is another way of connecting to PostgreSQL.)"
+                    choice = raw_input("Choice: ")
+
+                if choice is '1':
+                    if 'RODAN_PSQL_SUPERUSER_USERNAME' in os.environ:
+                        username = os.environ['RODAN_PSQL_SUPERUSER_USERNAME']
+                        del os.environ['RODAN_PSQL_SUPERUSER_USERNAME']
+                    else:
+                        username = raw_input("Username: ")
+
+                    if 'RODAN_PSQL_SUPERUSER_PASSWORD' in os.environ:
+                        password = os.environ['RODAN_PSQL_SUPERUSER_PASSWORD']
+                        del os.environ['RODAN_PSQL_SUPERUSER_PASSWORD']
+                    else:
+                        password = getpass.getpass("Password: ")
+
+                    try:
+                        conn_sudo = psycopg2.connect(
+                            database=settings.DATABASES['default']['NAME'],
+                            user=username,
+                            password=password,
+                            host=settings.DATABASES['default']['HOST'],
+                            port=settings.DATABASES['default']['PORT']
+                        )
+                        conn_sudo.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+                        cur_sudo = conn_sudo.cursor()
+                        cur_sudo.execute(publish_message)
+                        solved = True
+                    except Exception as e:
+                        traceback.print_exc()
+                        continue
+
+                elif choice is '2':
+                    try:
+                        if 'RODAN_PSQL_SUPERUSER_COMMAND' in os.environ:
+                            cmd = os.environ['RODAN_PSQL_SUPERUSER_COMMAND']
+                            del os.environ['RODAN_PSQL_SUPERUSER_COMMAND']
+                        else:
+                            cmd = raw_input("Command: ")
+                        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        grep_stdout = p.communicate(input=publish_message)[0]
+                        rc = p.returncode
+                        print grep_stdout
+                        if "ERROR:" in grep_stdout or rc is not 0:
+                            continue
+                        else:
+                            solved = True
+                    except Exception as e:
+                        traceback.print_exc()
+                        continue
+        else:
+            raise
+
+    print ""
+
+    try:
+        curs.execute(test_publish_message)
+    except psycopg2.InternalError as e:
+        if 'No module named redis' in str(e):
+            traceback.print_exc()
+            print "================================================================"
+            print "Please execute `pip install redis` as a system package (not in virtualenv)."
+        elif 'redis' in str(e):
+            traceback.print_exc()
+            print "================================================================"
+            print "Please start redis-server at {0}:{1}.".format(settings.REDIS_HOST, settings.REDIS_PORT)
+        else:
+            raise
+        sys.exit()
+
+    print "Registering Rodan database triggers...",
     curs.execute(trigger)
     curs.execute(create_trigger)
+
+    # Prevent multiple execution of post-migrate signal (not sure why it happens)
+    global update_database
+    update_database = None
+    print "OK"
