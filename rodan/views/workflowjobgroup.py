@@ -12,12 +12,7 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     to create a new WorkflowJobGroup. POST requests will return the newly-created
     WorkflowJobGroup object.
 
-    #### GET Parameters
-    - `origin`
-    - `workflow`
-    - `project`
-
-    #### POST Parameters
+    #### Other POST Parameters
     - `workflow_jobs`
     """
     model = WorkflowJobGroup
@@ -32,7 +27,13 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
         project = django_filters.CharFilter(name="workflow_jobs__workflow__project")
         class Meta:
             model = WorkflowJobGroup
-            fields = ('origin', 'project', 'workflow')
+            fields = {
+                "origin": ['exact'],
+                "updated": ['lt', 'gt'],
+                "uuid": ['exact'],
+                "name": ['exact'],
+                "created": ['lt', 'gt']
+            }
 
 class WorkflowJobGroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """

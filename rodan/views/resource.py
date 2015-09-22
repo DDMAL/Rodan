@@ -16,6 +16,7 @@ from rodan.constants import task_status
 from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import render
+import django_filters
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -23,9 +24,7 @@ class ResourceList(generics.ListCreateAPIView):
     multiple files to create new Resource objects. It will return the newly
     created Resource objects.
 
-    #### Parameters
-    - `project` -- GET & POST. UUID of a Project.
-    - `uploaded` -- GET-only. If set, return only the `Resource`s with `origin==None`.
+    #### Other Parameters
     - `result_of_workflow_run` -- GET-only. UUID of a WorkflowRun. Filters the results
       of a WorkflowRun.
     - `type` -- (optional) POST-only. User can claim the type of the files using
@@ -38,7 +37,23 @@ class ResourceList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('project', )
+
+    class filter_class(django_filters.FilterSet):
+        origin__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
+        class Meta:
+            model = Resource
+            fields = {
+                "origin": ['exact'],
+                "updated": ['lt', 'gt'],
+                "uuid": ['exact'],
+                "creator": ['exact'],
+                "has_thumb": ['exact'],
+                "processing_status": ['exact'],
+                "created": ['lt', 'gt'],
+                "project": ['exact'],
+                "resource_type": ['exact'],
+                "name": ['exact', 'icontains']
+            }
 
     def get_queryset(self):
         # [TODO] filter according to the user?

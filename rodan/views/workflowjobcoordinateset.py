@@ -11,11 +11,6 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
     Returns a list of all WorkflowJobCoordinateSets. Accepts a POST request
     with a data body to create a new WorkflowJobCoordinateSet. POST requests
     will return the newly-created WorkflowJobCoordinateSet object.
-
-    #### GET Parameters
-    - `workflow`
-    - `workflow_job`
-    - `user_agent`
     """
     model = WorkflowJobCoordinateSet
     permission_classes = (permissions.IsAuthenticated, )
@@ -27,7 +22,13 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
         workflow = django_filters.CharFilter(name="workflow_job__workflow")
         class Meta:
             model = WorkflowJobCoordinateSet
-            fields = ('workflow', 'workflow_job', 'user_agent')
+            fields = {
+                "uuid": ['exact'],
+                "updated": ['lt', 'gt'],
+                "workflow_job": ['exact'],
+                "user_agent": ['exact', 'icontains'],
+                "created": ['lt', 'gt']
+            }
 
 
 class WorkflowJobCoordinateSetDetail(generics.RetrieveUpdateDestroyAPIView):

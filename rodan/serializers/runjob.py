@@ -7,6 +7,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
     job = serializers.HyperlinkedRelatedField(view_name='job-detail', read_only=True)
     interactive_url = AbsoluteURLField(read_only=True, source="interactive_relurl")
     job_settings = TransparentField(required=False)
+    project = serializers.HyperlinkedRelatedField(view_name='project-detail', read_only=True)
 
     class Meta:
         model = RunJob
@@ -16,6 +17,7 @@ class RunJobSerializer(serializers.HyperlinkedModelSerializer):
                   'job',
                   'job_name',
                   'workflow_run',
+                  'project',
                   'workflow_job_uuid',
                   'resource_uuid',
                   'inputs',

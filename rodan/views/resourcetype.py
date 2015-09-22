@@ -13,6 +13,12 @@ class ResourceTypeList(generics.ListAPIView):
     serializer_class = ResourceTypeSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = ResourceType.objects.all()
+    filter_fields = {
+        "mimetype": ['exact', 'icontains'],
+        "uuid": ['exact'],
+        "extension": ['exact'],
+        "description": ['icontains']
+    }
 
 
 class ResourceTypeDetail(generics.RetrieveAPIView):

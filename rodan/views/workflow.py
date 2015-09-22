@@ -18,7 +18,7 @@ class WorkflowList(generics.ListCreateAPIView):
     Returns a list of all Workflows. Accepts a POST request with a data body to
     create a new Workflow. POST requests will return the newly-created Workflow object.
 
-    #### Parameters
+    #### Other Parameters
     - `project` -- GET & POST. UUID of a Project for GET, URL of a Project for POST.
     - `name` -- POST-only.
     - `valid` -- (optional) POST-only. Should be empty string.
@@ -28,7 +28,15 @@ class WorkflowList(generics.ListCreateAPIView):
     permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('project', )
+    filter_fields = {
+        "updated": ['lt', 'gt'],
+        "uuid": ['exact'],
+        "created": ['lt', 'gt'],
+        "creator": ['exact'],
+        "project": ['exact'],
+        "valid": ['exact'],
+        "name": ['exact', 'icontains']
+    }
     queryset = Workflow.objects.all() # [TODO] filter according to the user?
 
     def perform_create(self, serializer):

@@ -25,8 +25,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
 
     Creating a new ResultsPackage instance starts the background packaging task.
 
-    #### Parameters
-    - `creator` -- GET-only. UUID of a User.
+    #### Other Parameters
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
     """
     model = ResultsPackage
@@ -38,7 +37,16 @@ class ResultsPackageList(generics.ListCreateAPIView):
         project = django_filters.CharFilter(name="workflow_run__project")
         class Meta:
             model = ResultsPackage
-            fields = ('creator', 'project', 'workflow_run')
+            fields = {
+                "status": ['exact'],
+                "expiry_time": ['lt', 'gt'],
+                "uuid": ['exact'],
+                "created": ['lt', 'gt'],
+                "workflow_run": ['exact'],
+                "creator": ['exact'],
+                "percent_completed": ['lt', 'gt'],
+                "packaging_mode": ['exact']
+            }
 
     def perform_create(self, serializer):
         rp_status = serializer.validated_data.get('status', task_status.PROCESSING)

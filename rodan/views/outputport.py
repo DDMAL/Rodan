@@ -9,10 +9,6 @@ class OutputPortList(generics.ListCreateAPIView):
     """
     Returns a list of OutputPorts. Accepts a POST request with a data body to create
     a new OutputPort. POST requests will return the newly-created OutputPort object.
-
-    #### GET Parameters
-    - `workflow_job`
-    - `workflow`
     """
     model = OutputPort
     serializer_class = OutputPortSerializer
@@ -24,7 +20,13 @@ class OutputPortList(generics.ListCreateAPIView):
         type = django_filters.CharFilter(name='output_port_type__name')
         class Meta:
             model = OutputPort
-            fields = ('type', 'workflow_job', 'workflow')
+            fields = (
+                "extern",
+                "output_port_type",
+                "workflow_job",
+                "uuid",
+                "label"
+            )
 
 
 class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):

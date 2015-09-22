@@ -13,13 +13,6 @@ class ConnectionList(generics.ListCreateAPIView):
     """
     Returns a list of Connections. Accepts a POST request with a data body to create
     a new Connection. POST requests will return the newly-created Connection object.
-
-    #### GET Parameters
-    - `input_port`
-    - `output_port`
-    - `input_workflow_job`
-    - `output_workflow_job`
-    - `workflow`
     """
     model = Connection
     serializer_class = ConnectionSerializer
@@ -32,7 +25,11 @@ class ConnectionList(generics.ListCreateAPIView):
         output_workflow_job = django_filters.CharFilter(name="output_port__workflow_job")
         class Meta:
             model = Connection
-            fields = ('workflow', 'input_port', 'output_port', 'input_workflow_job', 'output_workflow_job')
+            fields = {
+                "output_port": ['exact'],
+                "input_port": ['exact'],
+                "uuid": ['exact']
+            }
 
 
 class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -11,15 +11,20 @@ class WorkflowJobList(generics.ListCreateAPIView):
     Returns a list of all WorkflowJobs. Accepts a POST request with a data body
     to create a new WorkflowJob. POST requests will return the newly-created
     WorkflowJob object.
-
-    #### GET Parameters
-    - `workflow`
     """
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('workflow', )
+    filter_fields = {
+        "updated": ['lt', 'gt'],
+        "group": ['exact'],
+        "uuid": ['exact'],
+        "workflow": ['exact'],
+        "created": ['lt', 'gt'],
+        "job": ['exact'],
+        "name": ['exact', 'icontains']
+    }
     queryset = WorkflowJob.objects.all() # [TODO] filter according to the user?
 
     def perform_create(self, serializer):

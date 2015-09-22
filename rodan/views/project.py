@@ -19,6 +19,14 @@ class ProjectList(generics.ListCreateAPIView):
     serializer_class = ProjectListSerializer
     pagination_serializer_class = PaginationSerializer
     queryset = Project.objects.all() # [TODO] restrict to the user's projects?
+    filter_fields = {
+        "updated": ['lt', 'gt'],
+        "uuid": ['exact'],
+        "created": ['lt', 'gt'],
+        "creator": ['exact'],
+        "name": ['exact', 'icontains'],
+        "description": ['exact', 'icontains']
+    }
 
     def get_queryset(self):
         queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')

@@ -50,6 +50,7 @@ class RunJob(models.Model):
     - `job` -- the corresponding Rodan `Job` instance.
     - `interactive_relurl` -- the relative URL of interactive interface of the RunJob that
       needs user input.
+    - `project` -- the corresponding Rodan `Project` instance.
     """
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
                       (task_status.PROCESSING, "Processing"),
@@ -81,7 +82,7 @@ class RunJob(models.Model):
 
     interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
 
-    lock = models.CharField(max_length=50, blank=True, null=True, db_index=True)
+    lock = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
         return u"<RunJob {0} {1}>".format(str(self.uuid), self.job_name)
@@ -99,3 +100,7 @@ class RunJob(models.Model):
             return reverse('interactive', args=(self.uuid, ''))
         else:
             return None
+
+    @property
+    def project(self):
+        return self.workflow_run.project

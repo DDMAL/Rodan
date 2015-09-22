@@ -11,11 +11,9 @@ class InputPortList(generics.ListCreateAPIView):
     Returns a list of InputPorts. Accepts a POST request with a data body to create
     a new InputPort. POST requests will return the newly-created InputPort object.
 
-    #### GET Parameters
-    - `workflow_job`
-    - `workflow`
+    #### Other GET Parameters
     - `has_connections` -- if `true/True/TRUE`, return "satisfied" InputPorts only;
-      if `false/False/FALSE`, return "unsatisfied" InputPorts only; other values 
+      if `false/False/FALSE`, return "unsatisfied" InputPorts only; other values
       will be ignored.
     """
     model = InputPort
@@ -24,9 +22,16 @@ class InputPortList(generics.ListCreateAPIView):
 
     class filter_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(name='workflow_job__workflow')
+        type = django_filters.CharFilter(name='input_port_type__name')
         class Meta:
             model = InputPort
-            fields = ('workflow_job', 'workflow')
+            fields = (
+                "extern",
+                "input_port_type",
+                "workflow_job",
+                "uuid",
+                "label"
+            )
 
     def get_queryset(self):
         condition = Q()  # ground value

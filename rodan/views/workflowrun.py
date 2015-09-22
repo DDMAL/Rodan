@@ -30,10 +30,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
     Creating a new WorkflowRun instance executes the workflow. Meanwhile, RunJobs,
     Inputs, Outputs and Resources are created corresponding to the workflow.
 
-    #### Parameters
+    #### Other Parameters
     - `workflow` -- GET & POST. UUID(GET) or Hyperlink(POST) of a Workflow.
-    - `project` -- GET-only. UUID of a Project.
-    - `status` -- GET-only.
     - `resource_assignments` -- POST-only. A JSON object. Keys are URLs of InputPorts
       in the Workflow, and values are list of Resource URLs.
     """
@@ -41,7 +39,16 @@ class WorkflowRunList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('workflow', 'project', 'status')
+    filter_fields = {
+        "status": ['exact'],
+        "updated": ['lt', 'gt'],
+        "uuid": ['exact'],
+        "workflow": ['exact'],
+        "created": ['lt', 'gt'],
+        "project": ['exact'],
+        "creator": ['exact'],
+        "name": ['exact', 'icontains']
+    }
     queryset = WorkflowRun.objects.all()  # [TODO] filter according to the user?
 
     def perform_create(self, serializer):

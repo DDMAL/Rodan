@@ -10,15 +10,17 @@ class JobList(generics.ListAPIView):
     """
     Returns a list of all Jobs. Does not accept POST requests, since
     Jobs should be defined and loaded server-side.
-
-    #### Parameters
-    - `enabled` -- GET-only. Boolean value: True/False.
-    - `workflowrun` -- GET-only. UUID of WorkflowRun object.
     """
     model = Job
     serializer_class = JobSerializer
     pagination_serializer_class = PaginationSerializer
-    filter_fields = ('enabled', )
+    filter_fields = {
+        "category": ['exact'],
+        "interactive": ['exact'],
+        "enabled": ['exact'],
+        "uuid": ['exact'],
+        "name": ['exact', 'icontains']
+    }
     queryset = Job.objects.all()
 
     def get_queryset(self):

@@ -16,12 +16,6 @@ from rodan.exceptions import CustomAPIException
 class RunJobList(generics.ListAPIView):
     """
     Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
-
-    #### Parameters
-    - `status` -- GET-only. Status number.
-    - `project` -- GET-only. UUID of a Project.
-    - `workflow_run` -- GET-only. UUID of a WorkflowRun.
-    - `resource_uuid` -- GET-only. UUID of the working resource. Provide "null" (as string) to get null fields.
     """
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
@@ -30,22 +24,19 @@ class RunJobList(generics.ListAPIView):
 
     class filter_class(django_filters.FilterSet):
         project = django_filters.CharFilter(name="workflow_run__project")
+        resource_uuid__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(resource_uuid__isnull=v))  # https://github.com/alex/django-filter/issues/273
         class Meta:
             model = RunJob
-            fields = ('status', 'project', 'workflow_run')
-
-    def get_queryset(self):
-        condition = Q()  # "ground" value of Q
-
-        resource_uuid = self.request.query_params.get('resource_uuid', None)
-        if resource_uuid:
-            if resource_uuid != 'null':
-                condition &= Q(resource_uuid=resource_uuid)
-            else:
-                condition &= Q(resource_uuid__isnull=True)
-
-        queryset = RunJob.objects.filter(condition) # then this queryset is filtered on `filter_class`
-        return queryset
+            fields = {
+                "status": ['exact'],
+                "updated": ['lt', 'gt'],
+                "uuid": ['exact'],
+                "created": ['lt', 'gt'],
+                "workflow_run": ['exact'],
+                "workflow_job_uuid": ['exact'],
+                "resource_uuid": ['exact'],
+                "job_name": ['exact', 'icontains'],
+            }
 
 
 class RunJobDetail(generics.RetrieveAPIView):
