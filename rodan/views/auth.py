@@ -106,8 +106,7 @@ class ObtainAuthToken(views.APIView):
 
         if user is not None:
             if user.is_active:
-                # log in successfully
-                login(request, user)
+                # authentication successful. Return token.
                 token, created = Token.objects.get_or_create(user=user)
                 userinfo = UserSerializer(user, context={'request': request})
                 data = dict(userinfo.data)  # ReturnDict object is not writable
