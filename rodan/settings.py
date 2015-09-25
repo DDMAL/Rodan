@@ -77,7 +77,7 @@ if DEBUG:
     # we avoid unnecessary middlewares in production as they slows down the website.
     # for DEBUG mode, we would like to have Django admin which requires Session and Message.
     MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
-        'django.contrib.messages.middleware.SessionMiddleware'
+        'django.contrib.sessions.middleware.SessionMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware'
     ]
 
