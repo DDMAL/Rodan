@@ -12,6 +12,15 @@ import rodan
 def api_root(request, format=None):
     """
     Browse all APIs of Rodan server.
+
+    Note: this browsable API only supports HTTP basic authentication. When logging in
+    is required, your browser will prompt the username and password. To log out,
+    you need to quit your browser, or provide a wrong username/password combination
+    in URL as: `http://fakeusr:fakepwd@localhost:8000`.
+
+    HTTP basic authentication is disabled in production mode. Only token authentication
+    will be allowed. HTTP basic authentication is a workaround for this browsable
+    API and Django [admin](/admin/).
     """
     response = {
         'routes': {'projects': reverse('project-list', request=request, format=format),
@@ -32,10 +41,8 @@ def api_root(request, format=None):
                      'resourcetypes': reverse('resourcetype-list', request=request, format=format),
                      'outputs': reverse('output-list', request=request, format=format),
                      'inputs': reverse('input-list', request=request, format=format),
-                     'session-auth': reverse('session-auth', request=request, format=format),
-                     'session-status': reverse('session-status', request=request, format=format),
+                     'auth-status': reverse('auth-status', request=request, format=format),
                      'token-auth': reverse('token-auth', request=request, format=format),
-                     'session-close': reverse('session-close', request=request, format=format),
                      'taskqueue-active': reverse('taskqueue-active', request=request, format=format),
                      'taskqueue-scheduled': reverse('taskqueue-scheduled', request=request, format=format),
                      'taskqueue-status': reverse('taskqueue-status', request=request, format=format),

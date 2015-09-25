@@ -14,7 +14,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     def test_post_no_files(self):
         resource_obj = {
@@ -109,7 +109,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     def test_post_image(self):
         file_obj = StringIO()

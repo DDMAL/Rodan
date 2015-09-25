@@ -68,14 +68,18 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+if DEBUG:
+    # we avoid unnecessary middlewares in production as they slows down the website.
+    # for DEBUG mode, we would like to have Django admin which requires Session and Message.
+    MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
+        'django.contrib.messages.middleware.SessionMiddleware'
+        'django.contrib.messages.middleware.MessageMiddleware'
+    ]
 
 ROOT_URLCONF = 'rodan.urls'
 
@@ -91,11 +95,11 @@ TEMPLATE_DIRS = (
 # CELERYCAM_EXPIRE_PENDING = None
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sites',
     'django.contrib.messages',
-    'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'ws4redis',
     'rodan',
@@ -105,9 +109,6 @@ INSTALLED_APPS = (
     'guardian',
     'corsheaders',
 )
-
-if DEBUG:
-    INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.admin', )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -210,10 +211,10 @@ if DEBUG:
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
     )
-    # Enable session to browse the API
+    # Enable basic authentication to browse the API
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     )
 
 # used by django-guardian
@@ -262,6 +263,9 @@ if TEST:
     import tempfile as _tempfile
     MEDIA_ROOT = _tempfile.mkdtemp() + '/'
 
+if TEST and not DEBUG:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured("Testing requires DEBUG=True")
 
 #######################
 ## Websocket configuration

@@ -20,7 +20,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     def _validate(self, workflow_uuid):
         workflow_update = {
@@ -357,7 +357,8 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
+
     def test_export(self):
         response = self.client.get("/workflow/{0}/?export=yes".format(self.test_workflow.uuid.hex))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -389,7 +390,7 @@ class WorkflowExternPortsTestCase(RodanTestTearDownMixin, APITestCase, RodanTest
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     def _validate(self, workflow_uuid):
         workflow_update = {

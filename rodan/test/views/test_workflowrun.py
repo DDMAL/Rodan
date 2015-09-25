@@ -18,7 +18,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -92,7 +92,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -252,7 +252,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -380,7 +380,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

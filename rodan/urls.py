@@ -4,9 +4,7 @@ from django.contrib import admin
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from rodan.views.auth import SessionAuth
-from rodan.views.auth import SessionStatus
-from rodan.views.auth import SessionClose
+from rodan.views.auth import AuthStatus
 from rodan.views.auth import ObtainAuthToken
 
 
@@ -49,17 +47,19 @@ import rodan.jobs.load
 urlpatterns = []
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)),
+    from rodan.admin.helpers import required, logged_in_or_basicauth
+    urlpatterns += required(
+        logged_in_or_basicauth('Rodan admin'),
+        patterns('',
+                 (r'^admin/', include(admin.site.urls))
+        )
     )
 
 urlpatterns += format_suffix_patterns(
     patterns('',
              url(r'^$', 'rodan.views.main.api_root'),
              url(r'^auth/token/$', ObtainAuthToken.as_view(), name="token-auth"),
-             url(r'^auth/session/$', SessionAuth.as_view(), name="session-auth"),
-             url(r'^auth/status/$', SessionStatus.as_view(), name="session-status"),
-             url(r'^auth/logout/$', SessionClose.as_view(), name="session-close"),
+             url(r'^auth/status/$', AuthStatus.as_view(), name="auth-status"),
              url(r'^taskqueue/active/$', TaskQueueActiveView.as_view(), name="taskqueue-active"),
              url(r'^taskqueue/config/$', TaskQueueConfigView.as_view(), name="taskqueue-config"),
              url(r'^taskqueue/scheduled/$', TaskQueueScheduledView.as_view(), name="taskqueue-scheduled"),

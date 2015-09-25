@@ -13,7 +13,7 @@ class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     def test_get_list(self):
         response = self.client.get("/projects/")

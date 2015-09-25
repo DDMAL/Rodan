@@ -15,7 +15,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
         self.test_inputport = mommy.make('rodan.InputPort', workflow_job=self.test_workflowjob2)
         self.test_outputport = self.test_workflowjob.output_ports.all()[0]

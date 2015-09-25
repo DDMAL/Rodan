@@ -17,7 +17,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.login(username="super", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
     """
     def test_unfinished_workflowrun(self):
@@ -80,7 +80,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.login(username="super", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -169,7 +169,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.login(username="super", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
 
         # modify all manual job to automatic to save effort (and in/output ports)
         job_a = self.test_wfjob_A.job

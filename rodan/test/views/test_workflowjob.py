@@ -24,7 +24,8 @@ class WorkflowJobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetU
                                        }
                                    })
         self.test_workflow = mommy.make('rodan.Workflow')
-        self.client.login(username="ahankins", password="hahaha")
+        self.client.force_authenticate(user=self.test_user)
+
     def test_create_default_settings(self):
         wfj_obj = {
             'workflow': "http://localhost:8000/workflow/{0}/".format(self.test_workflow.uuid),
