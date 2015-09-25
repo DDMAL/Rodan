@@ -298,7 +298,7 @@
                             </div>
                           </td>
                           <td class="text-right">
-                            <button ng-show="rj.status != 0 && rj.status != 9" class="btn btn-default btn-xs" ng-click="redo_runjob(rj)">Redo</button>
+                            <button ng-show="rj.status != 0 && rj.status != 9" class="btn btn-default btn-xs" ng-click="redo_runjob_tree(rj, wfrun)">Redo</button>
                             <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
                             <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
                             <div ng-show="rj.status == -1" class="text-left">

@@ -21,6 +21,9 @@ class WorkflowRun(models.Model):
     - `name` -- user's name to the `WorkflowRun`.
     - `description` -- user's description of the `WorkflowRun`.
 
+    - `last_redone_runjob_tree` -- a nullable reference to `RunJob`, indicating the root
+      of `RunJob` tree last redone.
+
     - `created`
     - `updated`
 
@@ -45,6 +48,8 @@ class WorkflowRun(models.Model):
 
     name = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
+
+    last_redone_runjob_tree = models.ForeignKey('rodan.RunJob', related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)

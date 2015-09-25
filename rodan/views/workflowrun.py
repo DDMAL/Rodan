@@ -3,7 +3,10 @@ import os
 import shutil
 from operator import itemgetter
 from celery import registry, chain
+from celery.task.control import revoke
 from django.core.urlresolvers import resolve
+
+from django.db.models import Q
 
 from rest_framework import generics
 from rest_framework import permissions
@@ -55,6 +58,11 @@ class WorkflowRunList(generics.ListCreateAPIView):
         wfrun_status = serializer.validated_data.get('status', task_status.PROCESSING)
         if wfrun_status != task_status.PROCESSING:
             raise ValidationError({'status': ["Cannot create a cancelled, failed or finished WorkflowRun."]})
+
+        wfrun_lrrt = serializer.validated_data.get('last_redone_runjob_tree')
+        if wfrun_lrrt:
+            raise ValidationError({'last_redone_runjob_tree': ["Cannot set this field upon creation.."]})
+
         wf = serializer.validated_data['workflow']
         if not wf.valid:
             raise ValidationError({'workflow': ["Workflow must be valid before you can run it."]})
@@ -172,21 +180,80 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
         wfrun = self.get_object()
         old_status = wfrun.status
         new_status = request.data.get('status', None)
+        print request.data
 
-        if new_status:
-            if old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED) and new_status == task_status.CANCELLED:
-                response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
-                wfrun_id = str(wfrun.uuid)
-                registry.tasks['rodan.core.cancel_workflowrun'].apply_async((wfrun_id, ))
-                return response
-            elif old_status in (task_status.CANCELLED, task_status.FAILED) and new_status == task_status.RETRYING:
-                response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
-                wfrun_id = str(wfrun.uuid)
-                registry.tasks['rodan.core.retry_workflowrun'].apply_async((wfrun_id, ))
-                return response
-            elif new_status is not None:
-                raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
-        else:  # not updating status
-            return self.partial_update(request, *args, **kwargs)
+        serializer = self.get_serializer(wfrun, data=request.data, partial=True)
+        serializer.is_valid()
+        print serializer.validated_data
+        new_lrrt = serializer.validated_data.get('last_redone_runjob_tree', None)
+
+        # validate new status
+        is_cancelling_wfrun = bool(
+            new_status
+            and (
+                old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)
+                and new_status == task_status.CANCELLED
+            )
+        )
+        is_retrying_wfrun = bool(
+            new_status
+            and (
+                old_status in (task_status.CANCELLED, task_status.FAILED)
+                and new_status == task_status.RETRYING
+            )
+        )
+        if new_status and not is_cancelling_wfrun and not is_retrying_wfrun:
+            raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
+
+        # validate new lrrt
+        print new_lrrt
+        is_redoing_runjob_tree = bool(new_lrrt)
+        if new_lrrt:
+            if new_lrrt.workflow_run != wfrun:
+                raise CustomAPIException({'last_redone_runjob_tree': ["Requested RunJob is not in this WorkflowRun."]}, status=status.HTTP_400_BAD_REQUEST)
+            if new_lrrt.status not in (task_status.FINISHED, task_status.FAILED, task_status.WAITING_FOR_INPUT, task_status.PROCESSING):
+                raise CustomAPIException({'last_redone_runjob_tree': ["Requested RunJob is not yet processed."]}, status=status.HTTP_400_BAD_REQUEST)
+
+        # let serializer validate other fields
+        response = self.partial_update(request, *args, **kwargs)  # may throw validation errors
+        wfrun_id = str(wfrun.uuid)
+
+        # proceed Celery tasks
+        if is_cancelling_wfrun:
+            registry.tasks['rodan.core.cancel_workflowrun'].apply_async((wfrun_id, ))
+        elif is_retrying_wfrun:
+            registry.tasks['rodan.core.retry_workflowrun'].apply_async((wfrun_id, ))
+
+        if is_redoing_runjob_tree:
+            self._reset_runjob_tree(new_lrrt)
+            registry.tasks['rodan.core.master_task'].apply_async((wfrun_id, ))
+
+        # HTTP response
+        return response
+
+    def _reset_runjob_tree(self, rj):
+        """
+        rj -- expected status should not be SCHEDULED.
+        """
+        if rj.celery_task_id is not None:
+            revoke(rj.celery_task_id, terminate=True)
+
+        # 1. Revoke all downstream runjobs
+        for o in rj.outputs.all():
+            r = o.resource
+            for i in r.inputs.filter(Q(run_job__workflow_run=rj.workflow_run) & ~Q(run_job__status=task_status.SCHEDULED)):
+                self._reset_runjob_tree(i.run_job)
+
+            # 2. Clear output resources
+            r.compat_resource_file = None
+            r.has_thumb = False
+            r.save(update_fields=['compat_resource_file', 'has_thumb'])
+
+        # 3. Reset status and clear interactive data
+        original_settings = {}
+        for k, v in rj.job_settings.iteritems():
+            if not k.startswith('@'):
+                original_settings[k] = v
+        rj.job_settings = original_settings
+        rj.status = task_status.SCHEDULED
+        rj.save(update_fields=['status', 'job_settings'])

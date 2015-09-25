@@ -698,7 +698,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
         fetchRunjobs_coarse();
 
-        $scope.change_coarse = function () { 
+        $scope.change_coarse = function () {
             fetchRunjobs_coarse();
         }
         $scope.change_fine = function () {
@@ -718,9 +718,9 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 });
         };
 
-        $scope.redo_runjob = function (rj) {
+        $scope.redo_runjob_tree = function (rj, wfrun) {
             if ($window.confirm('Do you really want to redo this RunJob? All interactive results will be lost.')) {
-                $http.patch(rj.url, {'status': 0})
+                $http.patch(wfrun.url, {'last_redone_runjob_tree': rj.url})
                     .error(function (error) {
                         console.log(error);
                     });
@@ -776,7 +776,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 .error(function (error) {
                     console.log(error);
                 });
-        }; 
+        };
 
         if (window.WebSocket){
             console.log("Browser supports Websocket");
@@ -802,7 +802,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                         missed_heartbeats++;
                         if (missed_heartbeats >= max_missed_heartbeats) {
                             throw new Error("Too many missed heartbeats.");
-			}
+                        }
                         ws.send(heartbeat_msg);
                     } catch(e) {
                         clearInterval(heartbeat_interval);
@@ -813,7 +813,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 }, 5000);
             }
         }
- 
+
         function on_message(e) {
             if (e.data === heartbeat_msg) {
                 missed_heartbeats = 0;
@@ -822,7 +822,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             get_request(e);
             console.log("Received: " + e.data);
         }
-	
+
         function on_error(e) {
             console.error(e);
         }
