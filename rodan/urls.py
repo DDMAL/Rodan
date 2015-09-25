@@ -1,3 +1,4 @@
+import os
 from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
@@ -108,6 +109,6 @@ urlpatterns += format_suffix_patterns(
          )
 )
 
-# For serving stuff under MEDIA_ROOT in debug mode only
+# For serving stuff in debug mode only
 if settings.DEBUG:
-    urlpatterns += static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static.static('/static/', document_root=os.path.join(settings.PROJECT_PATH, 'static'))
