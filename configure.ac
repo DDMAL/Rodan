@@ -155,6 +155,8 @@ AC_ARG_VAR([DB_USER], [Database user (default rodan)])
 AC_ARG_VAR([DB_PASSWORD], [Database password])
 AC_ARG_VAR([DB_HOST], [Database host (default localhost)])
 AC_ARG_VAR([DB_PORT], [Database port (default 5432)])
+AC_ARG_VAR([DB_USER_TEST], [Database user (default the same as DB_USER)])
+AC_ARG_VAR([DB_PASSWORD_TEST], [Database password (default the same as DB_USER)])
 
 if test -z "$DB_NAME"; then
   AC_MSG_WARN(set default: DB_NAME=rodan)
@@ -174,6 +176,14 @@ fi
 if test -z "$DB_PORT"; then
   AC_MSG_WARN(set default: DB_PORT=5432)
   DB_PORT=5432
+fi
+if test -z "$DB_USER_TEST"; then
+  AC_MSG_WARN([set default: DB_USER_TEST=$DB_USER])
+  DB_USER_TEST="$DB_USER"
+fi
+if test -z "$DB_PASSWORD_TEST"; then
+  AC_MSG_WARN([set default: DB_PASSWORD_TEST=$DB_PASSWORD])
+  DB_PASSWORD_TEST="$DB_PASSWORD"
 fi
 
 # Redis

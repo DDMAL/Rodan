@@ -1,4 +1,6 @@
 import os
+import sys as _sys
+TEST = 'test' in _sys.argv
 
 DEBUG = @ENABLE_DEBUG@
 
@@ -6,8 +8,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': '@DB_NAME@',
-        'USER': '@DB_USER@',
-        'PASSWORD': '@DB_PASSWORD@',
+        'USER': '@DB_USER@' if not TEST else '@DB_USER_TEST@',
+        'PASSWORD': '@DB_PASSWORD@' if not TEST else '@DB_PASSWORD_TEST@',
         'HOST': '@DB_HOST@',
         'PORT': '@DB_PORT@'
     }
@@ -84,4 +86,3 @@ RODAN_JOB_PACKAGES = (
 REDIS_HOST = '@REDIS_HOST@'
 REDIS_PORT = 6379
 DB = 0
-
