@@ -41,13 +41,16 @@ def api_root(request, format=None):
                      'resourcetypes': reverse('resourcetype-list', request=request, format=format),
                      'outputs': reverse('output-list', request=request, format=format),
                      'inputs': reverse('input-list', request=request, format=format),
-                     'auth-status': reverse('auth-status', request=request, format=format),
-                     'token-auth': reverse('token-auth', request=request, format=format),
                      'taskqueue-active': reverse('taskqueue-active', request=request, format=format),
                      'taskqueue-scheduled': reverse('taskqueue-scheduled', request=request, format=format),
                      'taskqueue-status': reverse('taskqueue-status', request=request, format=format),
                      'taskqueue-config': reverse('taskqueue-config', request=request, format=format),
                      'workflowjobcoordinatesets': reverse('workflowjobcoordinateset-list', request=request, format=format),
+                     'auth-me': reverse('auth-me', request=request, format=format),
+                     'auth-register': reverse('auth-register', request=request, format=format),
+                     'auth-token': reverse('auth-token', request=request, format=format),
+                     'auth-reset-token': reverse('auth-reset-token', request=request, format=format),
+                     'auth-change-password': reverse('auth-change-password', request=request, format=format),
         },
         'configuration': {
             'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']

@@ -5,35 +5,29 @@ from rest_framework.response import Response
 from rest_framework import views
 from rest_framework import parsers
 from rest_framework import renderers
+from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from rodan.serializers.user import UserSerializer
 
-
-class AuthStatus(views.APIView):
-    permission_classes = ()
-
+class AuthMeView(generics.RetrieveUpdateAPIView):
     """
-    Return session status to see if the user is logged in or they need to authenticate.
+    Use this endpoint to retrieve/update user.
     """
-    def get(self, request, *args, **kwargs):
-        is_auth = request.user.is_authenticated() or request.auth
-        if is_auth:
-            token = None
-            if request.auth:
-                token, created = Token.objects.get_or_create(user=request.user)
-                token = token.key
-            obj = User.objects.get(pk=request.user.id)
-            userinfo = UserSerializer(obj, context={'request': request})
-            data = dict(userinfo.data)
-            data['token'] = token
+    model = User
+    serializer_class = UserSerializer
+    permission_classes = (
+        permissions.IsAuthenticated,
+    )
+    def get_queryset(self, *a, **k):
+        return User.objects.filter(id=self.request.user.id)
 
-            return Response(data)
-        else:
-            return Response({'detail': "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+    def get_object(self, *args, **kwargs):
+        return self.request.user
 
-class ObtainAuthToken(views.APIView):
+class AuthTokenView(views.APIView):
     throttle_classes = ()
     permission_classes = ()
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)

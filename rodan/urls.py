@@ -5,9 +5,9 @@ from django.contrib import admin
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from rodan.views.auth import AuthStatus
-from rodan.views.auth import ObtainAuthToken
+from djoser import views as djoser_views
 
+from rodan.views.auth import AuthMeView, AuthTokenView
 
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail
@@ -59,8 +59,6 @@ if settings.DEBUG:
 urlpatterns += format_suffix_patterns(
     patterns('',
              url(r'^$', 'rodan.views.main.api_root'),
-             url(r'^auth/token/$', ObtainAuthToken.as_view(), name="token-auth"),
-             url(r'^auth/status/$', AuthStatus.as_view(), name="auth-status"),
              url(r'^taskqueue/active/$', TaskQueueActiveView.as_view(), name="taskqueue-active"),
              url(r'^taskqueue/config/$', TaskQueueConfigView.as_view(), name="taskqueue-config"),
              url(r'^taskqueue/scheduled/$', TaskQueueScheduledView.as_view(), name="taskqueue-scheduled"),
@@ -107,6 +105,11 @@ urlpatterns += format_suffix_patterns(
 
              url(r'^workflowjobcoordinatesets/$', WorkflowJobCoordinateSetList.as_view(), name="workflowjobcoordinateset-list"),
              url(r'^workflowjobcoordinateset/(?P<pk>[0-9a-f]{32})/$', WorkflowJobCoordinateSetDetail.as_view(), name="workflowjobcoordinateset-detail"),
+             url(r'^auth/me/', AuthMeView.as_view(), name="auth-me"),
+             url(r'^auth/register/', djoser_views.RegistrationView.as_view(), name="auth-register"),
+             url(r'^auth/token/', AuthTokenView.as_view(), name="auth-token"),
+             url(r'^auth/reset-token/', djoser_views.LogoutView.as_view(), name="auth-reset-token"),
+             url(r'^auth/change-password/', djoser_views.SetPasswordView.as_view(), name="auth-change-password"),
          )
 )
 
