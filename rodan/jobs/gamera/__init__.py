@@ -1,3 +1,5 @@
+__version__ = "0.9.9_dev"
+
 from gamera.core import init_gamera
 init_gamera()
 from rodan.jobs.gamera.base import load_gamera_module

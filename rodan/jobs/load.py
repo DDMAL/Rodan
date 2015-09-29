@@ -35,13 +35,15 @@ logger.warning("Loading Rodan Jobs")
 import rodan.jobs.core
 import rodan.jobs.master_task
 
-from rodan.jobs import module_loader
+from rodan.jobs import module_loader, package_versions
 
 from rodan.models import Job
 
 job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
-    module_loader(package_name)  # RodanTaskType will update `job_list`
+    def set_version(module):
+        package_versions[package_name] = getattr(module, '__version__', 'n/a')
+    module_loader(package_name, set_version, raise_exception=True)  # RodanTaskType will update `job_list`
 
 UPDATE_JOBS = getattr(settings, "_rodan_update_jobs", False)
 if job_list:  # there are database jobs that are not registered. Should delete them.

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 import rodan
+from rodan.jobs import package_versions
 
 @api_view(('GET',))
 @ensure_csrf_cookie
@@ -53,7 +54,8 @@ def api_root(request, format=None):
                      'auth-change-password': reverse('auth-change-password', request=request, format=format),
         },
         'configuration': {
-            'page_length': settings.REST_FRAMEWORK['PAGINATE_BY']
+            'page_length': settings.REST_FRAMEWORK['PAGINATE_BY'],
+            'job_packages': package_versions,
         },
         'version': rodan.__version__
     }
