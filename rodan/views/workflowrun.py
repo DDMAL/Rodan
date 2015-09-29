@@ -55,9 +55,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
     queryset = WorkflowRun.objects.all()  # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
-        wfrun_status = serializer.validated_data.get('status', task_status.PROCESSING)
-        if wfrun_status != task_status.PROCESSING:
-            raise ValidationError({'status': ["Cannot create a cancelled, failed or finished WorkflowRun."]})
+        wfrun_status = serializer.validated_data.get('status', task_status.REQUEST_PROCESSING)
+        if wfrun_status != task_status.REQUEST_PROCESSING:
+            raise ValidationError({'status': ["Can only create a WorkflowRun that requests processing."]})
 
         wfrun_lrrt = serializer.validated_data.get('last_redone_runjob_tree')
         if wfrun_lrrt:
@@ -169,7 +169,8 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
     Performs operations on a single WorkflowRun instance.
 
     #### Parameters
-    - `status` -- PATCH-only. An integer. Attempt of uncancelling will trigger an error.
+    - `status` -- PATCH-only. An integer.
+    - `last_redone_runjob_tree` -- PATCH-only. URL to a RunJob.
     """
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
@@ -180,11 +181,10 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
         wfrun = self.get_object()
         old_status = wfrun.status
         new_status = request.data.get('status', None)
-        print request.data
 
         serializer = self.get_serializer(wfrun, data=request.data, partial=True)
         serializer.is_valid()
-        print serializer.validated_data
+
         new_lrrt = serializer.validated_data.get('last_redone_runjob_tree', None)
 
         # validate new status
@@ -192,21 +192,20 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
             new_status
             and (
                 old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)
-                and new_status == task_status.CANCELLED
+                and new_status == task_status.REQUEST_CANCELLING
             )
         )
         is_retrying_wfrun = bool(
             new_status
             and (
                 old_status in (task_status.CANCELLED, task_status.FAILED)
-                and new_status == task_status.RETRYING
+                and new_status == task_status.REQUEST_RETRYING
             )
         )
         if new_status and not is_cancelling_wfrun and not is_retrying_wfrun:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
 
         # validate new lrrt
-        print new_lrrt
         is_redoing_runjob_tree = bool(new_lrrt)
         if new_lrrt:
             if new_lrrt.workflow_run != wfrun:
@@ -225,35 +224,9 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
             registry.tasks['rodan.core.retry_workflowrun'].apply_async((wfrun_id, ))
 
         if is_redoing_runjob_tree:
-            self._reset_runjob_tree(new_lrrt)
-            registry.tasks['rodan.core.master_task'].apply_async((wfrun_id, ))
+            wfrun.status = task_status.REQUEST_RETRYING
+            wfrun.save(update_fields=['status'])
+            registry.tasks['rodan.core.redo_runjob_tree'].apply_async((new_lrrt.uuid.hex, ))
 
         # HTTP response
         return response
-
-    def _reset_runjob_tree(self, rj):
-        """
-        rj -- expected status should not be SCHEDULED.
-        """
-        if rj.celery_task_id is not None:
-            revoke(rj.celery_task_id, terminate=True)
-
-        # 1. Revoke all downstream runjobs
-        for o in rj.outputs.all():
-            r = o.resource
-            for i in r.inputs.filter(Q(run_job__workflow_run=rj.workflow_run) & ~Q(run_job__status=task_status.SCHEDULED)):
-                self._reset_runjob_tree(i.run_job)
-
-            # 2. Clear output resources
-            r.compat_resource_file = None
-            r.has_thumb = False
-            r.save(update_fields=['compat_resource_file', 'has_thumb'])
-
-        # 3. Reset status and clear interactive data
-        original_settings = {}
-        for k, v in rj.job_settings.iteritems():
-            if not k.startswith('@'):
-                original_settings[k] = v
-        rj.job_settings = original_settings
-        rj.status = task_status.SCHEDULED
-        rj.save(update_fields=['status', 'job_settings'])

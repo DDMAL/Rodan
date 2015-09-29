@@ -123,7 +123,10 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             '9': 'Cancelled',
             '8': 'Expired',
             '2': 'Waiting for input',
-            '11': 'Retrying'
+            '11': 'Retrying',
+            '21': 'Request processing',
+            '29': 'Request cancelling',
+            '31': 'Request retrying'
         };
     })
     .controller('ctrl_navbar', function ($scope, $location, $window, $http, ROOT) {
@@ -706,13 +709,13 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         }
 
         $scope.retryWorkflowRun = function (wfrun) {
-            $http.patch(wfrun.url, {'status': 11})
+            $http.patch(wfrun.url, {'status': 31})
                 .error(function (error) {
                     console.log(error);
                 });
         };
         $scope.cancelWorkflowRun = function (wfrun) {
-            $http.patch(wfrun.url, {'status': 9})
+            $http.patch(wfrun.url, {'status': 29})
                 .error(function (error) {
                     console.log(error);
                 });

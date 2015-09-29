@@ -466,6 +466,10 @@ class create_workflowrun(Task):
         else:
             runjob_creation_loop(None)
 
+        ## ready to process
+        workflow_run.status = task_status.PROCESSING
+        workflow_run.save(update_fields=['status'])
+
         ## call master_task
         registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
 
@@ -512,6 +516,8 @@ def cancel_workflowrun(wfrun_id):
         if celery_id is not None:
             revoke(celery_id, terminate=True)
     runjobs_to_revoke_query.update(status=task_status.CANCELLED)
+    wfrun.status = task_status.CANCELLED
+    wfrun.save(update_fields=['status'])
 
 @task(name="rodan.core.retry_workflowrun")
 def retry_workflowrun(wfrun_id):
@@ -528,4 +534,44 @@ def retry_workflowrun(wfrun_id):
         rj.job_settings = original_settings
         rj.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
 
+    wfrun.status = task_status.RETRYING
+    wfrun.save(update_fields=['status'])
     registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
+
+
+@task(name="rodan.core.redo_runjob_tree")
+def redo_runjob_tree(rj_id):
+    """
+    rj -- expected status should not be SCHEDULED.
+    """
+    rj = RunJob.objects.get(uuid=rj_id)
+    wfrun = rj.workflow_run
+
+    def inner_redo(rj):
+        if rj.celery_task_id is not None:
+            revoke(rj.celery_task_id, terminate=True)
+
+        # 1. Revoke all downstream runjobs
+        for o in rj.outputs.all():
+            r = o.resource
+            for i in r.inputs.filter(Q(run_job__workflow_run=rj.workflow_run) & ~Q(run_job__status=task_status.SCHEDULED)):
+                inner_redo(i.run_job)
+
+            # 2. Clear output resources
+            r.compat_resource_file = None
+            r.has_thumb = False
+            r.save(update_fields=['compat_resource_file', 'has_thumb'])
+
+        # 3. Reset status and clear interactive data
+        original_settings = {}
+        for k, v in rj.job_settings.iteritems():
+            if not k.startswith('@'):
+                original_settings[k] = v
+        rj.job_settings = original_settings
+        rj.status = task_status.SCHEDULED
+        rj.save(update_fields=['status', 'job_settings'])
+
+    inner_redo(rj)
+    wfrun.status = task_status.RETRYING
+    wfrun.save(update_fields=['status'])
+    registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex, ))

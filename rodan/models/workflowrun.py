@@ -31,10 +31,13 @@ class WorkflowRun(models.Model):
 
     - `origin_resources` -- a list of origin `Resource` UUIDs.
     """
-    STATUS_CHOICES = [(task_status.PROCESSING, "Processing"),
+    STATUS_CHOICES = [(task_status.REQUEST_PROCESSING, "Request processing"),
+                      (task_status.PROCESSING, "Processing"),
                       (task_status.FINISHED, "Finished"),
                       (task_status.FAILED, "Failed"),
+                      (task_status.REQUEST_CANCELLING, "Request cancelling"),
                       (task_status.CANCELLED, "Cancelled"),
+                      (task_status.REQUEST_RETRYING, "Request retrying"),
                       (task_status.RETRYING, "Retrying")]
 
     class Meta:
