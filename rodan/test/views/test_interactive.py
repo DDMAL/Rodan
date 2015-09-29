@@ -81,7 +81,8 @@ class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         self.setUp_rodan()
         self.setUp_user()
 
-        dummy_m_job = Job.objects.get(name='rodan.jobs.devel.dummy_manual_job')
+        from rodan.test.dummy_jobs import dummy_manual_job
+        dummy_m_job = Job.objects.get(name=dummy_manual_job.name)
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource_in = mommy.make('rodan.Resource',

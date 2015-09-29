@@ -76,8 +76,9 @@ class RodanTestSetUpMixin(object):
         Workflow Graph:
         dummy_a_wfjob => dummy_m_wfjob
         """
-        dummy_a_job = Job.objects.get(name='rodan.jobs.devel.dummy_automatic_job')
-        dummy_m_job = Job.objects.get(name='rodan.jobs.devel.dummy_manual_job')
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        dummy_a_job = Job.objects.get(name=dummy_automatic_job.name)
+        dummy_m_job = Job.objects.get(name=dummy_manual_job.name)
 
 
         self.test_project = mommy.make('rodan.Project')
@@ -127,8 +128,9 @@ class RodanTestSetUpMixin(object):
         """
         Description of this complex dummy workflow: https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
         """
-        job_a = Job.objects.get(name='rodan.jobs.devel.dummy_automatic_job')
-        job_m = Job.objects.get(name='rodan.jobs.devel.dummy_manual_job')
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
 
         ipt_aA = job_a.input_port_types.get(name='in_typeA')
         ipt_aB = job_a.input_port_types.get(name='in_typeB')
