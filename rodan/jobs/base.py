@@ -12,6 +12,7 @@ from rest_framework import status
 from rodan.jobs.deep_eq import deep_eq
 from rodan.jobs.convert_to_unicode import convert_to_unicode
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 import logging
 logger = logging.getLogger('rodan')
@@ -61,6 +62,9 @@ class RodanTaskType(TaskType):
             return
         else:
             if not Job.objects.filter(name=attrs['name']).exists():
+                if not getattr(settings, '_rodan_update_jobs', None) and not settings.TEST:
+                    raise ImproperlyConfigured('You have to run `manage.py rodan_update_jobs` before starting Rodan server or any Rodan workers.')
+
                 try:
                     # verify the schema
                     jsonschema.Draft4Validator.check_schema(attrs['settings'])
@@ -102,6 +106,9 @@ class RodanTaskType(TaskType):
                 except Exception as e:
                     j.delete()  # clean the job
                     raise e
+
+                if not settings.TEST:
+                    print "Added: {0}".format(j.name)
             else:
                 UPDATE_JOBS = getattr(rodan_settings, "_rodan_update_jobs", False)
                 # perform an integrity check, and update jobs if demanded.
@@ -110,7 +117,7 @@ class RodanTaskType(TaskType):
                 def check_field(field_name, original_value, new_value, compare_fn=lambda x, y: x == y):
                     if not compare_fn(original_value, new_value):
                         if not UPDATE_JOBS:
-                            raise ValueError("The field `{0}` of Job `{1}` seems to be updated: {2} --> {3}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
+                            raise ImproperlyConfigured("The field `{0}` of Job `{1}` seems to be updated: {2} --> {3}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
                         else:
                             confirm_update = raw_input("The field `{0}` of Job `{1}` seems to be updated: \n{2}\n  -->\n{3}\n\nConfirm (y/N)? ".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
                             if confirm_update.lower() == 'y':
@@ -150,7 +157,7 @@ class RodanTaskType(TaskType):
                             # Compare values
                             if attrs_pt['minimum'] != pt.minimum:
                                 if not UPDATE_JOBS:
-                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
+                                    raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
                                 else:
                                     confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
                                     if confirm_update.lower() == 'y':
@@ -162,7 +169,7 @@ class RodanTaskType(TaskType):
 
                             if attrs_pt['maximum'] != pt.maximum:
                                 if not UPDATE_JOBS:
-                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
+                                    raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
                                 else:
                                     confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
                                     if confirm_update.lower() == 'y':
@@ -178,7 +185,7 @@ class RodanTaskType(TaskType):
                             rt_db = set(map(lambda rt: rt.mimetype, pt.resource_types.all()))
                             if rt_code != rt_db:
                                 if not UPDATE_JOBS:
-                                    raise ValueError("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
+                                    raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py rodan_update_jobs` to confirm this update.".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
                                 else:
                                     confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
                                     if confirm_update.lower() == 'y':
@@ -192,7 +199,7 @@ class RodanTaskType(TaskType):
 
                         else:  # pt exists in database but not in code. Should be deleted.
                             if not UPDATE_JOBS:
-                                raise ValueError("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Try to run `manage.py rodan_update_jobs` to confirm this deletion.".format(pt_name, j.name, msg))
+                                raise ImproperlyConfigured("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Try to run `manage.py rodan_update_jobs` to confirm this deletion.".format(pt_name, j.name, msg))
                             else:
                                 confirm_delete = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Confirm (y/N)? ".format(pt_name, j.name, msg))
                                 if confirm_delete.lower() == 'y':
@@ -207,7 +214,7 @@ class RodanTaskType(TaskType):
                     if attrs_pts:  # ipt exists in code but not in database. Should be added to the database.
                         for pt in attrs_pts:
                             if not UPDATE_JOBS:
-                                raise ValueError("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(pt['name'], j.name, msg))
+                                raise ImproperlyConfigured("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Try to run `manage.py rodan_update_jobs` to confirm this update.".format(pt['name'], j.name, msg))
                             else:
                                 confirm_update = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Confirm (y/N)? ".format(pt['name'], j.name, msg))
                                 if confirm_update.lower() == 'y':
