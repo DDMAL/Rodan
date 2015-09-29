@@ -253,6 +253,8 @@ TRACEBACK_IN_ERROR_DETAIL = True
 ###############################################################################
 CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.jobs.load",)
+CELERYD_TASK_TIME_LIMIT = 60  # seconds
+
 import sys as _sys
 TEST = 'test' in _sys.argv
 if TEST:
@@ -268,6 +270,7 @@ if TEST:
 if TEST and not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured("Testing requires DEBUG=True")
+
 
 #######################
 ## Websocket configuration
