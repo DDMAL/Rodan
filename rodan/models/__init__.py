@@ -80,14 +80,20 @@ def update_database(sender, **kwargs):
         BEGIN
             IF (TG_OP = 'INSERT') THEN
                 status = 'created';
+                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                PERFORM publish_message(notify);
+                RETURN NEW;
             ELSIF (TG_OP = 'UPDATE') THEN
                 status = 'updated';
+                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                PERFORM publish_message(notify);
+                RETURN NEW;
             ELSIF (TG_OP = 'DELETE') THEN
                 status = 'deleted';
+                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(OLD.uuid AS text);
+                PERFORM publish_message(notify);
+                RETURN OLD;
             END IF;
-            notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
-            PERFORM publish_message(notify);
-            RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
     '''
