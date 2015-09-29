@@ -11,6 +11,7 @@ from rodan.exceptions import CustomAPIException
 from rest_framework import status
 from rodan.jobs.deep_eq import deep_eq
 from rodan.jobs.convert_to_unicode import convert_to_unicode
+from django.conf import settings
 
 import logging
 logger = logging.getLogger('rodan')
@@ -26,6 +27,17 @@ class RodanTaskType(TaskType):
     """
     def __new__(cls, clsname, bases, attrs):
         attrs['_abstract'] = attrs.get('abstract')  # Keep a copy as Celery TaskType will delete it.
+
+        if not attrs['_abstract']:
+            module_name = attrs['__module__']
+            if module_name.startswith('rodan.jobs.'):
+                attrs['_package_name'] = 'rodan.jobs.' + module_name[len('rodan.jobs.'):].split('.', 1)[0]
+            else:
+                if settings.TEST and module_name == "rodan.test.dummy_jobs":
+                    attrs['_package_name'] = 'rodan.test.dummy_jobs'
+                else:
+                    raise ValueError('Invalid use of Rodan jobs - job package must locate in /rodan/jobs/')
+
         return TaskType.__new__(cls, clsname, bases, attrs)
 
     def __init__(cls, clsname, bases, attrs):
@@ -311,14 +323,10 @@ class RodanTask(Task):
 
         return rj_settings
 
-    def _vendor(self):
-        module_name = inspect.getmodule(self).__name__
-        if module_name.startswith('rodan.jobs.'):
-            return module_name[len('rodan.jobs.'):].split('.', 1)[0]
-        else:
-            raise ValueError('Invalid vendor: {0}'.format(module_name))
-    def _vendor_path(self):
-        return os.path.join(rodan_settings.PROJECT_PATH.rstrip(os.sep), 'jobs', self._vendor())  # e.g.: "/path/to/rodan/jobs/gamera"
+    def _package_path(self):
+        base_path = os.path.dirname(settings.PROJECT_PATH)
+        rel_path = os.sep.join(self._package_name.split('.'))
+        return os.path.join(base_path, rel_path)  # e.g.: "/path/to/rodan/jobs/gamera"
 
     ########################
     # Test interface
@@ -504,7 +512,7 @@ class RodanTask(Task):
         if isinstance(partial_template_file, Template):   # only in dummy_manual_job!
             return (partial_template_file, context)
 
-        template_file = os.path.join(self._vendor_path(), partial_template_file)
+        template_file = os.path.join(self._package_path(), partial_template_file)
 
         if template_file in _django_template_cache:
             return (_django_template_cache[template_file], context)
@@ -522,7 +530,7 @@ class RodanTask(Task):
         large_thumb_url
 
         Should return: (template, context), template is the relative path (relative to
-        the path of vendor folder) to the interface HTML template file (in Django
+        the path of package folder) to the interface HTML template file (in Django
         template language), and context should be a dictionary.
 
         could raise self.ManualPhaseException
