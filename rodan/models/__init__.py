@@ -28,14 +28,23 @@ import traceback
 import getpass
 import subprocess
 
-'''
-This function is executed after the post-migrate signal.
-It first connects to the Postgres database using psycopg2.
-It then loops through all tables that begin with 'rodan_', destroys triggers if they already exist in that table, and then creates the triggers.
-After each INSERT, UPDATE, or DELETE action, a message containing information with the status, the model name and the uuid will be published through Redis.
-'''
 @receiver(post_migrate)
-def update_database(sender, **kwargs):
+def update_rodan_jobs(sender, **kwargs):
+    """
+    This function is executed after the post-migrate signal.
+    It registers or updates the database registry of Rodan jobs.
+    """
+    setattr(settings, "_update_rodan_jobs", True)
+    import rodan.jobs.load
+
+@receiver(post_migrate)
+def update_database_trigger(sender, **kwargs):
+    '''
+    This function is executed after the post-migrate signal.
+    It first connects to the Postgres database using psycopg2.
+    It then loops through all tables that begin with 'rodan_', destroys triggers if they already exist in that table, and then creates the triggers.
+    After each INSERT, UPDATE, or DELETE action, a message containing information with the status, the model name and the uuid will be published through Redis.
+    '''
     # don't register triggers in test database
     if settings.TEST:
         return
@@ -218,6 +227,6 @@ def update_database(sender, **kwargs):
     curs.execute(create_trigger)
 
     # Prevent multiple execution of post-migrate signal (not sure why it happens)
-    global update_database
-    update_database = None
+    global update_database_trigger
+    update_database_trigger = None
     print "OK"

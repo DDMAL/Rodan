@@ -45,10 +45,10 @@ for package_name in settings.RODAN_JOB_PACKAGES:
         package_versions[package_name] = getattr(module, '__version__', 'n/a')
     module_loader(package_name, set_version, raise_exception=True)  # RodanTaskType will update `job_list`
 
-UPDATE_JOBS = getattr(settings, "_rodan_update_jobs", False)
+UPDATE_JOBS = getattr(settings, "_update_rodan_jobs", False)
 if job_list:  # there are database jobs that are not registered. Should delete them.
     if not UPDATE_JOBS:
-        raise ValueError("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py rodan_update_jobs` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
+        raise ValueError("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
     else:
         for j_name in job_list:
             confirm_delete = raw_input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
