@@ -415,7 +415,7 @@
                 data: JSON.stringify({'threshold': defThresh}),
                 contentType: 'application/json',
                 complete: function () {
-                    window.close();
+                    window.location = "about:blank";
                 }
             });
         });

@@ -64,7 +64,7 @@
            data: JSON.stringify({'polygon_outer_points': rks.getPolyPoints()}),
            contentType: 'application/json',
            complete: function () {
-             window.close();
+             window.location = 'about:blank';
            }
          });
        });

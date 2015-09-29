@@ -84,6 +84,23 @@
     </script>
 
     <script type="text/ng-template" id="/templates/project.html">
+      <div style="position:absolute;left:0;right:0;top:51px;bottom:0;background:#fff;opacity:0.95;margin-bottom:0" ng-style="{'z-index': showInteractiveInterface && 1000 || -1}" ng-show="showInteractiveInterface" class="panel panel-default">
+        <div style="position:absolute;left:0;right:0;top:0;height:51px;" class="panel-heading">
+          <div class="pull-left">
+            <p class="lead">Interactive View: {{nameInteractive}}</p>
+          </div>
+          <div class="pull-right">
+            <button type="button" class="btn btn-default btn-sm" ng-click="refreshInteractiveInterface()"><i class="glyphicon glyphicon-refresh"></i></button>
+            <button type="button" class="btn btn-default btn-sm" ng-click="closeInteractiveInterface()"><i class="glyphicon glyphicon-remove"></i></button>
+          </div>
+          <div class="text-center">
+            <h5><span class="label" ng-class="{'label-success': !hasErrorInteractive, 'label-danger': hasErrorInteractive}">{{expiryInteractiveInterface}}</span></h5>
+          </div>
+        </div>
+        <div style="position:absolute;left:0;right:0;top:51px;bottom:0;margin-bottom:0;padding:0" class="panel-body">
+          <iframe ng-src="{{urlInteractiveInterface}}" style="width:100%;height:100%;border:0" onLoad="__interactiveinterface_reload_handler()"></iframe>
+        </div>
+      </div>
       <div style="position:absolute;left:0;right:0;top:51px;bottom:0"> <!--wrapper -->
 
         <div style="position:absolute;left:0;right:75%;top:0;bottom:0">
@@ -300,7 +317,7 @@
                           <td class="text-right">
                             <button ng-show="rj.status != 0 && rj.status != 9" class="btn btn-default btn-xs" ng-click="redo_runjob_tree(rj, wfrun)">Redo</button>
                             <span ng-bind="status[rj.status]" ng-hide="rj.status == 2"></span>
-                            <a ng-show="rj.status == 2" ng-href="{{rj.interactive_url}}" target="_blank">{{status[2]}}</a>
+                            <a ng-show="rj.status == 2" ng-click="startInteractiveInterface(rj)" style="cursor:pointer">{{status[2]}}</a>
                             <div ng-show="rj.status == -1" class="text-left">
                               <b>{{rj.error_summary}}</b>
                               <pre><code>{{rj.error_details}}</code></pre>

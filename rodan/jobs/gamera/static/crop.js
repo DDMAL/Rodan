@@ -205,7 +205,7 @@
                 data: serialized_data,
                 contentType: 'application/json',
                 complete: function () {
-                    window.close();
+                    window.location = 'about:blank';
                 }
             });
         });

@@ -3,15 +3,83 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from rodan.models import Resource, Job, ResourceType
+from rodan.models import Resource, Job, ResourceType, RunJob
 from rodan.constants import task_status
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
+import datetime
+from django.utils import timezone
 
-class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+class InteractiveAcquireTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def _acquire(self):
+        return self.client.post(reverse('interactive-acquire', kwargs={'run_job_uuid': self.test_runjob.uuid.hex}))
+
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.login(username='ahankins', password='hahaha')
+        self.client.force_authenticate(user=self.test_user)
+        self.test_runjob = mommy.make('rodan.RunJob',
+                                      status=task_status.WAITING_FOR_INPUT)
+    def test_not_interactive(self):
+        self.test_runjob.status = task_status.FINISHED
+        self.test_runjob.save()
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['message'], 'This RunJob does not accept input now')
+
+    def test_success_first_working_user(self):
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
+        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(response.data['working_url'], "http://testserver" + reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': test_rj.working_user_token.hex, 'additional_url': ''}))
+
+    def test_success_continue_working_same_token(self):
+        self.test_runjob.working_user = self.test_user
+        self.test_runjob.working_user_token = uuid.uuid4()
+        t = self.test_runjob.working_user_token
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=1)
+        self.test_runjob.save()
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
+        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(test_rj.working_user_token, t)
+
+    def test_success_self_expired_change_token(self):
+        self.test_runjob.working_user = self.test_user
+        self.test_runjob.working_user_token = uuid.uuid4()
+        t = self.test_runjob.working_user_token
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=-1)
+        self.test_runjob.save()
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
+        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertNotEqual(test_rj.working_user_token, t)
+
+    def test_success_others_have_expired(self):
+        self.test_runjob.working_user = self.test_superuser
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=-0.1)
+        self.test_runjob.save()
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
+        self.assertEqual(test_rj.working_user, self.test_user)
+
+    def test_fail_others_working(self):
+        self.test_runjob.working_user = self.test_superuser
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=+0.1)
+        self.test_runjob.save()
+        response = self._acquire()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['message'], 'Previous working user has not expired yet.')
+
+
+class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
 
         dummy_m_job = Job.objects.get(name='rodan.jobs.devel.dummy_manual_job')
         self.test_project = mommy.make('rodan.Project')
@@ -24,9 +92,13 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                                             project=self.test_project,
                                             compat_resource_file="",
                                             resource_type=ResourceType.cached('test/a1'))
+        self.test_working_user_token = uuid.uuid4()
         self.test_runjob = mommy.make('rodan.RunJob',
                                       job_name=dummy_m_job.name,
                                       status=task_status.WAITING_FOR_INPUT,
+                                      working_user=self.test_user,
+                                      working_user_token=self.test_working_user_token,
+                                      working_user_expiry=timezone.now() + datetime.timedelta(seconds=+10),
                                       workflow_run__status=task_status.PROCESSING,
                                       workflow_run__workflow=self.test_workflow)
         input_m = mommy.make('rodan.Input',
@@ -42,31 +114,51 @@ class InteractiveTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_resource_in.compat_resource_file.save('dummy.txt', ContentFile('{"test": "hahaha"}'))
 
     def test_not_exist(self):
-        response = self.client.get("/interactive/{0}/".format(uuid.uuid1().hex), format='json')
+        response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': uuid.uuid1().hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        response = self.client.post("/interactive/{0}/".format(uuid.uuid1().hex), format='json')
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': uuid.uuid1().hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_not_waiting_for_input(self):
         self.test_runjob.status = task_status.SCHEDULED
         self.test_runjob.save()
-        response = self.client.get("/interactive/{0}/".format(self.test_runjob.uuid), format='json')
+        response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'message': 'This RunJob does not accept input now'})
-        response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), format='json')
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}), format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'message': 'This RunJob does not accept input now'})
 
+    def test_wrong_token(self):
+        response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data, {'message': 'Permission denied'})
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': uuid.uuid1().hex, 'additional_url': ''}), format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data, {'message': 'Permission denied'})
+
+    def test_expired(self):
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=-1)
+        self.test_runjob.save()
+        response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': self.test_working_user_token.hex, 'additional_url': ''}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data, {'message': 'Permission denied'})
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': self.test_working_user_token.hex, 'additional_url': ''}), format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data, {'message': 'Permission denied'})
+
     def test_get__success(self):
-        response = self.client.get("/interactive/{0}/".format(self.test_runjob.uuid))
+        response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': self.test_working_user_token.hex, 'additional_url': ''}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.content, "dummy hahaha")
+
     def test_post__fail(self):
-        response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), {'fail': True}, format='json')
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': self.test_working_user_token.hex, 'additional_url': ''}), {'fail': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'detail': 'dummy manual job error'})
+
     def test_post__success(self):
-        response = self.client.post("/interactive/{0}/".format(self.test_runjob.uuid), [1,2,3,4], format='json')
+        response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid.hex, 'working_user_token': self.test_working_user_token.hex, 'additional_url': ''}), [1,2,3,4], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         path = Resource.objects.get(uuid=self.test_resource_out.uuid).compat_resource_file.path
         with open(path) as f:

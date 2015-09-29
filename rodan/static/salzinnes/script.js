@@ -182,7 +182,7 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
         };
     })
 
-    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, $timeout, UPDATE_FREQ, $q, $window) {
+    .controller('ctrl_project', function ($scope, $http, $location, ROOT, $rootScope, getAllPages, $routeParams, $timeout, UPDATE_FREQ, $q, $window, $sce, $interval) {
         $scope.alert = function (msg) {
             $window.alert(msg);
         };
@@ -874,4 +874,69 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
                 fetchRunjobs_coarse();
             }
         }
+
+
+        $scope.showInteractiveInterface = false;
+        $scope.urlInteractiveInterface = null;
+        $scope.intervalInteractiveAcquire = null;
+        $scope.currentRunjobInteractive = null;
+        $scope.nameInteractive = null;
+        $scope.hasErrorInteractive = false;
+
+        $scope.startInteractiveInterface = function (rj) {
+            $http.post(rj.interactive_acquire, {})
+                .success(function (data) {
+                    $scope.urlInteractiveInterface = $sce.trustAsResourceUrl(data.working_url);
+                    $scope.expiryInteractiveInterface = "This RunJob is locked to you until: " + (new Date(data.working_user_expiry)).toString();
+                    $scope.showInteractiveInterface = true;
+                    $scope.currentRunjobInteractive = rj;
+                    $scope.nameInteractive = rj.job_name.split(".").pop();
+                    $scope.intervalInteractiveAcquire = $interval(function () {
+                        $http.post(rj.interactive_acquire, {})
+                            .success(function (data) {
+                                $scope.expiryInteractiveInterface = "This RunJob is locked to you until: " + (new Date(data.working_user_expiry)).toString();
+                            })
+                            .error(function (data) {
+                                $scope.expiryInteractiveInterface = "You lost the lock due to network problems. Please reopen this RunJob."
+                                $scope.hasErrorInteractive = true;
+                                $scope.urlInteractiveInterface = $sce.trustAsResourceUrl("about:blank");
+                                $interval.cancel($scope.intervalInteractiveAcquire);
+                            });
+                    }, 8000);
+                })
+                .error(function (data) {
+                    alert("You fail to acquire the lock for this interactive RunJob. Please check if other users are working on it at the moment.");
+                });
+        };
+        $scope.refreshInteractiveInterface = function () {
+            var p = $scope.urlInteractiveInterface;
+            $scope.urlInteractiveInterface = $sce.trustAsResourceUrl("about:blank");
+            $timeout(function () {
+                $scope.urlInteractiveInterface = p;
+            });
+        };
+        $scope.closeInteractiveInterface = function () {
+            if ($scope.intervalInteractiveAcquire) {
+                $interval.cancel($scope.intervalInteractiveAcquire);
+                $scope.intervalInteractiveAcquire = null;
+            }
+            $scope.showInteractiveInterface = false;
+            $scope.currentRunjobInteractive = null;
+            $scope.nameInteractive = null;
+            $scope.hasErrorInteractive = false;
+            $scope.urlInteractiveInterface = $sce.trustAsResourceUrl("about:blank");
+        };
+        $window.__interactiveinterface_reload_handler = function () {
+            if (!$scope.currentRunjobInteractive || $scope.urlInteractiveInterface == $sce.trustAsResourceUrl("about:blank")) {
+                return;
+            }
+            $scope.$apply(function () {
+                $http.get($scope.currentRunjobInteractive.url)
+                    .success(function (data) {
+                        if (data.status != 2) {  // not interactive phase anymore
+                            $scope.closeInteractiveInterface();
+                        }
+                    })
+            });
+        };
     })

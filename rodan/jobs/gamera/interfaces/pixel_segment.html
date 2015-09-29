@@ -57,7 +57,7 @@
            data: JSON.stringify({'geometries': instance.getGeometries()}),
            contentType: 'application/json',
            complete: function () {
-             window.close();
+             window.location = 'about:blank';
            }
          });
        });

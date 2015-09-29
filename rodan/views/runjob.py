@@ -6,6 +6,7 @@ from celery import registry
 from celery.task.control import revoke
 
 from django.db.models import Q
+from django.conf import settings
 import django_filters
 
 from rodan.models.runjob import RunJob

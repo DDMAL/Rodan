@@ -40,7 +40,7 @@ from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
 
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
-from rodan.views.interactive import InteractiveView
+from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
 
 # run-once import, initialize Rodan database
 import rodan.jobs.load
@@ -102,7 +102,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^output/(?P<pk>[0-9a-f]{32})/$', OutputDetail.as_view(), name="output-detail"),
              url(r'^inputs/$', InputList.as_view(), name="input-list"),
              url(r'^input/(?P<pk>[0-9a-f]{32})/$', InputDetail.as_view(), name='input-detail'),
-             url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveView.as_view(), name='interactive'),
+             url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/acquire/$', InteractiveAcquireView.as_view(), name='interactive-acquire'),
+             url(r'^interactive/(?P<run_job_uuid>[0-9a-f]{32})/(?P<working_user_token>[0-9a-f]{32})/(?P<additional_url>.*)$', InteractiveWorkingView.as_view(), name='interactive-working'),
 
              url(r'^workflowjobcoordinatesets/$', WorkflowJobCoordinateSetList.as_view(), name="workflowjobcoordinateset-list"),
              url(r'^workflowjobcoordinateset/(?P<pk>[0-9a-f]{32})/$', WorkflowJobCoordinateSetDetail.as_view(), name="workflowjobcoordinateset-detail"),
@@ -111,4 +112,4 @@ urlpatterns += format_suffix_patterns(
 
 # For serving stuff in debug mode only
 if settings.DEBUG:
-    urlpatterns += static.static('/static/', document_root=os.path.join(settings.PROJECT_PATH, 'static'))
+    urlpatterns += static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

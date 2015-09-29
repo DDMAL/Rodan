@@ -277,8 +277,10 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
+        response = self.client.post("/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid)))
+        assert response.status_code == status.HTTP_200_OK
         user_input = ['any', 'thing']
-        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input, format='json')
+        response = self.client.post(response.data['working_url'], user_input, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # then manual job should be flagged as finished and should have result
@@ -330,8 +332,10 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
 
+        response = self.client.post("/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid)))
+        assert response.status_code == status.HTTP_200_OK
         user_input = {'fail': 'hahaha'}
-        response = self.client.post("/interactive/{0}/".format(str(dummy_m_runjob.uuid)), user_input)
+        response = self.client.post(response.data['working_url'], user_input)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
@@ -537,7 +541,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
 
         # Work with RunJob B
-        response = self.client.post("/interactive/{0}/".format(str(rjB.uuid)), {'foo': 'bar'})
+        response = self.client.post("/interactive/{0}/acquire/".format(str(rjB.uuid)))
+        assert response.status_code == status.HTTP_200_OK
+        response = self.client.post(response.data['working_url'], {'foo': 'bar'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ## refetch
@@ -587,7 +593,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertFalse(Fouti.resource.compat_resource_file)
 
         # Work with one of RunJob D
-        response = self.client.post("/interactive/{0}/".format(str(rjDs[0].uuid)), {'foo': 'bar'})
+        response = self.client.post("/interactive/{0}/acquire/".format(str(rjDs[0].uuid)))
+        assert response.status_code == status.HTTP_200_OK
+        response = self.client.post(response.data['working_url'], {'foo': 'bar'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -650,7 +658,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         # Work with all Runjob Ds
         for rjDi in rjDremain:
-            response = self.client.post("/interactive/{0}/".format(str(rjDi.uuid)), {'foo': 'bar'})
+            response = self.client.post("/interactive/{0}/acquire/".format(str(rjDi.uuid)))
+            assert response.status_code == status.HTTP_200_OK
+            response = self.client.post(response.data['working_url'], {'foo': 'bar'})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ## refetch

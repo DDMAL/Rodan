@@ -9,6 +9,7 @@ from rodan.models.job import Job
 from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.constants import task_status
+from django.contrib.auth.models import User
 
 class RunJob(models.Model):
     """
@@ -40,6 +41,14 @@ class RunJob(models.Model):
     - `updated`
     - `interactive_timings` -- a JSON list that tracks the start and end of every manual
       phase of the job.
+
+    - `working_user` -- a nullable field indicating the working user of an interactive
+      job. If it is None, or the time is after the expiry time, there are no user working
+      with this job.
+    - `working_user_token` -- a nullable field containing the unique token for the
+      combination of user and `RunJob`, in order to authenticate user in the interactive
+      interface of an interactive phase (where token auth is not applicable).
+    - `working_user_expiry` -- a datetime field indicating the expiry of `working_user`.
 
     - `lock` -- (internal use) stores the thread identifier of one of Celery workers, or
       None. For a worker thread to lock the RunJobs and avoid competition. (see
@@ -82,6 +91,10 @@ class RunJob(models.Model):
 
     interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
 
+    working_user = models.ForeignKey(User, related_name="interactive_runjobs", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    working_user_token = UUIDField(null=True)
+    working_user_expiry = models.DateTimeField(null=True, db_index=True)
+
     lock = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
@@ -92,13 +105,6 @@ class RunJob(models.Model):
         try:
             return Job.objects.get(name=self.job_name)
         except Job.DoesNotExist:
-            return None
-
-    @property
-    def interactive_relurl(self):
-        if self.status == task_status.WAITING_FOR_INPUT:
-            return reverse('interactive', args=(self.uuid, ''))
-        else:
             return None
 
     @property

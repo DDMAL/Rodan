@@ -14,8 +14,46 @@ from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
 from rodan.constants import task_status
 import time
+import datetime
+from django.utils import timezone
+import uuid
+from django.core.urlresolvers import reverse
+from rodan.exceptions import CustomAPIException
 
-class InteractiveView(APIView):
+RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS
+
+class InteractiveAcquireView(APIView):
+    """
+    Acquire an interactive runjob.
+    """
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, run_job_uuid):
+        # check runjob
+        runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
+        if runjob.status != task_status.WAITING_FOR_INPUT:
+            return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if runjob.working_user and request.user != runjob.working_user and timezone.now() <= runjob.working_user_expiry:
+            # last working user not expired yet
+            return Response({'message': 'Previous working user has not expired yet.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if request.user != runjob.working_user or timezone.now() > runjob.working_user_expiry:
+                # reset working user as current user
+                runjob.working_user = request.user
+                runjob.working_user_token = uuid.uuid4()
+            if runjob.working_user_token is None:
+                runjob.working_user_token = uuid.uuid4()
+            runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS)  # extend expiry time
+            runjob.save(update_fields=['working_user', 'working_user_token', 'working_user_expiry'])
+
+            return Response({
+                'working_url': request.build_absolute_uri(reverse('interactive-working', kwargs={'run_job_uuid': run_job_uuid, 'working_user_token': runjob.working_user_token.hex, 'additional_url': ''})),
+                'working_user_expiry': runjob.working_user_expiry
+            })
+
+
+class InteractiveWorkingView(APIView):
     """
     Rodan makes available interfaces for interactive jobs. Each endpoint accepts
     GET and POST requests.
@@ -25,12 +63,24 @@ class InteractiveView(APIView):
     """
     authentication_classes = ()
 
-    def get(self, request, run_job_uuid, additional_url, *a, **k):
+    def _authenticate(self, run_job_uuid, working_user_token):
         # check runjob
         runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
         if runjob.status != task_status.WAITING_FOR_INPUT:
-            return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
+            raise CustomAPIException({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # check token
+        if runjob.working_user_token.hex != working_user_token:
+            raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # check expiry
+        if timezone.now() > runjob.working_user_expiry:
+            raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return runjob
+
+    def get(self, request, run_job_uuid, working_user_token, additional_url, *a, **k):
+        runjob = self._authenticate(run_job_uuid, working_user_token)
         manual_task = registry.tasks[str(runjob.job_name)]
 
         if not additional_url:
@@ -55,11 +105,8 @@ class InteractiveView(APIView):
                 mime_type = mimetypes.guess_type(abspath)[0]
                 return HttpResponse(fsock, content_type=mime_type)
 
-    def post(self, request, run_job_uuid, additional_url, *a, **k):
-        # check runjob
-        runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
-        if runjob.status != task_status.WAITING_FOR_INPUT:
-            return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, run_job_uuid, working_user_token, additional_url, *a, **k):
+        runjob = self._authenticate(run_job_uuid, working_user_token)
 
         if isinstance(request.data, dict) and "__serialized__" in request.data:
             user_input = json.loads(request.data['__serialized__'])
@@ -87,6 +134,9 @@ class InteractiveView(APIView):
             runjob.error_details = ''
             runjob.job_settings.update(settings_update)
             runjob.interactive_timings.append({'post': time.time()})
+            runjob.working_user = None
+            runjob.working_user_token = None
+            runjob.working_user_expiry = None
             runjob.save()
             # call master_task to continue workflowrun
             registry.tasks['rodan.core.master_task'].apply_async((runjob.workflow_run.uuid,))

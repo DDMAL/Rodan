@@ -31,6 +31,11 @@
       <input type='text' id="currentAngleTextBox"></input><span>&deg;</span>
       <button id="submitButton">Submit</button>
     </div>
+
+    <form id="hiddenForm" style="display:none" method="post" action="">
+      <input type="text" name="angle" id="hiddenForm_angle" />
+      <input type="submit" />
+    </form>
     <!-- <div id="gridControls">
     <button id="testButton">Test</button>
     </div> -->
@@ -83,15 +88,8 @@
        });
 
        $("#submitButton").on('click', function() {
-         $.ajax({
-           url: '',
-           type: 'POST',
-           data: JSON.stringify({angle: rkRotate.getCurrentAngle() * 180 / Math.PI}),
-           contentType: 'application/json',
-           complete: function () {
-             window.close();
-           }
-         });
+         $('#hiddenForm_angle').val(rkRotate.getCurrentAngle() * 180 / Math.PI);
+         $('#hiddenForm').submit();
        });
 
        $("#testButton").on('click', function() {
