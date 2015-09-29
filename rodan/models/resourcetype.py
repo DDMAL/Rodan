@@ -76,18 +76,16 @@ def load_predefined_resource_types():
     load('application/json', 'JSON', 'json')
     load('text/plain', 'Plain text', 'txt')
 
-    # load job vendor's types
-    job_path = os.path.join(settings.PROJECT_PATH, 'jobs')
+    # load types from registered job packages
+    base_path = os.path.dirname(settings.PROJECT_PATH)
 
-    for vendor in os.listdir(job_path):
-        vendor_path = os.path.join(job_path, vendor)
-        if os.path.isdir(vendor_path):
-            logger.info("vendor path '" + vendor_path + "' found")
-            resource_type_path = os.path.join(vendor_path, 'resource_types.yaml')
-            if os.path.isfile(resource_type_path):
-                logger.info("searching " + resource_type_path + " for custom MIME resource types")
-                with open(resource_type_path, 'r') as f:
-                    resource_types = yaml.load(f)
-                    for rt in resource_types:
-                        load(rt['mimetype'], rt.get('description', ''), rt.get('extension', ''))
-                        logger.info("resource type " + rt['mimetype'] + " loaded")
+    for package_name in settings.RODAN_JOB_PACKAGES:
+        rel_path = os.sep.join(package_name.split('.'))
+        resource_type_path = os.path.join(base_path, rel_path, 'resource_types.yaml')
+        if os.path.isfile(resource_type_path):
+            logger.info("searching " + resource_type_path + " for custom MIME resource types")
+            with open(resource_type_path, 'r') as f:
+                resource_types = yaml.load(f)
+                for rt in resource_types:
+                    load(rt['mimetype'], rt.get('description', ''), rt.get('extension', ''))
+                    logger.info("resource type " + rt['mimetype'] + " loaded")
