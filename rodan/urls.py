@@ -60,7 +60,7 @@ urlpatterns += format_suffix_patterns(
     patterns('',
              url(r'^$', 'rodan.views.main.api_root'),
              url(r'^taskqueue/active/$', TaskQueueActiveView.as_view(), name="taskqueue-active"),
-             url(r'^taskqueue/config/$', TaskQueueConfigView.as_view(), name="taskqueue-config"),
+             #url(r'^taskqueue/config/$', TaskQueueConfigView.as_view(), name="taskqueue-config"),
              url(r'^taskqueue/scheduled/$', TaskQueueScheduledView.as_view(), name="taskqueue-scheduled"),
              url(r'^taskqueue/status/$', TaskQueueStatusView.as_view(), name="taskqueue-status"),
              url(r'^projects/$', ProjectList.as_view(), name="project-list"),
