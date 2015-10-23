@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.input import Input
 from rodan.serializers.input import InputSerializer
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class InputList(generics.ListAPIView):
@@ -10,6 +11,7 @@ class InputList(generics.ListAPIView):
     """
     model = Input
     serializer_class = InputSerializer
+    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = Input.objects.all() # [TODO] restrict to the user's inputs?
     filter_fields = (

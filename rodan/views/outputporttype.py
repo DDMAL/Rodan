@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.outputporttype import OutputPortType
 from rodan.serializers.outputporttype import OutputPortTypeSerializer
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class OutputPortTypeList(generics.ListAPIView):
@@ -11,6 +12,7 @@ class OutputPortTypeList(generics.ListAPIView):
     """
     model = OutputPortType
     serializer_class = OutputPortTypeSerializer
+    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = OutputPortType.objects.all()
     filter_fields = {

@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from rodan.serializers.user import UserSerializer, UserListSerializer
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class UserList(generics.ListCreateAPIView):
@@ -23,6 +24,7 @@ class UserList(generics.ListCreateAPIView):
     model = User
     permission_classes = (permissions.IsAdminUser, )
     serializer_class = UserListSerializer
+    pagination_serializer_class = PaginationSerializer
 
     def get_queryset(self):
         queryset = User.objects.exclude(pk=-1)

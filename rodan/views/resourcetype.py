@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models import ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class ResourceTypeList(generics.ListAPIView):
@@ -11,6 +12,7 @@ class ResourceTypeList(generics.ListAPIView):
     """
     model = ResourceType
     serializer_class = ResourceTypeSerializer
+    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = ResourceType.objects.all()
     filter_fields = {

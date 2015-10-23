@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.inputport import InputPort
 from rodan.serializers.inputport import InputPortSerializer
+from rodan.paginators.pagination import PaginationSerializer
 from django.db.models import Q
 
 
@@ -18,6 +19,7 @@ class InputPortList(generics.ListCreateAPIView):
     """
     model = InputPort
     serializer_class = InputPortSerializer
+    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     class filter_class(django_filters.FilterSet):

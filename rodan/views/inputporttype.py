@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.inputporttype import InputPortType
 from rodan.serializers.inputporttype import InputPortTypeSerializer
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class InputPortTypeList(generics.ListAPIView):
@@ -12,6 +13,7 @@ class InputPortTypeList(generics.ListAPIView):
     """
     model = InputPortType
     serializer_class = InputPortTypeSerializer
+    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = InputPortType.objects.all()
     filter_fields = {

@@ -15,6 +15,7 @@ from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPa
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.paginators.pagination import PaginationSerializer
 
 
 class ResultsPackageList(generics.ListCreateAPIView):
@@ -31,6 +32,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
     model = ResultsPackage
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResultsPackageListSerializer
+    pagination_serializer_class = PaginationSerializer
     queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
 
     class filter_class(django_filters.FilterSet):

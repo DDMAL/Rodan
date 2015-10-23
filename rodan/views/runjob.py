@@ -13,6 +13,7 @@ from rodan.models.runjob import RunJob
 from rodan.serializers.runjob import RunJobSerializer
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.paginators.pagination import PaginationSerializer
 
 class RunJobList(generics.ListAPIView):
     """
@@ -21,6 +22,7 @@ class RunJobList(generics.ListAPIView):
     model = RunJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = RunJobSerializer
+    pagination_serializer_class = PaginationSerializer
     queryset = RunJob.objects.all() # [TODO] filter according to the user?
 
     class filter_class(django_filters.FilterSet):
