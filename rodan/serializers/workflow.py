@@ -69,6 +69,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url',
                   "uuid",
                   'project',
+                  "description",
                   'creator',
                   'uuid',
                   'name',
