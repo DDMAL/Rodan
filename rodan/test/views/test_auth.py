@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-
+from rest_framework.reverse import reverse
 
 class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -24,3 +24,16 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
 
         response = self.client.get("/auth/me/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_auth_me(self):
+        self.client.force_authenticate(user=self.test_user)
+        response = self.client.get(reverse('auth-me'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.test_user.username)
+
+    def test_access_other_auth_views(self):
+        "Only to verify that they don't throw 500 due to an update of djoser library."
+        self.client.force_authenticate(user=self.test_user)
+        for v in ['auth-register', 'auth-reset-token', 'auth-change-password']:
+            response = self.client.get(reverse(v))
+            self.assertNotEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
