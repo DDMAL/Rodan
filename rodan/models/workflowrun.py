@@ -42,6 +42,9 @@ class WorkflowRun(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_workflowrun', 'View WorkflowRun'),
+        )
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     project = models.ForeignKey('rodan.Project', related_name="workflow_runs", on_delete=models.CASCADE, db_index=True)

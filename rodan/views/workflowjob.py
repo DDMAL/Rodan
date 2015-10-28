@@ -3,6 +3,8 @@ from rest_framework import permissions
 
 from rodan.models.workflowjob import WorkflowJob
 from rodan.serializers.workflowjob import WorkflowJobSerializer
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 
 class WorkflowJobList(generics.ListCreateAPIView):
@@ -11,8 +13,9 @@ class WorkflowJobList(generics.ListCreateAPIView):
     to create a new WorkflowJob. POST requests will return the newly-created
     WorkflowJob object.
     """
-    model = WorkflowJob
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowJob.objects.all()
     serializer_class = WorkflowJobSerializer
     filter_fields = {
         "updated": ['lt', 'gt'],
@@ -23,7 +26,6 @@ class WorkflowJobList(generics.ListCreateAPIView):
         "job": ['exact'],
         "name": ['exact', 'icontains']
     }
-    queryset = WorkflowJob.objects.all() # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
         if not 'job_settings' in serializer.validated_data:
@@ -40,7 +42,7 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Performs operations on a single WorkflowJob instance.
     """
-    model = WorkflowJob
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowJob.objects.all()
     serializer_class = WorkflowJobSerializer
-    queryset = WorkflowJob.objects.all() # [TODO] filter according to the user?

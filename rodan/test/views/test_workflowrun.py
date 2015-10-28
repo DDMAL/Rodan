@@ -18,7 +18,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -107,7 +107,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -255,7 +255,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -269,7 +269,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data['uuid']
         wfrun = WorkflowRun.objects.get(uuid=wfrun_id)
-        self.assertEqual(wfrun.creator.pk, self.test_user.pk)
+        self.assertEqual(wfrun.creator.pk, self.test_superuser.pk)
 
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -401,7 +401,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

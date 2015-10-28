@@ -27,6 +27,9 @@ class OutputPort(models.Model):
     """
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_outputport', 'View OutputPort'),
+        )
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='output_ports', on_delete=models.CASCADE, db_index=True)

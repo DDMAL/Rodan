@@ -94,6 +94,9 @@ class Resource(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_resource', 'View Resource'),
+        )
 
     STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
                       (task_status.PROCESSING, "Processing"),

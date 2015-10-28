@@ -42,7 +42,9 @@ class Workflow(models.Model):
 
     class Meta:
         app_label = 'rodan'
-        ordering = ('created',)
+        permissions = (
+            ('view_workflow', 'View Workflow'),
+        )
 
     @property
     def workflow_input_ports(self):

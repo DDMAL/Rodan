@@ -15,6 +15,8 @@ from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPa
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 
 class ResultsPackageList(generics.ListCreateAPIView):
@@ -28,10 +30,10 @@ class ResultsPackageList(generics.ListCreateAPIView):
     #### Other Parameters
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
     """
-    model = ResultsPackage
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = ResultsPackage.objects.all()
     serializer_class = ResultsPackageListSerializer
-    queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
 
     class filter_class(django_filters.FilterSet):
         project = django_filters.CharFilter(name="workflow_run__project")
@@ -88,10 +90,10 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
 
     - `status` -- PATCH-only. Only valid as cancellation of the ResultsPackage.
     """
-    model = ResultsPackage
-    permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = ResultsPackageSerializer
-    queryset = ResultsPackage.objects.all()  # [TODO] filter for current user?
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = ResultsPackage.objects.all()
+    serializer_class = ResultsPackageListSerializer
 
     def patch(self, request, *args, **kwargs):
         rp = self.get_object()

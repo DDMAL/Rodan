@@ -17,7 +17,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     """
     def test_unfinished_workflowrun(self):
@@ -169,7 +169,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_complex_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
         # modify all manual job to automatic to save effort (and in/output ports)
         job_a = self.test_wfjob_A.job
@@ -198,7 +198,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         # Run this dummy workflow
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_superuser.pk),
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'resource_assignments': ra
         }

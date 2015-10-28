@@ -22,6 +22,8 @@ from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPa
 
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 class WorkflowRunList(generics.ListCreateAPIView):
     """
@@ -37,8 +39,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
     - `resource_assignments` -- POST-only. A JSON object. Keys are URLs of InputPorts
       in the Workflow, and values are list of Resource URLs.
     """
-    model = WorkflowRun
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowRun.objects.all()
     serializer_class = WorkflowRunSerializer
     filter_fields = {
         "status": ['exact'],
@@ -50,7 +53,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
         "creator": ['exact'],
         "name": ['exact', 'icontains']
     }
-    queryset = WorkflowRun.objects.all()  # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
         wfrun_status = serializer.validated_data.get('status', task_status.REQUEST_PROCESSING)
@@ -170,10 +172,10 @@ class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
     - `status` -- PATCH-only. An integer.
     - `last_redone_runjob_tree` -- PATCH-only. URL to a RunJob.
     """
-    model = WorkflowRun
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowRun.objects.all()
     serializer_class = WorkflowRunSerializer
-    queryset = WorkflowRun.objects.all() # [TODO] filter according to the user?
 
     def patch(self, request, *args, **kwargs):
         wfrun = self.get_object()

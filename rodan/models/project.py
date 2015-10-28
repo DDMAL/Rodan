@@ -2,7 +2,7 @@ import os, uuid
 import shutil
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 import uuid
 
 class Project(models.Model):
@@ -15,7 +15,8 @@ class Project(models.Model):
     - `uuid`
     - `name`
     - `description`
-    - `creator` -- a foreign key to the `User` who created the `Project`.
+    - `creator` -- a foreign key to the `User` who created the `Project`. Considered
+      as the superuser of the `Project`.
     - `created`
     - `updated`
 
@@ -37,7 +38,10 @@ class Project(models.Model):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True, db_index=True)
-    creator = models.ForeignKey(User, related_name="projects", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
+    creator = models.ForeignKey(User, related_name="projects", on_delete=models.PROTECT, db_index=True)
+
+    admin_group = models.ForeignKey(Group, related_name="project_as_admin")
+    worker_group = models.ForeignKey(Group, related_name="project_as_worker")
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
@@ -46,6 +50,16 @@ class Project(models.Model):
         return u"<Project {0}>".format(self.name)
 
     def save(self, *args, **kwargs):
+        # create user groups
+        try:
+            self.admin_group
+        except Group.DoesNotExist:
+            self.admin_group = Group.objects.create(name="project/{0}/admin".format(self.pk))
+
+        try:
+            self.worker_group
+        except Group.DoesNotExist:
+            self.worker_group = Group.objects.create(name="project/{0}/worker".format(self.pk))
         super(Project, self).save(*args, **kwargs)
         if not os.path.exists(self.project_path):
             os.makedirs(self.project_path)
@@ -55,17 +69,20 @@ class Project(models.Model):
         from rodan.models import WorkflowRun
         WorkflowRun.objects.filter(project=self).delete()
 
-        # delete project folder
+        # delete project, project folder, and project groups
         proj_path = self.project_path
+        ag = self.admin_group
+        wg = self.worker_group
         super(Project, self).delete(*args, **kwargs)   # cascade deletion of resources
+        ag.delete()
+        wg.delete()
         if os.path.exists(proj_path):
             shutil.rmtree(proj_path)
 
     class Meta:
         app_label = 'rodan'
-        ordering = ("created",)
         permissions = (
-            ('view_projects', 'Can view projects'),
+            ('view_project', 'View Project'),
         )
 
     @property

@@ -23,6 +23,9 @@ class Input(models.Model):
     """
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_input', 'View Input'),
+        )
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     input_port = models.ForeignKey('rodan.InputPort', related_name='inputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)

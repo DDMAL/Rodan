@@ -45,6 +45,17 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)
     workflow_input_ports = InputPortSerializer(many=True, read_only=True)
     workflow_output_ports = OutputPortSerializer(many=True, read_only=True)
+
+    def validate_project(self, p):
+        # [TODO] This should be applied to all objects. It prevents an outsider
+        # creating objects related to the Project, although normally the outsider
+        # shouldn't know the UUID of the Project as the Project doesn't appear
+        # in the list view. So it's fine in most cases.
+        user = self.context['request'].user
+        if not user.has_perm('view_project', p):
+            raise serializers.ValidationError("You have no permissions to it.")
+        return p
+
     class Meta:
         model = Workflow
         read_only_fields = ('creator', 'created', 'updated', 'workflow_jobs', 'workflow_runs', 'workflow_input_ports', 'workflow_output_ports')
@@ -63,6 +74,16 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
+    def validate_project(self, p):
+        # [TODO] This should be applied to all objects. It prevents an outsider
+        # creating objects related to the Project, although normally the outsider
+        # shouldn't know the UUID of the Project as the Project doesn't appear
+        # in the list view. So it's fine in most cases.
+        user = self.context['request'].user
+        if not user.has_perm('view_project', p):
+            raise serializers.ValidationError("You have no permissions to it.")
+        return p
+
     class Meta:
         model = Workflow
         read_only_fields = ('creator', 'created', 'updated')

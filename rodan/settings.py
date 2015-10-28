@@ -203,8 +203,11 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'rodan.views.RodanMetadata',
     'PAGINATE_BY': 20,
     'USE_ABSOLUTE_URLS': True,
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',
-                                'rest_framework.filters.OrderingFilter')
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoObjectPermissionsFilter',
+        'rest_framework.filters.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter'
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rodan.paginators.pagination.CustomPagination',
 }
 if DEBUG:

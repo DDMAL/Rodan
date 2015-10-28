@@ -13,16 +13,17 @@ from rodan.models.runjob import RunJob
 from rodan.serializers.runjob import RunJobSerializer
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 class RunJobList(generics.ListAPIView):
     """
     Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
     """
-    model = RunJob
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = RunJob.objects.all()
     serializer_class = RunJobSerializer
-    pagination_serializer_class = PaginationSerializer
-    queryset = RunJob.objects.all() # [TODO] filter according to the user?
 
     class filter_class(django_filters.FilterSet):
         project = django_filters.CharFilter(name="workflow_run__project")
@@ -45,7 +46,7 @@ class RunJobDetail(generics.RetrieveAPIView):
     """
     Performs operations on a single RunJob instance.
     """
-    model = RunJob
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = RunJob.objects.all()
     serializer_class = RunJobSerializer
-    queryset = RunJob.objects.all() # [TODO] filter according to the user?

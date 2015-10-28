@@ -3,6 +3,8 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.outputport import OutputPort
 from rodan.serializers.outputport import OutputPortSerializer
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 
 class OutputPortList(generics.ListCreateAPIView):
@@ -10,10 +12,10 @@ class OutputPortList(generics.ListCreateAPIView):
     Returns a list of OutputPorts. Accepts a POST request with a data body to create
     a new OutputPort. POST requests will return the newly-created OutputPort object.
     """
-    model = OutputPort
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = OutputPort.objects.all()
     serializer_class = OutputPortSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    queryset = OutputPort.objects.all() # [TODO] restrict to the user's outputports?
 
     class filter_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(name='workflow_job__workflow')
@@ -33,7 +35,7 @@ class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Perform operations on a single OutputPort instance.
     """
-    model = OutputPort
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = OutputPort.objects.all()
     serializer_class = OutputPortSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    queryset = OutputPort.objects.all() # [TODO] restrict to the user's outputports?

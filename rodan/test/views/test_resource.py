@@ -14,7 +14,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     def test_post_no_files(self):
         resource_obj = {

@@ -10,7 +10,7 @@ from djoser import views as djoser_views
 from rodan.views.auth import AuthMeView, AuthTokenView
 
 from rodan.views.project import ProjectList
-from rodan.views.project import ProjectDetail
+from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
 from rodan.views.workflow import WorkflowList
 from rodan.views.workflow import WorkflowDetail
 from rodan.views.workflowjob import WorkflowJobList
@@ -67,6 +67,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^taskqueue/status/$', TaskQueueStatusView.as_view(), name="taskqueue-status"),
              url(r'^projects/$', ProjectList.as_view(), name="project-list"),
              url(r'^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ProjectDetail.as_view(), name="project-detail"),
+             url(r'^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/admins/$', ProjectDetailAdmins.as_view(), name="project-detail-admins"),
+             url(r'^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/workers/$', ProjectDetailWorkers.as_view(), name="project-detail-workers"),
              url(r'^workflows/$', WorkflowList.as_view(), name="workflow-list"),
              url(r'^workflow/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', WorkflowDetail.as_view(), name="workflow-detail"),
              url(r'^workflowjobs/$', WorkflowJobList.as_view(), name="workflowjob-list"),

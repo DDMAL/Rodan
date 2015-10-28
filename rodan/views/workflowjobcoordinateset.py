@@ -3,6 +3,8 @@ from rest_framework import permissions
 import django_filters
 from rodan.models import WorkflowJobCoordinateSet
 from rodan.serializers.workflowjobcoordinateset import WorkflowJobCoordinateSetSerializer
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 
 class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
@@ -11,10 +13,10 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
     with a data body to create a new WorkflowJobCoordinateSet. POST requests
     will return the newly-created WorkflowJobCoordinateSet object.
     """
-    model = WorkflowJobCoordinateSet
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowJobCoordinateSet.objects.all()
     serializer_class = WorkflowJobCoordinateSetSerializer
-    queryset = WorkflowJobCoordinateSet.objects.all() # [TODO] filter according to the user?
 
     class filter_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(name="workflow_job__workflow")
@@ -33,7 +35,7 @@ class WorkflowJobCoordinateSetDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Performs operations on a single WorkflowJobCoordinateSet instance.
     """
-    model = WorkflowJobCoordinateSet
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = WorkflowJobCoordinateSet.objects.all()
     serializer_class = WorkflowJobCoordinateSetSerializer
-    queryset = WorkflowJobCoordinateSet.objects.all() # [TODO] filter according to the user?

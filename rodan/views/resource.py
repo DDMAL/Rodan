@@ -16,6 +16,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import render
 import django_filters
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -32,8 +34,9 @@ class ResourceList(generics.ListCreateAPIView):
         - Or a hyperlink to a ResourceType object.
     - `files` -- POST-only. The files.
     """
-    model = Resource
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
     class filter_class(django_filters.FilterSet):
@@ -114,10 +117,10 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Perform operations on a single Resource instance.
     """
-    model = Resource
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-    queryset = Resource.objects.all() # [TODO] filter according to the user?
 
 class ResourceViewer(generics.RetrieveAPIView):
     """
@@ -127,10 +130,10 @@ class ResourceViewer(generics.RetrieveAPIView):
     + Diva.js: for all images (if jp2 and measurement json exist)
     + Neon.js: for MEI
     """
-    model = Resource
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
-    permission_classes = (permissions.AllowAny, )
-    queryset = Resource.objects.all() # [TODO] filter according to the user?
 
     def get(self, request, *a, **k):
         resource = self.get_object()

@@ -11,6 +11,9 @@ from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerialize
 from rodan.exceptions import CustomAPIException
 from django.conf import settings
 
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
+
 
 class WorkflowList(generics.ListCreateAPIView):
     """
@@ -22,9 +25,9 @@ class WorkflowList(generics.ListCreateAPIView):
     - `name` -- POST-only.
     - `valid` -- (optional) POST-only. Should be empty string.
     """
-    model = Workflow
-    # permission_classes = (permissions.IsAuthenticated, )
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Workflow.objects.all()
     serializer_class = WorkflowListSerializer
     filter_fields = {
         "updated": ['lt', 'gt'],
@@ -35,7 +38,6 @@ class WorkflowList(generics.ListCreateAPIView):
         "valid": ['exact'],
         "name": ['exact', 'icontains']
     }
-    queryset = Workflow.objects.all() # [TODO] filter according to the user?
 
     def perform_create(self, serializer):
         valid = serializer.validated_data.get('valid', False)
@@ -54,10 +56,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     - `valid` -- PATCH-only. If provided with non-empty string, workflow validation
       will be triggered.
     """
-    model = Workflow
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Workflow.objects.all()
     serializer_class = WorkflowSerializer
-    queryset = Workflow.objects.all() # [TODO] filter according to the user?
 
     def get(self, request, *a, **k):
         if 'export' in request.query_params:

@@ -70,6 +70,9 @@ class RunJob(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_runjob', 'View RunJob'),
+        )
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE, db_index=True)

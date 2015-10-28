@@ -59,6 +59,9 @@ class WorkflowJob(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_workflowjob', 'View WorkflowJob'),
+        )
 
     @property
     def job_name(self):

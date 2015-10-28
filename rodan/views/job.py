@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions, filters
 
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
@@ -10,7 +10,8 @@ class JobList(generics.ListAPIView):
     Returns a list of all Jobs. Does not accept POST requests, since
     Jobs should be defined and loaded server-side.
     """
-    model = Job
+    permission_classes = (permissions.AllowAny, )
+    queryset = Job.objects.all()
     serializer_class = JobSerializer
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
@@ -20,7 +21,6 @@ class JobList(generics.ListAPIView):
         "uuid": ['exact'],
         "name": ['exact', 'icontains']
     }
-    queryset = Job.objects.all()
 
     def get_queryset(self):
         filter_dict = {}
@@ -37,6 +37,7 @@ class JobDetail(generics.RetrieveAPIView):
     """
     Query a single Job instance.
     """
-    model = Job
-    serializer_class = JobSerializer
+    permission_classes = (permissions.AllowAny, )
     queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    filter_backends = ()

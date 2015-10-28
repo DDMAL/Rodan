@@ -17,7 +17,10 @@ from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
 
-from django.db.models.signals import post_migrate
+from guardian.shortcuts import assign_perm
+from rest_framework.compat import get_model_name
+
+from django.db.models.signals import post_migrate, pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
@@ -230,3 +233,64 @@ def update_database_trigger(sender, **kwargs):
     global update_database_trigger
     update_database_trigger = None
     print "OK"
+
+
+# Assign permissions
+## view_ permissions are added to the models. add/change/delete_ permissions are django-builtin.
+@receiver(post_save, sender=Project)
+def assign_perms_project(sender, instance, created, raw, using, update_fields, **kwargs):
+    if created:
+        model_name = get_model_name(sender)
+        if instance.creator:
+            assign_perm('view_{0}'.format(model_name), instance.creator, instance)
+            assign_perm('change_{0}'.format(model_name), instance.creator, instance)
+            assign_perm('delete_{0}'.format(model_name), instance.creator, instance)
+            instance.admin_group.user_set.add(instance.creator)
+
+        assign_perm('view_{0}'.format(model_name), instance.admin_group, instance)
+        assign_perm('change_{0}'.format(model_name), instance.admin_group, instance)
+
+        assign_perm('view_{0}'.format(model_name), instance.worker_group, instance)
+
+@receiver(post_save, sender=Workflow)
+@receiver(post_save, sender=WorkflowRun)
+@receiver(post_save, sender=Resource)
+@receiver(post_save, sender=WorkflowJob)
+@receiver(post_save, sender=InputPort)
+@receiver(post_save, sender=OutputPort)
+@receiver(post_save, sender=WorkflowJobCoordinateSet)
+@receiver(post_save, sender=Connection)
+@receiver(post_save, sender=RunJob)
+@receiver(post_save, sender=ResultsPackage)
+@receiver(post_save, sender=Input)
+@receiver(post_save, sender=Output)
+def assign_perms_others(sender, instance, created, raw, using, update_fields, **kwargs):
+    if created:
+        model_name = get_model_name(sender)
+
+        # locate project
+        if sender in (Workflow, WorkflowRun, Resource):
+            project = instance.project
+        elif sender in (WorkflowJob,):
+            project = instance.workflow.project
+        elif sender in (InputPort, OutputPort, WorkflowJobCoordinateSet):
+            project = instance.workflow_job.workflow.project
+        elif sender in (Connection, ):
+            project = instance.input_port.workflow_job.workflow.project
+        elif sender in (RunJob, ResultsPackage):
+            project = instance.workflow_run.project
+        elif sender in (Input, Output, ):
+            project = instance.run_job.workflow_run.project
+
+        admin_group = project.admin_group
+        worker_group = project.worker_group
+
+        # assign permissions
+        assign_perm('view_{0}'.format(model_name), admin_group, instance)
+        assign_perm('add_{0}'.format(model_name), admin_group, instance)
+        assign_perm('change_{0}'.format(model_name), admin_group, instance)
+        assign_perm('delete_{0}'.format(model_name), admin_group, instance)
+        assign_perm('view_{0}'.format(model_name), worker_group, instance)
+        assign_perm('add_{0}'.format(model_name), worker_group, instance)
+        assign_perm('change_{0}'.format(model_name), worker_group, instance)
+        assign_perm('delete_{0}'.format(model_name), worker_group, instance)

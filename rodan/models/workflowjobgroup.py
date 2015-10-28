@@ -29,3 +29,6 @@ class WorkflowJobGroup(models.Model):
 
     class Meta:
         app_label = 'rodan'
+        permissions = (
+            ('view_workflowjobgroup', 'View WorkflowJobGroup'),
+        )

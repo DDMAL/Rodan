@@ -20,7 +20,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_basic_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     def _validate(self, workflow_uuid):
         workflow_update = {
@@ -48,7 +48,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         workflow_obj = {
             'project': 'http://localhost:8000/project/{0}/'.format(self.test_project.uuid),
             'name': "test workflow",
-            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_user.pk),
+            'creator': 'http://localhost:8000/user/{0}/'.format(self.test_superuser.pk),
             'valid': False,
         }
         response = self.client.post("/workflows/", workflow_obj, format='json')
@@ -357,7 +357,7 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     def test_export(self):
         response = self.client.get("/workflow/{0}/?export=yes".format(self.test_workflow.uuid))
@@ -390,7 +390,7 @@ class WorkflowExternPortsTestCase(RodanTestTearDownMixin, APITestCase, RodanTest
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     def _validate(self, workflow_uuid):
         workflow_update = {

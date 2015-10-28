@@ -13,7 +13,7 @@ class WorkflowJobGroupViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTes
         self.test_workflow2 = mommy.make('rodan.Workflow')
         self.test_workflowjob1 = mommy.make('rodan.WorkflowJob', workflow=self.test_workflow1)
         self.test_workflowjob2 = mommy.make('rodan.WorkflowJob', workflow=self.test_workflow2)
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
 
     def test_create_invalid_wfjgroup(self):
         wfjgroup_obj = {

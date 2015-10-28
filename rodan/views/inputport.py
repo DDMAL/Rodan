@@ -4,6 +4,8 @@ from rest_framework import permissions
 from rodan.models.inputport import InputPort
 from rodan.serializers.inputport import InputPortSerializer
 from django.db.models import Q
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 
 class InputPortList(generics.ListCreateAPIView):
@@ -16,9 +18,10 @@ class InputPortList(generics.ListCreateAPIView):
       if `false/False/FALSE`, return "unsatisfied" InputPorts only; other values
       will be ignored.
     """
-    model = InputPort
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = InputPort.objects.all()
     serializer_class = InputPortSerializer
-    permission_classes = (permissions.IsAuthenticated,)
 
     class filter_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(name='workflow_job__workflow')
@@ -50,7 +53,7 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Perform operations on a single InputPort instance.
     """
-    model = InputPort
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = InputPort.objects.all()
     serializer_class = InputPortSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    queryset = InputPort.objects.all() # [TODO] restrict to the user's objects?

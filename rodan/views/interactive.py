@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import permissions
+from rest_framework import permissions, generics
 from rest_framework.exceptions import APIException
 from rodan.models import RunJob, Input, Resource
 from rodan.constants import task_status
@@ -19,18 +19,29 @@ from django.utils import timezone
 import uuid
 from django.core.urlresolvers import reverse
 from rodan.exceptions import CustomAPIException
+from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS
 
-class InteractiveAcquireView(APIView):
+class InteractiveAcquireView(generics.GenericAPIView):
     """
     Acquire an interactive runjob.
     """
-    permission_classes = (permissions.IsAuthenticated, )
+    lookup_url_kwarg = "run_job_uuid"  # for self.get_object()
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = RunJob.objects.all()
+    def get_serializer_class(self):
+        # for rest browsable API displaying the PUT/PATCH form
+        from rest_framework import serializers
+        class DummySerializer(serializers.Serializer):
+            pass   # empty class
+        return DummySerializer
 
-    def post(self, request, run_job_uuid):
+    def post(self, request, run_job_uuid, *args, **kwargs):
         # check runjob
-        runjob = get_object_or_404(RunJob, uuid=run_job_uuid)
+        runjob = self.get_object()
         if runjob.status != task_status.WAITING_FOR_INPUT:
             return Response({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,6 +73,7 @@ class InteractiveWorkingView(APIView):
     - `**kwargs` -- POST-only. Job settings.
     """
     authentication_classes = ()
+    permission_classes = (permissions.AllowAny, )
 
     def _authenticate(self, run_job_uuid, working_user_token):
         # check runjob
