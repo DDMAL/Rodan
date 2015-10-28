@@ -1,9 +1,9 @@
-import os
+import os, uuid
 import shutil
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
-from uuidfield import UUIDField
+import uuid
 
 class Project(models.Model):
     """
@@ -34,7 +34,7 @@ class Project(models.Model):
     def project_path(self):
         return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True, db_index=True)
     creator = models.ForeignKey(User, related_name="projects", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)

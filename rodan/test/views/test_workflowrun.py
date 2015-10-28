@@ -36,7 +36,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_post_no_existing_workflow(self):
         workflowrun_obj = {
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(uuid.uuid1().hex),
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(uuid.uuid1()),
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -96,8 +96,8 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
 
     def test_patch_not_found(self):
         workflowrun_update = {'status': task_status.CANCELLED}
-        response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1().hex), workflowrun_update, format='json')
-        anticipated_message = {'detail': 'Not found'}
+        response = self.client.patch("/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format='json')
+        anticipated_message = {'detail': 'Not found.'}
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(anticipated_message, response.data)
 
@@ -157,7 +157,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {'invalid url': [u'Invalid hyperlink - No URL match']}}
+        anticipated_message = {'resource_assignments': {'invalid url': [u'Invalid hyperlink - No URL match.']}}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_still_unsatisfied_input_port(self):

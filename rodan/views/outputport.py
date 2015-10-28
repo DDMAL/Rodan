@@ -3,7 +3,6 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.outputport import OutputPort
 from rodan.serializers.outputport import OutputPortSerializer
-from rodan.paginators.pagination import PaginationSerializer
 
 
 class OutputPortList(generics.ListCreateAPIView):
@@ -13,7 +12,6 @@ class OutputPortList(generics.ListCreateAPIView):
     """
     model = OutputPort
     serializer_class = OutputPortSerializer
-    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = OutputPort.objects.all() # [TODO] restrict to the user's outputports?
 

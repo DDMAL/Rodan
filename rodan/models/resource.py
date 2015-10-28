@@ -1,10 +1,10 @@
 import os
 import mimetypes
+import uuid
 import shutil
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from uuidfield import UUIDField
 from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -108,7 +108,7 @@ class Resource(models.Model):
     def __unicode__(self):
         return u"<Resource {0}>".format(self.uuid)
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE, db_index=True)

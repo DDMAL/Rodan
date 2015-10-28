@@ -1,8 +1,8 @@
 from django.db import models
-from uuidfield import UUIDField
 from django.conf import settings
 import os
 import yaml
+import uuid
 
 import logging
 logger = logging.getLogger('rodan')
@@ -36,7 +36,7 @@ class ResourceType(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     mimetype = models.CharField(max_length=50, unique=True, db_index=True)
     description = models.CharField(max_length=255, blank=True, db_index=True)
     extension = models.CharField(max_length=50, blank=True, db_index=True)

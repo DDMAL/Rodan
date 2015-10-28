@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import OutputPortType
-
+import uuid
 
 class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -17,9 +17,9 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
 
     def test_get_detail(self):
         opt = OutputPortType.objects.first()
-        response = self.client.get("/outputporttype/{0}/".format(opt.uuid.hex))
+        response = self.client.get("/outputporttype/{0}/".format(opt.uuid))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['uuid'], opt.uuid.hex)
+        self.assertEqual(uuid.UUID(response.data['uuid']), opt.uuid)
 
     def test_post_not_allowed(self):
         opt_obj = {

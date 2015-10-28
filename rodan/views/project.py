@@ -1,8 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
 from guardian.shortcuts import get_objects_for_user
-
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.serializers.user import UserSerializer
@@ -17,7 +15,6 @@ class ProjectList(generics.ListCreateAPIView):
     model = Project
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProjectListSerializer
-    pagination_serializer_class = PaginationSerializer
     queryset = Project.objects.all() # [TODO] restrict to the user's projects?
     filter_fields = {
         "updated": ['lt', 'gt'],
@@ -27,10 +24,6 @@ class ProjectList(generics.ListCreateAPIView):
         "name": ['exact', 'icontains'],
         "description": ['exact', 'icontains']
     }
-
-    def get_queryset(self):
-        queryset = get_objects_for_user(self.request.user, 'rodan.view_projects')
-        return queryset
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

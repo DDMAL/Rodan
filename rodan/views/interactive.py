@@ -48,7 +48,7 @@ class InteractiveAcquireView(APIView):
             runjob.save(update_fields=['working_user', 'working_user_token', 'working_user_expiry'])
 
             return Response({
-                'working_url': request.build_absolute_uri(reverse('interactive-working', kwargs={'run_job_uuid': run_job_uuid, 'working_user_token': runjob.working_user_token.hex, 'additional_url': ''})),
+                'working_url': request.build_absolute_uri(reverse('interactive-working', kwargs={'run_job_uuid': str(run_job_uuid), 'working_user_token': str(runjob.working_user_token), 'additional_url': ''})),
                 'working_user_expiry': runjob.working_user_expiry
             })
 
@@ -70,7 +70,7 @@ class InteractiveWorkingView(APIView):
             raise CustomAPIException({'message': 'This RunJob does not accept input now'}, status=status.HTTP_400_BAD_REQUEST)
 
         # check token
-        if runjob.working_user_token.hex != working_user_token:
+        if runjob.working_user_token != uuid.UUID(working_user_token):
             raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
 
         # check expiry

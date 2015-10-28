@@ -36,8 +36,8 @@ class AuthTokenView(views.APIView):
     model = Token
 
     def post(self, request):
-        username = request.DATA.get('username', None)
-        password = request.DATA.get('password', None)
+        username = request.data.get('username', None)
+        password = request.data.get('password', None)
 
         if not username:
             return Response({'detail': "You must supply a username"}, status=status.HTTP_401_UNAUTHORIZED)

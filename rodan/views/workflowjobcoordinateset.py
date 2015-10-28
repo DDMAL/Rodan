@@ -2,7 +2,6 @@ from rest_framework import generics
 from rest_framework import permissions
 import django_filters
 from rodan.models import WorkflowJobCoordinateSet
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.serializers.workflowjobcoordinateset import WorkflowJobCoordinateSetSerializer
 
 
@@ -15,7 +14,6 @@ class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):
     model = WorkflowJobCoordinateSet
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobCoordinateSetSerializer
-    pagination_serializer_class = PaginationSerializer
     queryset = WorkflowJobCoordinateSet.objects.all() # [TODO] filter according to the user?
 
     class filter_class(django_filters.FilterSet):

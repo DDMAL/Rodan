@@ -1,6 +1,6 @@
 import os, datetime
+import uuid
 from django.db import models
-from uuidfield import UUIDField
 from django.conf import settings
 from rodan.constants import task_status
 
@@ -46,7 +46,7 @@ class ResultsPackage(models.Model):
                               (1, "All resources -- subdirectoried by resource names"),
                               (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names")]
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED, db_index=True)
     percent_completed = models.IntegerField(default=0, db_index=True)
 

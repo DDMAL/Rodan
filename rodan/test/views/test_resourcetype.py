@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import ResourceType
-
+import uuid
 
 class ResourceTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -17,9 +17,9 @@ class ResourceTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
     def test_get_detail(self):
         rt = ResourceType.objects.first()
-        response = self.client.get("/resourcetype/{0}/".format(rt.uuid.hex))
+        response = self.client.get("/resourcetype/{0}/".format(rt.uuid))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['uuid'], rt.uuid.hex)
+        self.assertEqual(uuid.UUID(response.data['uuid']), rt.uuid)
 
     def test_post_not_allowed(self):
         rt_obj = {

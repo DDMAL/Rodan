@@ -1,6 +1,6 @@
 from django.db import models
-from uuidfield import UUIDField
 from rodan.models import OutputPortType
+import uuid
 
 class Output(models.Model):
     """
@@ -25,7 +25,7 @@ class Output(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     output_port = models.ForeignKey('rodan.OutputPort', related_name='outputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     output_port_type_name = models.CharField(max_length=255, db_index=True)
     run_job = models.ForeignKey('rodan.RunJob', related_name='outputs', on_delete=models.CASCADE, db_index=True)

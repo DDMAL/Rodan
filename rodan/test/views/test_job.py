@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Job
-
+import uuid
 
 class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -17,9 +17,9 @@ class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
 
     def test_get_detail(self):
         job = Job.objects.first()
-        response = self.client.get("/job/{0}/".format(job.uuid.hex))
+        response = self.client.get("/job/{0}/".format(job.uuid))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['uuid'], job.uuid.hex)
+        self.assertEqual(uuid.UUID(response.data['uuid']), job.uuid)
 
     def test_post_not_allowed(self):
         job_obj = {

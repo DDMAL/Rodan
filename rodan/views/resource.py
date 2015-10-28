@@ -10,7 +10,6 @@ from django.core.urlresolvers import Resolver404, resolve
 from rodan.models import Project, Output, Resource, ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
-from rodan.paginators.pagination import PaginationSerializer
 from django.db.models import Q
 from rodan.constants import task_status
 from django.http import Http404, HttpResponseRedirect
@@ -36,7 +35,6 @@ class ResourceList(generics.ListCreateAPIView):
     model = Resource
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ResourceSerializer
-    pagination_serializer_class = PaginationSerializer
 
     class filter_class(django_filters.FilterSet):
         origin__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
@@ -95,7 +93,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         new_resources = []
         for fileobj in request.data.getlist('files'):
-            serializer = ResourceSerializer(data=initial_data)
+            serializer = ResourceSerializer(data=initial_data, context={'request': request})
             serializer.is_valid(raise_exception=True)
 
             filename_without_ext = os.path.splitext(fileobj.name)[0]
@@ -138,14 +136,14 @@ class ResourceViewer(generics.RetrieveAPIView):
         resource = self.get_object()
         if resource.resource_type.mimetype.startswith('image') and settings.ENABLE_DIVA and os.path.isfile(resource.diva_jp2_path) and os.path.isfile(resource.diva_json_path):
             return render(request, 'diva.html', {
-                'page_title': "View Resource: {0}".format(resource.name or resource.uuid.hex),
+                'page_title': "View Resource: {0}".format(resource.name or resource.pk),
                 'diva_object_data': resource.diva_json_url,
                 'diva_iip_server': settings.IIPSRV_URL,
                 'diva_image_dir': resource.diva_image_dir
             }, content_type="text/html")
         elif resource.resource_type.mimetype.startswith("application/mei+xml"):
             return render(request, 'neon_square_viewer.html', {
-                'mei_name': resource.name or resource.uuid.hex,
+                'mei_name': resource.name or resource.pk,
                 'mei_url': resource.compat_file_url
             }, content_type="text/html")
         else:

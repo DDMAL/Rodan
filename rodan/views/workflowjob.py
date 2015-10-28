@@ -1,7 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
 
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.models.workflowjob import WorkflowJob
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 
@@ -15,7 +14,6 @@ class WorkflowJobList(generics.ListCreateAPIView):
     model = WorkflowJob
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobSerializer
-    pagination_serializer_class = PaginationSerializer
     filter_fields = {
         "updated": ['lt', 'gt'],
         "group": ['exact'],

@@ -1,9 +1,9 @@
 import os
+import uuid
 import shutil
 from django.db import models
 from django.core.urlresolvers import reverse
 from jsonfield import JSONField
-from uuidfield import UUIDField
 from rodan.models.resource import Resource
 from rodan.models.job import Job
 from rodan.models.input import Input
@@ -71,7 +71,7 @@ class RunJob(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE, db_index=True)
     workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
 
@@ -92,7 +92,7 @@ class RunJob(models.Model):
     interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
 
     working_user = models.ForeignKey(User, related_name="interactive_runjobs", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
-    working_user_token = UUIDField(null=True)
+    working_user_token = models.UUIDField(null=True)
     working_user_expiry = models.DateTimeField(null=True, db_index=True)
 
     lock = models.CharField(max_length=50, blank=True, null=True)

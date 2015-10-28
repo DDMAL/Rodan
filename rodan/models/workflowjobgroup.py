@@ -1,6 +1,5 @@
 from django.db import models
-from uuidfield import UUIDField
-
+import uuid
 
 class WorkflowJobGroup(models.Model):
     """
@@ -17,7 +16,7 @@ class WorkflowJobGroup(models.Model):
     - `created`
     - `updated`
     """
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True, null=True)
     origin = models.ForeignKey("rodan.Workflow", related_name="workflow_job_groups", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)

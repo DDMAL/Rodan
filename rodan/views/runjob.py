@@ -13,7 +13,6 @@ from rodan.models.runjob import RunJob
 from rodan.serializers.runjob import RunJobSerializer
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
-from rodan.paginators.pagination import PaginationSerializer
 
 class RunJobList(generics.ListAPIView):
     """

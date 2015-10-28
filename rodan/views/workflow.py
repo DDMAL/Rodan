@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.models import Workflow, InputPort, OutputPort
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
 from rodan.exceptions import CustomAPIException
@@ -27,7 +26,6 @@ class WorkflowList(generics.ListCreateAPIView):
     # permission_classes = (permissions.IsAuthenticated, )
     permission_classes = (permissions.AllowAny, )
     serializer_class = WorkflowListSerializer
-    pagination_serializer_class = PaginationSerializer
     filter_fields = {
         "updated": ['lt', 'gt'],
         "uuid": ['exact'],

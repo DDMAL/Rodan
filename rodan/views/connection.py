@@ -7,7 +7,6 @@ from rodan.models.connection import Connection
 from rodan.models.inputport import InputPort
 from rodan.models.outputport import OutputPort
 from rodan.serializers.connection import ConnectionSerializer
-from rodan.paginators.pagination import PaginationSerializer
 
 
 class ConnectionList(generics.ListCreateAPIView):
@@ -17,7 +16,6 @@ class ConnectionList(generics.ListCreateAPIView):
     """
     model = Connection
     serializer_class = ConnectionSerializer
-    pagination_serializer_class = PaginationSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Connection.objects.all()  # [TODO] restrict to the users connections?
 

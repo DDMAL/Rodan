@@ -7,7 +7,7 @@ from rodan.serializers.runjob import RunJobSerializer
 
 
 class InputSerializer(serializers.HyperlinkedModelSerializer):
-    input_port_type = serializers.HyperlinkedRelatedField(view_name='inputporttype-detail', read_only=True)
+    input_port_type = serializers.HyperlinkedRelatedField(view_name='inputporttype-detail', read_only=True, lookup_field="uuid", lookup_url_kwarg="pk")
     class Meta:
         model = Input
         fields = ("url",

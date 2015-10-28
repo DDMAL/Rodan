@@ -30,8 +30,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
 
     def test_view__workflow_notfound(self):
-        response = self._validate(uuid.uuid1().hex)
-        anticipated_message = {'detail': 'Not found'}
+        response = self._validate(uuid.uuid1())
+        anticipated_message = {'detail': 'Not found.'}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     def test_view__posting_valid(self):
@@ -360,7 +360,7 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         self.client.force_authenticate(user=self.test_user)
 
     def test_export(self):
-        response = self.client.get("/workflow/{0}/?export=yes".format(self.test_workflow.uuid.hex))
+        response = self.client.get("/workflow/{0}/?export=yes".format(self.test_workflow.uuid))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         serializer = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION]
         try:
@@ -372,7 +372,7 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         serialized = serializer.dump(self.test_workflow)
         response = self.client.post("/workflows/", {
             'serialized': serialized,
-            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid.hex)
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid)
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.test_project.workflows.count(), 2)
@@ -380,7 +380,7 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         serialized['workflow_jobs'][0]['job_name'] = 'hahahaha'
         response = self.client.post("/workflows/", {
             'serialized': serialized,
-            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid.hex)
+            'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid)
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'serialized': {'workflow_jobs[0].job_name': u'Job hahahaha does not exist in current Rodan installation.'}})

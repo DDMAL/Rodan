@@ -1,7 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
 import django_filters
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.models import WorkflowJobGroup
 from rodan.serializers.workflowjobgroup import WorkflowJobGroupSerializer
 
@@ -18,7 +17,6 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     model = WorkflowJobGroup
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowJobGroupSerializer
-    pagination_serializer_class = PaginationSerializer
     filter_fields = ('origin', )
     queryset = WorkflowJobGroup.objects.all() # [TODO] filter according to the user?
 

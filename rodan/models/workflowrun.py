@@ -1,6 +1,6 @@
 import os
+import uuid
 from django.db import models
-from uuidfield import UUIDField
 from rodan.constants import task_status
 
 class WorkflowRun(models.Model):
@@ -43,7 +43,7 @@ class WorkflowRun(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     project = models.ForeignKey('rodan.Project', related_name="workflow_runs", on_delete=models.CASCADE, db_index=True)
     workflow = models.ForeignKey('rodan.Workflow', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     creator = models.ForeignKey('auth.User', related_name="workflow_runs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)

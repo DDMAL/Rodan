@@ -1,7 +1,6 @@
 from django.db import models
-from uuidfield import UUIDField
 from jsonfield import JSONField
-
+import uuid
 
 class WorkflowJobCoordinateSet(models.Model):
     """
@@ -17,7 +16,7 @@ class WorkflowJobCoordinateSet(models.Model):
     - `created`
     - `updated`
     """
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name="workflow_job_coordinate_sets", on_delete=models.CASCADE, db_index=True)
     data = JSONField(default={}, blank=True, null=True)
     user_agent = models.CharField(max_length=255, blank=True, null=True, db_index=True)

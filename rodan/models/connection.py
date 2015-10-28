@@ -1,5 +1,5 @@
+import uuid
 from django.db import models
-from uuidfield import UUIDField
 
 class Connection(models.Model):
     """
@@ -29,7 +29,7 @@ class Connection(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     input_port = models.ForeignKey('rodan.InputPort', related_name='connections', on_delete=models.CASCADE, db_index=True)
     output_port = models.ForeignKey('rodan.OutputPort', related_name='connections', on_delete=models.CASCADE, db_index=True)
 

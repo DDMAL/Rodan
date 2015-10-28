@@ -1,5 +1,5 @@
 from django.db import models
-from uuidfield import UUIDField
+import uuid
 
 class InputPort(models.Model):
     """
@@ -28,7 +28,7 @@ class InputPort(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey('rodan.WorkflowJob', related_name='input_ports', on_delete=models.CASCADE, db_index=True)
     input_port_type = models.ForeignKey('rodan.InputPortType', on_delete=models.PROTECT, db_index=True)
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)

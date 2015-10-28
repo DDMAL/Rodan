@@ -205,6 +205,7 @@ REST_FRAMEWORK = {
     'USE_ABSOLUTE_URLS': True,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',
                                 'rest_framework.filters.OrderingFilter')
+    'DEFAULT_PAGINATION_CLASS': 'rodan.paginators.pagination.CustomPagination',
 }
 if DEBUG:
     # Enable browsable API

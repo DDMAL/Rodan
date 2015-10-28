@@ -1,6 +1,6 @@
 import itertools
 import jsonschema
-from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType
+from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType, Project
 from rest_framework import serializers
 from django.core.urlresolvers import Resolver404, resolve
 from rodan.serializers import TransparentField

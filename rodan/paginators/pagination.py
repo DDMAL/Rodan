@@ -1,15 +1,18 @@
-from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
-from rest_framework import serializers
-from rest_framework.templatetags.rest_framework import replace_query_param
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.compat import OrderedDict
 
-
-class PaginationSerializer(BasePaginationSerializer):
+class CustomPagination(PageNumberPagination):
     """
         This pagination serializer adds the 'current_page' and 'total_pages' properties
         to the default Django Rest Framework pagination serializer.
     """
-    count = serializers.ReadOnlyField(source='paginator.count')
-    next = NextPageField(source='*')
-    previous = PreviousPageField(source='*')
-    current_page = serializers.ReadOnlyField(source="number")
-    total_pages = serializers.ReadOnlyField(source="paginator.num_pages")
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('current_page', self.page.number),
+            ('total_pages', self.page.paginator.num_pages),
+            ('results', data)
+        ]))

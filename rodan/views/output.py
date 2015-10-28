@@ -2,7 +2,6 @@ from rest_framework import generics
 from rest_framework import permissions
 from rodan.models.output import Output
 from rodan.serializers.output import OutputSerializer, OutputListSerializer
-from rodan.paginators.pagination import PaginationSerializer
 
 
 class OutputList(generics.ListAPIView):
@@ -12,7 +11,6 @@ class OutputList(generics.ListAPIView):
     model = Output
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = OutputListSerializer
-    pagination_serializer_class = PaginationSerializer
     filter_fields = (
         "resource",
         "run_job",

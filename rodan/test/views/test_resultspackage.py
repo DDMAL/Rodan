@@ -23,7 +23,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_unfinished_workflowrun(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
             'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
@@ -33,8 +33,8 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_nonexist_port(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
-            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1().hex)
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1())
             ]
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
@@ -45,7 +45,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_post_invalid_status(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid.hex),
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
             'status': task_status.CANCELLED,
             'packaging_mode': 0
         }
@@ -60,7 +60,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             'status': task_status.CANCELLED
         }
         try:
-            response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid.hex), req, format='json')
+            response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid), req, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
         except socket.error:   # rabbitmq not running
             pass
@@ -70,7 +70,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         req = {
             'status': task_status.PROCESSING
         }
-        response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid.hex), req, format='json')
+        response = self.client.patch("/resultspackage/{0}/".format(wfr.uuid), req, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'status': ["Invalid status update"]})
 
@@ -154,13 +154,13 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
     def test_invalid_port(self):
         invalid_op = mommy.make('rodan.OutputPort')
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid.hex),
-            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid.hex)
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid)
             ]
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid.hex, self.test_workflowrun.uuid.hex)]})
+        self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid, self.test_workflowrun.uuid)]})
     """
 
 

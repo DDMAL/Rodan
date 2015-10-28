@@ -6,7 +6,7 @@ from rodan.serializers.runjob import RunJobSerializer
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
-    output_port_type = serializers.HyperlinkedRelatedField(view_name='outputporttype-detail', read_only=True)
+    output_port_type = serializers.HyperlinkedRelatedField(view_name='outputporttype-detail', read_only=True, lookup_field="uuid", lookup_url_kwarg="pk")
     class Meta:
         model = Output
         fields = ("url",
@@ -18,7 +18,7 @@ class OutputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OutputListSerializer(serializers.HyperlinkedModelSerializer):
-    output_port_type = serializers.HyperlinkedRelatedField(view_name='outputporttype-detail', read_only=True)
+    output_port_type = serializers.HyperlinkedRelatedField(view_name='outputporttype-detail', read_only=True, lookup_field="uuid", lookup_url_kwarg="pk")
     class Meta:
         model = Output
         fields = ("url",

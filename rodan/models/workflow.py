@@ -1,7 +1,7 @@
 import os
 import shutil
+import uuid
 from django.db import models
-from uuidfield import UUIDField
 from django.apps import apps
 
 class Workflow(models.Model):
@@ -27,7 +27,7 @@ class Workflow(models.Model):
       with extern=True. If the `Workflow` is not valid, returns empty list.
     """
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=100, db_index=True)
     project = models.ForeignKey("rodan.Project", related_name="workflows", on_delete=models.CASCADE, db_index=True)
     description = models.TextField(blank=True, null=True)

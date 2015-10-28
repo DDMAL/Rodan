@@ -18,7 +18,6 @@ from rest_framework.relations import HyperlinkedIdentityField
 
 from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, Resource, Input, Output, OutputPort, InputPort, ResourceType
 from rodan.serializers.user import UserSerializer
-from rodan.paginators.pagination import PaginationSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
 from rodan.constants import task_status
@@ -41,7 +40,6 @@ class WorkflowRunList(generics.ListCreateAPIView):
     model = WorkflowRun
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = WorkflowRunSerializer
-    pagination_serializer_class = PaginationSerializer
     filter_fields = {
         "status": ['exact'],
         "updated": ['lt', 'gt'],

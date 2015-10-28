@@ -31,17 +31,17 @@
         {% endfor %}
       </td>
     </tr>
-    {% if view.model %}
+    {% if view.queryset.model %}
     <tr>
       <td><strong>Model:</strong></td>
       <td>
         <p>
-          <code>{{ view.model|getattr:"__class__"|getattr:"__name__" }}</code>
+          <code>{{ view.queryset.model|getattr:"__class__"|getattr:"__name__" }}</code>
           &nbsp;&nbsp;
           <a style="cursor:pointer" data-toggle="collapse" data-target="#model_doc">Show/Hide specification</a>
         </p>
         <div id="model_doc" class="collapse" style="margin-left:2em;border-left:2px solid lightgrey;padding-left:1em">
-          {{ view.model|getattr:"__doc__"|to_html }}
+          {{ view.queryset.model|getattr:"__doc__"|to_html }}
         </div>
       </td>
     </tr>

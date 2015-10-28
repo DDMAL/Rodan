@@ -1,6 +1,6 @@
 from django.db import models
 from jsonfield import JSONField
-from uuidfield import UUIDField
+import uuid
 
 class Job(models.Model):
     """
@@ -25,7 +25,7 @@ class Job(models.Model):
 
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, unique=True, db_index=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
     author = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     category = models.CharField(max_length=255, blank=True, null=True, db_index=True)

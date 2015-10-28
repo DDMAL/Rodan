@@ -1,6 +1,6 @@
 from django.db import models
-from uuidfield import UUIDField
 from rodan.models.inputporttype import InputPortType
+import uuid
 
 class Input(models.Model):
     """
@@ -24,7 +24,7 @@ class Input(models.Model):
     class Meta:
         app_label = 'rodan'
 
-    uuid = UUIDField(primary_key=True, auto=True)
+    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     input_port = models.ForeignKey('rodan.InputPort', related_name='inputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     input_port_type_name = models.CharField(max_length=255, db_index=True)
     resource = models.ForeignKey('rodan.Resource', related_name='inputs', on_delete=models.PROTECT, db_index=True)
