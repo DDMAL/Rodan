@@ -17,7 +17,7 @@ class InteractiveAcquireTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         self.test_runjob = mommy.make('rodan.RunJob',
                                       status=task_status.WAITING_FOR_INPUT)
     def test_not_interactive(self):
@@ -31,11 +31,11 @@ class InteractiveAcquireTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self._acquire()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
-        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(test_rj.working_user, self.test_superuser)
         self.assertEqual(response.data['working_url'], "http://testserver" + reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.pk, 'working_user_token': str(test_rj.working_user_token), 'additional_url': ''}))
 
     def test_success_continue_working_same_token(self):
-        self.test_runjob.working_user = self.test_user
+        self.test_runjob.working_user = self.test_superuser
         self.test_runjob.working_user_token = uuid.uuid4()
         t = self.test_runjob.working_user_token
         self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=1)
@@ -43,11 +43,11 @@ class InteractiveAcquireTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self._acquire()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
-        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(test_rj.working_user, self.test_superuser)
         self.assertEqual(test_rj.working_user_token, t)
 
     def test_success_self_expired_change_token(self):
-        self.test_runjob.working_user = self.test_user
+        self.test_runjob.working_user = self.test_superuser
         self.test_runjob.working_user_token = uuid.uuid4()
         t = self.test_runjob.working_user_token
         self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=-1)
@@ -55,21 +55,21 @@ class InteractiveAcquireTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self._acquire()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
-        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(test_rj.working_user, self.test_superuser)
         self.assertNotEqual(test_rj.working_user_token, t)
 
     def test_success_others_have_expired(self):
-        self.test_runjob.working_user = self.test_superuser
+        self.test_runjob.working_user = self.test_user
         self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=-0.1)
         self.test_runjob.save()
         response = self._acquire()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rj = RunJob.objects.get(uuid=self.test_runjob.uuid)  # refetch
-        self.assertEqual(test_rj.working_user, self.test_user)
+        self.assertEqual(test_rj.working_user, self.test_superuser)
 
     def test_fail_others_working(self):
-        self.test_runjob.working_user = self.test_superuser
-        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=+0.1)
+        self.test_runjob.working_user = self.test_user
+        self.test_runjob.working_user_expiry = timezone.now() + datetime.timedelta(seconds=+10)
         self.test_runjob.save()
         response = self._acquire()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
