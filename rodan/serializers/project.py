@@ -3,6 +3,7 @@ from rodan.models.project import Project
 from rodan.models.workflow import Workflow
 from rodan.models.resource import Resource
 from rest_framework import serializers
+from rodan.serializers import AbsoluteURLField
 
 class ProjectCreatorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -57,6 +58,9 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
     creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
     admins = serializers.SerializerMethodField()
     workers = serializers.SerializerMethodField()
+    admins_url = AbsoluteURLField(source='admins_relurl', read_only=True)
+    workers_url = AbsoluteURLField(source='workers_relurl', read_only=True)
+
 
     def get_admins(self, obj):
         return obj.admin_group.user_set.values_list('username', flat=True)
@@ -74,6 +78,8 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
                   'created',
                   'updated',
                   'admins',
-                  'workers')
+                  'workers',
+                  'admins_url',
+                  'workers_url')
 
         read_only_fields = ('created', 'updated', )

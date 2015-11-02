@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 import uuid
+from django.core.urlresolvers import reverse
 
 class Project(models.Model):
     """
@@ -92,3 +93,11 @@ class Project(models.Model):
     @property
     def resource_count(self):
         return self.resources.count()
+
+    @property
+    def admins_relurl(self):
+        return reverse('project-detail-admins', args=(self.pk, ))
+
+    @property
+    def workers_relurl(self):
+        return reverse('project-detail-workers', args=(self.pk, ))
