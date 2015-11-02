@@ -45,6 +45,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)
     workflow_input_ports = InputPortSerializer(many=True, read_only=True)
     workflow_output_ports = OutputPortSerializer(many=True, read_only=True)
+    creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     def validate_project(self, p):
         # [TODO] This should be applied to all objects. It prevents an outsider
@@ -67,6 +68,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
                   "description",
                   "created",
                   "updated",
+                  "creator",
                   "valid",
                   "workflow_runs",
                   "workflow_input_ports",
@@ -74,6 +76,8 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
+    creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
+
     def validate_project(self, p):
         # [TODO] This should be applied to all objects. It prevents an outsider
         # creating objects related to the Project, although normally the outsider

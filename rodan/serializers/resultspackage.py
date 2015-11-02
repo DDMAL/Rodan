@@ -4,6 +4,7 @@ from rodan.serializers import AbsoluteURLField
 
 class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
     package_url = AbsoluteURLField(source="package_relurl", read_only=True)
+    creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
         model = ResultsPackage
@@ -23,6 +24,7 @@ class ResultsPackageSerializer(serializers.HyperlinkedModelSerializer):
 
 class ResultsPackageListSerializer(serializers.HyperlinkedModelSerializer):
     package_url = AbsoluteURLField(source="package_relurl", read_only=True)
+    creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
         model = ResultsPackage

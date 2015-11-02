@@ -5,11 +5,6 @@ from rodan.models.resource import Resource
 from rest_framework import serializers
 from rodan.serializers import AbsoluteURLField
 
-class ProjectCreatorSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username',)
-
 class ProjectWorkflowSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Workflow
