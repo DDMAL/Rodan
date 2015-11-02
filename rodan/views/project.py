@@ -15,7 +15,7 @@ class ProjectList(generics.ListCreateAPIView):
     request with a data body to create a new Project. POST requests will return the
     newly-created Project object.
     """
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated, )
     queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
     filter_fields = {
