@@ -58,7 +58,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        read_only_fields = ('creator', 'created', 'updated', 'workflow_jobs', 'workflow_runs', 'workflow_input_ports', 'workflow_output_ports')
+        read_only_fields = ('creator', 'created', 'updated', 'workflow_jobs', 'workflow_runs', 'workflow_input_ports', 'workflow_output_ports', 'project')
         fields = ("url",
                   "uuid",
                   "name",
