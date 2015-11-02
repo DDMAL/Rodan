@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from jsonfield import JSONField
+from django.core.exceptions import ValidationError
 
 class WorkflowJob(models.Model):
     """
@@ -35,7 +36,7 @@ class WorkflowJob(models.Model):
     job_settings = JSONField(default={}, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
-    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True, db_index=True)
+    group = models.ForeignKey("rodan.WorkflowJobGroup", related_name="workflow_jobs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -52,7 +53,6 @@ class WorkflowJob(models.Model):
         super(WorkflowJob, self).delete(*args, **kwargs)
         wf.valid = False
         wf.save()  # always touch workflow to update the `update` field.
-
 
     def __unicode__(self):
         return u"<WorkflowJob {0}>".format(str(self.uuid))

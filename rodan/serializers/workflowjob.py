@@ -12,7 +12,7 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WorkflowJob
-        read_only_fields = ('created', 'updated', 'input_ports', 'output_ports')
+        read_only_fields = ('created', 'updated', 'input_ports', 'output_ports', 'group') # group is read only. To set group, use workflowjobgroup view.
         fields = ("url",
                   "uuid",
                   "workflow",
@@ -26,15 +26,3 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
                   "group",
                   "created",
                   "updated")
-
-    def validate(self, data):
-        if 'group' in data and data['group']:
-            g = data['group']
-            g_wf = g.workflow_jobs.first()
-            if g_wf:
-                wf = data.get('workflow')
-                if not wf:
-                    wf = self.instance.workflow
-                if wf.uuid != g_wf.uuid:
-                    raise serializers.ValidationError({"group": ["The assigned group does not belong to the Workflow of this WorkflowJob."]})
-        return data
