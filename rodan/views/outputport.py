@@ -5,6 +5,8 @@ from rodan.models.outputport import OutputPort
 from rodan.serializers.outputport import OutputPortSerializer
 from rodan.permissions import CustomObjectPermissions
 from rest_framework import filters
+from rodan.exceptions import CustomAPIException
+from rest_framework import status
 
 
 class OutputPortList(generics.ListCreateAPIView):
@@ -39,3 +41,17 @@ class OutputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     _ignore_model_permissions = True
     queryset = OutputPort.objects.all()
     serializer_class = OutputPortSerializer
+
+    def perform_update(self, op_serializer):
+        if op_serializer.instance.workflow_job.group is not None:
+            invalid_info = {}
+            for k, v in op_serializer.validated_data.iteritems():
+                invalid_info[k] = "To modify this field, you should first remove its workflow job from the group."
+            if invalid_info:
+                raise CustomAPIException(invalid_info, status=status.HTTP_400_BAD_REQUEST)
+        op_serializer.save()
+
+    def perform_destroy(self, op):
+        if op.workflow_job.group is not None:
+            raise CustomAPIException("To delete this output port, you should first remove its workflow job from the group.", status=status.HTTP_400_BAD_REQUEST)
+        op.delete()

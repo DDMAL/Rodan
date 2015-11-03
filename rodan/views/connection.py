@@ -9,6 +9,8 @@ from rodan.models.outputport import OutputPort
 from rodan.serializers.connection import ConnectionSerializer
 from rodan.permissions import CustomObjectPermissions
 from rest_framework import filters
+from rodan.exceptions import CustomAPIException
+from rest_framework import status
 
 
 class ConnectionList(generics.ListCreateAPIView):
@@ -42,3 +44,17 @@ class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
     _ignore_model_permissions = True
     queryset = Connection.objects.all()
     serializer_class = ConnectionSerializer
+
+    def perform_update(self, conn_serializer):
+        if conn_serializer.instance.input_port.workflow_job.group is not None and conn_serializer.instance.input_port.workflow_job.group == conn_serializer.instance.output_port.workflow_job.group:
+            invalid_info = {}
+            for k, v in conn_serializer.validated_data.iteritems():
+                invalid_info[k] = "To modify this field, you should first remove one of its related workflow jobs from the group."
+            if invalid_info:
+                raise CustomAPIException(invalid_info, status=status.HTTP_400_BAD_REQUEST)
+        conn_serializer.save()
+
+    def perform_destroy(self, conn):
+        if conn.input_port.workflow_job.group is not None and conn.input_port.workflow_job.group == conn.output_port.workflow_job.group:
+            raise CustomAPIException("To delete this connection, you should first remove one of its related workflow jobs from the group.", status=status.HTTP_400_BAD_REQUEST)
+        conn.delete()

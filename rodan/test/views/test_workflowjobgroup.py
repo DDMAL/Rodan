@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.models import WorkflowJob, WorkflowJobGroup, InputPort, OutputPort, Connection, Workflow
+from rodan.models import WorkflowJob, WorkflowJobGroup, InputPort, OutputPort, Connection, Workflow, Job
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from model_mommy import mommy
 
@@ -179,3 +179,161 @@ class WorkflowJobGroupActionTestCase(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(InputPort.objects.filter(workflow_job__workflow=wf).count(), 3)
         self.assertEqual(OutputPort.objects.filter(workflow_job__workflow=wf).count(), 4)
         self.assertEqual(Connection.objects.filter(input_port__workflow_job__workflow=wf).count(), 2)
+
+
+class WorkflowJobGroupProtectTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_complex_dummy_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+        wfjgroup1_obj = {
+            'workflow_jobs': [
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_B.uuid),
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_C.uuid),
+            ],
+            'name': 'hahaha'
+        }
+        response = self.client.post("/workflowjobgroups/", wfjgroup1_obj, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+
+        wfjgroup2_obj = {
+            'workflow_jobs': [
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_D.uuid),
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_E.uuid),
+            ],
+            'name': 'hahaha'
+        }
+        response = self.client.post("/workflowjobgroups/", wfjgroup2_obj, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+
+    def test_cannot_delete_workflowjob_in_group(self):
+        anticipated_message = {'detail': "To delete this workflowjob, you should first remove it from the group."}
+        for wfjob in [self.test_wfjob_B, self.test_wfjob_C, self.test_wfjob_D, self.test_wfjob_E]:
+            response = self.client.delete("/workflowjob/{0}/".format(wfjob.pk))
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.data, anticipated_message)
+        for wfjob in [self.test_wfjob_A, self.test_wfjob_F]:
+            response = self.client.delete("/workflowjob/{0}/?format=json".format(wfjob.pk))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_can_change_workflowjob_job_settings_in_group(self):
+        settings_update = {
+            'job_settings': {"a": 1}
+        }
+
+        for wfjob in [self.test_wfjob_B, self.test_wfjob_C, self.test_wfjob_D, self.test_wfjob_E]:
+            response = self.client.patch("/workflowjob/{0}/".format(wfjob.pk), settings_update, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['job_settings'], {'a': 1})
+
+    def test_cannot_change_workflowjob_job__name__workflow_in_group(self):
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
+        wfj_updates = {
+            'job': "http://localhost:8000/job/{0}/".format(job_a.pk),
+            'name': "new name",
+            'workflow': "http://localhost:8000/workflow/{0}/".format(mommy.make('rodan.Workflow').pk)
+        }
+        for k, v in wfj_updates.iteritems():
+            anticipated_message = {k: "To modify this field, you should first remove it from the group."}
+            wfj_update = {k: v}
+            for wfjob in [self.test_wfjob_B, self.test_wfjob_C, self.test_wfjob_D, self.test_wfjob_E]:
+                response = self.client.patch("/workflowjob/{0}/".format(wfjob.pk), wfj_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.data, anticipated_message)
+            for wfjob in [self.test_wfjob_A, self.test_wfjob_F]:
+                response = self.client.patch("/workflowjob/{0}/".format(wfjob.pk), wfj_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_delete_inputport_in_group(self):
+        anticipated_message = {'detail': "To delete this input port, you should first remove its workflow job from the group."}
+        for ip in [self.test_Cip1, self.test_Cip2, self.test_Dip1, self.test_Dip2, self.test_Dip3, self.test_Eip1, self.test_Eip2]:
+            response = self.client.delete("/inputport/{0}/".format(ip.pk))
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.data, anticipated_message)
+        for ip in [self.test_Aip, self.test_Fip1, self.test_Fip2]:
+            response = self.client.delete("/inputport/{0}/?format=json".format(ip.pk))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cannot_modify_inputport_in_group(self):
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
+        ipt_aA = job_a.input_port_types.get(name='in_typeA')
+        ip_updates = {
+            'input_port_type': "http://localhost:8000/inputporttype/{0}/".format(ipt_aA.pk),
+            'label': 'aaa',
+            'workflow_job': "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_A.pk),
+        }
+
+        for k, v in ip_updates.iteritems():
+            anticipated_message = {k: "To modify this field, you should first remove its workflow job from the group."}
+            ip_update = {k: v}
+            for ip in [self.test_Cip1, self.test_Cip2, self.test_Dip1, self.test_Dip2, self.test_Dip3, self.test_Eip1, self.test_Eip2]:
+                response = self.client.patch("/inputport/{0}/".format(ip.pk), ip_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.data, anticipated_message)
+            for ip in [self.test_Aip, self.test_Fip1, self.test_Fip2]:
+                response = self.client.patch("/inputport/{0}/".format(ip.pk), ip_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_delete_outputport_in_group(self):
+        anticipated_message = {'detail': "To delete this output port, you should first remove its workflow job from the group."}
+        for op in [self.test_Bop, self.test_Cop1, self.test_Cop2, self.test_Dop, self.test_Eop]:
+            response = self.client.delete("/outputport/{0}/".format(op.pk))
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.data, anticipated_message)
+        for op in [self.test_Aop, self.test_Fop]:
+            response = self.client.delete("/outputport/{0}/?format=json".format(op.pk))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cannot_modify_outputport_in_group(self):
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
+        opt_aA = job_a.output_port_types.get(name='out_typeA')
+        op_updates = {
+            'output_port_type': "http://localhost:8000/outputporttype/{0}/".format(opt_aA.pk),
+            'label': 'aaa',
+            'workflow_job': "http://localhost:8000/workflowjob/{0}/".format(self.test_wfjob_A.pk),
+        }
+
+        for k, v in op_updates.iteritems():
+            anticipated_message = {k: "To modify this field, you should first remove its workflow job from the group."}
+            op_update = {k: v}
+            for op in [self.test_Bop, self.test_Cop1, self.test_Cop2, self.test_Dop, self.test_Eop]:
+                response = self.client.patch("/outputport/{0}/".format(op.pk), op_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.data, anticipated_message)
+            for op in [self.test_Aop, self.test_Fop]:
+                response = self.client.patch("/outputport/{0}/".format(op.pk), op_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_delete_connection_in_group(self):
+        anticipated_message = {'detail': "To delete this connection, you should first remove one of its related workflow jobs from the group."}
+        for conn in [self.test_conn_Bop_Cip2, self.test_conn_Dop_Eip1]:
+            response = self.client.delete("/connection/{0}/".format(conn.pk))
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.data, anticipated_message)
+        for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2, self.test_conn_Bop_Dip3]:
+            response = self.client.delete("/connection/{0}/?format=json".format(conn.pk))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cannot_modify_connection_in_group(self):
+        conn_updates = {
+            'output_port': "http://localhost:8000/outputport/{0}/".format(self.test_Aop.pk),
+            'input_port': "http://localhost:8000/inputport/{0}/".format(self.test_Fip2.pk),
+        }
+
+        for k, v in conn_updates.iteritems():
+            anticipated_message = {k: "To modify this field, you should first remove one of its related workflow jobs from the group."}
+            conn_update = {k: v}
+            for conn in [self.test_conn_Bop_Cip2, self.test_conn_Dop_Eip1]:
+                response = self.client.patch("/connection/{0}/".format(conn.pk), conn_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.data, anticipated_message)
+            for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2, self.test_conn_Bop_Dip3]:
+                response = self.client.patch("/connection/{0}/".format(conn.pk), conn_update, format='json')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)

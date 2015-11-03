@@ -227,24 +227,24 @@ class RodanTestSetUpMixin(object):
                                    workflow_job=self.test_wfjob_F,
                                    output_port_type=opt_aA)
 
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Aop,
-                   input_port=self.test_Cip1)
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Bop,
-                   input_port=self.test_Cip2)
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Cop1,
-                   input_port=self.test_Dip2)
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Dop,
-                   input_port=self.test_Eip1)
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Dop,
-                   input_port=self.test_Fip2)
-        mommy.make('rodan.Connection',
-                   output_port=self.test_Bop,
-                   input_port=self.test_Dip3)
+        self.test_conn_Aop_Cip1 = mommy.make('rodan.Connection',
+                                             output_port=self.test_Aop,
+                                             input_port=self.test_Cip1)
+        self.test_conn_Bop_Cip2 = mommy.make('rodan.Connection',
+                                             output_port=self.test_Bop,
+                                             input_port=self.test_Cip2)
+        self.test_conn_Cop1_Dip2 = mommy.make('rodan.Connection',
+                                              output_port=self.test_Cop1,
+                                              input_port=self.test_Dip2)
+        self.test_conn_Dop_Eip1 = mommy.make('rodan.Connection',
+                                             output_port=self.test_Dop,
+                                             input_port=self.test_Eip1)
+        self.test_conn_Dop_Fip2 = mommy.make('rodan.Connection',
+                                             output_port=self.test_Dop,
+                                             input_port=self.test_Fip2)
+        self.test_conn_Bop_Dip3 = mommy.make('rodan.Connection',
+                                             output_port=self.test_Bop,
+                                             input_port=self.test_Dip3)
 
     def setUp_resources_for_complex_dummy_workflow(self):
         self.test_resourcecollection = mommy.make(

@@ -1,11 +1,11 @@
 from rest_framework import generics
 from rest_framework import permissions
-
+from rest_framework import status
 from rodan.models.workflowjob import WorkflowJob
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.permissions import CustomObjectPermissions
 from rest_framework import filters
-
+from rodan.exceptions import CustomAPIException
 
 class WorkflowJobList(generics.ListCreateAPIView):
     """
@@ -46,3 +46,19 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
     _ignore_model_permissions = True
     queryset = WorkflowJob.objects.all()
     serializer_class = WorkflowJobSerializer
+
+    def perform_update(self, wfj_serializer):
+        if wfj_serializer.instance.group is not None:
+            # only allow job_settings to be updated
+            invalid_info = {}
+            for k, v in wfj_serializer.validated_data.iteritems():
+                if k != 'job_settings':
+                    invalid_info[k] = "To modify this field, you should first remove it from the group."
+            if invalid_info:
+                raise CustomAPIException(invalid_info, status=status.HTTP_400_BAD_REQUEST)
+        wfj_serializer.save()
+
+    def perform_destroy(self, wfj):
+        if wfj.group is not None:
+            raise CustomAPIException("To delete this workflowjob, you should first remove it from the group.", status=status.HTTP_400_BAD_REQUEST)
+        wfj.delete()

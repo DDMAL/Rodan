@@ -6,6 +6,8 @@ from rodan.serializers.inputport import InputPortSerializer
 from django.db.models import Q
 from rodan.permissions import CustomObjectPermissions
 from rest_framework import filters
+from rodan.exceptions import CustomAPIException
+from rest_framework import status
 
 
 class InputPortList(generics.ListCreateAPIView):
@@ -57,3 +59,17 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     _ignore_model_permissions = True
     queryset = InputPort.objects.all()
     serializer_class = InputPortSerializer
+
+    def perform_update(self, ip_serializer):
+        if ip_serializer.instance.workflow_job.group is not None:
+            invalid_info = {}
+            for k, v in ip_serializer.validated_data.iteritems():
+                invalid_info[k] = "To modify this field, you should first remove its workflow job from the group."
+            if invalid_info:
+                raise CustomAPIException(invalid_info, status=status.HTTP_400_BAD_REQUEST)
+        ip_serializer.save()
+
+    def perform_destroy(self, ip):
+        if ip.workflow_job.group is not None:
+            raise CustomAPIException("To delete this input port, you should first remove its workflow job from the group.", status=status.HTTP_400_BAD_REQUEST)
+        ip.delete()
