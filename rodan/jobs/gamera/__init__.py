@@ -1,4 +1,4 @@
-__version__ = "0.9.9_dev"
+__version__ = "1.0.0-alpha"
 
 from gamera.core import init_gamera
 init_gamera()
