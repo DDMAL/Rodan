@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 import django_filters
 from rodan.models import WorkflowJobGroup
-from rodan.serializers.workflowjobgroup import WorkflowJobGroupSerializer
+from rodan.serializers.workflowjobgroup import WorkflowJobGroupSerializer, WorkflowJobGroupImportCreateSerializer
 
 
 class WorkflowJobGroupList(generics.ListCreateAPIView):
@@ -16,9 +16,14 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     """
     model = WorkflowJobGroup
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = WorkflowJobGroupSerializer
     filter_fields = ('origin', )
     queryset = WorkflowJobGroup.objects.all() # [TODO] filter according to the user?
+
+    def get_serializer_class(self, *a, **k):
+        if self.request.method == "POST" and 'origin' in self.request.data:
+            return WorkflowJobGroupImportCreateSerializer
+        else:
+            return WorkflowJobGroupSerializer
 
     class filter_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(name="workflow_jobs__workflow")

@@ -1,9 +1,10 @@
 import itertools
 import jsonschema
-from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType, Project
+from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType, Project, WorkflowJobGroup
 from rest_framework import serializers
 from django.core.urlresolvers import Resolver404, resolve
 from rodan.serializers import TransparentField
+from django.conf import settings
 
 class InputPortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -105,7 +106,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     _serialized_field_name = 'serialized'
 
     def to_internal_value(self, data):
-        if self.instance is None and self._serialized_field_name in data:
+        if self.instance is None and self._serialized_field_name in data: # creating: self.instance is None
             # importing workflow
             if 'project' not in data:
                 raise serializers.ValidationError({'project': ['This field is required.']})
@@ -134,6 +135,30 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
                 'project': proj,
                 self._serialized_field_name: serialized
             }
+        elif self.instance is None and 'workflow_job_group' in data:
+            if 'project' not in data:
+                raise serializers.ValidationError({'project': ['This field is required.']})
+            try:
+                proj = self.fields['project'].to_internal_value(data['project'])
+            except serializers.ValidationError as e:
+                raise serializers.ValidationError({'project': e.detail})
+
+            wfjgroup_field = serializers.HyperlinkedRelatedField(
+                view_name="workflowjobgroup-detail",
+                queryset=WorkflowJobGroup.objects.all(),
+                write_only=True,
+                lookup_field='uuid',
+                lookup_url_kwarg='pk'
+            )
+            try:
+                wfjgroup = wfjgroup_field.to_internal_value(data['workflow_job_group'])
+            except serializers.ValidationError as e:
+                raise serializers.ValidationError({'workflow_job_group': e.detail})
+
+            return {
+                'project': proj,
+                'workflow_job_group': wfjgroup
+            }
         else:
             return super(WorkflowListSerializer, self).to_internal_value(data)
 
@@ -142,7 +167,12 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
             # importing workflow
             serialized = validated_data[self._serialized_field_name]
             s_format = version_map[serialized['__version__']]
-            return s_format.load(**validated_data)
+            return s_format.load(serialized, self.validated_data['project'], creator=self.context['request'].user)
+        elif 'workflow_job_group' in validated_data:
+            # exporting wfjgroup
+            dumped_wfjs = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION].dump(self.validated_data['workflow_job_group'])
+            loaded_wf = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION].load(dumped_wfjs, self.validated_data['project'], creator=self.context['request'].user)
+            return loaded_wf
         else:
             return super(WorkflowListSerializer, self).create(validated_data)
 
@@ -150,13 +180,14 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 class RodanWorkflowSerializationFormatBase(object):
     """
     Base class for Workflow Serialization and Deserialization.
+    [TODO]: refactor the serialization API to better handle wfjgroup-related dump/load.
 
     Need to override:
     - __version__ -- a float
     - schema -- a Python dictionary
-    - dump(self, workflow) -> Python dictionary
+    - dump(self, workflow_or_wfjgroup) -> Python dictionary
     - validate_ids(self, serialized) raises self.ValidationError
-    - load(self, serialized, project) -> Workflow object. Save all the related objects
+    - load(self, serialized, project_or_workflow) -> Workflow object. Save all the related objects
       in this field.
     """
 
@@ -166,7 +197,7 @@ class RodanWorkflowSerializationFormatBase(object):
 
     def __init__(self):
         self.schema_validator = jsonschema.Draft4Validator(self.schema)
-    def dump(self, wf):
+    def dump(self, wf_or_wfjgroup):
         raise NotImplementedError()
     def validate(self, serialized):
         try:
@@ -189,7 +220,7 @@ class RodanWorkflowSerializationFormatBase(object):
             raise
     def validate_extra(self, serialized):
         raise NotImplementedError()
-    def load(self, serialized, project, **k):
+    def load(self, serialized, project_or_workflow, **k):
         raise NotImplementedError()
 
 class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBase):
@@ -288,11 +319,24 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             if conn['output_port'] not in op_ids:
                 raise self.ValidationError({'connections[{0}].output_port'.format(i_conn): 'Referencing an invalid OutputPort ID.'})
 
-    def dump(self, wf):
+    def dump(self, wf_or_wfjgroup):
+        if isinstance(wf_or_wfjgroup, Workflow):
+            wf = wf_or_wfjgroup
+            wfjgroup = None
+            name = wf.name
+            description = wf.description or ''
+        elif isinstance(wf_or_wfjgroup, WorkflowJobGroup):
+            wfjgroup = wf_or_wfjgroup
+            wf = wfjgroup.workflow
+            name = wfjgroup.name
+            description = wfjgroup.description or ''
+        else:
+            raise TypeError("dump(wf_or_wfjgroup) receives a wrong type of argument.")
+
         rep = {
             '__version__': self.__version__,
-            'name': wf.name,
-            'description': wf.description or '',
+            'name': name,
+            'description': description,
             'workflow_jobs': [],
             'connections': []
         }
@@ -301,7 +345,8 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
         op_map = {}
         ids = itertools.count(start=1, step=1)
 
-        for wfj in wf.workflow_jobs.all():
+        wfj_queryset = wf.workflow_jobs.all() if wfjgroup is None else wfjgroup.workflow_jobs.all()
+        for wfj in wfj_queryset:
             rep_wfj = {
                 'job_name': wfj.job.name,
                 'job_settings': wfj.job_settings,
@@ -328,7 +373,12 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 rep_wfj['output_ports'].append(rep_op)
             rep['workflow_jobs'].append(rep_wfj)
 
-        for conn in Connection.objects.filter(input_port__workflow_job__workflow=wf):
+        if wfjgroup is None:
+            conn_queryset = Connection.objects.filter(input_port__workflow_job__workflow=wf)
+        else:
+            wfj_pks = list(wfj_queryset.values_list('pk', flat=True))
+            conn_queryset = Connection.objects.filter(input_port__workflow_job__in=wfj_pks, output_port__workflow_job__in=wfj_pks)
+        for conn in conn_queryset:
             rep_conn = {
                 'output_port': op_map[conn.output_port.uuid.hex],
                 'input_port': ip_map[conn.input_port.uuid.hex]
@@ -337,12 +387,19 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
 
         return rep
 
-    def load(self, serialized, project, **k):
-        wf = Workflow.objects.create(name=serialized['name'],
-                                     project=project,
-                                     description=serialized['description'],
-                                     creator=k.get('creator'),
-                                     valid=False)
+    def load(self, serialized, project_or_workflow, **k):
+        if isinstance(project_or_workflow, Project):
+            wf = Workflow.objects.create(name=serialized['name'],
+                                         project=project_or_workflow,
+                                         description=serialized['description'],
+                                         creator=k.get('creator'),
+                                         valid=False)
+            loaded_wfjs = []
+        elif isinstance(project_or_workflow, Workflow):
+            wf = project_or_workflow
+            loaded_wfjs = []
+        else:
+            raise TypeError('load(serialized, project_or_workflow, **k) receives a wrong type of argument.')
         ip_map = {}
         op_map = {}
 
@@ -361,10 +418,15 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                                                output_port_type=j.output_port_types.get(name=op_s['type']),
                                                label=op_s.get('label'))
                 op_map[op_s['id']] = op
+            loaded_wfjs.append(wfj)
         for conn_s in serialized['connections']:
             conn = Connection.objects.create(output_port=op_map[conn_s['output_port']],
                                              input_port=ip_map[conn_s['input_port']])
-        return wf
+
+        if isinstance(project_or_workflow, Project):
+            return wf
+        elif isinstance(project_or_workflow, Workflow):
+            return loaded_wfjs
 
 
 version_map = {
