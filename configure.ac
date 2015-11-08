@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script
-AC_INIT(Rodan,0.01)
+AC_INIT(Rodan,1.0.0)
 AC_COPYRIGHT(Copyright 2011-2015 Distributed Digital Music Archives and Libraries Lab)
 
 
@@ -7,9 +7,13 @@ AC_COPYRIGHT(Copyright 2011-2015 Distributed Digital Music Archives and Librarie
 # debug (default disable)
 AC_ARG_ENABLE([debug],
         AS_HELP_STRING([--enable-debug], [enable debug mode]))
-AS_IF([test "x$enable_debug" = "xyes"], [ENABLE_DEBUG=True], [ENABLE_DEBUG=False])
-
-
+if test "x$enable_debug" = "xyes"; then
+   ENABLE_DEBUG=True
+   AC_MSG_NOTICE([DEBUG mode is on.])
+else
+   ENABLE_DEBUG=False
+   AC_MSG_NOTICE([DEBUG mode is off.])
+fi
 
 # diva.js (default enable)
 AC_ARG_ENABLE([diva],
@@ -17,9 +21,11 @@ AC_ARG_ENABLE([diva],
 if test "x$enable_diva" != "xno"; then
    ENABLE_DIVA=True
    IF_DIVA=""
+   AC_MSG_NOTICE([Diva.js is enabled.])
 else
    ENABLE_DIVA=False
    IF_DIVA="# "
+   AC_MSG_NOTICE([Diva.js is disabled.])
 fi
 
 # substitute variables
@@ -29,15 +35,17 @@ AC_SUBST(IF_DIVA)
 
 
 # MODE: server or worker
-AC_ARG_VAR([MODE], [Automated setup mode: server | worker])
+AC_ARG_VAR([MODE], [Rodan source code configure mode: server | worker])
 
 # check values
 if test "x$MODE" = "xserver"; then
    IF_SERVER=""
+   AC_MSG_NOTICE([Rodan source code will be configured as "server".])
 elif test "x$MODE" = "xworker"; then
    IF_SERVER='# '
+   AC_MSG_NOTICE([Rodan source code will be configured as "worker".])
 else
-  AC_MSG_ERROR(MODE must be either server or worker)
+   AC_MSG_ERROR(MODE must be either server or worker)
 fi
 
 AC_SUBST(IF_SERVER)
@@ -51,10 +59,10 @@ AC_ARG_WITH(graphicsmagick-search-path,
 
 AC_PATH_PROG([BIN_GM], [gm], [:], [${graphicsmagick_search_path}:$PATH])
 if test ! -f "$BIN_GM"; then
-        AS_IF([test "x$ENABLE_DIVA" = "xTrue"], [AC_MSG_ERROR(Can't find graphicsmagick for Diva.js)], [AC_MSG_WARN(Can't find graphicsmagick)])
+        AS_IF([test "x$ENABLE_DIVA" = "xTrue"], [AC_MSG_ERROR(Can't find graphicsmagick for Diva.js)], [AC_MSG_WARN([Can't find graphicsmagick. Some optical music recognition jobs will not function.])])
         BIN_GM=None               # Python None
 else
-        BIN_GM="'$BIN_GM'"   # Python string
+        BIN_GM="'$BIN_GM'"        # Python string
 fi
 
 # kdu_compress (if with diva)
@@ -65,7 +73,7 @@ AC_ARG_WITH(kdu_compress-search-path,
 AC_PATH_PROG([BIN_KDU_COMPRESS], [kdu_compress], [:], [${kdu_compress_search_path}:$PATH])
 
 if test ! -f "$BIN_KDU_COMPRESS"; then
-        AS_IF([test "x$ENABLE_DIVA" = "xTrue"], [AC_MSG_ERROR(Can't find kdu_compress for Diva.js)], [AC_MSG_WARN(Can't find kdu_compress)])
+        AS_IF([test "x$ENABLE_DIVA" = "xTrue"], [AC_MSG_ERROR(Can't find kdu_compress for Diva.js)], [AC_MSG_WARN([Can't find kdu_compress. Some optical music recognition jobs will not function.])])
         BIN_KDU_COMPRESS=None                    # Python None
 else
         BIN_KDU_COMPRESS="'$BIN_KDU_COMPRESS'"   # Python string
@@ -79,7 +87,7 @@ AC_ARG_WITH(xmllint-search-path,
 AC_PATH_PROG([BIN_XMLLINT], [xmllint], [:], [${xmllint_search_path}:$PATH])
 
 if test ! -f "$BIN_XMLLINT"; then
-        AC_MSG_WARN(Can't find xmllint)
+        AC_MSG_WARN(Can't find xmllint. Some optical music recognition jobs will not function.)
         BIN_XMLLINT=None                  # Python None
 else
         BIN_XMLLINT="'$BIN_XMLLINT'"      # Python string
@@ -93,7 +101,7 @@ AC_ARG_WITH(vips-search-path,
 AC_PATH_PROG([BIN_VIPS], [vips], [:], [${vips_search_path}:$PATH])
 
 if test ! -f "$BIN_VIPS"; then
-        AC_MSG_WARN(Can't find vips)
+        AC_MSG_WARN(Can't find vips. Some optical music recognition jobs will not function.)
         BIN_VIPS=None               # Python None
 else
         BIN_VIPS="'$BIN_VIPS'"   # Python string
@@ -109,6 +117,8 @@ AC_SUBST(BIN_VIPS)
 
 # Set directories
 RODAN_APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+AC_MSG_NOTICE([Rodan source code directory: $RODAN_APP_DIR])
+
 AC_ARG_VAR([RODAN_VENV_DIR], [Virtual environment directory (full path)])
 AC_ARG_VAR([RODAN_DATA_DIR], [Rodan data directory (full path)])
 
@@ -206,17 +216,39 @@ fi
 
 
 
-# Celery broker
-AC_ARG_VAR([CELERY_BROKER_URL], [Celery broker URL (default amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL)])
+# RabbitMQ
+AC_ARG_VAR([AMQP_HOST], [RabbitMQ host (default localhost)])
+AC_ARG_VAR([AMQP_PORT], [RabbitMQ port (default 5672)])
+AC_ARG_VAR([AMQP_VHOST], [RabbitMQ vhost name (default rodan)])
+AC_ARG_VAR([AMQP_USER], [RabbitMQ user (default rodan)])
+AC_ARG_VAR([AMQP_PASSWORD], [RabbitMQ password])
 
-if test -z "$CELERY_BROKER_URL"; then
-  AC_MSG_WARN(set default: CELERY_BROKER_URL=amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL)
-  CELERY_BROKER_URL=amqp://rodanuser:DDMALrodan@localhost:5672/DDMAL
+if test -z "$AMQP_HOST"; then
+  AC_MSG_WARN(set default: AMQP_HOST=localhost)
+  AMQP_HOST=localhost
 fi
+if test -z "$AMQP_PORT"; then
+  AC_MSG_WARN(set default: AMQP_PORT=5672)
+  AMQP_PORT=5672
+fi
+if test -z "$AMQP_VHOST"; then
+  AC_MSG_WARN(set default: AMQP_VHOST=rodan)
+  AMQP_VHOST=rodan
+fi
+if test -z "$AMQP_USER"; then
+  AC_MSG_WARN(set default: AMQP_USER=rodan)
+  AMQP_USER=rodan
+fi
+if test -z "$AMQP_PASSWORD"; then
+  AC_MSG_ERROR(AMQP_PASSWORD missing in arguments)
+fi
+
+CELERY_BROKER_URL=ampq://$AMQP_USER:$AMQP_PASSWORD@$AMQP_HOST:$AMQP_PORT/$AMQP_VHOST
+
 
 
 # Domain name
-AC_ARG_VAR([DOMAIN_NAME], [Domain name (only MODE=server)])
+AC_ARG_VAR([DOMAIN_NAME], [Domain name (required if MODE=server)])
 
 if test "x$MODE" = "xserver"; then
   if test -z "$DOMAIN_NAME"; then
@@ -227,7 +259,7 @@ else
 fi
 
 # Client max body size (only MODE=server)
-AC_ARG_VAR([CLIENT_MAX_BODY_SIZE], [Max size of HTTP request, related to the size of resource file (default 20M, only MODE=server)])
+AC_ARG_VAR([CLIENT_MAX_BODY_SIZE], [Max size of HTTP request, related to the size of resource file (default 20M, required if MODE=server)])
 if test "x$MODE" = "xserver"; then
   if test -z "$CLIENT_MAX_BODY_SIZE"; then
     AC_MSG_WARN([set default: CLIENT_MAX_BODY_SIZE=20M])
