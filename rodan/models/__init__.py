@@ -37,6 +37,8 @@ def update_rodan_jobs(sender, **kwargs):
     This function is executed after the post-migrate signal.
     It registers or updates the database registry of Rodan jobs.
     """
+    if sender.name != "rodan":
+        return
     setattr(settings, "_update_rodan_jobs", True)
     import rodan.jobs.load
 
@@ -48,6 +50,9 @@ def update_database_trigger(sender, **kwargs):
     It then loops through all tables that begin with 'rodan_', destroys triggers if they already exist in that table, and then creates the triggers.
     After each INSERT, UPDATE, or DELETE action, a message containing information with the status, the model name and the uuid will be published through Redis.
     '''
+    if sender.name != "rodan":
+        return
+
     # don't register triggers in test database
     if settings.TEST:
         return
