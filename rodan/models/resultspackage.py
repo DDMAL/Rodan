@@ -78,11 +78,11 @@ class ResultsPackage(models.Model):
 
     @property
     def package_path(self):
-        return get_package_path(self.uuid)
+        return get_package_path(self.uuid.hex) # backward compability (not using hyphenated UUID)
 
     @property
     def package_relurl(self):
-        return "{0}/{1}".format(settings.MEDIA_URL, get_package_relpath(self.uuid))
+        return "{0}/{1}".format(settings.MEDIA_URL, get_package_relpath(self.uuid.hex)) # backward compability (not using hyphenated UUID)
 
 def get_package_relpath(rp_uuid):
     return 'results_packages/{0}.zip'.format(rp_uuid)
