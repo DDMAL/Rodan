@@ -339,3 +339,15 @@ if test "x$MODE" = "xserver"; then
 fi
 
 AC_OUTPUT()
+
+# set permissions
+chmod a+x celery_start.sh
+touch rodan.log
+touch database.log
+chmod g+w rodan.log database.log
+
+if test "x$MODE" = "xserver"; then
+  chmod a+x gunicorn_start.sh websocket_start.sh
+fi
+
+AC_MSG_NOTICE([Please run: sudo chgrp -R $WWW_GROUP *; sudo chown -R $WWW_USER:$WWW_GROUP $RODAN_DATA_DIR])
