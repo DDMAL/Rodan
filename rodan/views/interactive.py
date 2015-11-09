@@ -106,9 +106,9 @@ class InteractiveWorkingView(APIView):
             return response
         else:
             # request for static files
-            ## find the path of the static file. Need to figure out the vendor module
-            job_vendor_path = manual_task._vendor_path()
-            job_static_path = os.path.join(job_vendor_path, 'static')  # e.g.: "/path/to/rodan/jobs/gamera/static"
+            ## find the path of the static file. Need to figure out the package name
+            job_package_path = manual_task._package_path()
+            job_static_path = os.path.join(job_package_path, 'static')  # e.g.: "/path/to/rodan/jobs/gamera/static"
             if os.path.isabs(additional_url) or additional_url == '..' or additional_url.startswith('../'):  # prevent traversal (from flask https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py#L567-L591)
                 raise Http404
             abspath = os.path.join(job_static_path, additional_url)
