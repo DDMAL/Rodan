@@ -159,6 +159,13 @@ AC_SUBST(RODAN_VENV_DIR)
 AC_SUBST(RODAN_DATA_DIR)
 
 
+# Secret Key
+AC_ARG_VAR([SECRET_KEY], [Secret key for encrypting credentials (required)])
+if test -z "$SECRET_KEY"; then
+  AC_MSG_ERROR(SECRET_KEY missing in arguments)
+fi
+
+
 # Database
 AC_ARG_VAR([DB_NAME], [Database name (default rodan)])
 AC_ARG_VAR([DB_USER], [Database user (default rodan)])
@@ -247,7 +254,7 @@ CELERY_BROKER_URL=amqp://$AMQP_USER:$AMQP_PASSWORD@$AMQP_HOST:$AMQP_PORT/$AMQP_V
 
 
 
-# Domain name
+# Domain name (only MODE=server)
 AC_ARG_VAR([DOMAIN_NAME], [Domain name (required if MODE=server)])
 
 if test "x$MODE" = "xserver"; then
@@ -256,6 +263,17 @@ if test "x$MODE" = "xserver"; then
   fi
 else
   DOMAIN_NAME="rodan-worker"
+fi
+
+# Paginate by (only MODE=server)
+AC_ARG_VAR([PAGINATE_BY], [Paginate by ? items (default=20, required if MODE=server)])
+if test "x$MODE" = "xserver"; then
+  if test -z "$PAGINATE_BY"; then
+    AC_MSG_WARN([set default: PAGINATE_BY=20])
+    PAGINATE_BY=20
+  fi
+else
+  PAGINATE_BY=0 # dummy value for workers
 fi
 
 # Client max body size (only MODE=server)
@@ -288,6 +306,7 @@ fi
 
 
 # substitute variables
+AC_SUBST(SECRET_KEY)
 AC_SUBST(DB_NAME)
 AC_SUBST(DB_USER)
 AC_SUBST(DB_PASSWORD)
@@ -298,6 +317,7 @@ AC_SUBST(REDIS_PORT)
 AC_SUBST(REDIS_DB)
 AC_SUBST(CELERY_BROKER_URL)
 AC_SUBST(DOMAIN_NAME)
+AC_SUBST(PAGINATE_BY)
 AC_SUBST(CLIENT_MAX_BODY_SIZE)
 AC_SUBST(SSL_CERT)
 AC_SUBST(SSL_CERT_KEY)
@@ -316,7 +336,7 @@ if test "x$MODE" = "xserver"; then
   fi
 fi
 if test -z "$IIPSRV_FCGI"; then
-  IIPSRV_FCGI="N/A"
+  IIPSRV_FCGI=N/A
 fi
 
 # User and Group that runs Rodan
@@ -333,7 +353,7 @@ fi
 
 
 # output
-AC_CONFIG_FILES(celery_start.sh rodan/settings_production.py etc/supervisor/conf.d/rodan.conf)
+AC_CONFIG_FILES(celery_start.sh rodan/settings.py etc/supervisor/conf.d/rodan.conf)
 if test "x$MODE" = "xserver"; then
   AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/nginx/sites-available/rodan)
 fi
