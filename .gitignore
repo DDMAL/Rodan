@@ -12,7 +12,7 @@ rodan_env
 rodan/migrations/*
 gunicorn_start.sh
 celery_start.sh
-rodan/settings_production.py
+rodan/settings.py
 rodan/static/Rodan
 
 /.DS_Store
