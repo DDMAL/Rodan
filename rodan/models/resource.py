@@ -106,7 +106,7 @@ class Resource(models.Model):
 
     @property
     def resource_path(self):
-        return os.path.join(self.project.project_path, "resources", str(self.uuid))
+        return os.path.join(self.project.project_path, "resources", self.uuid.hex)  # backward compability (not using hyphenated UUID)
 
     def __unicode__(self):
         return u"<Resource {0}>".format(self.uuid)

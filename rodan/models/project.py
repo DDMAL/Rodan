@@ -34,7 +34,7 @@ class Project(models.Model):
     """
     @property
     def project_path(self):
-        return os.path.join(settings.MEDIA_ROOT, "projects", str(self.uuid))
+        return os.path.join(settings.MEDIA_ROOT, "projects", self.uuid.hex)  # backward compatible (not using hyphenated UUID)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=255, db_index=True)
@@ -50,17 +50,21 @@ class Project(models.Model):
     def __unicode__(self):
         return u"<Project {0}>".format(self.name)
 
-    def save(self, *args, **kwargs):
-        # create user groups
+    def ensure_groups(self, save=True):
         try:
             self.admin_group
         except Group.DoesNotExist:
             self.admin_group = Group.objects.create(name="project/{0}/admin".format(self.pk))
-
         try:
             self.worker_group
         except Group.DoesNotExist:
             self.worker_group = Group.objects.create(name="project/{0}/worker".format(self.pk))
+
+        if save:
+            self.save(update_fields=['admin_group', 'worker_group'])
+
+    def save(self, *args, **kwargs):
+        self.ensure_groups(save=False)
         super(Project, self).save(*args, **kwargs)
         if not os.path.exists(self.project_path):
             os.makedirs(self.project_path)
