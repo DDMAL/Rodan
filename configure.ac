@@ -267,6 +267,26 @@ if test "x$MODE" = "xserver"; then
   fi
 fi
 
+# SSL certificate (only MODE=server)
+AC_ARG_VAR([SSL_CERT], [Path to SSL certificate file (required if MODE=server)])
+AC_ARG_VAR([SSL_CERT_KEY], [Path to SSL certificate key file (required if MODE=server)])
+if test "x$MODE" = "xserver"; then
+  if test -z "$SSL_CERT"; then
+    AC_MSG_ERROR(SSL_CERT missing in arguments)
+  fi
+  if test ! -f "$SSL_CERT"; then
+    AC_MSG_ERROR([SSL_CERT file not found])
+  fi
+  if test -z "$SSL_CERT_KEY"; then
+    AC_MSG_ERROR(SSL_CERT_KEY missing in arguments)
+  fi
+  if test ! -f "$SSL_CERT_KEY"; then
+    AC_MSG_ERROR([SSL_CERT_KEY file not found])
+  fi
+fi
+
+
+
 # substitute variables
 AC_SUBST(DB_NAME)
 AC_SUBST(DB_USER)
@@ -279,6 +299,8 @@ AC_SUBST(REDIS_DB)
 AC_SUBST(CELERY_BROKER_URL)
 AC_SUBST(DOMAIN_NAME)
 AC_SUBST(CLIENT_MAX_BODY_SIZE)
+AC_SUBST(SSL_CERT)
+AC_SUBST(SSL_CERT_KEY)
 
 # IIPServer bin
 AC_ARG_VAR([IIPSRV_FCGI], [IIPServer fcgi binary (required if --enable-diva and MODE=server)])

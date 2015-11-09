@@ -787,7 +787,13 @@ angular.module('rodanTestApp', ['ngRoute', 'ngCookies'])
             console.log("Browser doesn't support sockets");
         }
 
-        var ws = new WebSocket('ws://' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
+
+        if (window.location.protocol == "http:") {
+            var ws_protocol = "ws:";
+        } else if (window.location.protocol == "https:") {
+            var ws_protocol = "wss:";   // over HTTPS
+        }
+        var ws = new WebSocket(ws_protocol + '//' + location.host + '/ws/rodan?subscribe-broadcast&publish-broadcast&echo');
         var heartbeat_msg = "--heartbeat--", heartbeat_interval = null, missed_heartbeats = 0, max_missed_heartbeats = 3;
         console.log ("Web Socket created with the state" + ws.readyState);
 

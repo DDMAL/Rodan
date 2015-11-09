@@ -222,6 +222,9 @@ if DEBUG:
         'rest_framework.authentication.TokenAuthentication',
     )
 
+# let Django know if the request is HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_SCHEME', 'https')
+
 # used by django-guardian
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # default
