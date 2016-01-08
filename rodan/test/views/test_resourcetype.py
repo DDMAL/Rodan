@@ -14,6 +14,15 @@ class ResourceTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
     def test_get_list(self):
         response = self.client.get("/resourcetypes/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertIn('current_page', response.data)
+
+        # test disable pagination
+        response = self.client.get("/resourcetypes/?disable_pagination=yes")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('results', response.data)
+        self.assertNotIn('current_page', response.data)
+        self.assertEqual(len(response.data), ResourceType.objects.all().count())
 
     def test_get_detail(self):
         rt = ResourceType.objects.first()

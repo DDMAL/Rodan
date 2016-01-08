@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Job
+from django.conf import settings
 import uuid
 
 class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -14,6 +15,15 @@ class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def test_get_list(self):
         response = self.client.get("/jobs/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertIn('current_page', response.data)
+
+        # test disable pagination
+        response = self.client.get("/jobs/?disable_pagination=yes")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('results', response.data)
+        self.assertNotIn('current_page', response.data)
+        self.assertEqual(len(response.data), Job.objects.all().count())
 
     def test_get_detail(self):
         job = Job.objects.first()

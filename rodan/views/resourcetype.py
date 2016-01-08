@@ -2,6 +2,7 @@ from rest_framework import generics, filters
 from rest_framework import permissions
 from rodan.models import ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
+from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOption
 
 
 class ResourceTypeList(generics.ListAPIView):
@@ -12,6 +13,7 @@ class ResourceTypeList(generics.ListAPIView):
     permission_classes = (permissions.AllowAny, )
     queryset = ResourceType.objects.all()
     serializer_class = ResourceTypeSerializer
+    pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
         "mimetype": ['exact', 'icontains'],

@@ -16,3 +16,19 @@ class CustomPagination(PageNumberPagination):
             ('total_pages', self.page.paginator.num_pages),
             ('results', data)
         ]))
+
+class CustomPaginationWithDisablePaginationOption(CustomPagination):
+    """
+    Add "disable_pagination" GET parameter on top of CustomPagination.
+    """
+    def get_paginated_response(self, data):
+        if self.request.query_params.get('disable_pagination'):
+            return Response(data)
+        else:
+            return super(CustomPaginationWithDisablePaginationOption, self).get_paginated_response(data)
+    def paginate_queryset(self, queryset, request, view=None):
+        if request.query_params.get('disable_pagination'):
+            self.request = request
+            return queryset
+        else:
+            return super(CustomPaginationWithDisablePaginationOption, self).paginate_queryset(queryset, request, view)

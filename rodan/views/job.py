@@ -3,6 +3,7 @@ from rest_framework import generics, permissions, filters
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
 from rodan.models import Workflow
+from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOption
 
 
 class JobList(generics.ListAPIView):
@@ -13,6 +14,7 @@ class JobList(generics.ListAPIView):
     permission_classes = (permissions.AllowAny, )
     queryset = Job.objects.all()
     serializer_class = JobSerializer
+    pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
         "category": ['exact'],
