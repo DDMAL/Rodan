@@ -57,7 +57,7 @@ def update_database_trigger(sender, **kwargs):
     if settings.TEST:
         return
 
-    conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.REDIS_HOST, user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
+    conn = psycopg2.connect(database=settings.DATABASES['default']['NAME'], host=settings.DATABASES['default']['HOST'], user=settings.DATABASES['default']['USER'], password=settings.DATABASES['default']['PASSWORD'])
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     curs = conn.cursor()
@@ -221,7 +221,7 @@ def update_database_trigger(sender, **kwargs):
         if 'No module named redis' in str(e):
             traceback.print_exc()
             print "================================================================"
-            print "Please execute `pip install redis` as a system package (not in virtualenv)."
+            print "Please execute `pip install redis` as a system package (not in virtualenv) on the database server {0}.".format(settings.DATABASES['default']['HOST'])
         elif 'redis' in str(e):
             traceback.print_exc()
             print "================================================================"
