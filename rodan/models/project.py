@@ -53,10 +53,14 @@ class Project(models.Model):
     def ensure_groups(self, save=True):
         try:
             self.admin_group
+            if self.admin_group is None:
+                raise Group.DoesNotExist("Group not exist")
         except Group.DoesNotExist:
             self.admin_group = Group.objects.create(name="project/{0}/admin".format(self.pk))
         try:
             self.worker_group
+            if self.worker_group is None:
+                raise Group.DoesNotExist("Worker not exist")
         except Group.DoesNotExist:
             self.worker_group = Group.objects.create(name="project/{0}/worker".format(self.pk))
 
