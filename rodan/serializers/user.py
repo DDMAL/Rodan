@@ -17,7 +17,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'is_staff',
                   'is_active',
                   'is_superuser',
-                  'groups',
                   'projects',
                   'workflows',
                   'workflow_runs')
