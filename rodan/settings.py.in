@@ -61,7 +61,9 @@ DATABASES = {
         'USER': '@DB_USER@' if not TEST else '@DB_USER_TEST@',
         'PASSWORD': '@DB_PASSWORD@' if not TEST else '@DB_PASSWORD_TEST@',
         'HOST': '@DB_HOST@',
-        'PORT': '@DB_PORT@'
+        'PORT': '@DB_PORT@',
+        'REDIS_PORT': '@DB_REDIS_PORT@',
+        'REDIS_DBNUMBER': '@DB_REDIS_DBNUMBER@'
     }
 }
 # Rodan DATA folder

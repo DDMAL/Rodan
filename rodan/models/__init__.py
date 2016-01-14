@@ -77,11 +77,11 @@ def update_database_trigger(sender, **kwargs):
                 'model': model,
                 'uuid': uuid
             }}
-            r = redis.StrictRedis("{0}", {1}, db={2})
+            r = redis.StrictRedis("localhost", {0}, db={1})
             r.publish('rodan:broadcast:rodan', json.dumps(data))
         $$ LANGUAGE plpythonu;
-        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {3};
-    '''.format(settings.REDIS_HOST, settings.REDIS_PORT, settings.DB, settings.DATABASES['default']['USER'])
+        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {2};
+    '''.format(settings.DATABASES['default']['REDIS_PORT'], settings.DATABASES['default']['REDIS_DBNUMBER'], settings.DATABASES['default']['USER'])
 
     # Testing publish_message function
     test_publish_message = '''
