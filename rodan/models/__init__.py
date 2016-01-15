@@ -225,7 +225,7 @@ def update_database_trigger(sender, **kwargs):
         elif 'redis' in str(e):
             traceback.print_exc()
             print "================================================================"
-            print "Please start redis-server at {0}:{1}.".format(settings.REDIS_HOST, settings.REDIS_PORT)
+            print "Please start redis-server at {0}:{1}.".format(settings.DATABASES['default']['HOST'], settings.DATABASES['default']['REDIS_PORT'])
         else:
             raise
         sys.exit(2)
