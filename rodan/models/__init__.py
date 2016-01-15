@@ -77,11 +77,11 @@ def update_database_trigger(sender, **kwargs):
                 'model': model,
                 'uuid': uuid
             }}
-            r = redis.StrictRedis("localhost", {0}, db={1})
+            r = redis.StrictRedis("{0}", {1}, db={2})
             r.publish('rodan:broadcast:rodan', json.dumps(data))
         $$ LANGUAGE plpythonu;
-        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {2};
-    '''.format(settings.DATABASES['default']['REDIS_PORT'], settings.DATABASES['default']['REDIS_DBNUMBER'], settings.DATABASES['default']['USER'])
+        GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {3};
+    '''.format(settings.WS4REDIS_CONNECTION['host'], settings.WS4REDIS_CONNECTION['port'], settings.WS4REDIS_CONNECTION['db'], settings.DATABASES['default']['USER'])
 
     # Testing publish_message function
     test_publish_message = '''
@@ -225,7 +225,7 @@ def update_database_trigger(sender, **kwargs):
         elif 'redis' in str(e):
             traceback.print_exc()
             print "================================================================"
-            print "Please start redis-server at {0}:{1}.".format(settings.DATABASES['default']['HOST'], settings.DATABASES['default']['REDIS_PORT'])
+            print "Please start redis-server at {0}:{1}.".format(settings.WS4REDIS_CONNECTION['host'], settings.WS4REDIS_CONNECTION['port'])
         else:
             raise
         sys.exit(2)

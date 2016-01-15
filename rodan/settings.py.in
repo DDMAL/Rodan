@@ -62,8 +62,6 @@ DATABASES = {
         'PASSWORD': '@DB_PASSWORD@' if not TEST else '@DB_PASSWORD_TEST@',
         'HOST': '@DB_HOST@',
         'PORT': '@DB_PORT@',
-        'REDIS_PORT': '@DB_REDIS_PORT@',
-        'REDIS_DBNUMBER': '@DB_REDIS_DBNUMBER@'
     }
 }
 # Rodan DATA folder
@@ -289,12 +287,14 @@ CORS_EXPOSE_HEADERS = (
 ###############################################################################
 WEBSOCKET_URL = '/ws/'
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WS4REDIS_CONNECTION = {
+    'host': '@REDIS_HOST@',
+    'port': @REDIS_PORT@,
+    'db': @REDIS_DB@,
+}
 WS4REDIS_EXPIRE = 3600
 WS4REDIS_HEARTBEAT = '--heartbeat--'
 WS4REDIS_PREFIX = 'rodan'
-REDIS_HOST = '@REDIS_HOST@'
-REDIS_PORT = @REDIS_PORT@
-DB = @REDIS_DB@
 
 ###############################################################################
 ## 2.d  IIPServer Configuration (if using Diva.js)

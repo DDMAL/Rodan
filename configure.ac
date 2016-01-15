@@ -204,16 +204,21 @@ if test -z "$DB_PASSWORD_TEST"; then
 fi
 
 # Redis
-AC_ARG_VAR([DB_REDIS_PORT], [Redis port (default 6379)])
-AC_ARG_VAR([DB_REDIS_DBNUMBER], [Redis database number (default 0)])
+AC_ARG_VAR([REDIS_HOST], [Redis host (default localhost)])
+AC_ARG_VAR([REDIS_PORT], [Redis port (default 6379)])
+AC_ARG_VAR([REDIS_DB], [Redis database number (default 0)])
 
-if test -z "$DB_REDIS_PORT"; then
-  AC_MSG_WARN(set default: DB_REDIS_PORT=6379)
-  DB_REDIS_PORT=6379
+if test -z "$REDIS_HOST"; then
+  AC_MSG_WARN(set default: REDIS_HOST=localhost)
+  REDIS_HOST=localhost
 fi
-if test -z "$DB_REDIS_DBNUMBER"; then
-  AC_MSG_WARN(set default: DB_REDIS_DBNUMBER=0)
-  DB_REDIS_DBNUMBER=0
+if test -z "$REDIS_PORT"; then
+  AC_MSG_WARN(set default: REDIS_PORT=6379)
+  REDIS_PORT=6379
+fi
+if test -z "$REDIS_DB"; then
+  AC_MSG_WARN(set default: REDIS_DB=0)
+  REDIS_DB=0
 fi
 
 
@@ -307,8 +312,9 @@ AC_SUBST(DB_USER)
 AC_SUBST(DB_PASSWORD)
 AC_SUBST(DB_HOST)
 AC_SUBST(DB_PORT)
-AC_SUBST(DB_REDIS_PORT)
-AC_SUBST(DB_REDIS_DBNUMBER)
+AC_SUBST(REDIS_HOST)
+AC_SUBST(REDIS_PORT)
+AC_SUBST(REDIS_DB)
 AC_SUBST(CELERY_BROKER_URL)
 AC_SUBST(DOMAIN_NAME)
 AC_SUBST(PAGINATE_BY)
