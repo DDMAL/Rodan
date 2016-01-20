@@ -10,6 +10,7 @@ class WorkflowJobGroup(models.Model):
     - `uuid`
     - `name`
     - `description`
+    - `workflow` -- the `Workflow` that it belongs to.
     - `origin` -- a nullable reference to the `Workflow` indicating where it comes
       from.
 
