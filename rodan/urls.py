@@ -38,6 +38,8 @@ from rodan.views.input import InputList, InputDetail
 
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
+from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetList
+from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetDetail
 
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
 from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
@@ -109,6 +111,9 @@ urlpatterns += format_suffix_patterns(
 
              url(r'^workflowjobcoordinatesets/$', WorkflowJobCoordinateSetList.as_view(), name="workflowjobcoordinateset-list"),
              url(r'^workflowjobcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', WorkflowJobCoordinateSetDetail.as_view(), name="workflowjobcoordinateset-detail"),
+             url(r'^workflowjobgroupcoordinatesets/$', WorkflowJobGroupCoordinateSetList.as_view(), name="workflowjobgroupcoordinateset-list"),
+             url(r'^workflowjobgroupcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', WorkflowJobGroupCoordinateSetDetail.as_view(), name="workflowjobgroupcoordinateset-detail"),
+
              url(r'^auth/me/', AuthMeView.as_view(), name="auth-me"),
              url(r'^auth/register/', djoser_views.RegistrationView.as_view(), name="auth-register"),
              url(r'^auth/token/', AuthTokenView.as_view(), name="auth-token"),

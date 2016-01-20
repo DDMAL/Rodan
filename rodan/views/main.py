@@ -50,6 +50,7 @@ class APIRoot(APIView):
                 'taskqueue-status': reverse('taskqueue-status', request=request, format=format),
                 #'taskqueue-config': reverse('taskqueue-config', request=request, format=format),
                 'workflowjobcoordinatesets': reverse('workflowjobcoordinateset-list', request=request, format=format),
+                'workflowjobgroupcoordinatesets': reverse('workflowjobgroupcoordinateset-list', request=request, format=format),
                 'auth-me': reverse('auth-me', request=request, format=format),
                 'auth-register': reverse('auth-register', request=request, format=format),
                 'auth-token': reverse('auth-token', request=request, format=format),
