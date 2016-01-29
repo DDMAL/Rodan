@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions, filters
 from rodan.models.outputporttype import OutputPortType
 from rodan.serializers.outputporttype import OutputPortTypeSerializer
+from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOption
 
 
 class OutputPortTypeList(generics.ListAPIView):
@@ -12,6 +13,7 @@ class OutputPortTypeList(generics.ListAPIView):
     permission_classes = (permissions.AllowAny, )
     queryset = OutputPortType.objects.all()
     serializer_class = OutputPortTypeSerializer
+    pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = ()
     filter_fields = {
         "job": ['exact', 'icontains'],

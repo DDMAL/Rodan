@@ -14,6 +14,15 @@ class OutputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_get_list(self):
         response = self.client.get("/outputporttypes/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertIn('current_page', response.data)
+
+        # test disable pagination
+        response = self.client.get("/outputporttypes/?disable_pagination=yes")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('results', response.data)
+        self.assertNotIn('current_page', response.data)
+        self.assertEqual(len(response.data), OutputPortType.objects.all().count())
 
     def test_get_detail(self):
         opt = OutputPortType.objects.first()
