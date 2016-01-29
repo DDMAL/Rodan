@@ -37,7 +37,7 @@ import rodan.jobs.master_task
 
 from rodan.jobs import module_loader, package_versions
 
-from rodan.models import Job
+from rodan.models import Job, WorkflowJob
 
 job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
@@ -57,6 +57,15 @@ if job_list:  # there are database jobs that are not registered. Should delete t
                     Job.objects.get(name=j_name).delete()
                     print "  ..deleted.\n\n"
                 except Exception as e:
-                    print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                    confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
+                    if confirm_delete.lower() == 'y':
+                        try:
+                            WorkflowJob.objects.filter(job__name=j_name).delete()
+                            Job.objects.get(name=j_name).delete()
+                            print "  ..deleted. OK\n\n"
+                        except Exception as e:
+                            print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                    else:
+                        print "  ..not deleted.\n\n"
             else:
                 print "  ..not deleted.\n\n"
