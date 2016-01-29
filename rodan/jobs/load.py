@@ -43,7 +43,7 @@ job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
     def set_version(module):
         package_versions[package_name] = getattr(module, '__version__', 'n/a')
-    module_loader(package_name, set_version, raise_exception=True)  # RodanTaskType will update `job_list`
+    module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
 
 UPDATE_JOBS = getattr(settings, "_update_rodan_jobs", False)
 if job_list:  # there are database jobs that are not registered. Should delete them.

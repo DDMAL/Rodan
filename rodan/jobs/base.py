@@ -63,7 +63,7 @@ class RodanTaskType(TaskType):
         else:
             if not Job.objects.filter(name=attrs['name']).exists():
                 if not getattr(settings, '_update_rodan_jobs', None) and not settings.TEST:
-                    raise ImproperlyConfigured('You have to run `manage.py migrate` before starting Rodan server or any Rodan workers.')
+                    raise ImproperlyConfigured('The catalogue of local jobs does not match the ones in database: local job `{0}` has not been registered. Please run `manage.py migrate` on Rodan server to update the database.')
 
                 try:
                     # verify the schema
