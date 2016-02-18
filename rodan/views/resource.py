@@ -41,6 +41,12 @@ class ResourceList(generics.ListCreateAPIView):
 
     class filter_class(django_filters.FilterSet):
         origin__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
+        resource_type__in = django_filters.MethodFilter()
+
+        def filter_resource_type__in(self, q, v):
+            vs = v.split(',')
+            return q.filter(resource_type__uuid__in=vs)
+
         class Meta:
             model = Resource
             fields = {
