@@ -32,6 +32,7 @@ from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
 from rodan.views.inputport import InputPortList, InputPortDetail
 from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
 from rodan.views.resource import ResourceList, ResourceDetail, ResourceViewer
+from rodan.views.resourcelist import ResourceListList, ResourceListDetail
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
@@ -100,6 +101,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^resources/$', ResourceList.as_view(), name="resource-list"),
              url(r'^resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceDetail.as_view(), name="resource-detail"),
              url(r'^resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/viewer/$', ResourceViewer.as_view(), name="resource-viewer"),
+             url(r'^resourcelists/$', ResourceListList.as_view(), name="resourcelist-list"),
+             url(r'^resourcelist/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceListDetail.as_view(), name="resourcelist-detail"),
              url(r'^resourcetypes/$', ResourceTypeList.as_view(), name="resourcetype-list"),
              url(r'^resourcetype/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceTypeDetail.as_view(), name="resourcetype-detail"),
              url(r'^outputs/$', OutputList.as_view(), name="output-list"),

@@ -172,22 +172,29 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
         self.client.force_authenticate(user=self.test_superuser)
 
         # modify all manual job to automatic to save effort (and in/output ports)
-        job_a = self.test_wfjob_A.job
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
+
+        ipt_aA = job_a.input_port_types.get(name='in_typeA')
+        ipt_aB = job_a.input_port_types.get(name='in_typeB')
+        ipt_aL = job_a.input_port_types.get(name='in_typeL')
+        opt_aA = job_a.output_port_types.get(name='out_typeA')
+        opt_aB = job_a.output_port_types.get(name='out_typeB')
+        opt_aL = job_a.output_port_types.get(name='out_typeL')
+
         self.test_wfjob_B.job = job_a
         self.test_wfjob_B.save()
         self.test_wfjob_D.job = job_a
         self.test_wfjob_D.save()
 
-        ipt_aA = self.test_Aip.input_port_type
-        ipt_aB = self.test_Cip2.input_port_type
-        opt_aA = self.test_Aop.output_port_type
-        self.test_Bop.output_port_type = opt_aA
+        self.test_Bop.output_port_type = opt_aL
         self.test_Bop.save()
         self.test_Dip1.input_port_type = ipt_aA
         self.test_Dip1.save()
         self.test_Dip2.input_port_type = ipt_aB
         self.test_Dip2.save()
-        self.test_Dip3.input_port_type = ipt_aA
+        self.test_Dip3.input_port_type = ipt_aL
         self.test_Dip3.save()
         self.test_Dop.output_port_type = opt_aA
         self.test_Dop.save()

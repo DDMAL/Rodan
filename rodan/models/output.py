@@ -17,6 +17,8 @@ class Output(models.Model):
     - `run_job` -- a reference to the `RunJob` associated with this `Output`.
     - `resource` -- the precise `Resource` that is output by the `RunJob` at
       the above-referenced `OutputPort`.
+    - `resource_list` -- the precise `ResourceList` that is output by the `RunJob` at
+      the above-referenced `OutputPort`.
 
     **Properties**
 
@@ -32,7 +34,8 @@ class Output(models.Model):
     output_port = models.ForeignKey('rodan.OutputPort', related_name='outputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     output_port_type_name = models.CharField(max_length=255, db_index=True)
     run_job = models.ForeignKey('rodan.RunJob', related_name='outputs', on_delete=models.CASCADE, db_index=True)
-    resource = models.ForeignKey('rodan.Resource', related_name='outputs', on_delete=models.PROTECT, db_index=True)
+    resource = models.ForeignKey('rodan.Resource', related_name='outputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
+    resource_list = models.ForeignKey('rodan.ResourceList', related_name='outputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
 
     def __unicode__(self):
         return u"<Output {0}>".format(str(self.uuid))

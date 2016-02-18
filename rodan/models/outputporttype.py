@@ -18,6 +18,7 @@ class OutputPortType(models.Model):
       more than once.
     - `maximum` -- the maximum number of `OutputPort`s of this `OutputPortType` a
       `WorkflowJob` may use in order to meet the execution requirements.
+    - `is_list` -- indicates whether it is a list type.
     """
     class Meta:
         app_label = 'rodan'
@@ -28,6 +29,7 @@ class OutputPortType(models.Model):
     resource_types = models.ManyToManyField('rodan.ResourceType', related_name='output_port_types')
     minimum = models.IntegerField(db_index=True)
     maximum = models.IntegerField(db_index=True)
+    is_list = models.BooleanField(db_index=True)
 
     def __unicode__(self):
         return u"<OutputPortType {0}>".format(str(self.uuid))

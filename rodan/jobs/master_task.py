@@ -1,5 +1,5 @@
 from celery import registry, task
-from rodan.models import RunJob, Resource, WorkflowRun
+from rodan.models import RunJob, Resource, WorkflowRun, ResourceList, Input
 from rodan.constants import task_status
 from django.db.models import Q
 import thread
@@ -25,13 +25,31 @@ def master_task(workflow_run_id):
     """
     thread_id = str(thread.get_ident())
 
-    # find and lock runable runjobs
+    # find and lock runable RunJobs
+    ## 1. Get a list of Inputs that belong to perhaps runable RunJobs and have their
+    ##    Resources and/or ResourceLists unsatisfied
+    unpromising_inputs = Input.objects.filter(
+        Q(run_job__workflow_run__uuid=workflow_run_id)   # its RunJob in the workflow
+        & Q(run_job__status=task_status.SCHEDULED)       # its RunJob is SCHEDULED
+        & Q(run_job__lock__isnull=True)                  # its RunJob not locked by other concurrent master tasks
+        & ~(
+            ## It has Resource and its Resource is ready.
+            (Q(resource__isnull=False) & ~Q(resource__compat_resource_file__exact=""))
+            ## OR (it should have ResourceList) its ResourceList is not empty and
+            ## has all Resources ready.
+            | (
+                Q(resource_list__resources__isnull=False)
+                & ~Q(resource_list__resources__compat_resource_file__exact="")
+            )
+        )
+    )
+    unpromising_runjob_uuids = unpromising_inputs.values_list('run_job__uuid', flat=True).distinct()
+    ## 2.
     locked_runjobs_count = RunJob.objects.filter(
-        Q(workflow_run__uuid=workflow_run_id)
-        & Q(status=task_status.SCHEDULED)
-        & (~Q(inputs__resource__compat_resource_file__exact='')   # not having ANY input with compat_resource_file==''
-           | Q(inputs__isnull=True))      # OR no input
-        & Q(lock__isnull=True)    # not locked by other concurrent master tasks
+        Q(workflow_run__uuid=workflow_run_id)   # RunJob in the workflow
+        & Q(status=task_status.SCHEDULED)       # RunJob is SCHEDULED
+        & Q(lock__isnull=True)                  # RunJob not locked by other concurrent master tasks
+        & ~Q(uuid__in=unpromising_runjob_uuids)
     ).update(lock=thread_id)
 
     if locked_runjobs_count == 0:

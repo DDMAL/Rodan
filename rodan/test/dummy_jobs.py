@@ -31,27 +31,42 @@ class dummy_automatic_job(RodanTask):
     input_port_types = (
         {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
         {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeL', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2'), 'is_list': True},
     )
     output_port_types = (
         {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
         {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeL', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2'), 'is_list': True},
     )
 
     def run_my_task(self, inputs, settings, outputs):
         in_resources = []
         for ipt_name in inputs:
             for input in inputs[ipt_name]:
-                in_resources.append(input['resource_path'])
+                if ipt_name != 'in_typeL':
+                    in_resources.append(input['resource_path'])
+                else:
+                    for ii in input:
+                        in_resources.append(ii['resource_path'])
         for opt_name in outputs:
             for output in outputs[opt_name]:
                 if len(in_resources) > 0:
                     with open(in_resources[0], 'r') as f:
                         if 'fail' in f.read():   # You can deliberately fail the job in test
                             raise Exception('dummy manual job error')
-                    shutil.copyfile(in_resources[0], output['resource_path'])
+                    if opt_name != 'out_typeL':
+                        shutil.copyfile(in_resources[0], output['resource_path'])
+                    else:
+                        for i in range(10):
+                            shutil.copyfile(in_resources[0], os.path.join(output['resource_folder'], str(i).zfill(5)))
                 else:
-                    with open(output['resource_path'], 'w') as g:
-                        g.write('dummy')
+                    if opt_name != 'out_typeL':
+                        with open(output['resource_path'], 'w') as g:
+                            g.write('dummy')
+                    else:
+                        for i in range(10):
+                            with open(os.path.join(output['resource_folder'], str(i).zfill(5)), 'w') as g:
+                                g.write('dummy')
 
     def my_error_information(self, exc, traceback):
         return {'error_summary': "dummy automatic job error",
@@ -83,10 +98,12 @@ class dummy_manual_job(RodanTask):
     input_port_types = (
         {'name': 'in_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
         {'name': 'in_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'in_typeL', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2'), 'is_list': True},
     )
     output_port_types = (
         {'name': 'out_typeA', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
         {'name': 'out_typeB', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2')},
+        {'name': 'out_typeL', 'minimum': 0, 'maximum': 10, 'resource_types': ('test/a1', 'test/a2'), 'is_list': True},
     )
 
     def run_my_task(self, inputs, settings, outputs):
@@ -95,8 +112,13 @@ class dummy_manual_job(RodanTask):
         else:
             for opt in outputs:
                 for o in outputs[opt]:
-                    with open(o['resource_path'], 'w') as f:
-                        json.dump(settings['@finish'], f)
+                    if opt != 'out_typeL':
+                        with open(o['resource_path'], 'w') as f:
+                            json.dump(settings['@finish'], f)
+                    else:
+                        for i in range(10):
+                            with open(os.path.join(o['resource_folder'], str(i).zfill(5)), 'w') as f:
+                                json.dump(settings['@finish'], f)
 
     def get_my_interface(self, inputs, settings):
         t = Template("dummy {{test}}")

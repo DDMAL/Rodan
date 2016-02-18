@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 
-from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType
+from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType, ResourceList
 from rodan.views.workflowrun import WorkflowRunList
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -120,6 +120,37 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_valid_assignment__with_list_of_resource_lists(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Dip1)] = [self.url(self.test_resource)]
+        ra[self.url(self.test_Fip1)] = [self.url(self.test_resource)]
+
+        resource_lists = []
+        for i in range(10):
+            rl = mommy.make('rodan.ResourceList',
+                            project=self.test_project,
+                            resource_type=ResourceType.cached('test/a2')
+            )
+            rs = mommy.make(
+                'rodan.Resource', _quantity=5,
+                project=self.test_project,
+                resource_type = ResourceType.cached('test/a2')
+            )
+            for index, res in enumerate(rs):
+                res.name = str(index) # 0 to 9
+                res.save()
+                res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+            rl.resources.add(*rs)
+            resource_lists.append(rl)
+        ra[self.url(self.test_Dip3)] = map(self.url, resource_lists)
+
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_no_resource_assignments(self):
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -180,7 +211,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['A list of resources is expected']}}
+        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['A list of resources or resource lists is expected']}}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resources_empty(self):
@@ -216,8 +247,8 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['Resource is not in the project of Workflow']}}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['Resource is not in the project of Workflow']}}}
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['Resource or ResourceList is not in the project of Workflow']}}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['Resource or ResourceList is not in the project of Workflow']}}}
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resource_no_compat_resource_file(self):
@@ -247,6 +278,70 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The resource type does not match the InputPort']}}}
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_assign_resource_to_list_ports(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        pos = len(self.test_resourcecollection)
+        ra[self.url(self.test_Dip1)].append(self.url(self.test_resourcelist))
+        ra[self.url(self.test_Fip1)].append(self.url(self.test_resourcelist))
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {pos: ['The InputPort requires Resources but is provided with ResourceLists']}}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {pos: ['The InputPort requires Resources but is provided with ResourceLists']}}}
+        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_assign_resource_list_to_nonlist_ports(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Dip3)] = map(self.url, self.test_resourcecollection)
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The InputPort requires ResourceLists but is provided with Resources']}}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_resource_list_not_in_project(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        self.test_resourcelist.project = mommy.make('rodan.Project')
+        self.test_resourcelist.save()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['Resource or ResourceList is not in the project of Workflow']}}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resource_no_compat_resource_file__in_resource_list(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        res = self.test_resourcelist.resources.all()[3]
+        res.compat_resource_file.delete()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The compatible resource file of #3 in the resource list is not ready']}}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_resource_type_not_match__in_resource_list(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        self.test_resourcelist.resource_type = ResourceType.cached('test/b')
+        self.test_resourcelist.save()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type does not match the InputPort']}}}
+        self.assertEqual(response.data, anticipated_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -452,7 +547,11 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         def assert_same_resource_types(op):
             op_types = op.output_port_type.resource_types.all().values_list('mimetype', flat=True)
             for o in op.outputs.all():
-                r_type = o.resource.resource_type.mimetype
+                if op.output_port_type.is_list:
+                    r = o.resource_list
+                else:
+                    r = o.resource
+                r_type = r.resource_type.mimetype
                 self.assertIn(r_type, op_types)
         assert_same_resource_types(self.test_Aop)
         assert_same_resource_types(self.test_Bop)
@@ -470,6 +569,10 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(
             set(self.test_Eip2.inputs.values_list('resource__uuid', flat=True)),
             set([self.test_resource.uuid])
+        )
+        self.assertEqual(
+            set(self.test_Dip3.inputs.values_list('resource_list__uuid', flat=True)),
+            set([self.test_resourcelist.uuid])
         )
         self.assertEqual(
             set(self.test_Dip1.inputs.values_list('resource__uuid', flat=True)),
@@ -494,7 +597,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         Fo_names_set = set([])
         for output in self.test_Fop.outputs.all():
-            Fo_names_set.add(output.resource.name)
+            Fo_names_set.add(output.resource_list.name)
         self.assertEqual(rc_names_set, Fo_names_set)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
@@ -522,7 +625,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         Cout2 = self.test_Cop2.outputs.first()
         Douts = self.test_Dop.outputs.all()
         Eouts = self.test_Eop.outputs.all()
-        Fouts = self.test_Eop.outputs.all()
+        Fouts = self.test_Fop.outputs.all()
 
         Ain = self.test_Aip.inputs.first()
         Cin1 = self.test_Cip1.inputs.first()
@@ -546,7 +649,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
         self.assertTrue(Aout.resource.compat_resource_file)
-        self.assertFalse(Bout.resource.compat_resource_file)
+        for r in Bout.resource_list.resources.all():
+            self.assertFalse(r.compat_resource_file)
         self.assertFalse(Cout1.resource.compat_resource_file)
         self.assertFalse(Cout2.resource.compat_resource_file)
         for Douti in Douts:
@@ -554,7 +658,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for Eouti in Eouts:
             self.assertFalse(Eouti.resource.compat_resource_file)
         for Fouti in Fouts:
-            self.assertFalse(Fouti.resource.compat_resource_file)
+            for r in Fouti.resource_list.resources.all():
+                self.assertFalse(r.compat_resource_file)
 
 
         # Work with RunJob B
@@ -599,7 +704,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjFi in rjFs:
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
-        self.assertTrue(Bout.resource.compat_resource_file)
+        for r in Bout.resource_list.resources.all():
+            self.assertTrue(r.compat_resource_file)
         self.assertTrue(Cout1.resource.compat_resource_file)
         self.assertTrue(Cout2.resource.compat_resource_file)
         for Douti in Douts:
@@ -607,7 +713,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for Eouti in Eouts:
             self.assertFalse(Eouti.resource.compat_resource_file)
         for Fouti in Fouts:
-            self.assertFalse(Fouti.resource.compat_resource_file)
+            for r in Fouti.resource_list.resources.all():
+                self.assertFalse(r.compat_resource_file)
 
         # Work with one of RunJob D
         response = self.client.post("/interactive/{0}/acquire/".format(str(rjDs[0].uuid)))
@@ -650,26 +757,28 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjE0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_E)[0].run_job
         Eout0 = rjE0.outputs.get(output_port__output_port_type__name='out_typeA')
         rjF0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
-        Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeA')
+        Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeL')
         self.assertEqual(rjD0.status, task_status.FINISHED)
         self.assertTrue(Dout0.resource.compat_resource_file)
         self.assertEqual(rjE0.status, task_status.FINISHED)
         self.assertTrue(Eout0.resource.compat_resource_file)
         self.assertEqual(rjF0.status, task_status.FINISHED)
-        self.assertTrue(Fout0.resource.compat_resource_file)
+        for r in Fout0.resource_list.resources.all():
+            self.assertTrue(r.compat_resource_file)
 
         for rjDi in rjDremain:
             Douti = rjDi.outputs.get(output_port__output_port_type__name='out_typeA')
             rjEi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_E)[0].run_job
             Eouti = rjEi.outputs.get(output_port__output_port_type__name='out_typeA')
             rjFi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
-            Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeA')
+            Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeL')
             self.assertEqual(rjDi.status, task_status.WAITING_FOR_INPUT)
             self.assertFalse(Douti.resource.compat_resource_file)
             self.assertEqual(rjEi.status, task_status.SCHEDULED)
             self.assertFalse(Eouti.resource.compat_resource_file)
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
-            self.assertFalse(Fouti.resource.compat_resource_file)
+            for r in Fouti.resource_list.resources.all():
+                self.assertFalse(r.compat_resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
@@ -718,6 +827,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjFi in rjFs:
             self.assertEqual(rjFi.status, task_status.FINISHED)
         for Fouti in Fouts:
-            self.assertTrue(Fouti.resource.compat_resource_file)
+            for r in Fouti.resource_list.resources.all():
+                self.assertTrue(r.compat_resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)

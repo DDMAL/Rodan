@@ -151,6 +151,13 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             for connection in op.connections.all():
                 ips.append(connection.input_port)
             for ip in ips:
+                # check list-typed
+                if ip.input_port_type.is_list and not op.output_port_type.is_list:
+                    raise WorkflowValidationError('RESOURCETYPE_LIST_CONFLICT', 'InputPort {0} accepts a list of resources but OutputPort {1} is not list-typed.'.format(ip.label, op.label), [op, ip])
+                elif not ip.input_port_type.is_list and op.output_port_type.is_list:
+                    raise WorkflowValidationError('RESOURCETYPE_LIST_CONFLICT', 'OutputPort {0} is list-typed but InputPort {1} is not.'.format(op.label, ip.label), [op, ip])
+
+                # then check common resource types
                 in_type_set = set(ip.input_port_type.resource_types.all())
                 resource_type_set = resource_type_set.intersection(in_type_set)
                 if not set(resource_type_set):

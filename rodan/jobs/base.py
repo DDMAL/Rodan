@@ -1,7 +1,7 @@
 import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema, inspect
 from celery import Task, registry
 from celery.app.task import TaskType
-from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
+from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun, ResourceList
 from rodan.constants import task_status
 from django.conf import settings as rodan_settings
 from django.core.files import File
@@ -86,7 +86,8 @@ class RodanTaskType(TaskType):
                         i = InputPortType(job=j,
                                           name=ipt['name'],
                                           minimum=ipt['minimum'],
-                                          maximum=ipt['maximum'])
+                                          maximum=ipt['maximum'],
+                                          is_list=ipt.get('is_list', False))
                         i.save()
                         resource_types = RodanTaskType._resolve_resource_types(ipt['resource_types'])
                         if len(resource_types) == 0:
@@ -97,7 +98,8 @@ class RodanTaskType(TaskType):
                         o = OutputPortType(job=j,
                                            name=opt['name'],
                                            minimum=opt['minimum'],
-                                           maximum=opt['maximum'])
+                                           maximum=opt['maximum'],
+                                           is_list=opt.get('is_list', False))
                         o.save()
                         resource_types = RodanTaskType._resolve_resource_types(opt['resource_types'])
                         if len(resource_types) == 0:
@@ -174,6 +176,19 @@ class RodanTaskType(TaskType):
                                     confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
                                     if confirm_update.lower() == 'y':
                                         pt.maximum = attrs_pt['maximum']
+                                        pt.save()
+                                        print "  ..updated.\n\n"
+                                    else:
+                                        print "  ..not updated.\n\n"
+
+                            attrs_is_list = bool(attrs_pt.get('is_list', False))
+                            if attrs_is_list != pt.is_list:
+                                if not UPDATE_JOBS:
+                                    raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py migrate` to confirm this update.".format('is_list', pt_name, j.name, pt.is_list, attrs_is_list, msg))
+                                else:
+                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('is_list', pt_name, j.name, pt.is_list, attrs_is_list, msg))
+                                    if confirm_update.lower() == 'y':
+                                        pt.is_list = attrs_is_list
                                         pt.save()
                                         print "  ..updated.\n\n"
                                     else:
@@ -266,58 +281,65 @@ class RodanTask(Task):
     ################################
     # Private retrieval methods
     ################################
+
     def _inputs(self, runjob, with_urls=False):
         """
         Return a dictionary of list of input file path and input resource type.
         If with_urls=True, it also includes the compat resource url and thumbnail urls.
         """
-        values = ['input_port_type_name',
-                  'resource__compat_resource_file',
-                  'resource__resource_type__mimetype']
-        if with_urls:
-            values.append('resource__uuid')
-        input_values = Input.objects.filter(run_job=runjob).values(*values)
+        def _extract_resource(resource, resource_type_mimetype=None):
+            r = {'resource_path': str(resource.compat_resource_file.path),  # convert 'unicode' object to 'str' object for consistency
+                 'resource_type': str(resource_type_mimetype) or str(resource.resource_type.mimetype)}
+            if with_urls:
+                r['resource_url'] = str(resource.compat_file_url)
+                r['small_thumb_url'] = str(resource.small_thumb_url)
+                r['medium_thumb_url'] = str(resource.medium_thumb_url)
+                r['large_thumb_url'] = str(resource.large_thumb_url)
+                r['diva_object_data'] = str(resource.diva_json_url)
+                r['diva_iip_server'] = getattr(rodan_settings, 'IIPSRV_URL')
+                r['diva_image_dir'] = str(resource.diva_image_dir)
+            return r
+
+        input_objs = Input.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources').select_related('resource_list__resource_type')
 
         inputs = {}
-        for input_value in input_values:
-            ipt_name = input_value['input_port_type_name']
+        for input in input_objs:
+            ipt_name = str(input.input_port_type_name)
             if ipt_name not in inputs:
                 inputs[ipt_name] = []
-            d = {'resource_path': str(input_value['resource__compat_resource_file']),   # convert 'unicode' object to 'str' object for consistency
-                 'resource_type': input_value['resource__resource_type__mimetype']}
-
-            if with_urls:
-                r = Resource.objects.get(uuid=input_value['resource__uuid'])
-                d['resource_url'] = r.compat_file_url
-                d['small_thumb_url'] = r.small_thumb_url
-                d['medium_thumb_url'] = r.medium_thumb_url
-                d['large_thumb_url'] = r.large_thumb_url
-                d['diva_object_data'] = r.diva_json_url
-                d['diva_iip_server'] = getattr(rodan_settings, 'IIPSRV_URL')
-                d['diva_image_dir'] = r.diva_image_dir
-
-            inputs[ipt_name].append(d)
+            if input.resource is not None:  # If resource
+                inputs[ipt_name].append(_extract_resource(input.resource))
+            elif input.resource_list is not None:  # If resource_list
+                inputs[ipt_name].append(map(lambda x: _extract_resource(x, input.resource_list.resource_type.mimetype), input.resource_list.resources.all()))
+            else:
+                raise RuntimeError("Cannot find any resource or resource list on Input {0}".format(input.uuid))
         return inputs
 
-    def _outputs(self, runjob, temp_dir):
-        "Return a dictionary of list of output file path and output resource type."
-        output_values = Output.objects.filter(run_job=runjob).values(
-            'output_port_type_name',
-            'resource__resource_type__mimetype',
-            'uuid')
+    def _outputs(self, runjob):
+        """
+        Return a dictionary of list of dictionary describing output information (resource type, resource or resource list, and original uuid).
+        """
+        output_objs = Output.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources').select_related('resource_list__resource_type')
 
         outputs = {}
-        for output_value in output_values:
-            opt_name = output_value['output_port_type_name']
+        for output in output_objs:
+            opt_name = str(output.output_port_type_name)
             if opt_name not in outputs:
                 outputs[opt_name] = []
-
-            output_res_tempname = str(uuid.uuid4())
-            output_res_temppath = os.path.join(temp_dir, output_res_tempname)
-
-            outputs[opt_name].append({'resource_type': output_value['resource__resource_type__mimetype'],
-                                      'resource_temp_path': output_res_temppath,
-                                      'uuid': output_value['uuid']})
+            if output.resource is not None:  # If resource
+                outputs[opt_name].append({
+                    'resource_type': str(output.resource.resource_type.mimetype),
+                    'uuid': output.uuid,
+                    'is_list': False
+                })
+            elif output.resource_list is not None:  # If resource_list
+                outputs[opt_name].append({
+                    'resource_type': str(output.resource_list.resource_type.mimetype),
+                    'uuid': output.uuid,
+                    'is_list': True
+                })
+            else:
+                raise RuntimeError("Cannot find any resource or resource list on Output {0}".format(output.uuid))
         return outputs
 
     def _settings(self, runjob):
@@ -408,21 +430,38 @@ class RodanTask(Task):
         settings = self._settings(runjob)
         inputs = self._inputs(runjob)
 
-        with self.tempdir() as tmpdir:
-            outputs = self._outputs(runjob, tmpdir)
+        with self.tempdir() as temp_dir:
+            outputs = self._outputs(runjob)
 
             # build argument for run_my_task and mapping dictionary
             arg_outputs = {}
-            temppath_map = {}
+            temppath_map = {}   # retains where originally assigned paths are from... prevent jobs changing them
+
             for opt_name, output_list in outputs.iteritems():
                 if opt_name not in arg_outputs:
                     arg_outputs[opt_name] = []
                 for output in output_list:
-                    arg_outputs[opt_name].append({
-                        'resource_path': output['resource_temp_path'],
-                        'resource_type': output['resource_type']
-                    })
-                    temppath_map[output['resource_temp_path']] = output
+                    if output['is_list'] is False:
+                        output_res_tempname = str(uuid.uuid4())
+                        output_res_temppath = os.path.join(temp_dir, output_res_tempname)
+                        arg_outputs[opt_name].append({
+                            'resource_path': output_res_temppath,
+                            'resource_type': output['resource_type']
+                        })
+                        output['resource_temp_path'] = output_res_temppath
+                        temppath_map[output_res_temppath] = output
+                    else:
+                        # create a folder for them
+                        output_res_tempname = str(uuid.uuid4())
+                        output_res_tempfolder = os.path.join(temp_dir, output_res_tempname) + os.sep
+                        os.mkdir(output_res_tempfolder)
+                        arg_outputs[opt_name].append({
+                            'resource_folder': output_res_tempfolder,
+                            'resource_type': output['resource_type']
+                        })
+                        output['resource_temp_folder'] = output_res_tempfolder
+                        temppath_map[output_res_tempfolder] = output
+
 
             retval = self.run_my_task(inputs, settings, arg_outputs)
 
@@ -440,18 +479,43 @@ class RodanTask(Task):
                 # ensure the job has produced all output files
                 for opt_name, output_list in outputs.iteritems():
                     for output in output_list:
-                        if not os.path.isfile(output['resource_temp_path']):
-                            raise RuntimeError("The job did not produce the output file for {0}".format(opt_name))
+                        if output['is_list'] is False:
+                            if not os.path.isfile(output['resource_temp_path']):
+                                raise RuntimeError("The job did not produce the output file for {0}".format(opt_name))
+                        else:
+                            files = [f for f in os.listdir(output['resource_temp_folder']) if os.path.isfile(os.path.join(output['resource_temp_folder'], f))]
+                            if len(files) == 0:
+                                raise RuntimeError("The job did not produce any output files for the resource list for {0}".format(opt_name))
 
                 # save outputs
                 for temppath, output in temppath_map.iteritems():
-                    with open(temppath, 'rb') as f:
-                        resource = Output.objects.get(uuid=output['uuid']).resource
-                        resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
-                        resource.save(update_fields=['compat_resource_file'])
+                    if output['is_list'] is False:
+                        with open(temppath, 'rb') as f:
+                            resource = Output.objects.get(uuid=output['uuid']).resource
+                            resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                            resource.save(update_fields=['compat_resource_file'])
+                            registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
+                            registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                    else:
+                        files = [ff for ff in os.listdir(output['resource_temp_folder']) if os.path.isfile(os.path.join(output['resource_temp_folder'], f))]
+                        files.sort()  # alphabetical order
 
-                        registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
-                        registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                        resourcelist = Output.objects.get(uuid=output['uuid']).resource_list
+                        for index, ff in enumerate(files):
+                            with open(os.path.join(output['resource_temp_folder'], ff), 'rb') as f:
+                                resource = Resource(
+                                    project=resourcelist.project,
+                                    resource_type=resourcelist.resource_type,
+                                    name=ff,
+                                    description="Order #{0} in ResourceList {1}".format(index, resourcelist.name),
+                                    origin=resourcelist.origin
+                                )
+                                resource.save()
+                                resource.compat_resource_file.save(ff, File(f), save=False) # Django will resolve the path according to upload_to
+                                resource.save(update_fields=['compat_resource_file'])
+                                registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
+                                registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                            resourcelist.resources.add(resource)
 
                 runjob.status = task_status.FINISHED
                 runjob.error_summary = None

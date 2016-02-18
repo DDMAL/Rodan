@@ -6,10 +6,10 @@ from pybagit.bagit import BagIt
 from celery import task, registry
 from django.core.files import File
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Case, Value, When, BooleanField
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource, ResourceType, ResultsPackage, Output, Workflow, WorkflowRun, WorkflowJob, InputPort, Input, OutputPort, Output, Connection, RunJob
+from rodan.models import Resource, ResourceType, ResultsPackage, Output, Workflow, WorkflowRun, WorkflowJob, InputPort, Input, OutputPort, Output, Connection, RunJob, ResourceList
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
@@ -168,6 +168,8 @@ def create_diva(resource_id):
 
 
 class package_results(Task):
+    # [TODO] this code needs refactoring. It should be possible to parameterize this
+    # core job in some way according to user needs...
     name = "rodan.core.package_results"
 
     def run(self, rp_id):
@@ -177,26 +179,39 @@ class package_results(Task):
         mode = rp.packaging_mode
         package_path = get_package_path(rp_id)
 
-        if mode == 0:
-            # Get endpoint outputs
-            output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run) &
-                                                 (Q(resource__inputs__isnull=True) | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)))
-        else:
-            # Get all outputs
-            output_query = Output.objects.filter(Q(run_job__workflow_run=rp.workflow_run))
-        outputs = output_query.values('output_port_type_name',
-                                      'run_job__workflow_job_uuid',
-                                      'run_job__resource_uuid',
-                                      'run_job__job_name',
-                                      'resource__name',
-                                      'resource__compat_resource_file',
-                                      'run_job__status',
-                                      'run_job__job_settings',
-                                      'run_job__error_summary',
-                                      'run_job__error_details')
+        output_objs = Output.objects.filter(
+            run_job__workflow_run=rp.workflow_run
+        ).select_related(
+            'resource', 'resource__resource_type', 'resource_list', 'run_job'
+        ).prefetch_related(
+            'resource_list__resources'
+        ).select_related(
+            'resource_list__resource_type'
+        ).annotate(
+            is_endpoint=Case(
+                When(
+                    condition=(
+                        Q(resource__isnull=False)
+                        & (
+                            Q(resource__inputs__isnull=True)
+                            | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)
+                        )
+                    ) | (
+                        Q(resource_list__isnull=False)
+                        & (
+                            Q(resource_list__inputs__isnull=True)
+                            | ~Q(resource_list__inputs__run_job__workflow_run=rp.workflow_run)
+                        )
+                    ),
+                    then=Value(True)
+                ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
 
-        if len(outputs) > 0:
-            percentage_increment = 70.00 / len(outputs)
+        if len(output_objs) > 0:
+            percentage_increment = 70.00 / len(output_objs)
         else:
             percentage_increment = 0
         completed = 0.0
@@ -208,47 +223,81 @@ class package_results(Task):
             job_namefinder = self._NameFinder()
             res_namefinder = self._NameFinder()
 
-            for output in outputs:
+            for output in output_objs:
                 if mode == 0:  # only endpoint resources, subdirectoried by different outputs
-                    j_name = job_namefinder.find(output['run_job__workflow_job_uuid'], output['run_job__job_name'])
-                    opt_name = output['output_port_type_name']
+                    # continue if not endpoint output
+                    if output.is_endpoint is False:
+                        continue
+
+                    j_name = job_namefinder.find(output.run_job.workflow_job_id, output.run_job.job_name)
+                    opt_name = output.output_port_type_name
                     op_dir = os.path.join(tmp_dir, "{0} - {1}".format(j_name, opt_name))
 
-                    rj_status = output['run_job__status']
+                    rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
-                        filepath = output['resource__compat_resource_file']
-                        ext = os.path.splitext(filepath)[1]
+                        if output.resource is not None:
+                            filepath = output.resource.compat_resource_file.path
+                            ext = os.path.splitext(filepath)[1]
 
-                        res_name = res_namefinder.find(output['run_job__resource_uuid'], output['resource__name'])  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
-                        result_filename = "{0}{1}".format(res_name, ext)
-                        if not os.path.exists(op_dir):
-                            os.makedirs(op_dir)
-                        shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
+                            res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                            result_filename = "{0}{1}".format(res_name, ext)
+                            if not os.path.exists(op_dir):
+                                os.makedirs(op_dir)
+                            shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
+                        elif output.resource_list is not None:
+                            res_name = res_namefinder.find(output.resource_list_id, output.resource_list.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                            result_foldername = "{0}.list".format(res_name)
+                            result_folder = os.path.join(op_dir, result_foldername)
+                            if not os.path.exists(result_folder):
+                                os.makedirs(result_folder)
+
+                            cnt = output.resource_list.resources.count()
+                            zfills = len(str(cnt))
+                            for idx, r in enumerate(output.resource_list.resources.all()):
+                                filepath = r.compat_resource_file.path
+                                ext = os.path.splitext(filepath)[1]
+                                new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
+                                shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
 
                 elif mode == 1:
-                    res_name = res_namefinder.find(output['run_job__resource_uuid'], output['resource__name'])  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                    res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
                     res_dir = os.path.join(tmp_dir, res_name)
 
-                    j_name = job_namefinder.find(output['run_job__workflow_job_uuid'], output['run_job__job_name'])
-                    opt_name = output['output_port_type_name']
+                    j_name = job_namefinder.find(output.run_job.workflow_job_id, output.run_job.job_name)
+                    opt_name = output.output_port_type_name
 
-                    rj_status = output['run_job__status']
+                    rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
-                        filepath = output['resource__compat_resource_file']
-                        ext = os.path.splitext(filepath)[1]
-                        result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
-                        if not os.path.exists(res_dir):
-                            os.makedirs(res_dir)
-                        shutil.copyfile(filepath, os.path.join(res_dir, result_filename))
+                        if output.resource is not None:
+                            filepath = output.resource.compat_resource_file.path
+                            ext = os.path.splitext(filepath)[1]
+                            result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
+                            if not os.path.exists(res_dir):
+                                os.makedirs(res_dir)
+                            shutil.copyfile(filepath, os.path.join(res_dir, result_filename))
+                        elif output.resource_list is not None:
+                            result_foldername = "{0} - {1}.list".format(j_name, opt_name)
+                            result_folder = os.path.join(res_dir, result_foldername)
+                            if not os.path.exists(result_folder):
+                                os.makedirs(result_folder)
+
+                            cnt = output.resource_list.resources.count()
+                            zfills = len(str(cnt))
+                            for idx, r in enumerate(output.resource_list.resources.all()):
+                                filepath = r.compat_resource_file.path
+                                ext = os.path.splitext(filepath)[1]
+                                new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
+                                shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
+
                     elif rj_status == task_status.FAILED:
                         result_filename = "{0} - {1} - ERROR.txt".format(j_name, opt_name)
                         if not os.path.exists(res_dir):
                             os.makedirs(res_dir)
                         with open(os.path.join(res_dir, result_filename), 'w') as f:
                             f.write("Error Summary: ")
-                            f.write(output['run_job__error_summary'])
+                            f.write(output.run_job.error_summary)
                             f.write("\n\nError Details:\n")
-                            f.write(output['run_job__error_details'])
+                            f.write(output.run_job.error_details)
                 elif mode == 2:
                     raise NotImplementedError() # [TODO]
                 else:
@@ -355,23 +404,34 @@ class create_workflowrun(Task):
             outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
 
             for op in outputports:
-                resource = Resource(project=workflow_run.workflow.project,
-                                    resource_type=ResourceType.cached('application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
-                resource.save()
+                if op.output_port_type.is_list is False:
+                    model = Resource
+                    arg_name = "resource"
+                else:
+                    model = ResourceList
+                    arg_name = "resource_list"
 
-                output = Output(output_port=op,
-                                run_job=run_job,
-                                resource=resource,
-                                output_port_type_name=op.output_port_type.name)
+                r = model(project=workflow_run.workflow.project,
+                          resource_type=ResourceType.cached('application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
+                r.save()
+
+                kwargs = {
+                    'output_port': op,
+                    'run_job': run_job,
+                    arg_name: r,
+                    'output_port_type_name': op.output_port_type.name
+                }
+                output = Output(**kwargs)
                 output.save()
 
-                resource.description = """Generated by workflow {0}. Output of {1}:{2}""".format(workflow_run.name, run_job.job_name, output.output_port_type_name)   # [TODO] could be better described.
+                r.description = """Generated by workflow {0}. Output of {1}:{2}""".format(workflow_run.name, run_job.job_name, output.output_port_type_name)   # [TODO] could be better described.
                 if arg_resource:   # which resource in multiple resources?
-                    resource.name = arg_resource.name
+                    r.name = arg_resource.name
                 else:
-                    resource.name = 'Output of workflow {0}'.format(workflow_run.name)  # assign a name for it
-                resource.origin = output
-                resource.save()
+                    r.name = 'Output of workflow {0}'.format(workflow_run.name)  # assign a name for it
+
+                r.origin = output
+                r.save()
 
                 output_outputport_map[output] = op
                 outputportrunjob_output_map[(op, run_job)] = output
@@ -393,11 +453,16 @@ class create_workflowrun(Task):
 
                 associated_output = outputportrunjob_output_map[(conn.output_port, runjob_B)]
 
-                Input(run_job=runjob_A,
-                      input_port=conn.input_port,
-                      input_port_type_name=conn.input_port.input_port_type.name,
-                      resource=associated_output.resource).save()
-
+                if associated_output.resource:
+                    Input(run_job=runjob_A,
+                          input_port=conn.input_port,
+                          input_port_type_name=conn.input_port.input_port_type.name,
+                          resource=associated_output.resource).save()
+                else:
+                    Input(run_job=runjob_A,
+                          input_port=conn.input_port,
+                          input_port_type_name=conn.input_port.input_port_type.name,
+                          resource_list=associated_output.resource_list).save()
             # entry inputs
             for wfj_ip in wfjob_A.input_ports.all():
                 if wfj_ip in resource_assignment_dict:
@@ -407,15 +472,21 @@ class create_workflowrun(Task):
                     else:
                         entry_res = ress[0]
 
-                    Input(run_job=runjob_A,
-                          input_port=wfj_ip,
-                          input_port_type_name=wfj_ip.input_port_type.name,
-                          resource=entry_res).save()
+                    if isinstance(entry_res, Resource):
+                        Input(run_job=runjob_A,
+                              input_port=wfj_ip,
+                              input_port_type_name=wfj_ip.input_port_type.name,
+                              resource=entry_res).save()
+                    else:
+                        Input(run_job=runjob_A,
+                              input_port=wfj_ip,
+                              input_port_type_name=wfj_ip.input_port_type.name,
+                              resource_list=entry_res).save()
 
-            # Determine ResourceType of the outputs of RunJob A.
+            # Determine ResourceType of the outputs of RunJob A
             for o in runjob_A.outputs.all():
                 resource_type_set = set(o.output_port.output_port_type.resource_types.all())
-                res = o.resource
+                res = o.resource or o.resource_list
 
                 if len(resource_type_set) > 1:
                     ## Eliminate this set by considering the connected InputPorts
@@ -426,8 +497,9 @@ class create_workflowrun(Task):
                 if len(resource_type_set) > 1:
                     ## Try to find a same resource type in the input resources.
                     for i in runjob_A.inputs.all():
-                        if i.resource.resource_type in resource_type_set:
-                            res.resource_type = i.resource.resource_type
+                        r = i.resource or i.resource_list
+                        if r.resource_type in resource_type_set:
+                            res.resource_type = r.resource_type
                             break
                     else:
                         res.resource_type = resource_type_set.pop()
@@ -553,14 +625,20 @@ def redo_runjob_tree(rj_id):
 
         # 1. Revoke all downstream runjobs
         for o in rj.outputs.all():
-            r = o.resource
+            r = o.resource or o.resource_list
             for i in r.inputs.filter(Q(run_job__workflow_run=rj.workflow_run) & ~Q(run_job__status=task_status.SCHEDULED)):
                 inner_redo(i.run_job)
 
             # 2. Clear output resources
-            r.compat_resource_file = None
-            r.has_thumb = False
-            r.save(update_fields=['compat_resource_file', 'has_thumb'])
+            if isinstance(r, Resource):
+                rs = [r]
+            else:
+                rs = r.resources.all()
+
+            for rr in rs:
+                rr.compat_resource_file = None
+                rr.has_thumb = False
+                rr.save(update_fields=['compat_resource_file', 'has_thumb'])
 
         # 3. Reset status and clear interactive data
         original_settings = {}

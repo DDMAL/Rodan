@@ -159,10 +159,54 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data['error_code'], 'WFJ_TOO_FEW_OP')
+    def test_output__resourcetype_list_conflict_case1(self):
+        # CASE 1: input_port is list but output_type not.
+        new_ipt = mommy.make('rodan.InputPortType',
+                             maximum=1,
+                             minimum=0,
+                             job=self.test_job,
+                             is_list=True)
+        new_ipt.resource_types.add(ResourceType.cached('test/b'))
+        new_ip = mommy.make('rodan.InputPort',
+                            workflow_job=self.test_workflowjob2,
+                            input_port_type=new_ipt)
+        op = self.test_workflowjob.output_ports.first()
+        conn = mommy.make('rodan.Connection',
+                          output_port=op,
+                          input_port=new_ip)
+        response = self._validate(self.test_workflow.uuid)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error_code'], 'RESOURCETYPE_LIST_CONFLICT')
+
+    def test_output__resourcetype_list_conflict_case2(self):
+        # CASE 2: output_port is list but input_type not.
+        new_opt = mommy.make('rodan.OutputPortType',
+                             maximum=1,
+                             minimum=0,
+                             job=self.test_job,
+                             is_list=True)
+        new_opt.resource_types.add(ResourceType.cached('test/b'))
+        new_op = mommy.make('rodan.OutputPort',
+                            workflow_job=self.test_workflowjob,
+                            output_port_type=new_opt)
+
+        ipt = self.test_workflowjob.input_ports.first().input_port_type
+        new_ip = mommy.make('rodan.InputPort',
+                            workflow_job=self.test_workflowjob,
+                            input_port_type=ipt)
+
+        conn = mommy.make('rodan.Connection',
+                          output_port=new_op,
+                          input_port=new_ip)
+        response = self._validate(self.test_workflow.uuid)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error_code'], 'RESOURCETYPE_LIST_CONFLICT')
+
     def test_output__no_common_resource_type_simple(self):
         new_ipt = mommy.make('rodan.InputPortType',
                              maximum=1,
                              minimum=0,
+                             is_list=False,
                              job=self.test_job)
         new_ipt.resource_types.add(ResourceType.cached('test/b')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ip = mommy.make('rodan.InputPort',
@@ -179,11 +223,13 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ipt1 = mommy.make('rodan.InputPortType',
                               maximum=1,
                               minimum=0,
+                              is_list=False,
                               job=self.test_job)
         new_ipt1.resource_types.add(ResourceType.cached('test/a1')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ipt2 = mommy.make('rodan.InputPortType',
                               maximum=1,
                               minimum=0,
+                              is_list=False,
                               job=self.test_job)
         new_ipt2.resource_types.add(ResourceType.cached('test/a2')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ip1 = mommy.make('rodan.InputPort',
@@ -248,6 +294,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         opt_for_no_input = mommy.make('rodan.OutputPortType',
                                       minimum=0,
                                       maximum=10,
+                                      is_list=False,
                                       job=test_no_input_workflowjob.job)
         opt_for_no_input.resource_types.add(ResourceType.cached('test/a1'))
         mommy.make('rodan.Connection',

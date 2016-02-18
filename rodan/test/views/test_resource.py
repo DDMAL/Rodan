@@ -65,11 +65,17 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_get_results_of_workflowrun(self):
         wfrun1 = mommy.make('rodan.WorkflowRun')
         wfrun2 = mommy.make('rodan.WorkflowRun')
+        r1 = mommy.make('rodan.Resource')
+        r2 = mommy.make('rodan.Resource')
+        r3 = mommy.make('rodan.Resource')
         output1a = mommy.make('rodan.Output',
+                              resource=r1,
                               run_job__workflow_run=wfrun1)
         output1b = mommy.make('rodan.Output',
+                              resource=r2,
                               run_job__workflow_run=wfrun1)
         output1c = mommy.make('rodan.Output',
+                              resource=r3,
                               run_job__workflow_run=wfrun1)
         res1a = output1a.resource
         res1a.origin = output1a
@@ -84,7 +90,9 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                    run_job__workflow_run=wfrun1,
                    resource=res1a)
 
+        r4 = mommy.make('rodan.Resource')
         output2 = mommy.make('rodan.Output',
+                             resource=r4,
                              run_job__workflow_run=wfrun2)
         res2 = output2.resource
         res2.origin = output2

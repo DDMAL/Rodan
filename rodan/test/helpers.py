@@ -37,11 +37,13 @@ class RodanTestSetUpMixin(object):
         self.test_inputporttype = mommy.make('rodan.InputPortType',
                                              maximum=3,
                                              minimum=1,
+                                             is_list=False,
                                              job=self.test_job)
         self.test_inputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
+                                              is_list=False,
                                               job=self.test_job)
         self.test_outputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
 
@@ -91,11 +93,11 @@ class RodanTestSetUpMixin(object):
                                         job_settings={'a': 1, 'b': [0.4]})
         inputport_a = mommy.make('rodan.InputPort',
                                  workflow_job=self.dummy_a_wfjob,
-                                 input_port_type=dummy_a_job.input_port_types.first())
+                                 input_port_type=dummy_a_job.input_port_types.filter(is_list=False).first())
         self.test_inputport_a = inputport_a
         outputport_a = mommy.make('rodan.OutputPort',
                                   workflow_job=self.dummy_a_wfjob,
-                                  output_port_type=dummy_a_job.output_port_types.first())
+                                  output_port_type=dummy_a_job.output_port_types.filter(is_list=False).first())
 
         self.dummy_m_wfjob = mommy.make('rodan.WorkflowJob',
                                         workflow=self.test_workflow,
@@ -103,10 +105,10 @@ class RodanTestSetUpMixin(object):
                                         job_settings={'a': 1, 'b': [0.4]})
         inputport_m = mommy.make('rodan.InputPort',
                                  workflow_job=self.dummy_m_wfjob,
-                                 input_port_type=dummy_m_job.input_port_types.first())
+                                 input_port_type=dummy_m_job.input_port_types.filter(is_list=False).first())
         outputport_m = mommy.make('rodan.OutputPort',
                                   workflow_job=self.dummy_m_wfjob,
-                                  output_port_type=dummy_m_job.output_port_types.first())
+                                  output_port_type=dummy_m_job.output_port_types.filter(is_list=False).first())
 
         test_connection = mommy.make('rodan.Connection',
                                      output_port=outputport_a,
@@ -134,13 +136,17 @@ class RodanTestSetUpMixin(object):
 
         ipt_aA = job_a.input_port_types.get(name='in_typeA')
         ipt_aB = job_a.input_port_types.get(name='in_typeB')
+        ipt_aL = job_a.input_port_types.get(name='in_typeL')
         opt_aA = job_a.output_port_types.get(name='out_typeA')
         opt_aB = job_a.output_port_types.get(name='out_typeB')
+        opt_aL = job_a.output_port_types.get(name='out_typeL')
 
         ipt_mA = job_m.input_port_types.get(name='in_typeA')
         ipt_mB = job_m.input_port_types.get(name='in_typeB')
+        ipt_mL = job_m.input_port_types.get(name='in_typeL')
         opt_mA = job_m.output_port_types.get(name='out_typeA')
         opt_mB = job_m.output_port_types.get(name='out_typeB')
+        opt_mL = job_m.output_port_types.get(name='out_typeL')
 
 
         self.test_project = mommy.make('rodan.Project')
@@ -179,14 +185,14 @@ class RodanTestSetUpMixin(object):
                                    output_port_type=opt_aA)
         self.test_Bop = mommy.make('rodan.OutputPort',
                                    workflow_job=self.test_wfjob_B,
-                                   output_port_type=opt_mA)
+                                   output_port_type=opt_mL)
 
         self.test_Cip1 = mommy.make('rodan.InputPort',
                                     workflow_job=self.test_wfjob_C,
-                                    input_port_type=ipt_aA)
+                                    input_port_type=ipt_aB)
         self.test_Cip2 = mommy.make('rodan.InputPort',
                                     workflow_job=self.test_wfjob_C,
-                                    input_port_type=ipt_aB)
+                                    input_port_type=ipt_aL)
         self.test_Cop1 = mommy.make('rodan.OutputPort',
                                     workflow_job=self.test_wfjob_C,
                                     output_port_type=opt_aA)
@@ -202,7 +208,7 @@ class RodanTestSetUpMixin(object):
                                     input_port_type=ipt_mB)
         self.test_Dip3 = mommy.make('rodan.InputPort',
                                     workflow_job=self.test_wfjob_D,
-                                    input_port_type=ipt_mA)
+                                    input_port_type=ipt_mL)
         self.test_Dop = mommy.make('rodan.OutputPort',
                                    workflow_job=self.test_wfjob_D,
                                    output_port_type=opt_mA)
@@ -225,7 +231,7 @@ class RodanTestSetUpMixin(object):
                                    input_port_type=ipt_aA)
         self.test_Fop = mommy.make('rodan.OutputPort',
                                    workflow_job=self.test_wfjob_F,
-                                   output_port_type=opt_aA)
+                                   output_port_type=opt_aL)
 
         self.test_conn_Aop_Cip1 = mommy.make('rodan.Connection',
                                              output_port=self.test_Aop,
@@ -242,9 +248,6 @@ class RodanTestSetUpMixin(object):
         self.test_conn_Dop_Fip2 = mommy.make('rodan.Connection',
                                              output_port=self.test_Dop,
                                              input_port=self.test_Fip2)
-        self.test_conn_Bop_Dip3 = mommy.make('rodan.Connection',
-                                             output_port=self.test_Bop,
-                                             input_port=self.test_Dip3)
 
     def setUp_resources_for_complex_dummy_workflow(self):
         self.test_resourcecollection = mommy.make(
@@ -267,11 +270,34 @@ class RodanTestSetUpMixin(object):
 
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
+
+        self.test_resourcelist = mommy.make(
+            'rodan.ResourceList',
+            project=self.test_project,
+            resource_type=ResourceType.cached('test/a1')
+        )
+        self.test_resources_in_resource_list = mommy.make(
+            'rodan.Resource', _quantity=8,
+            project=self.test_project,
+            resource_type=ResourceType.cached('test/a1')
+        )
+        for index, res in enumerate(self.test_resources_in_resource_list):
+            res.name = str(index) # 0 to 9
+            res.save()
+            res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        self.test_resourcelist.resources.add(*self.test_resources_in_resource_list)
+
+        #print "self.test_Dip1", self.url(self.test_Dip1)
+        #print "self.test_Fip1", self.url(self.test_Fip1)
+        #print "self.test_Aip", self.url(self.test_Aip)
+        #print "self.test_Eip2", self.url(self.test_Eip2)
+        #print "self.test_Dip3", self.url(self.test_Dip3)
         return {
             self.url(self.test_Dip1): map(self.url, self.test_resourcecollection),
             self.url(self.test_Fip1): map(self.url, self.test_resourcecollection),
             self.url(self.test_Aip): [self.url(self.test_resource)],
-            self.url(self.test_Eip2): [self.url(self.test_resource)]
+            self.url(self.test_Eip2): [self.url(self.test_resource)],
+            self.url(self.test_Dip3): [self.url(self.test_resourcelist)],
         }
 
 class RodanTestTearDownMixin(object):

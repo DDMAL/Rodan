@@ -15,6 +15,8 @@ class Input(models.Model):
     - `input_port_type_name` -- a string containing the name of the `InputPortType`.
     - `resource` -- a field containing a reference to the precise `Resource` that
       this `RunJob` will act on.
+    - `resource_list` -- a field containing a reference to the precise `ResourceList` that
+      this `RunJob` will act on.
     - `run_job` -- a reference to the `RunJob` that will be executed.
 
     **Properties**
@@ -30,7 +32,8 @@ class Input(models.Model):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     input_port = models.ForeignKey('rodan.InputPort', related_name='inputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
     input_port_type_name = models.CharField(max_length=255, db_index=True)
-    resource = models.ForeignKey('rodan.Resource', related_name='inputs', on_delete=models.PROTECT, db_index=True)
+    resource = models.ForeignKey('rodan.Resource', related_name='inputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
+    resource_list = models.ForeignKey('rodan.ResourceList', related_name='inputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
     run_job = models.ForeignKey('rodan.RunJob', related_name='inputs', on_delete=models.CASCADE, db_index=True)
 
     def __unicode__(self):

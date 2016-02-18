@@ -134,7 +134,7 @@ class WorkflowJobGroupActionTestCase(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(WorkflowJob.objects.filter(workflow=self.test_new_workflow).count(), 6+1)
         self.assertEqual(InputPort.objects.filter(workflow_job__workflow=self.test_new_workflow).count(), 10)
         self.assertEqual(OutputPort.objects.filter(workflow_job__workflow=self.test_new_workflow).count(), 7)
-        self.assertEqual(Connection.objects.filter(input_port__workflow_job__workflow=self.test_new_workflow).count(), 6)
+        self.assertEqual(Connection.objects.filter(input_port__workflow_job__workflow=self.test_new_workflow).count(), 5)
 
     def test_import_invalid_workflow(self):
         self.test_workflow.valid = False
@@ -317,7 +317,7 @@ class WorkflowJobGroupProtectTestCase(RodanTestTearDownMixin, APITestCase, Rodan
             response = self.client.delete("/connection/{0}/".format(conn.pk))
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(response.data, anticipated_message)
-        for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2, self.test_conn_Bop_Dip3]:
+        for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2]:
             response = self.client.delete("/connection/{0}/?format=json".format(conn.pk))
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -334,6 +334,6 @@ class WorkflowJobGroupProtectTestCase(RodanTestTearDownMixin, APITestCase, Rodan
                 response = self.client.patch("/connection/{0}/".format(conn.pk), conn_update, format='json')
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertEqual(response.data, anticipated_message)
-            for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2, self.test_conn_Bop_Dip3]:
+            for conn in [self.test_conn_Aop_Cip1, self.test_conn_Cop1_Dip2, self.test_conn_Dop_Fip2]:
                 response = self.client.patch("/connection/{0}/".format(conn.pk), conn_update, format='json')
                 self.assertEqual(response.status_code, status.HTTP_200_OK)

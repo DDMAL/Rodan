@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import HyperlinkedIdentityField
 
-from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, Resource, Input, Output, OutputPort, InputPort, ResourceType
+from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, Resource, Input, Output, OutputPort, InputPort, ResourceType, ResourceList
 from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
@@ -111,20 +111,25 @@ class WorkflowRunList(generics.ListCreateAPIView):
             unsatisfied_ips.remove(ip)
             types_of_ip = ip.input_port_type.resource_types.all()
 
-            # 2. Resources:
+            # 2. Resources and ResourceLists:
             if not isinstance(resources, list):
-                raise ValidationError({input_port: ['A list of resources is expected']})
+                raise ValidationError({input_port: ['A list of resources or resource lists is expected']})
 
             h_res = HyperlinkedIdentityField(view_name="resource-detail")
             h_res.queryset = Resource.objects.all()
+            h_resl = HyperlinkedIdentityField(view_name="resourcelist-detail")
+            h_resl.queryset = ResourceList.objects.all()
             ress = []
 
             for index, r in enumerate(resources):
                 try:
-                    ress.append(h_res.to_internal_value(r))
+                    ress.append(h_res.to_internal_value(r))  # a Resource
                 except ValidationError as e:
-                    e.detail = {input_port: {index: e.detail}}
-                    raise e
+                    try:
+                        ress.append(h_resl.to_internal_value(r))  # a ResourceList
+                    except ValidationError as e:
+                        e.detail = {input_port: {index: e.detail}}
+                        raise e
 
 
             ## No empty resource set
@@ -141,13 +146,25 @@ class WorkflowRunList(generics.ListCreateAPIView):
                         raise ValidationError({input_port: ['It is not allowed to assign multiple resource sets']})
 
             ## Resource must be in project and resource types are matched
+            ## If a ResourceList, it should not be empty and all individuals should satisfy the above requirements.
             for index, res in enumerate(ress):
+                if isinstance(res, Resource):
+                    if ip.input_port_type.is_list is True:
+                        raise ValidationError({input_port: {index: ['The InputPort requires ResourceLists but is provided with Resources']}})
+                    if not res.compat_resource_file:
+                        raise ValidationError({input_port: {index: ['The compatible resource file is not ready']}})
+
+                else:   # ResourceList
+                    if ip.input_port_type.is_list is False:
+                        raise ValidationError({input_port: {index: ['The InputPort requires Resources but is provided with ResourceLists']}})
+
+                    for i, r in enumerate(res.resources.all()):
+                        if not r.compat_resource_file:
+                            raise ValidationError({input_port: {index: ['The compatible resource file of #{0} in the resource list is not ready'.format(i)]}})
+
+
                 if res.project != serializer.validated_data['workflow'].project:
-                    raise ValidationError({input_port: {index: ['Resource is not in the project of Workflow']}})
-
-                if not res.compat_resource_file:
-                    raise ValidationError({input_port: {index: ['The compatible resource file is not ready']}})
-
+                    raise ValidationError({input_port: {index: ['Resource or ResourceList is not in the project of Workflow']}})
                 type_of_res = res.resource_type
                 if type_of_res not in types_of_ip:
                     raise ValidationError({input_port: {index: ['The resource type does not match the InputPort']}})

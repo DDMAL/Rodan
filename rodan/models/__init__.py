@@ -13,6 +13,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
 from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
+from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
@@ -261,6 +262,7 @@ def assign_perms_project(sender, instance, created, raw, using, update_fields, *
 @receiver(post_save, sender=Workflow)
 @receiver(post_save, sender=WorkflowRun)
 @receiver(post_save, sender=Resource)
+@receiver(post_save, sender=ResourceList)
 @receiver(post_save, sender=WorkflowJob)
 @receiver(post_save, sender=WorkflowJobGroup)
 @receiver(post_save, sender=InputPort)
@@ -277,7 +279,7 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
         model_name = get_model_name(sender)
 
         # locate project
-        if sender in (Workflow, WorkflowRun, Resource):
+        if sender in (Workflow, WorkflowRun, Resource, ResourceList):
             project = instance.project
         elif sender in (WorkflowJob, WorkflowJobGroup):
             project = instance.workflow.project

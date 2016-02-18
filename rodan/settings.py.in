@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'djoser',
     'guardian',
     'corsheaders',
+    'sortedm2m',
 )
 DATABASES = {
     'default': {
