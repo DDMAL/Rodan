@@ -11,4 +11,5 @@ class InputPortTypeSerializer(serializers.HyperlinkedModelSerializer):
                   "name",
                   "minimum",
                   "maximum",
+                  "is_list",
                   "resource_types")
