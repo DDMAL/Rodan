@@ -6,7 +6,7 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ResourceList
         read_only_fields = ('created', 'updated', 'project', 'resource_type', 'origin')
-        fields = ('url', 'uuid', 'name', 'description', 'project', 'resources', 'resource_type', 'created', 'updated')
+        fields = ('url', 'uuid', 'name', 'description', 'project', 'resources', 'resource_type', 'origin', 'created', 'updated')
 
     def validate_resources(self, resources):
         if len(resources) == 0:
