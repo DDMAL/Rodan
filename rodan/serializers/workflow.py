@@ -1,46 +1,14 @@
 import itertools
 import jsonschema
 from rodan.models import Workflow, WorkflowJob, InputPort, OutputPort, Connection, Job, InputPortType, OutputPortType, Project, WorkflowJobGroup
+from rodan.serializers.inputport import InputPortSerializer
+from rodan.serializers.outputport import OutputPortSerializer
+from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rest_framework import serializers
 from django.core.urlresolvers import Resolver404, resolve
 from rodan.serializers import TransparentField
 from django.conf import settings
 
-class InputPortSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = InputPort
-        fields = ("url",
-                  "uuid",
-                  "input_port_type",
-                  "label",
-                  "extern",
-                  "connections")
-
-class OutputPortSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = OutputPort
-        fields = ("url",
-                  "uuid",
-                  "output_port_type",
-                  "label",
-                  "extern",
-                  "connections")
-
-class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
-    job_settings = TransparentField(required=False)
-    input_ports = InputPortSerializer(many=True, read_only=True)
-    output_ports = OutputPortSerializer(many=True, read_only=True)
-    class Meta:
-        model = WorkflowJob
-        fields = ("url",
-                  "uuid",
-                  "input_ports",
-                  "output_ports",
-                  "job_name",
-                  "job_description",
-                  "job",
-                  "job_settings",
-                  "name")
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)
