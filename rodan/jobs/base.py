@@ -240,7 +240,8 @@ class RodanTaskType(TaskType):
                                     i = Model(job=j,
                                               name=pt['name'],
                                               minimum=pt['minimum'],
-                                              maximum=pt['maximum'])
+                                              maximum=pt['maximum'],
+                                              is_list=bool(pt.get('is_list', False)))
                                     i.save()
                                     resource_types = RodanTaskType._resolve_resource_types(pt['resource_types'])
                                     if len(resource_types) == 0:
