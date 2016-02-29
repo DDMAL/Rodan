@@ -9,6 +9,8 @@ from rest_framework import serializers
 
 class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
     job_settings = TransparentField(required=False)
+    input_ports = InputPortSerializer(many=True, read_only=True)
+    output_ports = OutputPortSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkflowJob
