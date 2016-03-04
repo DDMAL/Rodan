@@ -394,6 +394,66 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class WorkflowInvalidationTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    """
+    Workflow should be invalidated when some of its components are modified or touched.
+    """
+
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_basic_workflow()
+        # add a wfj group
+        self.test_workflowjobgroup = mommy.make('rodan.WorkflowJobGroup',
+                                                workflow=self.test_workflow)
+        # manually set to valid=True
+        self.test_workflow.valid = True
+        self.test_workflow.save()
+
+        self.client.force_authenticate(user=self.test_superuser)
+
+    def test_altering_workflowjob_job_should_invalidate(self):
+        job2 = mommy.make('rodan.Job')
+        response = self.client.patch('/workflowjob/{0}/'.format(self.test_workflowjob.uuid), {
+            'job': 'http://localhost:8000/job/{0}/'.format(job2.uuid)
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+    def test_altering_workflowjob_job_settings_should_invalidate(self):
+        job2 = mommy.make('rodan.Job')
+        response = self.client.patch('/workflowjob/{0}/'.format(self.test_workflowjob.uuid), {
+            'job_settings': {
+                'test': 'test'
+            }
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+    def test_altering_workflowjob_name_should_not_invalidate(self):
+        response = self.client.patch('/workflowjob/{0}/'.format(self.test_workflowjob.uuid), {
+            'name': 'my name'
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+
+    def test_altering_workflowjob_group_should_not_invalidate(self):
+        wfjg2 = mommy.make('rodan.WorkflowJobGroup',
+                           workflow=self.test_workflow)
+        response = self.client.patch('/workflowjob/{0}/'.format(self.test_workflowjob.uuid), {
+            'group': 'http://localhost:8000/workflowjobgroup/{0}/'.format(wfjg2.uuid)
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+
 class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     """
         For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
