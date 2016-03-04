@@ -432,6 +432,76 @@ class WorkflowSerializationTestCase(RodanTestTearDownMixin, APITestCase, RodanTe
         self.assertEqual(response.data, {'serialized': {'workflow_jobs[0].job_name': u'Job hahahaha does not exist in current Rodan installation.'}})
 
 
+class WorkflowViewInvalidateTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    """
+    Unlike the test case under /test/models/test_workflow.py, this tests the invalidation using HTTP requests.
+    """
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.client.force_authenticate(user=self.test_superuser)
+        self.setUp_basic_workflow()
+        # force valid=True
+        self.test_workflow.valid = True
+        self.test_workflow.save()
+
+    def test_creating_and_reputting_workflowgroup_should_not_invalidate(self):
+        response = self.client.post('/workflowjobgroups/', {
+            'workflow_jobs': [
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob.uuid),
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob2.uuid)
+            ],
+            'name': 'test'
+        }, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'this should pass'
+        self.test_workflow.refresh_from_db()
+        self.assertTrue(self.test_workflow.valid)
+
+        response = self.client.put('/workflowjobgroup/{0}/'.format(response.data['uuid']), {
+            'workflow_jobs': [
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob.uuid),
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob2.uuid)
+            ],
+            'name': 'test'
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK, 'this should pass'
+        self.test_workflow.refresh_from_db()
+        self.assertTrue(self.test_workflow.valid)
+
+    def test_altering_workflowgroup_should_not_invalidate(self):
+        # add a wfj group
+        self.test_workflowjobgroup = mommy.make('rodan.WorkflowJobGroup',
+                                                workflow=self.test_workflow)
+        self.test_workflowjob.group = self.test_workflowjobgroup
+        self.test_workflowjob.save()
+        # force valid=True
+        self.test_workflow.valid = True
+        self.test_workflow.save()
+        response = self.client.put('/workflowjobgroup/{0}/'.format(self.test_workflowjobgroup.pk), {
+            'workflow_jobs': [
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob.uuid),
+                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob2.uuid)
+            ],
+            'name': 'test'
+        }, format='json')
+        assert response.status_code == status.HTTP_200_OK, 'this should pass'
+        self.test_workflow.refresh_from_db()
+        self.assertTrue(self.test_workflow.valid)
+    def test_deleting_workflowgroup_should_not_invalidate(self):
+        # add a wfj group
+        self.test_workflowjobgroup = mommy.make('rodan.WorkflowJobGroup',
+                                                workflow=self.test_workflow)
+        self.test_workflowjob.group = self.test_workflowjobgroup
+        self.test_workflowjob.save()
+        # force valid=True
+        self.test_workflow.valid = True
+        self.test_workflow.save()
+        response = self.client.delete('/workflowjobgroup/{0}/?format=json'.format(self.test_workflowjobgroup.pk))
+        assert response.status_code == status.HTTP_204_NO_CONTENT, 'this should pass'
+        self.test_workflow.refresh_from_db()
+        self.assertTrue(self.test_workflow.valid)
+
+
 class WorkflowExternPortsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
