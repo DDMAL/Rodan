@@ -2,7 +2,6 @@ import shutil, os, uuid, time
 from model_mommy import mommy
 from django.contrib.auth.models import User
 from rodan.models import Project, Job, ResourceType
-from rodan.models.resourcetype import load_predefined_resource_types
 from django.core.files.base import ContentFile
 from django.conf import settings
 
@@ -13,11 +12,9 @@ class RodanTestSetUpMixin(object):
 
     def setUp_rodan(self):
         # ResourceTypes
-        load_predefined_resource_types()
-        load = ResourceType.load
-        load('test/a1', '', 'ext_a1')
-        load('test/a2', '', 'ext_a2')
-        load('test/b', '', 'ext_b')
+        ResourceType.objects.create(mimetype='test/a1', description='', extension='ext_a1')
+        ResourceType.objects.create(mimetype='test/a2', description='', extension='ext_a2')
+        ResourceType.objects.create(mimetype='test/b', description='', extension='ext_b')
         # Jobs
         import rodan.jobs.load     # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
         import rodan.test.dummy_jobs
@@ -38,12 +35,18 @@ class RodanTestSetUpMixin(object):
                                              maximum=3,
                                              minimum=1,
                                              job=self.test_job)
-        self.test_inputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
+        self.test_inputporttype.resource_types.add(
+            ResourceType.objects.get(mimetype='test/a1'),
+            ResourceType.objects.get(mimetype='test/a2')
+        )
         self.test_outputporttype = mommy.make('rodan.OutputPortType',
                                               maximum=3,
                                               minimum=1,
                                               job=self.test_job)
-        self.test_outputporttype.resource_types.add(*ResourceType.cached_list(['test/a1', 'test/a2']))
+        self.test_outputporttype.resource_types.add(
+            ResourceType.objects.get(mimetype='test/a1'),
+            ResourceType.objects.get(mimetype='test/a2')
+        )
 
         self.test_project = mommy.make('rodan.Project')
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
@@ -116,7 +119,7 @@ class RodanTestSetUpMixin(object):
         self.test_resource = mommy.make(
             'rodan.Resource',
             project=self.test_project,
-            resource_type=ResourceType.cached('test/a1')
+            resource_type=ResourceType.objects.get(mimetype='test/a1')
         )
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 
@@ -250,11 +253,11 @@ class RodanTestSetUpMixin(object):
         self.test_resourcecollection = mommy.make(
             'rodan.Resource', _quantity=5,
             project=self.test_project,
-            resource_type=ResourceType.cached('test/a1')
+            resource_type=ResourceType.objects.get(mimetype='test/a1')
         ) + mommy.make(
             'rodan.Resource', _quantity=5,
             project=self.test_project,
-            resource_type=ResourceType.cached('test/a2')
+            resource_type=ResourceType.objects.get(mimetype='test/a2')
         )
         for index, res in enumerate(self.test_resourcecollection):
             res.name = str(index) # 0 to 9
@@ -263,7 +266,7 @@ class RodanTestSetUpMixin(object):
 
         self.test_resource = mommy.make('rodan.Resource',
                                         project=self.test_project,
-                                        resource_type=ResourceType.cached('test/a1'))
+                                        resource_type=ResourceType.objects.get(mimetype='test/a1'))
 
         self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
 

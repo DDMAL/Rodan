@@ -236,7 +236,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
     def test_resource_type_not_match(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
-        res.resource_type = ResourceType.cached('test/b')
+        res.resource_type = ResourceType.objects.get(mimetype='test/b')
         res.save()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),

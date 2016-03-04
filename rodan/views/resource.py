@@ -94,7 +94,7 @@ class ResourceList(generics.ListCreateAPIView):
 
 
         initial_data = {
-            'resource_type': ResourceTypeSerializer(ResourceType.cached('application/octet-stream'), context={'request': request}).data['url'],
+            'resource_type': ResourceTypeSerializer(ResourceType.objects.get(mimetype='application/octet-stream'), context={'request': request}).data['url'],
             'processing_status': task_status.SCHEDULED
         }
         if 'project' in request.data:

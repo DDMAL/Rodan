@@ -51,13 +51,13 @@ class ensure_compatible(Task):
             if mimetype.startswith('image'):
                 self._task = registry.tasks['rodan.jobs.conversion.to_png']
                 self._task.run_my_task(inputs, {}, outputs)
-                resource_query.update(resource_type=ResourceType.cached("image/rgb+png").uuid)
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype="image/rgb+png"))
             else:
                 shutil.copy(infile_path, tmpfile)
                 try:
-                    resource_query.update(resource_type=ResourceType.cached(claimed_mimetype).uuid)
+                    resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
                 except:
-                    resource_query.update(resource_type=ResourceType.cached("application/octet-stream").uuid)
+                    resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
                 new_processing_status = task_status.NOT_APPLICABLE
 
             with open(tmpfile, 'rb') as f:
@@ -356,7 +356,7 @@ class create_workflowrun(Task):
 
             for op in outputports:
                 resource = Resource(project=workflow_run.workflow.project,
-                                    resource_type=ResourceType.cached('application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
+                                    resource_type=ResourceType.objects.get(mimetype='application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
                 resource.save()
 
                 output = Output(output_port=op,
