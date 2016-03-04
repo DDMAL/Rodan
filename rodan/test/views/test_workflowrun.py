@@ -129,12 +129,12 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         for i in range(10):
             rl = mommy.make('rodan.ResourceList',
                             project=self.test_project,
-                            resource_type=ResourceType.cached('test/a2')
+                            resource_type=ResourceType.objects.get(mimetype='test/a2')
             )
             rs = mommy.make(
                 'rodan.Resource', _quantity=5,
                 project=self.test_project,
-                resource_type = ResourceType.cached('test/a2')
+                resource_type = ResourceType.objects.get(mimetype='test/a2')
             )
             for index, res in enumerate(rs):
                 res.name = str(index) # 0 to 9
@@ -267,7 +267,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
     def test_resource_type_not_match(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
-        res.resource_type = ResourceType.cached('test/b')
+        res.resource_type = ResourceType.objects.get(mimetype='test/b')
         res.save()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -331,7 +331,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resource_type_not_match__in_resource_list(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        self.test_resourcelist.resource_type = ResourceType.cached('test/b')
+        self.test_resourcelist.resource_type = ResourceType.objects.get(mimetype='test/b')
         self.test_resourcelist.save()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),

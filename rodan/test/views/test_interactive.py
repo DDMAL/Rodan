@@ -88,11 +88,11 @@ class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         self.test_resource_in = mommy.make('rodan.Resource',
                                            project=self.test_project,
                                            compat_resource_file="dummy",
-                                           resource_type=ResourceType.cached('test/a1'))
+                                           resource_type=ResourceType.objects.get(mimetype='test/a1'))
         self.test_resource_out = mommy.make('rodan.Resource',
                                             project=self.test_project,
                                             compat_resource_file="",
-                                            resource_type=ResourceType.cached('test/a1'))
+                                            resource_type=ResourceType.objects.get(mimetype='test/a1'))
         self.test_working_user_token = uuid.uuid4()
         self.test_runjob = mommy.make('rodan.RunJob',
                                       job_name=dummy_m_job.name,

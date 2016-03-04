@@ -46,7 +46,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                 SimpleUploadedFile('page1.txt', 'n/t'),
                 SimpleUploadedFile('page2.txt', 'n/t')
             ],
-            'type': "http://localhost:8000/resourcetype/{0}/".format(ResourceType.cached('application/octet-stream').uuid),
+            'type': "http://localhost:8000/resourcetype/{0}/".format(ResourceType.objects.get(mimetype='application/octet-stream').uuid),
         }
         response = self.client.post("/resources/", resource_obj, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

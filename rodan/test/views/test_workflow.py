@@ -166,7 +166,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                              minimum=0,
                              job=self.test_job,
                              is_list=True)
-        new_ipt.resource_types.add(ResourceType.cached('test/b'))
+        new_ipt.resource_types.add(ResourceType.objects.get(mimetype='test/b'))
         new_ip = mommy.make('rodan.InputPort',
                             workflow_job=self.test_workflowjob2,
                             input_port_type=new_ipt)
@@ -185,7 +185,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                              minimum=0,
                              job=self.test_job,
                              is_list=True)
-        new_opt.resource_types.add(ResourceType.cached('test/b'))
+        new_opt.resource_types.add(ResourceType.objects.get(mimetype='test/b'))
         new_op = mommy.make('rodan.OutputPort',
                             workflow_job=self.test_workflowjob,
                             output_port_type=new_opt)
@@ -208,7 +208,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                              minimum=0,
                              is_list=False,
                              job=self.test_job)
-        new_ipt.resource_types.add(ResourceType.cached('test/b')) # consider the type of opt is 'test/a1' and 'test/a2'
+        new_ipt.resource_types.add(ResourceType.objects.get(mimetype='test/b')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ip = mommy.make('rodan.InputPort',
                             workflow_job=self.test_workflowjob2,
                             input_port_type=new_ipt)
@@ -225,13 +225,13 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                               minimum=0,
                               is_list=False,
                               job=self.test_job)
-        new_ipt1.resource_types.add(ResourceType.cached('test/a1')) # consider the type of opt is 'test/a1' and 'test/a2'
+        new_ipt1.resource_types.add(ResourceType.objects.get(mimetype='test/a1')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ipt2 = mommy.make('rodan.InputPortType',
                               maximum=1,
                               minimum=0,
                               is_list=False,
                               job=self.test_job)
-        new_ipt2.resource_types.add(ResourceType.cached('test/a2')) # consider the type of opt is 'test/a1' and 'test/a2'
+        new_ipt2.resource_types.add(ResourceType.objects.get(mimetype='test/a2')) # consider the type of opt is 'test/a1' and 'test/a2'
         new_ip1 = mommy.make('rodan.InputPort',
                              workflow_job=self.test_workflowjob2,
                              input_port_type=new_ipt1)
@@ -296,7 +296,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                                       maximum=10,
                                       is_list=False,
                                       job=test_no_input_workflowjob.job)
-        opt_for_no_input.resource_types.add(ResourceType.cached('test/a1'))
+        opt_for_no_input.resource_types.add(ResourceType.objects.get(mimetype='test/a1'))
         mommy.make('rodan.Connection',
                    output_port__workflow_job=test_no_input_workflowjob,
                    output_port__output_port_type=opt_for_no_input,

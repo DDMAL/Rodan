@@ -16,7 +16,7 @@ class ResourceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
             "project": self.test_project,
             "creator": self.test_user,
             "name": "testresource.jpg",
-            "resource_type": ResourceType.cached('test/a1')
+            "resource_type": ResourceType.objects.get(mimetype='test/a1')
         }
 
 

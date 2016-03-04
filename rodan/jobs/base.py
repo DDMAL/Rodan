@@ -269,10 +269,10 @@ class RodanTaskType(TaskType):
         Returns a list of ResourceType objects.
         """
         try:
-            mimelist = filter(value, ResourceType.all_mimetypes())
+            mimelist = filter(value, ResourceType.objects.all().values_list('mimetype', flat=True))
         except TypeError:
             mimelist = value
-        return ResourceType.cached_list(mimelist)
+        return ResourceType.objects.filter(mimetype__in=mimelist)
 
 
 class RodanTask(Task):
