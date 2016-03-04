@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from rodan.models.workflow import Workflow
 
 class OutputPort(models.Model):
     """
@@ -24,6 +25,7 @@ class OutputPort(models.Model):
     - `save` and `delete` -- invalidate the associated `Workflow`.
     - `save` -- set `label` to the name of its associated `OutputPortType` as a
       default value.
+    - `from_db` -- store workflow-invalidation-related fields.
     """
     class Meta:
         app_label = 'rodan'
@@ -37,20 +39,33 @@ class OutputPort(models.Model):
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     extern = models.BooleanField(default=False, db_index=True)
 
+    _rodan_custom_data = {}
+    def _rodan_custom_store_fields(self):
+        self._rodan_custom_data['original_workflow_job_id'] = self.workflow_job_id
+        self._rodan_custom_data['original_output_port_type_id'] = self.output_port_type_id
+        self._rodan_custom_data['original_workflow_id'] = self.workflow_job.workflow_id
+
+    @classmethod
+    def from_db(cls, *args, **kwargs):
+        instance = super(OutputPort, cls).from_db(*args, **kwargs)
+        instance._rodan_custom_store_fields()
+        return instance
+
     def save(self, *args, **kwargs):
         if not self.label:
             self.label = self.output_port_type.name
+        cond1 = self.workflow_job_id != self._rodan_custom_data.get('original_workflow_job_id')
+        cond2 = self.output_port_type_id != self._rodan_custom_data.get('original_output_port_type_id')
+        wf_original_id = self._rodan_custom_data.get('original_workflow_id')
+        wf_new_id = self.workflow_job.workflow_id
         super(OutputPort, self).save(*args, **kwargs)
-
-        wf = self.workflow_job.workflow
-        wf.valid = False
-        wf.save()  # always touch workflow to update the `update` field.
+        if cond1 or cond2:
+            Workflow.objects.filter(pk__in=list(set([wf_original_id, wf_new_id]))).update(valid=False)
 
     def delete(self, *args, **kwargs):
-        wf = self.workflow_job.workflow
+        wf_id = self.workflow_job.workflow_id
         super(OutputPort, self).delete(*args, **kwargs)
-        wf.valid = False
-        wf.save()  # always touch workflow to update the `update` field.
+        Workflow.objects.filter(pk=wf_id).update(valid=False)
 
     def __unicode__(self):
         return u"<OutputPort {0}>".format(str(self.uuid))

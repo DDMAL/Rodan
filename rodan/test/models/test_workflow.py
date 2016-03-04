@@ -46,47 +46,174 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
     def setUp(self):
         self.setUp_rodan()
         self.setUp_basic_workflow()
+        # add a wfj group
+        self.test_workflowjobgroup = mommy.make('rodan.WorkflowJobGroup',
+                                                workflow=self.test_workflow)
+        self.test_workflowjob.group = self.test_workflowjobgroup
+        self.test_workflowjob.save()
+        # force valid=True
         self.test_workflow.valid = True
         self.test_workflow.save()
 
-    def test_connection_save(self):
-        conn = self.test_workflowjob.output_ports.first().connections.first()
-        conn.save()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_connection_delete(self):
-        conn = self.test_workflowjob.output_ports.first().connections.first()
-        conn.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_inputport_save(self):
+
+    def test_creating_workflowjob_should_invalidate(self):
+        wfj3 = mommy.make('rodan.WorkflowJob', workflow=self.test_workflow)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_workflowjob_job_should_invalidate(self):
+        self.test_workflowjob.job = mommy.make('rodan.Job')
+        self.test_workflowjob.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_workflowjob_job_settings_should_invalidate(self):
+        self.test_workflowjob.job_settings = {'a': 'a'}
+        self.test_workflowjob.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_workflowjob_name_should_not_invalidate(self):
+        self.test_workflowjob.name = 'my name'
+        self.test_workflowjob.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+    def test_altering_workflowjob_group_should_not_invalidate(self):
+        self.test_workflowjob.group = mommy.make('rodan.WorkflowJobGroup',
+                                                 workflow=self.test_workflow)
+        self.test_workflowjob.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+    def test_deleting_workflowjob_should_invalidate(self):
+        self.test_workflowjob.delete()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+
+    def test_creating_inputport_should_invalidate(self):
+        mommy.make('rodan.InputPort',
+                   workflow_job=self.test_workflowjob,
+                   input_port_type=self.test_inputporttype)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_inputport_workflow_job_should_invalidate(self):
         ip = self.test_workflowjob.input_ports.first()
+        ip.workflow_job = mommy.make('rodan.WorkflowJob')
         ip.save()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_inputport_delete(self):
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_inputport_input_port_type_should_invalidate(self):
+        ip = self.test_workflowjob.input_ports.first()
+        ip.input_port_type = mommy.make('rodan.InputPortType')
+        ip.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_inputport_label_should_not_invalidate(self):
+        ip = self.test_workflowjob.input_ports.first()
+        ip.label = "new label"
+        ip.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+    def test_deleting_inputport_should_invalidate(self):
         ip = self.test_workflowjob.input_ports.first()
         ip.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_outputport_save(self):
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+
+    def test_creating_outputport_should_invalidate(self):
+        mommy.make('rodan.OutputPort',
+                   workflow_job=self.test_workflowjob,
+                   output_port_type=self.test_outputporttype)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_outputport_workflow_job_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
+        op.workflow_job = mommy.make('rodan.WorkflowJob')
         op.save()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_outputport_delete(self):
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_outputport_output_port_type_should_invalidate(self):
+        op = self.test_workflowjob2.output_ports.first()
+        op.output_port_type = mommy.make('rodan.OutputPortType')
+        op.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_outputport_label_should_not_invalidate(self):
+        op = self.test_workflowjob2.output_ports.first()
+        op.label = "new label"
+        op.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+    def test_deleting_outputport_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
         op.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_workflowjob_save(self):
-        self.test_workflowjob.save()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
-    def test_workflowjob_delete(self):
-        self.test_workflowjob.delete()
-        self.test_workflow = Workflow.objects.get(uuid=self.test_workflow.uuid) # refetch
-        self.assertFalse(self.test_workflow.valid)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+
+    def test_creating_connection_should_invalidate_1(self):
+        op = self.test_workflowjob2.output_ports.first()
+        mommy.make('rodan.Connection',
+                   output_port=op)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_creating_connection_should_invalidate_2(self):
+        ip = self.test_workflowjob.input_ports.first()
+        mommy.make('rodan.Connection',
+                   input_port=ip)
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_connection_input_port_should_invalidate(self):
+        conn = self.test_workflowjob.output_ports.first().connections.first()
+        conn.input_port = mommy.make('rodan.InputPort')
+        conn.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_altering_connection_output_port_should_invalidate(self):
+        conn = self.test_workflowjob.output_ports.first().connections.first()
+        conn.output_port = mommy.make('rodan.OutputPort')
+        conn.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+    def test_deleting_connection_should_invalidate(self):
+        conn = self.test_workflowjob.output_ports.first().connections.first()
+        conn.delete()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertFalse(wf.valid)
+
+
+    def test_creating_workflowjobgroup_should_not_invalidate(self):
+        wfjg2 = mommy.make('rodan.WorkflowJobGroup',
+                           workflow=self.test_workflow)
+        self.test_workflowjob2.group = self.test_workflowjobgroup
+        self.test_workflowjob2.save()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
+    def test_deleting_workflowjobgroup_should_not_invalidate(self):
+        self.test_workflowjobgroup.delete()
+        # Refetch
+        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
+        self.assertTrue(wf.valid)
 
 
 class WorkflowPortsTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):

@@ -31,6 +31,7 @@ class WorkflowJob(models.Model):
     **Methods**
 
     - `save` and `delete` -- invalidate the referenced `Workflow` if `workflow`, `job`, or `job_settings` are touched.
+    - `from_db` -- store workflow-invalidation-related fields.
     """
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE, db_index=True)
@@ -44,31 +45,31 @@ class WorkflowJob(models.Model):
 
     _rodan_custom_data = {}
     def _rodan_custom_store_fields(self):
-        self._rodan_custom_data['original_workflow_uuid'] = self.workflow.uuid
-        self._rodan_custom_data['original_job_uuid'] = self.job.uuid
+        self._rodan_custom_data['original_workflow_id'] = self.workflow_id
+        self._rodan_custom_data['original_job_id'] = self.job_id
         self._rodan_custom_data['original_job_settings'] = dict.copy(self.job_settings)
 
-    def __init__(self, *args, **kwargs):
-        super(WorkflowJob, self).__init__(*args, **kwargs)
-        self._rodan_custom_store_fields()
+    @classmethod
+    def from_db(cls, *args, **kwargs):
+        instance = super(WorkflowJob, cls).from_db(*args, **kwargs)
+        instance._rodan_custom_store_fields()
+        return instance
 
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.job_name.split('.')[-1]
+        cond1 = self.workflow.uuid != self._rodan_custom_data.get('original_workflow_id')
+        cond2 = self.job.uuid != self._rodan_custom_data.get('original_job_id')
+        cond3 = not deep_eq(self.job_settings, self._rodan_custom_data.get('original_job_settings', {}))
         super(WorkflowJob, self).save(*args, **kwargs)
-
-        # check changes and invalidate workflow if necessary
-        cond1 = self.workflow.uuid != self._rodan_custom_data['original_workflow_uuid']
-        cond2 = self.job.uuid != self._rodan_custom_data['original_job_uuid']
-        cond3 = not deep_eq(self.job_settings, self._rodan_custom_data['original_job_settings'])
         if cond1 or cond2 or cond3:
-            wf_uuid = self.workflow.uuid
-            Workflow.objects.filter(uuid=wf_uuid).update(valid=False)
+            wf_id = self.workflow_id
+            Workflow.objects.filter(pk=wf_id).update(valid=False)
 
     def delete(self, *args, **kwargs):
-        wf_uuid = self.workflow.uuid
+        wf_id = self.workflow_id
         super(WorkflowJob, self).delete(*args, **kwargs)
-        Workflow.objects.filter(uuid=wf_uuid).update(valid=False)
+        Workflow.objects.filter(pk=wf_id).update(valid=False)
 
     def __unicode__(self):
         return u"<WorkflowJob {0}>".format(str(self.uuid))
