@@ -457,13 +457,7 @@ class WorkflowViewInvalidateTestCase(RodanTestTearDownMixin, APITestCase, RodanT
         self.test_workflow.refresh_from_db()
         self.assertTrue(self.test_workflow.valid)
 
-        response = self.client.put('/workflowjobgroup/{0}/'.format(response.data['uuid']), {
-            'workflow_jobs': [
-                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob.uuid),
-                "http://localhost:8000/workflowjob/{0}/".format(self.test_workflowjob2.uuid)
-            ],
-            'name': 'test'
-        }, format='json')
+        response = self.client.put('/workflowjobgroup/{0}/'.format(response.data['uuid']), response.data, format='json')
         assert response.status_code == status.HTTP_200_OK, 'this should pass'
         self.test_workflow.refresh_from_db()
         self.assertTrue(self.test_workflow.valid)
@@ -501,6 +495,18 @@ class WorkflowViewInvalidateTestCase(RodanTestTearDownMixin, APITestCase, RodanT
         self.test_workflow.refresh_from_db()
         self.assertTrue(self.test_workflow.valid)
 
+    def test_importing_workflow_should_not_invalidate_origin_but_invalidate_target(self):
+        wf2 = mommy.make('rodan.Workflow', project=self.test_workflow.project)
+        response = self.client.post('/workflowjobgroups/', {
+            'workflow': "http://localhost:8000/workflow/{0}/".format(wf2.uuid),
+            'origin': "http://localhost:8000/workflow/{0}/".format(self.test_workflow.uuid),
+            'name': 'test'
+        }, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'this should pass'
+        self.test_workflow.refresh_from_db()
+        wf2.refresh_from_db()
+        self.assertTrue(self.test_workflow.valid)
+        self.assertFalse(wf2.valid)
 
 class WorkflowExternPortsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):

@@ -31,7 +31,6 @@ class WorkflowJob(models.Model):
     **Methods**
 
     - `save` and `delete` -- invalidate the referenced `Workflow` if `workflow`, `job`, or `job_settings` are touched.
-    - `from_db` -- store workflow-invalidation-related fields.
     """
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow = models.ForeignKey("rodan.Workflow", related_name="workflow_jobs", on_delete=models.CASCADE, db_index=True)
@@ -43,28 +42,23 @@ class WorkflowJob(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    _rodan_custom_data = {}
-    def _rodan_custom_store_fields(self):
-        self._rodan_custom_data['original_workflow_id'] = self.workflow_id
-        self._rodan_custom_data['original_job_id'] = self.job_id
-        self._rodan_custom_data['original_job_settings'] = dict.copy(self.job_settings)
-
-    @classmethod
-    def from_db(cls, *args, **kwargs):
-        instance = super(WorkflowJob, cls).from_db(*args, **kwargs)
-        instance._rodan_custom_store_fields()
-        return instance
 
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.job_name.split('.')[-1]
-        cond1 = self.workflow.uuid != self._rodan_custom_data.get('original_workflow_id')
-        cond2 = self.job.uuid != self._rodan_custom_data.get('original_job_id')
-        cond3 = not deep_eq(self.job_settings, self._rodan_custom_data.get('original_job_settings', {}))
+
+        # [TODO] not too efficient... consider do the invalidation in db?
+        try:
+            old = WorkflowJob.objects.get(pk=self.pk)
+        except WorkflowJob.DoesNotExist:
+            old = WorkflowJob() # empty
+        cond1 = self.workflow_id != old.workflow_id
+        cond2 = self.job_id != old.job_id
+        cond3 = not deep_eq(self.job_settings, old.job_settings)
         super(WorkflowJob, self).save(*args, **kwargs)
         if cond1 or cond2 or cond3:
             wf_id = self.workflow_id
-            Workflow.objects.filter(pk=wf_id).update(valid=False)
+            Workflow.objects.filter(pk__in=list(set([wf_id, old.workflow_id]))).update(valid=False)
 
     def delete(self, *args, **kwargs):
         wf_id = self.workflow_id

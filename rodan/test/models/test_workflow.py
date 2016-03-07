@@ -165,17 +165,11 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertFalse(wf.valid)
 
 
-    def test_creating_connection_should_invalidate_1(self):
+    def test_creating_connection_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
         mommy.make('rodan.Connection',
-                   output_port=op)
-        # Refetch
-        wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
-        self.assertFalse(wf.valid)
-    def test_creating_connection_should_invalidate_2(self):
-        ip = self.test_workflowjob.input_ports.first()
-        mommy.make('rodan.Connection',
-                   input_port=ip)
+                   output_port=op,
+                   input_port__workflow_job__workflow=self.test_workflow)
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
         self.assertFalse(wf.valid)
