@@ -143,17 +143,18 @@ class ResourceViewer(generics.RetrieveAPIView):
 
     def get(self, request, *a, **k):
         resource = self.get_object()
-        if resource.resource_type.mimetype.startswith('image') and settings.ENABLE_DIVA and os.path.isfile(resource.diva_jp2_path) and os.path.isfile(resource.diva_json_path):
+        viewer = resource.get_viewer()
+        if viewer == 'diva':
             return render(request, 'diva.html', {
                 'page_title': "View Resource: {0}".format(resource.name or resource.pk),
                 'diva_object_data': resource.diva_json_url,
                 'diva_iip_server': settings.IIPSRV_URL,
                 'diva_image_dir': resource.diva_image_dir
             }, content_type="text/html")
-        elif resource.resource_type.mimetype.startswith("application/mei+xml"):
+        elif viewer == 'neon':
             return render(request, 'neon_square_viewer.html', {
                 'mei_name': resource.name or resource.pk,
                 'mei_url': resource.compat_file_url
             }, content_type="text/html")
         else:
-            return HttpResponseRedirect(resource.compat_file_url)
+            raise Http404("No viewer for this Resource.")
