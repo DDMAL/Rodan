@@ -230,6 +230,15 @@ class Resource(models.Model):
     def diva_json_url(self):
         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT))
 
+    def get_viewer(self):
+        if self.resource_type.mimetype.startswith('image') and settings.ENABLE_DIVA:
+            return 'diva'
+        elif self.resource_type.mimetype.startswith("application/mei+xml"):
+            return 'neon'
+        else:
+            return None
+
     @property
     def viewer_relurl(self):
-        return reverse('resource-viewer', args=(self.uuid, ))
+        if self.get_viewer() is not None:
+            return reverse('resource-viewer', args=(self.uuid, ))
