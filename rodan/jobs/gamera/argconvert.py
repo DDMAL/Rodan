@@ -36,6 +36,10 @@ def convert_arg_list(arglist):
                 value['maximum'] = a.rng[1]
         elif isinstance(a, args.ImageType):
             raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')
+	elif isinstance(a, args.Bool):
+	    value['type'] = 'boolean'
+	elif isinstance(a, args.Check):
+	    value['type'] = 'boolean' 
         elif isinstance(a, args.Choice):
             value['enum'] = a.choices
         elif isinstance(a, args.FloatVector):
