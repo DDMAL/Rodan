@@ -53,7 +53,7 @@ class ensure_compatible(Task):
                 self._task.run_my_task(inputs, {}, outputs)
                 resource_query.update(resource_type=ResourceType.objects.get(mimetype="image/rgb+png"))
             else:
-                shutil.copy(infile_path, tmpfile)
+	        shutil.copy(infile_path, tmpfile)
                 try:
                     resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
                 except:
