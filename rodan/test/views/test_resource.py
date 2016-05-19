@@ -111,6 +111,28 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(len(res_list), 1)
         self.assertEqual(res_list[0]['uuid'], str(res2.uuid))
 
+    def test_get_with_filter_uploaded(self):
+        wfrun1 = mommy.make('rodan.WorkflowRun')
+        r1 = mommy.make('rodan.Resource')
+        output1a = mommy.make('rodan.Output',
+                              resource=r1,
+                              run_job__workflow_run=wfrun1)
+        res1 = output1a.resource
+        res1.origin = output1a
+        res1.save()
+        mommy.make('rodan.Input',
+                   run_job__workflow_run=wfrun1,
+                   resource=res1)
+        response1 = self.client.get("/resources/?format=json&uploaded=false")
+        res_list1 = response1.data['results']
+        self.assertEqual(len(res_list1), 1)
+        self.assertEqual(res_list1[0]['uuid'], str(res1.uuid))
+
+        response2 = self.client.get("/resources/?format=json&uploaded=true")
+        res_list2 = response2.data['results']
+        self.assertEqual(len(res_list2), 1)
+        self.assertEqual(res_list2[0]['uuid'], str(r1.uuid))
+
 
 class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -176,8 +198,6 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
             self.assertFalse(self.test_resource1.compat_resource_file)
             self.assertEqual(self.test_resource1.processing_status, task_status.FAILED)
             self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
-
-
 
 
     # def test_patch(self):

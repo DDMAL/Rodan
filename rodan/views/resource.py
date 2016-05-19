@@ -71,8 +71,10 @@ class ResourceList(generics.ListCreateAPIView):
             condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid))
 
         uploaded = self.request.query_params.get('uploaded', None)
-        if uploaded:
+        if uploaded == u'True':
             condition &= Q(origin__isnull=True)
+        elif uploaded == u'False':
+            condition &= Q(origin__isnull=False)
 
         queryset = Resource.objects.filter(condition)  # then this queryset is filtered on `filter_fields`
         return queryset
