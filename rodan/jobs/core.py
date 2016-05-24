@@ -9,16 +9,13 @@ from django.conf import settings
 from django.db.models import Q, Case, Value, When, BooleanField
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource, ResourceType, ResultsPackage, Output, Workflow, WorkflowRun, WorkflowJob, InputPort, Input, OutputPort, Output, Connection, RunJob, ResourceList
+from rodan.models import Resource, ResourceType, ResultsPackage, Workflow, WorkflowRun, WorkflowJob, Input, OutputPort, Output, Connection, RunJob, ResourceList
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
 from celery.task.control import revoke
-from rodan.jobs.base import RodanTask, TemporaryDirectory
+from rodan.jobs.base import  TemporaryDirectory
 from diva_generate_json import GenerateJson
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
-import json
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"
@@ -28,10 +25,7 @@ class ensure_compatible(Task):
         resource_query.update(processing_status=task_status.PROCESSING)
         resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
 
-        if not claimed_mimetype:
-            mimetype = resource_info['resource_type__mimetype']
-        else:
-            mimetype = claimed_mimetype
+        mimetype = resource_info.get('resource_type__mimetype')
 
         with TemporaryDirectory() as tmpdir:
             infile_path = resource_info['resource_file']
@@ -48,17 +42,16 @@ class ensure_compatible(Task):
 
             new_processing_status = task_status.FINISHED
 
-            if mimetype.startswith('image'):
-                self._task = registry.tasks['rodan.jobs.conversion.to_png']
-                self._task.run_my_task(inputs, {}, outputs)
-                resource_query.update(resource_type=ResourceType.objects.get(mimetype="image/rgb+png"))
-            else:
-	        shutil.copy(infile_path, tmpfile)
-                try:
-                    resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
-                except:
-                    resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
-                new_processing_status = task_status.NOT_APPLICABLE
+            shutil.copy(infile_path, tmpfile)
+
+            if claimed_mimetype == 'image/png' or claimed_mimetype == 'image/rgb':
+                claimed_mimetype = "image/rgb+png"
+
+            try:
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
+            except:
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
+            new_processing_status = task_status.NOT_APPLICABLE
 
             with open(tmpfile, 'rb') as f:
                 resource_object = resource_query[0]
@@ -66,10 +59,6 @@ class ensure_compatible(Task):
                 compat_resource_file_path = resource_object.compat_resource_file.path
                 resource_query.update(compat_resource_file=compat_resource_file_path)
 
-                if not settings.ENABLE_DIVA:
-                    registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
-                else:
-                    registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
                 resource_query.update(processing_status=new_processing_status)
         return True
 
