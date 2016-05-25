@@ -16,6 +16,7 @@ from celery import Task
 from celery.task.control import revoke
 from rodan.jobs.base import  TemporaryDirectory
 from diva_generate_json import GenerateJson
+from celery.contrib import rdb
 
 class ensure_compatible(Task):
     name = "rodan.core.ensure_compatible"
@@ -44,11 +45,8 @@ class ensure_compatible(Task):
 
             shutil.copy(infile_path, tmpfile)
 
-            if claimed_mimetype == 'image/png' or claimed_mimetype == 'image/rgb':
-                claimed_mimetype = "image/rgb+png"
-
             try:
-                resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype=mimetype))
             except:
                 resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
             new_processing_status = task_status.NOT_APPLICABLE
