@@ -181,13 +181,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
 
 
 
-class WorkflowRunDetail(mixins.UpdateModelMixin, generics.RetrieveAPIView):
+class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Performs operations on a single WorkflowRun instance.
-
-    #### Parameters
-    - `status` -- PATCH-only. An integer.
-    - `last_redone_runjob_tree` -- PATCH-only. URL to a RunJob.
     """
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True

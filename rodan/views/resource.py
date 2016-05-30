@@ -112,7 +112,7 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
 
             resource_id = str(resource_obj.uuid)
-            mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
+            mimetype = claimed_mimetype or "application/octet-stream"
             registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype).apply_async()
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data

@@ -2,6 +2,7 @@ import os
 import uuid
 from django.db import models
 from rodan.constants import task_status
+import shutil
 
 class WorkflowRun(models.Model):
     """
@@ -66,3 +67,11 @@ class WorkflowRun(models.Model):
 
     def __unicode__(self):
         return u"<WorkflowRun {0}>".format(str(self.uuid))
+
+    def delete(self, *args, **kwargs):
+        # remove protected links from runjobs to workflowrun by deleting the jobruns
+        from rodan.models import RunJob
+        RunJob.objects.filter(workflow_run=self).delete()
+        # if os.path.exists(self.resource_path):
+        #     shutil.rmtree(self.resource_path)
+        super(WorkflowRun, self).delete(*args, **kwargs)
