@@ -147,17 +147,18 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         image.save(file_obj, 'png')
         file_obj.name = 'page1.png'
         file_obj.seek(0)
+        rt = ResourceType.objects.get(mimetype='image/rgb+png')
         resource_obj = {
             'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
             'files': [
                 file_obj
             ],
+            'type': "http://localhost:8000/resourcetype/{0}/".format(rt.uuid),
         }
-        response = self.client.post("/resources/", resource_obj, format='multipart')
+        response = self.client.post("/resources/", resource_obj, format='multipart', resource_type=rt)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
         self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
-        self.assertEqual(self.test_resource1.processing_status, task_status.FINISHED)
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'image/rgb+png')
 
     def test_post_image_claiming_txt(self):
@@ -195,8 +196,6 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.test_resource1 = Resource.objects.get(name="test_page1")
-            self.assertFalse(self.test_resource1.compat_resource_file)
-            self.assertEqual(self.test_resource1.processing_status, task_status.FAILED)
             self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
 
 

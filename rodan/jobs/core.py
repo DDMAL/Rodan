@@ -26,7 +26,10 @@ class ensure_compatible(Task):
         resource_query.update(processing_status=task_status.PROCESSING)
         resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
 
-        mimetype = resource_info.get('resource_type__mimetype')
+        if not claimed_mimetype:
+            mimetype = resource_info['resource_type__mimetype']
+        else:
+            mimetype = claimed_mimetype
 
         with TemporaryDirectory() as tmpdir:
             infile_path = resource_info['resource_file']
