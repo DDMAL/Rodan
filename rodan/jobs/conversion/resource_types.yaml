@@ -1,0 +1,9 @@
+- mimetype: image/rgb+png
+  extension: png
+- mimetype: image/jp2
+  description: jpeg2000
+  extension: jp2
+- mimetype: image/tiff
+  description: TIFF image
+  extension: tiff
+
