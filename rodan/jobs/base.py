@@ -514,8 +514,8 @@ class RodanTask(Task):
                                 resource.save()
                                 resource.compat_resource_file.save(ff, File(f), save=False) # Django will resolve the path according to upload_to
                                 resource.save(update_fields=['compat_resource_file'])
-                                registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
-                                registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                                #registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
+                                #registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
                             resourcelist.resources.add(resource)
 
                 runjob.status = task_status.FINISHED
