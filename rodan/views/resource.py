@@ -130,6 +130,24 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
+    def patch(self, request, *args, **kwargs):
+        resource_type = request.data.get('resource_type', None)
+        resource = self.get_object()
+        if resource_type:
+            try:
+                # try to see if user provide a url to ResourceType
+                path = urlparse.urlparse(resource_type).path  # convert to relative url
+                match = resolve(path)                            # find a url route
+                restype_pk = match.kwargs.get('pk')              # extract pk
+                restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
+                claimed_mimetype = restype_obj.mimetype          # find mimetype name
+            except (Resolver404, ResourceType.DoesNotExist) as e:
+                print str(e)
+        if claimed_mimetype.startswith('image'):
+            registry.tasks['rodan.core.create_diva'].run(resource.uuid)
+
+        return self.partial_update(request, *args, **kwargs)
+
 class ResourceViewer(generics.RetrieveAPIView):
     """
     Get a viewer of the resource. If there is no viewer, redirect to compat resource file.

@@ -130,30 +130,27 @@ def create_diva(resource_id):
     resource_object = resource_query[0]
     mimetype = resource_object.resource_type.mimetype
 
-    if mimetype.startswith('image'):
-        if not os.path.exists(resource_object.diva_path):
-            os.makedirs(resource_object.diva_path)
+    if not os.path.exists(resource_object.diva_path):
+        os.makedirs(resource_object.diva_path)
 
-        inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
-            'resource_path': resource_object.compat_resource_file.path,
-            'resource_type': mimetype
-        }]}
-        outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
-            'resource_path': resource_object.diva_jp2_path,
-            'resource_type': 'image/jp2'
-        }]}
-        _task = registry.tasks[getattr(settings, 'DIVA_JPEG2000_CONVERTER')]
-        _task.run_my_task(inputs, {}, outputs)
+    inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
+        'resource_path': resource_object.compat_resource_file.path,
+        'resource_type': mimetype
+    }]}
+    outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
+        'resource_path': resource_object.diva_jp2_path,
+        'resource_type': 'image/jp2'
+    }]}
+    _task = registry.tasks[getattr(settings, 'DIVA_JPEG2000_CONVERTER')]
+    _task.run_my_task(inputs, {}, outputs)
 
-        gen = GenerateJson(input_directory=resource_object.diva_path,
-                           output_directory=resource_object.diva_path)
-        gen.title = 'measurement'
-        gen.generate()
+    gen = GenerateJson(input_directory=resource_object.diva_path,
+                       output_directory=resource_object.diva_path)
+    gen.title = 'measurement'
+    gen.generate()
 
-        resource_query.update(has_thumb=True)
-        return True
-    else:
-        return False
+    resource_query.update(has_thumb=True)
+    return True
 
 
 
