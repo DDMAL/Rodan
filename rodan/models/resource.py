@@ -136,11 +136,11 @@ class Resource(models.Model):
         if not os.path.exists(self.resource_path):
             os.makedirs(self.resource_path)
 
-        if not os.path.exists(self.thumb_path):
-            os.makedirs(self.thumb_path)
-
-        if getattr(settings, 'ENABLE_DIVA') and not os.path.exists(self.diva_path):
-            os.makedirs(self.diva_path)
+        # if not os.path.exists(self.thumb_path):
+        #     os.makedirs(self.thumb_path)
+        #
+        # if getattr(settings, 'ENABLE_DIVA') and not os.path.exists(self.diva_path):
+        #     os.makedirs(self.diva_path)
 
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):

@@ -17,8 +17,8 @@ from celery.task.control import revoke
 from rodan.jobs.base import  TemporaryDirectory
 from diva_generate_json import GenerateJson
 
-class ensure_compatible(Task):
-    name = "rodan.core.ensure_compatible"
+class create_resource(Task):
+    name = "rodan.core.create_resource"
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
@@ -58,6 +58,8 @@ class ensure_compatible(Task):
                 resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
                 compat_resource_file_path = resource_object.compat_resource_file.path
                 resource_query.update(compat_resource_file=compat_resource_file_path)
+                if mimetype.startswith('image'):
+                    registry.tasks['rodan.core.create_diva'].run(resource_id)
 
                 resource_query.update(processing_status=new_processing_status)
         return True
@@ -128,20 +130,19 @@ def create_diva(resource_id):
     resource_object = resource_query[0]
     mimetype = resource_object.resource_type.mimetype
 
-    if not os.path.exists(resource_object.diva_path):
-        os.makedirs(resource_object.diva_path)
-
     if mimetype.startswith('image'):
-        inputs = {'in': [{
+        if not os.path.exists(resource_object.diva_path):
+            os.makedirs(resource_object.diva_path)
+
+        inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
             'resource_path': resource_object.compat_resource_file.path,
             'resource_type': mimetype
         }]}
-        outputs = {'out': [{
+        outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
             'resource_path': resource_object.diva_jp2_path,
             'resource_type': 'image/jp2'
         }]}
-
-        _task = registry.tasks['rodan.jobs.conversion.to_jpeg2000']
+        _task = registry.tasks[getattr(settings, 'DIVA_JPEG2000_CONVERTER')]
         _task.run_my_task(inputs, {}, outputs)
 
         gen = GenerateJson(input_directory=resource_object.diva_path,

@@ -113,7 +113,7 @@ class ResourceList(generics.ListCreateAPIView):
 
             resource_id = str(resource_obj.uuid)
             mimetype = claimed_mimetype or "application/octet-stream"
-            registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype).apply_async()
+            registry.tasks['rodan.core.create_resource'].si(resource_id, mimetype).apply_async()
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)
