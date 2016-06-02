@@ -495,8 +495,8 @@ class RodanTask(Task):
                             resource = Output.objects.get(uuid=output['uuid']).resource
                             resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
                             resource.save(update_fields=['compat_resource_file'])
-                            registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
-                            registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                            #registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
+                            #registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
                     else:
                         files = [ff for ff in os.listdir(output['resource_temp_folder']) if os.path.isfile(os.path.join(output['resource_temp_folder'], f))]
                         files.sort()  # alphabetical order
