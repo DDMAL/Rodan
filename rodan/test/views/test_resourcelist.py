@@ -110,16 +110,24 @@ class ResourceListViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(response.data, anticipated_message)
 
     def test_create_empty_resourcelist(self):
+        p2 = mommy.make('rodan.Project')
         rl_obj = {
+            'resources': [],
+            "name": "test resource list",
+            "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
+        }
+        response = self.client.post("/resourcelists/", rl_obj, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+
+        rl_obj2 = {
             'resources': [],
             "name": "test resource list"
         }
-        response = self.client.post("/resourcelists/", rl_obj, format='json')
-        anticipated_message = {'resources': ["This list may not be empty."]}
+        response = self.client.post("/resourcelists/", rl_obj2, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, anticipated_message)
 
     def test_patch_empty_resourcelist(self):
+        p2 = mommy.make('rodan.Project')
         rl_obj = {
             'resources': map(lambda x: "http://localhost:8000/resource/{0}/".format(x.uuid), self.test_resources),
             "name": "test resource list"
@@ -129,9 +137,8 @@ class ResourceListViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
         rl_uuid = response.data['uuid']
 
         rl_obj = {
-            'resources': []
+            'resources': [],
+            "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
         }
         response = self.client.patch("/resourcelist/{0}/".format(rl_uuid), rl_obj, format='json')
-        anticipated_message = {'resources': ["This list may not be empty."]}
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, anticipated_message)
+        assert response.status_code == status.HTTP_200_OK, 'This should pass'
