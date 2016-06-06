@@ -111,19 +111,26 @@ class ResourceListViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
     def test_create_empty_resourcelist(self):
         p2 = mommy.make('rodan.Project')
-        rl_obj = {
+        rl_obj1 = {
             'resources': [],
             "name": "test resource list",
             "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
         }
-        response = self.client.post("/resourcelists/", rl_obj, format='json')
+        response = self.client.post("/resourcelists/", rl_obj1, format='json')
         assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
 
         rl_obj2 = {
+            "name": "test resource list",
+            "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
+        }
+        response = self.client.post("/resourcelists/", rl_obj2, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+
+        rl_obj3 = {
             'resources': [],
             "name": "test resource list"
         }
-        response = self.client.post("/resourcelists/", rl_obj2, format='json')
+        response = self.client.post("/resourcelists/", rl_obj3, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_patch_empty_resourcelist(self):

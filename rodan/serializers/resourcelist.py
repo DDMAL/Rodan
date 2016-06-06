@@ -9,7 +9,7 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'uuid', 'name', 'description', 'project', 'resources', 'resource_type', 'origin', 'created', 'updated')
 
     def validate_resources(self, resources):
-        if len(resources) > 0:
+        if resources is not None and len(resources) > 0:
             first_p = resources[0].project
             first_rt = resources[0].resource_type
             for r in resources[1:]:
@@ -24,7 +24,7 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
         Update `project` and `resource_type` fields in database.
         """
         resources = self.validated_data.get('resources')
-        if len(resources) > 0:
+        if resources is not None and len(resources) > 0:
             self.validated_data['project'] = self.validated_data['resources'][0].project
             self.validated_data['resource_type'] = self.validated_data['resources'][0].resource_type
 
