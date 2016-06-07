@@ -103,6 +103,10 @@ class Project(models.Model):
         return self.resources.count()
 
     @property
+    def resourcelist_count(self):
+        return self.resourcelists.count()
+
+    @property
     def admins_relurl(self):
         return reverse('project-detail-admins', args=(self.pk, ))
 
