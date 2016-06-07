@@ -34,12 +34,12 @@ def master_task(workflow_run_id):
         & Q(run_job__lock__isnull=True)                  # its RunJob not locked by other concurrent master tasks
         & ~(
             ## It has Resource and its Resource is ready.
-            (Q(resource__isnull=False) & ~Q(resource__compat_resource_file__exact=""))
+            (Q(resource__isnull=False) & ~Q(resource__resource_file__exact=""))
             ## OR (it should have ResourceList) its ResourceList is not empty and
             ## has all Resources ready.
             | (
                 Q(resource_list__resources__isnull=False)
-                & ~Q(resource_list__resources__compat_resource_file__exact="")
+                & ~Q(resource_list__resources__resource_file__exact="")
             )
         )
     )
