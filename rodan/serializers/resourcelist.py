@@ -1,4 +1,4 @@
-from rodan.models import ResourceList
+from rodan.models import ResourceList, ResourceType
 from rest_framework import serializers
 
 
@@ -28,6 +28,8 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
         if resources is not None and len(resources) > 0:
             self.validated_data['project'] = self.validated_data['resources'][0].project
             self.validated_data['resource_type'] = self.validated_data['resources'][0].resource_type
+        else:
+            self.validated_data['resource_type'] = ResourceType.objects.get(mimetype='application/octet-stream')
 
         try:
             project = self.data.get('project')

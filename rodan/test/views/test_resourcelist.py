@@ -113,22 +113,26 @@ class ResourceListViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSet
         p2 = mommy.make('rodan.Project')
         rl_obj1 = {
             'resources': [],
-            "name": "test resource list",
+            "name": "test resource list1",
             "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
         }
         response = self.client.post("/resourcelists/", rl_obj1, format='json')
         assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+        rl1 = ResourceList.objects.get(name="test resource list1")
+        self.assertEqual(rl1.resource_type.mimetype, 'application/octet-stream')
 
         rl_obj2 = {
-            "name": "test resource list",
+            "name": "test resource list2",
             "project": "http://localhost:8000/project/{0}/".format(p2.uuid)
         }
         response = self.client.post("/resourcelists/", rl_obj2, format='json')
         assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+        rl2 = ResourceList.objects.get(name="test resource list2")
+        self.assertEqual(rl2.resource_type.mimetype, 'application/octet-stream')
 
         rl_obj3 = {
             'resources': [],
-            "name": "test resource list"
+            "name": "test resource list3"
         }
         response = self.client.post("/resourcelists/", rl_obj3, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
