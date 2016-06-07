@@ -3,10 +3,11 @@ from rest_framework import serializers
 
 
 class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
+    creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
     class Meta:
         model = ResourceList
-        read_only_fields = ('created', 'updated', 'resource_type', 'origin')
-        fields = ('url', 'uuid', 'name', 'description', 'project', 'resources', 'resource_type', 'origin', 'created', 'updated')
+        read_only_fields = ('created', 'updated', 'resource_type', 'origin', 'creator')
+        fields = ('url', 'uuid', 'name', 'description', 'project', 'resources', 'resource_type', 'origin', 'created', 'updated', 'creator')
 
     def validate_resources(self, resources):
         if resources is not None and len(resources) > 0:
@@ -29,7 +30,11 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
             self.validated_data['resource_type'] = self.validated_data['resources'][0].resource_type
 
         try:
-            project = self.validated_data['project']
+            project = self.data.get('project')
             return super(ResourceListSerializer, self).save(**kwargs)
         except:
-            raise serializers.ValidationError("Resource List should belong to a Project.")
+            try:
+                project = self.validated_data['project']
+                return super(ResourceListSerializer, self).save(**kwargs)
+            except:
+                raise serializers.ValidationError("Resource List should belong to a Project.")

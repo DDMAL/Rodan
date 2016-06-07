@@ -6,6 +6,7 @@ from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from sortedm2m.fields import SortedManyToManyField
+from django.contrib.auth.models import User
 
 import logging
 logger = logging.getLogger('rodan')
@@ -44,6 +45,7 @@ class ResourceList(models.Model):
     resources = SortedManyToManyField('rodan.Resource', blank=True, null=True)
     resource_type = models.ForeignKey('rodan.ResourceType', blank=True, null=True, db_index=True, on_delete=models.PROTECT)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)  # no backward reference
+    creator = models.ForeignKey(User, related_name="resourcelists", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)

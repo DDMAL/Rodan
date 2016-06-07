@@ -1,6 +1,5 @@
 import mimetypes, os, urlparse
 from celery import registry
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
@@ -17,7 +16,6 @@ from django.conf import settings
 from django.shortcuts import render
 import django_filters
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -34,7 +32,7 @@ class ResourceList(generics.ListCreateAPIView):
         - Or a hyperlink to a ResourceType object.
     - `files` -- POST-only. The files.
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
@@ -143,8 +141,8 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 claimed_mimetype = restype_obj.mimetype          # find mimetype name
             except (Resolver404, ResourceType.DoesNotExist) as e:
                 print str(e)
-        if claimed_mimetype.startswith('image'):
-            registry.tasks['rodan.core.create_diva'].run(resource.uuid)
+            if claimed_mimetype.startswith('image'):
+                registry.tasks['rodan.core.create_diva'].run(resource.uuid)
 
         return self.partial_update(request, *args, **kwargs)
 
