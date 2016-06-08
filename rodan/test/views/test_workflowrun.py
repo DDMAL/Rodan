@@ -139,7 +139,7 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             for index, res in enumerate(rs):
                 res.name = str(index) # 0 to 9
                 res.save()
-                res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+                res.resource_file.save('dummy.txt', ContentFile('dummy text'))
             rl.resources.add(*rs)
             resource_lists.append(rl)
         ra[self.url(self.test_Dip3)] = map(self.url, resource_lists)
@@ -251,19 +251,6 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['Resource or ResourceList is not in the project of Workflow']}}}
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    def test_resource_no_compat_resource_file(self):
-        ra = self.setUp_resources_for_complex_dummy_workflow()
-        res = self.test_resourcecollection[5]
-        res.compat_resource_file.delete()
-        workflowrun_obj = {
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'resource_assignments': ra
-        }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['The compatible resource file is not ready']}}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The compatible resource file is not ready']}}}
-        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resource_type_not_match(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
@@ -315,18 +302,6 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['Resource or ResourceList is not in the project of Workflow']}}}
-        self.assertEqual(response.data, anticipated_message)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    def test_resource_no_compat_resource_file__in_resource_list(self):
-        ra = self.setUp_resources_for_complex_dummy_workflow()
-        res = self.test_resourcelist.resources.all()[3]
-        res.compat_resource_file.delete()
-        workflowrun_obj = {
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
-            'resource_assignments': ra
-        }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The compatible resource file of #3 in the resource list is not ready']}}}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resource_type_not_match__in_resource_list(self):
@@ -381,7 +356,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # then manual job should be flagged as finished and should have result
-        with open(dummy_m_runjob.outputs.first().resource.compat_resource_file.path) as f:
+        with open(dummy_m_runjob.outputs.first().resource.resource_file.path) as f:
             self.assertEqual(json.load(f), user_input)
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()  # refetch
         self.assertEqual(dummy_m_runjob.status, task_status.FINISHED)
@@ -390,7 +365,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
     def test_automatic_job_fail(self):
         with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False): # Turn off propagation as task will fail
             ra = self.setUp_resources_for_simple_dummy_workflow()
-            self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('will fail'))
+            self.test_resource.resource_file.save('dummy.txt', ContentFile('will fail'))
 
             workflowrun_obj = {
                 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -412,7 +387,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_manual_job_rejected(self):
         ra = self.setUp_resources_for_simple_dummy_workflow()
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -441,7 +416,7 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
 
     def test_cancel_retry_redo(self):
         ra = self.setUp_resources_for_simple_dummy_workflow()
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
@@ -648,18 +623,18 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjFi in rjFs:
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
-        self.assertTrue(Aout.resource.compat_resource_file)
+        self.assertTrue(Aout.resource.resource_file)
         for r in Bout.resource_list.resources.all():
-            self.assertFalse(r.compat_resource_file)
-        self.assertFalse(Cout1.resource.compat_resource_file)
-        self.assertFalse(Cout2.resource.compat_resource_file)
+            self.assertFalse(r.resource_file)
+        self.assertFalse(Cout1.resource.resource_file)
+        self.assertFalse(Cout2.resource.resource_file)
         for Douti in Douts:
-            self.assertFalse(Douti.resource.compat_resource_file)
+            self.assertFalse(Douti.resource.resource_file)
         for Eouti in Eouts:
-            self.assertFalse(Eouti.resource.compat_resource_file)
+            self.assertFalse(Eouti.resource.resource_file)
         for Fouti in Fouts:
             for r in Fouti.resource_list.resources.all():
-                self.assertFalse(r.compat_resource_file)
+                self.assertFalse(r.resource_file)
 
 
         # Work with RunJob B
@@ -705,16 +680,16 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
 
         for r in Bout.resource_list.resources.all():
-            self.assertTrue(r.compat_resource_file)
-        self.assertTrue(Cout1.resource.compat_resource_file)
-        self.assertTrue(Cout2.resource.compat_resource_file)
+            self.assertTrue(r.resource_file)
+        self.assertTrue(Cout1.resource.resource_file)
+        self.assertTrue(Cout2.resource.resource_file)
         for Douti in Douts:
-            self.assertFalse(Douti.resource.compat_resource_file)
+            self.assertFalse(Douti.resource.resource_file)
         for Eouti in Eouts:
-            self.assertFalse(Eouti.resource.compat_resource_file)
+            self.assertFalse(Eouti.resource.resource_file)
         for Fouti in Fouts:
             for r in Fouti.resource_list.resources.all():
-                self.assertFalse(r.compat_resource_file)
+                self.assertFalse(r.resource_file)
 
         # Work with one of RunJob D
         response = self.client.post("/interactive/{0}/acquire/".format(str(rjDs[0].uuid)))
@@ -759,12 +734,12 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         rjF0 = Dout0.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
         Fout0 = rjF0.outputs.get(output_port__output_port_type__name='out_typeL')
         self.assertEqual(rjD0.status, task_status.FINISHED)
-        self.assertTrue(Dout0.resource.compat_resource_file)
+        self.assertTrue(Dout0.resource.resource_file)
         self.assertEqual(rjE0.status, task_status.FINISHED)
-        self.assertTrue(Eout0.resource.compat_resource_file)
+        self.assertTrue(Eout0.resource.resource_file)
         self.assertEqual(rjF0.status, task_status.FINISHED)
         for r in Fout0.resource_list.resources.all():
-            self.assertTrue(r.compat_resource_file)
+            self.assertTrue(r.resource_file)
 
         for rjDi in rjDremain:
             Douti = rjDi.outputs.get(output_port__output_port_type__name='out_typeA')
@@ -773,12 +748,12 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             rjFi = Douti.resource.inputs.filter(run_job__workflow_job=self.test_wfjob_F)[0].run_job
             Fouti = rjFi.outputs.get(output_port__output_port_type__name='out_typeL')
             self.assertEqual(rjDi.status, task_status.WAITING_FOR_INPUT)
-            self.assertFalse(Douti.resource.compat_resource_file)
+            self.assertFalse(Douti.resource.resource_file)
             self.assertEqual(rjEi.status, task_status.SCHEDULED)
-            self.assertFalse(Eouti.resource.compat_resource_file)
+            self.assertFalse(Eouti.resource.resource_file)
             self.assertEqual(rjFi.status, task_status.SCHEDULED)
             for r in Fouti.resource_list.resources.all():
-                self.assertFalse(r.compat_resource_file)
+                self.assertFalse(r.resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
@@ -819,15 +794,15 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, task_status.FINISHED)
         for Douti in Douts:
-            self.assertTrue(Douti.resource.compat_resource_file)
+            self.assertTrue(Douti.resource.resource_file)
         for rjEi in rjEs:
             self.assertEqual(rjEi.status, task_status.FINISHED)
         for Eouti in Eouts:
-            self.assertTrue(Eouti.resource.compat_resource_file)
+            self.assertTrue(Eouti.resource.resource_file)
         for rjFi in rjFs:
             self.assertEqual(rjFi.status, task_status.FINISHED)
         for Fouti in Fouts:
             for r in Fouti.resource_list.resources.all():
-                self.assertTrue(r.compat_resource_file)
+                self.assertTrue(r.resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)

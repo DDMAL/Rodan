@@ -87,11 +87,11 @@ class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         self.test_workflow = mommy.make('rodan.Workflow', project=self.test_project)
         self.test_resource_in = mommy.make('rodan.Resource',
                                            project=self.test_project,
-                                           compat_resource_file="dummy",
+                                           resource_file="dummy",
                                            resource_type=ResourceType.objects.get(mimetype='test/a1'))
         self.test_resource_out = mommy.make('rodan.Resource',
                                             project=self.test_project,
-                                            compat_resource_file="",
+                                            resource_file="",
                                             resource_type=ResourceType.objects.get(mimetype='test/a1'))
         self.test_working_user_token = uuid.uuid4()
         self.test_runjob = mommy.make('rodan.RunJob',
@@ -112,7 +112,7 @@ class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
                               resource=self.test_resource_out)
         self.test_resource_out.origin = output_m
         self.test_resource_out.save()
-        self.test_resource_in.compat_resource_file.save('dummy.txt', ContentFile('{"test": "hahaha"}'))
+        self.test_resource_in.resource_file.save('dummy.txt', ContentFile('{"test": "hahaha"}'))
 
     def test_not_exist(self):
         response = self.client.get(reverse('interactive-working', kwargs={'run_job_uuid': uuid.uuid1(), 'working_user_token': uuid.uuid1(), 'additional_url': ''}), format='json')
@@ -161,6 +161,6 @@ class InteractiveWorkingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
     def test_post__success(self):
         response = self.client.post(reverse('interactive-working', kwargs={'run_job_uuid': self.test_runjob.uuid, 'working_user_token': self.test_working_user_token, 'additional_url': ''}), [1,2,3,4], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        path = Resource.objects.get(uuid=self.test_resource_out.uuid).compat_resource_file.path
+        path = Resource.objects.get(uuid=self.test_resource_out.uuid).resource_file.path
         with open(path) as f:
             self.assertEqual(json.load(f), [1, 2, 3, 4])
