@@ -123,6 +123,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(db_index=True, max_length=200, null=True, blank=True)),
                 ('description', models.TextField(null=True, blank=True)),
                 ('resource_file', models.FileField(max_length=255, upload_to=rodan.models.resource.upload_path, blank=True)),
+                ('compat_resource_file', models.FileField(max_length=255, upload_to=rodan.models.resource.upload_path, blank=True)),
                 ('processing_status', models.IntegerField(blank=True, null=True, db_index=True, choices=[(0, b'Scheduled'), (1, b'Processing'), (4, b'Finished'), (-1, b'Failed'), (None, b'Not applicable')])),
                 ('error_summary', models.TextField(default=b'')),
                 ('error_details', models.TextField(default=b'')),
