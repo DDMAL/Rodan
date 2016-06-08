@@ -41,7 +41,7 @@ class ResourceList(models.Model):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey('rodan.Project', related_name="resourcelists", db_index=True, on_delete=models.CASCADE)
+    project = models.ForeignKey('rodan.Project', blank=True, null=True, related_name="resourcelists", db_index=True, on_delete=models.CASCADE)
     resources = SortedManyToManyField('rodan.Resource', blank=True, null=True)
     resource_type = models.ForeignKey('rodan.ResourceType', blank=True, null=True, db_index=True, on_delete=models.PROTECT)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)  # no backward reference
