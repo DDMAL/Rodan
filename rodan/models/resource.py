@@ -13,19 +13,12 @@ from rodan.constants import task_status
 import logging
 logger = logging.getLogger('rodan')
 
+
 def upload_path(resource_obj, filename):
     # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
     return os.path.join(resource_obj.resource_path, "original_file{0}".format(ext.lower()))
 
-def compat_path(resource_obj, filename):
-    return ""
-#     # compatible file -- use Rodan extensions
-#     # We need extension in filesystem as a cue for HTTP server to figure out the best mimetype when user downloads it.
-#     ext = resource_obj.resource_type.extension
-#     if ext:
-#         ext = '.{0}'.format(ext)
-#     return os.path.join(resource_obj.resource_path, "compat_file{0}".format(ext))
 
 class Resource(models.Model):
     """
@@ -161,11 +154,6 @@ class Resource(models.Model):
     def resource_url(self):
         if self.resource_file:
             return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_file.path, settings.MEDIA_ROOT))
-
-    # @property
-    # def compat_file_url(self):
-    #     if self.compat_resource_file:
-    #         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
 
     def thumb_filename(self, size):
         return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
