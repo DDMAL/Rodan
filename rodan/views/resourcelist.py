@@ -30,7 +30,6 @@ class ResourceListList(generics.ListCreateAPIView):
                 "name": ['exact', 'icontains'],
                 "description": ['icontains'],
                 "project": ['exact'],
-                "resource_type": ['exact'],
                 "origin": ['exact'],
                 "created": ['gt', 'lt'],
                 "updated": ['gt', 'lt'],
@@ -55,4 +54,4 @@ class ResourceListDetail(generics.RetrieveUpdateDestroyAPIView):
     filter_backends = ()
 
     def patch(self, request, *args, **kwargs):
-        return self.put(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
