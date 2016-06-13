@@ -1,4 +1,4 @@
-from rodan.models import ResourceList, ResourceType
+from rodan.models import ResourceList, ResourceType, Project
 from rest_framework import serializers
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 
@@ -37,7 +37,9 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
         if project is None:
             # When project is not sent in the request (e.g. post, patch, ...)
             try:
-                project = self.data.get('project')
+                project_url = self.data.get('project')
+                project_uuid = project_url.split('/')[-2]
+                project = Project.objects.get(uuid=project_uuid)
             except AttributeError:
                 raise serializers.ValidationError("Resource List should belong to a Project.")
 
