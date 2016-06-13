@@ -76,33 +76,33 @@ class create_resource(Task):
                                   error_details=einfo.traceback)
 
 
-@task(name="rodan.core.create_thumbnails")
-def create_thumbnails(resource_id):
-    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
-    resource_object = resource_query[0]
-    mimetype = resource_object.resource_type.mimetype
-
-    if mimetype.startswith('image'):
-        image = PIL.Image.open(resource_object.resource_file.path).convert('RGB')
-        width = float(image.size[0])
-        height = float(image.size[1])
-
-        for thumbnail_size in settings.THUMBNAIL_SIZES:
-            thumbnail_size = float(thumbnail_size)
-            ratio = min((thumbnail_size / width), (thumbnail_size / height))
-            dimensions = (int(width * ratio), int(height * ratio))
-
-            thumbnail_size = str(int(thumbnail_size))
-            thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
-            thumb_copy.save(os.path.join(resource_object.thumb_path,
-                                         resource_object.thumb_filename(size=thumbnail_size)))
-
-            del thumb_copy
-        del image
-        resource_query.update(has_thumb=True)
-        return True
-    else:
-        return False
+# @task(name="rodan.core.create_thumbnails")
+# def create_thumbnails(resource_id):
+#     resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+#     resource_object = resource_query[0]
+#     mimetype = resource_object.resource_type.mimetype
+#
+#     if mimetype.startswith('image'):
+#         image = PIL.Image.open(resource_object.resource_file.path).convert('RGB')
+#         width = float(image.size[0])
+#         height = float(image.size[1])
+#
+#         for thumbnail_size in settings.THUMBNAIL_SIZES:
+#             thumbnail_size = float(thumbnail_size)
+#             ratio = min((thumbnail_size / width), (thumbnail_size / height))
+#             dimensions = (int(width * ratio), int(height * ratio))
+#
+#             thumbnail_size = str(int(thumbnail_size))
+#             thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
+#             thumb_copy.save(os.path.join(resource_object.thumb_path,
+#                                          resource_object.thumb_filename(size=thumbnail_size)))
+#
+#             del thumb_copy
+#         del image
+#         resource_query.update(has_thumb=True)
+#         return True
+#     else:
+#         return False
 
 
 # if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
@@ -146,7 +146,7 @@ def create_diva(resource_id):
     gen.title = 'measurement'
     gen.generate()
 
-    resource_query.update(has_thumb=True)
+    #resource_query.update(has_thumb=True)
     return True
 
 

@@ -52,7 +52,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "updated": ['lt', 'gt'],
                 "uuid": ['exact'],
                 "creator": ['exact'],
-                "has_thumb": ['exact'],
+                #"has_thumb": ['exact'],
                 "processing_status": ['exact'],
                 "created": ['lt', 'gt'],
                 "project": ['exact'],

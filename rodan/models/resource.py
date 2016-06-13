@@ -49,8 +49,6 @@ class Resource(models.Model):
     - `created`
     - `updated`
 
-    - `has_thumb` -- denote whether it has thumbnails
-
     **Properties**
 
     - `resource_path` -- local path of resource folder.
@@ -61,9 +59,6 @@ class Resource(models.Model):
     - `filename` -- filename of user-uploaded resource file.
     - `thumb_path` -- local path of thumbnail folder.
     - `thumb_url` -- exposed URL of thumbnail folder.
-    - `small_thumb_url` -- exposed URL of small thumbnail.
-    - `medium_thumb_url` -- exposed URL of middle thumbnail.
-    - `large_thumb_url` -- exposed URL of large thumbnail.
 
     - `diva_path` -- local path of diva data folder.
     - `diva_jp2_path` -- local path of diva JPEG2000 file.
@@ -119,8 +114,6 @@ class Resource(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    has_thumb = models.BooleanField(default=False, db_index=True)
-
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
@@ -142,13 +135,13 @@ class Resource(models.Model):
         if self.resource_file:
             return os.path.dirname(self.resource_file.path)
 
-    @property
-    def thumb_path(self):
-        return os.path.join(self.resource_path, "thumbnails")
+    # @property
+    # def thumb_path(self):
+    #     return os.path.join(self.resource_path, "thumbnails")
 
-    @property
-    def thumb_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
+    # @property
+    # def thumb_url(self):
+    #     return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
 
     @property
     def resource_url(self):
@@ -160,40 +153,40 @@ class Resource(models.Model):
     #     if self.compat_resource_file:
     #         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
 
-    def thumb_filename(self, size):
-        return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
+    # def thumb_filename(self, size):
+    #     return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
 
     @property
     def filename(self):
         if self.resource_file:
             return os.path.basename(self.resource_file.path)
 
-    @property
-    def small_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.SMALL_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
-
-    @property
-    def medium_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
-
-    @property
-    def large_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.LARGE_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
+    # @property
+    # def small_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #
+    # @property
+    # def medium_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #
+    # @property
+    # def large_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
 
 
     @property

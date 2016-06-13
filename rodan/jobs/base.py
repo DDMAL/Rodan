@@ -293,9 +293,6 @@ class RodanTask(Task):
                  'resource_type': str(resource_type_mimetype) or str(resource.resource_type.mimetype)}
             if with_urls:
                 r['resource_url'] = str(resource.resource_url)
-                r['small_thumb_url'] = str(resource.small_thumb_url)
-                r['medium_thumb_url'] = str(resource.medium_thumb_url)
-                r['large_thumb_url'] = str(resource.large_thumb_url)
                 r['diva_object_data'] = str(resource.diva_json_url)
                 r['diva_iip_server'] = getattr(rodan_settings, 'IIPSRV_URL')
                 r['diva_image_dir'] = str(resource.diva_image_dir)
@@ -598,8 +595,7 @@ class RodanTask(Task):
     def get_my_interface(self, inputs, settings):
         """
         inputs will contain:
-        resource_path, resource_type, resource_url, small_thumb_url, medium_thumb_url,
-        large_thumb_url
+        resource_path, resource_type, resource_url
 
         Should return: (template, context), template is the relative path (relative to
         the path of package folder) to the interface HTML template file (in Django
