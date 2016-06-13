@@ -276,8 +276,7 @@ class RodanTestSetUpMixin(object):
 
         self.test_resourcelist = mommy.make(
             'rodan.ResourceList',
-            project=self.test_project,
-            resource_type=ResourceType.objects.get(mimetype='test/a1')
+            project=self.test_project
         )
         self.test_resources_in_resource_list = mommy.make(
             'rodan.Resource', _quantity=8,

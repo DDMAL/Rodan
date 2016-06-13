@@ -301,7 +301,7 @@ class RodanTask(Task):
                 r['diva_image_dir'] = str(resource.diva_image_dir)
             return r
 
-        input_objs = Input.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources').select_related('resource_list__resource_type')
+        input_objs = Input.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources')
 
         inputs = {}
         for input in input_objs:
@@ -320,7 +320,7 @@ class RodanTask(Task):
         """
         Return a dictionary of list of dictionary describing output information (resource type, resource or resource list, and original uuid).
         """
-        output_objs = Output.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources').select_related('resource_list__resource_type')
+        output_objs = Output.objects.filter(run_job=runjob).select_related('resource', 'resource__resource_type', 'resource_list').prefetch_related('resource_list__resources')
 
         outputs = {}
         for output in output_objs:

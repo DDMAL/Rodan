@@ -331,8 +331,9 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     def test_resource_type_not_match__in_resource_list(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        self.test_resourcelist.resource_type = ResourceType.objects.get(mimetype='test/b')
-        self.test_resourcelist.save()
+        for index, res in enumerate(self.test_resources_in_resource_list):
+            res.resource_type = ResourceType.objects.get(mimetype='test/b')
+            res.save()
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'resource_assignments': ra
@@ -549,10 +550,13 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             for o in op.outputs.all():
                 if op.output_port_type.is_list:
                     r = o.resource_list
+                    if r.resources.count() > 0:
+                        r_type = r.resource_type.mimetype
+                        self.assertIn(r_type, op_types)
                 else:
                     r = o.resource
-                r_type = r.resource_type.mimetype
-                self.assertIn(r_type, op_types)
+                    r_type = r.resource_type.mimetype
+                    self.assertIn(r_type, op_types)
         assert_same_resource_types(self.test_Aop)
         assert_same_resource_types(self.test_Bop)
         assert_same_resource_types(self.test_Cop1)

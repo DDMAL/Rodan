@@ -172,8 +172,6 @@ class package_results(Task):
             'resource', 'resource__resource_type', 'resource_list', 'run_job'
         ).prefetch_related(
             'resource_list__resources'
-        ).select_related(
-            'resource_list__resource_type'
         ).annotate(
             is_endpoint=Case(
                 When(
@@ -477,24 +475,31 @@ class create_workflowrun(Task):
                 resource_type_set = set(o.output_port.output_port_type.resource_types.all())
                 res = o.resource or o.resource_list
 
-                if len(resource_type_set) > 1:
-                    ## Eliminate this set by considering the connected InputPorts
-                    for connection in o.output_port.connections.all():
-                        in_type_set = set(connection.input_port.input_port_type.resource_types.all())
-                        resource_type_set.intersection_update(in_type_set)
+                if type(res) is Resource:
+                    #if type(res) is Resource:
+                    if len(resource_type_set) > 1:
+                        ## Eliminate this set by considering the connected InputPorts
+                        for connection in o.output_port.connections.all():
+                            in_type_set = set(connection.input_port.input_port_type.resource_types.all())
+                            resource_type_set.intersection_update(in_type_set)
 
-                if len(resource_type_set) > 1:
-                    ## Try to find a same resource type in the input resources.
-                    for i in runjob_A.inputs.all():
-                        r = i.resource or i.resource_list
-                        if r.resource_type in resource_type_set:
-                            res.resource_type = r.resource_type
-                            break
+                    if len(resource_type_set) > 1:
+                        ## Try to find a same resource type in the input resources.
+                        for i in runjob_A.inputs.all():
+                            r = i.resource or i.resource_list
+                            if r.resource_type in resource_type_set:
+                                res.resource_type = r.resource_type
+                                break
+                        else:
+                            res.resource_type = resource_type_set.pop()
                     else:
                         res.resource_type = resource_type_set.pop()
-                else:
-                    res.resource_type = resource_type_set.pop()
-                res.save()
+                    res.save()
+
+
+            # for o in runjob_A.outputs.all().select_related('output_port__output_port_type'):
+            #     resource_type_set = o.output_port.output_port_type.resource_types
+            #     pass
 
             workflowjob_runjob_map[wfjob_A] = runjob_A
             return runjob_A

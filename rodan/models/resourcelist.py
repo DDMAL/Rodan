@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from sortedm2m.fields import SortedManyToManyField
 from django.contrib.auth.models import User
+from django.apps import apps
 
 import logging
 logger = logging.getLogger('rodan')
@@ -49,3 +50,10 @@ class ResourceList(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+
+    @property
+    def resource_type(self):
+        if self.resources.count() == 0:
+            return apps.get_model(app_label='rodan', model_name='ResourceType').objects.get(mimetype='application/octet-stream')
+        else:
+            return self.resources.first().resource_type
