@@ -415,7 +415,7 @@ class create_workflowrun(Task):
                 if arg_resource:   # which resource in multiple resources?
                     r.name = arg_resource.name
                 else:
-                    r.name = '{0}'.format(wfjob.job.name)
+                    r.name = '{0} - {1}'.format(wfjob.job.name, output.output_port_type_name)
 
                 r.origin = output
                 r.save()
