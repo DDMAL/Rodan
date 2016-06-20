@@ -57,8 +57,6 @@ class Resource(models.Model):
     - `resource_url` -- exposed URL of user-uploaded resource file. Return None
       if user-uploaded file does not exist.
     - `filename` -- filename of user-uploaded resource file.
-    - `thumb_path` -- local path of thumbnail folder.
-    - `thumb_url` -- exposed URL of thumbnail folder.
 
     - `diva_path` -- local path of diva data folder.
     - `diva_jp2_path` -- local path of diva JPEG2000 file.
@@ -73,8 +71,8 @@ class Resource(models.Model):
 
     - `__init__` -- keep an original copy of resource type. If the user changes the type,
       detecting the change does not need to hit the database again.
-    - `save` -- create local paths of resource folder and thumbnail folder.
-    - `delete` -- delete local paths of resource folder and thumbnail folder.
+    - `save` -- create local paths of resource folder.
+    - `delete` -- delete local paths of resource folder.
     """
 
     class Meta:
