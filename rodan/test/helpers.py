@@ -123,7 +123,7 @@ class RodanTestSetUpMixin(object):
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype='test/a1')
         )
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         return {
             self.url(self.test_inputport_a): [self.url(self.test_resource)],
@@ -265,13 +265,13 @@ class RodanTestSetUpMixin(object):
         for index, res in enumerate(self.test_resourcecollection):
             res.name = str(index) # 0 to 9
             res.save()
-            res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+            res.resource_file.save('dummy.txt', ContentFile('dummy text'))
 
         self.test_resource = mommy.make('rodan.Resource',
                                         project=self.test_project,
                                         resource_type=ResourceType.objects.get(mimetype='test/a1'))
 
-        self.test_resource.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+        self.test_resource.resource_file.save('dummy.txt', ContentFile('dummy text'))
 
 
         self.test_resourcelist = mommy.make(
@@ -286,7 +286,7 @@ class RodanTestSetUpMixin(object):
         for index, res in enumerate(self.test_resources_in_resource_list):
             res.name = str(index) # 0 to 9
             res.save()
-            res.compat_resource_file.save('dummy.txt', ContentFile('dummy text'))
+            res.resource_file.save('dummy.txt', ContentFile('dummy text'))
         self.test_resourcelist.resources.add(*self.test_resources_in_resource_list)
 
         #print "self.test_Dip1", self.url(self.test_Dip1)

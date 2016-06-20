@@ -13,18 +13,12 @@ from rodan.constants import task_status
 import logging
 logger = logging.getLogger('rodan')
 
+
 def upload_path(resource_obj, filename):
     # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
     return os.path.join(resource_obj.resource_path, "original_file{0}".format(ext.lower()))
 
-def compat_path(resource_obj, filename):
-    # compatible file -- use Rodan extensions
-    # We need extension in filesystem as a cue for HTTP server to figure out the best mimetype when user downloads it.
-    ext = resource_obj.resource_type.extension
-    if ext:
-        ext = '.{0}'.format(ext)
-    return os.path.join(resource_obj.resource_path, "compat_file{0}".format(ext))
 
 class Resource(models.Model):
     """
@@ -46,8 +40,6 @@ class Resource(models.Model):
     - `error_details` -- a field storing the error details of conversion process.
     - `creator` -- a reference to the `User` if it is user-uploaded.
 
-    - `compat_resource_file` -- Rodan-compatible resource file. It can be produced
-      by a `RunJob`, or converted from user-uploaded file.
     - `resource_type` -- a reference to the `ResourceType`. `application/octet-stream`
       stands for arbitrary type.
 
@@ -57,8 +49,6 @@ class Resource(models.Model):
     - `created`
     - `updated`
 
-    - `has_thumb` -- denote whether it has thumbnails
-
     **Properties**
 
     - `resource_path` -- local path of resource folder.
@@ -67,13 +57,6 @@ class Resource(models.Model):
     - `resource_url` -- exposed URL of user-uploaded resource file. Return None
       if user-uploaded file does not exist.
     - `filename` -- filename of user-uploaded resource file.
-    - `compat_file_url` -- exposed URL of compatible resource file. Return None
-      if compatible resource file does not exist.
-    - `thumb_path` -- local path of thumbnail folder.
-    - `thumb_url` -- exposed URL of thumbnail folder.
-    - `small_thumb_url` -- exposed URL of small thumbnail.
-    - `medium_thumb_url` -- exposed URL of middle thumbnail.
-    - `large_thumb_url` -- exposed URL of large thumbnail.
 
     - `diva_path` -- local path of diva data folder.
     - `diva_jp2_path` -- local path of diva JPEG2000 file.
@@ -88,8 +71,8 @@ class Resource(models.Model):
 
     - `__init__` -- keep an original copy of resource type. If the user changes the type,
       detecting the change does not need to hit the database again.
-    - `save` -- create local paths of resource folder and thumbnail folder.
-    - `delete` -- delete local paths of resource folder and thumbnail folder.
+    - `save` -- create local paths of resource folder.
+    - `delete` -- delete local paths of resource folder.
     """
 
     class Meta:
@@ -116,7 +99,7 @@ class Resource(models.Model):
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE, db_index=True)
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
-    compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
+    #compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
     resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources', on_delete=models.PROTECT, db_index=True)
 
     processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True, db_index=True)
@@ -128,8 +111,6 @@ class Resource(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
-
-    has_thumb = models.BooleanField(default=False, db_index=True)
 
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
@@ -152,58 +133,58 @@ class Resource(models.Model):
         if self.resource_file:
             return os.path.dirname(self.resource_file.path)
 
-    @property
-    def thumb_path(self):
-        return os.path.join(self.resource_path, "thumbnails")
+    # @property
+    # def thumb_path(self):
+    #     return os.path.join(self.resource_path, "thumbnails")
 
-    @property
-    def thumb_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
+    # @property
+    # def thumb_url(self):
+    #     return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
 
     @property
     def resource_url(self):
         if self.resource_file:
             return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_file.path, settings.MEDIA_ROOT))
 
-    @property
-    def compat_file_url(self):
-        if self.compat_resource_file:
-            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
+    # @property
+    # def compat_file_url(self):
+    #     if self.compat_resource_file:
+    #         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
 
-    def thumb_filename(self, size):
-        return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
+    # def thumb_filename(self, size):
+    #     return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
 
     @property
     def filename(self):
         if self.resource_file:
             return os.path.basename(self.resource_file.path)
 
-    @property
-    def small_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.SMALL_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
-
-    @property
-    def medium_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
-
-    @property
-    def large_thumb_url(self):
-        if self.has_thumb:
-            if not settings.ENABLE_DIVA:
-                return os.path.join(self.thumb_url,
-                                    self.thumb_filename(size=settings.LARGE_THUMBNAIL))
-            else:
-                return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
+    # @property
+    # def small_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #
+    # @property
+    # def medium_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #
+    # @property
+    # def large_thumb_url(self):
+    #     if self.has_thumb:
+    #         if not settings.ENABLE_DIVA:
+    #             return os.path.join(self.thumb_url,
+    #                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))
+    #         else:
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
 
 
     @property

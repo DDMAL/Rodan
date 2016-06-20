@@ -124,8 +124,8 @@
                       <input type="checkbox" ng-model="resource_select.data[resource_select.selected].resources_selected[r.url]" ng-show="resource_select.now"/>
                     </td>
                     <td>
-                      <span ng-show="!r.compat_resource_file">{{ r.uuid | limitTo: 6 }}</span>
-                      <a ng-show="r.compat_resource_file" ng-href="{{r.viewer_url}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
+                      <span ng-show="!r.resource_file">{{ r.uuid | limitTo: 6 }}</span>
+                      <a ng-show="r.resource_file" ng-href="{{r.viewer_url}}" target="_blank">{{ r.uuid | limitTo: 6 }}</a>
                     </td>
                     <td>
                       {{r.name}}<button class="btn btn-default btn-xs" ng-click="updateResourceName(r)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>

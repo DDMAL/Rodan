@@ -55,9 +55,6 @@ class create_resource(Task):
 
             with open(tmpfile, 'rb') as f:
                 resource_object = resource_query[0]
-                resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
-                compat_resource_file_path = resource_object.compat_resource_file.path
-                resource_query.update(compat_resource_file=compat_resource_file_path)
                 if mimetype.startswith('image'):
                     registry.tasks['rodan.core.create_diva'].run(resource_id)
 
@@ -79,33 +76,33 @@ class create_resource(Task):
                                   error_details=einfo.traceback)
 
 
-@task(name="rodan.core.create_thumbnails")
-def create_thumbnails(resource_id):
-    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
-    resource_object = resource_query[0]
-    mimetype = resource_object.resource_type.mimetype
-
-    if mimetype.startswith('image'):
-        image = PIL.Image.open(resource_object.compat_resource_file.path).convert('RGB')
-        width = float(image.size[0])
-        height = float(image.size[1])
-
-        for thumbnail_size in settings.THUMBNAIL_SIZES:
-            thumbnail_size = float(thumbnail_size)
-            ratio = min((thumbnail_size / width), (thumbnail_size / height))
-            dimensions = (int(width * ratio), int(height * ratio))
-
-            thumbnail_size = str(int(thumbnail_size))
-            thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
-            thumb_copy.save(os.path.join(resource_object.thumb_path,
-                                         resource_object.thumb_filename(size=thumbnail_size)))
-
-            del thumb_copy
-        del image
-        resource_query.update(has_thumb=True)
-        return True
-    else:
-        return False
+# @task(name="rodan.core.create_thumbnails")
+# def create_thumbnails(resource_id):
+#     resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+#     resource_object = resource_query[0]
+#     mimetype = resource_object.resource_type.mimetype
+#
+#     if mimetype.startswith('image'):
+#         image = PIL.Image.open(resource_object.resource_file.path).convert('RGB')
+#         width = float(image.size[0])
+#         height = float(image.size[1])
+#
+#         for thumbnail_size in settings.THUMBNAIL_SIZES:
+#             thumbnail_size = float(thumbnail_size)
+#             ratio = min((thumbnail_size / width), (thumbnail_size / height))
+#             dimensions = (int(width * ratio), int(height * ratio))
+#
+#             thumbnail_size = str(int(thumbnail_size))
+#             thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
+#             thumb_copy.save(os.path.join(resource_object.thumb_path,
+#                                          resource_object.thumb_filename(size=thumbnail_size)))
+#
+#             del thumb_copy
+#         del image
+#         resource_query.update(has_thumb=True)
+#         return True
+#     else:
+#         return False
 
 
 # if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
@@ -134,7 +131,7 @@ def create_diva(resource_id):
         os.makedirs(resource_object.diva_path)
 
     inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
-        'resource_path': resource_object.compat_resource_file.path,
+        'resource_path': resource_object.resource_file.path,
         'resource_type': mimetype
     }]}
     outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
@@ -149,7 +146,7 @@ def create_diva(resource_id):
     gen.title = 'measurement'
     gen.generate()
 
-    resource_query.update(has_thumb=True)
+    #resource_query.update(has_thumb=True)
     return True
 
 
@@ -221,7 +218,7 @@ class package_results(Task):
                     rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
                         if output.resource is not None:
-                            filepath = output.resource.compat_resource_file.path
+                            filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
 
                             res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
@@ -239,7 +236,7 @@ class package_results(Task):
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
                             for idx, r in enumerate(output.resource_list.resources.all()):
-                                filepath = r.compat_resource_file.path
+                                filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
                                 new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
                                 shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
@@ -254,7 +251,7 @@ class package_results(Task):
                     rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
                         if output.resource is not None:
-                            filepath = output.resource.compat_resource_file.path
+                            filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
                             result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
                             if not os.path.exists(res_dir):
@@ -269,7 +266,7 @@ class package_results(Task):
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
                             for idx, r in enumerate(output.resource_list.resources.all()):
-                                filepath = r.compat_resource_file.path
+                                filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
                                 new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
                                 shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
@@ -630,9 +627,7 @@ def redo_runjob_tree(rj_id):
                 rs = r.resources.all()
 
             for rr in rs:
-                rr.compat_resource_file = None
                 rr.has_thumb = False
-                rr.save(update_fields=['compat_resource_file', 'has_thumb'])
 
         # 3. Reset status and clear interactive data
         original_settings = {}

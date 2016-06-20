@@ -52,7 +52,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "updated": ['lt', 'gt'],
                 "uuid": ['exact'],
                 "creator": ['exact'],
-                "has_thumb": ['exact'],
+                #"has_thumb": ['exact'],
                 "processing_status": ['exact'],
                 "created": ['lt', 'gt'],
                 "project": ['exact'],
@@ -148,7 +148,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ResourceViewer(generics.RetrieveAPIView):
     """
-    Get a viewer of the resource. If there is no viewer, redirect to compat resource file.
+    Get a viewer of the resource. If there is no viewer, redirect to resource file.
 
     Currently supports:
     + Diva.js: for all images (if jp2 and measurement json exist)
@@ -172,7 +172,7 @@ class ResourceViewer(generics.RetrieveAPIView):
         elif viewer == 'neon':
             return render(request, 'neon_square_viewer.html', {
                 'mei_name': resource.name or resource.pk,
-                'mei_url': resource.compat_file_url
+                'mei_url': resource.resource_url
             }, content_type="text/html")
         else:
             raise Http404("No viewer for this Resource.")

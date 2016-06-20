@@ -54,11 +54,9 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
         self.test_resource2 = Resource.objects.get(pk=response.data[1]['uuid'])
         self.assertNotEqual(self.test_resource1.resource_file.path, '')
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
         self.assertEqual(self.test_resource1.processing_status, task_status.NOT_APPLICABLE)
         self.assertNotEqual(self.test_resource2.resource_file.path, '')
-        self.assertNotEqual(self.test_resource2.compat_resource_file.path, '')
         self.assertEqual(self.test_resource2.resource_type.mimetype, 'application/octet-stream')
         self.assertEqual(self.test_resource2.processing_status, task_status.NOT_APPLICABLE)
 
@@ -158,7 +156,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self.client.post("/resources/", resource_obj, format='multipart', resource_type=rt)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertNotEqual(self.test_resource1.resource_file.path, '')
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'image/rgb+png')
 
     def test_post_image_claiming_txt(self):
@@ -177,7 +175,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self.client.post("/resources/", resource_obj, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertNotEqual(self.test_resource1.resource_file.path, '')
         self.assertEqual(self.test_resource1.processing_status, task_status.NOT_APPLICABLE)
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'text/plain')
 

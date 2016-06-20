@@ -151,16 +151,16 @@ class WorkflowRunList(generics.ListCreateAPIView):
                 if isinstance(res, Resource):
                     if ip.input_port_type.is_list is True:
                         raise ValidationError({input_port: {index: ['The InputPort requires ResourceLists but is provided with Resources']}})
-                    if not res.compat_resource_file:
-                        raise ValidationError({input_port: {index: ['The compatible resource file is not ready']}})
+                    if not res.resource_file:
+                        raise ValidationError({input_port: {index: ['The resource file is not ready']}})
 
                 else:   # ResourceList
                     if ip.input_port_type.is_list is False:
                         raise ValidationError({input_port: {index: ['The InputPort requires Resources but is provided with ResourceLists']}})
 
                     for i, r in enumerate(res.resources.all()):
-                        if not r.compat_resource_file:
-                            raise ValidationError({input_port: {index: ['The compatible resource file of #{0} in the resource list is not ready'.format(i)]}})
+                        if not r.resource_file:
+                            raise ValidationError({input_port: {index: ['The resource file of #{0} in the resource list is not ready'.format(i)]}})
 
 
                 if res.project != serializer.validated_data['workflow'].project:

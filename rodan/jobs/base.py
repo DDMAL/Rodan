@@ -286,16 +286,13 @@ class RodanTask(Task):
     def _inputs(self, runjob, with_urls=False):
         """
         Return a dictionary of list of input file path and input resource type.
-        If with_urls=True, it also includes the compat resource url and thumbnail urls.
+        If with_urls=True, it also includes the resource url and thumbnail urls.
         """
         def _extract_resource(resource, resource_type_mimetype=None):
-            r = {'resource_path': str(resource.compat_resource_file.path),  # convert 'unicode' object to 'str' object for consistency
+            r = {'resource_path': str(resource.resource_file.path),  # convert 'unicode' object to 'str' object for consistency
                  'resource_type': str(resource_type_mimetype) or str(resource.resource_type.mimetype)}
             if with_urls:
-                r['resource_url'] = str(resource.compat_file_url)
-                r['small_thumb_url'] = str(resource.small_thumb_url)
-                r['medium_thumb_url'] = str(resource.medium_thumb_url)
-                r['large_thumb_url'] = str(resource.large_thumb_url)
+                r['resource_url'] = str(resource.resource_url)
                 r['diva_object_data'] = str(resource.diva_json_url)
                 r['diva_iip_server'] = getattr(rodan_settings, 'IIPSRV_URL')
                 r['diva_image_dir'] = str(resource.diva_image_dir)
@@ -493,8 +490,8 @@ class RodanTask(Task):
                     if output['is_list'] is False:
                         with open(temppath, 'rb') as f:
                             resource = Output.objects.get(uuid=output['uuid']).resource
-                            resource.compat_resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
-                            resource.save(update_fields=['compat_resource_file'])
+                            resource.resource_file.save(temppath, File(f), save=False) # Django will resolve the path according to upload_to
+                            resource.save(update_fields=['resource_file'])
                             #registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
                             #registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
                     else:
@@ -512,8 +509,8 @@ class RodanTask(Task):
                                     origin=resourcelist.origin
                                 )
                                 resource.save()
-                                resource.compat_resource_file.save(ff, File(f), save=False) # Django will resolve the path according to upload_to
-                                resource.save(update_fields=['compat_resource_file'])
+                                resource.resource_file.save(ff, File(f), save=False) # Django will resolve the path according to upload_to
+                                resource.save(update_fields=['resource_file'])
                                 #registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
                                 #registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
                             resourcelist.resources.add(resource)
@@ -598,8 +595,7 @@ class RodanTask(Task):
     def get_my_interface(self, inputs, settings):
         """
         inputs will contain:
-        resource_path, resource_type, resource_url, small_thumb_url, medium_thumb_url,
-        large_thumb_url
+        resource_path, resource_type, resource_url
 
         Should return: (template, context), template is the relative path (relative to
         the path of package folder) to the interface HTML template file (in Django
