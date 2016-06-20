@@ -1,6 +1,5 @@
 import mimetypes, os, urlparse
 from celery import registry
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
@@ -17,7 +16,6 @@ from django.conf import settings
 from django.shortcuts import render
 import django_filters
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -34,7 +32,7 @@ class ResourceList(generics.ListCreateAPIView):
         - Or a hyperlink to a ResourceType object.
     - `files` -- POST-only. The files.
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
@@ -54,7 +52,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "updated": ['lt', 'gt'],
                 "uuid": ['exact'],
                 "creator": ['exact'],
-                "has_thumb": ['exact'],
+                #"has_thumb": ['exact'],
                 "processing_status": ['exact'],
                 "created": ['lt', 'gt'],
                 "project": ['exact'],
@@ -71,8 +69,10 @@ class ResourceList(generics.ListCreateAPIView):
             condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid))
 
         uploaded = self.request.query_params.get('uploaded', None)
-        if uploaded:
+        if uploaded == u'True':
             condition &= Q(origin__isnull=True)
+        elif uploaded == u'False':
+            condition &= Q(origin__isnull=False)
 
         queryset = Resource.objects.filter(condition)  # then this queryset is filtered on `filter_fields`
         return queryset
@@ -110,8 +110,8 @@ class ResourceList(generics.ListCreateAPIView):
             resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
 
             resource_id = str(resource_obj.uuid)
-            mimetype = claimed_mimetype or mimetypes.guess_type(fileobj.name, strict=False)[0]
-            registry.tasks['rodan.core.ensure_compatible'].si(resource_id, mimetype).apply_async()
+            mimetype = claimed_mimetype or "application/octet-stream"
+            registry.tasks['rodan.core.create_resource'].si(resource_id, mimetype).apply_async()
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)
@@ -128,9 +128,27 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
+    def patch(self, request, *args, **kwargs):
+        resource_type = request.data.get('resource_type', None)
+        resource = self.get_object()
+        if resource_type:
+            try:
+                # try to see if user provide a url to ResourceType
+                path = urlparse.urlparse(resource_type).path  # convert to relative url
+                match = resolve(path)                            # find a url route
+                restype_pk = match.kwargs.get('pk')              # extract pk
+                restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
+                claimed_mimetype = restype_obj.mimetype          # find mimetype name
+            except (Resolver404, ResourceType.DoesNotExist) as e:
+                print str(e)
+            if claimed_mimetype.startswith('image'):
+                registry.tasks['rodan.core.create_diva'].run(resource.uuid)
+
+        return self.partial_update(request, *args, **kwargs)
+
 class ResourceViewer(generics.RetrieveAPIView):
     """
-    Get a viewer of the resource. If there is no viewer, redirect to compat resource file.
+    Get a viewer of the resource. If there is no viewer, redirect to resource file.
 
     Currently supports:
     + Diva.js: for all images (if jp2 and measurement json exist)
@@ -154,7 +172,7 @@ class ResourceViewer(generics.RetrieveAPIView):
         elif viewer == 'neon':
             return render(request, 'neon_square_viewer.html', {
                 'mei_name': resource.name or resource.pk,
-                'mei_url': resource.compat_file_url
+                'mei_url': resource.resource_url
             }, content_type="text/html")
         else:
             raise Http404("No viewer for this Resource.")

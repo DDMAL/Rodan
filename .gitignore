@@ -29,3 +29,6 @@ etc/nginx/sites-available/rodan
 
 # ignore emacs autosave file
 *~
+database.log
+celery.log
+.idea

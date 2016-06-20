@@ -54,11 +54,9 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
         self.test_resource2 = Resource.objects.get(pk=response.data[1]['uuid'])
         self.assertNotEqual(self.test_resource1.resource_file.path, '')
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
         self.assertEqual(self.test_resource1.processing_status, task_status.NOT_APPLICABLE)
         self.assertNotEqual(self.test_resource2.resource_file.path, '')
-        self.assertNotEqual(self.test_resource2.compat_resource_file.path, '')
         self.assertEqual(self.test_resource2.resource_type.mimetype, 'application/octet-stream')
         self.assertEqual(self.test_resource2.processing_status, task_status.NOT_APPLICABLE)
 
@@ -111,6 +109,28 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(len(res_list), 1)
         self.assertEqual(res_list[0]['uuid'], str(res2.uuid))
 
+    def test_get_with_filter_uploaded(self):
+        wfrun1 = mommy.make('rodan.WorkflowRun')
+        r1 = mommy.make('rodan.Resource')
+        output1a = mommy.make('rodan.Output',
+                              resource=r1,
+                              run_job__workflow_run=wfrun1)
+        res1 = output1a.resource
+        res1.origin = output1a
+        res1.save()
+        mommy.make('rodan.Input',
+                   run_job__workflow_run=wfrun1,
+                   resource=res1)
+        response1 = self.client.get("/resources/?format=json&uploaded=false")
+        res_list1 = response1.data['results']
+        self.assertEqual(len(res_list1), 1)
+        self.assertEqual(res_list1[0]['uuid'], str(res1.uuid))
+
+        response2 = self.client.get("/resources/?format=json&uploaded=true")
+        res_list2 = response2.data['results']
+        self.assertEqual(len(res_list2), 1)
+        self.assertEqual(res_list2[0]['uuid'], str(r1.uuid))
+
 
 class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
@@ -125,17 +145,18 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         image.save(file_obj, 'png')
         file_obj.name = 'page1.png'
         file_obj.seek(0)
+        rt = ResourceType.objects.get(mimetype='image/rgb+png')
         resource_obj = {
             'project': "http://localhost:8000/project/{0}/".format(self.test_project.uuid),
             'files': [
                 file_obj
             ],
+            'type': "http://localhost:8000/resourcetype/{0}/".format(rt.uuid),
         }
-        response = self.client.post("/resources/", resource_obj, format='multipart')
+        response = self.client.post("/resources/", resource_obj, format='multipart', resource_type=rt)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
-        self.assertEqual(self.test_resource1.processing_status, task_status.FINISHED)
+        self.assertNotEqual(self.test_resource1.resource_file.path, '')
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'image/rgb+png')
 
     def test_post_image_claiming_txt(self):
@@ -154,7 +175,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
         response = self.client.post("/resources/", resource_obj, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.test_resource1 = Resource.objects.get(pk=response.data[0]['uuid'])
-        self.assertNotEqual(self.test_resource1.compat_resource_file.path, '')
+        self.assertNotEqual(self.test_resource1.resource_file.path, '')
         self.assertEqual(self.test_resource1.processing_status, task_status.NOT_APPLICABLE)
         self.assertEqual(self.test_resource1.resource_type.mimetype, 'text/plain')
 
@@ -173,11 +194,7 @@ class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.test_resource1 = Resource.objects.get(name="test_page1")
-            self.assertFalse(self.test_resource1.compat_resource_file)
-            self.assertEqual(self.test_resource1.processing_status, task_status.FAILED)
             self.assertEqual(self.test_resource1.resource_type.mimetype, 'application/octet-stream')
-
-
 
 
     # def test_patch(self):

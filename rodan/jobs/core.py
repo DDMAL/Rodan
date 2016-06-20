@@ -9,19 +9,16 @@ from django.conf import settings
 from django.db.models import Q, Case, Value, When, BooleanField
 import PIL.Image
 import PIL.ImageFile
-from rodan.models import Resource, ResourceType, ResultsPackage, Output, Workflow, WorkflowRun, WorkflowJob, InputPort, Input, OutputPort, Output, Connection, RunJob, ResourceList
+from rodan.models import Resource, ResourceType, ResultsPackage, Workflow, WorkflowRun, WorkflowJob, Input, OutputPort, Output, Connection, RunJob, ResourceList
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
 from celery.task.control import revoke
-from rodan.jobs.base import RodanTask, TemporaryDirectory
+from rodan.jobs.base import  TemporaryDirectory
 from diva_generate_json import GenerateJson
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
-import json
 
-class ensure_compatible(Task):
-    name = "rodan.core.ensure_compatible"
+class create_resource(Task):
+    name = "rodan.core.create_resource"
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
@@ -48,28 +45,19 @@ class ensure_compatible(Task):
 
             new_processing_status = task_status.FINISHED
 
-            if mimetype.startswith('image'):
-                self._task = registry.tasks['rodan.jobs.conversion.to_png']
-                self._task.run_my_task(inputs, {}, outputs)
-                resource_query.update(resource_type=ResourceType.objects.get(mimetype="image/rgb+png"))
-            else:
-	        shutil.copy(infile_path, tmpfile)
-                try:
-                    resource_query.update(resource_type=ResourceType.objects.get(mimetype=claimed_mimetype))
-                except:
-                    resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
-                new_processing_status = task_status.NOT_APPLICABLE
+            shutil.copy(infile_path, tmpfile)
+
+            try:
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype=mimetype))
+            except:
+                resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
+            new_processing_status = task_status.NOT_APPLICABLE
 
             with open(tmpfile, 'rb') as f:
                 resource_object = resource_query[0]
-                resource_object.compat_resource_file.save("", File(f), save=False)  # We give an arbitrary name as Django will automatically find the compat_path and extension according to upload_to and resource_type
-                compat_resource_file_path = resource_object.compat_resource_file.path
-                resource_query.update(compat_resource_file=compat_resource_file_path)
+                if mimetype.startswith('image'):
+                    registry.tasks['rodan.core.create_diva'].run(resource_id)
 
-                if not settings.ENABLE_DIVA:
-                    registry.tasks['rodan.core.create_thumbnails'].run(resource_id) # call synchronously
-                else:
-                    registry.tasks['rodan.core.create_diva'].run(resource_id) # call synchronously
                 resource_query.update(processing_status=new_processing_status)
         return True
 
@@ -88,33 +76,33 @@ class ensure_compatible(Task):
                                   error_details=einfo.traceback)
 
 
-@task(name="rodan.core.create_thumbnails")
-def create_thumbnails(resource_id):
-    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
-    resource_object = resource_query[0]
-    mimetype = resource_object.resource_type.mimetype
-
-    if mimetype.startswith('image'):
-        image = PIL.Image.open(resource_object.compat_resource_file.path).convert('RGB')
-        width = float(image.size[0])
-        height = float(image.size[1])
-
-        for thumbnail_size in settings.THUMBNAIL_SIZES:
-            thumbnail_size = float(thumbnail_size)
-            ratio = min((thumbnail_size / width), (thumbnail_size / height))
-            dimensions = (int(width * ratio), int(height * ratio))
-
-            thumbnail_size = str(int(thumbnail_size))
-            thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
-            thumb_copy.save(os.path.join(resource_object.thumb_path,
-                                         resource_object.thumb_filename(size=thumbnail_size)))
-
-            del thumb_copy
-        del image
-        resource_query.update(has_thumb=True)
-        return True
-    else:
-        return False
+# @task(name="rodan.core.create_thumbnails")
+# def create_thumbnails(resource_id):
+#     resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+#     resource_object = resource_query[0]
+#     mimetype = resource_object.resource_type.mimetype
+#
+#     if mimetype.startswith('image'):
+#         image = PIL.Image.open(resource_object.resource_file.path).convert('RGB')
+#         width = float(image.size[0])
+#         height = float(image.size[1])
+#
+#         for thumbnail_size in settings.THUMBNAIL_SIZES:
+#             thumbnail_size = float(thumbnail_size)
+#             ratio = min((thumbnail_size / width), (thumbnail_size / height))
+#             dimensions = (int(width * ratio), int(height * ratio))
+#
+#             thumbnail_size = str(int(thumbnail_size))
+#             thumb_copy = image.resize(dimensions, PIL.Image.ANTIALIAS)
+#             thumb_copy.save(os.path.join(resource_object.thumb_path,
+#                                          resource_object.thumb_filename(size=thumbnail_size)))
+#
+#             del thumb_copy
+#         del image
+#         resource_query.update(has_thumb=True)
+#         return True
+#     else:
+#         return False
 
 
 # if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
@@ -142,28 +130,24 @@ def create_diva(resource_id):
     if not os.path.exists(resource_object.diva_path):
         os.makedirs(resource_object.diva_path)
 
-    if mimetype.startswith('image'):
-        inputs = {'in': [{
-            'resource_path': resource_object.compat_resource_file.path,
-            'resource_type': mimetype
-        }]}
-        outputs = {'out': [{
-            'resource_path': resource_object.diva_jp2_path,
-            'resource_type': 'image/jp2'
-        }]}
+    inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
+        'resource_path': resource_object.resource_file.path,
+        'resource_type': mimetype
+    }]}
+    outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
+        'resource_path': resource_object.diva_jp2_path,
+        'resource_type': 'image/jp2'
+    }]}
+    _task = registry.tasks[getattr(settings, 'DIVA_JPEG2000_CONVERTER')]
+    _task.run_my_task(inputs, {}, outputs)
 
-        _task = registry.tasks['rodan.jobs.conversion.to_jpeg2000']
-        _task.run_my_task(inputs, {}, outputs)
+    gen = GenerateJson(input_directory=resource_object.diva_path,
+                       output_directory=resource_object.diva_path)
+    gen.title = 'measurement'
+    gen.generate()
 
-        gen = GenerateJson(input_directory=resource_object.diva_path,
-                           output_directory=resource_object.diva_path)
-        gen.title = 'measurement'
-        gen.generate()
-
-        resource_query.update(has_thumb=True)
-        return True
-    else:
-        return False
+    #resource_query.update(has_thumb=True)
+    return True
 
 
 
@@ -185,8 +169,6 @@ class package_results(Task):
             'resource', 'resource__resource_type', 'resource_list', 'run_job'
         ).prefetch_related(
             'resource_list__resources'
-        ).select_related(
-            'resource_list__resource_type'
         ).annotate(
             is_endpoint=Case(
                 When(
@@ -236,7 +218,7 @@ class package_results(Task):
                     rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
                         if output.resource is not None:
-                            filepath = output.resource.compat_resource_file.path
+                            filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
 
                             res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
@@ -254,7 +236,7 @@ class package_results(Task):
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
                             for idx, r in enumerate(output.resource_list.resources.all()):
-                                filepath = r.compat_resource_file.path
+                                filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
                                 new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
                                 shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
@@ -269,7 +251,7 @@ class package_results(Task):
                     rj_status = output.run_job.status
                     if rj_status == task_status.FINISHED:
                         if output.resource is not None:
-                            filepath = output.resource.compat_resource_file.path
+                            filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
                             result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
                             if not os.path.exists(res_dir):
@@ -284,7 +266,7 @@ class package_results(Task):
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
                             for idx, r in enumerate(output.resource_list.resources.all()):
-                                filepath = r.compat_resource_file.path
+                                filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
                                 new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
                                 shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
@@ -424,11 +406,13 @@ class create_workflowrun(Task):
                 output = Output(**kwargs)
                 output.save()
 
-                r.description = """Generated by workflow {0}. Output of {1}:{2}""".format(workflow_run.name, run_job.job_name, output.output_port_type_name)   # [TODO] could be better described.
+                r.description = """Generated by workflow: {0}-{1} \n workflow_run: {2}-{3} \n job: {4}-{5} \n workflow_job: {6}-{7} \n workflow_job setting: {8} \n run_job: {9}-{10}"""\
+                    .format(workflow_run.workflow.name, workflow_run.workflow.uuid, workflow_run.name, workflow_run.uuid,
+                            wfjob.job.name, wfjob.job.uuid,wfjob.name, wfjob.uuid, wfjob.job_settings, run_job.job_name, run_job.uuid)
                 if arg_resource:   # which resource in multiple resources?
                     r.name = arg_resource.name
                 else:
-                    r.name = 'Output of workflow {0}'.format(workflow_run.name)  # assign a name for it
+                    r.name = '{0} - {1}'.format(wfjob.job.name, output.output_port_type_name)
 
                 r.origin = output
                 r.save()
@@ -488,24 +472,31 @@ class create_workflowrun(Task):
                 resource_type_set = set(o.output_port.output_port_type.resource_types.all())
                 res = o.resource or o.resource_list
 
-                if len(resource_type_set) > 1:
-                    ## Eliminate this set by considering the connected InputPorts
-                    for connection in o.output_port.connections.all():
-                        in_type_set = set(connection.input_port.input_port_type.resource_types.all())
-                        resource_type_set.intersection_update(in_type_set)
+                if type(res) is Resource:
+                    #if type(res) is Resource:
+                    if len(resource_type_set) > 1:
+                        ## Eliminate this set by considering the connected InputPorts
+                        for connection in o.output_port.connections.all():
+                            in_type_set = set(connection.input_port.input_port_type.resource_types.all())
+                            resource_type_set.intersection_update(in_type_set)
 
-                if len(resource_type_set) > 1:
-                    ## Try to find a same resource type in the input resources.
-                    for i in runjob_A.inputs.all():
-                        r = i.resource or i.resource_list
-                        if r.resource_type in resource_type_set:
-                            res.resource_type = r.resource_type
-                            break
+                    if len(resource_type_set) > 1:
+                        ## Try to find a same resource type in the input resources.
+                        for i in runjob_A.inputs.all():
+                            r = i.resource or i.resource_list
+                            if r.resource_type in resource_type_set:
+                                res.resource_type = r.resource_type
+                                break
+                        else:
+                            res.resource_type = resource_type_set.pop()
                     else:
                         res.resource_type = resource_type_set.pop()
-                else:
-                    res.resource_type = resource_type_set.pop()
-                res.save()
+                    res.save()
+
+
+            # for o in runjob_A.outputs.all().select_related('output_port__output_port_type'):
+            #     resource_type_set = o.output_port.output_port_type.resource_types
+            #     pass
 
             workflowjob_runjob_map[wfjob_A] = runjob_A
             return runjob_A
@@ -636,9 +627,7 @@ def redo_runjob_tree(rj_id):
                 rs = r.resources.all()
 
             for rr in rs:
-                rr.compat_resource_file = None
                 rr.has_thumb = False
-                rr.save(update_fields=['compat_resource_file', 'has_thumb'])
 
         # 3. Reset status and clear interactive data
         original_settings = {}

@@ -19,6 +19,7 @@ class ProjectResourceSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
     workflow_count = serializers.IntegerField(read_only=True)
     resource_count = serializers.IntegerField(read_only=True)
+    resourcelist_count = serializers.IntegerField(read_only=True)
     creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
     admins = serializers.SerializerMethodField()
     workers = serializers.SerializerMethodField()
@@ -42,6 +43,7 @@ class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
             'updated',
             'workflow_count',
             'resource_count',
+            'resourcelist_count',
             'admins',
             'workers'
         )
@@ -50,6 +52,7 @@ class ProjectListSerializer(serializers.HyperlinkedModelSerializer):
 class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
     workflows = ProjectWorkflowSerializer(many=True, read_only=True)
     resources = ProjectResourceSerializer(many=True, read_only=True)
+    resourcelists = ProjectResourceSerializer(many=True, read_only=True)
     creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
     admins = serializers.SerializerMethodField()
     workers = serializers.SerializerMethodField()
@@ -70,6 +73,7 @@ class ProjectDetailSerializer(serializers.HyperlinkedModelSerializer):
                   'creator',
                   'workflows',
                   'resources',
+                  'resourcelists',
                   'created',
                   'updated',
                   'admins',

@@ -6,6 +6,8 @@ from django.db.models.signals import m2m_changed
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from sortedm2m.fields import SortedManyToManyField
+from django.contrib.auth.models import User
+from django.apps import apps
 
 import logging
 logger = logging.getLogger('rodan')
@@ -40,10 +42,18 @@ class ResourceList(models.Model):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey('rodan.Project', blank=True, null=True, db_index=True, on_delete=models.CASCADE)
-    resources = SortedManyToManyField('rodan.Resource')
+    project = models.ForeignKey('rodan.Project', related_name="resourcelists", db_index=True, on_delete=models.CASCADE)
+    resources = SortedManyToManyField('rodan.Resource', blank=True, null=True)
     resource_type = models.ForeignKey('rodan.ResourceType', blank=True, null=True, db_index=True, on_delete=models.PROTECT)
     origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)  # no backward reference
+    creator = models.ForeignKey(User, related_name="resourcelists", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+
+    @property
+    def resource_type(self):
+        if self.resources.count() == 0:
+            return apps.get_model(app_label='rodan', model_name='ResourceType').objects.get(mimetype='application/octet-stream')
+        else:
+            return self.resources.first().resource_type

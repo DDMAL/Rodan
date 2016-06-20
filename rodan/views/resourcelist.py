@@ -1,17 +1,19 @@
 from rest_framework import generics, filters
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rodan.models import ResourceList
 from rodan.serializers.resourcelist import ResourceListSerializer
+from rodan.permissions import CustomObjectPermissions
 import django_filters
+from rest_framework.response import Response
 
 class ResourceListList(generics.ListCreateAPIView):
     """
-    Returns a list of all ResourceLists. Does not accept POST requests, since
-    ResourceLists should be defined and loaded server-side.
+    Returns a list of all ResourceLists.
     """
     queryset = ResourceList.objects.all()
     serializer_class = ResourceListSerializer
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
 
     class filter_class(django_filters.FilterSet):
         origin__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
@@ -28,17 +30,28 @@ class ResourceListList(generics.ListCreateAPIView):
                 "name": ['exact', 'icontains'],
                 "description": ['icontains'],
                 "project": ['exact'],
-                "resource_type": ['exact'],
                 "origin": ['exact'],
                 "created": ['gt', 'lt'],
                 "updated": ['gt', 'lt'],
             }
 
 
+    def post(self, request, *args, **kwargs):
+        serializer = ResourceListSerializer(context={'request': request}, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        resourcelist_obj = serializer.save(creator=request.user)
+        d = ResourceListSerializer(resourcelist_obj, context={'request': request}).data
+        return Response(d, status=status.HTTP_201_CREATED)
+
+
 class ResourceListDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Query a single ResourceList instance.
     """
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     queryset = ResourceList.objects.all()
     serializer_class = ResourceListSerializer
     filter_backends = ()
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

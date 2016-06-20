@@ -17,7 +17,7 @@ from rodan.jobs import module_loader
 #module_loader('gamera.toolkits.lyric_extraction.plugins.lyricline', load_gamera_module)
 #module_loader('gamera.toolkits.lyric_extraction.plugins.lyric_extractor', load_gamera_module)
 #module_loader('gamera.toolkits.musicstaves.plugins.musicstaves_plugins', load_gamera_module)
-#module_loader('gamera.toolkits.staffline_removal.plugins.staff_removal', load_gamera_module)
+module_loader('gamera.toolkits.staffline_removal.plugins.staff_removal', load_gamera_module)
 #module_loader('gamera.toolkits.rodan_plugins.plugins.rdn_despeckle', load_gamera_module)
 
 
