@@ -81,10 +81,6 @@ MEDIA_URL = '/uploads/'
 ENABLE_DIVA = @ENABLE_DIVA@
 # Resource thumbnail
 THUMBNAIL_EXT = 'jpg'
-SMALL_THUMBNAIL = 150
-MEDIUM_THUMBNAIL = 400
-LARGE_THUMBNAIL = 1500
-THUMBNAIL_SIZES = (SMALL_THUMBNAIL, MEDIUM_THUMBNAIL, LARGE_THUMBNAIL)
 # Supported Workflow serialization versions -- see rodan.views.workflow.version_map
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60  # 30 days. NULL: never expire
@@ -98,8 +94,7 @@ DIVA_JPEG2000_CONVERTER_OUTPUT = @DIVA_JPEG2000_CONVERTER_OUTPUT@
 ###############################################################################
 # Job Packages
 RODAN_JOB_PACKAGES = (
-    "rodan.jobs.gamera",
-    "rodan.jobs.neon"
+    "rodan.jobs.helloworld"
 )
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
