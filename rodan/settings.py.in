@@ -98,8 +98,7 @@ DIVA_JPEG2000_CONVERTER_OUTPUT = @DIVA_JPEG2000_CONVERTER_OUTPUT@
 ###############################################################################
 # Job Packages
 RODAN_JOB_PACKAGES = (
-    "rodan.jobs.gamera",
-    "rodan.jobs.neon"
+    "rodan.jobs.helloworld"
 )
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
