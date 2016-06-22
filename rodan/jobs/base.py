@@ -290,7 +290,7 @@ class RodanTask(Task):
         """
         def _extract_resource(resource, resource_type_mimetype=None):
             r = {'resource_path': str(resource.resource_file.path),  # convert 'unicode' object to 'str' object for consistency
-                 'resource_type': str(resource_type_mimetype) or str(resource.resource_type.mimetype)}
+                 'resource_type': str(resource_type_mimetype or resource.resource_type.mimetype)}
             if with_urls:
                 r['resource_url'] = str(resource.resource_url)
                 r['diva_object_data'] = str(resource.diva_json_url)
