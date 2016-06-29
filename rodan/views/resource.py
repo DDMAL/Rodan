@@ -6,7 +6,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.core.urlresolvers import Resolver404, resolve
-from rodan.models import Project, Output, Resource, ResourceType
+from rodan.models import Resource, ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from django.db.models import Q
@@ -16,6 +16,7 @@ from django.conf import settings
 from django.shortcuts import render
 import django_filters
 from rodan.permissions import CustomObjectPermissions
+import re
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -73,6 +74,24 @@ class ResourceList(generics.ListCreateAPIView):
             condition &= Q(origin__isnull=True)
         elif uploaded == u'False':
             condition &= Q(origin__isnull=False)
+
+        # finding the resourcelist query parameter and adding it to the condition
+        resource_list_param = self.request.query_params.get('resource_list', None)
+        if resource_list_param is not None:
+            resource_list_param = re.search(r'[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}', resource_list_param)
+            if resource_list_param is not None:
+                resource_list_param = resource_list_param.group()
+            from rodan.models import ResourceList
+            resource_list = ResourceList.objects.filter(uuid=resource_list_param)
+            if resource_list.exists():
+                resource_list = ResourceList.objects.get(uuid=resource_list_param)
+                resources = resource_list.resources
+                resource_list_condition = Q()
+                for r in resources.all():
+                    resource_list_condition |= Q(uuid=r.uuid)
+            else:
+                resource_list_condition = Q(uuid=None)   # if the resource_list was not found, returns empty list
+            condition &= resource_list_condition
 
         queryset = Resource.objects.filter(condition)  # then this queryset is filtered on `filter_fields`
         return queryset

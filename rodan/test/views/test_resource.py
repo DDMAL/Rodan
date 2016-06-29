@@ -131,6 +131,47 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(len(res_list2), 1)
         self.assertEqual(res_list2[0]['uuid'], str(r1.uuid))
 
+    def test_get_resources_in_resourcelist(self):
+        rt = mommy.make('rodan.ResourceType')
+        r1 = mommy.make('rodan.Resource',
+                        project=self.test_project,
+                        resource_type=rt)
+        r2 = mommy.make('rodan.Resource',
+                        project=self.test_project,
+                        resource_type=rt)
+        r3 = mommy.make('rodan.Resource',
+                        project=self.test_project,
+                        resource_type=rt)
+        r4 = mommy.make('rodan.Resource',
+                        project=self.test_project,
+                        resource_type=rt)
+        rl_obj = {
+            'resources': map(lambda x: "http://localhost:8000/resource/{0}/".format(x.uuid), [r1, r2, r3]),
+            "project": "http://localhost:8000/project/{0}/".format(self.test_project.uuid)
+        }
+        response = self.client.post("/resourcelists/", rl_obj, format='json')
+        assert response.status_code == status.HTTP_201_CREATED, 'This should pass'
+        rl_uuid = response.data['uuid']
+        rl_url = response.data['url']
+
+        response1 = self.client.get("/resources/?resource_list={0}".format(rl_uuid))
+        res_list1 = response1.data['results']
+        self.assertEqual(len(res_list1), 3)   #search using the uuid of resourcelist
+
+        response2 = self.client.get("/resources/?resource_list={0}".format(rl_url))
+        res_list2 = response2.data['results']
+        self.assertEqual(len(res_list2), 3)   #search using the url of resourcelist
+
+        uuid = '11111111-1111-1111-1111-111111111111'
+        response3 = self.client.get("/resources/?resource_list={0}".format(uuid))
+        res_list3 = response3.data['results']
+        self.assertEqual(len(res_list3), 0)   #not existing resourcelist
+
+        bad_uuid = '11111111-1111-1111-1111-111111111'
+        response4 = self.client.get("/resources/?resource_list={0}".format(bad_uuid))
+        res_list4 = response4.data['results']
+        self.assertEqual(len(res_list4), 0)   #bad uuid for resourcelist
+
 
 class ResourceProcessingTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
