@@ -7,6 +7,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from djoser import views as djoser_views
 
+from rodan.admin.helpers import required, logged_in_or_basicauth
+
 from rodan.views.auth import AuthMeView, AuthTokenView
 
 from rodan.views.project import ProjectList
@@ -52,15 +54,15 @@ import rodan.jobs.load
 
 urlpatterns = []
 
-if settings.DEBUG:
-    from rodan.admin.helpers import required, logged_in_or_basicauth
-    urlpatterns += required(
-        logged_in_or_basicauth('Rodan admin'),
-        patterns('',
-                 (r'^admin/', include(admin.site.urls))
-        )
+# Admin URL pattern.
+urlpatterns += required(
+    logged_in_or_basicauth('Rodan admin'),
+    patterns('',
+             (r'^admin/', include(admin.site.urls))
     )
+)
 
+# Standard URL patterns.
 urlpatterns += format_suffix_patterns(
     patterns('',
              url(r'^$', APIRoot.as_view()),
