@@ -19,7 +19,7 @@ class HelloWorld(RodanTask):
     def run_my_task(self, inputs, settings, outputs):
         outfile_path = outputs['Text output'][0]['resource_path']
         outfile = open(outfile_path, "w")
-        if inputs is not None:
+        if 'Text input' in inputs:
             infile_path = inputs['Text input'][0]['resource_path']
             infile = open(infile_path, "r")
             outfile.write(("Hello World {0}").format(infile.read()))
