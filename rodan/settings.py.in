@@ -94,6 +94,7 @@ DIVA_JPEG2000_CONVERTER_OUTPUT = @DIVA_JPEG2000_CONVERTER_OUTPUT@
 ###############################################################################
 # Job Packages
 RODAN_JOB_PACKAGES = (
+    "rodan.jobs.resource_distributor",
     "rodan.jobs.helloworld",
 )
 # Jobs that depend on binaries.
