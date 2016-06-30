@@ -8,7 +8,7 @@ class ResourceDistributor(RodanTask):
     author = 'Nicky Mirfallah'
     description = 'Distributes the resource to output'
     settings = {
-        'title': 'Resource distributor setting',
+        'title': 'Resource Distributor setting',
         'type': 'object',
         'properties': {
             'Resource type': {
@@ -20,7 +20,7 @@ class ResourceDistributor(RodanTask):
         }
     }
     enabled = True
-    category = "Distribute"
+    category = "Miscellaneous"
     interactive = False
     error_summary = ""
     error_details = ""
@@ -34,7 +34,8 @@ class ResourceDistributor(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
         input_type = inputs['Resource input'][0]['resource_type']
-        valid_input_type = self.settings['properties']['Resource type']['enum'][5]
+        valid_input_type_num = settings['Resource type']
+        valid_input_type = self.settings['properties']['Resource type']['enum'][valid_input_type_num]
         if input_type != valid_input_type:
             self.my_error_information(None, "Input cannot be of type {0}. Valid input set in setting is {1}".format(input_type, valid_input_type))
             return False
