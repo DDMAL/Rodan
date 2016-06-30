@@ -1,14 +1,9 @@
 import django_filters
 from rest_framework import generics
-from rest_framework import status
 from rest_framework import permissions
-from rest_framework.response import Response
 from rodan.models.connection import Connection
-from rodan.models.inputport import InputPort
-from rodan.models.outputport import OutputPort
 from rodan.serializers.connection import ConnectionSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
 

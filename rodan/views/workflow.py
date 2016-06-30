@@ -12,7 +12,6 @@ from rodan.exceptions import CustomAPIException
 from django.conf import settings
 
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 
 class WorkflowList(generics.ListCreateAPIView):

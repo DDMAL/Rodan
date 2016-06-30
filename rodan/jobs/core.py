@@ -1,20 +1,15 @@
 import os
-import tempfile
 import shutil
-import traceback
 from pybagit.bagit import BagIt
 from celery import task, registry
-from django.core.files import File
 from django.conf import settings
 from django.db.models import Q, Case, Value, When, BooleanField
-import PIL.Image
-import PIL.ImageFile
 from rodan.models import Resource, ResourceType, ResultsPackage, Workflow, WorkflowRun, WorkflowJob, Input, OutputPort, Output, Connection, RunJob, ResourceList
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
 from celery import Task
 from celery.task.control import revoke
-from rodan.jobs.base import  TemporaryDirectory
+from rodan.jobs.base import TemporaryDirectory
 from diva_generate_json import GenerateJson
 
 class create_resource(Task):

@@ -460,7 +460,6 @@ class RodanTask(Task):
                         output['resource_temp_folder'] = output_res_tempfolder
                         temppath_map[output_res_tempfolder] = output
 
-
             retval = self.run_my_task(inputs, settings, arg_outputs)
 
             if isinstance(retval, self.WAITING_FOR_INPUT):
@@ -474,6 +473,14 @@ class RodanTask(Task):
                 runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details', 'celery_task_id'])
                 return 'WAITING FOR INPUT'
             else:
+                # ensure the runjob did not produce any error
+                try:
+                    err = self.error_details
+                    if len(self.error_details) > 0:
+                        raise RuntimeError(self.error_details)
+                except AttributeError:
+                    pass
+
                 # ensure the job has produced all output files
                 for opt_name, output_list in outputs.iteritems():
                     for output in output_list:
