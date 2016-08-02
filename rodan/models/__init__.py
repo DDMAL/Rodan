@@ -72,13 +72,25 @@ def update_database_trigger(sender, **kwargs):
             import redis
             info = notify.split('/')
             status = info[0]
+            if len(info) > 3:
+                project = info[3]
+            else:
+                project = None
             model = info[1].replace('rodan_','')
             uuid = info[2].replace('-','')
-            data = {{
-                'status': status,
-                'model': model,
-                'uuid': uuid
-            }}
+            if project is not None:
+                data = {{
+                    'status': status,
+                    'project': project,
+                    'model': model,
+                    'uuid': uuid
+                }}
+            else:
+                 data = {{
+                    'status': status,
+                    'model': model,
+                    'uuid': uuid
+                }}
             r = redis.StrictRedis("{0}", {1}, db={2})
             r.publish('rodan:broadcast:rodan', json.dumps(data))
         $$ LANGUAGE plpythonu;
@@ -99,17 +111,29 @@ def update_database_trigger(sender, **kwargs):
         BEGIN
             IF (TG_OP = 'INSERT') THEN
                 status = 'created';
-                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                IF EXISTS (SELECT 1 FROM information_schema.columns WHERE TABLE_NAME=TG_TABLE_NAME AND COLUMN_NAME = 'project_id') THEN
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text) || '/' || CAST(NEW.project_id AS text);
+                ELSE
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                END IF;
                 PERFORM publish_message(notify);
                 RETURN NEW;
             ELSIF (TG_OP = 'UPDATE') THEN
                 status = 'updated';
-                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                IF EXISTS (SELECT 1 FROM information_schema.columns WHERE TABLE_NAME=TG_TABLE_NAME AND COLUMN_NAME = 'project_id') THEN
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text) || '/' || CAST(NEW.project_id AS text);
+                ELSE
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(NEW.uuid AS text);
+                END IF;
                 PERFORM publish_message(notify);
                 RETURN NEW;
             ELSIF (TG_OP = 'DELETE') THEN
                 status = 'deleted';
-                notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(OLD.uuid AS text);
+                IF EXISTS (SELECT 1 FROM information_schema.columns WHERE TABLE_NAME=TG_TABLE_NAME AND COLUMN_NAME = 'project_id') THEN
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(OLD.uuid AS text) || '/' || CAST(OLD.project_id AS text);
+                ELSE
+                    notify = status || '/' || CAST(TG_TABLE_NAME AS text) || '/' || CAST(OLD.uuid AS text);
+                END IF;
                 PERFORM publish_message(notify);
                 RETURN OLD;
             END IF;

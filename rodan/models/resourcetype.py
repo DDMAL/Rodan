@@ -30,3 +30,14 @@ class ResourceType(models.Model):
 
     def __unicode__(self):
         return u"<ResourceType {0}>".format(self.mimetype)
+
+    def delete(self, *args, **kwargs):
+        # find all Resource Distributor workflowjobs that have this resourcetype as their setting and set it to default
+        from rodan.models import Job, WorkflowJob
+        resource_distributor_uuid = Job.objects.get(name='Resource Distributor').uuid
+        distributor_wfjs = WorkflowJob.objects.filter(job_id=resource_distributor_uuid)
+        for distributor_wfj in distributor_wfjs:
+            if distributor_wfj.job_settings['Resource type'] == self.mimetype:
+                distributor_wfj.job_settings['Resource type'] = 'application/octet-stream'
+                distributor_wfj.save()
+        super(ResourceType, self).delete(*args, **kwargs)
