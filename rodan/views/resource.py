@@ -21,6 +21,7 @@ from django.core.urlresolvers import reverse
 import datetime
 from django.utils import timezone
 from rodan.exceptions import CustomAPIException
+from rest_framework.views import APIView
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -169,7 +170,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
 
         return self.partial_update(request, *args, **kwargs)
 
-class ResourceViewer(generics.RetrieveAPIView):
+class ResourceViewer(APIView):
     """
     Get a viewer of the resource. If there is no viewer, redirect to resource file.
 
@@ -177,13 +178,17 @@ class ResourceViewer(generics.RetrieveAPIView):
     + Diva.js: for all images (if jp2 and measurement json exist)
     + Neon.js: for MEI
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    #permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
-    def get(self, request, working_user_expiry,  *a, **k):
+    #authentication_classes = ()
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, resource_uuid, working_user_token, *a, **k):
         # check expiry
+        working_user_expiry = 0
         if timezone.now() > working_user_expiry:
             raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
 
