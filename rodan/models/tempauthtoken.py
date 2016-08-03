@@ -4,6 +4,15 @@ from django.contrib.auth.models import User
 
 
 class Tempauthtoken(models.Model):
+    """
+    A temporary token for users to authenticate in new tab. This has been made for viewing resources.
+
+    **Fields**
+
+    - `uuid`
+    - `expiry`
+    - `user` -- a foreign key to the `User` who wants a temporary token.
+    """
 
     class Meta:
         app_label = 'rodan'

@@ -226,6 +226,7 @@ class ResourceAcquireView(generics.GenericAPIView):
         expiry_date = timezone.now() + datetime.timedelta(seconds=settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS)
         user = request.user
 
+        # remove the existing token to produce a new one
         if len(Tempauthtoken.objects.filter(user=user))>0:
             temp_token = Tempauthtoken.objects.get(user=request.user)
             temp_token.delete()
