@@ -6,7 +6,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.core.urlresolvers import Resolver404, resolve
-from rodan.models import Resource, ResourceType
+from rodan.models import Resource, ResourceType, Tempauthtoken
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from django.db.models import Q
@@ -17,6 +17,10 @@ from django.shortcuts import render
 import django_filters
 from rodan.permissions import CustomObjectPermissions
 import re
+from django.core.urlresolvers import reverse
+import datetime
+from django.utils import timezone
+from rodan.exceptions import CustomAPIException
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -178,7 +182,11 @@ class ResourceViewer(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
-    def get(self, request, *a, **k):
+    def get(self, request, working_user_expiry,  *a, **k):
+        # check expiry
+        if timezone.now() > working_user_expiry:
+            raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+
         resource = self.get_object()
         viewer = resource.get_viewer()
         if viewer == 'diva':
@@ -195,3 +203,39 @@ class ResourceViewer(generics.RetrieveAPIView):
             }, content_type="text/html")
         else:
             raise Http404("No viewer for this Resource.")
+
+
+class ResourceAcquireView(generics.GenericAPIView):
+    """
+    Acquire a viewer url
+    """
+    lookup_url_kwarg = "resource_uuid"  # for self.get_object()
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    _ignore_model_permissions = True
+    queryset = Resource.objects.all()
+
+    def get_serializer_class(self):
+
+        # for rest browsable API displaying the PUT/PATCH form
+        from rest_framework import serializers
+        class DummySerializer(serializers.Serializer):
+            pass   # empty class
+        return DummySerializer
+
+    def post(self, request, resource_uuid, *args, **kwargs):
+        expiry_date = timezone.now() + datetime.timedelta(seconds=settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS)
+        user = request.user
+
+        if len(Tempauthtoken.objects.filter(user=user))>0:
+            temp_token = Tempauthtoken.objects.get(user=request.user)
+            temp_token.delete()
+
+        temp_token = Tempauthtoken(user=user, expiry=expiry_date)
+        temp_token.save()
+
+        working_user_token = temp_token.uuid
+
+        return Response({
+            'working_url': request.build_absolute_uri(reverse('resource-viewer', kwargs={'pk': str(resource_uuid), 'working_user_token': str(working_user_token)})),
+            'working_user_expiry': expiry_date
+        })

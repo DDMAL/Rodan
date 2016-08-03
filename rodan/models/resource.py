@@ -222,4 +222,4 @@ class Resource(models.Model):
     @property
     def viewer_relurl(self):
         if self.get_viewer() is not None:
-            return reverse('resource-viewer', args=(self.uuid, ))
+            return reverse('resource-viewer-acquire', args=(self.uuid, ))

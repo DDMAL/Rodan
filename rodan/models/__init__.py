@@ -16,6 +16,7 @@ from rodan.models.resource import Resource
 from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
+from rodan.models.tempauthtoken import Tempauthtoken
 from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
 from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSet
 

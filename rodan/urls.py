@@ -33,7 +33,7 @@ from rodan.views.outputport import OutputPortList, OutputPortDetail
 from rodan.views.outputporttype import OutputPortTypeList, OutputPortTypeDetail
 from rodan.views.inputport import InputPortList, InputPortDetail
 from rodan.views.inputporttype import InputPortTypeList, InputPortTypeDetail
-from rodan.views.resource import ResourceList, ResourceDetail, ResourceViewer
+from rodan.views.resource import ResourceList, ResourceDetail, ResourceViewer, ResourceAcquireView
 from rodan.views.resourcelist import ResourceListList, ResourceListDetail
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
@@ -102,7 +102,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^inputport/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', InputPortDetail.as_view(), name="inputport-detail"),
              url(r'^resources/$', ResourceList.as_view(), name="resource-list"),
              url(r'^resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceDetail.as_view(), name="resource-detail"),
-             url(r'^resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/viewer/$', ResourceViewer.as_view(), name="resource-viewer"),
+             url(r'^resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/viewer/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceViewer.as_view(), name="resource-viewer"),
+             url(r'^resource/(?P<resource_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/acquire/$', ResourceAcquireView.as_view(), name='resource-viewer-acquire'),
              url(r'^resourcelists/$', ResourceListList.as_view(), name="resourcelist-list"),
              url(r'^resourcelist/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', ResourceListDetail.as_view(), name="resourcelist-detail"),
              url(r'^resourcetypes/$', ResourceTypeList.as_view(), name="resourcetype-list"),
