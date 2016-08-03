@@ -188,11 +188,11 @@ class ResourceViewer(APIView):
 
     def get(self, request, resource_uuid, working_user_token, *a, **k):
         # check expiry
-        working_user_expiry = 0
+        working_user_expiry = Tempauthtoken.objects.get(uuid=working_user_token).expiry
         if timezone.now() > working_user_expiry:
             raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        resource = self.get_object()
+        resource = Resource.objects.get(uuid=resource_uuid)
         viewer = resource.get_viewer()
         if viewer == 'diva':
             return render(request, 'diva.html', {
@@ -242,6 +242,6 @@ class ResourceAcquireView(generics.GenericAPIView):
         working_user_token = temp_token.uuid
 
         return Response({
-            'working_url': request.build_absolute_uri(reverse('resource-viewer', kwargs={'pk': str(resource_uuid), 'working_user_token': str(working_user_token)})),
+            'working_url': request.build_absolute_uri(reverse('resource-viewer', kwargs={'resource_uuid': str(resource_uuid), 'working_user_token': str(working_user_token)})),
             'working_user_expiry': expiry_date
         })
