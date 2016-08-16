@@ -37,7 +37,7 @@ import subprocess
 
 
 @receiver(pre_migrate)
-def add_user_view_permissions(sender, **kwargs):
+def add_view_user_permission(sender, **kwargs):
     content_type = ContentType.objects.get(app_label='auth', model='user')
     Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
 
