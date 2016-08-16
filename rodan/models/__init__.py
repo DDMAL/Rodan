@@ -23,6 +23,8 @@ from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinat
 from guardian.shortcuts import assign_perm
 from rest_framework.compat import get_model_name
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
 from django.db.models.signals import pre_migrate, post_migrate, pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
