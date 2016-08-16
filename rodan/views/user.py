@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
+from rodan.permissions import CustomObjectPermissions
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
 
@@ -21,7 +22,7 @@ class UserList(generics.ListCreateAPIView):
     - `password` -- GET & POST.
     """
     model = User
-    permission_classes = (permissions.IsAdminUser, )
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     serializer_class = UserListSerializer
 
     def get_queryset(self):

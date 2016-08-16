@@ -25,6 +25,9 @@ if test "x$enable_diva" != "xno"; then
 else
    ENABLE_DIVA=False
    IF_DIVA="# "
+   DIVA_JPEG2000_CONVERTER=None
+   DIVA_JPEG2000_CONVERTER_INPUT=None
+   DIVA_JPEG2000_CONVERTER_OUTPUT=None
    AC_MSG_NOTICE([Diva.js is disabled.])
 fi
 
