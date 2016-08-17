@@ -166,7 +166,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
             except (Resolver404, ResourceType.DoesNotExist) as e:
                 print str(e)
             if claimed_mimetype.startswith('image'):
-                registry.tasks['rodan.core.create_diva'].run(resource.uuid)
+                registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 
         return self.partial_update(request, *args, **kwargs)
 
