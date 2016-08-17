@@ -239,6 +239,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_METADATA_CLASS': 'rodan.views.RodanMetadata',
     'PAGINATE_BY': @PAGINATE_BY@,
+    'MAX_PAGINATE_BY': @MAX_PAGINATE_BY@,
     'USE_ABSOLUTE_URLS': True,
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoObjectPermissionsFilter',
