@@ -672,6 +672,10 @@ class PermissionRuntimeTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        wfrun_id = response.data['uuid']
+        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 3
         counts = {
