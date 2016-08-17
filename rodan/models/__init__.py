@@ -23,9 +23,10 @@ from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinat
 from guardian.shortcuts import assign_perm
 from rest_framework.compat import get_model_name
 
-from django.db.models.signals import post_migrate, pre_save, pre_delete, post_save, post_delete
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
+from django.db.models.signals import pre_migrate, post_migrate, pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import psycopg2
 import psycopg2.extensions
@@ -33,6 +34,15 @@ import os, sys
 import traceback
 import getpass
 import subprocess
+
+
+@receiver(pre_migrate)
+def add_view_user_permission(sender, **kwargs):
+    # don't set permissions in test database
+    if not settings.TEST:
+        content_type = ContentType.objects.get(app_label='auth', model='user')
+        Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
+
 
 @receiver(post_migrate)
 def update_rodan_jobs(sender, **kwargs):
