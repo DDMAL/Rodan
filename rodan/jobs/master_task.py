@@ -1,7 +1,8 @@
 from celery import registry, task
-from rodan.models import RunJob, Resource, WorkflowRun, ResourceList, Input
+from rodan.models import RunJob, WorkflowRun, Input
 from rodan.constants import task_status
 from django.db.models import Q
+from django.conf import settings
 import thread
 
 # Read more on Django queries: https://docs.djangoproject.com/en/dev/topics/db/queries/
@@ -56,6 +57,15 @@ def master_task(workflow_run_id):
         if not RunJob.objects.filter(Q(workflow_run__uuid=workflow_run_id) & ~Q(status=task_status.FINISHED)).exists():
             # WorkflowRun has finished!
             WorkflowRun.objects.filter(uuid=workflow_run_id).update(status=task_status.FINISHED)
+
+            # Send an email to owner of WorkflowRun
+            if not settings.TEST:
+                owner_email = WorkflowRun.objects.get(uuid=workflow_run_id).creator.email
+                if owner_email and settings.EMAIL_USE:
+                    subject = "WorkflowRun {0}".format(workflow_run_id)
+                    body = "WorkflowRun {0} has finished. \n \n \n-Rodan".format(workflow_run_id)
+                    to = [owner_email]
+                    registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
 
             # return value is ignored, and provided as information in Celery stdout.
             return "wfRun {0} FINISHED".format(workflow_run_id)

@@ -1,11 +1,10 @@
 import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema, inspect
 from celery import Task, registry
 from celery.app.task import TaskType
-from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun, ResourceList
+from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
 from rodan.constants import task_status
 from django.conf import settings as rodan_settings
 from django.core.files import File
-from django.db.models import Prefetch
 from django.template import Template
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
@@ -471,7 +470,18 @@ class RodanTask(Task):
                 runjob.error_details = None
                 runjob.celery_task_id = None
                 runjob.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details', 'celery_task_id'])
-                return 'WAITING FOR INPUT'
+
+                # Send an email to owner of WorkflowRun
+                wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
+                if rodan_settings.TEST:
+                    owner_email = WorkflowRun.objects.get(uuid=wfrun_id).creator.email
+                    if owner_email and rodan_settings.EMAIL_USE:
+                        subject = "WorkflowRun {0}".format(wfrun_id)
+                        body = "RunJob {0} in WorkflowRun {1} is waiting for input. \n \n \n-Rodan".format(runjob_id, wfrun_id)
+                        to = [owner_email]
+                        registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
+
+                    return 'WAITING FOR INPUT'
             else:
                 # ensure the runjob did not produce any error
                 try:
@@ -549,6 +559,15 @@ class RodanTask(Task):
         RunJob.objects.filter(pk=runjob_id).update(**update)
         wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
+
+        # Send an email to owner of WorkflowRun
+        if not rodan_settings.TEST:
+            owner_email = WorkflowRun.objects.get(uuid=wfrun_id).creator.email
+            if owner_email and rodan_settings.EMAIL_USE:
+                subject = "WorkflowRun {0}".format(wfrun_id)
+                body = "WorkflowRun {0} has failed due to the failure of RunJob {1}. \n \n \n-Rodan".format(wfrun_id, runjob_id)
+                to = [owner_email]
+                registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information

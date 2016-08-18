@@ -109,7 +109,7 @@ BIN_XMLLINT = @BIN_XMLLINT@
 
 
 ###############################################################################
-## 1.c  Logging configuration (rodan.log, database.log)
+## 1.d  Logging configuration (rodan.log, database.log)
 ###############################################################################
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -176,6 +176,22 @@ LOGGING = {
         }
     }
 }
+
+
+###############################################################################
+## 1.e  Email configuration
+###############################################################################
+# A sample email configuration. These parameters are used to send emails to
+# the owner of WorkflowRuns, etc.
+# To enable emailing, fill out email parameters below and set EMAIL_USE to True.
+# See https://docs.djangoproject.com/en/1.10/topics/email/ for
+# more details on how to customize your email configuration.
+EMAIL_USE = False
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = @EMAIL_USERNAME@
+EMAIL_HOST_PASSWORD = @EMAIL_PASSWORD@
+EMAIL_PORT = 587
 
 
 ###############################################################################

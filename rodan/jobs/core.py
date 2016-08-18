@@ -3,6 +3,7 @@ import shutil
 from pybagit.bagit import BagIt
 from celery import task, registry
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db.models import Q, Case, Value, When, BooleanField
 from rodan.models import Resource, ResourceType, ResultsPackage, Workflow, WorkflowRun, WorkflowJob, Input, OutputPort, Output, Connection, RunJob, ResourceList
 from rodan.models.resultspackage import get_package_path
@@ -651,3 +652,14 @@ def redo_runjob_tree(rj_id):
     wfrun.status = task_status.RETRYING
     wfrun.save(update_fields=['status'])
     registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex, ))
+
+
+@task(name="rodan.core.send_email")
+def send_email(subject, body, to):
+    email = EmailMessage(
+        subject,
+        body,
+        settings.EMAIL_HOST_USER,
+        to,
+    )
+    email.send()
