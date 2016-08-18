@@ -3,7 +3,6 @@ from rest_framework import permissions
 from rodan.models.input import Input
 from rodan.serializers.input import InputSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 
 class InputList(generics.ListAPIView):

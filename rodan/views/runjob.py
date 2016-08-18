@@ -1,20 +1,11 @@
 from rest_framework import generics
 from rest_framework import permissions
-from rest_framework import status
-from rest_framework.response import Response
-from celery import registry
-from celery.task.control import revoke
 
-from django.db.models import Q
-from django.conf import settings
 import django_filters
 
 from rodan.models.runjob import RunJob
 from rodan.serializers.runjob import RunJobSerializer
-from rodan.constants import task_status
-from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 class RunJobList(generics.ListAPIView):
     """

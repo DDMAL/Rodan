@@ -1,6 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from rodan.models import Project, WorkflowJob, Workflow, InputPort, InputPortType, OutputPort, OutputPortType, Resource, Connection, Job, ResourceType
+from rodan.models import Workflow, InputPort, OutputPort, ResourceType
 
 from rest_framework.test import APITestCase
 from rest_framework import status

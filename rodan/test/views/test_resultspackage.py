@@ -1,14 +1,11 @@
 import os, json, zipfile, uuid, datetime, socket
-from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType, ResultsPackage
+from rodan.models import WorkflowRun, Job, ResultsPackage
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-import uuid
 from django.core.files.base import ContentFile
-from rodan.models.resource import upload_path
 from rodan.constants import task_status
 
 bag_metadata = ('bag-info.txt', 'bagit.txt', 'fetch.txt', 'manifest-sha1.txt', 'tagmanifest-sha1.txt')

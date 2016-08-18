@@ -1,7 +1,6 @@
 from django.db import models
 import uuid
 from jsonfield import JSONField
-from django.core.exceptions import ValidationError
 from rodan.jobs.deep_eq import deep_eq
 from rodan.models.workflow import Workflow
 

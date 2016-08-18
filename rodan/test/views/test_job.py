@@ -2,7 +2,6 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Job
-from django.conf import settings
 import uuid
 
 class JobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):

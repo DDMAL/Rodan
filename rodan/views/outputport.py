@@ -4,7 +4,6 @@ from rest_framework import permissions
 from rodan.models.outputport import OutputPort
 from rodan.serializers.outputport import OutputPortSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
 

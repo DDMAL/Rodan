@@ -1,4 +1,4 @@
-from rodan.models import ResultsPackage, OutputPort
+from rodan.models import ResultsPackage
 from rest_framework import serializers
 from rodan.serializers import AbsoluteURLField
 

@@ -1,5 +1,3 @@
-import os
-from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin

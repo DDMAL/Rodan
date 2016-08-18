@@ -5,7 +5,6 @@ from rodan.models.inputport import InputPort
 from rodan.serializers.inputport import InputPortSerializer
 from django.db.models import Q
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 from rodan.exceptions import CustomAPIException
 from rest_framework import status
 

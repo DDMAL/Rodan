@@ -5,8 +5,6 @@ from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.outputport import OutputPortSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rest_framework import serializers
-from django.core.urlresolvers import Resolver404, resolve
-from rodan.serializers import TransparentField
 from django.conf import settings
 
 

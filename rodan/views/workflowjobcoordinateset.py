@@ -4,7 +4,6 @@ import django_filters
 from rodan.models import WorkflowJobCoordinateSet
 from rodan.serializers.workflowjobcoordinateset import WorkflowJobCoordinateSetSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 
 class WorkflowJobCoordinateSetList(generics.ListCreateAPIView):

@@ -1,6 +1,4 @@
 from rodan.models.workflowjob import WorkflowJob
-from rodan.models.inputport import InputPort
-from rodan.models.outputport import OutputPort
 from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.outputport import OutputPortSerializer
 from rodan.serializers import TransparentField

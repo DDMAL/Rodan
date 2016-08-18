@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User, Group
 from rodan.models.project import Project
 from rodan.models.workflow import Workflow
 from rodan.models.resource import Resource

@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from rodan.models.connection import Connection
-from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
-from rodan.serializers.outputport import OutputPortSerializer
 from rodan.serializers.workflow import WorkflowSerializer
 
 

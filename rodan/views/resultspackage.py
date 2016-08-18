@@ -7,16 +7,14 @@ from rest_framework.response import Response
 from celery import registry
 from celery.task.control import revoke
 from django.conf import settings
-from django.core.urlresolvers import resolve, Resolver404
 from django.utils import timezone
 import django_filters
 
-from rodan.serializers.resultspackage import ResultsPackageSerializer, ResultsPackageListSerializer
+from rodan.serializers.resultspackage import ResultsPackageListSerializer
 from rodan.models import ResultsPackage
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 
 class ResultsPackageList(generics.ListCreateAPIView):

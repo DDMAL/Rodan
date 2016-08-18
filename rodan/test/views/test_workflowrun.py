@@ -1,16 +1,12 @@
 import os, json
-from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth.models import User
 
-from rodan.models import WorkflowRun, Workflow, WorkflowJob, InputPort, InputPortType, OutputPort, OutputPortType, Connection, Job, RunJob, ResourceType, ResourceList
-from rodan.views.workflowrun import WorkflowRunList
+from rodan.models import WorkflowRun, ResourceType
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 from django.core.files.base import ContentFile
-from rodan.models.resource import upload_path
 from rodan.constants import task_status
 
 class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):

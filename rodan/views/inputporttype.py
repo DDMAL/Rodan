@@ -1,4 +1,3 @@
-from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions, filters
 from rodan.models.inputporttype import InputPortType

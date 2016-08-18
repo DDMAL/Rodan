@@ -1,11 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth.models import User
 from rodan.models.connection import Connection
-from rodan.models.workflowjob import WorkflowJob
-from rodan.models.outputport import OutputPort
-from rodan.models.inputport import InputPort
-from rodan.models.inputporttype import InputPortType
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid

@@ -1,6 +1,5 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.models import Job, WorkflowJob
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from model_mommy import mommy
 

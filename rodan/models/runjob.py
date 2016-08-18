@@ -1,13 +1,7 @@
-import os
 import uuid
-import shutil
 from django.db import models
-from django.core.urlresolvers import reverse
 from jsonfield import JSONField
-from rodan.models.resource import Resource
 from rodan.models.job import Job
-from rodan.models.input import Input
-from rodan.models.output import Output
 from rodan.constants import task_status
 from django.contrib.auth.models import User
 

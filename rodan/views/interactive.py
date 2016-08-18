@@ -1,8 +1,6 @@
 import json, tempfile, inspect, os, mimetypes
 from celery import registry
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from django.core.files.base import ContentFile
 from django.template import RequestContext
 from django.http import HttpResponse, Http404
 from django.conf import settings
@@ -11,7 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import permissions, generics
 from rest_framework.exceptions import APIException
-from rodan.models import RunJob, Input, Resource
+from rodan.models import RunJob
 from rodan.constants import task_status
 import time
 import datetime
@@ -20,7 +18,6 @@ import uuid
 from django.core.urlresolvers import reverse
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS
 

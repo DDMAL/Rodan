@@ -1,4 +1,3 @@
-import os
 from django.conf.urls import patterns, include, url, static
 from django.conf import settings
 from django.contrib import admin
@@ -10,7 +9,6 @@ from djoser import views as djoser_views
 from rodan.admin.helpers import required, logged_in_or_basicauth
 
 from rodan.views.auth import AuthMeView, AuthTokenView
-
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
 from rodan.views.workflow import WorkflowList
@@ -38,12 +36,10 @@ from rodan.views.resourcelist import ResourceListList, ResourceListDetail
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
-
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
 from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetList
 from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetDetail
-
 from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
 from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
 

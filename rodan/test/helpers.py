@@ -1,7 +1,7 @@
 import shutil, os, uuid, time
 from model_mommy import mommy
 from django.contrib.auth.models import User
-from rodan.models import Project, Job, ResourceType
+from rodan.models import Job, ResourceType
 from django.core.files.base import ContentFile
 from django.conf import settings
 

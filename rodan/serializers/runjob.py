@@ -1,6 +1,6 @@
 from rodan.models.runjob import RunJob
 from rest_framework import serializers
-from rodan.serializers import AbsoluteURLField, TransparentField
+from rodan.serializers import TransparentField
 from rodan.constants import task_status
 from django.core.urlresolvers import reverse
 

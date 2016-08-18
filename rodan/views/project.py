@@ -1,13 +1,10 @@
 from rest_framework import generics
 from rest_framework import permissions, exceptions
 from rest_framework.response import Response
-from guardian.shortcuts import get_objects_for_user
 from django.contrib.auth.models import User, Group
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
-from rodan.serializers.user import UserSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 class ProjectList(generics.ListCreateAPIView):
     """

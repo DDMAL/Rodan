@@ -4,7 +4,6 @@ from rest_framework import status
 from rodan.models.workflowjob import WorkflowJob
 from rodan.serializers.workflowjob import WorkflowJobSerializer
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 from rodan.exceptions import CustomAPIException
 
 class WorkflowJobList(generics.ListCreateAPIView):

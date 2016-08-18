@@ -1,10 +1,6 @@
 import os, sys, shutil, json
-from celery import task
-from django.core.files import File
-from rodan.models import Input, Output
 from rodan.jobs.base import RodanTask
 from django.template import Template
-from rest_framework import status
 
 class dummy_automatic_job(RodanTask):
     name = "rodan.jobs.devel.dummy_automatic_job"
