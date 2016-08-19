@@ -473,7 +473,7 @@ class RodanTask(Task):
 
                 # Send an email to owner of WorkflowRun
                 wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
-                if rodan_settings.TEST:
+                if not rodan_settings.TEST:
                     owner_email = WorkflowRun.objects.get(uuid=wfrun_id).creator.email
                     if owner_email and rodan_settings.EMAIL_USE:
                         subject = "WorkflowRun {0}".format(wfrun_id)
