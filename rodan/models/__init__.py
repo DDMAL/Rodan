@@ -6,6 +6,7 @@ from rodan.models.input import Input
 from rodan.models.output import Output
 from rodan.models.project import Project
 from rodan.models.job import Job
+from rodan.models.userpreference import UserPreference
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjobgroup import WorkflowJobGroup

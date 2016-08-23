@@ -34,6 +34,7 @@ class APIRoot(APIView):
                 'runjobs': reverse('runjob-list', request=request, format=format),
                 'jobs': reverse('job-list', request=request, format=format),
                 'users': reverse('user-list', request=request, format=format),
+                'userpreferences': reverse('userpreference-list', request=request, format=format),
                 'resultspackages': reverse('resultspackage-list', request=request, format=format),
                 'connections': reverse('connection-list', request=request, format=format),
                 'outputporttypes': reverse('outputporttype-list', request=request, format=format),

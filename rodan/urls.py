@@ -25,6 +25,7 @@ from rodan.views.job import JobList
 from rodan.views.job import JobDetail
 from rodan.views.user import UserList
 from rodan.views.user import UserDetail
+from rodan.views.userpreference import UserPreferenceList, UserPreferenceDetail
 from rodan.views.resultspackage import ResultsPackageList, ResultsPackageDetail
 from rodan.views.connection import ConnectionList, ConnectionDetail
 from rodan.views.outputport import OutputPortList, OutputPortDetail
@@ -40,7 +41,7 @@ from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
 from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
 from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetList
 from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetDetail
-from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueConfigView, TaskQueueScheduledView, TaskQueueStatusView
+from rodan.views.taskqueue import TaskQueueActiveView, TaskQueueScheduledView, TaskQueueStatusView
 from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
 
 from rodan.views.main import APIRoot
@@ -80,6 +81,8 @@ urlpatterns += format_suffix_patterns(
              url(r'^job/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', JobDetail.as_view(), name="job-detail"),
              url(r'^users/$', UserList.as_view(), name="user-list"),
              url(r'^user/(?P<pk>[0-9\-]+)/$', UserDetail.as_view(), name="user-detail"),
+             url(r'^userpreferences/$', UserPreferenceList.as_view(), name="userpreference-list"),
+             url(r'^userpreference/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', UserPreferenceDetail.as_view(), name="userpreference-detail"),
              url(r'^workflowruns/$', WorkflowRunList.as_view(), name="workflowrun-list"),
              url(r'^workflowrun/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', WorkflowRunDetail.as_view(), name="workflowrun-detail"),
              url(r'^runjobs/$', RunJobList.as_view(), name="runjob-list"),
