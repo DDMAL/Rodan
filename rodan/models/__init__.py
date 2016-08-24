@@ -37,14 +37,14 @@ import getpass
 import subprocess
 
 
-@receiver(pre_migrate)
+@receiver(post_migrate)
 def add_view_user_permission(sender, **kwargs):
     """
     Adding the permission to view users in migrations. Other approaches include using another model and referencing Django's
     User model or using a proxy model after bug in Django https://code.djangoproject.com/ticket/11154 is resolved.
     """
     # don't set permissions in test database
-    if not settings.TEST:
+    if not settings.TEST and sender.name == 'guardian':
         content_type = ContentType.objects.get(app_label='auth', model='user')
         Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
 
