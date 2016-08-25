@@ -17,11 +17,14 @@ import urlparse
 class UserPreferenceList(generics.ListCreateAPIView):
     model = UserPreference
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
+    _ignore_model_permissions = True
     serializer_class = UserPreferenceListSerializer
     queryset = UserPreference.objects.all()
 
     def get_queryset(self):
         user = self.request.user
+        if user.is_superuser:
+            return self.queryset
         return UserPreference.objects.filter(user=user)
 
     def post(self, request, *args, **kwargs):
@@ -45,5 +48,6 @@ class UserPreferenceList(generics.ListCreateAPIView):
 class UserPreferenceDetail(generics.RetrieveUpdateDestroyAPIView):
     model = UserPreference
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
+    _ignore_model_permissions = True
     serializer_class = UserPreferenceSerializer
     queryset = UserPreference.objects.all()

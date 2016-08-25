@@ -346,3 +346,13 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
         assign_perm('add_{0}'.format(model_name), worker_group, instance)
         assign_perm('change_{0}'.format(model_name), worker_group, instance)
         assign_perm('delete_{0}'.format(model_name), worker_group, instance)
+
+
+@receiver(post_save, sender=UserPreference)
+def assign_perms_user_userpreference(sender, instance, created, raw, using, update_fields, **kwargs):
+    if created:
+        model_name = get_model_name(sender)
+        assign_perm('view_{0}'.format(model_name), instance.user, instance)
+        assign_perm('change_{0}'.format(model_name), instance.user, instance)
+        assign_perm('delete_{0}'.format(model_name), instance.user, instance)
+
