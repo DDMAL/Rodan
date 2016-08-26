@@ -25,7 +25,7 @@ from guardian.shortcuts import assign_perm
 from rest_framework.compat import get_model_name
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User, Group
 from django.db.models.signals import pre_migrate, post_migrate, pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
@@ -47,6 +47,14 @@ def add_view_user_permission(sender, **kwargs):
     if not settings.TEST and sender.name == 'guardian':
         content_type = ContentType.objects.get(app_label='auth', model='user')
         Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
+
+        group = Group.objects.get_or_create(name="view_user_permission")
+        # if the group is just created, add all users to it and give them view permission
+        if group[1]:
+            group = group[0]
+            for user in User.objects.all():
+                user.groups.add(group)
+                assign_perm('view_user', group, user)
 
 
 @receiver(post_migrate)
@@ -349,10 +357,22 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
 
 
 @receiver(post_save, sender=UserPreference)
+@receiver(post_save, sender=User)
 def assign_perms_user_userpreference(sender, instance, created, raw, using, update_fields, **kwargs):
     if created:
         model_name = get_model_name(sender)
-        assign_perm('view_{0}'.format(model_name), instance.user, instance)
-        assign_perm('change_{0}'.format(model_name), instance.user, instance)
-        assign_perm('delete_{0}'.format(model_name), instance.user, instance)
+        if sender == UserPreference:
+            assign_perm('view_{0}'.format(model_name), instance.user, instance)
+            assign_perm('change_{0}'.format(model_name), instance.user, instance)
+            assign_perm('delete_{0}'.format(model_name), instance.user, instance)
+
+        elif not settings.TEST:
+            # add permission for viewing/changing/deleting the same user
+            assign_perm('view_{0}'.format(model_name), instance, instance)
+            assign_perm('change_{0}'.format(model_name), instance, instance)
+            assign_perm('delete_{0}'.format(model_name), instance, instance)
+            # add permission for viewing other users by adding it to view_user_permission group
+            group = Group.objects.get_or_create(name="view_user_permission")[0]
+            instance.groups.add(group)
+            assign_perm('view_user', group, instance)
 

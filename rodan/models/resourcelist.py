@@ -1,10 +1,5 @@
-import mimetypes
 import uuid
-from django.conf import settings
 from django.db import models
-from django.db.models.signals import m2m_changed
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
 from sortedm2m.fields import SortedManyToManyField
 from django.contrib.auth.models import User
 from django.apps import apps

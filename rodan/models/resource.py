@@ -1,12 +1,9 @@
 import os
-import mimetypes
 import uuid
 import shutil
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import m2m_changed
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from rodan.constants import task_status
 

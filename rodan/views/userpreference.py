@@ -22,6 +22,7 @@ class UserPreferenceList(generics.ListCreateAPIView):
     queryset = UserPreference.objects.all()
 
     def get_queryset(self):
+        # a user only can view its own userpreference unless it is a superuser
         user = self.request.user
         if user.is_superuser:
             return self.queryset

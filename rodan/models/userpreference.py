@@ -4,6 +4,15 @@ from django.contrib.auth.models import User
 
 
 class UserPreference(models.Model):
+    """
+    A `UserPreference` is associated with a 'User'.
+
+    **Fields**
+
+    - `uuid`
+    - `user` -- assigned 'User' of this `UserPreference`.
+    - `send_email` -- a field storing whether the User wants to receive emails.
+    """
     class Meta:
         app_label = 'rodan'
         permissions = (
