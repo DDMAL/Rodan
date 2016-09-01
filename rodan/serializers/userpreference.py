@@ -19,4 +19,5 @@ class UserPreferenceListSerializer(serializers.HyperlinkedModelSerializer):
         model = UserPreference
         fields = ('url',
                   'user',
+                  'uuid',
                   'send_email')
