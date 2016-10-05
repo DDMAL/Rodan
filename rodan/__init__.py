@@ -14,9 +14,9 @@ __title__ = "Rodan"
 
 # Module version following PEP 396
 # Get version: import rodan; rodan.__version__
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
-__copyright__ = "Copyright 2011-2015 Distributed Digital Music Archives & Libraries Lab"
+__copyright__ = "Copyright 2011-2016 Distributed Digital Music Archives & Libraries Lab"
 
 
 # This will make sure the app is always imported when
