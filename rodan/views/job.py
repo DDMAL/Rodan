@@ -16,7 +16,8 @@ class JobList(generics.ListAPIView):
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
-        "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
+#        "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
+        "category": ['exact'],
         "interactive": ['exact'],
         "enabled": ['exact'],
         "uuid": ['exact'],
