@@ -41,7 +41,8 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_status(self):
-        anticipated_message = {'status': ['Can only create a WorkflowRun that has SCHEDULED status.']}
+#        anticipated_message = {'status': ['Can only create a WorkflowRun that has SCHEDULED status.']}
+	anticipated_message = {'status': ['Can only create a WorkflowRun that requests processing.']}
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'status': task_status.CANCELLED,
@@ -80,7 +81,9 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_workflow.valid = False
         self.test_workflow.save()
         workflowrun_obj = {
-            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'status': task_status.REQUEST_PROCESSING
+#            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
@@ -340,16 +343,16 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        self.assertEqual(dummy_a_runjob.status, task_status.SCHEDULED)
-        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
+#        self.assertEqual(dummy_a_runjob.status, task_status.SCHEDULED)
+#        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
+#        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
 
-        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+#        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+#        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+#        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
-        dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+#        dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
+#        dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
         # At this point, the automatic RunJob should be finished, and the manual RunJob should wait for input
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
@@ -383,9 +386,9 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             wfrun_id = response.data['uuid']
 
-            workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-            response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+#            workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+#            response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+#            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -408,9 +411,9 @@ class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanT
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data['uuid']
 
-        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+#        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+#        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+#        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -593,7 +596,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Fo_names_set.add(output.resource_list.name)
         self.assertEqual(rc_names_set, Fo_names_set)
 
-        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
+#        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
+	self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING)
 
     def test_execution(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
@@ -605,9 +609,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data['uuid']
 
-        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+#        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+#        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+#        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
