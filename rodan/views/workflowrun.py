@@ -1,17 +1,29 @@
+import urlparse
+import os
+import shutil
+from operator import itemgetter
 from celery import registry, chain
+from celery.task.control import revoke
+from django.core.urlresolvers import resolve
+
+from django.db.models import Q
 
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import mixins
+from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import HyperlinkedIdentityField
 
-from rodan.models import WorkflowRun, Resource, InputPort, ResourceList
-from rodan.serializers.workflowrun import WorkflowRunSerializer
+from rodan.models import Workflow, RunJob, WorkflowJob, WorkflowRun, Connection, Resource, Input, Output, OutputPort, InputPort, ResourceType, ResourceList
+from rodan.serializers.user import UserSerializer
+from rodan.serializers.workflowrun import WorkflowRunSerializer, WorkflowRunByPageSerializer
 
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
+from rest_framework import filters
 
 class WorkflowRunList(generics.ListCreateAPIView):
     """
@@ -43,9 +55,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
     }
 
     def perform_create(self, serializer):
-        wfrun_status = serializer.validated_data.get('status', task_status.SCHEDULED)
-        if wfrun_status != task_status.SCHEDULED:
-            raise ValidationError({'status': ["Can only create a WorkflowRun that has SCHEDULED status."]})
+        wfrun_status = serializer.validated_data.get('status', task_status.REQUEST_PROCESSING)
+        if wfrun_status != task_status.REQUEST_PROCESSING:
+            raise ValidationError({'status': ["Can only create a WorkflowRun that requests processing."]})
 
         wfrun_lrrt = serializer.validated_data.get('last_redone_runjob_tree')
         if wfrun_lrrt:
@@ -189,17 +201,10 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         new_lrrt = serializer.validated_data.get('last_redone_runjob_tree', None)
 
         # validate new status
-        is_processing_wfrun = bool(
-            new_status
-            and (
-                old_status == task_status.SCHEDULED
-                and new_status == task_status.REQUEST_PROCESSING
-            )
-        )
         is_cancelling_wfrun = bool(
             new_status
             and (
-                old_status in (task_status.SCHEDULED, task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)
+                old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)
                 and new_status == task_status.REQUEST_CANCELLING
             )
         )
@@ -210,7 +215,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
                 and new_status == task_status.REQUEST_RETRYING
             )
         )
-        if new_status and not is_processing_wfrun and not is_cancelling_wfrun and not is_retrying_wfrun:
+        if new_status and not is_cancelling_wfrun and not is_retrying_wfrun:
             raise CustomAPIException({'status': ["Invalid status update"]}, status=status.HTTP_400_BAD_REQUEST)
 
         # validate new lrrt
@@ -226,9 +231,7 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         wfrun_id = str(wfrun.uuid)
 
         # proceed Celery tasks
-        if is_processing_wfrun:
-            registry.tasks['rodan.core.process_workflowrun'].apply_async((wfrun_id, ))
-        elif is_cancelling_wfrun:
+        if is_cancelling_wfrun:
             registry.tasks['rodan.core.cancel_workflowrun'].apply_async((wfrun_id, ))
         elif is_retrying_wfrun:
             registry.tasks['rodan.core.retry_workflowrun'].apply_async((wfrun_id, ))
