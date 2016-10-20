@@ -473,12 +473,15 @@ class RodanTask(Task):
 
                 # Send an email to owner of WorkflowRun
                 wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list('workflow_run__uuid', flat=True)[0]
+                workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
+                user = WorkflowRun.objects.get(uuid=wfrun_id).creator
                 if not rodan_settings.TEST:
-                    owner_email = WorkflowRun.objects.get(uuid=wfrun_id).creator.email
-                    if owner_email and rodan_settings.EMAIL_USE:
-                        subject = "WorkflowRun {0}".format(wfrun_id)
-                        body = "RunJob {0} in WorkflowRun {1} is waiting for input. \n \n \n-Rodan".format(runjob_id, wfrun_id)
-                        to = [owner_email]
+                    if user.email and rodan_settings.EMAIL_USE and user.user_preference.send_email:
+                        subject = "Workflow Run '{0}' is waiting for user input".format(workflowrun.name)
+                        body = "A workflow run you started is waiting for user input.\n\n"
+                        body = body + "Name: {0}\n".format(workflowrun.name)
+                        body = body + "Description: {0}".format(workflowrun.description)
+                        to = [user.email]
                         registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
 
                     return 'WAITING FOR INPUT'
@@ -561,12 +564,15 @@ class RodanTask(Task):
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
 
         # Send an email to owner of WorkflowRun
+        workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
+        user = WorkflowRun.objects.get(uuid=wfrun_id).creator
         if not rodan_settings.TEST:
-            owner_email = WorkflowRun.objects.get(uuid=wfrun_id).creator.email
-            if owner_email and rodan_settings.EMAIL_USE:
-                subject = "WorkflowRun {0}".format(wfrun_id)
-                body = "WorkflowRun {0} has failed due to the failure of RunJob {1}. \n \n \n-Rodan".format(wfrun_id, runjob_id)
-                to = [owner_email]
+            if user.email and rodan_settings.EMAIL_USE and user.user_preference.sned_email:
+                subject = "Workflow Run '{0}' failed".format(workflowrun.name)
+                body = "A workflow run you started has failed.\n\n"
+                body = body + "Name: {0}\n".format(workflowrun.name)
+                body = body + "Description: {0}".format(workflowrun.description)                
+                to = [user.email]
                 registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
 
     def _add_error_information_to_runjob(self, exc, einfo):
