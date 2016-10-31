@@ -14,7 +14,7 @@ __title__ = "Rodan"
 
 # Module version following PEP 396
 # Get version: import rodan; rodan.__version__
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 __copyright__ = "Copyright 2011-2016 Distributed Digital Music Archives & Libraries Lab"
 
