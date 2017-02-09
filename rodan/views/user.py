@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rodan.permissions import CustomObjectPermissions
 from rodan.serializers.user import UserSerializer, UserListSerializer
 
+import django_filters
 
 class UserList(generics.ListCreateAPIView):
     """
@@ -26,6 +27,19 @@ class UserList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     serializer_class = UserListSerializer
+
+    class filter_class(django_filters.FilterSet):
+        username__in = django_filters.MethodFilter()
+
+        def filter_username__in(self, q, v):
+            vs = v.split(',')
+            return q.filter(username__in=vs)
+
+        class Meta:
+            model = User 
+            fields = {
+                "username": ['in']
+            }
 
     def get_queryset(self):
         queryset = User.objects.exclude(pk=-1)
