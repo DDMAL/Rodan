@@ -1,1 +1,1 @@
-Please visit http://ddmal.github.io/rodan/
+Please visit http://ddmal.github.io/Rodan/
