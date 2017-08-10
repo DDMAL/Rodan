@@ -39,4 +39,5 @@ readline==6.2.4.1
 redis==2.10.3
 tornado==4.0.2
 uWSGI==2.0.15
+Werkzeug==0.12.2
 wsgiref==0.1.2
