@@ -120,8 +120,8 @@ class RodanTaskType(TaskType):
                         if not UPDATE_JOBS:
                             raise ImproperlyConfigured("The field `{0}` of Job `{1}` seems to be updated: {2} --> {3}. Try to run `manage.py migrate` to confirm this update.".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
                         else:
-                            confirm_update = raw_input("The field `{0}` of Job `{1}` seems to be updated: \n{2}\n  -->\n{3}\n\nConfirm (y/N)? ".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
-                            if confirm_update.lower() == 'y':
+                            confirm_update = confirm("The field `{0}` of Job `{1}` seems to be updated: \n{2}\n  -->\n{3}\n\nConfirm (y/N)? ".format(field_name, j.name, convert_to_unicode(original_value), convert_to_unicode(new_value)))
+                            if confirm_update:
                                 setattr(j, field_name, new_value)
                                 j.save()
                                 print "  ..updated.\n\n"
@@ -160,8 +160,8 @@ class RodanTaskType(TaskType):
                                 if not UPDATE_JOBS:
                                     raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py migrate` to confirm this update.".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
                                 else:
-                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
-                                    if confirm_update.lower() == 'y':
+                                    confirm_update = confirm("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('minimum', pt_name, j.name, pt.minimum, attrs_pt['minimum'], msg))
+                                    if confirm_update:
                                         pt.minimum = attrs_pt['minimum']
                                         pt.save()
                                         print "  ..updated.\n\n"
@@ -172,8 +172,8 @@ class RodanTaskType(TaskType):
                                 if not UPDATE_JOBS:
                                     raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py migrate` to confirm this update.".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
                                 else:
-                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
-                                    if confirm_update.lower() == 'y':
+                                    confirm_update = confirm("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('maximum', pt_name, j.name, pt.maximum, attrs_pt['maximum'], msg))
+                                    if confirm_update:
                                         pt.maximum = attrs_pt['maximum']
                                         pt.save()
                                         print "  ..updated.\n\n"
@@ -185,8 +185,8 @@ class RodanTaskType(TaskType):
                                 if not UPDATE_JOBS:
                                     raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py migrate` to confirm this update.".format('is_list', pt_name, j.name, pt.is_list, attrs_is_list, msg))
                                 else:
-                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('is_list', pt_name, j.name, pt.is_list, attrs_is_list, msg))
-                                    if confirm_update.lower() == 'y':
+                                    confirm_update = confirm("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('is_list', pt_name, j.name, pt.is_list, attrs_is_list, msg))
+                                    if confirm_update:
                                         pt.is_list = attrs_is_list
                                         pt.save()
                                         print "  ..updated.\n\n"
@@ -201,8 +201,8 @@ class RodanTaskType(TaskType):
                                 if not UPDATE_JOBS:
                                     raise ImproperlyConfigured("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: {3} --> {4}. Try to run `manage.py migrate` to confirm this update.".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
                                 else:
-                                    confirm_update = raw_input("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
-                                    if confirm_update.lower() == 'y':
+                                    confirm_update = confirm("The field `{0}` of {5} Port Type `{1}` of Job `{2}` seems to be updated: \n{3}\n  -->\n{4}\n\nConfirm (y/N)? ".format('resource_types', pt_name, j.name, rt_db, rt_code, msg))
+                                    if confirm_update:
                                         pt.resource_types.clear()
                                         pt.resource_types.add(*resource_types)
                                         print "  ..updated.\n\n"
@@ -215,8 +215,8 @@ class RodanTaskType(TaskType):
                             if not UPDATE_JOBS:
                                 raise ImproperlyConfigured("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Try to run `manage.py migrate` to confirm this deletion.".format(pt_name, j.name, msg))
                             else:
-                                confirm_delete = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Confirm (y/N)? ".format(pt_name, j.name, msg))
-                                if confirm_delete.lower() == 'y':
+                                confirm_delete = confirm("The {2} Port Type `{0}` of Job `{1}` seems to be deleted. Confirm (y/N)? ".format(pt_name, j.name, msg))
+                                if confirm_delete:
                                     try:
                                         pt.delete()
                                         print "  ..deleted.\n\n"
@@ -230,8 +230,8 @@ class RodanTaskType(TaskType):
                             if not UPDATE_JOBS:
                                 raise ImproperlyConfigured("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Try to run `manage.py migrate` to confirm this update.".format(pt['name'], j.name, msg))
                             else:
-                                confirm_update = raw_input("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Confirm (y/N)? ".format(pt['name'], j.name, msg))
-                                if confirm_update.lower() == 'y':
+                                confirm_update = confirm("The {2} Port Type `{0}` of Job `{1}` seems to be newly added. Confirm (y/N)? ".format(pt['name'], j.name, msg))
+                                if confirm_update:
                                     if which == 'in':
                                         Model = InputPortType
                                     elif which == 'out':
@@ -674,6 +674,13 @@ def TemporaryDirectory():
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     shutil.rmtree(temp_dir)
+
+
+def confirm(prompt, default=True):
+    if os.environ.get("RODAN_NON_INTERACTIVE") == "true":
+        return default
+    else:
+        return raw_input(prompt).lower() == 'y'    
 
 
 _django_template_cache = {}
