@@ -136,6 +136,11 @@ class InteractiveWorkingView(APIView):
             runjob.save()
             if retval.response:
                 return HttpResponse(retval.response, status=status.HTTP_200_OK)
+            
+        elif 'manual' in retval:
+            runjob.interactive_timings.append({'post': time.time()})
+            return Response(retval, status = status.HTTP_200_OK)
+            
         else:
             settings_update = retval
             runjob.status = task_status.SCHEDULED
