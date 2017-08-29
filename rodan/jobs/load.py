@@ -166,7 +166,6 @@ if registered_rts:  # if there are still registered ones
                     if confirm_delete:
                         try:
                             Resource.objects.filter(resource_type__mimetype=mimetype).delete()
-                            ResourceList.objects.filter(resource_type__mimetype=mimetype).delete()
                             ResourceType.objects.get(mimetype=mimetype).delete()
                             print "  ..deleted. OK\n\n"
                         except Exception as e:
