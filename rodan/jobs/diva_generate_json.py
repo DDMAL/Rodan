@@ -185,7 +185,7 @@ class GenerateJson(object):
     def __get_max_zoom_level(self, width, height):
         largest_dim = max(width, height)
         zoom_levels = math.ceil(math.log((largest_dim + 1) / float(256 + 1), 2))
-        return int(zoom_levels)
+        return max(int(zoom_levels), 0)
 
     def __incorporate_zoom(self, img_dim, zoom_diff):
         return img_dim / float(2 ** zoom_diff)
