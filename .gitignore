@@ -13,6 +13,11 @@ gunicorn_start.sh
 celery_start.sh
 rodan/settings.py
 rodan/static/Rodan
+rodan/jobs/diva_wrapper/
+rodan/jobs/gamera_rodan/
+rodan/jobs/interactive_classifier
+rodan/jobs/jSymbolic-Rodan/
+rodan/jobs/pil-rodan/
 
 /.DS_Store
 
