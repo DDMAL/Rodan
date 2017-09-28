@@ -58,6 +58,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "updated": ['lt', 'gt'],
                 "uuid": ['exact'],
                 "creator": ['exact'],
+                "creator__username": ['icontains'],
                 #"has_thumb": ['exact'],
                 "processing_status": ['exact'],
                 "created": ['lt', 'gt'],

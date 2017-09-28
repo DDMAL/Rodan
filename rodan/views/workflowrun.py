@@ -51,6 +51,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         "created": ['lt', 'gt'],
         "project": ['exact'],
         "creator": ['exact'],
+        "creator__username": ['icontains'],
         "name": ['exact', 'icontains']
     }
 

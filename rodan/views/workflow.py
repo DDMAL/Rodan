@@ -33,6 +33,7 @@ class WorkflowList(generics.ListCreateAPIView):
         "uuid": ['exact'],
         "created": ['lt', 'gt'],
         "creator": ['exact'],
+        "creator__username": ['icontains'],
         "project": ['exact'],
         "valid": ['exact'],
         "name": ['exact', 'icontains']
