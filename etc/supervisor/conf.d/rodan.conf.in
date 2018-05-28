@@ -32,15 +32,3 @@ stopwaitsecs=600
 @IF_SERVER@autorestart=true
 @IF_SERVER@redirect_stderr=true
 @IF_SERVER@redirect_stdout=true
-
-@IF_SERVER@[program:rodan-websocket]
-@IF_SERVER@command=@RODAN_APP_DIR@websocket_start.sh
-@IF_SERVER@environment=PYTHON_EGG_CACHE="/tmp",DJANGO_SETTINGS_MODULE="rodan.settings"
-@IF_SERVER@directory=@RODAN_APP_DIR@
-@IF_SERVER@chown=@WWW_USER@:@WWW_GROUP@
-@IF_SERVER@user=@WWW_USER@
-@IF_SERVER@autostart=true
-@IF_SERVER@autorestart=true
-@IF_SERVER@redirect_stderr=true
-@IF_SERVER@redirect_stdout=true
-@IF_SERVER@stopwaitsecs=10

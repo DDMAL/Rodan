@@ -28,7 +28,6 @@ config.log
 autom4te.cache
 
 etc/supervisor/conf.d/rodan.conf
-websocket_start.sh
 
 etc/nginx/sites-available/rodan
 

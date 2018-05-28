@@ -364,7 +364,7 @@ fi
 # output
 AC_CONFIG_FILES(celery_start.sh rodan/settings.py etc/supervisor/conf.d/rodan.conf)
 if test "x$MODE" = "xserver"; then
-  AC_CONFIG_FILES(gunicorn_start.sh websocket_start.sh  etc/nginx/sites-available/rodan)
+  AC_CONFIG_FILES(gunicorn_start.sh etc/nginx/sites-available/rodan)
 fi
 
 AC_OUTPUT()
@@ -376,7 +376,7 @@ touch database.log
 chmod g+w rodan.log database.log
 
 if test "x$MODE" = "xserver"; then
-  chmod a+x gunicorn_start.sh websocket_start.sh
+  chmod a+x gunicorn_start.sh
 fi
 
 AC_MSG_NOTICE([Please run: sudo chgrp -R $WWW_GROUP *; sudo chown -R $WWW_USER:$WWW_GROUP $RODAN_DATA_DIR])
