@@ -18,13 +18,6 @@ rodan/jobs/pil-rodan/
 
 /.DS_Store
 
-# autoconf
-configure
-config.status
-config.log
-autom4te.cache
-
-
 # ignore emacs autosave file
 *~
 database.log
