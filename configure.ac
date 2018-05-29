@@ -362,7 +362,7 @@ fi
 
 
 # output
-AC_CONFIG_FILES(celery_start.sh rodan/settings.py etc/supervisor/conf.d/rodan.conf)
+AC_CONFIG_FILES(celery_start.sh etc/supervisor/conf.d/rodan.conf)
 if test "x$MODE" = "xserver"; then
   AC_CONFIG_FILES(gunicorn_start.sh etc/nginx/sites-available/rodan)
 fi
