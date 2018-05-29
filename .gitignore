@@ -9,8 +9,6 @@ db.sqlite
 rodan.log
 rodan_env
 .DS_Store
-gunicorn_start.sh
-celery_start.sh
 rodan/static/Rodan
 rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
@@ -26,9 +24,6 @@ config.status
 config.log
 autom4te.cache
 
-etc/supervisor/conf.d/rodan.conf
-
-etc/nginx/sites-available/rodan
 
 # ignore emacs autosave file
 *~
