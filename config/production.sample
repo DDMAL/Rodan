@@ -1,0 +1,34 @@
+###############################################################################
+# Django Configuration
+###############################################################################
+
+DJANGO_DEBUG_MODE=False
+DJANGO_SECRET_KEY=AVeryLongSecretKeyThatWasGeneratedByOurSpecialScript_DoNotForgetToChangeThis
+DJANGO_MEDIA_ROOT=/rodan/data/
+DJANGO_ALLOWED_HOSTS=['.simssa.ca']
+DJANGO_CORS_ORIGIN_ALLOW_ALL=True
+
+###############################################################################
+# Database Configuration (Postgres)
+###############################################################################
+
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_NAME=rodan
+POSTGRES_USER=superSecretUser_ChangeMe
+POSTGRES_PASS=123456Seven_ChangeMe
+
+###############################################################################
+# Messenger Configuration (RabbitMQ)
+###############################################################################
+
+# The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost 
+RABBITMQ_URL=amqp://SecretUser_ChangeMe:SecretPassword_ChangeMe@rabbitmq:5672//
+
+###############################################################################
+# Websocket Configuration (Redis)
+###############################################################################
+
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_DB=0
