@@ -9,9 +9,6 @@ db.sqlite
 rodan.log
 rodan_env
 .DS_Store
-gunicorn_start.sh
-celery_start.sh
-rodan/settings.py
 rodan/static/Rodan
 rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
@@ -21,19 +18,11 @@ rodan/jobs/pil-rodan/
 
 /.DS_Store
 
-# autoconf
-configure
-config.status
-config.log
-autom4te.cache
-
-etc/supervisor/conf.d/rodan.conf
-websocket_start.sh
-
-etc/nginx/sites-available/rodan
-
 # ignore emacs autosave file
 *~
 database.log
 celery.log
 .idea
+
+# Ignore environment variables.
+config/production.env
