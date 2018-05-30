@@ -331,7 +331,7 @@ WS4REDIS_PREFIX = 'rodan'
 # 2.d  IIPServer Configuration (if using Diva.js)
 ###############################################################################
 # IIP Server URL
-IIPSRV_URL = '/fcgi-bin/iipsrv.fcgi'
+IIPSRV_URL = os.getenv('IIPSRV_URL')
 # IIP Server FILESYSTEM_PREFIX
 IIPSRV_FILESYSTEM_PREFIX = os.getenv('DJANGO_MEDIA_ROOT')
 
