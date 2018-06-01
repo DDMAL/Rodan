@@ -52,10 +52,11 @@ import rodan.jobs.load
 urlpatterns = []
 
 # Admin URL pattern.
+# [INFO] - Notice that the Admin URL is specified in the settings.py file, as an environment variable.
 urlpatterns += required(
     logged_in_or_basicauth('Rodan admin'),
     patterns('',
-             (r'^admin/', include(admin.site.urls))
+             (settings.ADMIN_URL, include(admin.site.urls))
     )
 )
 

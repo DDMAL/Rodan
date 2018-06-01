@@ -9,6 +9,7 @@ import sys
 # 1.a  General Django Configuration
 ###############################################################################
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
+ADMIN_URL = os.getenv('DJANGO_ADMIN_URL')
 TEST = 'test' in sys.argv
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
