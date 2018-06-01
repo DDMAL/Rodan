@@ -10,6 +10,10 @@ DJANGO_CORS_ORIGIN_ALLOW_ALL=True
 DJANGO_ADMIN_URL=^random_secret_admin/
 IIPSRV_URL=/fcgi-bin/iipsrv.fcgi/
 
+SERVER_DOMAIN=not_localhost
+RODAN_SERVER_DOMAIN_NAME=not_localhost
+SSL_CERT_PATH=/etc/letsencrypt/live
+
 ###############################################################################
 # Celery Configuration
 ###############################################################################
