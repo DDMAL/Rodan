@@ -25,4 +25,4 @@ celery.log
 .idea
 
 # Ignore environment variables.
-config/production.env
+config/staging.env
