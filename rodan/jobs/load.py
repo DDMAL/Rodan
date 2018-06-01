@@ -28,7 +28,6 @@ never be executed when importing `rodan.jobs` or other submodules under `rodan.j
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList
-from rodan.jobs.base import confirm
 import logging, os
 import yaml
 logger = logging.getLogger('rodan')
@@ -156,14 +155,14 @@ if registered_rts:  # if there are still registered ones
         raise ImproperlyConfigured("The following ResourceTypes are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(registered_rts.keys())))
     else:
         for mimetype, info in registered_rts.iteritems():
-            confirm_delete = confirm("ResourceType `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(mimetype))
-            if confirm_delete:
+            confirm_delete = raw_input("ResourceType `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(mimetype))
+            if confirm_delete.lower() == 'y':
                 try:
                     ResourceType.objects.get(mimetype=mimetype).delete()
                     print "  ..deleted.\n\n"
                 except Exception as e:
-                    confirm_delete = confirm("  ..not deleted because of an exception: {0}. Perhaps there are Resources or ResourceLists using this ResourceType. Confirm deletion of related Resources (y/N)? ".format(str(e)))
-                    if confirm_delete:
+                    confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are Resources or ResourceLists using this ResourceType. Confirm deletion of related Resources (y/N)? ".format(str(e)))
+                    if confirm_delete.lower() == 'y':
                         try:
                             Resource.objects.filter(resource_type__mimetype=mimetype).delete()
                             ResourceType.objects.get(mimetype=mimetype).delete()
@@ -199,14 +198,14 @@ if job_list:  # there are database jobs that are not registered. Should delete t
         raise ImproperlyConfigured("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
     else:
         for j_name in job_list:
-            confirm_delete = confirm("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
-            if confirm_delete:
+            confirm_delete = raw_input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
+            if confirm_delete.lower() == 'y':
                 try:
                     Job.objects.get(name=j_name).delete()
                     print "  ..deleted.\n\n"
                 except Exception as e:
-                    confirm_delete = confirm("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
-                    if confirm_delete:
+                    confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
+                    if confirm_delete.lower() == 'y':
                         try:
                             WorkflowJob.objects.filter(job__name=j_name).delete()
                             Job.objects.get(name=j_name).delete()

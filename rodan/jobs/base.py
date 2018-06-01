@@ -680,7 +680,6 @@ def TemporaryDirectory():
 
 def confirm(prompt, default=True):
     if os.environ.get("RODAN_NON_INTERACTIVE") == "true":
-        print "Using default of '%s' for prompt '%s'" % (default, prompt)
         return default
     else:
         return raw_input(prompt).lower() == 'y'    
