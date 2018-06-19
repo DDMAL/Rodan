@@ -177,7 +177,7 @@ LOGGING = {
         },
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'rodan': {
@@ -322,7 +322,7 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 WS4REDIS_CONNECTION = {
     'host': os.getenv('REDIS_HOST'),
     'port': os.getenv('REDIS_PORT'),
-    'db': os.getenv('REDIS_HOST'),
+    'db': os.getenv('REDIS_DB'),
 }
 WS4REDIS_EXPIRE = 3600
 WS4REDIS_HEARTBEAT = '--heartbeat--'

@@ -2,6 +2,8 @@
 # Django Configuration
 ###############################################################################
 
+ADMIN_USER:SomeAdmin
+ADMIN_PASS:123456Seven
 DJANGO_DEBUG_MODE=False
 DJANGO_SECRET_KEY=AVeryLongSecretKeyThatWasGeneratedByOurSpecialScript_DoNotForgetToChangeThis
 DJANGO_MEDIA_ROOT=/rodan/data/
@@ -9,6 +11,10 @@ DJANGO_ALLOWED_HOSTS=['.simssa.ca']
 DJANGO_CORS_ORIGIN_ALLOW_ALL=True
 DJANGO_ADMIN_URL=^random_secret_admin/
 IIPSRV_URL=/fcgi-bin/iipsrv.fcgi/
+
+SERVER_DOMAIN=not_localhost
+RODAN_SERVER_DOMAIN_NAME=not_localhost
+SSL_CERT_PATH=/etc/letsencrypt/live
 
 ###############################################################################
 # Celery Configuration
