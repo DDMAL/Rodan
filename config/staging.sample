@@ -43,7 +43,7 @@ POSTGRES_PASS=123456Seven_ChangeMe
 # Messenger Configuration (RabbitMQ)
 ###############################################################################
 
-# The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost 
+# The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost
 RABBITMQ_URL=amqp://SecretUser_ChangeMe:SecretPassword_ChangeMe@rabbitmq:5672//
 
 ###############################################################################
