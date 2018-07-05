@@ -10,7 +10,7 @@ DJANGO_MEDIA_ROOT=/rodan/data/
 DJANGO_ALLOWED_HOSTS=['.simssa.ca']
 DJANGO_CORS_ORIGIN_ALLOW_ALL=True
 DJANGO_ADMIN_URL=^random_secret_admin/
-IIPSRV_URL=/fcgi-bin/iipsrv.fcgi/
+IIPSRV_URL=http://localhost/fcgi-bin/iipsrv.fcgi/
 
 SERVER_DOMAIN=not_localhost
 RODAN_SERVER_DOMAIN_NAME=not_localhost
@@ -43,7 +43,7 @@ POSTGRES_PASS=123456Seven_ChangeMe
 # Messenger Configuration (RabbitMQ)
 ###############################################################################
 
-# The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost 
+# The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost
 RABBITMQ_URL=amqp://SecretUser_ChangeMe:SecretPassword_ChangeMe@rabbitmq:5672//
 
 ###############################################################################
