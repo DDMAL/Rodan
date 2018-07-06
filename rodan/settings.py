@@ -12,6 +12,11 @@ PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 ADMIN_URL = os.getenv('DJANGO_ADMIN_URL')
 TEST = 'test' in sys.argv
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# Returns the path of this specific python module(<all of this AND>/Rodan/rodan)
+# It does not add `settings.py` at the end.
+# The following variable will move the /admin page in deployment to a random
+# link only known to the lab managers/developers. It, along with other env
+# variables, must be set prior to installation on the deployment server.
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = os.getenv('DJANGO_DEBUG_MODE')
 TEMPLATE_DEBUG = DEBUG
@@ -96,7 +101,9 @@ ENABLE_DIVA = True
 THUMBNAIL_EXT = "jpg"
 # Supported Workflow serialization versions -- see rodan.views.workflow.version_map
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
-RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60  # 30 days. NULL: never expire
+# 30 days. NULL: never expire
+RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60
+# Default: 15 seconds before the authentication token expires.
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 15
 DIVA_JPEG2000_CONVERTER = "JPEG2000"
 DIVA_JPEG2000_CONVERTER_INPUT = "Image"
@@ -326,15 +333,16 @@ IIPSRV_FILESYSTEM_PREFIX = os.getenv("DJANGO_MEDIA_ROOT")
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = ''
+# https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
+# https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 # Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+# Put strings here, like "/home/html/static" or "C:/www/django/static".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
@@ -343,6 +351,7 @@ STATICFILES_FINDERS = (
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 
 ###############################################################################
 # 3.a  Rodan Worker Configuration
