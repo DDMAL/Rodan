@@ -9,19 +9,18 @@ import sys
 # 1.a  General Django Configuration
 ###############################################################################
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-ADMIN_URL = os.getenv('DJANGO_ADMIN_URL')
-TEST = 'test' in sys.argv
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # Returns the path of this specific python module(<all of this AND>/Rodan/rodan)
 # It does not add `settings.py` at the end.
 # The following variable will move the /admin page in deployment to a random
 # link only known to the lab managers/developers. It, along with other env
 # variables, must be set prior to installation on the deployment server.
+ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = os.getenv('DJANGO_DEBUG_MODE')
+DEBUG = os.getenv("DJANGO_DEBUG_MODE")
 TEMPLATE_DEBUG = DEBUG
-
-# [TODO] - Clean up the code! This should be part of the unittests.
+# [TODO] - Clean up this code! This should be part of the unittests.
+TEST = "test" in sys.argv
+TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
 
@@ -200,11 +199,11 @@ LOGGING = {
 
 # [TODO] - Setup proper email configuration.
 
-# EMAIL_USE = False
+# EMAIL_USE = True
 # EMAIL_USE_TLS = True
 # EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = @EMAIL_USERNAME@
-# EMAIL_HOST_PASSWORD = @EMAIL_PASSWORD@
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASS')
 # EMAIL_PORT = 587
 
 
