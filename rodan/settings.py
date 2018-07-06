@@ -15,12 +15,12 @@ import environ
 # It does not add `settings.py` at the end.
 # PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
-# Now using Django-Environ instead. We could reorganize the structure of the
-# this django project to be easier to maintain in the future.
+# Now using Django-Environ instead. We could reorganize the structure of this
+# django project to be easier to maintain in the future.
 # (Rodan/rodan/settings.py -2 = Rodan/).
 # From here, we can specify any path relative to the `ROOT_DIR` of the
 # repository by passing folder names to `path`.
-# [TODO] - Run tests agains this to be absolutely sure it doesn't break.
+# [TODO] - Run tests against this to be absolutely sure it doesn't break.
 ROOT_DIR = environ.Path(__file__) - 2
 PROJECT_PATH = ROOT_DIR.path("rodan")
 # The following variable will move the /admin page in deployment to a random
