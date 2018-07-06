@@ -9,21 +9,21 @@ class ProjectTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
         self.setUp_rodan()
 
     def test_delete_project_with_workflowrun(self):
-        prj = mommy.make('rodan.Project')
-        wfrun = mommy.make('rodan.WorkflowRun', project=prj)
-        rj = mommy.make('rodan.RunJob', workflow_run=wfrun)
-        resi = mommy.make('rodan.Resource', project=prj)
-        reso = mommy.make('rodan.Resource', project=prj)
-        i = mommy.make('rodan.Input', run_job=rj, resource=resi)
-        o = mommy.make('rodan.Output', run_job=rj, resource=reso)
+        prj = mommy.make("rodan.Project")
+        wfrun = mommy.make("rodan.WorkflowRun", project=prj)
+        rj = mommy.make("rodan.RunJob", workflow_run=wfrun)
+        resi = mommy.make("rodan.Resource", project=prj)
+        reso = mommy.make("rodan.Resource", project=prj)
+        i = mommy.make("rodan.Input", run_job=rj, resource=resi)
+        o = mommy.make("rodan.Output", run_job=rj, resource=reso)
         reso.origin = o
         reso.save()
 
-        wfrun2 = mommy.make('rodan.WorkflowRun', project=prj)
-        rj2 = mommy.make('rodan.RunJob', workflow_run=wfrun2)
-        reso2 = mommy.make('rodan.Resource', project=prj)
-        i2 = mommy.make('rodan.Input', run_job=rj, resource=reso)
-        o2 = mommy.make('rodan.Output', run_job=rj, resource=reso2)
+        wfrun2 = mommy.make("rodan.WorkflowRun", project=prj)
+        rj2 = mommy.make("rodan.RunJob", workflow_run=wfrun2)
+        reso2 = mommy.make("rodan.Resource", project=prj)
+        i2 = mommy.make("rodan.Input", run_job=rj, resource=reso)
+        o2 = mommy.make("rodan.Output", run_job=rj, resource=reso2)
         reso2.origin = o
         reso2.save()
 

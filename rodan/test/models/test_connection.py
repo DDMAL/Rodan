@@ -11,14 +11,16 @@ from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 class ConnectionTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_inputport = mommy.make('rodan.InputPort')
+        self.test_inputport = mommy.make("rodan.InputPort")
         self.workflow = self.test_inputport.workflow_job.workflow
-        self.test_outputport = mommy.make('rodan.OutputPort',
-                                          workflow_job__workflow=self.workflow)
+        self.test_outputport = mommy.make(
+            "rodan.OutputPort", workflow_job__workflow=self.workflow
+        )
 
     def test_save(self):
-        connection = Connection(input_port=self.test_inputport,
-                                output_port=self.test_outputport)
+        connection = Connection(
+            input_port=self.test_inputport, output_port=self.test_outputport
+        )
         connection.save()
 
         retr_conn = Connection.objects.get(uuid=connection.uuid)

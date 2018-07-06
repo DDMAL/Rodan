@@ -10,20 +10,25 @@ from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 class RunJobTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_workflowjob = mommy.make('rodan.WorkflowJob')
-        self.test_workflowrun = mommy.make('rodan.WorkflowRun',
-                                           workflow=self.test_workflowjob.workflow)
-        self.test_runjob = mommy.make('rodan.RunJob',
-                                      workflow_job=self.test_workflowjob,
-                                      workflow_run=self.test_workflowrun)
+        self.test_workflowjob = mommy.make("rodan.WorkflowJob")
+        self.test_workflowrun = mommy.make(
+            "rodan.WorkflowRun", workflow=self.test_workflowjob.workflow
+        )
+        self.test_runjob = mommy.make(
+            "rodan.RunJob",
+            workflow_job=self.test_workflowjob,
+            workflow_run=self.test_workflowrun,
+        )
 
     def test_save(self):
-        test_runjob = RunJob(workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob)
+        test_runjob = RunJob(
+            workflow_run=self.test_workflowrun, workflow_job=self.test_workflowjob
+        )
         test_runjob.save()
 
         # test that the paths were created properly
-        #rj_path = test_runjob.runjob_path
-        #self.assertTrue(os.path.exists(rj_path))
+        # rj_path = test_runjob.runjob_path
+        # self.assertTrue(os.path.exists(rj_path))
 
         retr_runjob = RunJob.objects.get(uuid=test_runjob.pk)
         self.assertEqual(retr_runjob, test_runjob)
@@ -31,6 +36,6 @@ class RunJobTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
 
     def test_delete(self):
         test_runjob = self.test_runjob
-        #rj_path = test_runjob.runjob_path
+        # rj_path = test_runjob.runjob_path
         test_runjob.delete()
-        #self.assertFalse(os.path.exists(rj_path))
+        # self.assertFalse(os.path.exists(rj_path))

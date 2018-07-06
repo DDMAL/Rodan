@@ -1,5 +1,7 @@
 import logging, importlib
-logger = logging.getLogger('rodan')
+
+logger = logging.getLogger("rodan")
+
 
 def module_loader(name, callback=lambda m: None):
     try:
@@ -8,5 +10,6 @@ def module_loader(name, callback=lambda m: None):
         callback(m)
     except ImportError as e:
         raise ImportError("Trouble loading module {0}.\nMessage: {1}".format(name, e))
+
 
 package_versions = {}

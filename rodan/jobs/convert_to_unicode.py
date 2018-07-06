@@ -2,6 +2,7 @@
 
 import collections
 
+
 def convert_to_unicode(data):
     if isinstance(data, basestring):
         return unicode(data)

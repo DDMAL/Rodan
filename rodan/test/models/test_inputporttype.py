@@ -8,4 +8,4 @@ from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 class InputPortTypeTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_job = mommy.make('rodan.Job')
+        self.test_job = mommy.make("rodan.Job")

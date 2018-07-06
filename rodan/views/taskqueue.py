@@ -8,7 +8,8 @@ class TaskQueueActiveView(APIView):
     """
     Returns the list of active Celery tasks.
     """
-    permission_classes = (permissions.IsAdminUser, )
+
+    permission_classes = (permissions.IsAdminUser,)
 
     def get(self, request, format=None):
         inspect = app.control.inspect()
@@ -19,7 +20,8 @@ class TaskQueueConfigView(APIView):
     """
     Returns the config of Celery queue.
     """
-    permission_classes = (permissions.IsAdminUser, )
+
+    permission_classes = (permissions.IsAdminUser,)
 
     def get(self, request, format=None):
         inspect = app.control.inspect()
@@ -30,7 +32,8 @@ class TaskQueueScheduledView(APIView):
     """
     Returns the list of scheduled Celery tasks.
     """
-    permission_classes = (permissions.IsAdminUser, )
+
+    permission_classes = (permissions.IsAdminUser,)
 
     def get(self, request, format=None):
         inspect = app.control.inspect()
@@ -41,7 +44,8 @@ class TaskQueueStatusView(APIView):
     """
     Returns the status of Celery queue.
     """
-    permission_classes = (permissions.IsAdminUser, )
+
+    permission_classes = (permissions.IsAdminUser,)
 
     def get(self, request, format=None):
         inspect = app.control.inspect()

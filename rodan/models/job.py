@@ -2,6 +2,7 @@ from django.db import models
 from jsonfield import JSONField
 import uuid
 
+
 class Job(models.Model):
     """
     `Job`s are the "templates" that make up the executable tasks in a `Workflow`.
@@ -25,8 +26,11 @@ class Job(models.Model):
 
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
+
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    name = models.CharField(max_length=200, unique=True, db_index=True)   # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
+    name = models.CharField(
+        max_length=200, unique=True, db_index=True
+    )  # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
     author = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     category = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
@@ -40,4 +44,4 @@ class Job(models.Model):
         return u"<Job {0}>".format(self.name)
 
     class Meta:
-        app_label = 'rodan'
+        app_label = "rodan"

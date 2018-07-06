@@ -19,6 +19,7 @@ TEMPLATE_DEBUG = DEBUG
 # [TODO] - Clean up the code! This should be part of the unittests.
 if TEST and not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
+
     raise ImproperlyConfigured("Testing requires DEBUG=True")
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -27,10 +28,10 @@ if TEST and not DEBUG:
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Montreal'
+TIME_ZONE = "America/Montreal"
 # Language code for this installation. All choices can be found here:
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # If you set this to False, Django will make some optimizations so as not
@@ -45,45 +46,46 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # Installed apps
-INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
-    'ws4redis',
-    'rodan',
-    'django_extensions',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'djoser',
-    'guardian',
-    'corsheaders',
-    'sortedm2m',
-)
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.messages",
+    "django.contrib.sites",
+    "django.contrib.staticfiles",
+    "ws4redis",
+    "rodan",
+    "django_extensions",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "djoser",
+    "guardian",
+    "corsheaders",
+    "sortedm2m",
+]
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('POSTGRES_NAME'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASS'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.getenv("POSTGRES_NAME"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASS"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
     }
 }
 # Rodan DATA folder
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT')
+MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = '/uploads/'
+MEDIA_URL = "/uploads/"
 
 ###############################################################################
 # 1.b  General Rodan Configuration
@@ -91,20 +93,20 @@ MEDIA_URL = '/uploads/'
 # Diva.js support
 ENABLE_DIVA = True
 # Resource thumbnail
-THUMBNAIL_EXT = 'jpg'
+THUMBNAIL_EXT = "jpg"
 # Supported Workflow serialization versions -- see rodan.views.workflow.version_map
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60  # 30 days. NULL: never expire
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 15
-DIVA_JPEG2000_CONVERTER = 'JPEG2000'
-DIVA_JPEG2000_CONVERTER_INPUT = 'Image'
-DIVA_JPEG2000_CONVERTER_OUTPUT = 'JPEG2000 Image'
+DIVA_JPEG2000_CONVERTER = "JPEG2000"
+DIVA_JPEG2000_CONVERTER_INPUT = "Image"
+DIVA_JPEG2000_CONVERTER_OUTPUT = "JPEG2000 Image"
 
 ###############################################################################
 # 1.c  Rodan Job Package Registration
 ###############################################################################
 # Job Packages
-RODAN_JOB_PACKAGES = (
+RODAN_JOB_PACKAGES = [
     "rodan.jobs.helloworld",
     "rodan.jobs.resource_distributor",
     "rodan.jobs.vis-rodan",
@@ -113,16 +115,16 @@ RODAN_JOB_PACKAGES = (
     "rodan.jobs.interactive_classifier",
     "rodan.jobs.jSymbolic-Rodan",
     "rodan.jobs.Calvo-classifier",
-)
+]
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
-BIN_GM = '/usr/bin/gm'
+BIN_GM = "/usr/bin/gm"
 # If None, Rodan will call `which kdu_compress` to find it.
-BIN_KDU_COMPRESS = '/vendor/kakadu_v7_6/bin/Linux-x86-64-gcc/kdu_compress'
+BIN_KDU_COMPRESS = "/vendor/kakadu_v7_6/bin/Linux-x86-64-gcc/kdu_compress"
 # If None, Rodan will call `which vips` to find it.
-BIN_VIPS = '/usr/bin/vips'
+BIN_VIPS = "/usr/bin/vips"
 # If None, Rodan will call `which xmllint` to find it.
-BIN_XMLLINT = '/usr/bin/xmllint'
+BIN_XMLLINT = "/usr/bin/xmllint"
 
 
 ###############################################################################
@@ -134,63 +136,49 @@ BIN_XMLLINT = '/usr/bin/xmllint'
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt': "%d/%b/%Y %H:%M:%S"
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            "datefmt": "%d/%b/%Y %H:%M:%S",
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        "simple": {"format": "%(levelname)s %(message)s"},
+    },
+    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "rodan.log",
+            "formatter": "verbose",
+        },
+        "dblog": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "database.log",
+            "formatter": "verbose",
         },
     },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+        "django": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
+        "rodan": {"handlers": ["file"], "level": "WARNING", "propagate": True},
+        "django.db.backends": {
+            "level": "DEBUG",
+            "handlers": ["dblog"],
+            "propagate": False,
+        },
     },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'rodan.log',
-            'formatter': 'verbose'
-        },
-        'dblog': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'database.log',
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'rodan': {
-            'handlers': ['file'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['dblog'],
-            'propagate': False,
-        }
-    }
 }
 
 
@@ -217,86 +205,84 @@ LOGGING = {
 # 2.a  Rodan Server Configuration
 ###############################################################################
 # Django entrance
-ROOT_URLCONF = 'rodan.urls'
+ROOT_URLCONF = "rodan.urls"
 # let Django know if the request is HTTPS
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_SCHEME', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_SCHEME", "https")
 # Allowed hosts
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS')
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS")
+SESSION_COOKIE_SECURE = os.getenv("SSL_COOKIE")
+SESSION_COOKIE_DOMAIN = os.getenv("SSL_COOKIE_DOMAIN")
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+TEMPLATE_LOADERS = [
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
     # 'django.template.loaders.eggs.Loader',
-)
-TEMPLATE_DIRS = (
+]
+TEMPLATE_DIRS = [
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-)
-TEMPLATE_CONTEXT_PROCESSORS = (
+]
+TEMPLATE_CONTEXT_PROCESSORS = [
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
-    'ws4redis.context_processors.default',
+    "ws4redis.context_processors.default",
     # "rodan.context_processors.list_projects",
     # "rodan.context_processors.login_url",
-)
+]
 # Middleware classes
-MIDDLEWARE_CLASSES = (
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.gzip.GZipMiddleware',
+MIDDLEWARE_CLASSES = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.gzip.GZipMiddleware",
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 if DEBUG:
     # we avoid unnecessary middlewares in production as they slows down the website.
     # for DEBUG mode, we would like to have Django admin which requires Session and Message.
     MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware'
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
     ]
-FILE_UPLOAD_HANDLERS = (
-    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
-)
+FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
 # REST framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
     ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_METADATA_CLASS": "rodan.views.RodanMetadata",
+    "PAGINATE_BY": 20,
+    "MAX_PAGINATE_BY": 100,
+    "USE_ABSOLUTE_URLS": True,
+    "DEFAULT_FILTER_BACKENDS": (
+        "rest_framework.filters.DjangoObjectPermissionsFilter",
+        "rest_framework.filters.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter",
     ),
-    'DEFAULT_METADATA_CLASS': 'rodan.views.RodanMetadata',
-    'PAGINATE_BY': 20,
-    'MAX_PAGINATE_BY': 100,
-    'USE_ABSOLUTE_URLS': True,
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoObjectPermissionsFilter',
-        'rest_framework.filters.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter'
-    ),
-    'DEFAULT_PAGINATION_CLASS': 'rodan.paginators.pagination.CustomPagination',
+    "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 if DEBUG:
     # Enable browsable API
-    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = (
-        'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework.renderers.JSONRenderer',
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+        "rest_framework.renderers.BrowsableAPIRenderer",
+        "rest_framework.renderers.JSONRenderer",
     )
     # Enable basic authentication to browse the API
-    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     )
 # used by django-guardian
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',  # default
-    'guardian.backends.ObjectPermissionBackend',
-)
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",  # default
+    "guardian.backends.ObjectPermissionBackend",
+]
 # [TODO] This is completely depricated.
 # https://django-guardian.readthedocs.io/en/stable/develop/changes.html?highlight=User%20ID#release-1-4-2-mar-09-2016
 # Fix it per the suggestions above.
@@ -305,36 +291,32 @@ ANONYMOUS_USER_ID = -1
 ###############################################################################
 # 2.b  CORS Configuration
 ###############################################################################
-CORS_ORIGIN_ALLOW_ALL = os.getenv('DJANGO_CORS_ORIGIN_ALLOW_ALL')
+CORS_ORIGIN_ALLOW_ALL = os.getenv("DJANGO_CORS_ORIGIN_ALLOW_ALL")
 # CORS_ORIGIN_WHITELIST = ('some domain or IP')
 CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = (
-    'Set-Cookie',
-    'Vary',
-    'Date'
-)
+CORS_EXPOSE_HEADERS = ["Set-Cookie", "Vary", "Date"]
 
 ###############################################################################
 # 2.c  Websocket configuration
 ###############################################################################
-WEBSOCKET_URL = '/ws/'
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WEBSOCKET_URL = "/ws/"
+WSGI_APPLICATION = "ws4redis.django_runserver.application"
 WS4REDIS_CONNECTION = {
-    'host': os.getenv('REDIS_HOST'),
-    'port': os.getenv('REDIS_PORT'),
-    'db': os.getenv('REDIS_DB'),
+    "host": os.getenv("REDIS_HOST"),
+    "port": os.getenv("REDIS_PORT"),
+    "db": os.getenv("REDIS_DB"),
 }
 WS4REDIS_EXPIRE = 3600
-WS4REDIS_HEARTBEAT = '--heartbeat--'
-WS4REDIS_PREFIX = 'rodan'
+WS4REDIS_HEARTBEAT = "--heartbeat--"
+WS4REDIS_PREFIX = "rodan"
 
 ###############################################################################
 # 2.d  IIPServer Configuration (if using Diva.js)
 ###############################################################################
 # IIP Server URL
-IIPSRV_URL = os.getenv('IIPSRV_URL')
+IIPSRV_URL = os.getenv("IIPSRV_URL")
 # IIP Server FILESYSTEM_PREFIX
-IIPSRV_FILESYSTEM_PREFIX = os.getenv('DJANGO_MEDIA_ROOT')
+IIPSRV_FILESYSTEM_PREFIX = os.getenv("DJANGO_MEDIA_ROOT")
 
 ###############################################################################
 # 2.e  Rodan Development Server Configuration
@@ -371,8 +353,8 @@ TRACEBACK_IN_ERROR_DETAIL = True
 ###############################################################################
 # 3.b  Celery Task Queue Configuration
 ###############################################################################
-BROKER_CONNECTION_MAX_RETRIES = '0'
-BROKER_URL = os.getenv('RABBITMQ_URL')
+BROKER_CONNECTION_MAX_RETRIES = "0"
+BROKER_URL = os.getenv("RABBITMQ_URL")
 CELERY_RESULT_BACKEND = "amqp"
 CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.jobs.load",)
@@ -384,4 +366,5 @@ if TEST:
 # Use temporary filesystem to store projects and resources during test
 if TEST:
     import tempfile as _tempfile
-    MEDIA_ROOT = _tempfile.mkdtemp() + '/'
+
+    MEDIA_ROOT = _tempfile.mkdtemp() + "/"

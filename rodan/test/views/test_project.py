@@ -27,14 +27,16 @@ class ProjectViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
             "description": "Created Project",
             "name": "Another Test Project",
         }
-        response = self.client.post("/projects/", proj_obj, format='json')
+        response = self.client.post("/projects/", proj_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_patch(self):
         proj_mod = {"name": "Changing the title"}
-        response = self.client.patch("/project/{0}/".format(self.test_project.uuid), proj_mod, format='json')
+        response = self.client.patch(
+            "/project/{0}/".format(self.test_project.uuid), proj_mod, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], "Changing the title")
+        self.assertEqual(response.data["name"], "Changing the title")
 
     def test_delete(self):
         project_uuid = self.test_project.uuid

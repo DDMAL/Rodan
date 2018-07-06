@@ -2,6 +2,7 @@ from django.db import models
 from rodan.models import OutputPortType
 import uuid
 
+
 class Output(models.Model):
     """
     An `Output` is the result of performing a job on the specific input `Resource`s.
@@ -24,18 +25,40 @@ class Output(models.Model):
 
     - `output_port_type` -- the corresponding `OutputPortType` object.
     """
+
     class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_output', 'View Output'),
-        )
+        app_label = "rodan"
+        permissions = (("view_output", "View Output"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    output_port = models.ForeignKey('rodan.OutputPort', related_name='outputs', blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
+    output_port = models.ForeignKey(
+        "rodan.OutputPort",
+        related_name="outputs",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        db_index=True,
+    )
     output_port_type_name = models.CharField(max_length=255, db_index=True)
-    run_job = models.ForeignKey('rodan.RunJob', related_name='outputs', on_delete=models.CASCADE, db_index=True)
-    resource = models.ForeignKey('rodan.Resource', related_name='outputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
-    resource_list = models.ForeignKey('rodan.ResourceList', related_name='outputs', on_delete=models.PROTECT, db_index=True, null=True, blank=True)
+    run_job = models.ForeignKey(
+        "rodan.RunJob", related_name="outputs", on_delete=models.CASCADE, db_index=True
+    )
+    resource = models.ForeignKey(
+        "rodan.Resource",
+        related_name="outputs",
+        on_delete=models.PROTECT,
+        db_index=True,
+        null=True,
+        blank=True,
+    )
+    resource_list = models.ForeignKey(
+        "rodan.ResourceList",
+        related_name="outputs",
+        on_delete=models.PROTECT,
+        db_index=True,
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return u"<Output {0}>".format(str(self.uuid))
@@ -43,6 +66,8 @@ class Output(models.Model):
     @property
     def output_port_type(self):
         try:
-            return OutputPortType.objects.get(job__name=self.run_job.job_name, name=self.output_port_type_name)
+            return OutputPortType.objects.get(
+                job__name=self.run_job.job_name, name=self.output_port_type_name
+            )
         except OutputPortType.DoesNotExist:
             return None

@@ -9,16 +9,15 @@ class ResourceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.test_user = mommy.make(User)
-        self.test_project = mommy.make('rodan.Project')
-        self.test_workflow = mommy.make('rodan.Workflow')
+        self.test_project = mommy.make("rodan.Project")
+        self.test_workflow = mommy.make("rodan.Workflow")
 
         self.test_resource_data = {
             "project": self.test_project,
             "creator": self.test_user,
             "name": "testresource.jpg",
-            "resource_type": ResourceType.objects.get(mimetype='test/a1')
+            "resource_type": ResourceType.objects.get(mimetype="test/a1"),
         }
-
 
     def test_save_runjob_result(self):
         resource = Resource(**self.test_resource_data)

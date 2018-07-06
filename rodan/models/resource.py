@@ -8,13 +8,16 @@ from django.core.urlresolvers import reverse
 from rodan.constants import task_status
 
 import logging
-logger = logging.getLogger('rodan')
+
+logger = logging.getLogger("rodan")
 
 
 def upload_path(resource_obj, filename):
     # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
-    return os.path.join(resource_obj.resource_path, "original_file{0}".format(ext.lower()))
+    return os.path.join(
+        resource_obj.resource_path, "original_file{0}".format(ext.lower())
+    )
 
 
 class Resource(models.Model):
@@ -73,20 +76,22 @@ class Resource(models.Model):
     """
 
     class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_resource', 'View Resource'),
-        )
+        app_label = "rodan"
+        permissions = (("view_resource", "View Resource"),)
 
-    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
-                      (task_status.PROCESSING, "Processing"),
-                      (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed"),
-                      (task_status.NOT_APPLICABLE, "Not applicable")]
+    STATUS_CHOICES = [
+        (task_status.SCHEDULED, "Scheduled"),
+        (task_status.PROCESSING, "Processing"),
+        (task_status.FINISHED, "Finished"),
+        (task_status.FAILED, "Failed"),
+        (task_status.NOT_APPLICABLE, "Not applicable"),
+    ]
 
     @property
     def resource_path(self):
-        return os.path.join(self.project.project_path, "resources", self.uuid.hex)  # backward compability (not using hyphenated UUID)
+        return os.path.join(
+            self.project.project_path, "resources", self.uuid.hex
+        )  # backward compability (not using hyphenated UUID)
 
     def __unicode__(self):
         return u"<Resource {0}>".format(self.uuid)
@@ -94,17 +99,43 @@ class Resource(models.Model):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey('rodan.Project', related_name="resources", on_delete=models.CASCADE, db_index=True)
+    project = models.ForeignKey(
+        "rodan.Project",
+        related_name="resources",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
     resource_file = models.FileField(upload_to=upload_path, max_length=255, blank=True)
-    #compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
-    resource_type = models.ForeignKey('rodan.ResourceType', related_name='resources', on_delete=models.PROTECT, db_index=True)
+    # compat_resource_file = models.FileField(upload_to=compat_path, max_length=255, blank=True)
+    resource_type = models.ForeignKey(
+        "rodan.ResourceType",
+        related_name="resources",
+        on_delete=models.PROTECT,
+        db_index=True,
+    )
 
-    processing_status = models.IntegerField(choices=STATUS_CHOICES, blank=True, null=True, db_index=True)
+    processing_status = models.IntegerField(
+        choices=STATUS_CHOICES, blank=True, null=True, db_index=True
+    )
     error_summary = models.TextField(default="")
     error_details = models.TextField(default="")
 
-    creator = models.ForeignKey(User, related_name="resources", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
-    origin = models.ForeignKey('rodan.Output', related_name="+", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)  # no backward reference
+    creator = models.ForeignKey(
+        User,
+        related_name="resources",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        db_index=True,
+    )
+    origin = models.ForeignKey(
+        "rodan.Output",
+        related_name="+",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        db_index=True,
+    )  # no backward reference
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
@@ -141,7 +172,10 @@ class Resource(models.Model):
     @property
     def resource_url(self):
         if self.resource_file:
-            return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_file.path, settings.MEDIA_ROOT))
+            return os.path.join(
+                settings.MEDIA_URL,
+                os.path.relpath(self.resource_file.path, settings.MEDIA_ROOT),
+            )
 
     # @property
     # def compat_file_url(self):
@@ -183,7 +217,6 @@ class Resource(models.Model):
     #         else:
     #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
 
-
     @property
     def diva_path(self):
         return os.path.join(self.resource_path, "diva")
@@ -198,7 +231,9 @@ class Resource(models.Model):
 
     @property
     def diva_image_dir(self):
-        return os.path.relpath(self.diva_path, getattr(settings, 'IIPSRV_FILESYSTEM_PREFIX', '/'))
+        return os.path.relpath(
+            self.diva_path, getattr(settings, "IIPSRV_FILESYSTEM_PREFIX", "/")
+        )
 
     @property
     def diva_image_url(self):
@@ -206,17 +241,20 @@ class Resource(models.Model):
 
     @property
     def diva_json_url(self):
-        return os.path.join(settings.MEDIA_URL, os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT))
+        return os.path.join(
+            settings.MEDIA_URL,
+            os.path.relpath(self.diva_json_path, settings.MEDIA_ROOT),
+        )
 
     def get_viewer(self):
-        if self.resource_type.mimetype.startswith('image') and settings.ENABLE_DIVA:
-            return 'diva'
+        if self.resource_type.mimetype.startswith("image") and settings.ENABLE_DIVA:
+            return "diva"
         elif self.resource_type.mimetype.startswith("application/mei+xml"):
-            return 'neon'
+            return "neon"
         else:
             return None
 
     @property
     def viewer_relurl(self):
         if self.get_viewer() is not None:
-            return reverse('resource-viewer-acquire', args=(self.uuid, ))
+            return reverse("resource-viewer-acquire", args=(self.uuid,))
