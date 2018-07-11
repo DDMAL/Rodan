@@ -4,14 +4,29 @@ Rodan settings. Remember to set your environment variables.
 import os
 import sys
 
+# This is Django-Environ, not environ. (!= pip install environ)
+import environ
+
 
 ###############################################################################
 # 1.a  General Django Configuration
 ###############################################################################
-PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-ADMIN_URL = os.getenv('DJANGO_ADMIN_URL')
-TEST = 'test' in sys.argv
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# Returns the path of this specific python module(<all of this AND>/Rodan/rodan)
+# It does not add `settings.py` at the end.
+# PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
+
+# Now using Django-Environ instead. We could reorganize the structure of the
+# this django project to be easier to maintain in the future.
+# (Rodan/rodan/settings.py -2 = Rodan/).
+# From here, we can specify any path relative to the `ROOT_DIR` of the
+# repository by passing folder names to `path`.
+# [TODO] - Run tests agains this to be absolutely sure it doesn't break.
+ROOT_DIR = environ.Path(__file__) - 2
+PROJECT_PATH = ROOT_DIR.path("rodan")
+# The following variable will move the /admin page in deployment to a random
+# link only known to the lab managers/developers. It, along with other env
+# variables, must be set prior to installation on the deployment server.
+ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = os.getenv('DJANGO_DEBUG_MODE')
 TEMPLATE_DEBUG = DEBUG
