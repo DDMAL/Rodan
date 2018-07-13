@@ -23,7 +23,7 @@ flup==1.0.3.dev-20110405
 gevent==1.0.2
 gnureadline==6.3.3
 greenlet==0.4.5
-gunicorn==18.0
+gunicorn==19.9.0
 jsonfield==1.0.0
 jsonschema==2.5.1
 lxml==3.4.0
