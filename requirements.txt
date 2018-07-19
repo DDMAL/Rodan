@@ -10,8 +10,8 @@ django-picklefield==0.3.1
 django-sortedm2m==1.1.1
 django-websocket-redis==0.4.4
 Django==1.8.19
-djangorestframework==3.2.5
 djoser==0.4.0
+djangorestframework==3.3.0
 ecdsa==0.11
 eventlet==0.15.2
 # I don't believe this module is being used, or was it setup properly.

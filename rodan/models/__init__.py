@@ -22,7 +22,6 @@ from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
 from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSet
 
 from guardian.shortcuts import assign_perm
-from rest_framework.compat import get_model_name
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission, User, Group
@@ -295,7 +294,7 @@ def update_database_trigger(sender, **kwargs):
 @receiver(post_save, sender=Project)
 def assign_perms_project(sender, instance, created, raw, using, update_fields, **kwargs):
     if created:
-        model_name = get_model_name(sender)
+        model_name = sender._meta.model_name
         if instance.creator:
             assign_perm('view_{0}'.format(model_name), instance.creator, instance)
             assign_perm('change_{0}'.format(model_name), instance.creator, instance)
@@ -324,7 +323,7 @@ def assign_perms_project(sender, instance, created, raw, using, update_fields, *
 @receiver(post_save, sender=Output)
 def assign_perms_others(sender, instance, created, raw, using, update_fields, **kwargs):
     if created:
-        model_name = get_model_name(sender)
+        model_name = sender._meta.model_name
 
         # locate project
         if sender in (Workflow, WorkflowRun, Resource, ResourceList):
@@ -360,7 +359,7 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
 @receiver(post_save, sender=User)
 def assign_perms_user_userpreference(sender, instance, created, raw, using, update_fields, **kwargs):
     if created:
-        model_name = get_model_name(sender)
+        model_name = sender._meta.model_name
         if sender == UserPreference:
             assign_perm('view_{0}'.format(model_name), instance.user, instance)
             assign_perm('change_{0}'.format(model_name), instance.user, instance)
