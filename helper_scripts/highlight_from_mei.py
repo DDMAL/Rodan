@@ -1,6 +1,6 @@
 from pymei import XmlImport
 from gamera.core import *
-import PIL, os
+import os
 init_gamera()
 import pdb
 

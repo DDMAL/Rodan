@@ -16,6 +16,10 @@ for image in images: # for each image
     if image == '.DS_Store':
        continue
     img = Image.open(path + image) # open the image
+    # In pillow 4.2.0, they finally added an error for converting RGBA PNGs to JPEG,
+    # Jpeg doesn't have an alpha channel. It just never complained before.
+    if img_type.upper() == "JPEG":
+        img = img.convert("RGB")
     img_name = os.path.splitext(image)[0] # remove the extension of the image
     img.save('./Converted/'+ img_name + '.' + img_type) # save the image in desired (ex: 'png') format in the "Converted" directory
 

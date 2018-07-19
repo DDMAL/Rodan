@@ -27,7 +27,7 @@ Markdown==2.5.1
 mimeparse==0.1.3
 model-mommy==1.2.5.1
 paramiko==1.15.1
-Pillow==2.6.1
+Pillow==5.2.0
 psycopg2==2.5.4
 pybagit==1.5.0
 pyparsing==2.0.3
