@@ -14,7 +14,8 @@ djangorestframework==3.2.5
 djoser==0.4.0
 ecdsa==0.11
 eventlet==0.15.2
-flower==0.7.3
+# I don't believe this module is being used, or was it setup properly.
+# flower==0.7.3
 flup==1.0.3.dev-20110405
 gevent==1.0.2
 gnureadline==6.3.3
@@ -26,7 +27,8 @@ lxml==3.4.0
 Markdown==2.5.1
 mimeparse==0.1.3
 model-mommy==1.2.5.1
-paramiko==1.15.1
+# I don't believe this module is being used, or was it setup properly.
+# paramiko==1.15.1
 Pillow==5.2.0
 psycopg2==2.5.4
 pybagit==1.5.0
