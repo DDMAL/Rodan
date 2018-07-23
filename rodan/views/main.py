@@ -98,7 +98,7 @@ class APIRoot(APIView):
                 ),
             },
             "configuration": {
-                "page_length": settings.REST_FRAMEWORK["PAGINATE_BY"],
+                "page_length": settings.REST_FRAMEWORK["PAGE_SIZE"],
                 "job_packages": package_versions,
             },
             "version": rodan.__version__,

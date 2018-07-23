@@ -275,8 +275,8 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_METADATA_CLASS": "rodan.views.RodanMetadata",
-    "PAGINATE_BY": 20,
-    "MAX_PAGINATE_BY": 100,
+    "PAGE_SIZE": 20,
+    "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
         "rest_framework.filters.DjangoObjectPermissionsFilter",
