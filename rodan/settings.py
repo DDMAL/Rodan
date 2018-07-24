@@ -309,7 +309,7 @@ ANONYMOUS_USER_ID = -1
 ###############################################################################
 # 2.b  CORS Configuration
 ###############################################################################
-CORS_ORIGIN_ALLOW_ALL = os.getenv("DJANGO_CORS_ORIGIN_ALLOW_ALL")
+CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ORIGIN_WHITELIST = ('some domain or IP')
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ["Set-Cookie", "Vary", "Date"]
