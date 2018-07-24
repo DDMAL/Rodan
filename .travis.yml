@@ -1,8 +1,8 @@
-if: (branch = master AND type IN (pull_request, cron)) OR (branch = develop)
+if: branch = master AND type IN (pull_request, cron) OR branch = develop
 language: python
 cache: pip
 services:
-- redis-server
+  - redis-server
 matrix:
   include:
   - os: linux

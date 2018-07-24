@@ -30,7 +30,7 @@ model-mommy==1.2.5.1
 # I don't believe this module is being used, or was it setup properly.
 # paramiko==1.15.1
 Pillow==5.2.0
-psycopg2==2.5.4
+psycopg2==2.7.1
 pybagit==1.5.0
 pyparsing==2.0.3
 pypng==0.0.18
