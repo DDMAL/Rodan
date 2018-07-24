@@ -1,24 +1,25 @@
+if: (branch = master AND type IN (pull_request, cron)) OR (branch = develop)
 language: python
-branches:
-    only:
-        - develop
-git:
-    submodules: false
-services: 
-    - rabbitmq
-python:
-    - "2.7"
-install: 
-    - pip install https://www.djangoproject.com/download/1.7.b4/tarball/
-    - pip install -r requirements.txt
-before_script: 
-    - mv rodan/settings_production.py.example rodan/settings_production.py
-    - python manage.py makemigrations rodan
-    - python manage.py syncdb --noinput
-script: python manage.py test
-
+cache: pip
+services:
+- redis-server
+matrix:
+  include:
+  - os: linux
+    sudo: required
+    python: 2.7
+before_install:
+  - sudo apt-get update -qy
+  - sudo /etc/init.d/postgresql stop
+  - sudo apt-get install -y postgresql-9.3 postgresql-contrib-9.3 postgresql-plpython-9.3
+  - pip install --user redis
+  - sudo redis-server /etc/redis/redis.conf --port 6379
+  - pip install -r requirements.txt
+  - python manage.py makemigrations rodan
+  - python manage.py migrate
+script:
+  - python manage.py test
 notifications:
-  email:
-    recipients:
-      - ruth.berkow@mail.mcgill.ca
-    on_failure: change
+  email: false
+  slack:
+    secure: k4lwPAC7c0iSBOE1qI3RCwh8Le2ar/bLyUd1kw8YD+tM8MjZEevVAjTNOUjLBahgrrPLRtgrHI3pGNh8A/i5eixW9VyxA2k03U3CBKXobP6HidCChORPdPv6xcP01qns69Qdj7PmJzN5kcVYcMdIb6T1cIEorht4Z7XMWKgcpwA=
