@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from rodan.models.workflow import Workflow
 
+
 class Connection(models.Model):
     """
     Describes exactly how `WorkflowJob`s are connected together. `InputPort` and
@@ -27,15 +28,24 @@ class Connection(models.Model):
 
     - `save` and `delete` -- invalidate the associated `Workflow`.
     """
+
     class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_connection', 'View Connection'),
-        )
+        app_label = "rodan"
+        permissions = (("view_connection", "View Connection"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    input_port = models.ForeignKey('rodan.InputPort', related_name='connections', on_delete=models.CASCADE, db_index=True)
-    output_port = models.ForeignKey('rodan.OutputPort', related_name='connections', on_delete=models.CASCADE, db_index=True)
+    input_port = models.ForeignKey(
+        "rodan.InputPort",
+        related_name="connections",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+    output_port = models.ForeignKey(
+        "rodan.OutputPort",
+        related_name="connections",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
 
     @property
     def input_workflow_job(self):
@@ -54,16 +64,20 @@ class Connection(models.Model):
         try:
             old = Connection.objects.get(pk=self.pk)
         except Connection.DoesNotExist:
-            old = Connection() # empty
+            old = Connection()  # empty
 
         cond1 = self.input_port_id != old.input_port_id
         cond2 = self.output_port_id != old.output_port_id
 
         wf_new_id = self.input_port.workflow_job.workflow_id
-        wf_original_id = old.input_port.workflow_job.workflow_id if old.input_port_id else wf_new_id
+        wf_original_id = (
+            old.input_port.workflow_job.workflow_id if old.input_port_id else wf_new_id
+        )
         super(Connection, self).save(*args, **kwargs)
         if cond1 or cond2:
-            Workflow.objects.filter(pk__in=list(set([wf_original_id, wf_new_id]))).update(valid=False)
+            Workflow.objects.filter(
+                pk__in=list(set([wf_original_id, wf_new_id]))
+            ).update(valid=False)
 
     def delete(self, *args, **kwargs):
         wf_id = self.input_port.workflow_job.workflow_id

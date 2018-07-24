@@ -2,6 +2,7 @@ from django.db import models
 from jsonfield import JSONField
 import uuid
 
+
 class WorkflowJobGroupCoordinateSet(models.Model):
     """
     A `WorkflowJobGroupCoordinateSet` contains the x and y coordinates of the center
@@ -16,8 +17,14 @@ class WorkflowJobGroupCoordinateSet(models.Model):
     - `created`
     - `updated`
     """
+
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    workflow_job_group = models.ForeignKey('rodan.WorkflowJobGroup', related_name="workflow_job_group_coordinate_sets", on_delete=models.CASCADE, db_index=True)
+    workflow_job_group = models.ForeignKey(
+        "rodan.WorkflowJobGroup",
+        related_name="workflow_job_group_coordinate_sets",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
     data = JSONField(default={}, blank=True, null=True)
     user_agent = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
@@ -28,8 +35,11 @@ class WorkflowJobGroupCoordinateSet(models.Model):
         return u"<WorkflowJobGroupCoordinateSet {0}>".format(str(self.uuid))
 
     class Meta:
-        app_label = 'rodan'
-        unique_together = ('user_agent', 'workflow_job_group')
+        app_label = "rodan"
+        unique_together = ("user_agent", "workflow_job_group")
         permissions = (
-            ('view_workflowjobgroupcoordinateset', 'View WorkflowJobGroupCoordinateSet'),
+            (
+                "view_workflowjobgroupcoordinateset",
+                "View WorkflowJobGroupCoordinateSet",
+            ),
         )

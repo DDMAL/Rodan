@@ -15,12 +15,13 @@ import environ
 # It does not add `settings.py` at the end.
 # PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
-# Now using Django-Environ instead. We could reorganize the structure of the
-# this django project to be easier to maintain in the future.
+
+# Now using Django-Environ instead. We could reorganize the structure of this
+# django project to be easier to maintain in the future.
 # (Rodan/rodan/settings.py -2 = Rodan/).
 # From here, we can specify any path relative to the `ROOT_DIR` of the
 # repository by passing folder names to `path`.
-# [TODO] - Run tests agains this to be absolutely sure it doesn't break.
+# [TODO] - Run tests against this to be absolutely sure it doesn't break.
 ROOT_DIR = environ.Path(__file__) - 2
 PROJECT_PATH = ROOT_DIR.path("rodan")
 # The following variable will move the /admin page in deployment to a random
@@ -34,6 +35,7 @@ TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
+
     raise ImproperlyConfigured("Testing requires DEBUG=True")
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -273,8 +275,8 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_METADATA_CLASS": "rodan.views.RodanMetadata",
-    "PAGINATE_BY": 20,
-    "MAX_PAGINATE_BY": 100,
+    "PAGE_SIZE": 20,
+    "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
         "rest_framework.filters.DjangoObjectPermissionsFilter",
@@ -307,7 +309,8 @@ ANONYMOUS_USER_ID = -1
 ###############################################################################
 # 2.b  CORS Configuration
 ###############################################################################
-CORS_ORIGIN_ALLOW_ALL = os.getenv("DJANGO_CORS_ORIGIN_ALLOW_ALL")
+
+CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ORIGIN_WHITELIST = ('some domain or IP')
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ["Set-Cookie", "Vary", "Date"]

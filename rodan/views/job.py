@@ -10,18 +10,19 @@ class JobList(generics.ListAPIView):
     Returns a list of all Jobs. Does not accept POST requests, since
     Jobs should be defined and loaded server-side.
     """
-    permission_classes = (permissions.AllowAny, )
+
+    permission_classes = (permissions.AllowAny,)
     queryset = Job.objects.all()
     serializer_class = JobSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
-#        "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
-        "category": ['exact'],
-        "interactive": ['exact'],
-        "enabled": ['exact'],
-        "uuid": ['exact'],
-        "name": ['exact', 'icontains']
+        #        "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
+        "category": ["exact"],
+        "interactive": ["exact"],
+        "enabled": ["exact"],
+        "uuid": ["exact"],
+        "name": ["exact", "icontains"],
     }
 
     # def get_queryset(self):
@@ -39,7 +40,8 @@ class JobDetail(generics.RetrieveAPIView):
     """
     Query a single Job instance.
     """
-    permission_classes = (permissions.AllowAny, )
+
+    permission_classes = (permissions.AllowAny,)
     queryset = Job.objects.all()
     serializer_class = JobSerializer
     filter_backends = ()

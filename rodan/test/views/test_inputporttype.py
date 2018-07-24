@@ -5,7 +5,9 @@ from rodan.models import InputPortType
 import uuid
 
 
-class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+class InputPortTypeViewTestCase(
+    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
+):
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
@@ -15,29 +17,32 @@ class InputPortTypeViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_get_list(self):
         response = self.client.get("/inputporttypes/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('results', response.data)
-        self.assertIn('current_page', response.data)
+        self.assertIn("results", response.data)
+        self.assertIn("current_page", response.data)
 
         # test disable pagination
         response = self.client.get("/inputporttypes/?disable_pagination=yes")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotIn('results', response.data)
-        self.assertNotIn('current_page', response.data)
+        self.assertNotIn("results", response.data)
+        self.assertNotIn("current_page", response.data)
         self.assertEqual(len(response.data), InputPortType.objects.all().count())
 
     def test_get_detail(self):
         ipt = InputPortType.objects.first()
         response = self.client.get("/inputporttype/{0}/".format(ipt.uuid))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(uuid.UUID(response.data['uuid']), ipt.uuid)
+        self.assertEqual(uuid.UUID(response.data["uuid"]), ipt.uuid)
 
     def test_post_not_allowed(self):
         ipt_obj = {
-            'job': "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
-            'resource_types': ["http://localhost:8000/resourcetype/test/a1/", "http://localhost:8000/resourcetype/test/a2/"],
-            'name': 'test',
-            'minimum': 1,
-            'maximum': 1
+            "job": "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
+            "resource_types": [
+                "http://localhost:8000/resourcetype/test/a1/",
+                "http://localhost:8000/resourcetype/test/a2/",
+            ],
+            "name": "test",
+            "minimum": 1,
+            "maximum": 1,
         }
-        response = self.client.post("/inputporttypes/", ipt_obj, format='json')
+        response = self.client.post("/inputporttypes/", ipt_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

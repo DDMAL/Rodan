@@ -6,10 +6,12 @@ class InputPortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InputPort
         read_only_fields = ("connections", "extern")
-        fields = ("url",
-                  "uuid",
-                  "input_port_type",
-                  "label",
-                  "extern",
-                  "workflow_job",
-                  "connections",)
+        fields = (
+            "url",
+            "uuid",
+            "input_port_type",
+            "label",
+            "extern",
+            "workflow_job",
+            "connections",
+        )
