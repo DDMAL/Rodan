@@ -15,6 +15,7 @@ import environ
 # It does not add `settings.py` at the end.
 # PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
+
 # Now using Django-Environ instead. We could reorganize the structure of this
 # django project to be easier to maintain in the future.
 # (Rodan/rodan/settings.py -2 = Rodan/).
@@ -30,7 +31,6 @@ ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = os.getenv("DJANGO_DEBUG_MODE")
 TEMPLATE_DEBUG = DEBUG
-# [TODO] - Clean up this code! This should be part of the unittests.
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
@@ -309,6 +309,7 @@ ANONYMOUS_USER_ID = -1
 ###############################################################################
 # 2.b  CORS Configuration
 ###############################################################################
+
 CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ORIGIN_WHITELIST = ('some domain or IP')
 CORS_ALLOW_CREDENTIALS = True
