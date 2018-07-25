@@ -127,12 +127,6 @@ DIVA_JPEG2000_CONVERTER_OUTPUT = "JPEG2000 Image"
 RODAN_JOB_PACKAGES = [
     "rodan.jobs.helloworld",
     "rodan.jobs.resource_distributor",
-    "rodan.jobs.vis-rodan",
-    "rodan.jobs.pil-rodan",
-    "rodan.jobs.gamera_rodan",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.jSymbolic-Rodan",
-    "rodan.jobs.Calvo-classifier",
 ]
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
