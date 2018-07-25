@@ -15,6 +15,7 @@ before_install:
   - sudo /etc/init.d/postgresql start 9.3
   - sudo redis-server /etc/redis/redis.conf --port 6379
   - pip install -r requirements.txt
+  - sed -i "s/POSTGRES_HOST=postgres/POSTGRES_HOST=localhost/g" ./config/local.env
   - export $(grep -v '^#' ./config/local.env | xargs)
   - python manage.py makemigrations rodan
   - python manage.py migrate
