@@ -7,7 +7,7 @@ ADMIN_PASS:123456Seven
 DJANGO_DEBUG_MODE=False
 DJANGO_SECRET_KEY=AVeryLongSecretKeyThatWasGeneratedByOurSpecialScript_DoNotForgetToChangeThis
 DJANGO_MEDIA_ROOT=/rodan/data/
-DJANGO_ALLOWED_HOSTS=['.simssa.ca']
+DJANGO_ALLOWED_HOSTS=[u'.simssa.ca']
 DJANGO_ADMIN_URL=^random_secret_admin/
 IIPSRV_URL=https://localhost/fcgi-bin/iipsrv.fcgi/
 
