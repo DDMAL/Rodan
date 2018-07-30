@@ -241,9 +241,8 @@ class package_results(Task):
             res_namefinder = self._NameFinder()
 
             for output in output_objs:
-                if (
-                    mode == 0
-                ):  # only endpoint resources, subdirectoried by different outputs
+                if mode == 0:
+                    # only endpoint resources, subdirectoried by different outputs
                     # continue if not endpoint output
                     if output.is_endpoint is False:
                         continue

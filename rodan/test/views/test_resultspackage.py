@@ -126,18 +126,17 @@ class ResultsPackageSimpleTest(
         )
 
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
-        #        self.assertEqual(self.test_workflowrun.status, task_status.SCHEDULED)
+        # self.assertEqual(self.test_workflowrun.status, task_status.SCHEDULED)
 
-        #        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        #        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        #        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        # response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(self.test_workflowrun.status, task_status.FINISHED)
 
         self.output_a = self.dummy_a_wfjob.run_jobs.first().outputs.first()
         self.output_m = self.dummy_m_wfjob.run_jobs.first().outputs.first()
 
-    """
     def test_all_ports(self):
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
@@ -191,7 +190,6 @@ class ResultsPackageSimpleTest(
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid, self.test_workflowrun.uuid)]})
-    """
 
 
 class ResultsPackageComplexTest(
@@ -262,7 +260,7 @@ class ResultsPackageComplexTest(
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
         self.assertEqual(self.test_workflowrun.status, task_status.FINISHED)
 
-    """
+
     def test_one_port(self):
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
@@ -293,7 +291,7 @@ class ResultsPackageComplexTest(
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
         self.assertEqual(set([self.test_Cop2, self.test_Fop, self.test_Eop]), set(rp.output_ports.all()))
-    """
+
 
     def test_expire(self):
         resultspackage_obj = {

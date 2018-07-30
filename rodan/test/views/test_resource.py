@@ -188,7 +188,7 @@ class ResourceProcessingTestCase(
 
     def test_post_image(self):
         file_obj = StringIO()
-        image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
+        image = Image.new("RGB", size=(50, 50), color=(256, 0, 0))
         image.save(file_obj, "png")
         file_obj.name = "page1.png"
         file_obj.seek(0)
