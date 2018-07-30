@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.sites",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "ws4redis",
     "rodan",
