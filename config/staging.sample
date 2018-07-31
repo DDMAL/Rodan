@@ -2,8 +2,8 @@
 # Django Configuration
 ###############################################################################
 
-ADMIN_USER:SomeAdmin
-ADMIN_PASS:123456Seven
+ADMIN_USER=SomeAdmin
+ADMIN_PASS=123456Seven
 DJANGO_DEBUG_MODE=False
 DJANGO_SECRET_KEY=AVeryLongSecretKeyThatWasGeneratedByOurSpecialScript_DoNotForgetToChangeThis
 DJANGO_MEDIA_ROOT=/rodan/data/
