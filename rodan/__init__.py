@@ -16,7 +16,7 @@ __title__ = "Rodan"
 # Get version: import rodan; rodan.__version__
 __version__ = "1.1.5"
 
-__copyright__ = "Copyright 2011-2017 Distributed Digital Music Archives & Libraries Lab"
+__copyright__ = "Copyright 2011-2018 Distributed Digital Music Archives & Libraries Lab"
 
 
 # This will make sure the app is always imported when
