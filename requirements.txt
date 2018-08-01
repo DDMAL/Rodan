@@ -13,7 +13,7 @@ django-picklefield==0.3.1
 django-sortedm2m==1.1.1
 django-websocket-redis==0.4.4
 djangorestframework==3.2.5
-djoser==0.4.0
+djoser==1.2.0
 ecdsa==0.11
 eventlet==0.15.2
 flower==0.7.3
