@@ -11,22 +11,12 @@ DJANGO_ALLOWED_HOSTS=[u'.simssa.ca']
 DJANGO_ADMIN_URL=^random_secret_admin/
 IIPSRV_URL=https://localhost/fcgi-bin/iipsrv.fcgi/
 
-SERVER_DOMAIN=not_localhost
-RODAN_SERVER_DOMAIN_NAME=not_localhost
-SSL_CERT_PATH=/etc/letsencrypt/live
-
 ###############################################################################
 # Celery Configuration
 ###############################################################################
 
 C_FORCE_ROOT=true
 KERAS_BACKEND=theano
-
-###############################################################################
-# Gunicorn Configuration
-###############################################################################
-
-WEB_CONCURRENCY=4
 
 ###############################################################################
 # Database Configuration (Postgres)
@@ -36,7 +26,7 @@ POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 POSTGRES_NAME=rodan
 POSTGRES_USER=superSecretUser_ChangeMe
-POSTGRES_PASS=123456Seven_ChangeMe
+POSTGRES_PASSWORD=123456Seven_ChangeMe
 
 ###############################################################################
 # Messenger Configuration (RabbitMQ)
