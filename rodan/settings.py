@@ -14,8 +14,6 @@ import environ
 # Returns the path of this specific python module(<all of this AND>/Rodan/rodan)
 # It does not add `settings.py` at the end.
 # PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-
-
 # Now using Django-Environ instead. We could reorganize the structure of this
 # django project to be easier to maintain in the future.
 # (Rodan/rodan/settings.py -2 = Rodan/).
@@ -29,14 +27,12 @@ PROJECT_PATH = ROOT_DIR.path("rodan")
 # variables, must be set prior to installation on the deployment server.
 ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = os.getenv("DJANGO_DEBUG_MODE")
+DEBUG = os.environ.get("DJANGO_DEBUG_MODE", False)
 TEMPLATE_DEBUG = DEBUG
-DEBUG = os.getenv.get("DJANGO_DEBUG_MODE", False)
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
-
     raise ImproperlyConfigured("Testing requires DEBUG=True")
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -101,8 +97,6 @@ DATABASES = {
 MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-# https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/uploads/"
 
 ###############################################################################
@@ -310,6 +304,25 @@ CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ORIGIN_WHITELIST = ('some domain or IP')
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ["Set-Cookie", "Vary", "Date"]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
 
 ###############################################################################
 # 2.c  Websocket configuration
