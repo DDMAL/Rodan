@@ -31,6 +31,7 @@ ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = os.getenv("DJANGO_DEBUG_MODE")
 TEMPLATE_DEBUG = DEBUG
+DEBUG = os.getenv.get("DJANGO_DEBUG_MODE", False)
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
@@ -86,7 +87,7 @@ INSTALLED_APPS = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("POSTGRES_NAME"),
+        "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_HOST"),
