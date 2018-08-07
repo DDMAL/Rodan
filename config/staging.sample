@@ -33,6 +33,8 @@ POSTGRES_PASSWORD=123456Seven_ChangeMe
 
 # The format is -> $Protocol :// $User : $Password @ $Host : $Port / $Vhost
 RABBITMQ_URL=amqp://SecretUser_ChangeMe:SecretPassword_ChangeMe@rabbitmq:5672//
+RABBITMQ_DEFAULT_USER=SecretUser_ChangeMe
+RABBITMQ_DEFAULT_PASS=SecretPassword_ChangeMe
 
 ###############################################################################
 # Websocket Configuration (Redis)
