@@ -16,7 +16,6 @@ IIPSRV_URL=https://localhost/fcgi-bin/iipsrv.fcgi/
 ###############################################################################
 
 C_FORCE_ROOT=true
-KERAS_BACKEND=theano
 
 ###############################################################################
 # Database Configuration (Postgres)
