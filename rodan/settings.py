@@ -163,13 +163,13 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "rodan.log",
+            "filename": "/code/Rodan/rodan.log",
             "formatter": "verbose",
         },
         "dblog": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "database.log",
+            "filename": "/code/Rodan/database.log",
             "formatter": "verbose",
         },
     },
