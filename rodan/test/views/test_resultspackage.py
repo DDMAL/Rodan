@@ -23,7 +23,6 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_user()
         self.client.force_authenticate(user=self.test_superuser)
 
-    """
     def test_unfinished_workflowrun(self):
         wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
         resultspackage_obj = {
@@ -44,7 +43,6 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {'output_ports': [u'Invalid hyperlink - Object does not exist.']})
-    """
 
     def test_post_invalid_status(self):
         wfr = mommy.make("rodan.WorkflowRun", status=task_status.FINISHED)
@@ -87,9 +85,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.data, {"status": ["Invalid status update"]})
 
 
-class ResultsPackageSimpleTest(
-    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
-):
+class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
@@ -105,9 +101,7 @@ class ResultsPackageSimpleTest(
         # Run this dummy workflow
         ra = self.setUp_resources_for_simple_dummy_workflow()
         self.test_resource_content = "dummy text"
-        self.test_resource.compat_resource_file.save(
-            "dummy.txt", ContentFile(self.test_resource_content)
-        )
+        self.test_resource.compat_resource_file.save("dummy.txt", ContentFile(self.test_resource_content))
         workflowrun_obj = {
             "creator": "http://localhost:8000/user/{0}/".format(self.test_user.pk),
             "workflow": "http://localhost:8000/workflow/{0}/".format(
@@ -124,16 +118,12 @@ class ResultsPackageSimpleTest(
         response = self.client.post(
             "/interactive/{0}/".format(str(dummy_m_runjob.uuid)), self.test_user_input
         )
-
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
         # self.assertEqual(self.test_workflowrun.status, task_status.SCHEDULED)
-
         # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
         # response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         self.assertEqual(self.test_workflowrun.status, task_status.FINISHED)
-
         self.output_a = self.dummy_a_wfjob.run_jobs.first().outputs.first()
         self.output_m = self.dummy_m_wfjob.run_jobs.first().outputs.first()
 
@@ -141,9 +131,7 @@ class ResultsPackageSimpleTest(
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
             'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.output_a.output_port.uuid),
-                             'http://localhost:8000/outputport/{0}/'.format(self.output_m.output_port.uuid)
-            ]
-        }
+                             'http://localhost:8000/outputport/{0}/'.format(self.output_m.output_port.uuid)]}
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data['uuid']
@@ -151,7 +139,6 @@ class ResultsPackageSimpleTest(
         #print rp.error_summary, rp.error_details
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
-
         self.assertEqual(os.path.isfile(rp.package_path), True)
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
@@ -171,7 +158,6 @@ class ResultsPackageSimpleTest(
         rp = ResultsPackage.objects.get(uuid=rp_id)
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
-
         self.assertEqual(os.path.isfile(rp.package_path), True)
         with zipfile.ZipFile(rp.package_path, 'r') as z:
             files = z.namelist()
@@ -192,9 +178,7 @@ class ResultsPackageSimpleTest(
         self.assertEqual(response.data, {u'non_field_errors': ["Confliction between WorkflowRun and OutputPort: OutputPort {0} not in WorkflowRun {1}'s Workflow.".format(invalid_op.uuid, self.test_workflowrun.uuid)]})
 
 
-class ResultsPackageComplexTest(
-    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
-):
+class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
