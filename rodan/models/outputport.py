@@ -40,7 +40,7 @@ class OutputPort(models.Model):
         db_index=True,
     )
     output_port_type = models.ForeignKey(
-        "rodan.OutputPortType", on_delete=models.PROTECT, db_index=True
+        "rodan.OutputPortType", on_delete=models.CASCADE, db_index=True
     )
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     extern = models.BooleanField(default=False, db_index=True)

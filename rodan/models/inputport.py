@@ -36,7 +36,7 @@ class InputPort(models.Model):
         db_index=True,
     )
     input_port_type = models.ForeignKey(
-        "rodan.InputPortType", on_delete=models.PROTECT, db_index=True
+        "rodan.InputPortType", on_delete=models.CASCADE, db_index=True
     )
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     extern = models.BooleanField(default=False, db_index=True)
