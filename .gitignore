@@ -26,3 +26,10 @@ celery.log
 
 # Ignore environment variables.
 config/staging.env
+
+# Ignore static files
+staticfiles/
+rodan/static/
+
+# Ignore logs
+*.log

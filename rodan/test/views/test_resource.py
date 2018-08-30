@@ -251,8 +251,8 @@ class ResourceProcessingTestCase(
                 self.test_resource1.resource_type.mimetype, "application/octet-stream"
             )
 
+    # Incomplete test. Might try to step away from all patch requests and do something else anyway.
     # def test_patch(self):
     #     resource_update = {'resource_type': 'text/plain'}
     #     response = self.client.patch("/resource/8aa7e270b1c54be49dde5a682b16cda7/", resource_update, format='json').data
-
     #     self.assertEqual(response['resource_type'], 'text/plain')
