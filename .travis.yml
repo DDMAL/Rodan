@@ -21,6 +21,7 @@ before_install:
   - sed -i "s/RODAN.JOB.PACKAGES . ./RODAN_JOB_PACKAGES = [\n    \"rodan.jobs.pil-rodan\",/g" ./rodan/settings.py
   - export $(grep -v '^#' ./config/local.env | xargs)
   - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
+  - mkdir -p /code/Rodan
   - python manage.py makemigrations rodan
   - python manage.py migrate
 script:
