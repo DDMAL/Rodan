@@ -49,10 +49,7 @@ class ResultsPackage(models.Model):
     PACKAGING_MODE_CHOICES = [
         (0, "Only endpoint resources"),
         (1, "All resources -- subdirectoried by resource names"),
-        (
-            2,
-            "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names",
-        ),
+        (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names",),
     ]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
