@@ -6,6 +6,7 @@ import sys
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
+from distutils.util import strtobool
 
 
 ###############################################################################
@@ -26,8 +27,11 @@ PROJECT_PATH = ROOT_DIR.path("rodan")
 # link only known to the lab managers/developers. It, along with other env
 # variables, must be set prior to installation on the deployment server.
 ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
+# Environ.get returns a string, even if it is a bool. You must convert the
+# string from environ into a 0 or 1. This can finally be translated into a boolean.
+# Python 2.7
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = os.environ.get("DJANGO_DEBUG_MODE", False)
+DEBUG = bool(strtobool(os.environ.get("DJANGO_DEBUG_MODE", False)))
 TEMPLATE_DEBUG = DEBUG
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
