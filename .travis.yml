@@ -16,10 +16,9 @@ before_install:
   - sudo pip install redis
   - sudo redis-server /etc/redis/redis.conf --port 6379
   - pip install -r requirements.txt
-  - sed -i "s/REDIS_HOST=redis/REDIS_HOST=localhost/g" ./config/local.env
-  - sed -i "s/POSTGRES_HOST=postgres/POSTGRES_HOST=localhost/g" ./config/local.env
-  - sed -i "s/RODAN.JOB.PACKAGES . ./RODAN_JOB_PACKAGES = [\n    \"rodan.jobs.pil-rodan\",/g" ./rodan/settings.py
-  - export $(grep -v '^#' ./config/local.env | xargs)
+  - export REDIS_HOST=localhost
+  - export POSTGRES_HOST=localhost
+  - export DJANGO_SECRET_KEY=local
   - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
   - mkdir -p /code/Rodan
   - python manage.py makemigrations rodan
