@@ -31,7 +31,7 @@ ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # string from environ into a 0 or 1. This can finally be translated into a boolean.
 # Python 2.7
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = bool(strtobool(os.environ.get("DJANGO_DEBUG_MODE", False)))
+DEBUG = bool(strtobool(os.environ.get("DJANGO_DEBUG_MODE", "False")))
 TEMPLATE_DEBUG = DEBUG
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
