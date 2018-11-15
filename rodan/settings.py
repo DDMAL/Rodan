@@ -82,6 +82,14 @@ INSTALLED_APPS = [
     "guardian",
     "corsheaders",
     "sortedm2m",
+    # Docker Health Check
+    "health_check",
+    "health_check.db",
+    "health_check.cache",
+    "health_check.storage",
+    # [TODO] Make custom checks for these.
+    # "health_check.contrib.celery",
+    # "health_check.contrib.rabbitmq",
 ]
 
 DATABASES = {
@@ -394,3 +402,12 @@ if TEST:
     import tempfile as _tempfile
 
     MEDIA_ROOT = _tempfile.mkdtemp() + "/"
+
+###############################################################################
+# 3.c  Docker Health Checks
+###############################################################################
+
+HEALTH_CHECK = {
+    'DISK_USAGE_MAX': 90,  # percent
+    'MEMORY_MIN': 100,    # in MB
+}

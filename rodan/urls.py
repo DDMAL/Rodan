@@ -291,6 +291,7 @@ urlpatterns += format_suffix_patterns(
             djoser_views.SetPasswordView.as_view(),
             name="auth-change-password",
         ),
+        url(r"^ht/", include("health_check.urls")),
     )
 )
 
