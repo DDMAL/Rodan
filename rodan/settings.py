@@ -276,7 +276,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
     ),
-    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.BrowsableAPIRenderer",
+        "rest_framework.renderers.JSONRenderer",
+    ),
     "DEFAULT_METADATA_CLASS": "rodan.views.RodanMetadata",
     "PAGE_SIZE": 20,
     "MAX_PAGE_SIZE": 100,
@@ -289,11 +292,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 if DEBUG:
-    # Enable browsable API
-    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
-        "rest_framework.renderers.BrowsableAPIRenderer",
-        "rest_framework.renderers.JSONRenderer",
-    )
     # Enable basic authentication to browse the API
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
         "rest_framework.authentication.BasicAuthentication",
