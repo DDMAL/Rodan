@@ -262,18 +262,16 @@ MIDDLEWARE_CLASSES = [
     "django.middleware.gzip.GZipMiddleware",
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # [WIP] Middleware-DEBUG
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
 ]
-if DEBUG:
-    # we avoid unnecessary middlewares in production as they slows down the website.
-    # for DEBUG mode, we would like to have Django admin which requires Session and Message.
-    MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-    ]
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
 # REST framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication", # [TODO] - Make token auth the only auth.
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_RENDERER_CLASSES": (
@@ -291,12 +289,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
-if DEBUG:
-    # Enable basic authentication to browse the API
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
-    )
+
 # used by django-guardian
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # default
