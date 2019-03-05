@@ -10,7 +10,7 @@ django-health-check==2.4.0
 django-sortedm2m==1.1.1
 django-websocket-redis==0.4.4
 Django==1.8.19
-djoser==0.4.0
+djoser==1.5.0
 djangorestframework==3.3.0
 ecdsa==0.11
 # flower==0.7.3
