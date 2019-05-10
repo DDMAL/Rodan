@@ -15,6 +15,10 @@ rodan/jobs/gamera_rodan/
 rodan/jobs/interactive_classifier
 rodan/jobs/jSymbolic-Rodan/
 rodan/jobs/pil-rodan/
+rodan/jobs/Calvo-classifier/
+rodan/jobs/diagonal-neume-slicing/
+rodan/jobs/heuristic-pitch-finding/
+rodan/jobs/JSOMR2MEI/
 
 /.DS_Store
 
