@@ -573,7 +573,7 @@ class RodanTask(Task):
                 subject = "Workflow Run '{0}' failed".format(workflowrun.name)
                 body = "A workflow run you started has failed.\n\n"
                 body = body + "Name: {0}\n".format(workflowrun.name)
-                body = body + "Description: {0}".format(workflowrun.description)                
+                body = body + "Description: {0}".format(workflowrun.description)
                 to = [user.email]
                 registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
 
@@ -682,7 +682,7 @@ def confirm(prompt, default=True):
     if os.environ.get("RODAN_NON_INTERACTIVE") == "true":
         return default
     else:
-        return raw_input(prompt).lower() == 'y'    
+        return raw_input(prompt).lower() == 'y'
 
 
 _django_template_cache = {}
