@@ -43,7 +43,7 @@ class ResourceList(models.Model):
         db_index=True,
         on_delete=models.CASCADE,
     )
-    resources = SortedManyToManyField("rodan.Resource", blank=True, null=True)
+    resources = SortedManyToManyField("rodan.Resource", blank=True,)
     resource_type = models.ForeignKey(
         "rodan.ResourceType",
         blank=True,
