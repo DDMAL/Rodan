@@ -93,7 +93,7 @@ def master_task(workflow_run_id):
     else:
         runable_runjobs_query = RunJob.objects.filter(lock=thread_id)
         runable_runjobs = list(
-            runable_runjobs_query.values("uuid", "job_name")
+            runable_runjobs_query.values("uuid", "job_name", "job_queue")
         )  # immediate evaluation
         runable_runjobs_query.update(
             status=task_status.PROCESSING, lock=None
@@ -101,10 +101,10 @@ def master_task(workflow_run_id):
 
         for rj_value in runable_runjobs:
             task = registry.tasks[str(rj_value["job_name"])]
+            queue = str(rj_value["job_queue"])
             runjob_id = str(rj_value["uuid"])
-            async_task = task.si(
-                runjob_id
-            ).apply_async()  # task will call master_task synchronously. Don't use Celery's chain, it's hard to revoke.
+            # task will call master_task synchronously. Don't use Celery's chain, it's hard to revoke.
+            async_task = task.si(runjob_id).apply_async(queue=queue)
             RunJob.objects.filter(uuid=runjob_id).update(
                 celery_task_id=async_task.task_id
             )

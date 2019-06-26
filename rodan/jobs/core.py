@@ -460,6 +460,7 @@ class create_workflowrun(Task):
                 workflow_run=workflow_run,
                 job_name=wfjob.job.name,
                 job_settings=wfjob.job_settings,
+                job_queue=wfjob.job.job_queue,
             )
             run_job.save()
 

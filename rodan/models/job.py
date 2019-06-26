@@ -36,7 +36,7 @@ class Job(models.Model):
     description = models.TextField(blank=True, null=True)
 
     settings = JSONField(default={"type": "object"})
-
+    job_queue = models.CharField(max_length=15, default="celery")
     enabled = models.BooleanField(default=False, db_index=True)
     interactive = models.BooleanField(default=False, db_index=True)
 
