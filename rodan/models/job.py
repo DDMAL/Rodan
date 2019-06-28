@@ -23,6 +23,7 @@ class Job(models.Model):
     - `enabled`
     - `interactive` -- whether the `Job` has manual phases.
     - `settings` -- description of `Job` settings.
+    - `job_queue` -- group of celery workers that can execute this `Job`.
 
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
