@@ -19,6 +19,7 @@ rodan/jobs/Calvo-classifier/
 rodan/jobs/diagonal-neume-slicing/
 rodan/jobs/heuristic-pitch-finding/
 rodan/jobs/JSOMR2MEI/
+rodan/jobs/pixel_wrapper/
 
 /.DS_Store
 
