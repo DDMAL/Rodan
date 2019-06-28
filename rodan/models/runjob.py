@@ -25,6 +25,7 @@ class RunJob(models.Model):
       indicate the processing flow for every individual `Resource` in a batch. Allowed
       to be null when it is singleton `RunJob`.
     - `job_name` -- the Rodan `Job` name of this `RunJob`.
+    - `job_queue` -- group of celery workers that can execute this `RunJob`.
     - `job_settings` -- the settings associated with the `WorkflowJob` that is
       being executed in the `RunJob`.
     - `status` -- an integer indicating the status of `RunJob`.
@@ -91,7 +92,7 @@ class RunJob(models.Model):
         max_length=32, blank=True, null=True, db_index=True
     )
     job_name = models.CharField(max_length=200, db_index=True)
-
+    job_queue = models.CharField(max_length=15, default="celery")
     job_settings = JSONField(default={})
     status = models.IntegerField(choices=STATUS_CHOICES, default=0, db_index=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
