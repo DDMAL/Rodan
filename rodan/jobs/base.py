@@ -60,6 +60,10 @@ class RodanTaskType(TaskType):
         if attrs.get('_abstract') == True:  # not the abstract class
             return
         else:
+
+            # Set base settings schema if they do not already exist in the job.
+            schema = attrs.get('settings', {'job_queue': 'celery', 'type': 'object'})
+
             if not Job.objects.filter(name=attrs['name']).exists():
                 if not getattr(settings, '_update_rodan_jobs', None) and not settings.TEST:
                     raise ImproperlyConfigured('The catalogue of local jobs does not match the ones in database: local job `{0}` has not been registered. Please run `manage.py migrate` on Rodan server to update the database.')
@@ -69,7 +73,6 @@ class RodanTaskType(TaskType):
                     jsonschema.Draft4Validator.check_schema(attrs['settings'])
                 except jsonschema.exceptions.SchemaError as e:
                     raise e
-                schema = attrs['settings'] or {'type': 'object'}
 
                 j = Job(name=attrs['name'],
                         author=attrs['author'],
@@ -77,7 +80,10 @@ class RodanTaskType(TaskType):
                         settings=schema,
                         enabled=attrs['enabled'],
                         category=attrs['category'],
-                        interactive=attrs['interactive'])
+                        interactive=attrs['interactive'],
+                        # Check for the presence of job_queue in the rodan job's settings, if not use the default 'celery'
+                        job_queue=schema.get('job_queue', 'celery')
+                    )
                 j.save()
 
                 try:
@@ -130,11 +136,11 @@ class RodanTaskType(TaskType):
 
                 check_field("author", j.author, attrs['author'])
                 check_field("description", j.description, attrs['description'])
-                check_field("settings", j.settings, attrs['settings'] or {'type': 'object'}, compare_fn=lambda x, y: deep_eq(x, y))
+                check_field("settings", j.settings, schema, compare_fn=lambda x, y: deep_eq(x, y))
                 check_field("enabled", j.enabled, attrs['enabled'])
                 check_field("category", j.category, attrs['category'])
                 check_field("interactive", j.interactive, attrs['interactive'])
-
+                check_field("job_queue", j.job_queue, schema.get('job_queue', 'celery'))
 
                 # Input Port Types
                 def check_port_types(which):

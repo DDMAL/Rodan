@@ -36,7 +36,12 @@ class Job(models.Model):
     description = models.TextField(blank=True, null=True)
 
     settings = JSONField(default={"type": "object"})
+    
+    # Do not manually change this field, it will get overwritten again after every django makemigrations/migrate.
+    # Job queues are defined in the RodanJob Class's Settings schema for any specific job, otherwise it will take
+    # the default route.
     job_queue = models.CharField(max_length=15, default="celery")
+    
     enabled = models.BooleanField(default=False, db_index=True)
     interactive = models.BooleanField(default=False, db_index=True)
 
