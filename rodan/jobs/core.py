@@ -356,7 +356,7 @@ class package_results(Task):
                 completed += percentage_increment
                 rp_query.update(percent_completed=int(completed))
 
-            # print [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn]   # DEBUG
+            # print([os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn])   # DEBUG
             bag.update()
             errors = bag.validate()
             if not bag.is_valid:

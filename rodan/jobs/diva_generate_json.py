@@ -47,14 +47,14 @@ class GenerateJson(object):
         images = []
 
         for i, f in enumerate(files):
-            print f
+            print(f)
             ignore, ext = os.path.splitext(f)
             if f.startswith("."):
                 continue    # ignore hidden files
 
             if ext in ('.jp2', '.jpx'):
                 width, height = self.__img_size_jp2(os.path.join(img_dir, f))
-                print width, height
+                print(width, height)
             elif ext in ('.tiff', '.tif'):
                 width, height = self.__img_size_tiff(os.path.join(img_dir, f))
             else:

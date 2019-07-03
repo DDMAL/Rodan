@@ -115,7 +115,7 @@ class RodanTaskType(TaskType):
                     raise e
 
                 if not settings.TEST:
-                    print "Added: {0}".format(j.name)
+                    print("Added: {0}".format(j.name))
             else:
                 UPDATE_JOBS = getattr(rodan_settings, "_update_rodan_jobs", False)
                 # perform an integrity check, and update jobs if demanded.
@@ -130,9 +130,9 @@ class RodanTaskType(TaskType):
                             if confirm_update:
                                 setattr(j, field_name, new_value)
                                 j.save()
-                                print "  ..updated.\n\n"
+                                print("  ..updated.\n\n")
                             else:
-                                print "  ..not updated.\n\n"
+                                print("  ..not updated.\n\n")
 
                 check_field("author", j.author, attrs['author'])
                 check_field("description", j.description, attrs['description'])
@@ -170,9 +170,9 @@ class RodanTaskType(TaskType):
                                     if confirm_update:
                                         pt.minimum = attrs_pt['minimum']
                                         pt.save()
-                                        print "  ..updated.\n\n"
+                                        print("  ..updated.\n\n")
                                     else:
-                                        print "  ..not updated.\n\n"
+                                        print("  ..not updated.\n\n")
 
                             if attrs_pt['maximum'] != pt.maximum:
                                 if not UPDATE_JOBS:
@@ -182,9 +182,9 @@ class RodanTaskType(TaskType):
                                     if confirm_update:
                                         pt.maximum = attrs_pt['maximum']
                                         pt.save()
-                                        print "  ..updated.\n\n"
+                                        print("  ..updated.\n\n")
                                     else:
-                                        print "  ..not updated.\n\n"
+                                        print("  ..not updated.\n\n")
 
                             attrs_is_list = bool(attrs_pt.get('is_list', False))
                             if attrs_is_list != pt.is_list:
@@ -195,9 +195,9 @@ class RodanTaskType(TaskType):
                                     if confirm_update:
                                         pt.is_list = attrs_is_list
                                         pt.save()
-                                        print "  ..updated.\n\n"
+                                        print("  ..updated.\n\n")
                                     else:
-                                        print "  ..not updated.\n\n"
+                                        print("  ..not updated.\n\n")
 
 
                             resource_types = RodanTaskType._resolve_resource_types(attrs_pt['resource_types'])
@@ -211,9 +211,9 @@ class RodanTaskType(TaskType):
                                     if confirm_update:
                                         pt.resource_types.clear()
                                         pt.resource_types.add(*resource_types)
-                                        print "  ..updated.\n\n"
+                                        print("  ..updated.\n\n")
                                     else:
-                                        print "  ..not updated.\n\n"
+                                        print("  ..not updated.\n\n")
 
                             del attrs_pts[idx]
 
@@ -225,11 +225,11 @@ class RodanTaskType(TaskType):
                                 if confirm_delete:
                                     try:
                                         pt.delete()
-                                        print "  ..deleted.\n\n"
+                                        print("  ..deleted.\n\n")
                                     except Exception as e:
-                                        print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                                        print("  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e)))
                                 else:
-                                    print "  ..not deleted.\n\n"
+                                    print("  ..not deleted.\n\n")
 
                     if attrs_pts:  # ipt exists in code but not in database. Should be added to the database.
                         for pt in attrs_pts:
@@ -252,9 +252,9 @@ class RodanTaskType(TaskType):
                                     if len(resource_types) == 0:
                                         raise ValueError('No available resource types found for this {1}PortType: {0}'.format(pt['resource_types'], msg))
                                     i.resource_types.add(*resource_types)
-                                    print "  ..updated.\n\n"
+                                    print("  ..updated.\n\n")
                                 else:
-                                    print "  ..not updated.\n\n"
+                                    print("  ..not updated.\n\n")
 
                 check_port_types('in')
                 check_port_types('out')
@@ -377,7 +377,7 @@ class RodanTask(Task):
         `new_available_path()` which returns a path to a nonexist file. `test_my_task`
         method can thus create an input file and pass into the job code.
         """
-        print 'WARNING: {0}.test_my_task() is not implemented.'.format(type(self).__module__)
+        print('WARNING: {0}.test_my_task() is not implemented.'.format(type(self).__module__))
 
     #######################
     # Utilities

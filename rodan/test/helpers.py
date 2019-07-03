@@ -344,11 +344,11 @@ class RodanTestSetUpMixin(object):
             res.resource_file.save("dummy.txt", ContentFile("dummy text"))
         self.test_resourcelist.resources.add(*self.test_resources_in_resource_list)
 
-        # print "self.test_Dip1", self.url(self.test_Dip1)
-        # print "self.test_Fip1", self.url(self.test_Fip1)
-        # print "self.test_Aip", self.url(self.test_Aip)
-        # print "self.test_Eip2", self.url(self.test_Eip2)
-        # print "self.test_Dip3", self.url(self.test_Dip3)
+        # print("self.test_Dip1", self.url(self.test_Dip1))
+        # print("self.test_Fip1", self.url(self.test_Fip1))
+        # print("self.test_Aip", self.url(self.test_Aip))
+        # print("self.test_Eip2", self.url(self.test_Eip2))
+        # print("self.test_Dip3", self.url(self.test_Dip3))
         return {
             self.url(self.test_Dip1): map(self.url, self.test_resourcecollection),
             self.url(self.test_Fip1): map(self.url, self.test_resourcecollection),

@@ -198,18 +198,18 @@ def update_database_trigger(sender, **kwargs):
 
                 # If there are environment variables, don't ask from user due to stdin reading issue of Python raw_input.
                 if 'RODAN_PSQL_SUPERUSER_USERNAME' in os.environ and 'RODAN_PSQL_SUPERUSER_PASSWORD' in os.environ:
-                    print "Environment variables RODAN_PSQL_SUPERUSER_USERNAME and RODAN_PSQL_SUPERUSER_PASSWORD detected."
+                    print("Environment variables RODAN_PSQL_SUPERUSER_USERNAME and RODAN_PSQL_SUPERUSER_PASSWORD detected.")
                     choice = '1'
                 elif 'RODAN_PSQL_SUPERUSER_COMMAND' in os.environ:
-                    print "Environment variables RODAN_PSQL_SUPERUSER_COMMAND detected."
+                    print("Environment variables RODAN_PSQL_SUPERUSER_COMMAND detected.")
                     choice = '2'
 
                 while choice not in ('1', '2'):
-                    print "================================================================"
-                    print "Rodan needs PostgreSQL superuser permission to proceed. Options:"
-                    print "  1. Provide the username and password of a superuser."
-                    print "  2. Provide the shell command to log in PostgreSQL console as a superuser (typically `sudo -u postgres psql --dbname={0}`)".format(settings.DATABASES['default']['NAME'])
-                    print "(Please inform Rodan developers if there is another way of connecting to PostgreSQL.)"
+                    print("================================================================")
+                    print("Rodan needs PostgreSQL superuser permission to proceed. Options:")
+                    print("  1. Provide the username and password of a superuser.")
+                    print("  2. Provide the shell command to log in PostgreSQL console as a superuser (typically `sudo -u postgres psql --dbname={0}`)".format(settings.DATABASES['default']['NAME']))
+                    print("(Please inform Rodan developers if there is another way of connecting to PostgreSQL.)")
                     choice = raw_input("Choice: ")
 
                 if choice is '1':
@@ -251,7 +251,7 @@ def update_database_trigger(sender, **kwargs):
                         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
                         grep_stdout = p.communicate(input=publish_message)[0]
                         rc = p.returncode
-                        print grep_stdout
+                        print(grep_stdout)
                         if "ERROR:" in grep_stdout or rc is not 0:
                             continue
                         else:
@@ -262,31 +262,29 @@ def update_database_trigger(sender, **kwargs):
         else:
             raise
 
-    print ""
-
     try:
         curs.execute(test_publish_message)
     except psycopg2.InternalError as e:
         if 'No module named redis' in str(e):
             traceback.print_exc()
-            print "================================================================"
-            print "Please execute `pip install redis` as a system package (not in virtualenv) on the database server {0}.".format(settings.DATABASES['default']['HOST'])
+            print("================================================================")
+            print("Please execute `pip install redis` as a system package (not in virtualenv) on the database server {0}.".format(settings.DATABASES['default']['HOST']))
         elif 'redis' in str(e):
             traceback.print_exc()
-            print "================================================================"
-            print "Please start redis-server at {0}:{1}.".format(settings.WS4REDIS_CONNECTION['host'], settings.WS4REDIS_CONNECTION['port'])
+            print("================================================================")
+            print("Please start redis-server at {0}:{1}.".format(settings.WS4REDIS_CONNECTION['host'], settings.WS4REDIS_CONNECTION['port']))
         else:
             raise
         sys.exit(2)
 
-    print "Registering Rodan database triggers...",
+    print("Registering Rodan database triggers...",)
     curs.execute(trigger)
     curs.execute(create_trigger)
 
     # Prevent multiple execution of post-migrate signal (not sure why it happens)
     global update_database_trigger
     update_database_trigger = None
-    print "OK"
+    print("OK")
 
 
 # Assign permissions

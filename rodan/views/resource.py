@@ -115,7 +115,7 @@ class ResourceList(generics.ListCreateAPIView):
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
                 claimed_mimetype = restype_obj.mimetype          # find mimetype name
             except (Resolver404, ResourceType.DoesNotExist) as e:
-                print str(e)
+                print(str(e))
 
 
         initial_data = {
@@ -165,7 +165,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
                 claimed_mimetype = restype_obj.mimetype          # find mimetype name
             except (Resolver404, ResourceType.DoesNotExist) as e:
-                print str(e)
+                print(str(e))
             if claimed_mimetype.startswith('image'):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 

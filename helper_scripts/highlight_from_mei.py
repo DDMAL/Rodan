@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
         note_string = '-'.join([note.getAttribute("pname").getValue() for note in neume.getDescendantsByName('note')])
 
-        print note_string
+        print(note_string)
         # rgb.draw_text((int(ulx) - 0, int(uly) - 20), note_string, RGBPixel(0,0,0), size=10, bold=True, halign="left")
         # rgb.draw_text((int(ulx) - 20, int(uly) - 50), neume.getAttribute('name').getValue(), RGBPixel(0,0,0), size=10, bold=True, halign="left")
 

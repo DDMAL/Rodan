@@ -85,7 +85,7 @@ for rt in ResourceType.objects.all():
         "extension": rt.extension,
     }
 def multiple_choice(field_name):
-    print "  Multiple {0}s are found"
+    print("  Multiple {0}s are found")
 
 for mimetype, definitions in resourcetypes.iteritems():
     if len(definitions) == 0: continue
@@ -93,7 +93,7 @@ for mimetype, definitions in resourcetypes.iteritems():
         if not UPDATE_JOBS:
             raise ImproperlyConfigured('The catalogue of local ResourceTypes does not match the ones in database: local ResourceType `{0}` has not been registered. Please run `manage.py migrate` on Rodan server to update the database.')
         else:
-            print "Adding {0}...  ".format(mimetype),
+            print("Adding {0}...  ".format(mimetype))
             possible_descriptions = {}
             possible_extensions = {}
             for d in definitions:
@@ -111,16 +111,16 @@ for mimetype, definitions in resourcetypes.iteritems():
             elif len(possible_descriptions.keys()) == 1:
                 description = possible_descriptions.keys()[0]
             else:
-                print "\n  Multiple descriptions found for {0}:".format(mimetype)
+                print("\n  Multiple descriptions found for {0}:".format(mimetype))
                 choices = []
                 for idx, tup in enumerate(possible_descriptions.iteritems()):
                     desc, packages = tup
                     choices.append(desc)
-                    print "    #{0}: {1} (from {2})".format(idx+1, desc, ", ".join(packages))
+                    print("    #{0}: {1} (from {2})".format(idx+1, desc, ", ".join(packages)))
                 answer = raw_input("  Choose a description (#1, #2, ...) or enter yours: ")
                 if answer.startswith('#') and answer[1:].isdigit() and 0 < int(answer[1:]) <= len(choices):
                     description = choices[int(answer[1:])-1]
-                    print "Your choice: {0}".format(description)
+                    print("Your choice: {0}".format(description))
                 else:
                     description = answer
 
@@ -129,23 +129,23 @@ for mimetype, definitions in resourcetypes.iteritems():
             elif len(possible_extensions.keys()) == 1:
                 extension = possible_extensions.keys()[0]
             else:
-                print "\n  Multiple extensions found for {0}:".format(mimetype)
+                print("\n  Multiple extensions found for {0}:".format(mimetype))
                 choices = []
                 for idx, tup in enumerate(possible_extensions.iteritems()):
                     ext, packages = tup
                     choices.append(ext)
-                    print "    #{0}: {1} (from {2})".format(idx+1, ext, ", ".join(packages))
+                    print("    #{0}: {1} (from {2})".format(idx+1, ext, ", ".join(packages)))
                 answer = raw_input("  Choose an extension (#1, #2, ...) or enter yours: ")
                 if answer.startswith('#') and answer[1:].isdigit() and 0 < int(answer[1:]) <= len(choices):
                     extension = choices[int(answer[1:])-1]
-                    print "Your choice: {0}".format(extension)
+                    print("Your choice: {0}".format(extension))
                 else:
                     extension = answer
 
             r = ResourceType.objects.create(mimetype=mimetype,
                                             description=description,
                                             extension=extension)
-            print "Added {0} with description='{1}' and extension='{2}'".format(r.mimetype, r.description, r.extension)
+            print("Added {0} with description='{1}' and extension='{2}'".format(r.mimetype, r.description, r.extension))
     else:  # exist in DB. Don't touch ([TODO]: for now, perhaps we want the server maintainer to change it somehow...)
         del registered_rts[mimetype]
 
@@ -159,20 +159,20 @@ if registered_rts:  # if there are still registered ones
             if confirm_delete.lower() == 'y':
                 try:
                     ResourceType.objects.get(mimetype=mimetype).delete()
-                    print "  ..deleted.\n\n"
+                    print("  ..deleted.\n\n")
                 except Exception as e:
                     confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are Resources or ResourceLists using this ResourceType. Confirm deletion of related Resources (y/N)? ".format(str(e)))
                     if confirm_delete.lower() == 'y':
                         try:
                             Resource.objects.filter(resource_type__mimetype=mimetype).delete()
                             ResourceType.objects.get(mimetype=mimetype).delete()
-                            print "  ..deleted. OK\n\n"
+                            print("  ..deleted. OK\n\n")
                         except Exception as e:
-                            print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                            print("  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e)))
                     else:
-                        print "  ..not deleted.\n\n"
+                        print("  ..not deleted.\n\n")
             else:
-                print "  ..not deleted.\n\n"
+                print("  ..not deleted.\n\n")
 
 
 
@@ -202,17 +202,17 @@ if job_list:  # there are database jobs that are not registered. Should delete t
             if confirm_delete.lower() == 'y':
                 try:
                     Job.objects.get(name=j_name).delete()
-                    print "  ..deleted.\n\n"
+                    print("  ..deleted.\n\n")
                 except Exception as e:
                     confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
                     if confirm_delete.lower() == 'y':
                         try:
                             WorkflowJob.objects.filter(job__name=j_name).delete()
                             Job.objects.get(name=j_name).delete()
-                            print "  ..deleted. OK\n\n"
+                            print("  ..deleted. OK\n\n")
                         except Exception as e:
-                            print "  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e))
+                            print("  ..not deleted because of an exception: {0}. Please fix it manually.\n\n".format(str(e)))
                     else:
-                        print "  ..not deleted.\n\n"
+                        print("  ..not deleted.\n\n")
             else:
-                print "  ..not deleted.\n\n"
+                print("  ..not deleted.\n\n")

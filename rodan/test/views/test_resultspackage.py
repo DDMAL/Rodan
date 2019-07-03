@@ -136,7 +136,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data['uuid']
         rp = ResultsPackage.objects.get(uuid=rp_id)
-        #print rp.error_summary, rp.error_details
+        #print(rp.error_summary, rp.error_details)
         self.assertEqual(rp.status, task_status.FINISHED)
         self.assertEqual(rp.percent_completed, 100)
         self.assertEqual(os.path.isfile(rp.package_path), True)
@@ -144,7 +144,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
         self.assertEqual(len(files), 2)
-        #print files
+        #print(files)
         # TODO: test file names
     def test_one_port(self):
         resultspackage_obj = {
@@ -163,7 +163,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
         self.assertEqual(len(files), 1)
-        #print files
+        #print(files)
         # TODO: test file names
 
     def test_invalid_port(self):
@@ -263,7 +263,7 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
             files = z.namelist()
         files = filter(lambda f: f not in bag_metadata, files)
         self.assertEqual(len(files), 10)
-        #print files
+        #print(files)
         # TODO: test file names
 
     def test_default_ports(self):

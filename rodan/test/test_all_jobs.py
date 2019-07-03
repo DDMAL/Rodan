@@ -28,15 +28,15 @@
 #         total = len(rodan_tasks)
 #         failed = []
 #         for i, task in enumerate(rodan_tasks):
-#             print "{0}/{1}: {2} ... ".format(i+1, total, task.name),
+#             print("{0}/{1}: {2} ... ".format(i+1, total, task.name),)
 #             try:
 #                 task.test_my_task(self)
 #             except Exception as e:
-#                 print "FAILED"
+#                 print("FAILED")
 #                 tb = traceback.format_exc()
 #                 failed.append((task.name, tb))
 #             else:
-#                 print "PASSED"
+#                 print("PASSED")
 #
 #         if failed:
 #             self.fail("{0} job(s) out of {1} failed.\n\n{2}".format(
