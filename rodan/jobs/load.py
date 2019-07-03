@@ -155,7 +155,10 @@ for mimetype, definitions in resourcetypes.items():
 
 ## delete removed ones
 if registered_rts:  # if there are still registered ones
-    if not UPDATE_JOBS:
+    # To keep docker images small, only the main celery queue NEEDS all jobs.
+    if os.environ["CELERY_JOB_QUEUE"] != "celery":
+        pass
+    elif not UPDATE_JOBS:
         raise ImproperlyConfigured("The following ResourceTypes are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(registered_rts.keys())))
     else:
         for mimetype, info in registered_rts.items():
@@ -198,7 +201,10 @@ for package_name in settings.RODAN_JOB_PACKAGES:
     module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
-    if not UPDATE_JOBS:
+    # To keep docker images small, only the main celery queue NEEDS all jobs.
+    if os.environ["CELERY_JOB_QUEUE"] != "celery":
+        pass
+    elif not UPDATE_JOBS:
         raise ImproperlyConfigured("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
     else:
         for j_name in job_list:
