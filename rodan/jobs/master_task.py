@@ -3,7 +3,14 @@ from rodan.models import UserPreference, RunJob, WorkflowRun, Input
 from rodan.constants import task_status
 from django.db.models import Q
 from django.conf import settings
-import thread
+
+import sys
+if sys.version_info.major == 2:
+    import thread
+elif sys.version_info.major == 3:
+    import threading as thread
+else:
+    raise Exception("[-] Python version not supported.")
 
 # Read more on Django queries: https://docs.djangoproject.com/en/dev/topics/db/queries/
 
