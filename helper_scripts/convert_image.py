@@ -1,14 +1,18 @@
-from PIL import Image
 import os
+
+from PIL import Image
+
+if sys.version_info.major == 2:
+    input = raw_input
 
 # creates a directory to keep all the converted files
 if not os.path.exists('./Converted'):
     os.makedirs('./Converted')
 
 # prompts user to input a path where the files are located ex: /Users/Jacob/Documents/...
-path = raw_input('Please enter a path to a directory containing the files to be converted:\n')
+path = input('Please enter a path to a directory containing the files to be converted:\n')
 # prompts user to input the target format of the image to be converted (ex: 'png', 'jpeg')
-img_type = raw_input('Please enter the desired converted format\n')
+img_type = input('Please enter the desired converted format\n')
 # loads all the names of the images in the directory
 images = [f for f in os.listdir(path) if os.path.isfile(path + f)]
 

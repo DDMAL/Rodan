@@ -28,8 +28,12 @@ never be executed when importing `rodan.jobs` or other submodules under `rodan.j
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList
-import logging, os
+import logging, os, sys
 import yaml
+
+if sys.version_info.major == 2:
+    input = raw_input
+
 logger = logging.getLogger('rodan')
 UPDATE_JOBS = getattr(settings, "_update_rodan_jobs", False)  # set when python manage.py migrate
 
@@ -117,7 +121,7 @@ for mimetype, definitions in resourcetypes.items():
                     desc, packages = tup
                     choices.append(desc)
                     print("    #{0}: {1} (from {2})".format(idx+1, desc, ", ".join(packages)))
-                answer = raw_input("  Choose a description (#1, #2, ...) or enter yours: ")
+                answer = input("  Choose a description (#1, #2, ...) or enter yours: ")
                 if answer.startswith('#') and answer[1:].isdigit() and 0 < int(answer[1:]) <= len(choices):
                     description = choices[int(answer[1:])-1]
                     print("Your choice: {0}".format(description))
@@ -135,7 +139,7 @@ for mimetype, definitions in resourcetypes.items():
                     ext, packages = tup
                     choices.append(ext)
                     print("    #{0}: {1} (from {2})".format(idx+1, ext, ", ".join(packages)))
-                answer = raw_input("  Choose an extension (#1, #2, ...) or enter yours: ")
+                answer = input("  Choose an extension (#1, #2, ...) or enter yours: ")
                 if answer.startswith('#') and answer[1:].isdigit() and 0 < int(answer[1:]) <= len(choices):
                     extension = choices[int(answer[1:])-1]
                     print("Your choice: {0}".format(extension))
@@ -155,13 +159,13 @@ if registered_rts:  # if there are still registered ones
         raise ImproperlyConfigured("The following ResourceTypes are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(registered_rts.keys())))
     else:
         for mimetype, info in registered_rts.items():
-            confirm_delete = raw_input("ResourceType `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(mimetype))
+            confirm_delete = input("ResourceType `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(mimetype))
             if confirm_delete.lower() == 'y':
                 try:
                     ResourceType.objects.get(mimetype=mimetype).delete()
                     print("  ..deleted.\n\n")
                 except Exception as e:
-                    confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are Resources or ResourceLists using this ResourceType. Confirm deletion of related Resources (y/N)? ".format(str(e)))
+                    confirm_delete = input("  ..not deleted because of an exception: {0}. Perhaps there are Resources or ResourceLists using this ResourceType. Confirm deletion of related Resources (y/N)? ".format(str(e)))
                     if confirm_delete.lower() == 'y':
                         try:
                             Resource.objects.filter(resource_type__mimetype=mimetype).delete()
@@ -198,13 +202,13 @@ if job_list:  # there are database jobs that are not registered. Should delete t
         raise ImproperlyConfigured("The following jobs are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(job_list)))
     else:
         for j_name in job_list:
-            confirm_delete = raw_input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
+            confirm_delete = input("Job `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(j_name))
             if confirm_delete.lower() == 'y':
                 try:
                     Job.objects.get(name=j_name).delete()
                     print("  ..deleted.\n\n")
                 except Exception as e:
-                    confirm_delete = raw_input("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
+                    confirm_delete = input("  ..not deleted because of an exception: {0}. Perhaps there are WorkflowJobs using this Job. Confirm deletion of related WorkflowJobs (y/N)? ".format(str(e)))
                     if confirm_delete.lower() == 'y':
                         try:
                             WorkflowJob.objects.filter(job__name=j_name).delete()

@@ -1,4 +1,4 @@
-import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema, inspect
+import tempfile, shutil, os, uuid, copy, re, json, contextlib, jsonschema, inspect, sys
 from celery import Task, registry
 from celery.app.task import TaskType
 from rodan.models import RunJob, Input, Output, Resource, ResourceType, Job, InputPortType, OutputPortType, WorkflowRun
@@ -15,6 +15,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 import logging
 logger = logging.getLogger('rodan')
+
+if sys.version_info.major == 2:
+    input = raw_input
 
 class RodanTaskType(TaskType):
     """
@@ -688,7 +691,7 @@ def confirm(prompt, default=True):
     if os.environ.get("RODAN_NON_INTERACTIVE") == "true":
         return default
     else:
-        return raw_input(prompt).lower() == 'y'
+        return input(prompt).lower() == 'y'
 
 
 _django_template_cache = {}

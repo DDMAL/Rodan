@@ -35,6 +35,9 @@ import traceback
 import getpass
 import subprocess
 
+if sys.version_info.major == 2:
+    input = raw_input
+
 
 @receiver(post_migrate)
 def add_view_user_permission(sender, **kwargs):
@@ -210,14 +213,14 @@ def update_database_trigger(sender, **kwargs):
                     print("  1. Provide the username and password of a superuser.")
                     print("  2. Provide the shell command to log in PostgreSQL console as a superuser (typically `sudo -u postgres psql --dbname={0}`)".format(settings.DATABASES['default']['NAME']))
                     print("(Please inform Rodan developers if there is another way of connecting to PostgreSQL.)")
-                    choice = raw_input("Choice: ")
+                    choice = input("Choice: ")
 
                 if choice is '1':
                     if 'RODAN_PSQL_SUPERUSER_USERNAME' in os.environ:
                         username = os.environ['RODAN_PSQL_SUPERUSER_USERNAME']
                         del os.environ['RODAN_PSQL_SUPERUSER_USERNAME']
                     else:
-                        username = raw_input("Username: ")
+                        username = input("Username: ")
 
                     if 'RODAN_PSQL_SUPERUSER_PASSWORD' in os.environ:
                         password = os.environ['RODAN_PSQL_SUPERUSER_PASSWORD']
@@ -247,7 +250,7 @@ def update_database_trigger(sender, **kwargs):
                             cmd = os.environ['RODAN_PSQL_SUPERUSER_COMMAND']
                             del os.environ['RODAN_PSQL_SUPERUSER_COMMAND']
                         else:
-                            cmd = raw_input("Command: ")
+                            cmd = input("Command: ")
                         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
                         grep_stdout = p.communicate(input=publish_message)[0]
                         rc = p.returncode
