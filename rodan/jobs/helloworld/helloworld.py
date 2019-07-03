@@ -45,29 +45,27 @@ class HelloWorldInteractive(RodanTask):
     )
 
     def get_my_interface(self, inputs, settings):
-	# Get input.
+	    # Get input.
         input = 'there was no user input file'
         if 'Text input' in inputs:
             infile_path = inputs['Text input'][0]['resource_path']
-            infile = open(infile_path, "r")
-            input = infile.read()	
-	    infile.close()
+            with open(infile_path, "r") as infile:
+                input = infile.read()
 
-	# Create data to pass.
-	data = {'input': input}
-	return ('interface.html', data)
+        # Create data to pass.
+        data = {'input': input}
+        return ('interface.html', data)
 
     def run_my_task(self, inputs, settings, outputs):
-	if '@done' not in settings:
-	    return self.WAITING_FOR_INPUT() 
-	outfile_path = outputs['Text output'][0]['resource_path']
-        outfile = open(outfile_path, "w")
-        outfile.write(("Hello World {0}").format(settings['@user_input']))
-        outfile.close()	
-	return True
+        if '@done' not in settings:
+            return self.WAITING_FOR_INPUT() 
+        outfile_path = outputs['Text output'][0]['resource_path']
+        with open(outfile_path, "w") as outfile: 
+            outfile.write(("Hello World {0}").format(settings['@user_input']))
+        return True
 
     def validate_my_user_input(self, inputs, settings, user_input):
         return { '@done': True, '@user_input': user_input['user_input'] }
 
     def my_error_information(self, exc, traceback):
-	pass
+        pass
