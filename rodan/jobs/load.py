@@ -87,7 +87,7 @@ for rt in ResourceType.objects.all():
 def multiple_choice(field_name):
     print("  Multiple {0}s are found")
 
-for mimetype, definitions in resourcetypes.iteritems():
+for mimetype, definitions in resourcetypes.items():
     if len(definitions) == 0: continue
     if mimetype not in registered_rts: # If not yet exist in DB:
         if not UPDATE_JOBS:
@@ -113,7 +113,7 @@ for mimetype, definitions in resourcetypes.iteritems():
             else:
                 print("\n  Multiple descriptions found for {0}:".format(mimetype))
                 choices = []
-                for idx, tup in enumerate(possible_descriptions.iteritems()):
+                for idx, tup in enumerate(possible_descriptions.items()):
                     desc, packages = tup
                     choices.append(desc)
                     print("    #{0}: {1} (from {2})".format(idx+1, desc, ", ".join(packages)))
@@ -131,7 +131,7 @@ for mimetype, definitions in resourcetypes.iteritems():
             else:
                 print("\n  Multiple extensions found for {0}:".format(mimetype))
                 choices = []
-                for idx, tup in enumerate(possible_extensions.iteritems()):
+                for idx, tup in enumerate(possible_extensions.items()):
                     ext, packages = tup
                     choices.append(ext)
                     print("    #{0}: {1} (from {2})".format(idx+1, ext, ", ".join(packages)))
@@ -154,7 +154,7 @@ if registered_rts:  # if there are still registered ones
     if not UPDATE_JOBS:
         raise ImproperlyConfigured("The following ResourceTypes are in database but not registered in the code. Perhaps they have been deleted in the code but not in the database. Try to run `manage.py migrate` to confirm deleting them:\n{0}".format('\n'.join(registered_rts.keys())))
     else:
-        for mimetype, info in registered_rts.iteritems():
+        for mimetype, info in registered_rts.items():
             confirm_delete = raw_input("ResourceType `{0}` is in database but not registered in the code. Perhaps it has been deleted in the code but not yet in the database. Confirm deletion (y/N)? ".format(mimetype))
             if confirm_delete.lower() == 'y':
                 try:

@@ -32,7 +32,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
         if not "job_settings" in serializer.validated_data:
             j_settings = serializer.validated_data["job"].settings
             s = {}
-            for properti, definition in j_settings.get("properties", {}).iteritems():
+            for properti, definition in j_settings.get("properties", {}).items():
                 if "default" in definition:
                     s[properti] = definition["default"]
             serializer.validated_data["job_settings"] = s
@@ -53,7 +53,7 @@ class WorkflowJobDetail(generics.RetrieveUpdateDestroyAPIView):
         if wfj_serializer.instance.group is not None:
             # only allow job_settings to be updated
             invalid_info = {}
-            for k, v in wfj_serializer.validated_data.iteritems():
+            for k, v in wfj_serializer.validated_data.items():
                 if k != "job_settings":
                     invalid_info[
                         k

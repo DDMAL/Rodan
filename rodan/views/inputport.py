@@ -59,7 +59,7 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, ip_serializer):
         if ip_serializer.instance.workflow_job.group is not None:
             invalid_info = {}
-            for k, v in ip_serializer.validated_data.iteritems():
+            for k, v in ip_serializer.validated_data.items():
                 invalid_info[
                     k
                 ] = "To modify this field, you should first remove its workflow job from the group."

@@ -1104,7 +1104,7 @@ class PermissionRuntimeTestCase(
         }
         for u in [creator, self.test_admin, self.test_worker]:
             self.client.force_authenticate(user=u)
-            for k, v in counts.iteritems():
+            for k, v in counts.items():
                 response = self.client.get(reverse("{0}-list".format(k)))
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(response.data["count"], v)
@@ -1131,7 +1131,7 @@ class PermissionRuntimeTestCase(
 
         # 6
         self.client.force_authenticate(user=self.test_worker)
-        for k, v in counts.iteritems():
+        for k, v in counts.items():
             response = self.client.get(reverse("{0}-list".format(k)))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 0)
@@ -1149,7 +1149,7 @@ class PermissionRuntimeTestCase(
 
         # 8
         self.client.force_authenticate(user=self.test_admin)
-        for k, v in counts.iteritems():
+        for k, v in counts.items():
             response = self.client.get(reverse("{0}-list".format(k)))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 0)
@@ -1167,7 +1167,7 @@ class PermissionRuntimeTestCase(
 
         # 10
         self.client.force_authenticate(user=self.test_worker2)
-        for k, v in counts.iteritems():
+        for k, v in counts.items():
             response = self.client.get(reverse("{0}-list".format(k)))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], v)

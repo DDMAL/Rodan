@@ -52,7 +52,7 @@ class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
             == conn_serializer.instance.output_port.workflow_job.group
         ):
             invalid_info = {}
-            for k, v in conn_serializer.validated_data.iteritems():
+            for k, v in conn_serializer.validated_data.items():
                 invalid_info[
                     k
                 ] = "To modify this field, you should first remove one of its related workflow jobs from the group."

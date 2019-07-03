@@ -133,7 +133,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
         )
         validated_resource_assignment_dict = {}
         multiple_resource_set = None
-        for input_port, resources in resource_assignment_dict.iteritems():
+        for input_port, resources in resource_assignment_dict.items():
             # 1. InputPort is not satisfied
             h_ip = HyperlinkedIdentityField(view_name="inputport-detail")
             h_ip.queryset = InputPort.objects.all()

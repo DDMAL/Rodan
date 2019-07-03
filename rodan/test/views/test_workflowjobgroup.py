@@ -334,7 +334,7 @@ class WorkflowJobGroupProtectTestCase(
                 mommy.make("rodan.Workflow").pk
             ),
         }
-        for k, v in wfj_updates.iteritems():
+        for k, v in wfj_updates.items():
             anticipated_message = {
                 k: "To modify this field, you should first remove it from the group."
             }
@@ -392,7 +392,7 @@ class WorkflowJobGroupProtectTestCase(
             ),
         }
 
-        for k, v in ip_updates.iteritems():
+        for k, v in ip_updates.items():
             anticipated_message = {
                 k: "To modify this field, you should first remove its workflow job from the group."
             }
@@ -451,7 +451,7 @@ class WorkflowJobGroupProtectTestCase(
             ),
         }
 
-        for k, v in op_updates.iteritems():
+        for k, v in op_updates.items():
             anticipated_message = {
                 k: "To modify this field, you should first remove its workflow job from the group."
             }
@@ -502,7 +502,7 @@ class WorkflowJobGroupProtectTestCase(
             ),
         }
 
-        for k, v in conn_updates.iteritems():
+        for k, v in conn_updates.items():
             anticipated_message = {
                 k: "To modify this field, you should first remove one of its related workflow jobs from the group."
             }

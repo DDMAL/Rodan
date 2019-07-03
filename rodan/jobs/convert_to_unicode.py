@@ -7,7 +7,7 @@ def convert_to_unicode(data):
     if isinstance(data, basestring):
         return unicode(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(convert_to_unicode, data.iteritems()))
+        return dict(map(convert_to_unicode, data.items()))
     elif isinstance(data, collections.Iterable):
         return type(data)(map(convert_to_unicode, data))
     else:

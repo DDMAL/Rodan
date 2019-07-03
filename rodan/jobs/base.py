@@ -349,7 +349,7 @@ class RodanTask(Task):
         rj_settings = runjob.job_settings
         j_settings = Job.objects.get(name=runjob.job_name).settings
 
-        for properti, definition in j_settings.get('properties', {}).iteritems():
+        for properti, definition in j_settings.get('properties', {}).items():
             if 'enum' in definition:  # convert enum to integers
                 rj_settings[properti] = definition['enum'].index(rj_settings[properti])
 
@@ -399,7 +399,7 @@ class RodanTask(Task):
         def __init__(self, settings_update={}, response=None):
             self.settings_update = {}
             self.response = response
-            for k, v in settings_update.iteritems():
+            for k, v in settings_update.items():
                 if isinstance(k, basestring) and k.startswith('@'):
                     self.settings_update[k] = v
 
@@ -440,7 +440,7 @@ class RodanTask(Task):
             arg_outputs = {}
             temppath_map = {}   # retains where originally assigned paths are from... prevent jobs changing them
 
-            for opt_name, output_list in outputs.iteritems():
+            for opt_name, output_list in outputs.items():
                 if opt_name not in arg_outputs:
                     arg_outputs[opt_name] = []
                 for output in output_list:
@@ -501,7 +501,7 @@ class RodanTask(Task):
                     pass
 
                 # ensure the job has produced all output files
-                for opt_name, output_list in outputs.iteritems():
+                for opt_name, output_list in outputs.items():
                     for output in output_list:
                         if output['is_list'] is False:
                             if not os.path.isfile(output['resource_temp_path']):
@@ -512,7 +512,7 @@ class RodanTask(Task):
                                 raise RuntimeError("The job did not produce any output files for the resource list for {0}".format(opt_name))
 
                 # save outputs
-                for temppath, output in temppath_map.iteritems():
+                for temppath, output in temppath_map.items():
                     if output['is_list'] is False:
                         with open(temppath, 'rb') as f:
                             resource = Output.objects.get(uuid=output['uuid']).resource
