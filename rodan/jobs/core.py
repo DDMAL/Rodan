@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import os
 import shutil
 from pybagit.bagit import BagIt
@@ -24,7 +26,7 @@ from rodan.constants import task_status
 from celery import Task
 from celery.task.control import revoke
 from rodan.jobs.base import TemporaryDirectory
-from diva_generate_json import GenerateJson
+from .diva_generate_json import GenerateJson
 
 
 class create_resource(Task):
