@@ -229,7 +229,7 @@ ROOT_URLCONF = "rodan.urls"
 # let Django know if the request is HTTPS
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_SCHEME", "https")
 # Allowed hosts
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
 SESSION_COOKIE_SECURE = os.getenv("SSL_COOKIE")
 SESSION_COOKIE_DOMAIN = os.getenv("SSL_COOKIE_DOMAIN")
 # List of callables that know how to import templates from various sources.
