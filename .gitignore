@@ -12,6 +12,7 @@ rodan_env
 rodan/static/Rodan
 rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
+rodan/jobs/vis-rodan/
 rodan/jobs/interactive_classifier
 rodan/jobs/jSymbolic-Rodan/
 rodan/jobs/pil-rodan/
@@ -20,6 +21,7 @@ rodan/jobs/diagonal-neume-slicing/
 rodan/jobs/heuristic-pitch-finding/
 rodan/jobs/JSOMR2MEI/
 rodan/jobs/pixel_wrapper/
+rodan/jobs/neon-wrapper/
 
 /.DS_Store
 
