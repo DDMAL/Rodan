@@ -31,6 +31,7 @@ from .diva_generate_json import GenerateJson
 
 class create_resource(Task):
     name = "rodan.core.create_resource"
+    queue = "celery"
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
@@ -184,6 +185,7 @@ class package_results(Task):
     # [TODO] this code needs refactoring. It should be possible to parameterize this
     # core job in some way according to user needs...
     name = "rodan.core.package_results"
+    queue = "celery"
 
     def run(self, rp_id):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
@@ -377,7 +379,7 @@ class package_results(Task):
         expiry_time = rp_query.values_list("expiry_time", flat=True)[0]
         if expiry_time:
             async_task = registry.tasks["rodan.core.expire_package"].apply_async(
-                (rp_id,), eta=expiry_time
+                (rp_id,), eta=expiry_time, queue="celery"
             )
             expire_task_id = async_task.task_id
         else:
@@ -425,6 +427,7 @@ class package_results(Task):
 
 class expire_package(Task):
     name = "rodan.core.expire_package"
+    queue = "celery"
 
     def run(self, rp_id):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
@@ -441,6 +444,7 @@ class create_workflowrun(Task):
     """
 
     name = "rodan.core.create_workflowrun"
+    queue = "celery"
 
     def run(self, wf_id, wfrun_id, resource_assignment_dict):
         workflow = Workflow.objects.get(uuid=wf_id)
