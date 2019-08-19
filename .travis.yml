@@ -1,26 +1,48 @@
-if: branch = master AND type IN (pull_request, cron) OR branch = develop
+if: (branch = master AND type IN (pull_request, cron)) OR (branch = develop)
 language: python
 cache: pip
 services:
   - redis-server
+addons:
+  postgresql: "9.5"
+  apt:
+    packages:
+      - postgresql-plpython-9.5
 matrix:
   include:
-  - os: linux
-    sudo: required
-    python: 2.7
+    - os: linux
+      sudo: required
+      python: 2.7
 before_install:
   - sudo apt-get update -qy
-  - sudo /etc/init.d/postgresql stop
-  - sudo apt-get install -y postgresql-9.3 postgresql-contrib-9.3 postgresql-plpython-9.3
-  - sudo /etc/init.d/postgresql start 9.3
+  - sudo /etc/init.d/postgresql restart
   - sudo pip install redis
   - sudo redis-server /etc/redis/redis.conf --port 6379
-  - pip install -r requirements.txt
   - export REDIS_HOST=localhost
-  - export POSTGRES_HOST=localhost
+  - export REDIS_PORT=6379
+  - export REDIS_DB=0
+  - export RABBITMQ_URL=amqp://guest_user:guest_pass@localhost:5672//
+  - export RABBITMQ_DEFAULT_USER=guest_user
+  - export RABBITMQ_DEFAULT_PASS=guest_pass
+  - export DJANGO_DEBUG_MODE=True
   - export DJANGO_SECRET_KEY=local
+  - export DJANGO_ALLOWED_HOSTS=*
+  - export DJANGO_MEDIA_ROOT=./data/
+  - export POSTGRES_HOST=localhost
+  - export POSTGRES_PORT=5432
+  - export POSTGRES_DB=rodan
+  - export POSTGRES_USER=rodan
+  - export POSTGRES_PASSWORD=rodan
+install:
+  - pip install -r requirements.txt
   - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
-  - mkdir -p /code/Rodan
+  - sed -i "s/\/code\/Rodan/./g" rodan/settings.py
+before_script:
+  - psql -c "CREATE DATABASE rodan;" -U postgres
+  - psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
+  - psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
+  - psql -c "CREATE LANGUAGE plpython2u;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES ON DATABASE "rodan" TO rodan;" -U postgres
   - python manage.py makemigrations rodan
   - python manage.py migrate
 script:
