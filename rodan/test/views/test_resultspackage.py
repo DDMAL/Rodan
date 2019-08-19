@@ -38,7 +38,8 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
             'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1())
-            ]
+            ],
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -90,7 +91,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.setUp_rodan()
         self.setUp_user()
         self.setUp_simple_dummy_workflow()
-        self.client.force_authenticate(user=self.test_user)
+        self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
             "/workflow/{0}/".format(self.test_workflow.uuid),
             {"valid": True},
@@ -100,8 +101,7 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
 
         # Run this dummy workflow
         ra = self.setUp_resources_for_simple_dummy_workflow()
-        self.test_resource_content = "dummy text"
-        self.test_resource.compat_resource_file.save("dummy.txt", ContentFile(self.test_resource_content))
+        self.test_resource.resource_file.save("dummy.txt", ContentFile('{"test": "hahaha"}'))
         workflowrun_obj = {
             "creator": "http://localhost:8000/user/{0}/".format(self.test_user.pk),
             "workflow": "http://localhost:8000/workflow/{0}/".format(
@@ -131,7 +131,9 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
             'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.output_a.output_port.uuid),
-                             'http://localhost:8000/outputport/{0}/'.format(self.output_m.output_port.uuid)]}
+                             'http://localhost:8000/outputport/{0}/'.format(self.output_m.output_port.uuid)],
+            'packaging_mode': 0
+        }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data['uuid']
@@ -146,11 +148,12 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         self.assertEqual(len(files), 2)
         #print(files)
         # TODO: test file names
+
     def test_one_port(self):
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
-            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.output_a.output_port.uuid)
-            ]
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.output_a.output_port.uuid)],
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -170,8 +173,8 @@ class ResultsPackageSimpleTest(RodanTestTearDownMixin, APITestCase, RodanTestSet
         invalid_op = mommy.make('rodan.OutputPort')
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
-            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid)
-            ]
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid)],
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -248,8 +251,8 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
     def test_one_port(self):
         resultspackage_obj = {
             'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
-            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.test_Fop.uuid)
-            ]
+            'output_ports': ['http://localhost:8000/outputport/{0}/'.format(self.test_Fop.uuid)],
+            'packaging_mode': 0
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -268,7 +271,8 @@ class ResultsPackageComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSe
 
     def test_default_ports(self):
         resultspackage_obj = {
-            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid)
+            'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(self.test_workflowrun.uuid),
+            "packaging_mode": 0,
         }
         response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
