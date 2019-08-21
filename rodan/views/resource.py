@@ -6,7 +6,8 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.core.urlresolvers import Resolver404, resolve
-from rodan.models import Resource, ResourceType, Tempauthtoken
+from django.core.files.uploadhandler import TemporaryUploadedFile
+from rodan.models import Resource, ResourceType, Project, Tempauthtoken
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
 from django.db.models import Q
@@ -117,13 +118,15 @@ class ResourceList(generics.ListCreateAPIView):
             except (Resolver404, ResourceType.DoesNotExist) as e:
                 print(str(e))
 
-
         initial_data = {
             'resource_type': ResourceTypeSerializer(ResourceType.objects.get(mimetype='application/octet-stream'), context={'request': request}).data['url'],
             'processing_status': task_status.SCHEDULED
         }
-        if 'project' in request.data:
+        if 'project' in request.data and type(request.data['project']) != TemporaryUploadedFile:
             initial_data['project'] = request.data['project']
+        else:
+            project_pk = request.data["project"].read()
+            initial_data['project'] = project_pk + "/"
 
         new_resources = []
         for fileobj in request.data.getlist('files'):
