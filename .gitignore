@@ -22,6 +22,8 @@ rodan/jobs/heuristic-pitch-finding/
 rodan/jobs/JSOMR2MEI/
 rodan/jobs/pixel_wrapper/
 rodan/jobs/neon-wrapper/
+rodan/jobs/MEI_encoding
+rodan/jobs/text_alignment
 
 /.DS_Store
 
