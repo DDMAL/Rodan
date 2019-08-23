@@ -132,10 +132,18 @@ DIVA_JPEG2000_CONVERTER_OUTPUT = "JPEG2000 Image"
 # 1.c  Rodan Job Package Registration
 ###############################################################################
 # Job Packages
-RODAN_JOB_PACKAGES = [
+RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
+BASE_RODAN_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.resource_distributor",
 ]
+if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery" or RODAN_JOB_QUEUE == "Python2":
+    RODAN_JOB_PACKAGES = [
+    ] + BASE_RODAN_JOBS
+elif RODAN_JOB_QUEUE == "Python3":
+    RODAN_JOB_PACKAGES = [
+    ] + BASE_RODAN_JOBS
+
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
 BIN_GM = "/usr/bin/gm"
