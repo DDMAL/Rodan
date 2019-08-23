@@ -59,6 +59,11 @@ resourcetypes = {
         "description": "Plain text",
         "extension": "txt",
         "package_name": "built-in"
+    }],
+    "image/jp2": [{
+        "description": "JPEG2000 image",
+        "extension": "jp2",
+        "package_name": "built-in"
     }]
 } # core resourcetypes
 
