@@ -28,6 +28,7 @@ before_install:
 - export DJANGO_SECRET_KEY=local
 - export DJANGO_ALLOWED_HOSTS=*
 - export DJANGO_MEDIA_ROOT=./data/
+- export CELERY_JOB_QUEUE=None
 - export POSTGRES_HOST=localhost
 - export POSTGRES_PORT=5432
 - export POSTGRES_DB=rodan
