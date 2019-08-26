@@ -106,6 +106,10 @@ class ResourceList(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         if not request.data.get('files', None):
             raise ValidationError({'files': ["You must supply at least one file to upload."]})
+        
+        if not request.data.get('project', None):
+            raise ValidationError({'project': ["This field is required."]})
+
         claimed_mimetype = request.data.get('type', None)
         if claimed_mimetype:
             try:
