@@ -122,11 +122,9 @@ class ResourceList(generics.ListCreateAPIView):
             'resource_type': ResourceTypeSerializer(ResourceType.objects.get(mimetype='application/octet-stream'), context={'request': request}).data['url'],
             'processing_status': task_status.SCHEDULED
         }
-        if 'project' in request.data and type(request.data['project']) != TemporaryUploadedFile:
+
+        if 'project' in request.data:
             initial_data['project'] = request.data['project']
-        else:
-            project_pk = request.data["project"].read()
-            initial_data['project'] = project_pk + "/"
 
         new_resources = []
         for fileobj in request.data.getlist('files'):
