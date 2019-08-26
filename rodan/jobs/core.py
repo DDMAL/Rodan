@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import os
 import shutil
+import subprocess
+import tempfile
 from pybagit.bagit import BagIt
 from celery import task, registry
 from django.conf import settings
@@ -167,8 +169,46 @@ def create_diva(resource_id):
             }
         ]
     }
-    _task = registry.tasks[getattr(settings, "DIVA_JPEG2000_CONVERTER")]
-    _task.run_my_task(inputs, {}, outputs)
+    # _task = registry.tasks[getattr(settings, "DIVA_JPEG2000_CONVERTER")]
+    # _task.run_my_task(inputs, {}, outputs)
+
+    task_image = inputs["Image"][0]["resource_path"]
+    _, tmp_file = tempfile.mkstemp(suffix=".tiff")
+
+    name = os.path.basename(tmp_file)
+    name, ext = os.path.splitext(name)
+    
+    subprocess.check_call(
+        args=[BIN_GM,
+            "convert",
+            "-depth", "8", # output RGB
+            "-compress", "None",
+            task_image, # image file input
+            tmp_file # tiff file output
+        ]
+    )
+    subprocess.check_call(
+        args=[
+            BIN_KDU_COMPRESS,
+            "-i", tmp_file,
+            "-o", name + ".jp2",
+            "-quiet",
+            "Clevels=5",
+            "Cblk={64,64}",
+            "Cprecincts={256,256},{256,256},{128,128}",
+            "Creversible=yes",
+            "Cuse_sop=yes",
+            "Corder=LRCP",
+            "ORGgen_plt=yes",
+            "ORGtparts=R",
+            "-rate", "-,1,0.5,0.25"
+        ]
+    )
+    shutil.copyfile(name+".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    
+    # Cleanup temporary files
+    os.remove(tmp_file)
+    os.remove(name + ".jp2")
 
     gen = GenerateJson(
         input_directory=resource_object.diva_path,
