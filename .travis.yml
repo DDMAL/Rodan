@@ -5,6 +5,7 @@ virtualenv:
 cache: pip
 services:
 - redis-server
+- postgresql
 addons:
   postgresql: '9.5'
   apt:
