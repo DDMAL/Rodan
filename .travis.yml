@@ -38,7 +38,7 @@ before_install:
 - export POSTGRES_PASSWORD=rodan
 install:
 - pip install -r requirements.txt
-- sudo chmod -R 755 `pip show six | grep "Location:" | cut -d " " -f2`
+- sudo chmod -R 755 /home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/pybagit
 - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
 - sed -i "s/\/code\/Rodan/./g" rodan/settings.py
 before_script:
