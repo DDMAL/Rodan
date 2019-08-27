@@ -1,5 +1,7 @@
 if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop)"
 language: python
+virtualenv:
+  system_site_packages: true
 cache: pip
 services:
 - redis-server
@@ -36,7 +38,7 @@ before_install:
 - export POSTGRES_PASSWORD=rodan
 install:
 - pip install -r requirements.txt
-- sudo chmod -R 755 /usr/local/lib/python2.7/dist-packages/pybagit
+- sudo chmod -R 755 `pip show six | grep "Location:" | cut -d " " -f2`
 - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
 - sed -i "s/\/code\/Rodan/./g" rodan/settings.py
 before_script:
