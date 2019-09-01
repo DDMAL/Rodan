@@ -80,7 +80,7 @@ def master_task(workflow_run_id):
             if not settings.TEST:
                 if (
                     user.email
-                    and settings.EMAIL_USE
+                    and getattr(settings, 'EMAIL_USE', False)
                     and user.user_preference.send_email
                 ):
                     subject = "Workflow Run '{0}' FINISHED".format(workflowrun.name)
