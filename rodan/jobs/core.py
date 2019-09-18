@@ -154,7 +154,7 @@ def create_diva(resource_id):
         os.makedirs(resource_object.diva_path)
 
     inputs = {
-        getattr(settings, "DIVA_JPEG2000_CONVERTER_INPUT"): [
+        "Image": [
             {
                 "resource_path": resource_object.resource_file.path,
                 "resource_type": mimetype,
@@ -162,15 +162,13 @@ def create_diva(resource_id):
         ]
     }
     outputs = {
-        getattr(settings, "DIVA_JPEG2000_CONVERTER_OUTPUT"): [
+        "JPEG2000 Image": [
             {
                 "resource_path": resource_object.diva_jp2_path,
                 "resource_type": "image/jp2",
             }
         ]
     }
-    # _task = registry.tasks[getattr(settings, "DIVA_JPEG2000_CONVERTER")]
-    # _task.run_my_task(inputs, {}, outputs)
 
     task_image = inputs["Image"][0]["resource_path"]
     _, tmp_file = tempfile.mkstemp(suffix=".tiff")
@@ -187,6 +185,8 @@ def create_diva(resource_id):
             tmp_file # tiff file output
         ]
     )
+
+    # With Kakadu
     subprocess.check_call(
         args=[
             BIN_KDU_COMPRESS,
@@ -204,8 +204,49 @@ def create_diva(resource_id):
             "-rate", "-,1,0.5,0.25"
         ]
     )
+
+    # With OpenJPEG
+    # creates a dark red tint on the image, it literally replaces the color profile. Should not be used until this bug is fixed.
+    # 
+    # subprocess.check_call(
+    #     args=[
+    #         "/opt/openjpeg/build/bin/opj_compress",
+    #         "-i", tmp_file,
+    #         "-o", name + ".jp2",
+    #         "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
+    #         "-b", "64,64", # Code-block size, Cblk in kakadu
+    #         "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
+    #         # "-I" # Irreversable DWT, meaning reversable must be the default? Creversible in kakadu
+    #         "-SOP", # Add SOP markers
+    #         "-p", "LRCP", # Corder in kakadu
+    #         # ORGgen_plt?
+    #         # this argument segfaults "-TP", "R", # Divide packets into tile-parts, ORGplt_parts in kakadu
+    #         "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
+            
+    #         # Kakadu
+    #         # A dash, "-", may be used in place of the first bit-rate in the list to indicate
+    #         # that the final quality layer should include all compressed bits.
+    #     ]
+    # )
+
+    # With OpenJPEG + grok
+    # Uses openjpeg and fixes the color profile issue but resources are avg. 5 times larger than with kakadu.
+    # The average speed it takes to convert an image seems fast enough for users
+    # 
+    # subprocess.check_call(
+    #     args=[
+    #         "/opt/grok/bin/opj_compress",
+    #         "-i", tmp_file,
+    #         "-o", "/tmp/" + name + ".jp2",
+    #         "-n", "5",
+    #         "-c", "[256,256],[256,256],[128,128]",
+    #         "-SOP",
+    #         "-p", "LRCP",
+    #         "-r","16,8,4,2"
+    #     ]
+    # )
     shutil.copyfile(name+".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    
+
     # Cleanup temporary files
     os.remove(tmp_file)
     os.remove(name + ".jp2")
