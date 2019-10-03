@@ -369,4 +369,7 @@ class RodanTestTearDownMixin(object):
     def tearDown(self):
         # clean up the temporary filesystem
         if os.path.isdir(settings.MEDIA_ROOT):
-            shutil.rmtree(settings.MEDIA_ROOT)
+            try:
+                shutil.rmtree(settings.MEDIA_ROOT)
+            except OSError:
+                print("Files or Folders do not exist.")

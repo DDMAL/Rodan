@@ -33,9 +33,7 @@ class HelloWorld3(RodanTask):
     name = 'Hello World - Python3'
     author = 'Alex Daigle'
     description = 'Output string "Hello World", using a different celery queue. All you need is to specify the job_queue in the settings dictionary.'
-    settings = {
-        'job_queue': 'Python3'
-    }
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = "Test"
     interactive = False

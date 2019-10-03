@@ -6,7 +6,6 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.core.urlresolvers import Resolver404, resolve
-from django.core.files.uploadhandler import TemporaryUploadedFile
 from rodan.models import Resource, ResourceType, Project, Tempauthtoken
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
@@ -106,7 +105,6 @@ class ResourceList(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         if not request.data.get('files', None):
             raise ValidationError({'files': ["You must supply at least one file to upload."]})
-        
         if not request.data.get('project', None):
             raise ValidationError({'project': ["This field is required."]})
 
@@ -145,7 +143,6 @@ class ResourceList(generics.ListCreateAPIView):
 
             d = ResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)
-
         return Response(new_resources, status=status.HTTP_201_CREATED)
 
 

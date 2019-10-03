@@ -175,7 +175,7 @@ def create_diva(resource_id):
 
     name = os.path.basename(tmp_file)
     name, ext = os.path.splitext(name)
-    
+
     subprocess.check_call(
         args=[BIN_GM,
             "convert",
@@ -257,7 +257,6 @@ def create_diva(resource_id):
     )
     gen.title = "measurement"
     gen.generate()
-
     # resource_query.update(has_thumb=True)
     return True
 
