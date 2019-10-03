@@ -492,6 +492,7 @@ class RodanTask(Task):
                         body = body + "Description: {0}".format(workflowrun.description)
                         to = [user.email]
                         registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
+                        # registry.tasks['rodan.core.send_email'].apply_async((subject, body, to), queue="celery")
 
                     return 'WAITING FOR INPUT'
             else:
@@ -545,6 +546,7 @@ class RodanTask(Task):
                                 if resource.resource_type.mimetype.startswith('image'):
                                     #registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex) # call synchronously
                                     registry.tasks['rodan.core.create_diva'].run(resource.uuid.hex) # call synchronously
+                                    # registry.tasks['rodan.core.create_diva'].si(resource.uuid.hex).apply_async(queue="celery") # call synchronously
                             resourcelist.resources.add(resource)
 
                 runjob.status = task_status.FINISHED
@@ -556,7 +558,7 @@ class RodanTask(Task):
                 # Call master task.
                 master_task = registry.tasks['rodan.core.master_task']
                 wfrun_id = str(runjob.workflow_run.uuid)
-                mt_retval = master_task.run(wfrun_id)
+                mt_retval = master_task.si(wfrun_id).apply_async(queue="celery")
                 return "FINISHED  |  master_task: {0}".format(mt_retval)
 
     def run_my_task(self, inputs, settings, outputs):
@@ -586,6 +588,7 @@ class RodanTask(Task):
                 body = body + "Description: {0}".format(workflowrun.description)
                 to = [user.email]
                 registry.tasks['rodan.core.send_email'].apply_async((subject, body, to))
+                # registry.tasks['rodan.core.send_email'].apply_async((subject, body, to), queue="celery")
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
