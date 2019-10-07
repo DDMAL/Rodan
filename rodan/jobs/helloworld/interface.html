@@ -12,8 +12,17 @@
   <script>
     $(document).ready(function() {
         $('button').click(function() {
-        $.ajax({url: '', type: 'POST', data: JSON.stringify({'user_input': $('input:text').val()}), contentType: 'application/json'});
-        close();
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: JSON.stringify({'user_input': $('input:text').val()}),
+            contentType: 'application/json',
+            // success: function() {alert("Success!")},
+            // failure: function() {alert("Failure!")}
+        });
+        setTimeout(function(){
+            close();
+        }, 5);
       });
     });
   </script>
