@@ -124,25 +124,52 @@ RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60
 # Default: 15 seconds before the authentication token expires.
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 15
-DIVA_JPEG2000_CONVERTER = "JPEG2000"
-DIVA_JPEG2000_CONVERTER_INPUT = "Image"
-DIVA_JPEG2000_CONVERTER_OUTPUT = "JPEG2000 Image"
 
 ###############################################################################
 # 1.c  Rodan Job Package Registration
 ###############################################################################
 # Job Packages
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
-BASE_RODAN_JOBS = [
-    "rodan.jobs.helloworld",
+RODAN_JOB_PACKAGES = []
+BASE_JOB_PACKAGES = [
     "rodan.jobs.resource_distributor",
 ]
-if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery" or RODAN_JOB_QUEUE == "Python2":
-    RODAN_JOB_PACKAGES = [
-    ] + BASE_RODAN_JOBS
+RODAN_PYTHON2_JOBS = [
+    #py2 "rodan.jobs.diagonal-neume-slicing",
+    #py2 "rodan.jobs.gamera_rodan",
+    #py2 "rodan.jobs.helloworld",
+    #py2 "rodan.jobs.heuristic-pitch-finding",
+    #py2 "rodan.jobs.interactive_classifier",
+    #py2 "rodan.jobs.JSOMR2MEI",
+    #py2 "rodan.jobs.jSymbolic-Rodan",
+    #py2 "rodan.jobs.MEI_encoding",
+    #py2 "rodan.jobs.neon-wrapper",
+    #py2 "rodan.jobs.pil-rodan",
+    #py2 "rodan.jobs.pixel_wrapper",
+    #py2 "rodan.jobs.text_alignment",
+    #py2 "rodan.jobs.vis-rodan",
+]
+RODAN_PYTHON3_JOBS = [
+    #py3 "rodan.jobs.helloworld",
+    #py3 "rodan.jobs.Calvo-classifier",
+]
+
+if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
+    # All the jobs must be registered in the database, so all jobs must be here.
+    RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
+    RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
+    RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
+elif RODAN_JOB_QUEUE == "Python2":
+    RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
+    RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
 elif RODAN_JOB_QUEUE == "Python3":
-    RODAN_JOB_PACKAGES = [
-    ] + BASE_RODAN_JOBS
+    RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
+    RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
+else:
+    raise EnvironmentError(
+        "An environment was not built for that specific rodan job-queue yet. " +
+        "Build one and try again."
+    )
 
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
