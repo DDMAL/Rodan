@@ -73,7 +73,7 @@ class create_resource(Task):
             with open(tmpfile, "rb") as f:
                 resource_object = resource_query[0]
                 if mimetype.startswith("image"):
-                    registry.tasks["rodan.core.create_diva"].run(resource_id)
+                    registry.tasks["rodan.core.create_diva"].si(resource_id).apply_async(queue="celery")
 
                 resource_query.update(processing_status=new_processing_status)
         return True
