@@ -254,7 +254,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                         {
                             input_port: {
                                 index: [
-                                    "The resource type does not match the InputPort"
+                                    "The resource type {0} does not match the InputPort {1}".format(type_of_res, types_of_ip)
                                 ]
                             }
                         }
