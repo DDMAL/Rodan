@@ -16,7 +16,7 @@ def upload_path(resource_obj, filename):
     # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
     return os.path.join(
-        resource_obj.resource_path, "original_file{0}".format(ext.lower())
+        resource_obj.resource_path, "original_file"
     )
 
 
