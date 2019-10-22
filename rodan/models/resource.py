@@ -13,7 +13,6 @@ logger = logging.getLogger("rodan")
 
 
 def upload_path(resource_obj, filename):
-    # user-uploaded file -- keep original extension
     _, ext = os.path.splitext(filename)
     return os.path.join(
         resource_obj.resource_path, "original_file"
