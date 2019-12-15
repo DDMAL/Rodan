@@ -132,7 +132,11 @@ class WorkflowRunList(generics.ListCreateAPIView):
             )
         )
         validated_resource_assignment_dict = {}
-        multiple_resource_set = None
+
+        # Keep track of the collection with multiple Resources or ResourceLists
+        resource_collection_length = None
+        resource_collection_ip = None
+
         for input_port, resources in resource_assignment_dict.items():
             # 1. InputPort is not satisfied
             h_ip = HyperlinkedIdentityField(view_name="inputport-detail")
@@ -172,23 +176,25 @@ class WorkflowRunList(generics.ListCreateAPIView):
                         e.detail = {input_port: {index: e.detail}}
                         raise e
 
-            ## No empty resource set
+            # No empty collection
             if len(ress) == 0:
                 raise ValidationError(
-                    {input_port: ["It is not allowed to assign an empty resource set"]}
+                    {input_port: ["It is not allowed to assign an empty collection"]}
                 )
 
-            ## There must be at most one multiple resource set
+            # Collection with multiple Resources or ResourceLists
             if len(ress) > 1:
-                ress_set = set(map(lambda r: r.uuid, ress))
-                if not multiple_resource_set:
-                    multiple_resource_set = ress_set
+                if resource_collection_length is None:
+                    # This is the first resource collection we've encountered that has multiple items
+                    resource_collection_length = len(ress)
+                    resource_collection_ip = input_port
                 else:
-                    if multiple_resource_set != ress_set:
+                    # Validate if the lengths are even
+                    if len(ress) != resource_collection_length:
                         raise ValidationError(
                             {
                                 input_port: [
-                                    "It is not allowed to assign multiple resource sets"
+                                    "The number of assigned Resources of ResourceLists is not even with that of {}".format(resource_collection_ip)
                                 ]
                             }
                         )
