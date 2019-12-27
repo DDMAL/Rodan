@@ -29,6 +29,45 @@ class HelloWorld(RodanTask):
         outfile.close()
         return True
 
+class HelloWorldMultiPort(RodanTask):
+    name = 'Hello World Multiple Ports'
+    author = 'Studio theYANG'
+    description = 'Concatenate all input files and append "Hello World MultiPort"'
+    settings = {}
+    enabled = True
+    category = "Test"
+    interactive = False
+
+    input_port_types = (
+        {
+            'name': 'Text input',
+            'minimum': 0,
+            'maximum': 10,
+            'resource_types': ['text/plain']
+        },
+    )
+    output_port_types = (
+        {
+            'name': 'Text output',
+            'minimum': 1,
+            'maximum': 10,
+            'resource_types': ['text/plain']
+        },
+    )
+
+    def run_my_task(self, inputs, settings, outputs):
+        concatenated = ""
+        for input_type in inputs:
+            for input in inputs[input_type]:
+                with open(input["resource_path"], "r") as infile:
+                    concatenated += infile.read() + "\n"
+
+        for output_type in outputs:
+            for output in outputs[output_type]:
+                with open(output["resource_path"], "w") as outfile:
+                    outfile.write(concatenated)
+                    outfile.write("Hello World MultiPort")
+
 class HelloWorld3(RodanTask):
     name = 'Hello World - Python3'
     author = 'Alex Daigle'
