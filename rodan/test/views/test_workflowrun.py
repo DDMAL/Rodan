@@ -220,21 +220,49 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['It is not allowed to assign an empty resource set']}}
+        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['It is not allowed to assign an empty collection']}}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    def test_multiple_resource_sets(self):
+
+    def test_multiple_resource_collections_same_length(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        ra[self.url(self.test_Fip1)].pop()
+        another_resource_collection = mommy.make(
+            "rodan.Resource",
+            _quantity=10,
+            name="dummy",
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1"),
+        )
+        for index, res in enumerate(another_resource_collection):
+            # Making the resources ready
+            res.resource_file.save("dummy.txt", ContentFile("dummy text"))
+
+        ra[self.url(self.test_Fip1)] = list(map(self.url, another_resource_collection))
+
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): ['It is not allowed to assign multiple resource sets']}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): ['It is not allowed to assign multiple resource sets']}}
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_multiple_resource_collections_different_lengths(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Fip1)] = ra[self.url(self.test_Fip1)][:-1]
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): [
+                'The number of assigned Resources of ResourceLists is not even with that of {}'.format(self.url(self.test_Dip1))
+        ]}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): [
+                'The number of assigned Resources of ResourceLists is not even with that of {}'.format(self.url(self.test_Fip1))
+        ]}}
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_resource_not_in_project(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
