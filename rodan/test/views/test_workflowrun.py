@@ -259,10 +259,25 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['The resource type does not match the InputPort']}}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The resource type does not match the InputPort']}}}
-        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # The expected structure of error response is:
+        # {'resource_assignments': {input_port_url: {5: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
+
+        self.assertEqual(len(response.data['resource_assignments']), 1)
+        error_ip, error_detail = next(iter(response.data['resource_assignments'].items()))
+        self.assertIn(error_ip, [self.url(self.test_Fip1), self.url(self.test_Dip1)])
+
+        self.assertEqual(len(error_detail), 1)
+        error_position, error_list = next(iter(error_detail.items()))
+        self.assertEqual(error_position, 5)
+
+        self.assertEqual(len(error_list), 1)
+        error_message = error_list[0]
+
+        self.assertTrue(error_message.startswith('The resource type <ResourceType test/b> does not match'))
+        self.assertIn('test/a1', error_message)
+        self.assertIn('test/a2', error_message)
 
     def test_assign_resource_to_list_ports(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
@@ -312,11 +327,26 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type does not match the InputPort']}}}
-        self.assertEqual(response.data, anticipated_message)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # The expected structure of error response is:
+        # {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
 
+        self.assertEqual(len(response.data['resource_assignments']), 1)
+        error_ip, error_detail = next(iter(response.data['resource_assignments'].items()))
+        self.assertEqual(error_ip, self.url(self.test_Dip3))
+
+        self.assertEqual(len(error_detail), 1)
+        error_position, error_list = next(iter(error_detail.items()))
+        self.assertEqual(error_position, 0)
+
+        self.assertEqual(len(error_list), 1)
+        error_message = error_list[0]
+
+        self.assertTrue(error_message.startswith('The resource type <ResourceType test/b> does not match'))
+        self.assertIn('test/a1', error_message)
+        self.assertIn('test/a2', error_message)
 
 
 class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
