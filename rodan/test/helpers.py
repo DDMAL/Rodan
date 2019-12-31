@@ -357,6 +357,97 @@ class RodanTestSetUpMixin(object):
             self.url(self.test_Dip3): [self.url(self.test_resourcelist)],
         }
 
+    def setUp_funnel_dummy_workflow(self):
+        """
+        Set up the following funnel-shaped workflow:
+
+            test_wfjob_A  \
+            test_wfjob_B  - test_wfjob_D
+            test_wfjob_C  /
+        """
+        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+
+        job_a = Job.objects.get(name=dummy_automatic_job.name)
+        job_m = Job.objects.get(name=dummy_manual_job.name)
+
+        ipt_aA = job_a.input_port_types.get(name="in_typeA")
+        opt_aA = job_a.output_port_types.get(name="out_typeA")
+
+        ipt_mA = job_m.input_port_types.get(name="in_typeA")
+        opt_mA = job_m.output_port_types.get(name="out_typeA")
+
+        self.test_project = mommy.make("rodan.Project")
+        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
+
+        self.test_wfjob_A = mommy.make(
+            "rodan.WorkflowJob",
+            workflow=self.test_workflow,
+            job=job_a,
+            job_settings={"a": 1, "b": [0.4]},
+        )
+        self.test_wfjob_B = mommy.make(
+            "rodan.WorkflowJob",
+            workflow=self.test_workflow,
+            job=job_m,
+            job_settings={"a": 1, "b": [0.4]},
+        )
+        self.test_wfjob_C = mommy.make(
+            "rodan.WorkflowJob",
+            workflow=self.test_workflow,
+            job=job_a,
+            job_settings={"a": 1, "b": [0.4]},
+        )
+        self.test_wfjob_D = mommy.make(
+            "rodan.WorkflowJob",
+            workflow=self.test_workflow,
+            job=job_m,
+            job_settings={"a": 1, "b": [0.4]},
+        )
+
+        self.test_Aip = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_A, input_port_type=ipt_aA
+        )
+        self.test_Aop = mommy.make(
+            "rodan.OutputPort", workflow_job=self.test_wfjob_A, output_port_type=opt_aA
+        )
+
+        self.test_Bip = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_B, input_port_type=ipt_mA
+        )
+        self.test_Bop = mommy.make(
+            "rodan.OutputPort", workflow_job=self.test_wfjob_B, output_port_type=opt_mA
+        )
+
+        self.test_Cip = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_C, input_port_type=ipt_aA
+        )
+        self.test_Cop = mommy.make(
+            "rodan.OutputPort", workflow_job=self.test_wfjob_C, output_port_type=opt_aA
+        )
+
+        self.test_Dip1 = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
+        )
+        self.test_Dip2 = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
+        )
+        self.test_Dip3 = mommy.make(
+            "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
+        )
+        self.test_Dop = mommy.make(
+            "rodan.OutputPort", workflow_job=self.test_wfjob_D, output_port_type=opt_mA
+        )
+
+        self.test_conn_Aop_Dip1 = mommy.make(
+            "rodan.Connection", output_port=self.test_Aop, input_port=self.test_Dip1
+        )
+        self.test_conn_Aop_Dip2 = mommy.make(
+            "rodan.Connection", output_port=self.test_Bop, input_port=self.test_Dip2
+        )
+        self.test_conn_Aop_Dip3 = mommy.make(
+            "rodan.Connection", output_port=self.test_Cop, input_port=self.test_Dip3
+        )
+
 
 class RodanTestTearDownMixin(object):
     """

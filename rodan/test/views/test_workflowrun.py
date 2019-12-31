@@ -890,3 +890,98 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
                 self.assertTrue(r.resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)
+
+
+class WorkflowRunMultipleResourceCollectionsTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    "Test workflowrun creation and execution with multiple resource collections."
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_funnel_dummy_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def setUp_multiple_resource_collections(self):
+        self.test_resourcecollection_a = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        self.test_resourcecollection_b = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        self.test_resourcecollection_c = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        for rc in [self.test_resourcecollection_a, self.test_resourcecollection_b, self.test_resourcecollection_c]:
+            for index, res in enumerate(rc):
+                res.name = str(index)
+                res.save()
+                res.resource_file.save("dummy.txt", ContentFile("dummy text"))
+
+        return {
+            self.url(self.test_Aip): list(map(self.url, self.test_resourcecollection_a)),
+            self.url(self.test_Bip): list(map(self.url, self.test_resourcecollection_b)),
+            self.url(self.test_Cip): list(map(self.url, self.test_resourcecollection_c)),
+        }
+
+    def test_creation(self):
+        ra = self.setUp_multiple_resource_collections()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        wfrun_id = response.data['uuid']
+
+        self.assertEqual(self.test_wfjob_A.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_B.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_C.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_D.run_jobs.count(), 5)
+
+        self.assertEqual(self.test_Aip.inputs.count(), 5)
+        self.assertEqual(self.test_Aop.outputs.count(), 5)
+        self.assertEqual(self.test_Bip.inputs.count(), 5)
+        self.assertEqual(self.test_Bop.outputs.count(), 5)
+        self.assertEqual(self.test_Cip.inputs.count(), 5)
+        self.assertEqual(self.test_Cop.outputs.count(), 5)
+
+        self.assertEqual(self.test_Dip1.inputs.count(), 5)
+        self.assertEqual(self.test_Dip2.inputs.count(), 5)
+        self.assertEqual(self.test_Dip3.inputs.count(), 5)
+        self.assertEqual(self.test_Dop.outputs.count(), 5)
+
+        # Check if every set of run jobs gets the same resource name from the collections
+        for Do in self.test_Dop.outputs.all():
+            rjD = Do.run_job
+            Di1 = rjD.inputs.get(input_port=self.test_Dip1)
+            Di2 = rjD.inputs.get(input_port=self.test_Dip2)
+            Di3 = rjD.inputs.get(input_port=self.test_Dip3)
+
+            res_Ao_Di1 = Di1.resource
+            res_Bo_Di2 = Di2.resource
+            res_Co_Di3 = Di3.resource
+
+            Ao = res_Ao_Di1.outputs.first()
+            Bo = res_Bo_Di2.outputs.first()
+            Co = res_Co_Di3.outputs.first()
+
+            rjA = Ao.run_job
+            rjB = Bo.run_job
+            rjC = Co.run_job
+
+            Ai = rjA.inputs.first()
+            Bi = rjB.inputs.first()
+            Ci = rjC.inputs.first()
+
+            self.assertEqual(Ai.resource.name, Bi.resource.name)
+            self.assertEqual(Ai.resource.name, Ci.resource.name)
