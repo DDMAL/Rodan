@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import os
 import shutil
 import subprocess
@@ -538,11 +539,21 @@ class create_workflowrun(Task):
         output_outputport_map = {}
         outputportrunjob_output_map = {}
 
-        def create_runjob_A(wfjob, arg_resource):
+        def create_runjob_A(wfjob, this_ip_resource_map):
+            # Backwords compatibility:
+            # RunJob.resource_uuid is used to label which one in the resource collection the RunJob was created from.
+            # But this is not depicting the full image when there are multiple resource collections.
+            # Therefore, if there's only one resource collection (as we can tell from this_ip_resource_map), we follow
+            # the previous way; otherwise, we simply pick the first one from the map.
+            if len(this_ip_resource_map.keys()) == 0:
+                labelling_resource = None
+            else:
+                _, labelling_resource = next(iter(this_ip_resource_map.items()))
+
             run_job = RunJob(
                 workflow_job=wfjob,
                 workflow_job_uuid=wfjob.uuid.hex,
-                resource_uuid=arg_resource.uuid.hex if arg_resource else None,
+                resource_uuid=labelling_resource.uuid.hex if labelling_resource else None,
                 workflow_run=workflow_run,
                 job_name=wfjob.job.name,
                 job_settings=wfjob.job_settings,
@@ -592,8 +603,9 @@ class create_workflowrun(Task):
                     run_job.job_name,
                     run_job.uuid,
                 )
-                if arg_resource:  # which resource in multiple resources?
-                    r.name = arg_resource.name
+                if labelling_resource:
+                    # Same as the comments at the top of this function
+                    r.name = labelling_resource.name
                 else:
                     r.name = "{0} - {1}".format(
                         wfjob.job.name, output.output_port_type_name
@@ -607,11 +619,11 @@ class create_workflowrun(Task):
 
             return run_job
 
-        def create_runjobs(wfjob_A, arg_resource):
+        def create_runjobs(wfjob_A, this_ip_resource_map):
             if wfjob_A in workflowjob_runjob_map:
                 return workflowjob_runjob_map[wfjob_A]
 
-            runjob_A = create_runjob_A(wfjob_A, arg_resource)
+            runjob_A = create_runjob_A(wfjob_A, this_ip_resource_map)
 
             incoming_connections = Connection.objects.filter(
                 input_port__workflow_job=wfjob_A
@@ -619,7 +631,7 @@ class create_workflowrun(Task):
 
             for conn in incoming_connections:
                 wfjob_B = conn.output_workflow_job
-                runjob_B = create_runjobs(wfjob_B, arg_resource)
+                runjob_B = create_runjobs(wfjob_B, this_ip_resource_map)
 
                 associated_output = outputportrunjob_output_map[
                     (conn.output_port, runjob_B)
@@ -644,8 +656,11 @@ class create_workflowrun(Task):
                 if wfj_ip in resource_assignment_dict:
                     ress = resource_assignment_dict[wfj_ip]
                     if len(ress) > 1:
-                        entry_res = arg_resource
+                        # This InputPort links to a resource collection and we need to find out the correct resource
+                        # that we are working on for this InputPort.
+                        entry_res = this_ip_resource_map[wfj_ip]
                     else:
+                        # This InputPort does not link to a resource collection
                         entry_res = ress[0]
 
                     if isinstance(entry_res, Resource):
@@ -700,9 +715,13 @@ class create_workflowrun(Task):
             workflowjob_runjob_map[wfjob_A] = runjob_A
             return runjob_A
 
-        def runjob_creation_loop(arg_resource):
+        def runjob_creation_loop(this_ip_resource_map):
+            """
+            this_ip_resource_map - an OrderedDict containing (input_port, resource) pairs to guide the runjob creation
+            process which input ports are taking an element from resource collection.
+            """
             for wfjob in endpoint_workflowjobs:
-                create_runjobs(wfjob, arg_resource)
+                create_runjobs(wfjob, this_ip_resource_map)
 
             workflow_job_iteration = {}
 
@@ -714,17 +733,24 @@ class create_workflowrun(Task):
                     del workflowjob_runjob_map[wfjob]
 
         # Main:
-        ress_multiple = None
+        # Construct a list of list of (input_port, resource) pairs
+        # The outer list corresponds to the total number of resource collections assigned to the workflow execution
+        # The inner list corresponds to the length of every collection (validation ensures they have same lengths)
+        ip_resource_pairs_collection = []
         for ip, ress in resource_assignment_dict.items():
             if len(ress) > 1:
-                ress_multiple = ress
-                break
+                ip_resource_pairs = list(map(lambda r: (ip, r), ress))
+                ip_resource_pairs_collection.append(ip_resource_pairs)
 
-        if ress_multiple:
-            for res in ress_multiple:
-                runjob_creation_loop(res)
+        if ip_resource_pairs_collection:
+            for ip_resource_pairs_each in zip(*ip_resource_pairs_collection):
+                # We are iterating through a list of (input_port, resource) pairs with all different input_port
+                # Convert it to a dictionary for easier lookup. Use OrderedDict to make it easier to find the first one in
+                # create_runjob_A.
+                this_ip_resource_map = OrderedDict(ip_resource_pairs_each)
+                runjob_creation_loop(this_ip_resource_map)
         else:
-            runjob_creation_loop(None)
+            runjob_creation_loop(OrderedDict({}))
 
         ## ready to process
         workflow_run.status = task_status.PROCESSING

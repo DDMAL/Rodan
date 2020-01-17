@@ -220,21 +220,49 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['It is not allowed to assign an empty resource set']}}
+        anticipated_message = {'resource_assignments': {self.url(self.test_Aip): ['It is not allowed to assign an empty collection']}}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    def test_multiple_resource_sets(self):
+
+    def test_multiple_resource_collections_same_length(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        ra[self.url(self.test_Fip1)].pop()
+        another_resource_collection = mommy.make(
+            "rodan.Resource",
+            _quantity=10,
+            name="dummy",
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1"),
+        )
+        for index, res in enumerate(another_resource_collection):
+            # Making the resources ready
+            res.resource_file.save("dummy.txt", ContentFile("dummy text"))
+
+        ra[self.url(self.test_Fip1)] = list(map(self.url, another_resource_collection))
+
         workflowrun_obj = {
             'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): ['It is not allowed to assign multiple resource sets']}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): ['It is not allowed to assign multiple resource sets']}}
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_multiple_resource_collections_different_lengths(self):
+        ra = self.setUp_resources_for_complex_dummy_workflow()
+        ra[self.url(self.test_Fip1)] = ra[self.url(self.test_Fip1)][:-1]
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): [
+                'The number of assigned Resources of ResourceLists is not even with that of {}'.format(self.url(self.test_Dip1))
+        ]}}
+        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): [
+                'The number of assigned Resources of ResourceLists is not even with that of {}'.format(self.url(self.test_Fip1))
+        ]}}
         self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_resource_not_in_project(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
@@ -259,10 +287,25 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message1 = {'resource_assignments': {self.url(self.test_Fip1): {5: ['The resource type does not match the InputPort']}}}
-        anticipated_message2 = {'resource_assignments': {self.url(self.test_Dip1): {5: ['The resource type does not match the InputPort']}}}
-        self.assertIn(response.data, [anticipated_message1, anticipated_message2])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # The expected structure of error response is:
+        # {'resource_assignments': {input_port_url: {5: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
+
+        self.assertEqual(len(response.data['resource_assignments']), 1)
+        error_ip, error_detail = next(iter(response.data['resource_assignments'].items()))
+        self.assertIn(error_ip, [self.url(self.test_Fip1), self.url(self.test_Dip1)])
+
+        self.assertEqual(len(error_detail), 1)
+        error_position, error_list = next(iter(error_detail.items()))
+        self.assertEqual(error_position, 5)
+
+        self.assertEqual(len(error_list), 1)
+        error_message = error_list[0]
+
+        self.assertTrue(error_message.startswith('The resource type <ResourceType test/b> does not match'))
+        self.assertIn('test/a1', error_message)
+        self.assertIn('test/a2', error_message)
 
     def test_assign_resource_to_list_ports(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
@@ -312,11 +355,26 @@ class WorkflowRunResourceAssignmentTest(RodanTestTearDownMixin, APITestCase, Rod
             'resource_assignments': ra
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
-        anticipated_message = {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type does not match the InputPort']}}}
-        self.assertEqual(response.data, anticipated_message)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # The expected structure of error response is:
+        # {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
 
+        self.assertEqual(len(response.data['resource_assignments']), 1)
+        error_ip, error_detail = next(iter(response.data['resource_assignments'].items()))
+        self.assertEqual(error_ip, self.url(self.test_Dip3))
+
+        self.assertEqual(len(error_detail), 1)
+        error_position, error_list = next(iter(error_detail.items()))
+        self.assertEqual(error_position, 0)
+
+        self.assertEqual(len(error_list), 1)
+        error_message = error_list[0]
+
+        self.assertTrue(error_message.startswith('The resource type <ResourceType test/b> does not match'))
+        self.assertIn('test/a1', error_message)
+        self.assertIn('test/a2', error_message)
 
 
 class WorkflowRunSimpleExecutionTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -832,3 +890,98 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
                 self.assertTrue(r.resource_file)
 
         self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.FINISHED)
+
+
+class WorkflowRunMultipleResourceCollectionsTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    "Test workflowrun creation and execution with multiple resource collections."
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_funnel_dummy_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+        response = self.client.patch("/workflow/{0}/".format(self.test_workflow.uuid), {'valid': True}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def setUp_multiple_resource_collections(self):
+        self.test_resourcecollection_a = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        self.test_resourcecollection_b = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        self.test_resourcecollection_c = mommy.make(
+            "rodan.Resource",
+            _quantity=5,
+            project=self.test_project,
+            resource_type=ResourceType.objects.get(mimetype="test/a1")
+        )
+        for rc in [self.test_resourcecollection_a, self.test_resourcecollection_b, self.test_resourcecollection_c]:
+            for index, res in enumerate(rc):
+                res.name = str(index)
+                res.save()
+                res.resource_file.save("dummy.txt", ContentFile("dummy text"))
+
+        return {
+            self.url(self.test_Aip): list(map(self.url, self.test_resourcecollection_a)),
+            self.url(self.test_Bip): list(map(self.url, self.test_resourcecollection_b)),
+            self.url(self.test_Cip): list(map(self.url, self.test_resourcecollection_c)),
+        }
+
+    def test_creation(self):
+        ra = self.setUp_multiple_resource_collections()
+        workflowrun_obj = {
+            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid),
+            'resource_assignments': ra
+        }
+        response = self.client.post("/workflowruns/", workflowrun_obj, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        wfrun_id = response.data['uuid']
+
+        self.assertEqual(self.test_wfjob_A.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_B.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_C.run_jobs.count(), 5)
+        self.assertEqual(self.test_wfjob_D.run_jobs.count(), 5)
+
+        self.assertEqual(self.test_Aip.inputs.count(), 5)
+        self.assertEqual(self.test_Aop.outputs.count(), 5)
+        self.assertEqual(self.test_Bip.inputs.count(), 5)
+        self.assertEqual(self.test_Bop.outputs.count(), 5)
+        self.assertEqual(self.test_Cip.inputs.count(), 5)
+        self.assertEqual(self.test_Cop.outputs.count(), 5)
+
+        self.assertEqual(self.test_Dip1.inputs.count(), 5)
+        self.assertEqual(self.test_Dip2.inputs.count(), 5)
+        self.assertEqual(self.test_Dip3.inputs.count(), 5)
+        self.assertEqual(self.test_Dop.outputs.count(), 5)
+
+        # Check if every set of run jobs gets the same resource name from the collections
+        for Do in self.test_Dop.outputs.all():
+            rjD = Do.run_job
+            Di1 = rjD.inputs.get(input_port=self.test_Dip1)
+            Di2 = rjD.inputs.get(input_port=self.test_Dip2)
+            Di3 = rjD.inputs.get(input_port=self.test_Dip3)
+
+            res_Ao_Di1 = Di1.resource
+            res_Bo_Di2 = Di2.resource
+            res_Co_Di3 = Di3.resource
+
+            Ao = res_Ao_Di1.outputs.first()
+            Bo = res_Bo_Di2.outputs.first()
+            Co = res_Co_Di3.outputs.first()
+
+            rjA = Ao.run_job
+            rjB = Bo.run_job
+            rjC = Co.run_job
+
+            Ai = rjA.inputs.first()
+            Bi = rjB.inputs.first()
+            Ci = rjC.inputs.first()
+
+            self.assertEqual(Ai.resource.name, Bi.resource.name)
+            self.assertEqual(Ai.resource.name, Ci.resource.name)
