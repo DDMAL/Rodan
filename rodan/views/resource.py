@@ -22,6 +22,8 @@ import datetime
 from django.utils import timezone
 from rodan.exceptions import CustomAPIException
 from rest_framework.views import APIView
+import copy
+from django.db.models import ProtectedError
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -172,6 +174,18 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 
         return self.partial_update(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+
+        resource = self.get_object()
+        old_data = copy.deepcopy(resource)
+
+        try:
+            resource.delete()
+        except ProtectedError:
+            return Response({"Error": "You can not delete the resource because it is currently Protected. A finished or pending runjob is referencing this resource."}, status=status.HTTP_409_CONFLICT)
+
+        return Response(old_data, status=status.HTTP_200_OK)
 
 class ResourceViewer(APIView):
     """
