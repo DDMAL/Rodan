@@ -174,11 +174,11 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 
         return self.partial_update(request, *args, **kwargs)
-    
+
     def delete(self, request, *args, **kwargs):
 
         resource = self.get_object()
-        old_data = copy.deepcopy(resource)
+        old_data = ResourceSerializer(resource, context={'request': request}).data
 
         try:
             resource.delete()
