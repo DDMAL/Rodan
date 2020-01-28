@@ -65,9 +65,164 @@ resourcetypes = {
         "extension": "jp2",
         "package_name": "built-in"
     }],
-    "image/rgb+png": [{
+    "image/png": [{
+        "description": "PNG image",
+        "extension": "png",
+        "package_name": "built-in"
+    }],
+    "image/rgb+png": [{     # Proper type for all PNGs is image/png
         "description": "RGB PNG image",
         "extension": "png",
+        "package_name": "built-in"
+    }],
+    "image/rgb+jpg": [{
+        "description": "JPG image file",
+        "extension": "jpg",
+        "package_name": "built-in"
+    }],
+    "image/rgba+png": [{
+        "description": "PNG image file with alpha channel",
+        "extension": "png",
+        "package_name": "built-in"
+    }],
+    "keras/model+hdf5": [{  # Should be application/x-hdf5
+        "description": "Trained network from Keras framework",
+        "extension": "hdf5",
+        "package_name": "built-in"
+    }],
+    "application/gamera+xml": [{   # Should be application/xml or application/x-gamera+xml, etc.
+        "description": "Gamera XML file",
+        "extension": "xml",
+        "package_name": "built-in"
+    }],
+    "image/onebit+png": [{
+        "description": "One-bit (black and white) PNG image",
+        "extension": "png",
+        "package_name": "built-in"
+    }],
+    "image/greyscale+png": [{
+        "description": "Greyscale PNG image",
+        "extension": "png",
+        "package_name": "built-in"
+    }],
+    "image/grey16+png": [{
+        "description": "Greyscale 16 PNG image",
+        "extension": "png",
+        "package_name": "built-in"
+    }],
+    "application/gamera-polygons+txt": [{   # Should be application/txt or application/x-gamera-polygons+txt
+        "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])",
+        "extension": "txt",
+        "package_name": "built-in"
+    }],
+    "application/mei+xml": [{   # application/x-mei+xml
+        "description": "Music Encoding Initiative",
+        "extension": "mei",
+        "package_name": "built-in"
+    }],
+    "application/midi": [{     # Should be audio/midi, audio/x-midi
+        "description": "Musical Instrumental Digital Interface",
+        "extension": "midi",
+        "package_name": "built-in"
+    }],
+    "application/ace+xml": [{   # application/x-ace+xml or application/xml
+        "description": "ACE XML",
+        "extension": "xml",
+        "package_name": "built-in"
+    }],
+    "application/arff": [{
+        "description": "WEKA ARFF",
+        "extension": "arff",
+        "package_name": "built-in"
+    }],
+    "application/arff+csv": [{
+        "description": "WEKA ARFF CSV",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/jsc+txt": [{   # application/x-jsc+txt
+        "description": "jSymbolic Configuration Text File",
+        "extension": "txt",
+        "package_name": "built-in"
+    }],
+    "text/csv": [{
+        "description": "Comma Separated Values",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "image/tiff": [{
+        "description": "TIFF image",
+        "extension": "tiff",
+        "package_name": "built-in"
+    }],
+    "application/ocropus+pyrnn": [{     # application/x-ocropus+pyrnn
+        "description": "OCR model trained by OCRopus",
+        "extension": "pyrnn",
+        "package_name": "built-in"
+    }],
+    "application/x-musicxml+xml": [{    # application/vnd.recordare.musicxml(+xml)
+        "description": "MusicXML",
+        "extension": "xml",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_noterest_pandas_series+csv": [{  # Why not just application/x-pandas_series+csv and application/x-pandas_dataframe+csv
+        "description": "NoteRest Indexer Result (Pandas Series CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_dissonance_pandas_dataframe+csv": [{
+        "description": "Dissonance Interval Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_vertical_pandas_series+csv": [{
+        "description": "Vertical Interval Indexer Result (Pandas Series CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_horizontal_pandas_series+csv": [{
+        "description": "Horizontal Interval Indexer result (Pandas Series CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_ngram_pandas_dataframe+csv": [{
+        "description": "N-gram Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_fermata_pandas_dataframe+csv": [{
+        "description": "Fermata Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_figuredbass_pandas_dataframe+csv": [{
+        "description": "Figured Bass Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_measure_pandas_dataframe+csv": [{
+        "description": "Measure Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_duration_pandas_dataframe+csv": [{
+        "description": "Duration Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-vis_nbs_pandas_dataframe+csv": [{
+        "description": "Note Beat Strength Indexer Result (Pandas DataFrame CSV)",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-pandas_dataframe+csv": [{
+        "description": "Pandas serialized DataFrame csv",
+        "extension": "csv",
+        "package_name": "built-in"
+    }],
+    "application/x-pandas_series+csv": [{
+        "description": "Pandas serialized Series csv",
+        "extension": "csv",
         "package_name": "built-in"
     }]
 } # core resourcetypes
