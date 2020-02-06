@@ -268,27 +268,36 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
 SESSION_COOKIE_SECURE = os.getenv("SSL_COOKIE")
 SESSION_COOKIE_DOMAIN = os.getenv("SSL_COOKIE_DOMAIN")
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = [
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-    # 'django.template.loaders.eggs.Loader',
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+            # Always use forward slashes, even on Windows.
+            # Don't forget to use absolute paths, not relative paths.
+        ],
+        # 'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.csrf",
+                "django.contrib.messages.context_processors.messages",
+                "ws4redis.context_processors.default",
+                # "rodan.context_processors.list_projects",
+                # "rodan.context_processors.login_url",
+            ],
+            'loaders': [
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+                # 'django.template.loaders.eggs.Loader',
+            ],
+        },
+    },
 ]
-TEMPLATE_DIRS = [
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-]
-TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.csrf",
-    "django.contrib.messages.context_processors.messages",
-    "ws4redis.context_processors.default",
-    # "rodan.context_processors.list_projects",
-    # "rodan.context_processors.login_url",
-]
+
 # Middleware classes
 MIDDLEWARE_CLASSES = [
     "corsheaders.middleware.CorsMiddleware",
