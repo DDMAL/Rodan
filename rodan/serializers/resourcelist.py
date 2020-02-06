@@ -28,7 +28,6 @@ class ResourceListSerializer(serializers.HyperlinkedModelSerializer):
             "created",
             "updated",
             "creator",
-            "resource_type",
         )
 
     def validate_resources(self, resources):

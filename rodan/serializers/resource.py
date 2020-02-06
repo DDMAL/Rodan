@@ -17,11 +17,34 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Resource
         read_only_fields = (
+            "url"
+            "uuid"
             "created",
             "updated",
+            "processing_status",
             "error_summary",
             "error_details",
-            "processing_status",
             "origin",
             "has_thumb",
         )  # The only updatable fields are: name, resource_type
+        fields = (
+            "url",
+            "uuid",
+            "name",
+            "description",
+            "project",
+            "resource_file",
+            "resource_type",
+            "processing_status",
+            "error_summary",
+            "error_details",
+            "creator",
+            "origin",
+            "created",
+            "updated",
+            "resource_file_path",
+            "viewer_url",
+            "large_thumb",
+            "medium_thumb",
+            "small_thumb",
+        )

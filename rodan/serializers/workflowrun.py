@@ -11,6 +11,20 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = WorkflowRun
         read_only_fields = ("created", "updated", "creator", "project")
+        fields = (
+            "uuid",
+            "project",
+            "workflow",
+            "creator",
+            "status",
+            "name",
+            "description",
+            "last_redone_runjob_tree",
+            "created",
+            "updated",
+            "origin_resources",
+            "creator",
+        )
         extra_kwargs = {"workflow": {"allow_null": False, "required": True}}
 
 
@@ -22,4 +36,18 @@ class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = WorkflowRun
         read_only_fields = ("created", "updated", "creator", "project")
+        fields = (
+            "uuid",
+            "project",
+            "workflow",
+            "creator",
+            "status",
+            "name",
+            "description",
+            "last_redone_runjob_tree",
+            "created",
+            "updated",
+            "origin_resources",
+            "creator",
+        )
         extra_kwargs = {"workflow": {"allow_null": False, "required": True}}
