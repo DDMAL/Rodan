@@ -46,8 +46,9 @@ class ResourceList(generics.ListCreateAPIView):
     serializer_class = ResourceSerializer
 
     class filter_class(django_filters.FilterSet):
-        origin__isnull = django_filters.BooleanFilter(action=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
-        resource_type__in = django_filters.MethodFilter()
+        origin__isnull = django_filters.BooleanFilter(method=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
+        # resource_type__in = django_filters.MethodFilter()
+        resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
 
         def filter_resource_type__in(self, q, v):
             vs = v.split(',')

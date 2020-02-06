@@ -21,7 +21,7 @@ class RunJobList(generics.ListAPIView):
     class filter_class(django_filters.FilterSet):
         project = django_filters.CharFilter(name="workflow_run__project")
         resource_uuid__isnull = django_filters.BooleanFilter(
-            action=lambda q, v: q.filter(resource_uuid__isnull=v)
+            method=lambda q, v: q.filter(resource_uuid__isnull=v)
         )  # https://github.com/alex/django-filter/issues/273
 
         class Meta:

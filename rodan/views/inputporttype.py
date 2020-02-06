@@ -17,7 +17,8 @@ class InputPortTypeList(generics.ListAPIView):
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
-        "job": ["exact", "icontains"],
+        # "job": ["exact", "icontains"],
+        "job": ["exact", ],
         "minimum": ["exact", "lt", "gt"],
         "uuid": ["exact"],
         "name": ["exact", "icontains"],
