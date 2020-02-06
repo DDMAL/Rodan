@@ -7,7 +7,7 @@ We want Django admin to work but we don't want session-based authentication. The
 
 from django.contrib import admin
 
-def required(wrapping_functions,patterns_rslt):
+def required(wrapping_functions, patterns_rslt):
     '''
     Used to require 1..n decorators in any view returned by a url tree
 
@@ -31,10 +31,7 @@ def required(wrapping_functions,patterns_rslt):
     if not hasattr(wrapping_functions,'__iter__'):
         wrapping_functions = (wrapping_functions,)
 
-    return [
-        _wrap_instance__resolve(wrapping_functions,instance)
-        for instance in patterns_rslt
-    ]
+    return [_wrap_instance__resolve(wrapping_functions,instance) for instance in patterns_rslt]
 
 def _wrap_instance__resolve(wrapping_functions,instance):
     if not hasattr(instance,'resolve'): return instance
