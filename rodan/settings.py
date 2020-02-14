@@ -152,6 +152,7 @@ RODAN_PYTHON2_JOBS = [
 RODAN_PYTHON3_JOBS = [
     #py3 "rodan.jobs.helloworld",
     #py3 "rodan.jobs.Calvo-classifier",
+    #py3 "rodan.jobs.hpc-fast-trainer",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
