@@ -23,7 +23,9 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response_connections = []
         for conn in response.data["results"]:
             response_connections.append(Connection.objects.get(uuid=conn["uuid"]))
-        self.assertEqual(str(response_connections), str(Connection.objects.all()))
+
+        for i, _ in enumerate(Connection.objects.all()):
+            self.assertEqual(response_connections[i].uuid, Connection.objects.all()[i].uuid)
 
     def test_post(self):
         test_conn = Connection(
