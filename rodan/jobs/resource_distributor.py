@@ -1,7 +1,7 @@
-from rodan.jobs.base import RodanTask
-from rodan.models import ResourceType
 import shutil
 
+from rodan.jobs.base import RodanTask
+from rodan.models import ResourceType
 
 class ResourceDistributor(RodanTask):
     name = 'Resource Distributor'

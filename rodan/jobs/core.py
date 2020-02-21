@@ -2,14 +2,19 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import os
+import re
 import shutil
 import subprocess
 import tempfile
-from pybagit.bagit import BagIt
+
 from celery import task, registry
+from celery import Task
+from celery.task.control import revoke
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Q, Case, Value, When, BooleanField
+from pybagit.bagit import BagIt
+
 from rodan.models import (
     Resource,
     ResourceType,
@@ -26,10 +31,9 @@ from rodan.models import (
 )
 from rodan.models.resultspackage import get_package_path
 from rodan.constants import task_status
-from celery import Task
-from celery.task.control import revoke
 from rodan.jobs.base import TemporaryDirectory
-from .diva_generate_json import GenerateJson
+from rodan.jobs.diva_generate_json import GenerateJson
+from rodan.jobs.resource_identification import fileparse
 
 
 class create_resource(Task):
