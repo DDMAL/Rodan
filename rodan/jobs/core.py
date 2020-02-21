@@ -43,18 +43,14 @@ class create_resource(Task):
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
         resource_query.update(processing_status=task_status.PROCESSING)
-        resource_info = resource_query.values(
-            "resource_type__mimetype", "resource_file"
-        )[0]
-
-        if not claimed_mimetype:
-            mimetype = resource_info["resource_type__mimetype"]
-        else:
-            mimetype = claimed_mimetype
+        resource_info = resource_query.values("resource_type__mimetype", "resource_file")[0]
 
         with TemporaryDirectory() as tmpdir:
             infile_path = resource_info["resource_file"]
             tmpfile = os.path.join(tmpdir, "temp")
+
+            if claimed_mimetype == "application/octet-stream":
+                mimetype = fileparse(infile_path)
 
             inputs = {"in": [{"resource_path": infile_path, "resource_type": mimetype}]}
             outputs = {"out": [{"resource_path": tmpfile, "resource_type": ""}]}
