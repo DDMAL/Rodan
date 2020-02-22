@@ -1,45 +1,46 @@
-import urlparse
-import os
-import shutil
-from operator import itemgetter
-from celery import registry, chain
-from celery.task.control import revoke
-from django.core.urlresolvers import resolve
+# import urlparse
+# from operator import itemgetter
+# import os
+# import shutil
 
-from django.db.models import Q
-
+from celery import (
+    registry,
+    # chain
+)
+# from celery.task.control import revoke
+# from django.core.urlresolvers import resolve
+# from django.db.models import Q
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework import mixins
-from rest_framework.response import Response
+# from rest_framework import mixins
+# from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import HyperlinkedIdentityField
 
 from rodan.models import (
-    Workflow,
-    RunJob,
-    WorkflowJob,
+    # Workflow,
+    # RunJob,
+    # WorkflowJob,
     WorkflowRun,
-    Connection,
+    # Connection,
     Resource,
-    Input,
-    Output,
-    OutputPort,
+    # Input,
+    # Output,
+    # OutputPort,
     InputPort,
-    ResourceType,
+    # ResourceType,
     ResourceList,
 )
-from rodan.serializers.user import UserSerializer
+# from rodan.serializers.user import UserSerializer
 from rodan.serializers.workflowrun import (
     WorkflowRunSerializer,
-    WorkflowRunByPageSerializer,
+    # WorkflowRunByPageSerializer,
 )
 
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
-from rest_framework import filters
 
 
 class WorkflowRunList(generics.ListCreateAPIView):
@@ -185,86 +186,88 @@ class WorkflowRunList(generics.ListCreateAPIView):
             # Collection with multiple Resources or ResourceLists
             if len(ress) > 1:
                 if resource_collection_length is None:
-                    # This is the first resource collection we've encountered that has multiple items
+                    # This is the first resource collection we've encountered
+                    # that has multiple items
                     resource_collection_length = len(ress)
                     resource_collection_ip = input_port
                 else:
                     # Validate if the lengths are even
                     if len(ress) != resource_collection_length:
-                        raise ValidationError(
-                            {
-                                input_port: [
-                                    "The number of assigned Resources of ResourceLists is not even with that of {}".format(resource_collection_ip)
-                                ]
-                            }
-                        )
+                        raise ValidationError({
+                            input_port: [
+                                (
+                                    "The number of assigned Resources of "
+                                    "ResourceLists is not even with that of {}"
+                                ).format(resource_collection_ip)
+                            ]
+                        })
 
-            ## Resource must be in project and resource types are matched
-            ## If a ResourceList, it should not be empty and all individuals should satisfy the above requirements.
+            # Resource must be in project and resource types are matched
+            # If a ResourceList, it should not be empty and all individuals
+            # should satisfy the above requirements.
             for index, res in enumerate(ress):
                 if isinstance(res, Resource):
                     if ip.input_port_type.is_list is True:
-                        raise ValidationError(
-                            {
-                                input_port: {
-                                    index: [
-                                        "The InputPort requires ResourceLists but is provided with Resources"
-                                    ]
-                                }
+                        raise ValidationError({
+                            input_port: {
+                                index: [(
+                                    "The InputPort requires ResourceLists but is provided with "
+                                    "Resources"
+                                )]
                             }
-                        )
+                        })
                     if not res.resource_file:
-                        raise ValidationError(
-                            {input_port: {index: ["The resource file is not ready"]}}
-                        )
+                        raise ValidationError({
+                            input_port: {
+                                index: ["The resource file is not ready"]
+                            }
+                        })
 
                 else:  # ResourceList
                     if ip.input_port_type.is_list is False:
-                        raise ValidationError(
-                            {
-                                input_port: {
-                                    index: [
-                                        "The InputPort requires Resources but is provided with ResourceLists"
-                                    ]
-                                }
+                        raise ValidationError({
+                            input_port: {
+                                index: [(
+                                    "The InputPort requires Resources but is "
+                                    "provided with ResourceLists"
+                                )]
                             }
-                        )
+                        })
 
                     for i, r in enumerate(res.resources.all()):
                         if not r.resource_file:
-                            raise ValidationError(
-                                {
-                                    input_port: {
-                                        index: [
-                                            "The resource file of #{0} in the resource list is not ready".format(
-                                                i
-                                            )
-                                        ]
-                                    }
+                            raise ValidationError({
+                                input_port: {
+                                    index: [(
+                                        "The resource file of #{0} in the"
+                                        "resource list is not ready").format(i)
+                                    ]
                                 }
-                            )
+                            })
 
                 if res.project != serializer.validated_data["workflow"].project:
-                    raise ValidationError(
-                        {
-                            input_port: {
-                                index: [
-                                    "Resource or ResourceList is not in the project of Workflow"
-                                ]
-                            }
+                    raise ValidationError({
+                        input_port: {
+                            index: [
+                                (
+                                    "Resource or ResourceList is not in the "
+                                    "project of Workflow"
+                                )
+                            ]
                         }
-                    )
+                    })
                 type_of_res = res.resource_type
                 if type_of_res not in types_of_ip:
-                    raise ValidationError(
-                        {
-                            input_port: {
-                                index: [
-                                    "The resource type {0} does not match the InputPort {1}".format(type_of_res, types_of_ip)
-                                ]
-                            }
+                    raise ValidationError({
+                        input_port: {
+                            index: [
+                                (
+                                    "The resource type {0} does not match the"
+                                    " InputPort {1}"
+                                ).format(type_of_res, types_of_ip)
+                            ]
                         }
-                    )
+                    })
 
             validated_resource_assignment_dict[ip] = ress
 
@@ -273,12 +276,12 @@ class WorkflowRunList(generics.ListCreateAPIView):
             raise ValidationError(
                 [
                     "There are still unsatisfied InputPorts: {0}".format(
-                        " ".join(
-                            [
-                                h_ip.get_url(ip, "inputport-detail", self.request, None)
-                                for ip in unsatisfied_ips
-                            ]
-                        )
+                        " ".join([h_ip.get_url(
+                            port,
+                            "inputport-detail",
+                            self.request,
+                            None
+                        ) for port in unsatisfied_ips])
                     )
                 ]
             )
@@ -309,17 +312,16 @@ class WorkflowRunDetail(generics.RetrieveUpdateDestroyAPIView):
         # validate new status
         is_cancelling_wfrun = bool(
             new_status
-            and (
-                old_status
-                in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)
-                and new_status == task_status.REQUEST_CANCELLING
+            and (  # noqa
+                old_status in (task_status.PROCESSING, task_status.RETRYING, task_status.FAILED)  # noqa
+                and new_status == task_status.REQUEST_CANCELLING  # noqa
             )
         )
         is_retrying_wfrun = bool(
             new_status
-            and (
-                old_status in (task_status.CANCELLED, task_status.FAILED)
-                and new_status == task_status.REQUEST_RETRYING
+            and (  # noqa
+                old_status in (task_status.CANCELLED, task_status.FAILED)  # noqa
+                and new_status == task_status.REQUEST_RETRYING  # noqa
             )
         )
         if new_status and not is_cancelling_wfrun and not is_retrying_wfrun:

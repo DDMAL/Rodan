@@ -47,13 +47,12 @@ class WorkflowList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         valid = serializer.validated_data.get("valid", False)
         if valid:
-            raise ValidationError(
-                {
-                    "valid": [
-                        "You can't create a valid workflow - it must be validated through a PATCH request."
-                    ]
-                }
-            )
+            raise ValidationError({
+                "valid": [(
+                    "You can't create a valid workflow - it must be validated through a PATCH "
+                    "request."
+                )]
+            })
 
         serializer.save(creator=self.request.user)
 
@@ -196,9 +195,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if ip.input_port_type.job != ip.workflow_job.job:
                 raise WorkflowValidationError(
                     "IP_TYPE_MISMATCH",
-                    "The type of InputPort {0} is incompatible with its associated WorkflowJob.".format(
-                        ip.label
-                    ),
+                    (
+                        "The type of InputPort {0} is incompatible with its associated "
+                        "WorkflowJob."
+                    ).format(ip.label),
                     [ip],
                 )
 
@@ -215,9 +215,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             if op.output_port_type.job != op.workflow_job.job:
                 raise WorkflowValidationError(
                     "OP_TYPE_MISMATCH",
-                    "The type of OutputPort {0} is incompatible with its associated WorkflowJob.".format(
-                        op.label
-                    ),
+                    (
+                        "The type of OutputPort {0} is incompatible with its associated "
+                        "WorkflowJob."
+                    ).format(op.label),
                     [op],
                 )
 
@@ -230,9 +231,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 if ip.input_port_type.is_list and not op.output_port_type.is_list:
                     raise WorkflowValidationError(
                         "RESOURCETYPE_LIST_CONFLICT",
-                        "InputPort {0} accepts a list of resources but OutputPort {1} is not list-typed.".format(
-                            ip.label, op.label
-                        ),
+                        (
+                            "InputPort {0} accepts a list of resources but OutputPort {1} is not "
+                            "list-typed."
+                        ).format(ip.label, op.label),
                         [op, ip],
                     )
                 elif not ip.input_port_type.is_list and op.output_port_type.is_list:
@@ -250,25 +252,25 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                 if not set(resource_type_set):
                     raise WorkflowValidationError(
                         "NO_COMMON_RESOURCETYPE",
-                        "There is no common ResourceType between OutputPort {0} and its connected InputPorts.".format(
-                            op.label
-                        ),
+                        (
+                            "There is no common ResourceType between OutputPort {0} and its "
+                            "connected InputPorts."
+                        ).format(op.label),
                         [op] + ips,
                     )
 
-        # graph validation
-        ## Step 0
+        # graph validation - Step 0
         if len(workflow_jobs) == 0:
             raise WorkflowValidationError("WF_EMPTY", "The Workflow is empty.", [])
 
-        ## Step 1
+        # Step 1
         self.permanent_marks_global = set()
         self.temporary_marks_global = set()
 
-        ## Step 2
+        # Step 2
         self.disjoint_set = DisjointSet(workflow_jobs)
 
-        ## Step 3&4
+        # Step 3&4
         for wfjob in workflow_jobs:
             try:
                 if wfjob not in self.permanent_marks_global:
@@ -276,7 +278,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             except WorkflowValidationError as e:
                 raise e
 
-        ## Step 5
+        # Step 5
         one_set = self.disjoint_set.find(workflow_jobs[0])
         for wfjob in workflow_jobs:
             if self.disjoint_set.find(wfjob) is not one_set:
@@ -284,7 +286,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                     "WF_NOT_CONNECTED", "The Workflow is not connected."
                 )
 
-        ## label all extern input/output ports
+        # label all extern input/output ports
         InputPort.objects.filter(workflow_job__workflow=workflow).update(extern=False)
         OutputPort.objects.filter(workflow_job__workflow=workflow).update(extern=False)
 

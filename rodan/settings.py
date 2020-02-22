@@ -167,10 +167,7 @@ elif RODAN_JOB_QUEUE == "Python3":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
 else:
-    raise EnvironmentError(
-        "An environment was not built for that specific rodan job-queue yet. " +
-        "Build one and try again."
-    )
+    raise EnvironmentError("An environment was not built for that specific rodan job-queue yet. Build one and try again.")  # noqa
 
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
@@ -306,7 +303,8 @@ FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHand
 # REST framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication", # [TODO] - Make token auth the only auth.
+        # [TODO] - Make token auth the only auth.
+        "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_RENDERER_CLASSES": (

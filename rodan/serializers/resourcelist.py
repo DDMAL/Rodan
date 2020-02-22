@@ -1,12 +1,16 @@
-from rodan.models import ResourceList, ResourceType, Project
+from rodan.models import (
+    ResourceList,
+    # ResourceType,
+    Project
+)
 from rest_framework import serializers
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 
 
-class ResourceTypeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ResourceType
-        fields = ("url", "mimetype")
+# class ResourceTypeSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = ResourceType
+#         fields = ("url", "mimetype")
 
 
 class ResourceListSerializer(serializers.HyperlinkedModelSerializer):

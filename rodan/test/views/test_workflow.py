@@ -12,8 +12,8 @@ from rodan.serializers.workflow import version_map
 
 class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     """
-        For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
-        https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
+    For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
+    https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
     """
 
     def setUp(self):
@@ -203,7 +203,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port_type=new_ipt,
         )
         op = self.test_workflowjob.output_ports.first()
-        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)
+        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "RESOURCETYPE_LIST_CONFLICT")
@@ -229,7 +229,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             "rodan.InputPort", workflow_job=self.test_workflowjob, input_port_type=ipt
         )
 
-        conn = mommy.make("rodan.Connection", output_port=new_op, input_port=new_ip)
+        conn = mommy.make("rodan.Connection", output_port=new_op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "RESOURCETYPE_LIST_CONFLICT")
@@ -277,19 +277,19 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ipt2.resource_types.add(
             ResourceType.objects.get(mimetype="test/a2")
         )  # consider the type of opt is 'test/a1' and 'test/a2'
-        new_ip1 = mommy.make(
+        new_ip1 = mommy.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt1,
         )
-        new_ip2 = mommy.make(
+        new_ip2 = mommy.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt2,
         )
-        op = self.test_workflowjob.output_ports.first()
-        conn1 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip1)
-        conn2 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip2)
+        op = self.test_workflowjob.output_ports.first()  # noqa
+        conn1 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip1)  # noqa
+        conn2 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip2)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "NO_COMMON_RESOURCETYPE")
@@ -304,7 +304,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         workflowjob = mommy.make(
             "rodan.WorkflowJob", workflow=self.test_workflow, job=self.test_job
         )
-        inputport = mommy.make(
+        inputport = mommy.make(  # noqa
             "rodan.InputPort",
             workflow_job=workflowjob,
             input_port_type=self.test_inputporttype,
@@ -322,8 +322,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__workflow_job__workflow=self.test_workflow,
             input_port__workflow_job__job=self.test_job,
         )
-        test_workflowjob2 = test_connection.input_port.workflow_job
-        outputport2 = mommy.make(
+        test_workflowjob2 = test_connection.input_port.workflow_job  # noqa
+        outputport2 = mommy.make(  # noqa
             "rodan.OutputPort",
             workflow_job=test_workflowjob2,
             output_port_type=self.test_outputporttype,
@@ -464,7 +464,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             workflow_job=self.test_workflowjob5,
             input_port_type=self.test_inputporttype,
         )
-        outputport5 = mommy.make(
+        outputport5 = mommy.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob5,
             output_port_type=self.test_outputporttype,
@@ -483,7 +483,7 @@ class WorkflowSerializationTestCase(
     RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
 ):
     """
-        For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
+    For clarification of some of the more confusing tests (i.e. loop, merging, and branching), see
         https://github.com/DDMAL/Rodan/wiki/Workflow-View-Test
     """
 
@@ -536,7 +536,9 @@ class WorkflowSerializationTestCase(
             response.data,
             {
                 "serialized": {
-                    "workflow_jobs[0].job_name": u"Job hahahaha does not exist in current Rodan installation."
+                    "workflow_jobs[0].job_name": (
+                        u"Job hahahaha does not exist in current Rodan installation."
+                    )
                 }
             },
         )
@@ -546,7 +548,8 @@ class WorkflowViewInvalidateTestCase(
     RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
 ):
     """
-    Unlike the test case under /test/models/test_workflow.py, this tests the invalidation using HTTP requests.
+    Unlike the test case under /test/models/test_workflow.py, this tests the invalidation
+    using HTTP requests.
     """
 
     def setUp(self):

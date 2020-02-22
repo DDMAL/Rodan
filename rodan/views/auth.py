@@ -1,4 +1,8 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import (
+    authenticate,
+    # login,
+    # logout
+)
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
@@ -68,7 +72,8 @@ class AuthTokenView(views.APIView):
                     {"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN
                 )
         else:
-            # user does not exist. Assume a typo in the username or password and allow the user to re-authenticate
+            # user does not exist. Assume a typo in the username or password
+            # and allow the user to re-authenticate
             return Response(
                 {"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED
             )

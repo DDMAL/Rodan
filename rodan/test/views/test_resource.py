@@ -62,16 +62,16 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_resource1 = Resource.objects.get(pk=response.data[0]["uuid"])
         self.test_resource2 = Resource.objects.get(pk=response.data[1]["uuid"])
         self.assertNotEqual(self.test_resource1.resource_file.path, "")
-        self.assertEqual(
-            self.test_resource1.resource_type.mimetype, "application/octet-stream"
-        )
+
+        # Since writing resourcetype identification, it will correctly identify the test file
+        # as a plain text file with mimetype "text/plain". They will not be identified as
+        # an "application/octet-stream"
+        self.assertEqual(self.test_resource1.resource_type.mimetype, "text/plain")
         self.assertEqual(
             self.test_resource1.processing_status, task_status.NOT_APPLICABLE
         )
         self.assertNotEqual(self.test_resource2.resource_file.path, "")
-        self.assertEqual(
-            self.test_resource2.resource_type.mimetype, "application/octet-stream"
-        )
+        self.assertEqual(self.test_resource2.resource_type.mimetype, "text/plain")
         self.assertEqual(
             self.test_resource2.processing_status, task_status.NOT_APPLICABLE
         )
@@ -203,7 +203,9 @@ class ResourceProcessingTestCase(
         response = self.client.post(
             "/resources/", resource_obj, format="multipart", resource_type=rt
         )
+        # raise Exception("marco")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # raise Exception("polo")
         self.test_resource1 = Resource.objects.get(pk=response.data[0]["uuid"])
         self.assertNotEqual(self.test_resource1.resource_file.path, "")
         self.assertEqual(self.test_resource1.resource_type.mimetype, "image/rgb+png")
@@ -247,9 +249,8 @@ class ResourceProcessingTestCase(
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.test_resource1 = Resource.objects.get(name="test_page1")
-            self.assertEqual(
-                self.test_resource1.resource_type.mimetype, "application/octet-stream"
-            )
+            # self.assertEqual(self.test_resource1.resource_type.mimetype, "application/octet-stream")
+            self.assertEqual(self.test_resource1.resource_type.mimetype, "text/plain")
 
     # Incomplete test. Might try to step away from all patch requests and do something else anyway.
     # def test_patch(self):

@@ -108,10 +108,8 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
         old_status = rp.status
         new_status = request.data.get("status", None)
 
-        if (
-            old_status in (task_status.SCHEDULED, task_status.PROCESSING)
-            and new_status == task_status.CANCELLED
-        ):
+        if (old_status in (task_status.SCHEDULED, task_status.PROCESSING)
+                and new_status == task_status.CANCELLED):
             revoke(rp.celery_task_id, terminate=True)
             serializer = self.get_serializer(
                 rp, data={"status": task_status.CANCELLED}, partial=True

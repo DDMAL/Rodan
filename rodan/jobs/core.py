@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import os
-import re
+# import re
 import shutil
 import subprocess
 import tempfile
@@ -51,9 +51,11 @@ class create_resource(Task):
 
             if claimed_mimetype == "application/octet-stream":
                 mimetype = fileparse(infile_path)
+            else:
+                mimetype = claimed_mimetype
 
-            inputs = {"in": [{"resource_path": infile_path, "resource_type": mimetype}]}
-            outputs = {"out": [{"resource_path": tmpfile, "resource_type": ""}]}
+            inputs = {"in": [{"resource_path": infile_path, "resource_type": mimetype}]}  # noqa
+            outputs = {"out": [{"resource_path": tmpfile, "resource_type": ""}]}  # noqa
 
             new_processing_status = task_status.FINISHED
 
@@ -71,12 +73,12 @@ class create_resource(Task):
                 )
             new_processing_status = task_status.NOT_APPLICABLE
 
-            with open(tmpfile, "rb") as f:
-                resource_object = resource_query[0]
-                if mimetype.startswith("image"):
-                    registry.tasks["rodan.core.create_diva"].si(resource_id).apply_async(queue="celery")
+            # with open(tmpfile, "rb") as f:
+            #   resource_object = resource_query[0]
+            if mimetype.startswith("image"):
+                registry.tasks["rodan.core.create_diva"].si(resource_id).apply_async(queue="celery")
 
-                resource_query.update(processing_status=new_processing_status)
+            resource_query.update(processing_status=new_processing_status)
         return True
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -178,12 +180,13 @@ def create_diva(resource_id):
     name, ext = os.path.splitext(name)
 
     subprocess.check_call(
-        args=[BIN_GM,
+        args=[
+            BIN_GM,
             "convert",
-            "-depth", "8", # output RGB
+            "-depth", "8",  # output RGB
             "-compress", "None",
-            task_image, # image file input
-            tmp_file # tiff file output
+            task_image,  # image file input
+            tmp_file  # tiff file output
         ]
     )
 
@@ -207,8 +210,9 @@ def create_diva(resource_id):
     )
 
     # With OpenJPEG
-    # creates a dark red tint on the image, it literally replaces the color profile. Should not be used until this bug is fixed.
-    # 
+    # creates a dark red tint on the image, it literally replaces the color profile.
+    # Should not be used until this bug is fixed.
+    #
     # subprocess.check_call(
     #     args=[
     #         "/opt/openjpeg/build/bin/opj_compress",
@@ -217,13 +221,15 @@ def create_diva(resource_id):
     #         "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
     #         "-b", "64,64", # Code-block size, Cblk in kakadu
     #         "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
-    #         # "-I" # Irreversable DWT, meaning reversable must be the default? Creversible in kakadu
+    #         # "-I" # Irreversable DWT, meaning reversable must be the default?
+    #         # Creversible in kakadu
     #         "-SOP", # Add SOP markers
     #         "-p", "LRCP", # Corder in kakadu
     #         # ORGgen_plt?
-    #         # this argument segfaults "-TP", "R", # Divide packets into tile-parts, ORGplt_parts in kakadu
+    #         # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
+    #         # ORGplt_parts in kakadu
     #         "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
-            
+
     #         # Kakadu
     #         # A dash, "-", may be used in place of the first bit-rate in the list to indicate
     #         # that the final quality layer should include all compressed bits.
@@ -231,9 +237,10 @@ def create_diva(resource_id):
     # )
 
     # With OpenJPEG + grok
-    # Uses openjpeg and fixes the color profile issue but resources are avg. 5 times larger than with kakadu.
+    # Uses openjpeg and fixes the color profile issue but resources are
+    # avg. 5 times larger than with kakadu.
     # The average speed it takes to convert an image seems fast enough for users
-    # 
+    #
     # subprocess.check_call(
     #     args=[
     #         "/opt/grok/bin/opj_compress",
@@ -246,11 +253,13 @@ def create_diva(resource_id):
     #         "-r","16,8,4,2"
     #     ]
     # )
-    shutil.copyfile(name+".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+
+    # shutil.copyfile(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
 
     # Cleanup temporary files
-    os.remove(tmp_file)
-    os.remove(name + ".jp2")
+    # os.remove(tmp_file)
+    # os.remove(name + ".jp2")
 
     gen = GenerateJson(
         input_directory=resource_object.diva_path,
@@ -343,10 +352,12 @@ class package_results(Task):
                         if output.resource is not None:
                             filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
-
+                            # [TODO]: or... find the modified resource name if
+                            # the resource_uuid still exists?
                             res_name = res_namefinder.find(
-                                output.resource_id, output.resource.name
-                            )  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                                output.resource_id,
+                                output.resource.name
+                            )
                             result_filename = "{0}{1}".format(res_name, ext)
                             if not os.path.exists(op_dir):
                                 os.makedirs(op_dir)
@@ -354,9 +365,12 @@ class package_results(Task):
                                 filepath, os.path.join(op_dir, result_filename)
                             )
                         elif output.resource_list is not None:
+                            # [TODO]: or... find the modified resource name if the
+                            # resource_uuid still exists?
                             res_name = res_namefinder.find(
-                                output.resource_list_id, output.resource_list.name
-                            )  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                                output.resource_list_id,
+                                output.resource_list.name
+                            )
                             result_foldername = "{0}.list".format(res_name)
                             result_folder = os.path.join(op_dir, result_foldername)
                             if not os.path.exists(result_folder):
@@ -377,9 +391,9 @@ class package_results(Task):
                                 )
 
                 elif mode == 1:
-                    res_name = res_namefinder.find(
-                        output.resource_id, output.resource.name
-                    )  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                    # [TODO]: or... find the modified resource name if the resource_uuid still
+                    # exists?
+                    res_name = res_namefinder.find(output.resource_id, output.resource.name)
                     res_dir = os.path.join(tmp_dir, res_name)
 
                     j_name = job_namefinder.find(
@@ -441,7 +455,8 @@ class package_results(Task):
                 completed += percentage_increment
                 rp_query.update(percent_completed=int(completed))
 
-            # print([os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn])   # DEBUG
+            # DEBUG
+            # print([os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn])  # noqa
             bag.update()
             errors = bag.validate()
             if not bag.is_valid:
@@ -541,9 +556,10 @@ class create_workflowrun(Task):
 
         def create_runjob_A(wfjob, this_ip_resource_map):
             # Backwords compatibility:
-            # RunJob.resource_uuid is used to label which one in the resource collection the RunJob was created from.
-            # But this is not depicting the full image when there are multiple resource collections.
-            # Therefore, if there's only one resource collection (as we can tell from this_ip_resource_map), we follow
+            # RunJob.resource_uuid is used to label which one in the resource collection
+            # the RunJob was created from. But this is not depicting the full image when
+            # there are multiple resource collections. Therefore, if there's only one
+            # resource collection (as we can tell from this_ip_resource_map), we follow
             # the previous way; otherwise, we simply pick the first one from the map.
             if len(this_ip_resource_map.keys()) == 0:
                 labelling_resource = None
@@ -590,7 +606,7 @@ class create_workflowrun(Task):
                 output = Output(**kwargs)
                 output.save()
 
-                r.description = """Generated by workflow: {0}-{1} \n workflow_run: {2}-{3} \n job: {4}-{5} \n workflow_job: {6}-{7} \n workflow_job setting: {8} \n run_job: {9}-{10}""".format(
+                r.description = """Generated by workflow: {0}-{1} \n workflow_run: {2}-{3} \n job: {4}-{5} \n workflow_job: {6}-{7} \n workflow_job setting: {8} \n run_job: {9}-{10}""".format(  # noqa
                     workflow_run.workflow.name,
                     workflow_run.workflow.uuid,
                     workflow_run.name,
@@ -656,8 +672,9 @@ class create_workflowrun(Task):
                 if wfj_ip in resource_assignment_dict:
                     ress = resource_assignment_dict[wfj_ip]
                     if len(ress) > 1:
-                        # This InputPort links to a resource collection and we need to find out the correct resource
-                        # that we are working on for this InputPort.
+                        # This InputPort links to a resource collection and we
+                        # need to find out the correct resource that we are
+                        # working on for this InputPort.
                         entry_res = this_ip_resource_map[wfj_ip]
                     else:
                         # This InputPort does not link to a resource collection
@@ -688,7 +705,7 @@ class create_workflowrun(Task):
                 if type(res) is Resource:
                     # if type(res) is Resource:
                     if len(resource_type_set) > 1:
-                        ## Eliminate this set by considering the connected InputPorts
+                        # Eliminate this set by considering the connected InputPorts
                         for connection in o.output_port.connections.all():
                             in_type_set = set(
                                 connection.input_port.input_port_type.resource_types.all()
@@ -696,7 +713,7 @@ class create_workflowrun(Task):
                             resource_type_set.intersection_update(in_type_set)
 
                     if len(resource_type_set) > 1:
-                        ## Try to find a same resource type in the input resources.
+                        # Try to find a same resource type in the input resources.
                         for i in runjob_A.inputs.all():
                             r = i.resource or i.resource_list
                             if r.resource_type in resource_type_set:
@@ -717,8 +734,9 @@ class create_workflowrun(Task):
 
         def runjob_creation_loop(this_ip_resource_map):
             """
-            this_ip_resource_map - an OrderedDict containing (input_port, resource) pairs to guide the runjob creation
-            process which input ports are taking an element from resource collection.
+            this_ip_resource_map - an OrderedDict containing (input_port, resource)
+            pairs to guide the runjob creation process which input ports are taking
+            an element from resource collection.
             """
             for wfjob in endpoint_workflowjobs:
                 create_runjobs(wfjob, this_ip_resource_map)
@@ -734,8 +752,10 @@ class create_workflowrun(Task):
 
         # Main:
         # Construct a list of list of (input_port, resource) pairs
-        # The outer list corresponds to the total number of resource collections assigned to the workflow execution
-        # The inner list corresponds to the length of every collection (validation ensures they have same lengths)
+        # The outer list corresponds to the total number of resource
+        # collections assigned to the workflow execution. The inner
+        # list corresponds to the length of every collection (validation
+        # ensures they have same lengths)
         ip_resource_pairs_collection = []
         for ip, ress in resource_assignment_dict.items():
             if len(ress) > 1:
@@ -744,19 +764,20 @@ class create_workflowrun(Task):
 
         if ip_resource_pairs_collection:
             for ip_resource_pairs_each in zip(*ip_resource_pairs_collection):
-                # We are iterating through a list of (input_port, resource) pairs with all different input_port
-                # Convert it to a dictionary for easier lookup. Use OrderedDict to make it easier to find the first one in
-                # create_runjob_A.
+                # We are iterating through a list of (input_port, resource) pairs
+                # with all different input_port Convert it to a dictionary for
+                # easier lookup. Use OrderedDict to make it easier to find the
+                # first one in create_runjob_A.
                 this_ip_resource_map = OrderedDict(ip_resource_pairs_each)
                 runjob_creation_loop(this_ip_resource_map)
         else:
             runjob_creation_loop(OrderedDict({}))
 
-        ## ready to process
+        # ready to process
         workflow_run.status = task_status.PROCESSING
         workflow_run.save(update_fields=["status"])
 
-        ## call master_task
+        # call master_task
         registry.tasks["rodan.core.master_task"].apply_async((wfrun_id,))
 
     def _endpoint_workflow_jobs(self, workflow):

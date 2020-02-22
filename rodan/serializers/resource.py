@@ -1,6 +1,6 @@
 from rodan.models.resource import Resource
 from rest_framework import serializers
-from rodan.serializers.user import UserListSerializer
+# from rodan.serializers.user import UserListSerializer
 from rodan.serializers import AbsoluteURLField
 
 

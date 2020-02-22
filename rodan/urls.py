@@ -53,7 +53,10 @@ from rodan.views.taskqueue import (
     TaskQueueScheduledView,
     TaskQueueStatusView,
 )
-from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
+from rodan.views.interactive import (
+    InteractiveAcquireView,
+    InteractiveWorkingView
+)
 
 from rodan.views.main import APIRoot
 
@@ -63,7 +66,8 @@ import rodan.jobs.load
 urlpatterns = []
 
 # Admin URL pattern.
-# [INFO] - Notice that the Admin URL is specified in the settings.py file, as an environment variable.
+# [INFO] - Notice that the Admin URL is specified in the settings.py file,
+# as an environment variable.
 urlpatterns += required(
     logged_in_or_basicauth("Rodan admin"),
     patterns("", (settings.ADMIN_URL, include(admin.site.urls))),
@@ -97,12 +101,12 @@ urlpatterns += format_suffix_patterns(
             name="project-detail",
         ),
         url(
-            r"^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/admins/$",
+            r"^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/admins/$",  # noqa
             ProjectDetailAdmins.as_view(),
             name="project-detail-admins",
         ),
         url(
-            r"^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/workers/$",
+            r"^project/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/workers/$",  # noqa
             ProjectDetailWorkers.as_view(),
             name="project-detail-workers",
         ),
@@ -124,7 +128,7 @@ urlpatterns += format_suffix_patterns(
             name="workflowjobgroup-list",
         ),
         url(
-            r"^workflowjobgroup/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^workflowjobgroup/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             WorkflowJobGroupDetail.as_view(),
             name="workflowjobgroup-detail",
         ),
@@ -142,7 +146,7 @@ urlpatterns += format_suffix_patterns(
             name="userpreference-list",
         ),
         url(
-            r"^userpreference/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^userpreference/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             UserPreferenceDetail.as_view(),
             name="userpreference-detail",
         ),
@@ -164,7 +168,7 @@ urlpatterns += format_suffix_patterns(
             name="resultspackage-list",
         ),
         url(
-            r"^resultspackage/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^resultspackage/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             ResultsPackageDetail.as_view(),
             name="resultspackage-detail",
         ),
@@ -180,7 +184,7 @@ urlpatterns += format_suffix_patterns(
             name="outputporttype-list",
         ),
         url(
-            r"^outputporttype/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^outputporttype/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             OutputPortTypeDetail.as_view(),
             name="outputporttype-detail",
         ),
@@ -194,7 +198,7 @@ urlpatterns += format_suffix_patterns(
             r"^inputporttypes/$", InputPortTypeList.as_view(), name="inputporttype-list"
         ),
         url(
-            r"^inputporttype/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^inputporttype/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             InputPortTypeDetail.as_view(),
             name="inputporttype-detail",
         ),
@@ -211,12 +215,12 @@ urlpatterns += format_suffix_patterns(
             name="resource-detail",
         ),
         url(
-            r"^resource/(?P<resource_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^resource/(?P<resource_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             ResourceViewer.as_view(),
             name="resource-viewer",
         ),
         url(
-            r"^resource/(?P<resource_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/acquire/$",
+            r"^resource/(?P<resource_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/acquire/$",  # noqa
             ResourceAcquireView.as_view(),
             name="resource-viewer-acquire",
         ),
@@ -245,12 +249,12 @@ urlpatterns += format_suffix_patterns(
             name="input-detail",
         ),
         url(
-            r"^interactive/(?P<run_job_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/acquire/$",
+            r"^interactive/(?P<run_job_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/acquire/$",  # noqa
             InteractiveAcquireView.as_view(),
             name="interactive-acquire",
         ),
         url(
-            r"^interactive/(?P<run_job_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<additional_url>.*)$",
+            r"^interactive/(?P<run_job_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<additional_url>.*)$",  # noqa
             InteractiveWorkingView.as_view(),
             name="interactive-working",
         ),
@@ -260,7 +264,7 @@ urlpatterns += format_suffix_patterns(
             name="workflowjobcoordinateset-list",
         ),
         url(
-            r"^workflowjobcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^workflowjobcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             WorkflowJobCoordinateSetDetail.as_view(),
             name="workflowjobcoordinateset-detail",
         ),
@@ -270,7 +274,7 @@ urlpatterns += format_suffix_patterns(
             name="workflowjobgroupcoordinateset-list",
         ),
         url(
-            r"^workflowjobgroupcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+            r"^workflowjobgroupcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
             WorkflowJobGroupCoordinateSetDetail.as_view(),
             name="workflowjobgroupcoordinateset-detail",
         ),

@@ -58,6 +58,10 @@ class RunJob(models.Model):
     - `project` -- the corresponding Rodan `Project` instance.
     """
 
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_runjob", "View RunJob"),)
+
     STATUS_CHOICES = [
         (task_status.SCHEDULED, "Scheduled"),
         (task_status.PROCESSING, "Processing"),
@@ -66,10 +70,6 @@ class RunJob(models.Model):
         (task_status.CANCELLED, "Cancelled"),
         (task_status.WAITING_FOR_INPUT, "Waiting for input"),
     ]
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_runjob", "View RunJob"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_run = models.ForeignKey(

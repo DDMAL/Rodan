@@ -10,7 +10,8 @@ from rodan.permissions import CustomObjectPermissions
 
 class RunJobList(generics.ListAPIView):
     """
-    Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
+    Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by
+    the server.
     """
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)

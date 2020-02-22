@@ -29,7 +29,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
     }
 
     def perform_create(self, serializer):
-        if not "job_settings" in serializer.validated_data:
+        if "job_settings" not in serializer.validated_data:
             j_settings = serializer.validated_data["job"].settings
             s = {}
             for properti, definition in j_settings.get("properties", {}).items():

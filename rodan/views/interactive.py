@@ -1,22 +1,30 @@
-import json, tempfile, inspect, os, mimetypes
+import datetime
+
+# import inspect
+import json
+import mimetypes
+import os
+
+# import tempfile
+import time
+import uuid
+
 from celery import registry
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, Http404
 from django.conf import settings
-from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework import permissions, generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.exceptions import APIException
-from rodan.models import RunJob
-from rodan.constants import task_status
-import time
-import datetime
 from django.utils import timezone
-import uuid
 from django.core.urlresolvers import reverse
+
+from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException
+from rodan.models import RunJob
 from rodan.permissions import CustomObjectPermissions
 
 RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = (
@@ -53,9 +61,9 @@ class InteractiveAcquireView(generics.GenericAPIView):
             )
 
         if (
-            runjob.working_user
-            and request.user != runjob.working_user
-            and timezone.now() <= runjob.working_user_expiry
+            runjob.working_user  # noqa
+            and request.user != runjob.working_user  # noqa
+            and timezone.now() <= runjob.working_user_expiry  # noqa
         ):
             # last working user not expired yet
             return Response(
@@ -63,10 +71,7 @@ class InteractiveAcquireView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         else:
-            if (
-                request.user != runjob.working_user
-                or timezone.now() > runjob.working_user_expiry
-            ):
+            if (request.user != runjob.working_user or timezone.now() > runjob.working_user_expiry):
                 # reset working user as current user
                 runjob.working_user = request.user
                 runjob.working_user_token = uuid.uuid4()
@@ -150,16 +155,17 @@ class InteractiveWorkingView(APIView):
             return response
         else:
             # request for static files
-            ## find the path of the static file. Need to figure out the package name
+            # find the path of the static file. Need to figure out the package name
             job_package_path = manual_task._package_path()
-            job_static_path = os.path.join(
-                job_package_path, "static"
-            )  # e.g.: "/path/to/rodan/jobs/gamera/static"
-            if (
-                os.path.isabs(additional_url)
-                or additional_url == ".."
-                or additional_url.startswith("../")
-            ):  # prevent traversal (from flask https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py#L567-L591)
+
+            # e.g.: "/path/to/rodan/jobs/gamera/static"
+            job_static_path = os.path.join(job_package_path, "static")
+
+            # [TODO] Test this, don't think it's needed in django.
+            # prevent traversal (from flask
+            #   https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py#L567-L591)
+            if (os.path.isabs(additional_url) or
+                    additional_url == ".." or additional_url.startswith("../")):
                 raise Http404
             abspath = os.path.join(job_static_path, additional_url)
 

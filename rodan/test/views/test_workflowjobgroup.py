@@ -178,7 +178,7 @@ class WorkflowJobGroupActionTestCase(
         }
         response = self.client.post("/workflowjobgroups/", wfjgroup_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        wfjgroup_uuid = response.data["uuid"]
+        # wfjgroup_uuid = response.data["uuid"]
 
         # Check object numbers
         self.assertEqual(
@@ -323,10 +323,12 @@ class WorkflowJobGroupProtectTestCase(
             self.assertEqual(response.data["job_settings"], {"a": 1})
 
     def test_cannot_change_workflowjob_job__name__workflow_in_group(self):
-        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        from rodan.test.dummy_jobs import dummy_automatic_job
+
+        # from rodan.test.dummy_jobs import dummy_manual_job
 
         job_a = Job.objects.get(name=dummy_automatic_job.name)
-        job_m = Job.objects.get(name=dummy_manual_job.name)
+        # job_m = Job.objects.get(name=dummy_manual_job.name)
         wfj_updates = {
             "job": "http://localhost:8000/job/{0}/".format(job_a.pk),
             "name": "new name",
@@ -358,7 +360,10 @@ class WorkflowJobGroupProtectTestCase(
 
     def test_cannot_delete_inputport_in_group(self):
         anticipated_message = {
-            "detail": "To delete this input port, you should first remove its workflow job from the group."
+            "detail": (
+                "To delete this input port, you should first remove its "
+                "workflow job from the group."
+            )
         }
         for ip in [
             self.test_Cip1,
@@ -377,10 +382,12 @@ class WorkflowJobGroupProtectTestCase(
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_cannot_modify_inputport_in_group(self):
-        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        from rodan.test.dummy_jobs import dummy_automatic_job
+
+        # from rodan.test.dummy_jobs import dummy_manual_job
 
         job_a = Job.objects.get(name=dummy_automatic_job.name)
-        job_m = Job.objects.get(name=dummy_manual_job.name)
+        # job_m = Job.objects.get(name=dummy_manual_job.name)
         ipt_aA = job_a.input_port_types.get(name="in_typeA")
         ip_updates = {
             "input_port_type": "http://localhost:8000/inputporttype/{0}/".format(
@@ -419,7 +426,10 @@ class WorkflowJobGroupProtectTestCase(
 
     def test_cannot_delete_outputport_in_group(self):
         anticipated_message = {
-            "detail": "To delete this output port, you should first remove its workflow job from the group."
+            "detail": (
+                "To delete this output port, you should first remove its "
+                "workflow job from the group."
+            )
         }
         for op in [
             self.test_Bop,
@@ -436,10 +446,12 @@ class WorkflowJobGroupProtectTestCase(
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_cannot_modify_outputport_in_group(self):
-        from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
+        from rodan.test.dummy_jobs import dummy_automatic_job
+
+        # from rodan.test.dummy_jobs import dummy_manual_job
 
         job_a = Job.objects.get(name=dummy_automatic_job.name)
-        job_m = Job.objects.get(name=dummy_manual_job.name)
+        # job_m = Job.objects.get(name=dummy_manual_job.name)
         opt_aA = job_a.output_port_types.get(name="out_typeA")
         op_updates = {
             "output_port_type": "http://localhost:8000/outputporttype/{0}/".format(
@@ -476,7 +488,10 @@ class WorkflowJobGroupProtectTestCase(
 
     def test_cannot_delete_connection_in_group(self):
         anticipated_message = {
-            "detail": "To delete this connection, you should first remove one of its related workflow jobs from the group."
+            "detail": (
+                "To delete this connection, you should first remove one of its"
+                " related workflow jobs from the group."
+            )
         }
         for conn in [self.test_conn_Bop_Cip2, self.test_conn_Dop_Eip1]:
             response = self.client.delete("/connection/{0}/".format(conn.pk))
@@ -504,7 +519,10 @@ class WorkflowJobGroupProtectTestCase(
 
         for k, v in conn_updates.items():
             anticipated_message = {
-                k: "To modify this field, you should first remove one of its related workflow jobs from the group."
+                k: (
+                    "To modify this field, you should first remove one of its"
+                    " related workflow jobs from the group."
+                )
             }
             conn_update = {k: v}
             for conn in [self.test_conn_Bop_Cip2, self.test_conn_Dop_Eip1]:

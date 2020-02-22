@@ -18,7 +18,7 @@ class WorkflowJob(models.Model):
     - `workflow` -- a reference to the `Workflow` that it belongs to.
     - `job` -- a reference to the `Job`.
     - `job_settings` -- JSON field. Store user's settings which correspond to the
-      preset requirements of `Job` settings.
+        preset requirements of `Job` settings.
     - `name` -- user-defined name. Default: the same as `job_name`.
 
     - `group` -- a nullable reference to the `WorkflowGroup` object.
@@ -30,8 +30,13 @@ class WorkflowJob(models.Model):
 
     **Methods**
 
-    - `save` and `delete` -- invalidate the referenced `Workflow` if `workflow`, `job`, or `job_settings` are touched.
+    - `save` and `delete` -- invalidate the referenced `Workflow` if `workflow`,
+        `job`, or `job_settings` are touched.
     """
+
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_workflowjob", "View WorkflowJob"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow = models.ForeignKey(
@@ -86,10 +91,6 @@ class WorkflowJob(models.Model):
 
     def __unicode__(self):
         return u"<WorkflowJob {0}>".format(str(self.uuid))
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_workflowjob", "View WorkflowJob"),)
 
     @property
     def job_name(self):

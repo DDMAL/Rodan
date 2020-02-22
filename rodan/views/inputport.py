@@ -60,9 +60,10 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
         if ip_serializer.instance.workflow_job.group is not None:
             invalid_info = {}
             for k, v in ip_serializer.validated_data.items():
-                invalid_info[
-                    k
-                ] = "To modify this field, you should first remove its workflow job from the group."
+                invalid_info[k] = (
+                    "To modify this field, you should first remove its workflow job from the "
+                    "group."
+                )
             if invalid_info:
                 raise CustomAPIException(
                     invalid_info, status=status.HTTP_400_BAD_REQUEST
@@ -71,8 +72,10 @@ class InputPortDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, ip):
         if ip.workflow_job.group is not None:
-            raise CustomAPIException(
-                "To delete this input port, you should first remove its workflow job from the group.",
+            raise CustomAPIException((
+                "To delete this input port, you should first remove its workflow job from the "
+                "group."
+                ),
                 status=status.HTTP_400_BAD_REQUEST,
             )
         ip.delete()

@@ -1,5 +1,5 @@
-import os
-import shutil
+# import os
+# import shutil
 import uuid
 from django.db import models
 from django.apps import apps
@@ -28,6 +28,10 @@ class Workflow(models.Model):
       with extern=True. If the `Workflow` is not valid, returns empty list.
     """
 
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_workflow", "View Workflow"),)
+
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=100, db_index=True)
     project = models.ForeignKey(
@@ -52,10 +56,6 @@ class Workflow(models.Model):
 
     def __unicode__(self):
         return u"<Workflow {0}>".format(self.name)
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_workflow", "View Workflow"),)
 
     @property
     def workflow_input_ports(self):

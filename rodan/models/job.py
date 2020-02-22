@@ -28,26 +28,26 @@ class Job(models.Model):
     See also: https://github.com/DDMAL/Rodan/wiki/Introduction-to-job-modules
     """
 
+    class Meta:
+        app_label = "rodan"
+
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    name = models.CharField(
-        max_length=200, unique=True, db_index=True
-    )  # make sure runjob directory name not exceed 255 characters (Ref: rodan.models.runjob.runjob_path)
+    # make sure runjob directory name not exceed 255 characters
+    # (Ref: rodan.models.runjob.runjob_path)
+    name = models.CharField(max_length=200, unique=True, db_index=True)
     author = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     category = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
 
     settings = JSONField(default={"type": "object"})
-    
-    # Do not manually change this field, it will get overwritten again after every django makemigrations/migrate.
-    # Job queues are defined in the RodanJob Class's Settings schema for any specific job, otherwise it will take
-    # the default route.
+
+    # Do not manually change this field, it will get overwritten again after every django
+    # makemigrations/migrate. Job queues are defined in the RodanJob Class's Settings
+    # schema for any specific job, otherwise it will take the default route.
     job_queue = models.CharField(max_length=15, default="celery")
-    
+
     enabled = models.BooleanField(default=False, db_index=True)
     interactive = models.BooleanField(default=False, db_index=True)
 
     def __unicode__(self):
         return u"<Job {0}>".format(self.name)
-
-    class Meta:
-        app_label = "rodan"

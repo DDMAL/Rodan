@@ -19,7 +19,8 @@ class RodanMetadata(SimpleMetadata):
         if view in _filter_fields_cache:
             return _filter_fields_cache[view]
         else:
-            # [TODO] not clever enough... repeating codes: https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/filters.py
+            # [TODO] not clever enough...
+            # repeating codes: https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/filters.py  # noqa
             if hasattr(view, "filter_class"):
                 fc = view.filter_class()
                 fields = {}

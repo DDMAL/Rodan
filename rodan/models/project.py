@@ -1,10 +1,10 @@
-import os, uuid
+import os
 import shutil
-from django.db import models
+import uuid
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-import uuid
 from django.core.urlresolvers import reverse
+from django.db import models
 
 
 class Project(models.Model):
@@ -33,6 +33,10 @@ class Project(models.Model):
     - `save` -- create the project directory if it does not exist.
     - `delete` -- delete the whole project directory.
     """
+
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_project", "View Project"),)
 
     @property
     def project_path(self):
@@ -84,7 +88,8 @@ class Project(models.Model):
             os.makedirs(self.project_path)
 
     def delete(self, *args, **kwargs):
-        # remove protected links from input/output to resource by deleting all workflowruns prior to resources
+        # remove protected links from input/output to resource by deleting all
+        # workflowruns prior to resources
         from rodan.models import WorkflowRun
 
         WorkflowRun.objects.filter(project=self).delete()
@@ -98,10 +103,6 @@ class Project(models.Model):
         wg.delete()
         if os.path.exists(proj_path):
             shutil.rmtree(proj_path)
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_project", "View Project"),)
 
     @property
     def workflow_count(self):

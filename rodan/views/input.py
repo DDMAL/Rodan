@@ -7,7 +7,8 @@ from rodan.permissions import CustomObjectPermissions
 
 class InputList(generics.ListAPIView):
     """
-    Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the server.
+    Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the
+    server.
     """
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)

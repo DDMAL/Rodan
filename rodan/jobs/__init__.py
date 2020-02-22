@@ -1,4 +1,5 @@
-import logging, importlib
+import logging
+import importlib
 
 logger = logging.getLogger("rodan")
 

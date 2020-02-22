@@ -1,5 +1,6 @@
 from rest_framework import generics
-from rest_framework import permissions, filters
+# from rest_framework import filters
+from rest_framework import permissions
 from rodan.models.outputporttype import OutputPortType
 from rodan.serializers.outputporttype import OutputPortTypeSerializer
 from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOption

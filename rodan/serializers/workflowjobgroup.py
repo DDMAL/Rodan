@@ -94,4 +94,5 @@ class WorkflowJobGroupImportCreateSerializer(serializers.HyperlinkedModelSeriali
         ].load(dumped_workflow, self.validated_data["workflow"])
 
         self.validated_data["workflow_jobs"] = loaded_wfjs
-        wfjgroup = super(WorkflowJobGroupImportCreateSerializer, self).save(**kwargs)
+        # wfjgroup = super(WorkflowJobGroupImportCreateSerializer, self).save(**kwargs)
+        super(WorkflowJobGroupImportCreateSerializer, self).save(**kwargs)

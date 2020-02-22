@@ -25,6 +25,6 @@ for image in images: # for each image
     if img_type.upper() == "JPEG":
         img = img.convert("RGB")
     img_name = os.path.splitext(image)[0] # remove the extension of the image
-    img.save('./Converted/'+ img_name + '.' + img_type) # save the image in desired (ex: 'png') format in the "Converted" directory
+    img.save('./Converted/'+ img_name + '.' + img_type)# save the image in desired (ex: 'png') format in the "Converted" directory
 
 # Salzinnes Images are not suppported by PIL, use VIPS ('batch_image_convert' command) instead

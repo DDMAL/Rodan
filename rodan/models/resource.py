@@ -166,7 +166,14 @@ class Resource(models.Model):
 
     # @property
     # def thumb_url(self):
-    #     return os.path.join(settings.MEDIA_URL, os.path.relpath(self.resource_path, settings.MEDIA_ROOT), "thumbnails")
+    #     return os.path.join(
+    #         settings.MEDIA_URL,
+    #         os.path.relpath(
+    #             self.resource_path,
+    #             settings.MEDIA_ROOT
+    #         ),
+    #         "thumbnails"
+    #     )
 
     @property
     def resource_url(self):
@@ -179,7 +186,13 @@ class Resource(models.Model):
     # @property
     # def compat_file_url(self):
     #     if self.compat_resource_file:
-    #         return os.path.join(settings.MEDIA_URL, os.path.relpath(self.compat_resource_file.path, settings.MEDIA_ROOT))
+    #         return os.path.join(
+    #             settings.MEDIA_URL,
+    #             os.path.relpath(
+    #                 self.compat_resource_file.path,
+    #                 settings.MEDIA_ROOT
+    #             )
+    #         )
 
     # def thumb_filename(self, size):
     #     return "{0}.{1}".format(size, settings.THUMBNAIL_EXT)
@@ -193,19 +206,35 @@ class Resource(models.Model):
     # def small_thumb_url(self):
     #     if self.has_thumb:
     #         if not settings.ENABLE_DIVA:
-    #             return os.path.join(self.thumb_url,
-    #                                 self.thumb_filename(size=settings.SMALL_THUMBNAIL))
+    #             return os.path.join(
+    #                 self.thumb_url,
+    #                 self.thumb_filename(
+    #                     size=settings.SMALL_THUMBNAIL
+    #                 )
+    #             )
     #         else:
-    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.SMALL_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(
+    #                 self.diva_image_url,
+    #                 settings.SMALL_THUMBNAIL,
+    #                 settings.THUMBNAIL_EXT
+    #             )
     #
     # @property
     # def medium_thumb_url(self):
     #     if self.has_thumb:
     #         if not settings.ENABLE_DIVA:
-    #             return os.path.join(self.thumb_url,
-    #                                 self.thumb_filename(size=settings.MEDIUM_THUMBNAIL))
+    #             return os.path.join(
+    #                 self.thumb_url,
+    #                 self.thumb_filename(
+    #                     size=settings.MEDIUM_THUMBNAIL
+    #                 )
+    #             )
     #         else:
-    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.MEDIUM_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(
+    #                 self.diva_image_url,
+    #                 settings.MEDIUM_THUMBNAIL,
+    #                 settings.THUMBNAIL_EXT
+    #             )
     #
     # @property
     # def large_thumb_url(self):
@@ -214,7 +243,11 @@ class Resource(models.Model):
     #             return os.path.join(self.thumb_url,
     #                                 self.thumb_filename(size=settings.LARGE_THUMBNAIL))
     #         else:
-    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(self.diva_image_url, settings.LARGE_THUMBNAIL, settings.THUMBNAIL_EXT)
+    #             return "{0}&WID={1}&HEI={1}&CVT={2}".format(
+    #                 self.diva_image_url,
+    #                 settings.LARGE_THUMBNAIL,
+    #                 settings.THUMBNAIL_EXT
+    #             )
 
     @property
     def diva_path(self):

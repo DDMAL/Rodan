@@ -28,6 +28,10 @@ class InputPort(models.Model):
       default value.
     """
 
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_inputport", "View InputPort"),)
+
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey(
         "rodan.WorkflowJob",
@@ -71,7 +75,3 @@ class InputPort(models.Model):
 
     def __unicode__(self):
         return u"<InputPort {0}>".format(str(self.uuid))
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_inputport", "View InputPort"),)
