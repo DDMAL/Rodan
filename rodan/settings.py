@@ -6,7 +6,7 @@ import sys
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
-from distutils.util import strtobool
+from distutils.util import strtobool  # noqa
 
 
 ###############################################################################

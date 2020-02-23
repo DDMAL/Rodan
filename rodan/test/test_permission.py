@@ -1,15 +1,24 @@
 """
 Permission test for Rodan.
 """
+import random
+
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rest_framework.reverse import reverse
 from model_mommy import mommy
-from rodan.models import Project, WorkflowRun, Input, Output, RunJob
+
 from rodan.constants import task_status
-import random
+from rodan.models import (
+    Project,
+    WorkflowRun,
+    Input,
+    Output,
+    RunJob
+)
+from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+
 
 # [TODO]: add test cases for creating objects that relates to non-accessible objects.
 class PermissionStaticTestCase(
@@ -238,9 +247,11 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        ########################### Project test ends.
+        # Project test ends.
 
-        # Creator, admin, and workers should be able to access(list+detail)/modify/delete the objects related with the test project. Outsider cannot do that. The following codes will test model-by-model.
+        # Creator, admin, and workers should be able to access(list+detail)/modify/delete the
+        # objects related with the test project. Outsider cannot do that. The following codes
+        # will test model-by-model.
 
         # Workflow
         for u in [
@@ -854,7 +865,8 @@ class PermissionStaticTestCase(
 
         ######################
 
-        # Remove a worker and the admin. It should correspondingly remove all the permissions above. Few ones are selected for testing.
+        # Remove a worker and the admin. It should correspondingly remove all the permissions above.
+        # Few ones are selected for testing.
         self.client.force_authenticate(user=self.test_creator)
         response = self.client.patch(
             reverse("project-detail-workers", kwargs={"pk": project_pk}),
@@ -887,7 +899,8 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        # Add a worker. It should correspondingly add all the permissions above. Select few ones to test.
+        # Add a worker. It should correspondingly add all the permissions above.
+        # Select few ones to test.
         self.client.force_authenticate(user=self.test_creator)
         response = self.client.patch(
             reverse("project-detail-workers", kwargs={"pk": project_pk}),
@@ -1045,10 +1058,13 @@ class PermissionRuntimeTestCase(
     def test_execute_workflowrun(self):
         """
         Scenario:
-        1. The creator sets up a complex workflow (as in workflowrun view test), adding an admin and a worker.
+        1. The creator sets up a complex workflow (as in workflowrun view test), adding an admin
+            and a worker.
         2. The worker runs it.
-        3. The worker, creator and admin should all have access to created WorkflowRun, RunJobs, Inputs, and Outputs.
-        4. The worker, creator and admin should all have access to the interactive acquire view and interactive working view.
+        3. The worker, creator and admin should all have access to created WorkflowRun, RunJobs,
+            Inputs, and Outputs.
+        4. The worker, creator and admin should all have access to the interactive acquire view
+            and interactive working view.
         5. The admin removes the worker.
         6. The worker should not have access to the components listed in 3&4 anymore.
         7. The creator removes the admin.
@@ -1090,10 +1106,12 @@ class PermissionRuntimeTestCase(
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        wfrun_id = response.data["uuid"]
-        #        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        #        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        #        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        wfrun_id = response.data["uuid"]  # noqa
+
+        # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        # response = self.client.patch(
+        #     "/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 3
         counts = {

@@ -1,12 +1,15 @@
+import os
+from StringIO import StringIO
+
 from django.core.files.uploadedfile import SimpleUploadedFile
+from model_mommy import mommy
+from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
+
+from rodan.constants import task_status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 from rodan.models import Resource, ResourceType
-from rodan.constants import task_status
-from StringIO import StringIO
-from PIL import Image
-from model_mommy import mommy
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -143,7 +146,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         r1 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
         r2 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
         r3 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
-        r4 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
+        r4 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)  # noqa
         rl_obj = {
             "resources": map(
                 lambda x: "http://localhost:8000/resource/{0}/".format(x.uuid),
@@ -253,11 +256,16 @@ class ResourceProcessingTestCase(
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.test_resource1 = Resource.objects.get(name="test_page1")
-            # self.assertEqual(self.test_resource1.resource_type.mimetype, "application/octet-stream")
+            # self.assertEqual(
+            #   self.test_resource1.resource_type.mimetype,
+            #   "application/octet-stream"
+            # )
             self.assertEqual(self.test_resource1.resource_type.mimetype, "text/plain")
 
     # Incomplete test. Might try to step away from all patch requests and do something else anyway.
     # def test_patch(self):
     #     resource_update = {'resource_type': 'text/plain'}
-    #     response = self.client.patch("/resource/8aa7e270b1c54be49dde5a682b16cda7/", resource_update, format='json').data
+    #     response = self.client.patch(
+    #       "/resource/8aa7e270b1c54be49dde5a682b16cda7/",
+    #       resource_update, format='json').data
     #     self.assertEqual(response['resource_type'], 'text/plain')

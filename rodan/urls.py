@@ -61,7 +61,7 @@ from rodan.views.interactive import (
 from rodan.views.main import APIRoot
 
 # run-once import, initialize Rodan database
-import rodan.jobs.load
+import rodan.jobs.load  # noqa
 
 urlpatterns = []
 

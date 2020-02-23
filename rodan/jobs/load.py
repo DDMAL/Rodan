@@ -32,7 +32,7 @@ import yaml
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from rodan.models import (
+from rodan.models import (  # noqa
     Job,
     WorkflowJob,
     ResourceType,

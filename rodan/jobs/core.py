@@ -15,6 +15,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Q, Case, Value, When, BooleanField
 from pybagit.bagit import BagIt
 
+import rodan
 from rodan.models import (
     Resource,
     ResourceType,
@@ -65,7 +66,7 @@ class create_resource(Task):
                 resource_query.update(
                     resource_type=ResourceType.objects.get(mimetype=mimetype)
                 )
-            except:
+            except rodan.models.resourcetype.DoesNotExist:
                 resource_query.update(
                     resource_type=ResourceType.objects.get(
                         mimetype="application/octet-stream"

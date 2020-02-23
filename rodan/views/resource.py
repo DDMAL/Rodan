@@ -75,6 +75,7 @@ class ResourceList(generics.ListCreateAPIView):
         #     return q.filter(resource_type__uuid__in=vs)
 
         resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
+
         def filter_resource_type__in(self, qs, name, value):
             return qs.filter(**{name: value})
 
@@ -150,8 +151,7 @@ class ResourceList(generics.ListCreateAPIView):
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
                 claimed_mimetype = restype_obj.mimetype          # find mimetype name
             except (Resolver404, ResourceType.DoesNotExist) as e:
-                # print(str(e))
-                pass
+                print(str(e))
 
         initial_data = {
             'resource_type': ResourceTypeSerializer(

@@ -49,7 +49,8 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_status(self):
-        # anticipated_message = {'status': ['Can only create a WorkflowRun that has SCHEDULED status.']}
+        # anticipated_message = {'status': ['Can only create a WorkflowRun that has
+        # SCHEDULED status.']}
         anticipated_message = {
             "status": ["Can only create a WorkflowRun that requests processing."]
         }
@@ -97,7 +98,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
                 self.test_workflow.uuid
             ),
             "status": task_status.REQUEST_PROCESSING
-            #            'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+            # 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
         }
 
         response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
@@ -336,18 +337,20 @@ class WorkflowRunResourceAssignmentTest(
         anticipated_message1 = {
             "resource_assignments": {
                 self.url(self.test_Fip1): [
-                    "The number of assigned Resources of ResourceLists is not even with that of {}".format(
-                        self.url(self.test_Dip1)
-                    )
+                    (
+                        "The number of assigned Resources of ResourceLists is not even"
+                        " with that of {}"
+                    ).format(self.url(self.test_Dip1))
                 ]
             }
         }
         anticipated_message2 = {
             "resource_assignments": {
                 self.url(self.test_Dip1): [
-                    "The number of assigned Resources of ResourceLists is not even with that of {}".format(
-                        self.url(self.test_Fip1)
-                    )
+                    (
+                        "The number of assigned Resources of ResourceLists is not even with "
+                        "that of {}"
+                    ).format(self.url(self.test_Fip1))
                 ]
             }
         }
@@ -398,7 +401,9 @@ class WorkflowRunResourceAssignmentTest(
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # The expected structure of error response is:
-        # {'resource_assignments': {input_port_url: {5: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
+        # {'resource_assignments': {input_port_url: {5:
+        #   ['The resource type <ResourceType test/b> does not match the InputPort
+        #   {test/a1 or test/a2}']}}}
 
         self.assertEqual(len(response.data["resource_assignments"]), 1)
         error_ip, error_detail = next(
@@ -518,7 +523,9 @@ class WorkflowRunResourceAssignmentTest(
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # The expected structure of error response is:
-        # {'resource_assignments': {self.url(self.test_Dip3): {0: ['The resource type <ResourceType test/b> does not match the InputPort {test/a1 or test/a2}']}}}
+        # {'resource_assignments': {self.url(self.test_Dip3):
+        #   {0: ['The resource type <ResourceType test/b> does not match the InputPort
+        #   {test/a1 or test/a2}']}}}
 
         self.assertEqual(len(response.data["resource_assignments"]), 1)
         error_ip, error_detail = next(
@@ -574,18 +581,20 @@ class WorkflowRunSimpleExecutionTest(
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        #        self.assertEqual(dummy_a_runjob.status, task_status.SCHEDULED)
-        #        self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
-        #        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
+        # self.assertEqual(dummy_a_runjob.status, task_status.SCHEDULED)
+        # self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
+        # self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
 
-        #        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        #        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        #        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        # response = self.client.patch(
+        #     "/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #        dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
-        #        dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
+        # dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
+        # dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        # At this point, the automatic RunJob should be finished, and the manual RunJob should wait for input
+        # At this point, the automatic RunJob should be finished, and the manual
+        # RunJob should wait for input
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
         self.assertEqual(
@@ -631,14 +640,16 @@ class WorkflowRunSimpleExecutionTest(
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             wfrun_id = response.data["uuid"]
 
-            #            workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-            #            response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-            #            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+            # response = self.client.patch(
+            #   "/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+            # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-            # At this point, the automatic RunJob should fail, and the manual RunJob should not accept input
+            # At this point, the automatic RunJob should fail, and the manual RunJob
+            # should not accept input
             self.assertEqual(dummy_a_runjob.status, task_status.FAILED)
             self.assertEqual(dummy_a_runjob.error_summary, "dummy automatic job error")
             self.assertEqual(dummy_m_runjob.status, task_status.SCHEDULED)
@@ -660,14 +671,16 @@ class WorkflowRunSimpleExecutionTest(
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
-        #        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        #        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        #        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        # response = self.client.patch(
+        #   "/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         dummy_a_runjob = self.dummy_a_wfjob.run_jobs.first()
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
-        # At this point, the automatic RunJob should be finished, and the manual RunJob should wait for input
+        # At this point, the automatic RunJob should be finished, and the manual RunJob should
+        # wait for input
         self.assertEqual(dummy_a_runjob.status, task_status.FINISHED)
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
 
@@ -906,34 +919,35 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
-        #        workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
-        #        response = self.client.patch("/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
-        #        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # workflowrun_update = {'status': task_status.REQUEST_PROCESSING}
+        # response = self.client.patch(
+        #     "/workflowrun/{0}/".format(str(wfrun_id)), workflowrun_update, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        rjA = self.test_wfjob_A.run_jobs.first()
-        rjB = self.test_wfjob_B.run_jobs.first()
-        rjC = self.test_wfjob_C.run_jobs.first()
-        rjDs = self.test_wfjob_D.run_jobs.all()
-        rjEs = self.test_wfjob_E.run_jobs.all()
-        rjFs = self.test_wfjob_F.run_jobs.all()
+        rjA = self.test_wfjob_A.run_jobs.first()  # noqa
+        rjB = self.test_wfjob_B.run_jobs.first()  # noqa
+        rjC = self.test_wfjob_C.run_jobs.first()  # noqa
+        rjDs = self.test_wfjob_D.run_jobs.all()  # noqa
+        rjEs = self.test_wfjob_E.run_jobs.all()  # noqa
+        rjFs = self.test_wfjob_F.run_jobs.all()  # noqa
 
-        Aout = self.test_Aop.outputs.first()
-        Bout = self.test_Bop.outputs.first()
-        Cout1 = self.test_Cop1.outputs.first()
-        Cout2 = self.test_Cop2.outputs.first()
-        Douts = self.test_Dop.outputs.all()
-        Eouts = self.test_Eop.outputs.all()
-        Fouts = self.test_Fop.outputs.all()
+        Aout = self.test_Aop.outputs.first()  # noqa
+        Bout = self.test_Bop.outputs.first()  # noqa
+        Cout1 = self.test_Cop1.outputs.first()  # noqa
+        Cout2 = self.test_Cop2.outputs.first()  # noqa
+        Douts = self.test_Dop.outputs.all()  # noqa
+        Eouts = self.test_Eop.outputs.all()  # noqa
+        Fouts = self.test_Fop.outputs.all()  # noqa
 
-        Ain = self.test_Aip.inputs.first()
-        Cin1 = self.test_Cip1.inputs.first()
-        Cin2 = self.test_Cip2.inputs.first()
-        Din1s = self.test_Dip1.inputs.all()
-        Din2s = self.test_Dip2.inputs.all()
-        Din3s = self.test_Dip3.inputs.all()
-        Ein1s = self.test_Eip1.inputs.all()
-        Ein2s = self.test_Eip2.inputs.all()
-        Fins = self.test_Eip1.inputs.all()
+        Ain = self.test_Aip.inputs.first()  # noqa
+        Cin1 = self.test_Cip1.inputs.first()  # noqa
+        Cin2 = self.test_Cip2.inputs.first()  # noqa
+        Din1s = self.test_Dip1.inputs.all()  # noqa
+        Din2s = self.test_Dip2.inputs.all()  # noqa
+        Din3s = self.test_Dip3.inputs.all()  # noqa
+        Ein1s = self.test_Eip1.inputs.all()  # noqa
+        Ein2s = self.test_Eip2.inputs.all()  # noqa
+        Fins = self.test_Eip1.inputs.all()  # noqa
 
         self.assertEqual(rjA.status, task_status.FINISHED)
         self.assertEqual(rjB.status, task_status.WAITING_FOR_INPUT)
@@ -964,7 +978,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response = self.client.post(response.data["working_url"], {"foo": "bar"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ## refetch
+        # refetch
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
         rjC = self.test_wfjob_C.run_jobs.first()
@@ -1020,7 +1034,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         response = self.client.post(response.data["working_url"], {"foo": "bar"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ## refetch
+        # refetch
         rjA = self.test_wfjob_A.run_jobs.first()
         rjB = self.test_wfjob_B.run_jobs.first()
         rjC = self.test_wfjob_C.run_jobs.first()
@@ -1098,32 +1112,32 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             response = self.client.post(response.data["working_url"], {"foo": "bar"})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ## refetch
-        rjA = self.test_wfjob_A.run_jobs.first()
-        rjB = self.test_wfjob_B.run_jobs.first()
-        rjC = self.test_wfjob_C.run_jobs.first()
-        rjDs = self.test_wfjob_D.run_jobs.all()
-        rjEs = self.test_wfjob_E.run_jobs.all()
-        rjFs = self.test_wfjob_F.run_jobs.all()
+        # refetch
+        rjA = self.test_wfjob_A.run_jobs.first()  # noqa
+        rjB = self.test_wfjob_B.run_jobs.first()  # noqa
+        rjC = self.test_wfjob_C.run_jobs.first()  # noqa
+        rjDs = self.test_wfjob_D.run_jobs.all()  # noqa
+        rjEs = self.test_wfjob_E.run_jobs.all()  # noqa
+        rjFs = self.test_wfjob_F.run_jobs.all()  # noqa
 
-        Aout = self.test_Aop.outputs.first()
-        Bout = self.test_Bop.outputs.first()
-        Cout1 = self.test_Cop1.outputs.first()
-        Cout2 = self.test_Cop2.outputs.first()
-        Douts = self.test_Dop.outputs.all()
-        Eouts = self.test_Eop.outputs.all()
-        Fouts = self.test_Fop.outputs.all()
+        Aout = self.test_Aop.outputs.first()  # noqa
+        Bout = self.test_Bop.outputs.first()  # noqa
+        Cout1 = self.test_Cop1.outputs.first()  # noqa
+        Cout2 = self.test_Cop2.outputs.first()  # noqa
+        Douts = self.test_Dop.outputs.all()  # noqa
+        Eouts = self.test_Eop.outputs.all()  # noqa
+        Fouts = self.test_Fop.outputs.all()  # noqa
 
-        Ain = self.test_Aip.inputs.first()
-        Cin1 = self.test_Cip1.inputs.first()
-        Cin2 = self.test_Cip2.inputs.first()
-        Din1s = self.test_Dip1.inputs.all()
-        Din2s = self.test_Dip2.inputs.all()
-        Din3s = self.test_Dip3.inputs.all()
-        Ein1s = self.test_Eip1.inputs.all()
-        Ein2s = self.test_Eip2.inputs.all()
-        Fin1s = self.test_Fip1.inputs.all()
-        Fin2s = self.test_Fip2.inputs.all()
+        Ain = self.test_Aip.inputs.first()  # noqa
+        Cin1 = self.test_Cip1.inputs.first()  # noqa
+        Cin2 = self.test_Cip2.inputs.first()  # noqa
+        Din1s = self.test_Dip1.inputs.all()  # noqa
+        Din2s = self.test_Dip2.inputs.all()  # noqa
+        Din3s = self.test_Dip3.inputs.all()  # noqa
+        Ein1s = self.test_Eip1.inputs.all()  # noqa
+        Ein2s = self.test_Eip2.inputs.all()  # noqa
+        Fin1s = self.test_Fip1.inputs.all()  # noqa
+        Fin2s = self.test_Fip2.inputs.all()  # noqa
 
         for rjDi in rjDs:
             self.assertEqual(rjDi.status, task_status.FINISHED)
@@ -1212,7 +1226,7 @@ class WorkflowRunMultipleResourceCollectionsTest(
         }
         response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        wfrun_id = response.data["uuid"]
+        wfrun_id = response.data["uuid"]  # noqa
 
         self.assertEqual(self.test_wfjob_A.run_jobs.count(), 5)
         self.assertEqual(self.test_wfjob_B.run_jobs.count(), 5)

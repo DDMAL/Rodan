@@ -1,5 +1,4 @@
 import sys
-from subprocess import call
 
 from django.core.management.base import BaseCommand
 
@@ -42,4 +41,4 @@ class Command(BaseCommand):
 
         elif options["upload_all"]:
             print("Loading all jobs")
-            from rodan.jobs import load
+            from rodan.jobs import load  # noqa

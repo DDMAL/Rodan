@@ -121,7 +121,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_input__type_incompatible_with_job(self):
         new_ipt = mommy.make("rodan.InputPortType")
-        new_ip = mommy.make(
+        new_ip = mommy.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob,
             input_port_type=new_ipt,
@@ -144,7 +144,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_input__more_than_maximum(self):
         for i in range(self.test_inputporttype.maximum):
-            ip = mommy.make(
+            ip = mommy.make(  # noqa
                 "rodan.InputPort",
                 workflow_job=self.test_workflowjob,
                 input_port_type=self.test_inputporttype,
@@ -162,7 +162,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_output__type_incompatible_with_job(self):
         new_opt = mommy.make("rodan.OutputPortType")
-        new_op = mommy.make(
+        new_op = mommy.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob,
             output_port_type=new_opt,
@@ -174,7 +174,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_output__more_than_maximum(self):
         for o in range(self.test_outputporttype.maximum):
-            op = mommy.make(
+            op = mommy.make(  # noqa
                 "rodan.OutputPort",
                 workflow_job=self.test_workflowjob,
                 output_port_type=self.test_outputporttype,
@@ -184,7 +184,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_TOO_MANY_OP")
 
     def test_output__fewer_than_minimum(self):
-        opt2 = mommy.make(
+        opt2 = mommy.make(  # noqa
             "rodan.OutputPortType", maximum=3, minimum=1, job=self.test_job
         )
         response = self._validate(self.test_workflow.uuid)
@@ -251,7 +251,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port_type=new_ipt,
         )
         op = self.test_workflowjob.output_ports.first()
-        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)
+        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "NO_COMMON_RESOURCETYPE")

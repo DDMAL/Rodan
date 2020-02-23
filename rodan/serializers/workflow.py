@@ -233,7 +233,7 @@ class RodanWorkflowSerializationFormatBase(object):
             raise self.ValidationError({path: e.message})
         try:
             self.validate_extra(serialized)
-        except:
+        except:  # noqa
             raise
 
     def validate_extra(self, serialized):

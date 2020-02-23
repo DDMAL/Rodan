@@ -38,6 +38,7 @@ class UserList(generics.ListCreateAPIView):
         #     return q.filter(username__in=vs)
 
         username__in = django_filters.filters.CharFilter(method='filter_username__in')
+
         def filter_username__in(self, qs, name, value):
             return qs.filter(**{name: value})
 
