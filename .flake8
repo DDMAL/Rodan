@@ -5,3 +5,4 @@ exclude = env, ./rodan/migrations/, ./helper_scripts, ./rodan/jobs/pixel_wrapper
 per-file-ignores = 
     ./rodan/models/__init__.py:E501, F401
     ./rodan/__init__.py:W605, F401
+    ./rodan/settings.py:E265
