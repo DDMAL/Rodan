@@ -52,6 +52,8 @@ before_script:
 - python manage.py migrate
 script:
 - flake8
+# - python -W error manage.py test
+# - python -W once manage.py test
 - python manage.py test
 notifications:
   email: false
