@@ -64,13 +64,19 @@ class ResourceList(generics.ListCreateAPIView):
     class filter_class(django_filters.FilterSet):
         # https://github.com/alex/django-filter/issues/273
         origin__isnull = django_filters.BooleanFilter(
-            action=lambda q, v: q.filter(origin__isnull=v)
+            # action=lambda q, v: q.filter(origin__isnull=v)
+            method=lambda q, v: q.filter(origin__isnull=v)
         )
-        resource_type__in = django_filters.MethodFilter()
 
-        def filter_resource_type__in(self, q, v):
-            vs = v.split(',')
-            return q.filter(resource_type__uuid__in=vs)
+        # resource_type__in = django_filters.MethodFilter()
+
+        # def filter_resource_type__in(self, q, v):
+        #     vs = v.split(',')
+        #     return q.filter(resource_type__uuid__in=vs)
+
+        resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
+        def filter_resource_type__in(self, qs, name, value):
+            return qs.filter(**{name: value})
 
         class Meta:
             model = Resource

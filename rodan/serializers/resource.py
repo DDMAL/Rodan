@@ -25,3 +25,4 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             "origin",
             "has_thumb",
         )  # The only updatable fields are: name, resource_type
+        fields = "__all__"
