@@ -1,0 +1,11 @@
+<features_to_extract>
+Acoustic Guitar Fraction
+Duration
+Beat Histogram
+<jSymbolic_options>
+window_size=1.5
+window_overlap=0.1
+save_features_for_each_window=true
+save_overall_recording_features=false
+convert_to_arff=true
+convert_to_csv=true
