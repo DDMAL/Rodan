@@ -208,7 +208,7 @@ resourcetypes = {
         "package_name": "built-in"
     }],
     "application/x-vis_horizontal_pandas_series+csv": [{
-        "description": "Horizontal Interval Indexer result (Pandas Series CSV)",
+        "description": "Horizontal Interval Indexer Result (Pandas Series CSV)",
         "extension": "csv",
         "package_name": "built-in"
     }],
