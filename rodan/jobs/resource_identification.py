@@ -50,7 +50,7 @@ def define_xml(filename, mime=None):
     try:
         return xml_mimetypes[data[1].strip()]
     except KeyError:
-        # is MusicXML
+
         # [TODO] application/vnd.recordare.musicxml(+xml)
         if re.search(re.compile(r"""-//Recordare//DTD MusicXML"""), data[1]) is not None:
             return "application/x-muscxml+xml"
@@ -79,23 +79,32 @@ def define_text(filename, mime=None):
     try:
         return text_mimetypes[data]
     except KeyError:
-
+        # This regex could be better
         if re.search(r"^\[\[", data) is not None and re.search(r"\]\]$", data) is not None:
             return "application/gamera-polygons+txt"
+
+        # JSON could be single line or multi-line.
+        # Granted, this is not the best idea, but libmagic won't always figure out that its a
+        # json file.
+        if re.search(r"^\{", data) is not None:
+            return "application/json"
 
         # For detecting regular CSV's, we need more than the first line
         # Fallback, also if the newline character messed the json identification in libmagic.
         with open(filename) as f:
             data = f.readlines()
 
-        if re.search(r"^\{", data[0]) is not None and re.search(r"^\}$", data[-1]) is not None:
-            return "application/json"
+        try:
+            # There are no found TSV files, hopefully ever. This is also no an ideal way to identify
+            # a CSV file. 
+            commas_line1 = data[0].count(",")
+            commas_line2 = data[1].count(",")
 
-        commas_line1 = data[0].count(",")
-        commas_line2 = data[1].count(",")
-
-        if commas_line1 > 0 and commas_line1 == commas_line2:
-            return "text/csv"
+            if commas_line1 > 0 and commas_line1 == commas_line2:
+                return "text/csv"
+        except IndexError:
+            # If all else fails, then it's a text file.
+            pass
 
     return "text/plain",
 
@@ -131,3 +140,32 @@ def fileparse(filename):
     except KeyError:
         return "application/octet-stream"
     return "application/octet-stream"
+
+if __name__ == "__main__":
+
+    if True:
+        assert fileparse("./files/LLIA") == "application/ace+xml"
+        assert fileparse("./files/AWKQ") == "application/arff"
+        assert fileparse("./files/XSNA") == "application/arff+csv"
+        assert fileparse("./files/ZHAH") == "application/gamera-polygons+txt"
+        assert fileparse("./files/DXUA") == "application/gamera+xml"
+        assert fileparse("./files/PKAF") == "application/jsc+txt"
+        assert fileparse("./files/AHSK") == "application/mei+xml"
+        assert fileparse("./files/PAOS") == "application/midi"
+        assert fileparse("./files/TQOA") == "image/grey16+png"
+        assert fileparse("./files/WYAG") == "image/jp2"
+        assert fileparse("./files/EQRQ") == "image/onebit+png"
+        assert fileparse("./files/YASH") == "image/rgb+jpg"
+        assert fileparse("./files/GWJA") == "application/x-muscxml+xml"
+        assert fileparse("./files/AOGO") == "application/x-vis_figuredbass_pandas_series+csv"
+        assert fileparse("./files/DUKU") == "application/x-vis_horizontal_pandas_series+csv"
+        assert fileparse("./files/BYKA") == "application/x-vis_vertical_pandas_series+csv"
+        assert fileparse("./files/7W4A") == "application/x-vis_ngram_pandas_dataframe+csv"
+        assert fileparse("./files/KGRA") == "application/x-vis_noterest_pandas_series+csv"
+        assert fileparse("./files/KASD") == "application/zip"
+        assert fileparse("./files/UZFA") == "application/json"
+        assert fileparse("./files/ZTAS") == "application/ocropus+pyrnn"
+        assert fileparse("./files/GAZG") == "application/json"
+        assert fileparse("./files/QIWR") == "application/json"
+
+        print("[+] Success - Current Filetypes work")

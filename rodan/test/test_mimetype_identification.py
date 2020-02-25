@@ -34,3 +34,5 @@ class MimeTypeTestCase(unittest.TestCase):
         self.assertEqual(fileparse(base_directory + "KASD"), "application/zip")
         self.assertEqual(fileparse(base_directory + "UZFA"), "application/json")
         self.assertEqual(fileparse(base_directory + "ZTAS"), "application/ocropus+pyrnn")
+        self.assertEqual(fileparse(base_directory + "GAZG"), "application/json")
+        self.assertEqual(fileparse(base_directory + "QIWR"), "application/json")
