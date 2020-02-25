@@ -74,9 +74,10 @@ class ResourceList(generics.ListCreateAPIView):
         #     vs = v.split(',')
         #     return q.filter(resource_type__uuid__in=vs)
 
-        resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
+        resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
 
         def filter_resource_type__in(self, qs, name, value):
+            value = value.split(",")
             return qs.filter(**{name: value})
 
         class Meta:
