@@ -17,11 +17,10 @@ def define_json(*args, **kwargs):
 
 
 def define_png(filename, mime=None):
+    # [TODO] Read alpha channel for rgba
     png_mimetypes = {
         "1-bit grayscale": "image/onebit+png",
         "16-bit grayscale": "image/grey16+png",
-        # image/rgb+png
-        # image/rgba+png
     }
 
     try:
@@ -85,7 +84,7 @@ def define_text(filename, mime=None):
 
         # JSON could be single line or multi-line.
         # Granted, this is not the best idea, but libmagic won't always figure out that its a
-        # json file.
+        # json file. This regex could definitely be better.
         if re.search(r"^\{", data) is not None:
             return "application/json"
 
@@ -95,8 +94,8 @@ def define_text(filename, mime=None):
             data = f.readlines()
 
         try:
-            # There are no found TSV files, hopefully ever. This is also no an ideal way to identify
-            # a CSV file.
+            # There are no TSV files in Rodan that we could find. This is also no an ideal way
+            # to identify a CSV file.
             commas_line1 = data[0].count(",")
             commas_line2 = data[1].count(",")
 
@@ -116,6 +115,7 @@ def define_stream(filename, mime=None):
     if data[0:2] == b"\x80\x02":
         # [TODO] Change to application/x-ocropus+pyrnn
         return "application/ocropus+pyrnn"
+
     return "application/octet-stream"
 
 
@@ -125,8 +125,11 @@ def fileparse(filename):
 
     mimetype_translation = {
         "text/plain": define_text,
+
+        # Depends how libmagic feels: RFC 7303 or RFC 3023
         "text/xml": define_xml,
         "application/xml": define_xml,
+
         "image/png": define_png,
         "image/jpeg": define_jpeg,
         "image/jp2": define_jp2,
@@ -139,9 +142,12 @@ def fileparse(filename):
     try:
         return mimetype_translation[magic_mime](filename, text_description)
     except KeyError:
-        with open(filename) as f:
-            data = f.readline()
-        return "application/octet-stream", magic_mime, data
+        # If all else fails then give a tuple, crash rodan, and tell me what mimetype you found.
+        pass
+
+    with open(filename) as f:
+        data = f.readline()
+    return "application/octet-stream", magic_mime, data
 
 
 if __name__ == "__main__":
