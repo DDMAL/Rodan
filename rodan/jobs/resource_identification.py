@@ -138,7 +138,9 @@ def fileparse(filename):
     try:
         return mimetype_translation[magic_mime](filename, text_description)
     except KeyError:
-        return "application/octet-stream"
+        with open(filename) as f:
+            data = f.readline()
+        return "application/octet-stream", magic_mime, data
 
     return "application/octet-stream"
 
