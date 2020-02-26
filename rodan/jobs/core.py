@@ -12,10 +12,11 @@ from celery import Task
 from celery.task.control import revoke
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Case, Value, When, BooleanField
 from pybagit.bagit import BagIt
 
-import rodan
+import rodan  # noqa
 from rodan.models import (
     Resource,
     ResourceType,
@@ -66,7 +67,7 @@ class create_resource(Task):
                 resource_query.update(
                     resource_type=ResourceType.objects.get(mimetype=mimetype)
                 )
-            except rodan.models.resourcetype.DoesNotExist:
+            except ObjectDoesNotExist:
                 resource_query.update(
                     resource_type=ResourceType.objects.get(
                         mimetype="application/octet-stream"
@@ -74,8 +75,6 @@ class create_resource(Task):
                 )
             new_processing_status = task_status.NOT_APPLICABLE
 
-            # with open(tmpfile, "rb") as f:
-            #   resource_object = resource_query[0]
             if mimetype.startswith("image"):
                 registry.tasks["rodan.core.create_diva"].si(resource_id).apply_async(queue="celery")
 
