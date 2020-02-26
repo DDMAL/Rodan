@@ -96,7 +96,7 @@ def define_text(filename, mime=None):
 
         try:
             # There are no found TSV files, hopefully ever. This is also no an ideal way to identify
-            # a CSV file. 
+            # a CSV file.
             commas_line1 = data[0].count(",")
             commas_line2 = data[1].count(",")
 
@@ -106,7 +106,7 @@ def define_text(filename, mime=None):
             # If all else fails, then it's a text file.
             pass
 
-    return "text/plain",
+    return "text/plain"
 
 
 def define_stream(filename, mime=None):
@@ -139,7 +139,9 @@ def fileparse(filename):
         return mimetype_translation[magic_mime](filename, text_description)
     except KeyError:
         return "application/octet-stream"
+
     return "application/octet-stream"
+
 
 if __name__ == "__main__":
 
