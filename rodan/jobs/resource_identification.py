@@ -126,6 +126,7 @@ def fileparse(filename):
     mimetype_translation = {
         "text/plain": define_text,
         "text/xml": define_xml,
+        "application/xml": define_xml,
         "image/png": define_png,
         "image/jpeg": define_jpeg,
         "image/jp2": define_jp2,
@@ -141,8 +142,6 @@ def fileparse(filename):
         with open(filename) as f:
             data = f.readline()
         return "application/octet-stream", magic_mime, data
-
-    return "application/octet-stream"
 
 
 if __name__ == "__main__":
