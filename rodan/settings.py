@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
+    "django_filters",
     "ws4redis",
     "rodan",
     "django_extensions",
