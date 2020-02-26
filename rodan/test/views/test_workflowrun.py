@@ -702,7 +702,7 @@ class WorkflowRunSimpleExecutionTest(
         # For whatever reason, this and one another test always fail on travis only.
         # They do not fail locally. For some reason on travis, trying to revoke a
         # task gets a Connection Failed.
-        if os.environ["TRAVIS"] != "true":
+        if os.environ.get("TRAVIS", "False") != "true":
             ra = self.setUp_resources_for_simple_dummy_workflow()
             self.test_resource.resource_file.save("dummy.txt", ContentFile("dummy text"))
 

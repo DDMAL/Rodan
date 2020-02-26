@@ -195,7 +195,8 @@ class ResourceProcessingTestCase(
         # They do not fail locally. Somehow mkstemp silently fails to create a file
         # that subprocess.check_call needs for converting it to a JPEG2000 using
         # kakadu.
-        if os.environ["TRAVIS"] != "true":
+
+        if os.environ.get("TRAVIS", "False") != "true":
             file_obj = StringIO()
             image = Image.new("RGB", size=(50, 50), color=(256, 0, 0))
             image.save(file_obj, "png")
