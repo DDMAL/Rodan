@@ -6,7 +6,8 @@ from rodan.serializers.output import OutputSerializer, OutputListSerializer
 
 class OutputList(generics.ListAPIView):
     """
-    Returns a list of Outputs. Do not accept POST request as Outputs are typically created by the server.
+    Returns a list of Outputs. Do not accept POST request as Outputs are typically
+    created by the server.
     """
 
     model = Output

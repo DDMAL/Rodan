@@ -12,11 +12,23 @@ class WorkflowJobCoordinateSet(models.Model):
 
     - `uuid`
     - `workflow_job` -- a reference to the `WorkflowJob`.
-    - `data` -- a JSON field including: `x` -- coordinate of the center position (% of the canvas size); `y` -- `y` coordinate of the center position (% of the canvas size); `width` -- relative width regarding the canvas size; `height` -- relative height regarding the canvas size; `color` (optional) -- CSS color code.
+    - `data` -- a JSON field including:
+        `x` -- coordinate of the center position (% of the canvas size);
+        `y` -- `y` coordinate of the center position (% of the canvas size);
+        `width` -- relative width regarding the canvas size;
+        `height` -- relative height regarding the canvas size;
+        `color` (optional) -- CSS color code.
     - `user_agent` -- (optional) the name of user agent.
     - `created`
     - `updated`
     """
+
+    class Meta:
+        app_label = "rodan"
+        unique_together = ("user_agent", "workflow_job")
+        permissions = (
+            ("view_workflowjobcoordinateset", "View WorkflowJobCoordinateSet"),
+        )
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey(
@@ -33,10 +45,3 @@ class WorkflowJobCoordinateSet(models.Model):
 
     def __unicode__(self):
         return u"<WorkflowJobCoordinateSet {0}>".format(str(self.uuid))
-
-    class Meta:
-        app_label = "rodan"
-        unique_together = ("user_agent", "workflow_job")
-        permissions = (
-            ("view_workflowjobcoordinateset", "View WorkflowJobCoordinateSet"),
-        )

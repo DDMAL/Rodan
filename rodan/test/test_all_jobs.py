@@ -10,7 +10,8 @@
 #         self.setUp_rodan()
 #
 #     def new_available_path(self):
-#         "This method will only return an available file path, not creating the file! But it creates the parent directory."
+#         """This method will only return an available file path, not creating the
+#           file! But it creates the parent directory."""
 #         try:
 #             os.makedirs(settings.MEDIA_ROOT)
 #         except OSError:

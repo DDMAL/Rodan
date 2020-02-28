@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rodan.models import Workflow, Project
+from rodan.models import Workflow
+# from rodan.models import Project
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
@@ -57,7 +58,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.test_workflow.save()
 
     def test_creating_workflowjob_should_invalidate(self):
-        wfj3 = mommy.make("rodan.WorkflowJob", workflow=self.test_workflow)
+        wfj3 = mommy.make("rodan.WorkflowJob", workflow=self.test_workflow)  # noqa
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
         self.assertFalse(wf.valid)
@@ -215,7 +216,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertFalse(wf.valid)
 
     def test_creating_workflowjobgroup_should_not_invalidate(self):
-        wfjg2 = mommy.make("rodan.WorkflowJobGroup", workflow=self.test_workflow)
+        wfjg2 = mommy.make("rodan.WorkflowJobGroup", workflow=self.test_workflow)  # noqa
         self.test_workflowjob2.group = self.test_workflowjobgroup
         self.test_workflowjob2.save()
         # Refetch

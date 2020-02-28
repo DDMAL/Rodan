@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions, exceptions
 from rest_framework.response import Response
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
@@ -105,8 +105,9 @@ class ProjectDetailWorkers(generics.GenericAPIView):
 
     def check_object_permissions(self, request, obj):
         if (
-            self.request.user != obj.creator
-            and not self.request.user.groups.filter(id=obj.admin_group.id).exists()
+            self.request.user != obj.creator and not self.request.user.groups.filter(
+                id=obj.admin_group.id
+            ).exists()
         ):
             raise exceptions.PermissionDenied()  # not in project admin nor as creator
 

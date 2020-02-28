@@ -1,8 +1,8 @@
-import os
+# import os
 import uuid
 from django.db import models
 from rodan.constants import task_status
-import shutil
+# import shutil
 
 
 class WorkflowRun(models.Model):
@@ -34,6 +34,10 @@ class WorkflowRun(models.Model):
     - `origin_resources` -- a list of origin `Resource` UUIDs.
     """
 
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_workflowrun", "View WorkflowRun"),)
+
     STATUS_CHOICES = [
         (task_status.REQUEST_PROCESSING, "Request processing"),
         (task_status.PROCESSING, "Processing"),
@@ -44,10 +48,6 @@ class WorkflowRun(models.Model):
         (task_status.REQUEST_RETRYING, "Request retrying"),
         (task_status.RETRYING, "Retrying"),
     ]
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_workflowrun", "View WorkflowRun"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     project = models.ForeignKey(
@@ -72,7 +72,6 @@ class WorkflowRun(models.Model):
         on_delete=models.SET_NULL,
         db_index=True,
     )
-    #    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED, db_index=True)
     status = models.IntegerField(
         choices=STATUS_CHOICES, default=task_status.PROCESSING, db_index=True
     )

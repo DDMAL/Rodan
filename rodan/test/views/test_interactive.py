@@ -1,14 +1,18 @@
-import uuid, json
-from rest_framework.test import APITestCase
-from rest_framework import status
-from model_mommy import mommy
-from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from rodan.models import Resource, Job, ResourceType, RunJob
-from rodan.constants import task_status
+import datetime
+import json
+import uuid
+
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
-import datetime
 from django.utils import timezone
+from rest_framework import status
+from rest_framework.test import APITestCase
+from model_mommy import mommy
+
+from rodan.constants import task_status
+from rodan.models import Resource, Job, ResourceType, RunJob
+from rodan.test.helpers import RodanTestSetUpMixin
+from rodan.test.helpers import RodanTestTearDownMixin
 
 
 class InteractiveAcquireTestCase(
@@ -141,7 +145,8 @@ class InteractiveWorkingTestCase(
             workflow_run__status=task_status.PROCESSING,
             workflow_run__workflow=self.test_workflow,
         )
-        input_m = mommy.make(
+
+        input_m = mommy.make(  # noqa
             "rodan.Input",
             run_job=self.test_runjob,
             input_port_type_name="in_typeA",

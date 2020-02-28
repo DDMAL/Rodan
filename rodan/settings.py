@@ -6,7 +6,7 @@ import sys
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
-from distutils.util import strtobool
+from distutils.util import strtobool  # noqa
 
 
 ###############################################################################
@@ -32,7 +32,7 @@ ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # Python 2.7
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = bool(strtobool(os.environ.get("DJANGO_DEBUG_MODE", "False")))
-TEMPLATE_DEBUG = DEBUG
+# TEMPLATE_DEBUG = DEBUG
 TEST = "test" in sys.argv
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 if TEST and not DEBUG:
@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
+    "django_filters",
     "ws4redis",
     "rodan",
     "django_extensions",
@@ -152,6 +153,7 @@ RODAN_PYTHON2_JOBS = [
 RODAN_PYTHON3_JOBS = [
     #py3 "rodan.jobs.helloworld",
     #py3 "rodan.jobs.Calvo-classifier",
+    #py3 "rodan.jobs.hpc-fast-trainer",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
@@ -354,7 +356,8 @@ FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHand
 # REST framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication", # [TODO] - Make token auth the only auth.
+        # [TODO] - Make token auth the only auth.
+        "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_RENDERER_CLASSES": (

@@ -1,4 +1,7 @@
-import shutil, os, uuid, time
+import shutil
+import os
+# import uuid
+# import time
 from model_mommy import mommy
 from django.contrib.auth.models import User
 from rodan.models import Job, ResourceType
@@ -22,8 +25,12 @@ class RodanTestSetUpMixin(object):
         ResourceType.objects.create(
             mimetype="test/b", description="", extension="ext_b"
         )
+
         # Jobs
-        import rodan.jobs.load  # just test if they are defined correctly and make no errors. Jobs are initialized by Celery thread.
+
+        # just test if they are defined correctly and make no errors. Jobs are
+        # initialized by Celery thread.
+        import rodan.jobs.load
         import rodan.test.dummy_jobs
 
         reload(rodan.test.dummy_jobs)
@@ -76,7 +83,7 @@ class RodanTestSetUpMixin(object):
             job=self.test_job,
             job_settings={"a": 1, "b": [0.4]},
         )
-        inputport = mommy.make(
+        inputport = mommy.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob,
             input_port_type=self.test_inputporttype,
@@ -96,7 +103,7 @@ class RodanTestSetUpMixin(object):
             input_port__workflow_job__job_settings={"a": 1, "b": [0.4]},
         )
         self.test_workflowjob2 = test_connection.input_port.workflow_job
-        outputport2 = mommy.make(
+        outputport2 = mommy.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob2,
             output_port_type=self.test_outputporttype,
@@ -147,7 +154,7 @@ class RodanTestSetUpMixin(object):
             workflow_job=self.dummy_m_wfjob,
             input_port_type=dummy_m_job.input_port_types.filter(is_list=False).first(),
         )
-        outputport_m = mommy.make(
+        outputport_m = mommy.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.dummy_m_wfjob,
             output_port_type=dummy_m_job.output_port_types.filter(
@@ -155,7 +162,7 @@ class RodanTestSetUpMixin(object):
             ).first(),
         )
 
-        test_connection = mommy.make(
+        test_connection = mommy.make(  # noqa
             "rodan.Connection", output_port=outputport_a, input_port=inputport_m
         )
 
@@ -171,7 +178,8 @@ class RodanTestSetUpMixin(object):
 
     def setUp_complex_dummy_workflow(self):
         """
-        Description of this complex dummy workflow: https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
+        Description of this complex dummy workflow:
+            https://github.com/DDMAL/Rodan/wiki/New-Workflow-Model---WorkflowRun-Execution
         """
         from rodan.test.dummy_jobs import dummy_automatic_job, dummy_manual_job
 
@@ -189,7 +197,7 @@ class RodanTestSetUpMixin(object):
         ipt_mB = job_m.input_port_types.get(name="in_typeB")
         ipt_mL = job_m.input_port_types.get(name="in_typeL")
         opt_mA = job_m.output_port_types.get(name="out_typeA")
-        opt_mB = job_m.output_port_types.get(name="out_typeB")
+        opt_mB = job_m.output_port_types.get(name="out_typeB")  # noqa
         opt_mL = job_m.output_port_types.get(name="out_typeL")
 
         self.test_project = mommy.make("rodan.Project")
@@ -459,8 +467,8 @@ class RodanTestTearDownMixin(object):
 
     def tearDown(self):
         # clean up the temporary filesystem
-        if os.path.isdir(settings.MEDIA_ROOT):
-            try:
+        try:
+            if os.path.isdir(settings.MEDIA_ROOT):
                 shutil.rmtree(settings.MEDIA_ROOT)
-            except OSError:
-                print("Files or Folders do not exist.")
+        except OSError:
+            print("Files or Folders do not exist.")

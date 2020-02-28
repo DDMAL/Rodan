@@ -20,75 +20,79 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import datetime, time, functools, operator, types
+import datetime
+import time
+import functools
+import operator
+import types
 
 default_fudge = datetime.timedelta(seconds=0, microseconds=0, days=0)
 
 
 def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
     """
-  Tests for deep equality between two python data structures recursing
-  into sub-structures if necessary. Works with all python types including
-  iterators and generators. This function was dreampt up to test API responses
-  but could be used for anything. Be careful. With deeply nested structures
-  you may blow the stack.
+    Tests for deep equality between two python data structures recursing
+    into sub-structures if necessary. Works with all python types including
+    iterators and generators. This function was dreampt up to test API responses
+    but could be used for anything. Be careful. With deeply nested structures
+    you may blow the stack.
 
-  Options:
-            datetime_fudge => this is a datetime.timedelta object which, when
-                              comparing dates, will accept values that differ
-                              by the number of seconds specified
-            _assert        => passing yes for this will raise an assertion error
-                              when values do not match, instead of returning
-                              false (very useful in combination with pdb)
+    Options:
+                datetime_fudge => this is a datetime.timedelta object which, when
+                                comparing dates, will accept values that differ
+                                by the number of seconds specified
+                _assert        => passing yes for this will raise an assertion error
+                                when values do not match, instead of returning
+                                false (very useful in combination with pdb)
 
-  Doctests included:
+    Doctests included:
 
-  >>> x1, y1 = ({'a': 'b'}, {'a': 'b'})
-  >>> deep_eq(x1, y1)
-  True
-  >>> x2, y2 = ({'a': 'b'}, {'b': 'a'})
-  >>> deep_eq(x2, y2)
-  False
-  >>> x3, y3 = ({'a': {'b': 'c'}}, {'a': {'b': 'c'}})
-  >>> deep_eq(x3, y3)
-  True
-  >>> x4, y4 = ({'c': 't', 'a': {'b': 'c'}}, {'a': {'b': 'n'}, 'c': 't'})
-  >>> deep_eq(x4, y4)
-  False
-  >>> x5, y5 = ({'a': [1,2,3]}, {'a': [1,2,3]})
-  >>> deep_eq(x5, y5)
-  True
-  >>> x6, y6 = ({'a': [1,'b',8]}, {'a': [2,'b',8]})
-  >>> deep_eq(x6, y6)
-  False
-  >>> x7, y7 = ('a', 'a')
-  >>> deep_eq(x7, y7)
-  True
-  >>> x8, y8 = (['p','n',['asdf']], ['p','n',['asdf']])
-  >>> deep_eq(x8, y8)
-  True
-  >>> x9, y9 = (['p','n',['asdf',['omg']]], ['p', 'n', ['asdf',['nowai']]])
-  >>> deep_eq(x9, y9)
-  False
-  >>> x10, y10 = (1, 2)
-  >>> deep_eq(x10, y10)
-  False
-  >>> deep_eq((str(p) for p in xrange(10)), (str(p) for p in xrange(10)))
-  True
-  >>> str(deep_eq(range(4), range(4)))
-  'True'
-  >>> deep_eq(xrange(100), xrange(100))
-  True
-  >>> deep_eq(xrange(2), xrange(5))
-  False
-  >>> import datetime
-  >>> from datetime import datetime as dt
-  >>> d1, d2 = (dt.now(), dt.now() + datetime.timedelta(seconds=4))
-  >>> deep_eq(d1, d2)
-  False
-  >>> deep_eq(d1, d2, datetime_fudge=datetime.timedelta(seconds=5))
-  True
-  """
+    >>> x1, y1 = ({'a': 'b'}, {'a': 'b'})
+    >>> deep_eq(x1, y1)
+    True
+    >>> x2, y2 = ({'a': 'b'}, {'b': 'a'})
+    >>> deep_eq(x2, y2)
+    False
+    >>> x3, y3 = ({'a': {'b': 'c'}}, {'a': {'b': 'c'}})
+    >>> deep_eq(x3, y3)
+    True
+    >>> x4, y4 = ({'c': 't', 'a': {'b': 'c'}}, {'a': {'b': 'n'}, 'c': 't'})
+    >>> deep_eq(x4, y4)
+    False
+    >>> x5, y5 = ({'a': [1,2,3]}, {'a': [1,2,3]})
+    >>> deep_eq(x5, y5)
+    True
+    >>> x6, y6 = ({'a': [1,'b',8]}, {'a': [2,'b',8]})
+    >>> deep_eq(x6, y6)
+    False
+    >>> x7, y7 = ('a', 'a')
+    >>> deep_eq(x7, y7)
+    True
+    >>> x8, y8 = (['p','n',['asdf']], ['p','n',['asdf']])
+    >>> deep_eq(x8, y8)
+    True
+    >>> x9, y9 = (['p','n',['asdf',['omg']]], ['p', 'n', ['asdf',['nowai']]])
+    >>> deep_eq(x9, y9)
+    False
+    >>> x10, y10 = (1, 2)
+    >>> deep_eq(x10, y10)
+    False
+    >>> deep_eq((str(p) for p in xrange(10)), (str(p) for p in xrange(10)))
+    True
+    >>> str(deep_eq(range(4), range(4)))
+    'True'
+    >>> deep_eq(xrange(100), xrange(100))
+    True
+    >>> deep_eq(xrange(2), xrange(5))
+    False
+    >>> import datetime
+    >>> from datetime import datetime as dt
+    >>> d1, d2 = (dt.now(), dt.now() + datetime.timedelta(seconds=4))
+    >>> deep_eq(d1, d2)
+    False
+    >>> deep_eq(d1, d2, datetime_fudge=datetime.timedelta(seconds=5))
+    True
+    """
     _deep_eq = functools.partial(
         deep_eq, datetime_fudge=datetime_fudge, _assert=_assert
     )
@@ -129,8 +133,8 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
         if type(a) == datetime.datetime and type(b) == datetime.datetime:
             s = datetime_fudge.seconds
             t1, t2 = (time.mktime(a.timetuple()), time.mktime(b.timetuple()))
-            l = t1 - t2
-            l = -l if l > 0 else l
+            l = t1 - t2  # noqa
+            l = -l if l > 0 else l  # noqa
             return _check_assert((-s if s > 0 else s) <= l, a, b, "dates")
         return _check_assert(_op(a, b), a, b, "values")
 
@@ -144,7 +148,7 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
             break
     else:
         if isinstance(_v1, types.DictType):
-            op = _deep_dict_eq
+            op = _deep_dict_eq  # noqa
         else:
             try:
                 c1, c2 = (list(iter(_v1)), list(iter(_v2)))

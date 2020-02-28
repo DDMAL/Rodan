@@ -1,7 +1,7 @@
-import os
+import os  # noqa
 from django.test import TestCase
-from rodan.models.workflowrun import WorkflowRun
-from rodan.models.workflowjob import WorkflowJob
+# from rodan.models.workflowrun import WorkflowRun
+# from rodan.models.workflowjob import WorkflowJob
 from rodan.models.runjob import RunJob
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin

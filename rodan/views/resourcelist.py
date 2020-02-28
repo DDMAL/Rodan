@@ -19,14 +19,21 @@ class ResourceListList(generics.ListCreateAPIView):
 
     class filter_class(django_filters.FilterSet):
         origin__isnull = django_filters.BooleanFilter(
+            # django-filter 0.9.x
+            # action=lambda q, v: q.filter(origin__isnull=v)
             method=lambda q, v: q.filter(origin__isnull=v)
         )  # https://github.com/alex/django-filter/issues/273
-        # resource_type__in = django_filters.MethodFilter()
-        resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
 
-        def filter_resource_type__in(self, q, v):
-            vs = v.split(",")
-            return q.filter(resource_type__uuid__in=vs)
+        # django-filter 0.9.x
+        # resource_type__in = django_filters.MethodFilter()
+        # def filter_resource_type__in(self, q, v):
+        #     vs = v.split(",")
+        #     return q.filter(resource_type__uuid__in=vs)
+        resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
+
+        def filter_resource_type__in(self, qs, name, value):
+            value = value.split(",")
+            return qs.filter(**{name: value})
 
         class Meta:
             model = ResourceList

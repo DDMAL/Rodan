@@ -1,5 +1,6 @@
 from rodan.jobs.base import RodanTask
 
+
 class HelloWorld(RodanTask):
     name = 'Hello World'
     author = 'Ryan Bannon'
@@ -28,6 +29,7 @@ class HelloWorld(RodanTask):
             outfile.write("Hello World")
         outfile.close()
         return True
+
 
 class HelloWorldMultiPort(RodanTask):
     name = 'Hello World Multiple Ports'
@@ -68,10 +70,13 @@ class HelloWorldMultiPort(RodanTask):
                     outfile.write(concatenated)
                     outfile.write("Hello World MultiPort")
 
+
 class HelloWorld3(RodanTask):
     name = 'Hello World - Python3'
     author = 'Alex Daigle'
-    description = 'Output string "Hello World", using a different celery queue. All you need is to specify the job_queue in the settings dictionary.'
+    description = 'Output string "Hello World", using a different celery queue. '
+    description += 'All you need is to specify the job_queue in the settings dictionary.'
+
     settings = {'job_queue': 'Python3'}
     enabled = True
     category = "Test"
@@ -126,9 +131,9 @@ class HelloWorld3(RodanTask):
 
 #     def run_my_task(self, inputs, settings, outputs):
 #         if '@done' not in settings:
-#             return self.WAITING_FOR_INPUT() 
+#             return self.WAITING_FOR_INPUT()
 #         outfile_path = outputs['Text output'][0]['resource_path']
-#         with open(outfile_path, "w") as outfile: 
+#         with open(outfile_path, "w") as outfile:
 #             outfile.write(("Hello World {0}").format(settings['@user_input']))
 #         return True
 

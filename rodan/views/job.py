@@ -17,7 +17,7 @@ class JobList(generics.ListAPIView):
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
-        #        "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
+        # "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
         "category": ["exact"],
         "interactive": ["exact"],
         "enabled": ["exact"],
@@ -27,12 +27,16 @@ class JobList(generics.ListAPIView):
 
     # def get_queryset(self):
     #     filter_dict = {}
-    #
+
     #     if 'workflow_run' in self.request.query_params:
     #         wfrun_id = self.request.query_params['workflow_run']
-    #         wf_id = Workflow.objects.filter(workflow_runs__uuid=wfrun_id).values_list('uuid', flat=True)
+    #         wf_id = Workflow.objects.filter(
+    #             workflow_runs__uuid=wfrun_id).values_list(
+    #                 'uuid',
+    #                 flat=True
+    #         )
     #         filter_dict['workflow_jobs__workflow__uuid__in'] = wf_id
-    #
+
     #     return Job.objects.filter(**filter_dict)
 
 

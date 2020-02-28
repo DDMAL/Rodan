@@ -53,12 +53,15 @@ from rodan.views.taskqueue import (
     TaskQueueScheduledView,
     TaskQueueStatusView,
 )
-from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
+from rodan.views.interactive import (
+    InteractiveAcquireView,
+    InteractiveWorkingView
+)
 
 from rodan.views.main import APIRoot
 
 # run-once import, initialize Rodan database
-import rodan.jobs.load
+import rodan.jobs.load  # noqa
 
 urlpatterns = [
     url(settings.ADMIN_URL, include(admin.site.urls)),

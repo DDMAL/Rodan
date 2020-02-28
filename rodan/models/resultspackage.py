@@ -1,7 +1,8 @@
-import os, datetime
+import datetime
+import os
 import uuid
-from django.db import models
 from django.conf import settings
+from django.db import models
 from rodan.constants import task_status
 
 
@@ -35,6 +36,10 @@ class ResultsPackage(models.Model):
     - `delete` -- delete the package in the filesystem.
     """
 
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_resultspackage", "View ResultsPackage"),)
+
     DEFAULT_EXPIRY_TIME = datetime.timedelta(days=30)
 
     STATUS_CHOICES = [
@@ -49,7 +54,13 @@ class ResultsPackage(models.Model):
     PACKAGING_MODE_CHOICES = [
         (0, "Only endpoint resources"),
         (1, "All resources -- subdirectoried by resource names"),
-        (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names",),
+        (
+            2,
+            (
+                "Diagnosis, including all inputs/outputs/settings -- subdirectoried"
+                " by workflow job and resource names"
+            ),
+        ),
     ]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
@@ -89,10 +100,6 @@ class ResultsPackage(models.Model):
 
     def __unicode__(self):
         return u"<ResultsPackage {0}>".format(str(self.uuid))
-
-    class Meta:
-        app_label = "rodan"
-        permissions = (("view_resultspackage", "View ResultsPackage"),)
 
     @property
     def package_path(self):

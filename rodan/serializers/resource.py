@@ -1,6 +1,6 @@
 from rodan.models.resource import Resource
 from rest_framework import serializers
-from rodan.serializers.user import UserListSerializer
+# from rodan.serializers.user import UserListSerializer
 from rodan.serializers import AbsoluteURLField
 
 
@@ -27,24 +27,4 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             "origin",
             "has_thumb",
         )  # The only updatable fields are: name, resource_type
-        fields = (
-            "url",
-            "uuid",
-            "name",
-            "description",
-            "project",
-            "resource_file",
-            "resource_type",
-            "processing_status",
-            "error_summary",
-            "error_details",
-            "creator",
-            "origin",
-            "created",
-            "updated",
-            "resource_file_path",
-            "viewer_url",
-            "large_thumb",
-            "medium_thumb",
-            "small_thumb",
-        )
+        fields = "__all__"

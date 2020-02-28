@@ -47,15 +47,16 @@ class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, conn_serializer):
         if (
-            conn_serializer.instance.input_port.workflow_job.group is not None
-            and conn_serializer.instance.input_port.workflow_job.group
-            == conn_serializer.instance.output_port.workflow_job.group
+            conn_serializer.instance.input_port.workflow_job.group is not None  # noqa
+            and conn_serializer.instance.input_port.workflow_job.group  # noqa
+            == conn_serializer.instance.output_port.workflow_job.group  # noqa
         ):
             invalid_info = {}
             for k, v in conn_serializer.validated_data.items():
-                invalid_info[
-                    k
-                ] = "To modify this field, you should first remove one of its related workflow jobs from the group."
+                invalid_info[k] = (
+                    "To modify this field, you should first remove one of its"
+                    " related workflow jobs from the group."
+                )
             if invalid_info:
                 raise CustomAPIException(
                     invalid_info, status=status.HTTP_400_BAD_REQUEST
@@ -64,12 +65,15 @@ class ConnectionDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, conn):
         if (
-            conn.input_port.workflow_job.group is not None
-            and conn.input_port.workflow_job.group
-            == conn.output_port.workflow_job.group
+            conn.input_port.workflow_job.group is not None  # noqa
+            and conn.input_port.workflow_job.group  # noqa
+            == conn.output_port.workflow_job.group  # noqa
         ):
             raise CustomAPIException(
-                "To delete this connection, you should first remove one of its related workflow jobs from the group.",
+                (
+                    "To delete this connection, you should first remove one"
+                    " of its related workflow jobs from the group."
+                ),
                 status=status.HTTP_400_BAD_REQUEST,
             )
         conn.delete()

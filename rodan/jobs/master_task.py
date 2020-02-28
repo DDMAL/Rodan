@@ -1,5 +1,10 @@
 from celery import registry, task
-from rodan.models import UserPreference, RunJob, WorkflowRun, Input
+from rodan.models import (
+    # UserPreference,
+    RunJob,
+    WorkflowRun,
+    Input
+)
 from rodan.constants import task_status
 from django.db.models import Q
 from django.conf import settings
@@ -35,8 +40,8 @@ def master_task(workflow_run_id):
     thread_id = str(thread.get_ident())
 
     # find and lock runable RunJobs
-    ## 1. Get a list of Inputs that belong to perhaps runable RunJobs and have their
-    ##    Resources and/or ResourceLists unsatisfied
+    # 1. Get a list of Inputs that belong to perhaps runable RunJobs and have their
+    #    Resources and/or ResourceLists unsatisfied
     unpromising_inputs = Input.objects.filter(
         Q(run_job__workflow_run__uuid=workflow_run_id)  # its RunJob in the workflow
         & Q(run_job__status=task_status.SCHEDULED)  # its RunJob is SCHEDULED
@@ -44,10 +49,10 @@ def master_task(workflow_run_id):
             run_job__lock__isnull=True
         )  # its RunJob not locked by other concurrent master tasks
         & ~(
-            ## It has Resource and its Resource is ready.
+            # It has Resource and its Resource is ready.
             (Q(resource__isnull=False) & ~Q(resource__resource_file__exact=""))
-            ## OR (it should have ResourceList) its ResourceList is not empty and
-            ## has all Resources ready.
+            # OR (it should have ResourceList) its ResourceList is not empty and
+            # has all Resources ready.
             | (
                 Q(resource_list__resources__isnull=False)
                 & ~Q(resource_list__resources__resource_file__exact="")
@@ -57,7 +62,7 @@ def master_task(workflow_run_id):
     unpromising_runjob_uuids = unpromising_inputs.values_list(
         "run_job__uuid", flat=True
     ).distinct()
-    ## 2.
+    # 2.
     locked_runjobs_count = RunJob.objects.filter(
         Q(workflow_run__uuid=workflow_run_id)  # RunJob in the workflow
         & Q(status=task_status.SCHEDULED)  # RunJob is SCHEDULED
@@ -110,7 +115,8 @@ def master_task(workflow_run_id):
             task = registry.tasks[str(rj_value["job_name"])]
             queue = str(rj_value["job_queue"])
             runjob_id = str(rj_value["uuid"])
-            # task will call master_task synchronously. Don't use Celery's chain, it's hard to revoke.
+            # task will call master_task synchronously. Don't use Celery's chain,
+            # it's hard to revoke.
             async_task = task.si(runjob_id).apply_async(queue=queue)
             RunJob.objects.filter(uuid=runjob_id).update(
                 celery_task_id=async_task.task_id

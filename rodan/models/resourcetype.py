@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+# from django.conf import settings
 import uuid
 
 import logging
@@ -35,7 +35,8 @@ class ResourceType(models.Model):
         return u"<ResourceType {0}>".format(self.mimetype)
 
     def delete(self, *args, **kwargs):
-        # find all Resource Distributor workflowjobs that have this resourcetype as their setting and set it to default
+        # find all Resource Distributor workflowjobs that have this resourcetype as
+        # their setting and set it to default
         from rodan.models import Job, WorkflowJob
 
         resource_distributor_uuid = Job.objects.get(name="Resource Distributor").uuid

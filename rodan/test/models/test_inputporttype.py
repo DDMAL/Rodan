@@ -1,6 +1,6 @@
 from django.test import TestCase
-from rodan.models.job import Job
-from rodan.models.inputporttype import InputPortType
+# from rodan.models.job import Job
+# from rodan.models.inputporttype import InputPortType
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 

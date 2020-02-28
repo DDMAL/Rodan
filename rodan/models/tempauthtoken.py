@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 
 class Tempauthtoken(models.Model):
     """
-    A temporary token for users to authenticate in new tab. This has been made for viewing resources.
+    A temporary token for users to authenticate in new tab. This has been made
+    for viewing resources.
 
     **Fields**
 

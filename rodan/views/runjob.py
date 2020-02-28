@@ -10,7 +10,8 @@ from rodan.permissions import CustomObjectPermissions
 
 class RunJobList(generics.ListAPIView):
     """
-    Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by the server.
+    Returns a list of all RunJobs. Do not accept POST request as RunJobs are typically created by
+    the server.
     """
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
@@ -21,6 +22,7 @@ class RunJobList(generics.ListAPIView):
     class filter_class(django_filters.FilterSet):
         project = django_filters.CharFilter(name="workflow_run__project")
         resource_uuid__isnull = django_filters.BooleanFilter(
+            # action=lambda q, v: q.filter(resource_uuid__isnull=v)
             method=lambda q, v: q.filter(resource_uuid__isnull=v)
         )  # https://github.com/alex/django-filter/issues/273
 

@@ -1,28 +1,37 @@
 import sys
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (
+    BaseCommand,
+    # CommandError
+)
 from rodan.models import ResourceType
 
 if sys.version_info.major == 2:
     input = raw_input
 
+
 def print_table(table):
     col_width = [min(max(len(x) for x in col), 35) for col in zip(*table)]
-    print(col_width)
+    # print(col_width)
     for idx, line in enumerate(table):
-        if idx == 1: # first line after table head
-            print("-" * (sum(col_width)+3*len(col_width)+1))
-        print("| " + " | ".join("{:{}}".format(str(x), col_width[i]) for i, x in enumerate(line)) + " |")
+        if idx == 1:  # first line after table head
+            print("-" * (sum(col_width) + 3 * len(col_width) + 1))
+        print(
+            "| "
+            + " | ".join("{:{}}".format(str(x), col_width[i]) for i, x in enumerate(line))
+            + " |"
+        )
+
 
 class Command(BaseCommand):
-    help = 'Alter the description and/or extension of a Rodan resource type.'
+    help = "Alter the description and/or extension of a Rodan resource type."
 
     def handle(self, *args, **options):
         print("Here are the currently registered ResourceTypes in Rodan:")
         rt_table = [
             ['name', 'description', 'extension']
         ]
-        for rt in ResourceType.objects.all().order_by('mimetype'):
+        for rt in ResourceType.objects.all().order_by("mimetype"):
             rt_table.append([rt.mimetype, rt.description, rt.extension])
         print_table(rt_table)
 
@@ -38,9 +47,14 @@ class Command(BaseCommand):
                 else:
                     pass
 
-        description = input("Type the new description for {0} ({1}): ".format(rt.mimetype, rt.description))
+        description = input("Type the new description for {0} ({1}): ".format(
+            rt.mimetype,
+            rt.description
+        ))
         rt.description = description or rt.description
-        extension = input("Type the new extension for {0} ({1}): ".format(rt.mimetype, rt.extension))
+        extension = input("Type the new extension for {0} ({1}): ".format(
+            rt.mimetype, rt.extension
+        ))
         rt.extension = extension or rt.extension
         rt.save(update_fields=['description', 'extension'])
 

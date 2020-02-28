@@ -1,37 +1,46 @@
-from __future__ import absolute_import
-from __future__ import print_function
-
-import mimetypes
+import datetime
+# import mimetypes
 import os
+import re
 # import urlparse
 import six.moves.urllib.parse
-import re
-import copy
-import datetime
 
 from celery import registry
 from django.conf import settings
-from django.core.urlresolvers import Resolver404, resolve
-from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.core.urlresolvers import (
+    reverse,
+    resolve,
+    Resolver404,
+)
 from django.db.models import ProtectedError
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import Q
+from django.http import (
+    Http404,
+    # HttpResponseRedirect
+)
 from django.shortcuts import render
 from django.utils import timezone
 import django_filters
-from rest_framework import status
-from rest_framework import generics
-from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
+from rest_framework import (
+    status,
+    generics,
+    permissions,
+)
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
-from rodan.models import Resource, ResourceType, Project, Tempauthtoken
+from rodan.constants import task_status
+from rodan.models import (
+    Resource,
+    ResourceType,
+    Tempauthtoken,
+)
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
-from rodan.constants import task_status
 from rodan.permissions import CustomObjectPermissions
 from rodan.exceptions import CustomAPIException
+
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -54,13 +63,23 @@ class ResourceList(generics.ListCreateAPIView):
     serializer_class = ResourceSerializer
 
     class filter_class(django_filters.FilterSet):
-        origin__isnull = django_filters.BooleanFilter(method=lambda q, v: q.filter(origin__isnull=v))  # https://github.com/alex/django-filter/issues/273
-        # resource_type__in = django_filters.MethodFilter()
-        resource_type__in = django_filters.filters.CharFilter(method='filter_resource_type__in')
+        # https://github.com/alex/django-filter/issues/273
+        origin__isnull = django_filters.BooleanFilter(
+            # action=lambda q, v: q.filter(origin__isnull=v)
+            method=lambda q, v: q.filter(origin__isnull=v)
+        )
 
-        def filter_resource_type__in(self, q, v):
-            vs = v.split(',')
-            return q.filter(resource_type__uuid__in=vs)
+        # resource_type__in = django_filters.MethodFilter()
+
+        # def filter_resource_type__in(self, q, v):
+        #     vs = v.split(',')
+        #     return q.filter(resource_type__uuid__in=vs)
+
+        resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
+
+        def filter_resource_type__in(self, qs, name, value):
+            value = value.split(",")
+            return qs.filter(**{name: value})
 
         class Meta:
             model = Resource
@@ -70,7 +89,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "uuid": ['exact'],
                 "creator": ['exact'],
                 "creator__username": ['icontains'],
-                #"has_thumb": ['exact'],
+                # "has_thumb": ['exact'],
                 "processing_status": ['exact'],
                 "created": ['lt', 'gt'],
                 "project": ['exact'],
@@ -84,7 +103,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         wfrun_uuid = self.request.query_params.get('result_of_workflow_run', None)
         if wfrun_uuid:
-            condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid))
+            condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid)) # noqa
 
         uploaded = self.request.query_params.get('uploaded', None)
         if uploaded == u'True':
@@ -95,7 +114,10 @@ class ResourceList(generics.ListCreateAPIView):
         # finding the resourcelist query parameter and adding it to the condition
         resource_list_param = self.request.query_params.get('resource_list', None)
         if resource_list_param is not None:
-            resource_list_param = re.search(r'[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}', resource_list_param)
+            resource_list_param = re.search(
+                r'[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
+                resource_list_param
+            )
             if resource_list_param is not None:
                 resource_list_param = resource_list_param.group()
             from rodan.models import ResourceList
@@ -107,10 +129,12 @@ class ResourceList(generics.ListCreateAPIView):
                 for r in resources.all():
                     resource_list_condition |= Q(uuid=r.uuid)
             else:
-                resource_list_condition = Q(uuid=None)   # if the resource_list was not found, returns empty list
+                # if the resource_list was not found, returns empty list
+                resource_list_condition = Q(uuid=None)
             condition &= resource_list_condition
 
-        queryset = Resource.objects.filter(condition)  # then this queryset is filtered on `filter_fields`
+        # then this queryset is filtered on `filter_fields`
+        queryset = Resource.objects.filter(condition)
         return queryset
 
     def post(self, request, *args, **kwargs):
@@ -132,7 +156,9 @@ class ResourceList(generics.ListCreateAPIView):
                 print(str(e))
 
         initial_data = {
-            'resource_type': ResourceTypeSerializer(ResourceType.objects.get(mimetype='application/octet-stream'), context={'request': request}).data['url'],
+            'resource_type': ResourceTypeSerializer(
+                ResourceType.objects.get(mimetype='application/octet-stream'),
+                context={'request': request}).data['url'],
             'processing_status': task_status.SCHEDULED
         }
 
@@ -146,7 +172,9 @@ class ResourceList(generics.ListCreateAPIView):
 
             filename_without_ext = os.path.splitext(fileobj.name)[0]
             resource_obj = serializer.save(name=filename_without_ext, creator=request.user)
-            resource_obj.resource_file.save(fileobj.name, fileobj)  # arbitrarily provide one as Django will figure out the path according to upload_to
+
+            # arbitrarily provide one as Django will figure out the path according to upload_to
+            resource_obj.resource_file.save(fileobj.name, fileobj)
 
             resource_id = str(resource_obj.uuid)
             mimetype = claimed_mimetype or "application/octet-stream"
@@ -192,9 +220,22 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
         try:
             resource.delete()
         except ProtectedError:
-            return Response({"Error": "You can not delete the resource because it is currently Protected. A finished or pending runjob is referencing this resource."}, status=status.HTTP_409_CONFLICT)
+            # msg = "You can not delete the resource because it is currently Protected. "
+            # msg += "A finished or pending runjob is referencing this resource."
+            return Response(
+                {
+                    "Error":
+                        (
+                            "You can not delete the resource because it is currently Protected. "
+                            "A finished or pending runjob is referencing this resource. "
+                            "If you delete that runjob, you can then delete this resource."
+                        ),
+                },
+                status=status.HTTP_409_CONFLICT
+            )
 
-        return Response(old_data, status=status.HTTP_200_OK)
+        return Response(old_data, status=status.HTTP_204_NO_CONTENT)
+
 
 class ResourceViewer(APIView):
     """
@@ -204,29 +245,37 @@ class ResourceViewer(APIView):
     + Diva.js: for all images (if jp2 and measurement json exist)
     + Neon.js: for MEI
     """
-    #permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+    # permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
-    #authentication_classes = ()
+    # authentication_classes = ()
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, resource_uuid, working_user_token, *a, **k):
         # check expiry
         working_user_expiry = Tempauthtoken.objects.get(uuid=working_user_token).expiry
         if timezone.now() > working_user_expiry:
-            raise CustomAPIException({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+            raise CustomAPIException(
+                {'message': 'Permission denied'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         resource = Resource.objects.get(uuid=resource_uuid)
         viewer = resource.get_viewer()
         if viewer == 'diva':
-            return render(request, 'diva.html', {
-                'page_title': "View Resource: {0}".format(resource.name or resource.pk),
-                'diva_object_data': resource.diva_json_url,
-                'diva_iip_server': settings.IIPSRV_URL,
-                'diva_image_dir': resource.diva_image_dir
-            }, content_type="text/html")
+            return render(
+                request,
+                'diva.html',
+                {
+                    'page_title': "View Resource: {0}".format(resource.name or resource.pk),
+                    'diva_object_data': resource.diva_json_url,
+                    'diva_iip_server': settings.IIPSRV_URL,
+                    'diva_image_dir': resource.diva_image_dir
+                },
+                content_type="text/html"
+            )
         elif viewer == 'neon':
             return render(request, 'neon_square_viewer.html', {
                 'mei_name': resource.name or resource.pk,
@@ -249,16 +298,20 @@ class ResourceAcquireView(generics.GenericAPIView):
 
         # for rest browsable API displaying the PUT/PATCH form
         from rest_framework import serializers
+
         class DummySerializer(serializers.Serializer):
-            pass   # empty class
+            pass  # empty class
+
         return DummySerializer
 
     def post(self, request, resource_uuid, *args, **kwargs):
-        expiry_date = timezone.now() + datetime.timedelta(seconds=settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS)
+        expiry_date = timezone.now() + datetime.timedelta(
+            seconds=settings.RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS
+        )
         user = request.user
 
         # remove the existing token to produce a new one
-        if len(Tempauthtoken.objects.filter(user=user))>0:
+        if len(Tempauthtoken.objects.filter(user=user)) > 0:
             temp_token = Tempauthtoken.objects.get(user=request.user)
             temp_token.delete()
 
@@ -268,6 +321,14 @@ class ResourceAcquireView(generics.GenericAPIView):
         working_user_token = temp_token.uuid
 
         return Response({
-            'working_url': request.build_absolute_uri(reverse('resource-viewer', kwargs={'resource_uuid': str(resource_uuid), 'working_user_token': str(working_user_token)})),
+            'working_url': request.build_absolute_uri(
+                reverse(
+                    'resource-viewer',
+                    kwargs={
+                        'resource_uuid': str(resource_uuid),
+                        'working_user_token': str(working_user_token)
+                    }
+                )
+            ),
             'working_user_expiry': expiry_date
         })

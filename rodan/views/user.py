@@ -32,11 +32,15 @@ class UserList(generics.ListCreateAPIView):
 
     class filter_class(django_filters.FilterSet):
         # username__in = django_filters.MethodFilter()
-        username__in = django_filters.filters.CharFilter(method='filter_username__in')
+        username__in = django_filters.filters.CharFilter(method="filter_username__in")
 
-        def filter_username__in(self, q, v):
-            vs = v.split(",")
-            return q.filter(username__in=vs)
+        # def filter_username__in(self, q, v):
+        #     vs = v.split(",")
+        #     return q.filter(username__in=vs)
+
+        def filter_username__in(self, qs, name, value):
+            value = value.split(",")
+            return qs.filter(**{name: value})
 
         class Meta:
             model = User

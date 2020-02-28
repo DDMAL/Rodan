@@ -38,6 +38,7 @@ before_install:
 - export POSTGRES_PASSWORD=rodan
 install:
 - pip install -r requirements.txt
+- pip install flake8
 - sudo chmod -R 755 /home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/pybagit
 - cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
 - sed -i "s/\/code\/Rodan/./g" rodan/settings.py
@@ -50,6 +51,9 @@ before_script:
 - python manage.py makemigrations rodan
 - python manage.py migrate
 script:
+- flake8
+# - python -W error manage.py test
+# - python -W once manage.py test
 - python manage.py test
 notifications:
   email: false

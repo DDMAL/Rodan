@@ -1,14 +1,16 @@
 """
-We want Django admin to work but we don't want session-based authentication. These codes help implement HTTP basic authentication with Django admin.
+We want Django admin to work but we don't want session-based authentication.
+These codes help implement HTTP basic authentication with Django admin.
 """
 
-## BEGIN - include url patterns with view decorator
-## from http://stackoverflow.com/questions/2307926/is-it-possible-to-decorate-include-in-django-urls-with-login-required
+# BEGIN - include url patterns with view decorator
+# from http://stackoverflow.com/questions/2307926/is-it-possible-to-decorate-include-in-django-urls-with-login-required  # noqa
 
-from django.contrib import admin
+# from django.contrib import admin
+
 
 def required(wrapping_functions, patterns_rslt):
-    '''
+    """
     Used to require 1..n decorators in any view returned by a url tree
 
     Usage:
@@ -27,73 +29,77 @@ def required(wrapping_functions, patterns_rslt):
           partial(login_required,login_url='/accounts/login/'),
           patterns(...)
       )
-    '''
-    if not hasattr(wrapping_functions,'__iter__'):
+    """
+    if not hasattr(wrapping_functions, '__iter__'):
         wrapping_functions = (wrapping_functions,)
 
-    return [_wrap_instance__resolve(wrapping_functions,instance) for instance in patterns_rslt]
+    return [
+        _wrap_instance__resolve(wrapping_functions, instance)
+        for instance in patterns_rslt
+    ]
 
-def _wrap_instance__resolve(wrapping_functions,instance):
-    if not hasattr(instance,'resolve'): return instance
-    resolve = getattr(instance,'resolve')
 
-    def _wrap_func_in_returned_resolver_match(*args,**kwargs):
-        rslt = resolve(*args,**kwargs)
+def _wrap_instance__resolve(wrapping_functions, instance):
+    if not hasattr(instance, 'resolve'):
+        return instance
+    resolve = getattr(instance, 'resolve')
 
-        if not hasattr(rslt,'func'):return rslt
-        f = getattr(rslt,'func')
+    def _wrap_func_in_returned_resolver_match(*args, **kwargs):
+        rslt = resolve(*args, **kwargs)
+
+        if not hasattr(rslt, 'func'):
+            return rslt
+        f = getattr(rslt, 'func')
 
         for _f in reversed(wrapping_functions):
             # @decorate the function from inner to outter
             f = _f(f)
 
-        setattr(rslt,'func',f)
+        setattr(rslt, 'func', f)
 
         return rslt
 
-    setattr(instance,'resolve',_wrap_func_in_returned_resolver_match)
+    setattr(instance, 'resolve', _wrap_func_in_returned_resolver_match)
 
     return instance
 
-## END - include url patterns with view decorator
+# END - include url patterns with view decorator
 
 
+# START - HTTP basic authentication decorator
+# from https://djangosnippets.org/snippets/243/
 
-## START - HTTP basic authentication decorator
-## from https://djangosnippets.org/snippets/243/
+import base64  # noqa
 
-import base64
-
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.http import HttpResponse  # noqa
+from django.contrib.auth import authenticate  # noqa
+# from django.contrib.auth import login
 
 #############################################################################
-#
-def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
+
+
+def view_or_basicauth(view, request, test_func, realm="", *args, **kwargs):
     """
     This is a helper function used by both 'logged_in_or_basicauth' and
     'has_perm_or_basicauth' that does the nitty of determining if they
     are already logged in or if they have provided proper http-authorization
     and returning the view if all goes well, otherwise responding with a 401.
     """
-    #if test_func(request.user):
-        # Already logged in, just return the view.
-        #
-    #    return view(request, *args, **kwargs)
+    # if test_func(request.user):
+    #     # Already logged in, just return the view.
+    #     return view(request, *args, **kwargs)
 
     # They are not logged in. See if they provided login credentials
-    #
     if 'HTTP_AUTHORIZATION' in request.META:
         auth = request.META['HTTP_AUTHORIZATION'].split()
         if len(auth) == 2:
-            # NOTE: We are only support basic authentication for now.
-            #
+            # NOTE: We are only supporting basic authentication for now.
             if auth[0].lower() == "basic":
                 uname, passwd = base64.b64decode(auth[1]).split(':')
                 user = authenticate(username=uname, password=passwd)
                 if user is not None:
                     if user.is_active:
-                        #login(request, user)
+                        # login(request, user)
                         request.user = user
                         return view(request, *args, **kwargs)
 
@@ -107,8 +113,9 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
     return response
 
 #############################################################################
-#
-def logged_in_or_basicauth(realm = ""):
+
+
+def logged_in_or_basicauth(realm=""):
     """
     A simple decorator that requires a user to be logged in. If they are not
     logged in the request is examined for a 'authorization' header.
@@ -146,8 +153,9 @@ def logged_in_or_basicauth(realm = ""):
     return view_decorator
 
 #############################################################################
-#
-def has_perm_or_basicauth(perm, realm = ""):
+
+
+def has_perm_or_basicauth(perm, realm=""):
     """
     This is similar to the above decorator 'logged_in_or_basicauth'
     except that it requires the logged in user to have a specific
@@ -167,4 +175,4 @@ def has_perm_or_basicauth(perm, realm = ""):
                                      realm, *args, **kwargs)
         return wrapper
     return view_decorator
-## END - HTTP basic authentication decorator
+# END - HTTP basic authentication decorator

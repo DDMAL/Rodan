@@ -115,22 +115,18 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
                     {self._serialized_field_name: "This field must be a JSON object."}
                 )
             if "__version__" not in serialized:
-                raise serializers.ValidationError(
-                    {
-                        self._serialized_field_name: "Please provide the version of serialization format."
-                    }
-                )
+                raise serializers.ValidationError({
+                    self._serialized_field_name:
+                    "Please provide the version of serialization format."
+                })
 
             version = serialized["__version__"]
             s_format = version_map.get(version, None)
             if s_format is None:
-                raise serializers.ValidationError(
-                    {
-                        self._serialized_field_name: "Unsupported version of serialization format: {0}".format(
-                            version
-                        )
-                    }
-                )
+                raise serializers.ValidationError({
+                    self._serialized_field_name:
+                    "Unsupported version of serialization format: {0}".format(version)
+                })
 
             try:
                 s_format.validate(serialized)
@@ -237,7 +233,7 @@ class RodanWorkflowSerializationFormatBase(object):
             raise self.ValidationError({path: e.message})
         try:
             self.validate_extra(serialized)
-        except:
+        except:  # noqa
             raise
 
     def validate_extra(self, serialized):
@@ -324,7 +320,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
     def validate_extra(self, serialized):
         ip_ids = set()
         op_ids = set()
-        rc_ids = set()
+        # rc_ids = set()
         for i_wfj, wfj in enumerate(serialized["workflow_jobs"]):
             job_name = wfj["job_name"]
             if not Job.objects.filter(name=job_name).exists():
@@ -342,15 +338,13 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 if not InputPortType.objects.filter(
                     job__name=job_name, name=ipt_name
                 ).exists():
-                    raise self.ValidationError(
-                        {
-                            "workflow_jobs[{0}].input_ports[{1}].type".format(
-                                i_wfj, i_ip
-                            ): "InputPortType {0} of Job {1} does not exist in current Rodan installation.".format(
-                                ipt_name, job_name
-                            )
-                        }
-                    )
+                    raise self.ValidationError({
+                        "workflow_jobs[{0}].input_ports[{1}].type".format(i_wfj, i_ip):
+                        (
+                            "InputPortType {0} of Job {1} does not exist in current Rodan "
+                            "installation."
+                        ).format(ipt_name, job_name)
+                    })
                 if ip["id"] in ip_ids:
                     raise self.ValidationError(
                         {
@@ -365,23 +359,18 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 if not OutputPortType.objects.filter(
                     job__name=job_name, name=opt_name
                 ).exists():
-                    raise self.ValidationError(
-                        {
-                            "workflow_jobs[{0}].output_ports[{1}].type".format(
-                                i_wfj, i_op
-                            ): "OutputPortType {0} of Job {1} does not exist in current Rodan installation.".format(
-                                opt_name, job_name
-                            )
-                        }
-                    )
+                    raise self.ValidationError({
+                        "workflow_jobs[{0}].output_ports[{1}].type".format(i_wfj, i_op):
+                        (
+                            "OutputPortType {0} of Job {1} does not exist in current "
+                            "Rodan installation."
+                        ).format(opt_name, job_name)
+                    })
                 if op["id"] in op_ids:
-                    raise self.ValidationError(
-                        {
-                            "workflow_jobs[{0}].output_ports[{1}].id".format(
-                                i_wfj, i_op
-                            ): "Duplicate OutputPort ID found."
-                        }
-                    )
+                    raise self.ValidationError({
+                        "workflow_jobs[{0}].output_ports[{1}].id".format(i_wfj, i_op):
+                        "Duplicate OutputPort ID found."
+                    })
                 op_ids.add(op["id"])
             j_settings = Job.objects.get(name=job_name).settings
             try:
@@ -529,7 +518,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 op_map[op_s["id"]] = op
             loaded_wfjs.append(wfj)
         for conn_s in serialized["connections"]:
-            conn = Connection.objects.create(
+            conn = Connection.objects.create(  # noqa
                 output_port=op_map[conn_s["output_port"]],
                 input_port=ip_map[conn_s["input_port"]],
             )

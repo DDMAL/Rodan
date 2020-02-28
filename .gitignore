@@ -14,6 +14,7 @@ rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
 rodan/jobs/vis-rodan/
 rodan/jobs/interactive_classifier
+rodan/jobs/Interactive-Classifier
 rodan/jobs/jSymbolic-Rodan/
 rodan/jobs/pil-rodan/
 rodan/jobs/Calvo-classifier/
@@ -24,6 +25,7 @@ rodan/jobs/pixel_wrapper/
 rodan/jobs/neon-wrapper/
 rodan/jobs/MEI_encoding
 rodan/jobs/text_alignment
+rodan/jobs/hpc-fast-trainer
 
 /.DS_Store
 
@@ -42,3 +44,5 @@ rodan/static/
 
 # Ignore logs
 *.log
+
+env/

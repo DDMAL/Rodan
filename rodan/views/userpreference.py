@@ -39,7 +39,7 @@ class UserPreferenceList(generics.ListCreateAPIView):
                 path = six.moves.urllib.parse.urlparse(user_url).path
                 match = resolve(path)
                 user_pk = match.kwargs.get("pk")
-            except (Resolver404, User.DoesNotExist) as e:
+            except (Resolver404, User.DoesNotExist):
                 raise CustomAPIException(
                     "You need to send the url of a User to create its UserPreference.",
                     status=status.HTTP_400_BAD_REQUEST,

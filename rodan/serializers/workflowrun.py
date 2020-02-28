@@ -26,6 +26,7 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
             "creator",
         )
         extra_kwargs = {"workflow": {"allow_null": False, "required": True}}
+        fields = "__all__"
 
 
 class WorkflowRunByPageSerializer(serializers.HyperlinkedModelSerializer):
