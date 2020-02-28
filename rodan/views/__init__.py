@@ -54,7 +54,7 @@ class RodanMetadata(SimpleMetadata):
             # model x serializers x ordering_fields
             m = view.get_queryset().model
             fs = m._meta.fields
-            fields = set([])
+            fields = set()
             for f in fs:
                 if f.primary_key or f.db_index:
                     fields.add(f.name)
