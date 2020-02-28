@@ -226,8 +226,11 @@ LOGGING = {
             "level": "ERROR",
             "propagate": True,
         },
-        "django": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
-        "rodan": {"handlers": ["file"], "level": "WARNING", "propagate": True},
+        # When you set the logging for django to DEBUG, you get lots of extra noise
+        # Use level "DEBUG" only if you really have to.
+        "django": {"handlers": ["console"], "level": "WARNING", "propagate": True},
+        # Rodan errors should be more noisy though.
+        "rodan": {"handlers": ["file"], "level": "DEBUG", "propagate": True},
         "django.db.backends": {
             "level": "DEBUG",
             "handlers": ["dblog"],
