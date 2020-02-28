@@ -1,29 +1,37 @@
-import mimetypes, os, urlparse
+from __future__ import absolute_import
+from __future__ import print_function
+
+import mimetypes
+import os
+# import urlparse
+import six.moves.urllib.parse
+import re
+import copy
+import datetime
+
 from celery import registry
+from django.conf import settings
+from django.core.urlresolvers import Resolver404, resolve
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.db.models import ProtectedError
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render
+from django.utils import timezone
+import django_filters
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
-from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from django.core.urlresolvers import Resolver404, resolve
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from rodan.models import Resource, ResourceType, Project, Tempauthtoken
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
-from django.db.models import Q
 from rodan.constants import task_status
-from django.http import Http404, HttpResponseRedirect
-from django.conf import settings
-from django.shortcuts import render
-import django_filters
 from rodan.permissions import CustomObjectPermissions
-import re
-from django.core.urlresolvers import reverse
-import datetime
-from django.utils import timezone
 from rodan.exceptions import CustomAPIException
-from rest_framework.views import APIView
-import copy
-from django.db.models import ProtectedError
 
 class ResourceList(generics.ListCreateAPIView):
     """
@@ -115,7 +123,7 @@ class ResourceList(generics.ListCreateAPIView):
         if claimed_mimetype:
             try:
                 # try to see if user provide a url to ResourceType
-                path = urlparse.urlparse(claimed_mimetype).path  # convert to relative url
+                path = six.moves.urllib.parse.urlparse(claimed_mimetype).path  # convert to relative url
                 match = resolve(path)                            # find a url route
                 restype_pk = match.kwargs.get('pk')              # extract pk
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object

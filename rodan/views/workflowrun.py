@@ -1,4 +1,4 @@
-import urlparse
+# import urlparse
 import os
 import shutil
 from operator import itemgetter
