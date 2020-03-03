@@ -1,16 +1,21 @@
-from django.conf.urls import patterns, include, url, static
+from django.conf.urls import (
+    include,
+    url,
+    static
+)
 from django.conf import settings
 from django.contrib import admin
-
+from djoser import views as djoser_views
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from djoser import views as djoser_views
-
 from rodan.admin.helpers import required, logged_in_or_basicauth
-
 from rodan.views.auth import AuthMeView, AuthTokenView
 from rodan.views.project import ProjectList
-from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
+from rodan.views.project import (
+    ProjectDetail,
+    ProjectDetailAdmins,
+    ProjectDetailWorkers
+)
 from rodan.views.workflow import WorkflowList
 from rodan.views.workflow import WorkflowDetail
 from rodan.views.workflowjob import WorkflowJobList
@@ -57,7 +62,6 @@ from rodan.views.interactive import (
     InteractiveAcquireView,
     InteractiveWorkingView
 )
-
 from rodan.views.main import APIRoot
 
 # run-once import, initialize Rodan database
