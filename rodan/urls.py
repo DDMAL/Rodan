@@ -9,7 +9,7 @@ from decorator_include import decorator_include
 from djoser import views as djoser_views
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from rodan.admin.helpers import required, logged_in_or_basicauth
+from rodan.admin.helpers import logged_in_or_basicauth
 from rodan.views.auth import AuthMeView, AuthTokenView
 from rodan.views.project import ProjectList
 from rodan.views.project import (
