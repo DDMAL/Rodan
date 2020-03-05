@@ -30,7 +30,7 @@ def define_png(filename, mime=None):
 
     with open(filename) as f:
         data = f.read()
-    
+
     if data[25].encode("hex") == "06":
         return "image/rgba+png"
 
