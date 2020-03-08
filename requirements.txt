@@ -10,7 +10,7 @@ django-guardian==1.4.9
 django-health-check==2.4.0
 django-sortedm2m==1.1.1
 django-websocket-redis==0.5.2
-Django==1.8.19
+Django==3.0.4
 djoser==0.4.0
 djangorestframework==3.6.4
 ecdsa==0.11
