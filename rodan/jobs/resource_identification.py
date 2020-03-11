@@ -26,7 +26,15 @@ def define_png(filename, mime=None):
     try:
         return png_mimetypes[mime[2][1:]]
     except KeyError:
-        return "image/rgb+png"
+        pass
+
+    with open(filename) as f:
+        data = f.read()
+
+    if data[25].encode("hex") == "06":
+        return "image/rgba+png"
+
+    return "image/rgb+png"
 
 
 def define_jpeg(*args, **kwargs):
@@ -153,28 +161,30 @@ def fileparse(filename):
 if __name__ == "__main__":
 
     if True:
-        assert fileparse("./files/LLIA") == "application/ace+xml"
-        assert fileparse("./files/AWKQ") == "application/arff"
-        assert fileparse("./files/XSNA") == "application/arff+csv"
-        assert fileparse("./files/ZHAH") == "application/gamera-polygons+txt"
-        assert fileparse("./files/DXUA") == "application/gamera+xml"
-        assert fileparse("./files/PKAF") == "application/jsc+txt"
-        assert fileparse("./files/AHSK") == "application/mei+xml"
-        assert fileparse("./files/PAOS") == "application/midi"
-        assert fileparse("./files/TQOA") == "image/grey16+png"
-        assert fileparse("./files/WYAG") == "image/jp2"
-        assert fileparse("./files/EQRQ") == "image/onebit+png"
-        assert fileparse("./files/YASH") == "image/rgb+jpg"
-        assert fileparse("./files/GWJA") == "application/x-muscxml+xml"
-        assert fileparse("./files/AOGO") == "application/x-vis_figuredbass_pandas_series+csv"
-        assert fileparse("./files/DUKU") == "application/x-vis_horizontal_pandas_series+csv"
-        assert fileparse("./files/BYKA") == "application/x-vis_vertical_pandas_series+csv"
-        assert fileparse("./files/7W4A") == "application/x-vis_ngram_pandas_dataframe+csv"
-        assert fileparse("./files/KGRA") == "application/x-vis_noterest_pandas_series+csv"
-        assert fileparse("./files/KASD") == "application/zip"
-        assert fileparse("./files/UZFA") == "application/json"
-        assert fileparse("./files/ZTAS") == "application/ocropus+pyrnn"
-        assert fileparse("./files/GAZG") == "application/json"
-        assert fileparse("./files/QIWR") == "application/json"
+        assert fileparse("../test/files/LLIA") == "application/ace+xml"
+        assert fileparse("../test/files/AWKQ") == "application/arff"
+        assert fileparse("../test/files/XSNA") == "application/arff+csv"
+        assert fileparse("../test/files/ZHAH") == "application/gamera-polygons+txt"
+        assert fileparse("../test/files/DXUA") == "application/gamera+xml"
+        assert fileparse("../test/files/PKAF") == "application/jsc+txt"
+        assert fileparse("../test/files/AHSK") == "application/mei+xml"
+        assert fileparse("../test/files/PAOS") == "application/midi"
+        assert fileparse("../test/files/TQOA") == "image/grey16+png"
+        assert fileparse("../test/files/WYAG") == "image/jp2"
+        assert fileparse("../test/files/EQRQ") == "image/onebit+png"
+        assert fileparse("../test/files/YASH") == "image/rgb+jpg"
+        assert fileparse("../test/files/GWJA") == "application/x-muscxml+xml"
+        assert fileparse("../test/files/AOGO") == "application/x-vis_figuredbass_pandas_series+csv"
+        assert fileparse("../test/files/DUKU") == "application/x-vis_horizontal_pandas_series+csv"
+        assert fileparse("../test/files/BYKA") == "application/x-vis_vertical_pandas_series+csv"
+        assert fileparse("../test/files/7W4A") == "application/x-vis_ngram_pandas_dataframe+csv"
+        assert fileparse("../test/files/KGRA") == "application/x-vis_noterest_pandas_series+csv"
+        assert fileparse("../test/files/KASD") == "application/zip"
+        assert fileparse("../test/files/UZFA") == "application/json"
+        assert fileparse("../test/files/ZTAS") == "application/ocropus+pyrnn"
+        assert fileparse("../test/files/GAZG") == "application/json"
+        assert fileparse("../test/files/QIWR") == "application/json"
+        assert fileparse("../test/files/PXCV") == "image/rgba+png"
+        assert fileparse("../test/files/OASD") == "image/rgb+png"
 
         print("[+] Success - Current Filetypes work")

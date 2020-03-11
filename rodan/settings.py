@@ -152,8 +152,10 @@ RODAN_PYTHON2_JOBS = [
 ]
 RODAN_PYTHON3_JOBS = [
     #py3 "rodan.jobs.helloworld",
-    #py3 "rodan.jobs.Calvo-classifier",
     #py3 "rodan.jobs.hpc-fast-trainer",
+]
+RODAN_GPU_JOBS = [
+    #gpu "rodan.jobs.Calvo-classifier",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
@@ -161,12 +163,16 @@ if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
     RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
+    RODAN_JOB_PACKAGES += RODAN_GPU_JOBS
 elif RODAN_JOB_QUEUE == "Python2":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
 elif RODAN_JOB_QUEUE == "Python3":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
+elif RODAN_JOB_QUEUE == "GPU":
+    RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
+    RODAN_JOB_PACKAGES += RODAN_GPU_JOBS
 else:
     raise EnvironmentError(
         "An environment was not built for that specific rodan job-queue yet. " +
