@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib import admin
 from decorator_include import decorator_include
 from djoser import views as djoser_views
-import djoser
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from rodan.admin.helpers import logged_in_or_basicauth
