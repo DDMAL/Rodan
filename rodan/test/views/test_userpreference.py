@@ -15,7 +15,7 @@ class UserPreferenceViewTestCase(
     def test_post(self):
         up_obj = {
             "user": "http://localhost:8000/user/{0}/".format(self.test_user.id),
-            "send_email": "false",
+            "send_email": False,
         }
 
         response = self.client.post("/userpreferences/", up_obj, format="json")
