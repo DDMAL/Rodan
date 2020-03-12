@@ -167,8 +167,8 @@ class ResourceListViewTestCase(
         }
         response = self.client.post("/resourcelists/", rl_obj1, format="json")
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
-        rl1 = ResourceList.objects.get(name="test resource list1")
-        self.assertEqual(rl1.resource_type.mimetype, "application/octet-stream")
+        rl1 = ResourceList.objects.get(name=u'test resource list1')
+        self.assertEqual(rl1.get_resource_type().mimetype, "application/octet-stream")
 
         rl_obj2 = {
             "name": "test resource list2",
@@ -177,7 +177,7 @@ class ResourceListViewTestCase(
         response = self.client.post("/resourcelists/", rl_obj2, format="json")
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
         rl2 = ResourceList.objects.get(name="test resource list2")
-        self.assertEqual(rl2.resource_type.mimetype, "application/octet-stream")
+        self.assertEqual(rl2.get_resource_type().mimetype, "application/octet-stream")
 
         rl_obj3 = {"resources": [], "name": "test resource list3"}
         response = self.client.post("/resourcelists/", rl_obj3, format="json")
