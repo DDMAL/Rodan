@@ -11,7 +11,7 @@ class UserPreferenceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMix
         self.test_user = mommy.make(User)
         self.test_project = mommy.make("rodan.Project")
 
-        self.test_user_preference_data = {"user": self.test_user, "send_email": "false"}
+        self.test_user_preference_data = {"user": self.test_user, "send_email": False}
 
     def test_delete(self):
         userpreference = UserPreference(**self.test_user_preference_data)
