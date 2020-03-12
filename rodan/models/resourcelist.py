@@ -71,11 +71,16 @@ class ResourceList(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    @property
-    def resource_type(self):
+    # Adding a property decorator shadows the Foreign Key with a property which
+    # is a bad idea.
+    #   @property
+    #   def resource_type(self):
+    # This is how to fix it.
+    def get_resource_type(self):
         if self.resources.count() == 0:
             return apps.get_model(
-                app_label="rodan", model_name="ResourceType"
+                app_label="rodan",
+                model_name="ResourceType"
             ).objects.get(mimetype="application/octet-stream")
         else:
             return self.resources.first().resource_type
