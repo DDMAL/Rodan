@@ -147,7 +147,8 @@ class ResourceList(generics.ListCreateAPIView):
         if claimed_mimetype:
             try:
                 # try to see if user provide a url to ResourceType
-                path = six.moves.urllib.parse.urlparse(claimed_mimetype).path  # convert to relative url
+                # convert to relative url
+                path = six.moves.urllib.parse.urlparse(claimed_mimetype).path
                 match = resolve(path)                            # find a url route
                 restype_pk = match.kwargs.get('pk')              # extract pk
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
@@ -200,7 +201,8 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
         if resource_type:
             try:
                 # try to see if user provide a url to ResourceType
-                path = urlparse.urlparse(resource_type).path  # convert to relative url
+                # convert to relative url
+                path = six.moves.urllib.parse.urlparse(resource_type).path
                 match = resolve(path)                            # find a url route
                 restype_pk = match.kwargs.get('pk')              # extract pk
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
