@@ -66,7 +66,7 @@ from rodan.views.interactive import (
 from rodan.views.main import APIRoot
 
 # run-once import, initialize Rodan database
-# import rodan.jobs.load  # noqa
+import rodan.jobs.load  # noqa
 
 # Admin URL pattern.
 # [INFO] - Notice that the Admin URL is specified in the settings.py file,
