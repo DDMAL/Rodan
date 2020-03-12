@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import admin
 from decorator_include import decorator_include
 from djoser import views as djoser_views
+import djoser
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from rodan.admin.helpers import logged_in_or_basicauth
@@ -286,13 +287,13 @@ api_patterns = [
     url(r"^auth/me/", AuthMeView.as_view(), name="auth-me"),
     url(
         r"^auth/register/",
-        djoser_views.RegistrationView.as_view(),
+        djoser_views.UserCreateView.as_view(),
         name="auth-register",
     ),
     url(r"^auth/token/", AuthTokenView.as_view(), name="auth-token"),
     url(
         r"^auth/reset-token/",
-        djoser_views.LogoutView.as_view(),
+        djoser_views.TokenDestroyView.as_view(),
         name="auth-reset-token",
     ),
     url(
