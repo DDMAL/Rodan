@@ -256,8 +256,13 @@ class WorkflowRunList(generics.ListCreateAPIView):
                             ]
                         }
                     })
-                type_of_res = res.resource_type
-                if type_of_res not in types_of_ip:
+
+                if res.resource_type is not None:
+                    type_of_res = res.resource_type
+                else:
+                    type_of_res = res.get_resource_type()
+
+                if type_of_res not in [x for x in types_of_ip]:
                     raise ValidationError({
                         input_port: {
                             index: [
