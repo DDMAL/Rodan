@@ -575,7 +575,7 @@ class RodanTask(Task):
                 inputs[ipt_name].append(
                     map(
                         lambda x: _extract_resource(
-                            x, input.resource_list.resource_type.mimetype
+                            x, input.resource_list.get_resource_type().mimetype
                         ),
                         input.resource_list.resources.all(),
                     )
