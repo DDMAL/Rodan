@@ -116,8 +116,8 @@ class Resource(models.Model):
     processing_status = models.IntegerField(
         choices=STATUS_CHOICES, blank=True, null=True, db_index=True
     )
-    error_summary = models.TextField(default="")
-    error_details = models.TextField(default="")
+    error_summary = models.TextField(default="", blank=True, null=True)
+    error_details = models.TextField(default="", blank=True, null=True)
 
     creator = models.ForeignKey(
         User,
