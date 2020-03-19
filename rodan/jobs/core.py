@@ -37,7 +37,7 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
-from rodan.celery import app
+# from rodan.celery import app
 
 
 class create_resource(Task):
@@ -968,7 +968,7 @@ def send_email(subject, body, to):
     email.send()
 
 
-app.tasks.register(create_resource())
-app.tasks.register(package_results())
-app.tasks.register(expire_package)
-app.tasks.register(create_workflowrun())
+# app.tasks.register(create_resource())
+# app.tasks.register(package_results())
+# app.tasks.register(expire_package)
+# app.tasks.register(create_workflowrun())
