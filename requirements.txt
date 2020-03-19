@@ -1,5 +1,5 @@
 backports.ssl-match-hostname==3.4.0.2
-celery==4.4.2
+celery==3.1.25
 certifi==14.05.14
 django-cors-headers==2.4.0
 django-decorator-include==1.3
