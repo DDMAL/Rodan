@@ -562,13 +562,19 @@ class create_workflowrun(Task):
             temp_dict = {}
             for item in dict_.items():
                 if isinstance(item[1], list):
-                    temp_dict[InputPort.objects.filter(uuid=item[0])] = [
-                        Resource.objects.filter(uuid=x) for x in item[1]
-                    ]
+                    try:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = [
+                            Resource.objects.get(uuid=x) for x in item[1]
+                        ]
+                    except Resource.DoesNotExist:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = [
+                            ResourceList.objects.get(uuid=x) for x in item[1]
+                        ]
                 elif isinstance(item[1], str):
-                    temp_dict[
-                        InputPort.objects.filter(uuid=item[0])[0]
-                    ] = Resource.objects.filter(uuid=item[1][0])
+                    try:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = Resource.objects.get(uuid=item[1])
+                    except Resource.DoesNotExist:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = ResourceList.objects.get(uuid=item[1])
                 else:
                     raise Exception(
                         "Unusual input to convert_string_to_model_dict: {}".format(dict_)
