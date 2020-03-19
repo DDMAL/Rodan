@@ -100,7 +100,6 @@ class create_resource(Task):
             )
 
 
-
 # @task(name="rodan.core.create_thumbnails")
 # def create_thumbnails(resource_id):
 #     resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
@@ -524,7 +523,6 @@ class package_results(Task):
                 return self.id_name_map[identifier]
 
 
-
 class expire_package(Task):
     name = "rodan.core.expire_package"
     queue = "celery"
@@ -535,7 +533,6 @@ class expire_package(Task):
         os.remove(package_path)
         rp_query.update(status=task_status.EXPIRED, celery_task_id=None)
         return True
-
 
 
 class create_workflowrun(Task):
