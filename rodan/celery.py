@@ -5,14 +5,6 @@ import django
 from django.conf import settings
 from celery import Celery
 
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
-django.setup()
-
-app = Celery('rodan')
-app.config_from_object('django.conf:settings')
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-
 from rodan.jobs.core import (
     create_resource,
     create_workflowrun,
@@ -23,6 +15,14 @@ from rodan.jobs.core import (
     send_email,
 )
 from rodan.jobs.master_task import master_task
+
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
+django.setup()
+
+app = Celery('rodan')
+app.config_from_object('django.conf:settings')
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # Core Rodan Tasks
 app.tasks.register(create_resource())

@@ -547,7 +547,6 @@ class create_workflowrun(Task):
         workflow = Workflow.objects.get(uuid=wf_id)
         workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
 
-
         def convert_string_to_model_dict(dict_):
             """
             Passing messages to celery is faster when using JSON, the problem is you are
@@ -555,7 +554,7 @@ class create_workflowrun(Task):
             are searching for the resource again would also slow down things.
 
             [TODO] Refactor so we don't need to query the database so often, and look
-            into the possibility of using YAML (still faster than pickle but has more 
+            into the possibility of using YAML (still faster than pickle but has more
             options than JSON.)
             """
             temp_dict = {}
@@ -565,7 +564,9 @@ class create_workflowrun(Task):
                         Resource.objects.filter(uuid=x) for x in item[1]
                     ]
                 elif isinstance(item[1], str):
-                    temp_dict[InputPort.objects.filter(uuid=item[0])[0]] = Resource.objects.filter(uuid=item[1][0])
+                    temp_dict[
+                        InputPort.objects.filter(uuid=item[0])[0]
+                    ] = Resource.objects.filter(uuid=item[1][0])
                 else:
                     raise Exception("Unusual input to convert_string_to_model_dict: {}".format(dict_))
             return temp_dict
