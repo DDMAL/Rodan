@@ -24,6 +24,7 @@ from rodan.models import (
     Workflow,
     WorkflowRun,
     WorkflowJob,
+    InputPort,
     Input,
     OutputPort,
     Output,
@@ -545,6 +546,31 @@ class create_workflowrun(Task):
     def run(self, wf_id, wfrun_id, resource_assignment_dict):
         workflow = Workflow.objects.get(uuid=wf_id)
         workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
+
+
+        def convert_string_to_model_dict(dict_):
+            """
+            Passing messages to celery is faster when using JSON, the problem is you are
+            limited by types. Pickle objects are insecure and slower, but the fact that we
+            are searching for the resource again would also slow down things.
+
+            [TODO] Refactor so we don't need to query the database so often, and look
+            into the possibility of using YAML (still faster than pickle but has more 
+            options than JSON.)
+            """
+            temp_dict = {}
+            for item in dict_.items():
+                if isinstance(item[1], list):
+                    temp_dict[InputPort.objects.filter(uuid=item[0])] = [
+                        Resource.objects.filter(uuid=x) for x in item[1]
+                    ]
+                elif isinstance(item[1], str):
+                    temp_dict[InputPort.objects.filter(uuid=item[0])[0]] = Resource.objects.filter(uuid=item[1][0])
+                else:
+                    raise Exception("Unusual input to convert_string_to_model_dict: {}".format(dict_))
+            return temp_dict
+
+        resource_assignment_dict = convert_string_to_model_dict(resource_assignment_dict)
 
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
         singleton_workflowjobs = self._singleton_workflow_jobs(

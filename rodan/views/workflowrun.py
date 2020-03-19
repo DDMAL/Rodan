@@ -274,7 +274,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
                         }
                     })
 
-            validated_resource_assignment_dict[ip] = ress
+            validated_resource_assignment_dict[str(ip.uuid)] = [str(x.uuid) for x in ress]
 
         # Still we have unsatisfied input ports
         if unsatisfied_ips:
