@@ -5,7 +5,10 @@ import django
 from django.conf import settings
 from celery import Celery
 
-from rodan.jobs.core import (
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
+django.setup()
+
+from rodan.jobs.core import (  # noqa
     create_resource,
     create_workflowrun,
     cancel_workflowrun,
@@ -14,11 +17,7 @@ from rodan.jobs.core import (
     retry_workflowrun,
     send_email,
 )
-from rodan.jobs.master_task import master_task
-
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
-django.setup()
+from rodan.jobs.master_task import master_task  # noqa
 
 app = Celery('rodan')
 app.config_from_object('django.conf:settings')

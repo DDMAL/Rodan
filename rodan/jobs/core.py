@@ -568,7 +568,9 @@ class create_workflowrun(Task):
                         InputPort.objects.filter(uuid=item[0])[0]
                     ] = Resource.objects.filter(uuid=item[1][0])
                 else:
-                    raise Exception("Unusual input to convert_string_to_model_dict: {}".format(dict_))
+                    raise Exception(
+                        "Unusual input to convert_string_to_model_dict: {}".format(dict_)
+                    )
             return temp_dict
 
         resource_assignment_dict = convert_string_to_model_dict(resource_assignment_dict)
