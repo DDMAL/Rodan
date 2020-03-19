@@ -37,6 +37,7 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
+from rodan.celery import app
 
 
 class create_resource(Task):
@@ -97,6 +98,7 @@ class create_resource(Task):
                 error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
                 error_details=einfo.traceback,
             )
+app.tasks.register(create_resource())
 
 
 # @task(name="rodan.core.create_thumbnails")
@@ -520,7 +522,7 @@ class package_results(Task):
                     return new_name
             else:
                 return self.id_name_map[identifier]
-
+app.tasks.register(package_results())
 
 class expire_package(Task):
     name = "rodan.core.expire_package"
@@ -532,7 +534,7 @@ class expire_package(Task):
         os.remove(package_path)
         rp_query.update(status=task_status.EXPIRED, celery_task_id=None)
         return True
-
+app.tasks.register(expire_package)
 
 class create_workflowrun(Task):
     """
@@ -843,7 +845,7 @@ class create_workflowrun(Task):
                 traversal(initial_wfjob)
 
         return singleton_workflowjobs
-
+app.tasks.register(create_workflowrun())
 
 """
 @task(name="rodan.core.process_workflowrun")
