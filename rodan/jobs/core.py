@@ -98,7 +98,7 @@ class create_resource(Task):
                 error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
                 error_details=einfo.traceback,
             )
-app.tasks.register(create_resource())
+
 
 
 # @task(name="rodan.core.create_thumbnails")
@@ -522,7 +522,8 @@ class package_results(Task):
                     return new_name
             else:
                 return self.id_name_map[identifier]
-app.tasks.register(package_results())
+
+
 
 class expire_package(Task):
     name = "rodan.core.expire_package"
@@ -534,7 +535,8 @@ class expire_package(Task):
         os.remove(package_path)
         rp_query.update(status=task_status.EXPIRED, celery_task_id=None)
         return True
-app.tasks.register(expire_package)
+
+
 
 class create_workflowrun(Task):
     """
@@ -553,11 +555,12 @@ class create_workflowrun(Task):
             """
             Passing messages to celery is faster when using JSON, the problem is you are
             limited by types. Pickle objects are insecure and slower, but the fact that we
-            are searching for the resource again would also slow down things.
+            are searching for the resource again would slow down things.
 
             [TODO] Refactor so we don't need to query the database so often, and look
             into the possibility of using YAML (still faster than pickle but has more
-            options than JSON.)
+            options than JSON. It might be possible to pass a model in yaml and that
+            would make be great.)
             """
             temp_dict = {}
             for item in dict_.items():
@@ -572,9 +575,13 @@ class create_workflowrun(Task):
                         ]
                 elif isinstance(item[1], str):
                     try:
-                        temp_dict[InputPort.objects.get(uuid=item[0])] = Resource.objects.get(uuid=item[1])
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = Resource.objects.get(
+                            uuid=item[1]
+                        )
                     except Resource.DoesNotExist:
-                        temp_dict[InputPort.objects.get(uuid=item[0])] = ResourceList.objects.get(uuid=item[1])
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = ResourceList.objects.get(
+                            uuid=item[1]
+                        )
                 else:
                     raise Exception(
                         "Unusual input to convert_string_to_model_dict: {}".format(dict_)
@@ -851,7 +858,7 @@ class create_workflowrun(Task):
                 traversal(initial_wfjob)
 
         return singleton_workflowjobs
-app.tasks.register(create_workflowrun())
+
 
 """
 @task(name="rodan.core.process_workflowrun")
@@ -962,3 +969,9 @@ def redo_runjob_tree(rj_id):
 def send_email(subject, body, to):
     email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, to)
     email.send()
+
+
+app.tasks.register(create_resource())
+app.tasks.register(package_results())
+app.tasks.register(expire_package)
+app.tasks.register(create_workflowrun())
