@@ -429,7 +429,7 @@ for package_name in settings.RODAN_JOB_PACKAGES:
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.
-    if os.environ["CELERY_JOB_QUEUE"] != "celery":
+    if os.environ["CELERY_JOB_QUEUE"] != "celery" and os.environ["CELERY_JOB_QUEUE"] != "None":
         pass
     elif not UPDATE_JOBS:
         raise ImproperlyConfigured(

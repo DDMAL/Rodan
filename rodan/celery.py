@@ -8,6 +8,11 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
 django.setup()
 
+app = Celery('rodan')
+app.config_from_object('django.conf:settings')
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+
+
 from rodan.jobs.core import (  # noqa
     create_resource,
     create_workflowrun,
@@ -19,9 +24,6 @@ from rodan.jobs.core import (  # noqa
 )
 from rodan.jobs.master_task import master_task  # noqa
 
-app = Celery('rodan')
-app.config_from_object('django.conf:settings')
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # Core Rodan Tasks
 app.tasks.register(create_resource())
