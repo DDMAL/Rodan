@@ -17,5 +17,5 @@ from .celery import app as celery_app
 # Get version: import rodan; rodan.__version__
 # Version numbers also appear in the API.
 __title__ = "Rodan"
-__version__ = "1.1.5"
+__version__ = "1.2.0"
 __copyright__ = "Copyright 2011-2020 Distributed Digital Music Archives & Libraries Lab"
