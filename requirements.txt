@@ -30,7 +30,7 @@ pyparsing==2.0.3
 pypng==0.0.18
 python-dateutil==2.5
 -e git+https://github.com/ahupp/python-magic.git#egg=0e977c98649b4ed4533a7700fbc5fea6895bfe71 # python-magic==0.4.15
-PyYAML==3.13
+PyYAML==5.3.1
 readline==6.2.4.1
 redis==2.10.3
 uWSGI==2.0.15
