@@ -104,3 +104,17 @@ class APIRoot(APIView):
             "version": rodan.__version__,
         }
         return Response(response)
+
+
+class EmptyView(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request, format=None):
+        return Response(
+            {
+                "Warning": "This is not the page you are looking for, it has "
+                    "moved to down to the api/ route. Please adjust your urls"
+                    " accordingly. This url is now reserved for the Rodan-Cli"
+                    "ent"
+            }
+        )
