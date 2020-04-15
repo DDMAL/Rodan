@@ -125,7 +125,7 @@ class ResultsPackageSimpleTest(
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -289,7 +289,7 @@ class ResultsPackageComplexTest(
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
