@@ -648,7 +648,10 @@ class WorkflowViewInvalidateTestCase(
         self.test_workflow.save()
         response = self.client.delete(
             # "/api/workflowjobgroup/{0}/?format=json".format(self.test_workflowjobgroup.pk)
-            reverse("workflowjobgroup-detail", kwargs={"pk": self.test_workflowjobgroup.pk}) + "?format=json",
+            reverse(
+                "workflowjobgroup-detail",
+                kwargs={"pk": self.test_workflowjobgroup.pk}
+            ) + "?format=json",
             # format="json"  # Format is not implemented in delete?
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, "this should pass"
