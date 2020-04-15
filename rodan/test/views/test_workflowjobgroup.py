@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.reverse import reverse
 from rodan.models import (
     WorkflowJob,
     WorkflowJobGroup,
@@ -35,12 +36,8 @@ class WorkflowJobGroupViewTestCase(
     def test_create_and_autoset_workflow(self):
         wfjgroup_obj = {
             "workflow_jobs": [
-                "http://localhost:8000/api/workflowjob/{0}/".format(
-                    self.test_workflowjob1.uuid
-                ),
-                "http://localhost:8000/api/workflowjob/{0}/".format(
-                    self.test_workflowjob1b.uuid
-                ),
+                reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob1.uuid}),
+                reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob1b.uuid}),
             ],
             "name": "test group",
         }
@@ -476,7 +473,8 @@ class WorkflowJobGroupProtectTestCase(
                 self.test_Eop,
             ]:
                 response = self.client.patch(
-                    "/outputport/{0}/".format(op.pk), op_update, format="json"
+                    # "/api/outputport/{0}/".format(op.pk), op_update, format="json"
+                    reverse("outputport-detail", kwargs={"pk":op.pk}), op_update, format="json"
                 )
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertEqual(response.data, anticipated_message)
