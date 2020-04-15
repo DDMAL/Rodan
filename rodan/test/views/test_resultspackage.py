@@ -10,6 +10,7 @@ import socket
 from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.reverse import reverse
 from model_mommy import mommy
 
 from rodan.constants import task_status
@@ -37,7 +38,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #         'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
     #         'packaging_mode': 0
     #     }
-    #     response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+    #     response = self.client.post("/api/resultspackages/", resultspackage_obj, format='json')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(
     #         response.data,
@@ -48,11 +49,11 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #     wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
     #     resultspackage_obj = {
     #         'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
-    #         'output_ports': ['http://localhost:8000/outputport/{0}/'.format(uuid.uuid1())
+    #         'output_ports': ['http://localhost:8000/api/outputport/{0}/'.format(uuid.uuid1())
     #         ],
     #         'packaging_mode': 0
     #     }
-    #     response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+    #     response = self.client.post("/api/resultspackages/", resultspackage_obj, format='json')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(response.data, {
     #         'output_ports': [u'Invalid hyperlink - Object does not exist.']})
@@ -60,12 +61,12 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_post_invalid_status(self):
         wfr = mommy.make("rodan.WorkflowRun", status=task_status.FINISHED)
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(wfr.uuid),
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(wfr.uuid),
             "status": task_status.CANCELLED,
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
@@ -82,7 +83,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         req = {"status": task_status.CANCELLED}
         try:
             response = self.client.patch(
-                "/resultspackage/{0}/".format(wfr.uuid), req, format="json"
+                "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
         except socket.error:  # rabbitmq not running
@@ -92,7 +93,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         wfr = mommy.make("rodan.ResultsPackage", status=task_status.EXPIRED)
         req = {"status": task_status.PROCESSING}
         response = self.client.patch(
-            "/resultspackage/{0}/".format(wfr.uuid), req, format="json"
+            "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {"status": ["Invalid status update"]})
@@ -107,7 +108,7 @@ class ResultsPackageSimpleTest(
         self.setUp_simple_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            "/api/workflow/{0}/".format(self.test_workflow.uuid),
             {"valid": True},
             format="json",
         )
@@ -119,20 +120,20 @@ class ResultsPackageSimpleTest(
             "dummy.txt", ContentFile('{"test": "hahaha"}')
         )
         workflowrun_obj = {
-            "creator": "http://localhost:8000/user/{0}/".format(self.test_user.pk),
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "creator": "http://localhost:8000/api/user/{0}/".format(self.test_user.pk),
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
         dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
 
         self.test_user_input = {"foo": "bar"}
         response = self.client.post(
-            "/interactive/{0}/".format(str(dummy_m_runjob.uuid)), self.test_user_input
+            "/api/interactive/{0}/".format(str(dummy_m_runjob.uuid)), self.test_user_input
         )
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
         # self.assertEqual(self.test_workflowrun.status, task_status.SCHEDULED)
@@ -146,21 +147,21 @@ class ResultsPackageSimpleTest(
 
     def test_all_ports(self):
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
                 self.test_workflowrun.uuid
             ),
             "output_ports": [
-                "http://localhost:8000/outputport/{0}/".format(
+                "http://localhost:8000/api/outputport/{0}/".format(
                     self.output_a.output_port.uuid
                 ),
-                "http://localhost:8000/outputport/{0}/".format(
+                "http://localhost:8000/api/outputport/{0}/".format(
                     self.output_m.output_port.uuid
                 ),
             ],
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data["uuid"]
@@ -178,18 +179,18 @@ class ResultsPackageSimpleTest(
 
     def test_one_port(self):
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
                 self.test_workflowrun.uuid
             ),
             "output_ports": [
-                "http://localhost:8000/outputport/{0}/".format(
+                "http://localhost:8000/api/outputport/{0}/".format(
                     self.output_a.output_port.uuid
                 )
             ],
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data["uuid"]
@@ -211,11 +212,11 @@ class ResultsPackageSimpleTest(
     #             self.test_workflowrun.uuid
     #         ),
     #         'output_ports': [
-    #             'http://localhost:8000/outputport/{0}/'.format(invalid_op.uuid)
+    #             'http://localhost:8000/api/outputport/{0}/'.format(invalid_op.uuid)
     #         ],
     #         'packaging_mode': 0
     #     }
-    #     response = self.client.post("/resultspackages/", resultspackage_obj, format='json')
+    #     response = self.client.post("/api/resultspackages/", resultspackage_obj, format='json')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(
     #         response.data,
@@ -274,7 +275,7 @@ class ResultsPackageComplexTest(
         self.test_Dop.save()
 
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            "/api/workflow/{0}/".format(self.test_workflow.uuid),
             {"valid": True},
             format="json",
         )
@@ -284,12 +285,12 @@ class ResultsPackageComplexTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
             "creator": "http://localhost:8000/user/{0}/".format(self.test_superuser.pk),
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
@@ -311,16 +312,16 @@ class ResultsPackageComplexTest(
 
     def test_one_port(self):
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
                 self.test_workflowrun.uuid
             ),
             "output_ports": [
-                "http://localhost:8000/outputport/{0}/".format(self.test_Fop.uuid)
+                "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
             ],
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         rp_id = response.data["uuid"]
@@ -338,13 +339,13 @@ class ResultsPackageComplexTest(
 
     def test_default_ports(self):
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
                 self.test_workflowrun.uuid
             ),
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # rp_id = response.data['uuid']
@@ -354,17 +355,17 @@ class ResultsPackageComplexTest(
 
     def test_expire(self):
         resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/workflowrun/{0}/".format(
+            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
                 self.test_workflowrun.uuid
             ),
             "output_ports": [
-                "http://localhost:8000/outputport/{0}/".format(self.test_Fop.uuid)
+                "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
             ],
             "expiry_time": datetime.datetime.now() + datetime.timedelta(minutes=1),
             "packaging_mode": 0,
         }
         response = self.client.post(
-            "/resultspackages/", resultspackage_obj, format="json"
+            "/api/resultspackages/", resultspackage_obj, format="json"
         )
         rp_id = response.data["uuid"]
         rp = ResultsPackage.objects.get(uuid=rp_id)

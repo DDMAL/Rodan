@@ -1,8 +1,9 @@
 from django.conf import settings
 from rodan.models import Workflow, InputPort, OutputPort, ResourceType
 
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -25,7 +26,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def _validate(self, workflow_uuid):
         workflow_update = {"valid": True}
         return self.client.patch(
-            "/workflow/{0}/".format(workflow_uuid), workflow_update, format="json"
+            # "/api/workflow/{0}/".format(workflow_uuid), workflow_update, format="json"
+            reverse("workflow-detail", kwargs={"pk": workflow_uuid}), workflow_update, format="json"
         )
 
     def test_view__workflow_notfound(self):
@@ -36,13 +38,15 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_view__posting_valid(self):
         workflow_obj = {
-            "project": "http://localhost:8000/project/{0}/".format(
-                self.test_project.uuid
-            ),
+            # "project": "http://localhost:8000/api/project/{0}/".format(
+            #     self.test_project.uuid
+            # ),
+            "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
             "name": "test workflow",
             "valid": True,
         }
-        response = self.client.post("/workflows/", workflow_obj, format="json")
+        # response = self.client.post("/api/workflows/", workflow_obj, format="json")
+        response = self.client.post(reverse("workflow-list"), workflow_obj, format="json")
         anticipated_message = {
             "valid": [
                 "You can't create a valid workflow - it must be validated through a PATCH request."
@@ -53,14 +57,16 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_view__post(self):
         workflow_obj = {
-            "project": "http://localhost:8000/project/{0}/".format(
-                self.test_project.uuid
-            ),
+            # "project": "http://localhost:8000/api/project/{0}/".format(
+            #     self.test_project.uuid
+            # ),
+            "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
             "name": "test workflow",
-            "creator": "http://localhost:8000/user/{0}/".format(self.test_superuser.pk),
+            # "creator": "http://localhost:8000/api/user/{0}/".format(self.test_superuser.pk),
+            "creator": reverse("user-detail", kwargs={"pk": self.test_superuser.pk}),
             "valid": False,
         }
-        response = self.client.post("/workflows/", workflow_obj, format="json")
+        response = self.client.post("/api/workflows/", workflow_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_view__validation_result_valid(self):
@@ -495,7 +501,7 @@ class WorkflowSerializationTestCase(
 
     def test_export(self):
         response = self.client.get(
-            "/workflow/{0}/?export=yes".format(self.test_workflow.uuid)
+            "/api/workflow/{0}/?export=yes".format(self.test_workflow.uuid)
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         serializer = version_map[settings.RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION]
@@ -508,12 +514,14 @@ class WorkflowSerializationTestCase(
         serializer = version_map[0.1]
         serialized = serializer.dump(self.test_workflow)
         response = self.client.post(
-            "/workflows/",
+            # "/workflows/",
+            reverse("workflow-list"),
             {
                 "serialized": serialized,
-                "project": "http://localhost:8000/project/{0}/".format(
-                    self.test_project.uuid
-                ),
+                # "project": "http://localhost:8000/api/project/{0}/".format(
+                #     self.test_project.uuid
+                # ),
+                "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
             },
             format="json",
         )
@@ -522,12 +530,14 @@ class WorkflowSerializationTestCase(
 
         serialized["workflow_jobs"][0]["job_name"] = "hahahaha"
         response = self.client.post(
-            "/workflows/",
+            # "/workflows/",
+            reverse("workflow-list"),
             {
                 "serialized": serialized,
-                "project": "http://localhost:8000/project/{0}/".format(
-                    self.test_project.uuid
-                ),
+                # "project": "http://localhost:8000/api/project/{0}/".format(
+                #     self.test_project.uuid
+                # ),
+                "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
             },
             format="json",
         )
@@ -563,15 +573,18 @@ class WorkflowViewInvalidateTestCase(
 
     def test_creating_and_reputting_workflowgroup_should_not_invalidate(self):
         response = self.client.post(
-            "/workflowjobgroups/",
+            # "/workflowjobgroups/",
+            reverse("workflowjobgroup-list"),
             {
                 "workflow_jobs": [
-                    "http://localhost:8000/workflowjob/{0}/".format(
-                        self.test_workflowjob.uuid
-                    ),
-                    "http://localhost:8000/workflowjob/{0}/".format(
-                        self.test_workflowjob2.uuid
-                    ),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob.uuid}),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob2.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob2.uuid}),
                 ],
                 "name": "test",
             },
@@ -582,7 +595,8 @@ class WorkflowViewInvalidateTestCase(
         self.assertTrue(self.test_workflow.valid)
 
         response = self.client.put(
-            "/workflowjobgroup/{0}/".format(response.data["uuid"]),
+            # "/api/workflowjobgroup/{0}/".format(response.data["uuid"]),
+            reverse("workflowjobgroup-detail", kwargs={"pk": response.data["uuid"]}),
             response.data,
             format="json",
         )
@@ -601,15 +615,18 @@ class WorkflowViewInvalidateTestCase(
         self.test_workflow.valid = True
         self.test_workflow.save()
         response = self.client.put(
-            "/workflowjobgroup/{0}/".format(self.test_workflowjobgroup.pk),
+            # "/api/workflowjobgroup/{0}/".format(self.test_workflowjobgroup.pk),
+            reverse("workflowjobgroup-detail", kwargs={"pk": self.test_workflowjobgroup.pk}),
             {
                 "workflow_jobs": [
-                    "http://localhost:8000/workflowjob/{0}/".format(
-                        self.test_workflowjob.uuid
-                    ),
-                    "http://localhost:8000/workflowjob/{0}/".format(
-                        self.test_workflowjob2.uuid
-                    ),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob.uuid}),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob2.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob2.uuid}),
                 ],
                 "name": "test",
             },
@@ -630,7 +647,12 @@ class WorkflowViewInvalidateTestCase(
         self.test_workflow.valid = True
         self.test_workflow.save()
         response = self.client.delete(
-            "/workflowjobgroup/{0}/?format=json".format(self.test_workflowjobgroup.pk)
+            # "/api/workflowjobgroup/{0}/?format=json".format(self.test_workflowjobgroup.pk)
+            reverse(
+                "workflowjobgroup-detail",
+                kwargs={"pk": self.test_workflowjobgroup.pk}
+            ) + "?format=json",
+            # format="json"  # Format is not implemented in delete?
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, "this should pass"
         self.test_workflow.refresh_from_db()
@@ -641,12 +663,14 @@ class WorkflowViewInvalidateTestCase(
     ):
         wf2 = mommy.make("rodan.Workflow", project=self.test_workflow.project)
         response = self.client.post(
-            "/workflowjobgroups/",
+            reverse("workflowjobgroup-list"),
             {
-                "workflow": "http://localhost:8000/workflow/{0}/".format(wf2.uuid),
-                "origin": "http://localhost:8000/workflow/{0}/".format(
-                    self.test_workflow.uuid
-                ),
+                # "workflow": "http://localhost:8000/api/workflow/{0}/".format(wf2.uuid),
+                "workflow": reverse("workflow-detail", kwargs={"pk": wf2.uuid}),
+                # "origin": "http://localhost:8000/api/workflow/{0}/".format(
+                #     self.test_workflow.uuid
+                # ),
+                "origin": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
                 "name": "test",
             },
             format="json",
@@ -669,7 +693,10 @@ class WorkflowExternPortsTestCase(
     def _validate(self, workflow_uuid):
         workflow_update = {"valid": True}
         return self.client.patch(
-            "/workflow/{0}/".format(workflow_uuid), workflow_update, format="json"
+            # "/api/workflow/{0}/".format(workflow_uuid), workflow_update, format="json"
+            reverse("workflow-detail", kwargs={"pk": workflow_uuid}),
+            workflow_update,
+            format="json",
         )
 
     def test_simple_workflow(self):

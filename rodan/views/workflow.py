@@ -182,7 +182,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
             )  # convert JSONDict object to Python dict object.
             try:
                 v.validate(wfjob.job_settings)
-            except jsonschema.exceptions.ValidationError as e:
+            except jsonschema.exceptions.ValidationError:
                 raise WorkflowValidationError(
                     "WFJ_INVALID_SETTINGS",
                     "The WorkflowJob {0} has invalid settings.".format(wfjob.job_name),

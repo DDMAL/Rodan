@@ -12,13 +12,13 @@ class InputPortViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpM
 
     def test_post(self):
         op_obj = {
-            "workflow_job": "http://localhost:8000/workflowjob/{0}/".format(
+            "workflow_job": "http://localhost:8000/api/workflowjob/{0}/".format(
                 self.test_workflowjob.uuid
             ),
-            "input_port_type": "http://localhost:8000/inputporttype/{0}/".format(
+            "input_port_type": "http://localhost:8000/api/inputporttype/{0}/".format(
                 self.test_inputporttype.uuid
             ),
         }
 
-        response = self.client.post("/inputports/", op_obj, format="json")
+        response = self.client.post("/api/inputports/", op_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

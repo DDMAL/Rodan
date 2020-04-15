@@ -48,7 +48,7 @@ class PermissionStaticTestCase(
         # Set up Projects
         proj_obj = {"description": "Created Project", "name": "Another Test Project"}
         self.client.force_authenticate(user=self.test_creator)
-        response = self.client.post("/projects/", proj_obj, format="json")
+        response = self.client.post("/api/projects/", proj_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["creator"], self.test_creator.username)
         project_pk = response.data["uuid"]
@@ -1092,19 +1092,17 @@ class PermissionRuntimeTestCase(
         # 2
         self.client.force_authenticate(self.test_worker)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            "/api/workflow/{0}/".format(self.test_workflow.uuid),
             {"valid": True},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
-                self.test_workflow.uuid
-            ),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]  # noqa
 
@@ -1133,7 +1131,7 @@ class PermissionRuntimeTestCase(
             self.client.force_authenticate(user=u)
             rjB.working_user = None
             rjB.save(update_fields=["working_user"])
-            response = self.client.post("/interactive/{0}/acquire/".format(rjB.pk))
+            response = self.client.post("/api/interactive/{0}/acquire/".format(rjB.pk))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             response = self.client.get(response.data["working_url"])
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1154,7 +1152,7 @@ class PermissionRuntimeTestCase(
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 0)
 
-        response = self.client.post("/interactive/{0}/acquire/".format(rjB.pk))
+        response = self.client.post("/api/interactive/{0}/acquire/".format(rjB.pk))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # 7
@@ -1172,7 +1170,7 @@ class PermissionRuntimeTestCase(
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 0)
 
-        response = self.client.post("/interactive/{0}/acquire/".format(rjB.pk))
+        response = self.client.post("/api/interactive/{0}/acquire/".format(rjB.pk))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # 9
@@ -1192,7 +1190,7 @@ class PermissionRuntimeTestCase(
 
         rjB.working_user = None
         rjB.save(update_fields=["working_user"])
-        response = self.client.post("/interactive/{0}/acquire/".format(rjB.pk))
+        response = self.client.post("/api/interactive/{0}/acquire/".format(rjB.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get(response.data["working_url"])
         self.assertEqual(response.status_code, status.HTTP_200_OK)

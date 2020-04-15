@@ -24,23 +24,23 @@ class WorkflowJobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetU
 
     def test_create_default_settings(self):
         wfj_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
-            "job": "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
+            "job": "http://localhost:8000/api/job/{0}/".format(self.test_job.uuid),
         }
-        response = self.client.post("/workflowjobs/", wfj_obj, format="json")
+        response = self.client.post("/api/workflowjobs/", wfj_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["job_settings"], {"a": 6.5})
 
     def test_create_provide_settings(self):
         wfj_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
-            "job": "http://localhost:8000/job/{0}/".format(self.test_job.uuid),
+            "job": "http://localhost:8000/api/job/{0}/".format(self.test_job.uuid),
             "job_settings": {},
         }
-        response = self.client.post("/workflowjobs/", wfj_obj, format="json")
+        response = self.client.post("/api/workflowjobs/", wfj_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["job_settings"], {})
