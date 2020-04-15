@@ -612,8 +612,8 @@ class WorkflowRunSimpleExecutionTest(
         )
 
         response = self.client.post(
-            # "/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
-            reverse("interactive-acquire", kwargs={"pk": str(dummy_m_runjob.uuid)})
+            "/api/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
+            # reverse("interactive-acquire", kwargs={"pk": str(dummy_m_runjob.uuid)})
         )
         assert response.status_code == status.HTTP_200_OK
         user_input = ["any", "thing"]
@@ -992,8 +992,8 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
                 self.assertFalse(r.resource_file)
 
         # Work with RunJob B
-        # response = self.client.post("/api/interactive/{0}/acquire/".format(str(rjB.uuid)))
-        response = self.client.post(reverse("interactive-acquire", kwargs={"pk": str(rjB.uuid)}))
+        response = self.client.post("/api/interactive/{0}/acquire/".format(str(rjB.uuid)))
+        # response = self.client.post(reverse("interactive-acquire", kwargs={"pk": str(rjB.uuid)}))
         assert response.status_code == status.HTTP_200_OK
         response = self.client.post(response.data["working_url"], {"foo": "bar"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
