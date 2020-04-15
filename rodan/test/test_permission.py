@@ -1099,12 +1099,10 @@ class PermissionRuntimeTestCase(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
-                self.test_workflow.uuid
-            ),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "resource_assignments": ra,
         }
-        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]  # noqa
 

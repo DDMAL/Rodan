@@ -109,12 +109,14 @@ class ResourceListViewTestCase(
                 lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
                 self.test_resources + [r2],
             ),
-            "project": "http://localhost:8000/api/project/{0}/".format(
-                self.test_project.uuid
-            ),
+            # "project": "http://localhost:8000/api/project/{0}/".format(
+            #     self.test_project.uuid
+            # ),
+            "project": reverse("project-detail", kwags={"pk": self.test_project.uuid}),
         }
         response = self.client.patch(
-            "/api/resourcelist/{0}/".format(rl_uuid), rl_obj, format="json"
+            # "/api/resourcelist/{0}/".format(rl_uuid), rl_obj, format="json"
+            reverse("resourcelist-detail", kwargs={"pk": rl_uuid}), rl_obj, format="json"
         )
         anticipated_message = {
             "resources": ["All Resources should have the same ResourceType."]
@@ -125,15 +127,20 @@ class ResourceListViewTestCase(
     def test_patch_conflict_project(self):
         rl_obj = {
             "resources": map(
-                lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
+                # lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
+                lambda x: reverse("resource-detail", kwargs={"pk": x.uuid}),
                 self.test_resources,
             ),
             "name": "test resource list",
-            "project": "http://localhost:8000/api/project/{0}/".format(
-                self.test_project.uuid
-            ),
+            # "project": "http://localhost:8000/api/project/{0}/".format(
+            #     self.test_project.uuid
+            # ),
+            "project": reverse("project-detail", kwargs={"pk", self.test_project.uuid})
         }
-        response = self.client.post("/api/resourcelists/", rl_obj, format="json")
+        # response = self.client.post("/api/resourcelists/", rl_obj, format="json")
+        response = self.client.post(
+            reverse("resourcelist-list"), rl_obj, format="json"
+        )
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
         rl_uuid = response.data["uuid"]
 

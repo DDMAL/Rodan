@@ -18,7 +18,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.setUp_simple_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             {"valid": True},
             format="json",
         )
@@ -127,7 +127,7 @@ class WorkflowRunResourceAssignmentTest(
         self.setUp_complex_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             {"valid": True},
             format="json",
         )
@@ -558,7 +558,7 @@ class WorkflowRunSimpleExecutionTest(
         self.setUp_simple_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             {"valid": True},
             format="json",
         )
@@ -787,7 +787,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_complex_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             {"valid": True},
             format="json",
         )
@@ -796,12 +796,11 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_creation(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
-                self.test_workflow.uuid
-            ),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "resource_assignments": ra,
         }
-        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
+        # response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
