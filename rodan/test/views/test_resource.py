@@ -48,14 +48,14 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_post(self):
         resource_obj = {
-            "project": "http://localhost:8000/project/{0}/".format(
+            "project": "http://localhost:8000/api/project/{0}/".format(
                 self.test_project.uuid
             ),
             "files": [
                 SimpleUploadedFile("page1.txt", "n/t"),
                 SimpleUploadedFile("page2.txt", "n/t"),
             ],
-            "type": "http://localhost:8000/resourcetype/{0}/".format(
+            "type": "http://localhost:8000/api/resourcetype/{0}/".format(
                 ResourceType.objects.get(mimetype="application/octet-stream").uuid
             ),
         }
@@ -107,7 +107,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         mommy.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res2)
 
         response = self.client.get(
-            "/resources/?format=json&result_of_workflow_run={0}".format(wfrun1.uuid)
+            "/api/resources/?format=json&result_of_workflow_run={0}".format(wfrun1.uuid)
         )
         res_list = response.data["results"]
         self.assertEqual(len(res_list), 2)
@@ -117,7 +117,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         )
 
         response = self.client.get(
-            "/resources/?format=json&result_of_workflow_run={0}".format(wfrun2.uuid)
+            "/api/resources/?format=json&result_of_workflow_run={0}".format(wfrun2.uuid)
         )
         res_list = response.data["results"]
         self.assertEqual(len(res_list), 1)
@@ -131,12 +131,12 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         res1.origin = output1a
         res1.save()
         mommy.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res1)
-        response1 = self.client.get("/resources/?format=json&uploaded=false")
+        response1 = self.client.get("/api/resources/?format=json&uploaded=false")
         res_list1 = response1.data["results"]
         self.assertEqual(len(res_list1), 1)
         self.assertEqual(res_list1[0]["uuid"], str(res1.uuid))
 
-        response2 = self.client.get("/resources/?format=json&uploaded=true")
+        response2 = self.client.get("/api/resources/?format=json&uploaded=true")
         res_list2 = response2.data["results"]
         self.assertEqual(len(res_list2), 1)
         self.assertEqual(res_list2[0]["uuid"], str(r1.uuid))
@@ -211,7 +211,7 @@ class ResourceProcessingTestCase(
                 "type": "http://localhost:8000/api/resourcetype/{0}/".format(rt.uuid),
             }
             response = self.client.post(
-                "/resources/", resource_obj, format="multipart", resource_type=rt
+                "/api/resources/", resource_obj, format="multipart", resource_type=rt
             )
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.test_resource1 = Resource.objects.get(pk=response.data[0]["uuid"])
@@ -250,7 +250,7 @@ class ResourceProcessingTestCase(
             }
             try:
                 response = self.client.post(
-                    "/api/ßresources/", resource_obj, format="multipart"
+                    "/api/resources/", resource_obj, format="multipart"
                 )
             except IOError:
                 pass

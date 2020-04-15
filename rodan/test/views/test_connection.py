@@ -19,7 +19,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.test_outputport = self.test_workflowjob.output_ports.all()[0]
 
     def test_get_list(self):
-        response = self.client.get("/connections/")
+        response = self.client.get("/api/connections/")
         response_connections = []
         for conn in response.data["results"]:
             response_connections.append(Connection.objects.get(uuid=conn["uuid"]))

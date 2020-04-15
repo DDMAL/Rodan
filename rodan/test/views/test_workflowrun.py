@@ -25,23 +25,23 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_list(self):
-        response = self.client.get("/workflowruns/")
+        response = self.client.get("/api/workflowruns/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_no_workflow_ID(self):
         workflowrun_obj = {}
 
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {"workflow": ["This field is required."]}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_no_existing_workflow(self):
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(uuid.uuid1())
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(uuid.uuid1())
         }
 
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "workflow": ["Invalid hyperlink - Object does not exist."]
         }
@@ -55,38 +55,38 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
             "status": ["Can only create a WorkflowRun that requests processing."]
         }
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "status": task_status.CANCELLED,
         }
 
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         workflowrun_obj["status"] = task_status.FINISHED
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         workflowrun_obj["status"] = task_status.FAILED
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         workflowrun_obj["status"] = task_status.PROCESSING
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         workflowrun_obj["status"] = task_status.REQUEST_CANCELLING
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         workflowrun_obj["status"] = task_status.REQUEST_RETRYING
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -94,14 +94,14 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_workflow.valid = False
         self.test_workflow.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "status": task_status.REQUEST_PROCESSING
-            # 'workflow': 'http://localhost:8000/workflow/{0}/'.format(self.test_workflow.uuid)
+            # 'workflow': 'http://localhost:8000/api/workflow/{0}/'.format(self.test_workflow.uuid)
         }
 
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "workflow": ["Workflow must be valid before you can run it."]
         }
@@ -136,12 +136,12 @@ class WorkflowRunResourceAssignmentTest(
     def test_valid_assignment(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_valid_assignment__with_list_of_resource_lists(self):
@@ -171,33 +171,33 @@ class WorkflowRunResourceAssignmentTest(
         ra[self.url(self.test_Dip3)] = map(self.url, resource_lists)
 
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_no_resource_assignments(self):
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             )
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {"resource_assignments": ["This field is required"]}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_not_json_object(self):
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": [],  # not a JSON object
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": ["This field must be a JSON object"]
         }
@@ -208,12 +208,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra[self.url(self.test_Eip1)] = [self.url(self.test_resource)]
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 self.url(self.test_Eip1): ["Assigned InputPort must be unsatisfied"]
@@ -226,12 +226,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra["invalid url"] = [self.url(self.test_resource)]
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 "invalid url": [u"Invalid hyperlink - No URL match."]
@@ -244,12 +244,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         del ra[self.url(self.test_Aip)]
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": [
                 "There are still unsatisfied InputPorts: {0}".format(
@@ -264,12 +264,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra[self.url(self.test_Aip)] = self.url(self.test_resource)
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 self.url(self.test_Aip): [
@@ -284,12 +284,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra[self.url(self.test_Aip)] = []
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 self.url(self.test_Aip): [
@@ -316,24 +316,24 @@ class WorkflowRunResourceAssignmentTest(
         ra[self.url(self.test_Fip1)] = list(map(self.url, another_resource_collection))
 
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_multiple_resource_collections_different_lengths(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra[self.url(self.test_Fip1)] = ra[self.url(self.test_Fip1)][:-1]
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message1 = {
             "resource_assignments": {
                 self.url(self.test_Fip1): [
@@ -363,12 +363,12 @@ class WorkflowRunResourceAssignmentTest(
         res.project = mommy.make("rodan.Project")
         res.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message1 = {
             "resource_assignments": {
                 self.url(self.test_Fip1): {
@@ -392,12 +392,12 @@ class WorkflowRunResourceAssignmentTest(
         res.resource_type = ResourceType.objects.get(mimetype="test/b")
         res.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # The expected structure of error response is:
@@ -432,7 +432,7 @@ class WorkflowRunResourceAssignmentTest(
         ra[self.url(self.test_Dip1)].append(self.url(self.test_resourcelist))
         ra[self.url(self.test_Fip1)].append(self.url(self.test_resourcelist))
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
@@ -468,12 +468,12 @@ class WorkflowRunResourceAssignmentTest(
         ra = self.setUp_resources_for_complex_dummy_workflow()
         ra[self.url(self.test_Dip3)] = map(self.url, self.test_resourcecollection)
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 self.url(self.test_Dip3): {
@@ -491,12 +491,12 @@ class WorkflowRunResourceAssignmentTest(
         self.test_resourcelist.project = mommy.make("rodan.Project")
         self.test_resourcelist.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         anticipated_message = {
             "resource_assignments": {
                 self.url(self.test_Dip3): {
@@ -513,12 +513,12 @@ class WorkflowRunResourceAssignmentTest(
             res.resource_type = ResourceType.objects.get(mimetype="test/b")
             res.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -567,12 +567,12 @@ class WorkflowRunSimpleExecutionTest(
     def test_successful_execution(self):
         ra = self.setUp_resources_for_simple_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
         wfrun = WorkflowRun.objects.get(uuid=wfrun_id)
@@ -628,7 +628,7 @@ class WorkflowRunSimpleExecutionTest(
             self.test_resource.resource_file.save("dummy.txt", ContentFile("will fail"))
 
             workflowrun_obj = {
-                "workflow": "http://localhost:8000/workflow/{0}/".format(
+                "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                     self.test_workflow.uuid
                 ),
                 "resource_assignments": ra,
@@ -662,12 +662,12 @@ class WorkflowRunSimpleExecutionTest(
         self.test_resource.resource_file.save("dummy.txt", ContentFile("dummy text"))
 
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
@@ -707,12 +707,12 @@ class WorkflowRunSimpleExecutionTest(
             self.test_resource.resource_file.save("dummy.txt", ContentFile("dummy text"))
 
             workflowrun_obj = {
-                "workflow": "http://localhost:8000/workflow/{0}/".format(
+                "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                     self.test_workflow.uuid
                 ),
                 "resource_assignments": ra,
             }
-            response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+            response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             wfrun_uuid = response.data["uuid"]
 
@@ -768,13 +768,13 @@ class WorkflowRunSimpleExecutionTest(
     def test_post_cancelled(self):
         ra = self.setUp_resources_for_simple_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "status": task_status.CANCELLED,
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -796,12 +796,12 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_creation(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
@@ -910,12 +910,12 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     def test_execution(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]
 
@@ -973,7 +973,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
                 self.assertFalse(r.resource_file)
 
         # Work with RunJob B
-        response = self.client.post("/interactive/{0}/acquire/".format(str(rjB.uuid)))
+        response = self.client.post("/api/interactive/{0}/acquire/".format(str(rjB.uuid)))
         assert response.status_code == status.HTTP_200_OK
         response = self.client.post(response.data["working_url"], {"foo": "bar"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1028,7 +1028,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
         # Work with one of RunJob D
         response = self.client.post(
-            "/interactive/{0}/acquire/".format(str(rjDs[0].uuid))
+            "/api/interactive/{0}/acquire/".format(str(rjDs[0].uuid))
         )
         assert response.status_code == status.HTTP_200_OK
         response = self.client.post(response.data["working_url"], {"foo": "bar"})
@@ -1106,7 +1106,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         # Work with all Runjob Ds
         for rjDi in rjDremain:
             response = self.client.post(
-                "/interactive/{0}/acquire/".format(str(rjDi.uuid))
+                "/api/interactive/{0}/acquire/".format(str(rjDi.uuid))
             )
             assert response.status_code == status.HTTP_200_OK
             response = self.client.post(response.data["working_url"], {"foo": "bar"})
@@ -1169,7 +1169,7 @@ class WorkflowRunMultipleResourceCollectionsTest(
         self.setUp_funnel_dummy_workflow()
         self.client.force_authenticate(user=self.test_superuser)
         response = self.client.patch(
-            "/workflow/{0}/".format(self.test_workflow.uuid),
+            "/api/workflow/{0}/".format(self.test_workflow.uuid),
             {"valid": True},
             format="json",
         )
@@ -1219,12 +1219,12 @@ class WorkflowRunMultipleResourceCollectionsTest(
     def test_creation(self):
         ra = self.setUp_multiple_resource_collections()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/workflow/{0}/".format(
+            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
                 self.test_workflow.uuid
             ),
             "resource_assignments": ra,
         }
-        response = self.client.post("/workflowruns/", workflowrun_obj, format="json")
+        response = self.client.post("/api/workflowruns/", workflowrun_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         wfrun_id = response.data["uuid"]  # noqa
 
