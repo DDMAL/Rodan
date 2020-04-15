@@ -137,16 +137,17 @@ class ResourceListViewTestCase(
 
     def test_patch_conflict_project(self):
         rl_obj = {
-            "resources": map(
-                # lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
-                lambda x: reverse("resource-detail", kwargs={"pk": x.uuid}),
-                self.test_resources,
-            ),
+            # "resources": map(
+            #     lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid), self.test_resources,
+            # ),
+            "resources": [
+                reverse("resource-detail", kwargs={"pk": x.uuid}) for x in self.test_resources
+            ],
             "name": "test resource list",
             # "project": "http://localhost:8000/api/project/{0}/".format(
             #     self.test_project.uuid
             # ),
-            "project": reverse("project-detail", kwargs={"pk", self.test_project.uuid})
+            "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
         }
         # response = self.client.post("/api/resourcelists/", rl_obj, format="json")
         response = self.client.post(

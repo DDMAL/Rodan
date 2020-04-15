@@ -448,7 +448,8 @@ class WorkflowRunResourceAssignmentTest(
             "resource_assignments": ra,
         }
         response = self.client.post(
-            "/workflowruns/?format=json", workflowrun_obj, format="json"
+            # "/workflowruns/?format=json", workflowrun_obj, format="json"
+            reverse("workflowrun-list"), workflowrun_obj, format="json"
         )
 
         # raise Exception(response)
@@ -697,8 +698,8 @@ class WorkflowRunSimpleExecutionTest(
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
 
         response = self.client.post(
-            # "/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
-            reverse("interactive-acquire", kwargs={"pk": str(dummy_m_runjob.uuid)})
+            "/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
+            # reverse("interactive-acquire", kwargs={"pk": str(dummy_m_runjob.uuid)})
         )
         assert response.status_code == status.HTTP_200_OK
         user_input = {"fail": "hahaha"}
