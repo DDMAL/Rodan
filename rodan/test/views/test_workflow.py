@@ -563,15 +563,18 @@ class WorkflowViewInvalidateTestCase(
 
     def test_creating_and_reputting_workflowgroup_should_not_invalidate(self):
         response = self.client.post(
-            "/workflowjobgroups/",
+            # "/workflowjobgroups/",
+            reverse("workflowjobgroup-list"),
             {
                 "workflow_jobs": [
-                    "http://localhost:8000/api/workflowjob/{0}/".format(
-                        self.test_workflowjob.uuid
-                    ),
-                    "http://localhost:8000/api/workflowjob/{0}/".format(
-                        self.test_workflowjob2.uuid
-                    ),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob.uuid}),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob2.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob2.uuid}),
                 ],
                 "name": "test",
             },
@@ -582,7 +585,8 @@ class WorkflowViewInvalidateTestCase(
         self.assertTrue(self.test_workflow.valid)
 
         response = self.client.put(
-            "/api/workflowjobgroup/{0}/".format(response.data["uuid"]),
+            # "/api/workflowjobgroup/{0}/".format(response.data["uuid"]),
+            reverse("workflowjobgroup-detail", kwargs={"pk": response.data["uuid"]}),
             response.data,
             format="json",
         )
@@ -601,15 +605,18 @@ class WorkflowViewInvalidateTestCase(
         self.test_workflow.valid = True
         self.test_workflow.save()
         response = self.client.put(
-            "/api/workflowjobgroup/{0}/".format(self.test_workflowjobgroup.pk),
+            # "/api/workflowjobgroup/{0}/".format(self.test_workflowjobgroup.pk),
+            reverse("workflowjobgroup-detail", kwargs={"pk": self.test_workflowjobgroup.pk}),
             {
                 "workflow_jobs": [
-                    "http://localhost:8000/api/workflowjob/{0}/".format(
-                        self.test_workflowjob.uuid
-                    ),
-                    "http://localhost:8000/api/workflowjob/{0}/".format(
-                        self.test_workflowjob2.uuid
-                    ),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob.uuid}),
+                    # "http://localhost:8000/api/workflowjob/{0}/".format(
+                    #     self.test_workflowjob2.uuid
+                    # ),
+                    reverse("workflowjob-detail", kwargs={"pk": self.test_workflowjob2.uuid}),
                 ],
                 "name": "test",
             },
@@ -630,7 +637,9 @@ class WorkflowViewInvalidateTestCase(
         self.test_workflow.valid = True
         self.test_workflow.save()
         response = self.client.delete(
-            "/api/workflowjobgroup/{0}/?format=json".format(self.test_workflowjobgroup.pk)
+            # "/api/workflowjobgroup/{0}/?format=json".format(self.test_workflowjobgroup.pk)
+            reverse("workflorjobgroup-detail", kwargs={"pk": self.test_workflowjobgroup.pk}),
+            format="json",
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, "this should pass"
         self.test_workflow.refresh_from_db()
@@ -641,12 +650,14 @@ class WorkflowViewInvalidateTestCase(
     ):
         wf2 = mommy.make("rodan.Workflow", project=self.test_workflow.project)
         response = self.client.post(
-            "/workflowjobgroups/",
+            reverse("workflowjobgroup-list"),
             {
-                "workflow": "http://localhost:8000/api/workflow/{0}/".format(wf2.uuid),
-                "origin": "http://localhost:8000/api/workflow/{0}/".format(
-                    self.test_workflow.uuid
-                ),
+                # "workflow": "http://localhost:8000/api/workflow/{0}/".format(wf2.uuid),
+                "workflow": reverse("workflow-detail", kwargs={"pk": wf2.uuid}),
+                # "origin": "http://localhost:8000/api/workflow/{0}/".format(
+                #     self.test_workflow.uuid
+                # ),
+                "origin": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
                 "name": "test",
             },
             format="json",
