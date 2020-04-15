@@ -12,7 +12,7 @@ from django.conf import settings
 class RodanTestSetUpMixin(object):
     def url(self, obj):
         model_name = obj.__class__.__name__.lower()
-        return "http://testserver/{0}/{1}/".format(model_name, obj.pk)
+        return "http://testserver/api/{0}/{1}/".format(model_name, obj.pk)
 
     def setUp_rodan(self):
         # ResourceTypes
