@@ -123,7 +123,7 @@ class ResourceListViewTestCase(
             # "project": "http://localhost:8000/api/project/{0}/".format(
             #     self.test_project.uuid
             # ),
-            "project": reverse("project-detail", kwags={"pk": self.test_project.uuid}),
+            "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
         }
         response = self.client.patch(
             # "/api/resourcelist/{0}/".format(rl_uuid), rl_obj, format="json"
@@ -162,7 +162,7 @@ class ResourceListViewTestCase(
         rl_obj = {
             "resources": map(
                 # lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
-                lambda x: reverse("resource-detail", kwags={"pk": x.uuid}),
+                lambda x: reverse("resource-detail", kwargs={"pk": x.uuid}),
                 self.test_resources + [r2],
             ),
             # "project": "http://localhost:8000/api/project/{0}/".format(p2.uuid),
