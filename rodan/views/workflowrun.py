@@ -170,7 +170,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
             for index, r in enumerate(resources):
                 try:
                     ress.append(h_res.to_internal_value(r))  # a Resource
-                except ValidationError as e:
+                except ValidationError as e:  # noqa
                     try:
                         ress.append(h_resl.to_internal_value(r))  # a ResourceList
                     except ValidationError as e:
