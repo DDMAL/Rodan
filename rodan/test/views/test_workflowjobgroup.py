@@ -474,7 +474,7 @@ class WorkflowJobGroupProtectTestCase(
             ]:
                 response = self.client.patch(
                     # "/api/outputport/{0}/".format(op.pk), op_update, format="json"
-                    reverse("outputport-detail", kwargs={"pk":op.pk}), op_update, format="json"
+                    reverse("outputport-detail", kwargs={"pk": op.pk}), op_update, format="json"
                 )
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertEqual(response.data, anticipated_message)

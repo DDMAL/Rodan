@@ -746,7 +746,9 @@ class WorkflowRunSimpleExecutionTest(
             workflowrun_update = {"status": task_status.PROCESSING}
             response = self.client.patch(
                 # "/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format="json"
-                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}), workflowrun_update, format="json"
+                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}),
+                workflowrun_update,
+                format="json"
             )
             anticipated_message = {"status": ["Invalid status update"]}
             self.assertEqual(anticipated_message, response.data)
@@ -758,7 +760,9 @@ class WorkflowRunSimpleExecutionTest(
             workflowrun_update = {"status": task_status.REQUEST_RETRYING}
             response = self.client.patch(
                 # "/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format="json"
-                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}), workflowrun_update, format="json"
+                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}),
+                workflowrun_update,
+                format="json"
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -771,11 +775,15 @@ class WorkflowRunSimpleExecutionTest(
                 # "last_redone_runjob_tree": "http://localhost:8000/runjob/{0}/".format(
                 #     dummy_m_runjob.uuid
                 # )
-                "last_redone_runjob_tree": reverse("runjob-detail", kwargs={"pk": dummy_m_runjob.uuid})
+                "last_redone_runjob_tree": reverse(
+                    "runjob-detail", kwargs={"pk": dummy_m_runjob.uuid}
+                )
             }
             response = self.client.patch(
                 # "/workflowrun/{0}/".format(wfrun_uuid), workflowrun_update, format="json"
-                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}), workflowrun_update, format="json"
+                reverse("workflowrun-detail", kwargs={"pk": wfrun_uuid}),
+                workflowrun_update,
+                format="json"
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             dummy_m_runjob = self.dummy_m_wfjob.run_jobs.first()
@@ -790,7 +798,9 @@ class WorkflowRunSimpleExecutionTest(
             # "workflow": "http://localhost:8000/api/workflow/{0}/".format(
             #     self.test_workflow.uuid
             # ),
-            "workflow": reverse("workflowrun-detail", kwargs={"pk": self.test_workflow.uuid}),
+            "workflow": reverse(
+                "workflowrun-detail", kwargs={"pk": self.test_workflow.uuid}
+            ),
             "status": task_status.CANCELLED,
             "resource_assignments": ra,
         }
@@ -921,7 +931,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             Fo_names_set.add(output.resource_list.name)
         self.assertEqual(rc_names_set, Fo_names_set)
 
-    #        self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
+        # self.assertEqual(WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.SCHEDULED)
         self.assertEqual(
             WorkflowRun.objects.get(uuid=wfrun_id).status, task_status.PROCESSING
         )
@@ -932,7 +942,7 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
             # "workflow": "http://localhost:8000/api/workflow/{0}/".format(
             #     self.test_workflow.uuid
             # ),
-            "workflow": reverse("workflow-detail", kwargs={"pk":self.test_workflow.uuid}),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "resource_assignments": ra,
         }
         response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
@@ -993,7 +1003,9 @@ class WorkflowRunComplexTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
                 self.assertFalse(r.resource_file)
 
         # Work with RunJob B
-        response = self.client.post("/api/interactive/{0}/acquire/".format(str(rjB.uuid)))
+        response = self.client.post(
+            "/api/interactive/{0}/acquire/".format(str(rjB.uuid))
+        )
         # response = self.client.post(reverse("interactive-acquire", kwargs={"pk": str(rjB.uuid)}))
         assert response.status_code == status.HTTP_200_OK
         response = self.client.post(response.data["working_url"], {"foo": "bar"})

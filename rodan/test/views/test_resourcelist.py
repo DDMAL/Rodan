@@ -138,7 +138,8 @@ class ResourceListViewTestCase(
     def test_patch_conflict_project(self):
         rl_obj = {
             # "resources": map(
-            #     lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid), self.test_resources,
+            #     lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
+            #     self.test_resources,
             # ),
             "resources": [
                 reverse("resource-detail", kwargs={"pk": x.uuid}) for x in self.test_resources
