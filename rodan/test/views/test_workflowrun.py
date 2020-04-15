@@ -64,7 +64,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
             # "workflow": "http://localhost:8000/api/workflow/{0}/".format(
             #     self.test_workflow.uuid
             # ),
-            "workflow": reverse("workflow-detail", self.test_workflow.uuid),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "status": task_status.CANCELLED,
         }
 
@@ -101,11 +101,11 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
         self.test_workflow.valid = False
         self.test_workflow.save()
         workflowrun_obj = {
-            "workflow": "http://localhost:8000/api/workflow/{0}/".format(
-                self.test_workflow.uuid
-            ),
+            # "workflow": "http://localhost:8000/api/workflow/{0}/".format(
+            #     self.test_workflow.uuid
+            # ),
+            "workflow": reverse("workflow-detail", kwargs={"pk": self.test_workflow.uuid}),
             "status": task_status.REQUEST_PROCESSING
-            # 'workflow': 'http://localhost:8000/api/workflow/{0}/'.format(self.test_workflow.uuid)
         }
 
         response = self.client.post(reverse("workflowrun-list"), workflowrun_obj, format="json")
@@ -118,7 +118,10 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
     def test_patch_not_found(self):
         workflowrun_update = {"status": task_status.CANCELLED}
         response = self.client.patch(
-            "/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format="json"
+            # "/workflowrun/{0}/".format(uuid.uuid1()), workflowrun_update, format="json"
+            reverse("workflowrun-detail", kwargs={"pk": uuid.uuid1()}),
+            workflowrun_update,
+            format="json"
         )
         anticipated_message = {"detail": "Not found."}
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -643,7 +646,8 @@ class WorkflowRunSimpleExecutionTest(
             }
 
             response = self.client.post(
-                "/workflowruns/", workflowrun_obj, format="json"
+                # "/workflowruns/", workflowrun_obj, format="json"
+                reverse("workflowrun-list"), workflowrun_obj, format="json"
             )
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             wfrun_id = response.data["uuid"]

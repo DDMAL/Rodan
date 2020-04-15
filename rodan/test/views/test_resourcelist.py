@@ -216,9 +216,7 @@ class ResourceListViewTestCase(
             ),
             "name": "test resource list",
             # "project": "http://localhost:8000/api/project/{0}/".format(
-            "project": reverse("project-detail", kwargs={"pk": })
-                self.test_project.uuid
-            ),
+            "project": reverse("project-detail", kwargs={"pk": self.test_project.uuid}),
         }
         response = self.client.post("/api/resourcelists/", rl_obj, format="json")
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"

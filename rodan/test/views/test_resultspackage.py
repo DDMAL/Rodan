@@ -10,6 +10,7 @@ import socket
 from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.reverse import reverse
 from model_mommy import mommy
 
 from rodan.constants import task_status
