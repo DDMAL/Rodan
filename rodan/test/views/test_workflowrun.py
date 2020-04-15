@@ -698,7 +698,7 @@ class WorkflowRunSimpleExecutionTest(
         self.assertEqual(dummy_m_runjob.status, task_status.WAITING_FOR_INPUT)
 
         response = self.client.post(
-            "/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
+            "/api/interactive/{0}/acquire/".format(str(dummy_m_runjob.uuid))
             # reverse("interactive-acquire", kwargs={"pk": str(dummy_m_runjob.uuid)})
         )
         assert response.status_code == status.HTTP_200_OK
