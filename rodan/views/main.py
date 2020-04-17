@@ -61,6 +61,7 @@ class APIRoot(APIView):
                 ),
                 "inputports": reverse("inputport-list", request=request, format=format),
                 "resources": reverse("resource-list", request=request, format=format),
+                "labels": reverse("resourcelabel-list", request=request, format=format),
                 "resourcelists": reverse(
                     "resourcelist-list", request=request, format=format
                 ),

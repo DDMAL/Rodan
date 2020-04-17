@@ -33,11 +33,13 @@ from rest_framework.views import APIView
 from rodan.constants import task_status
 from rodan.models import (
     Resource,
+    ResourceLabel,
     ResourceType,
     Tempauthtoken,
 )
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
+from rodan.serializers.resourcelabel import ResourceLabelSerializer
 from rodan.permissions import CustomObjectPermissions
 from rodan.exceptions import CustomAPIException
 
@@ -156,7 +158,38 @@ class ResourceList(generics.ListCreateAPIView):
             except (Resolver404, ResourceType.DoesNotExist) as e:
                 print(str(e))
 
+        submitted_label_names = request.data.get('label_names', None)
+        label_urls = []
+        if submitted_label_names:
+            label_names = submitted_label_names.split(',')
+            for name in label_names:
+                try:
+                    resource_label = ResourceLabel.objects.get(name=name)
+                    label_urls.append(
+                        ResourceLabelSerializer(
+                            resource_label,
+                            context={'request': request}
+                        ).data['url']
+                    )
+                except Exception as e:
+                    print(str(e))
+                    resource_label = ResourceLabel(name=name)
+                    resource_label.save()
+                    #label_uuids.append(str(resource_label.uuid))
+                    label_urls.append(
+                        ResourceLabelSerializer(
+                            ResourceLabel.objects.get(pk=resource_label.uuid),
+                            context={'request': request}
+                        ).data['url']
+                    )
+
+        #provided_urls = request.data.get('label_urls', None)
+        #if provided_urls:
+        #    label_urls.extend(provided_urls.split(','))
+
+
         initial_data = {
+            'labels': label_urls,
             'resource_type': ResourceTypeSerializer(
                 ResourceType.objects.get(mimetype='application/octet-stream'),
                 context={'request': request}).data['url'],

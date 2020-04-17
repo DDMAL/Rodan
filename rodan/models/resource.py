@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rodan.constants import task_status
+from rodan.models.resourcelabel import ResourceLabel
 
 import logging
 
@@ -138,6 +139,8 @@ class Resource(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+
+    labels = models.ManyToManyField(ResourceLabel, blank=True)
 
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
