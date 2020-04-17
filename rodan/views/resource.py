@@ -245,6 +245,28 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
             if claimed_mimetype.startswith('image'):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 
+        resource_label_names = request.data.get('label_names', None)
+        if resource_label_names:
+            label_objs = []
+            label_names = resource_label_names.split(',')
+            for name in label_names:
+                try:
+                    resource_label = ResourceLabel.objects.get(name=name)
+                    label_objs.append(resource_label)
+                except ResourceLabel.DoesNotExist:
+                    resource_label = ResourceLabel(name=name)
+                    resource_label.save()
+                    label_objs.append(resource_label)
+
+            # Update labels in many-to-many field
+            current_labels = resource.labels.all()
+            labels_to_add = [label for label in label_objs if label not in current_labels]
+            labels_to_remove = [label for label in current_labels if label not in label_objs]
+            for label in labels_to_add:
+                resource.labels.add(label)
+            for label in labels_to_remove:
+                resource.labels.remove(label)
+
         return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
