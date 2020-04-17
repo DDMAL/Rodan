@@ -79,6 +79,8 @@ class ResourceList(generics.ListCreateAPIView):
 
         resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
 
+        labels = django_filters.ModelMultipleChoiceFilter(field_name="labels", queryset=ResourceLabel.objects.all())
+
         def filter_resource_type__in(self, qs, name, value):
             value = value.split(",")
             return qs.filter(**{name: value})
@@ -96,7 +98,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "created": ['lt', 'gt'],
                 "project": ['exact'],
                 "resource_type": ['exact'],
-                "name": ['exact', 'icontains']
+                "name": ['exact', 'icontains'],
             }
 
     def get_queryset(self):
@@ -266,6 +268,8 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 resource.labels.add(label)
             for label in labels_to_remove:
                 resource.labels.remove(label)
+                if label.resource_set.count() == 0:
+                    label.delete()
 
         return self.partial_update(request, *args, **kwargs)
 
