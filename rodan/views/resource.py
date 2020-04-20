@@ -185,10 +185,6 @@ class ResourceList(generics.ListCreateAPIView):
                         ).data['url']
                     )
 
-        #provided_urls = request.data.get('label_urls', None)
-        #if provided_urls:
-        #    label_urls.extend(provided_urls.split(','))
-
 
         initial_data = {
             'labels': label_urls,
