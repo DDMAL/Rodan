@@ -9,7 +9,7 @@ from rest_framework import status
 
 from rodan.constants import task_status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from rodan.models import Resource, ResourceType
+from rodan.models import Resource, ResourceLabel, ResourceType
 
 
 class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
@@ -58,6 +58,7 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             "type": "http://localhost:8000/api/resourcetype/{0}/".format(
                 ResourceType.objects.get(mimetype="application/octet-stream").uuid
             ),
+            "label_names": "first label,second label",
         }
         response = self.client.post("/api/resources/", resource_obj, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -65,6 +66,12 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.test_resource1 = Resource.objects.get(pk=response.data[0]["uuid"])
         self.test_resource2 = Resource.objects.get(pk=response.data[1]["uuid"])
         self.assertNotEqual(self.test_resource1.resource_file.path, "")
+
+        # Check if labels were created
+        self.assertEqual(ResourceLabel.objects.filter(name="first label").count(), 1)
+        self.assertEqual(ResourceLabel.objects.filter(name="second label").count(), 1)
+        # Check if labels were applied to resources
+        self.assertEqual(self.test_resource1.labels.count(), 2)
 
         # Since writing resourcetype identification, it will correctly identify the test file
         # as a plain text file with mimetype "text/plain". They will not be identified as
