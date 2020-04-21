@@ -173,8 +173,7 @@ class ResourceList(generics.ListCreateAPIView):
                             context={'request': request}
                         ).data['url']
                     )
-                except Exception as e:
-                    print(str(e))
+                except ResourceLabel.DoesNotExist as e:
                     resource_label = ResourceLabel(name=name)
                     resource_label.save()
                     #label_uuids.append(str(resource_label.uuid))
