@@ -162,7 +162,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         submitted_label_names = request.data.get('label_names', None)
         label_urls = []
-        if submitted_label_names:
+        if submitted_label_names is not None:
             label_names = submitted_label_names.split(',')
             for name in label_names:
                 try:
@@ -243,7 +243,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
 
         resource_label_names = request.data.get('label_names', None)
-        if resource_label_names:
+        if resource_label_names is not None:
             label_objs = []
             label_names = resource_label_names.split(',')
             for name in label_names:
