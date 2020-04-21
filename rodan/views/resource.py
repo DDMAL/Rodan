@@ -79,7 +79,10 @@ class ResourceList(generics.ListCreateAPIView):
 
         resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
 
-        labels = django_filters.ModelMultipleChoiceFilter(field_name="labels", queryset=ResourceLabel.objects.all())
+        labels = django_filters.ModelMultipleChoiceFilter(
+            field_name="labels",
+            queryset=ResourceLabel.objects.all()
+        )
 
         def filter_resource_type__in(self, qs, name, value):
             value = value.split(",")
@@ -176,14 +179,12 @@ class ResourceList(generics.ListCreateAPIView):
                 except ResourceLabel.DoesNotExist as e:
                     resource_label = ResourceLabel(name=name)
                     resource_label.save()
-                    #label_uuids.append(str(resource_label.uuid))
                     label_urls.append(
                         ResourceLabelSerializer(
                             ResourceLabel.objects.get(pk=resource_label.uuid),
                             context={'request': request}
                         ).data['url']
                     )
-
 
         initial_data = {
             'labels': label_urls,
