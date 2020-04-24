@@ -14,7 +14,7 @@ class ResourceLabel(models.Model):
     - `uuid` -- unique identifier as a primary key.
     - `creator` -- a reference to the `User`.
     """
-    name = models.CharField(max_length=36)
+    name = models.CharField(max_length=36, unique=True)
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     # creator = models.ForeignKey(
     #     User,
