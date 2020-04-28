@@ -81,6 +81,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         labels = django_filters.ModelMultipleChoiceFilter(
             field_name="labels",
+            conjoined=True,
             queryset=ResourceLabel.objects.all()
         )
 
