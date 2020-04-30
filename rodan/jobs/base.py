@@ -17,6 +17,7 @@ from celery import Task, registry
 from celery.app.task import TaskType
 from django.conf import settings as rodan_settings
 from django.core.files import File
+from django.db import transaction
 from django.template import Template
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -964,8 +965,10 @@ class RodanTask(Task):
 
                 snapshot_info += "\n"
 
-                runjob.workflow_run.description += snapshot_info
-                runjob.workflow_run.save(update_fields=["description"])
+                with transaction.atomic():
+                    atomic_wfrun = WorkflowRun.objects.select_for_update().get(uuid=runjob.workflow_run.uuid)
+                    atomic_wfrun.description += snapshot_info
+                    atomic_wfrun.save(update_fields=["description"])
 
                 # Call master task.
                 master_task = registry.tasks["rodan.core.master_task"]
