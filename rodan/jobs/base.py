@@ -10,6 +10,7 @@ import os
 # import re
 import shutil
 import sys
+import time
 import uuid
 
 from celery import Task, registry
@@ -724,6 +725,8 @@ class RodanTask(Task):
         settings = self._settings(runjob)
         inputs = self._inputs(runjob)
 
+        start_time = time.time()
+
         with self.tempdir() as temp_dir:
             outputs = self._outputs(runjob)
 
@@ -933,6 +936,36 @@ class RodanTask(Task):
                         "celery_task_id",
                     ]
                 )
+
+                # Update workflow run description with job info
+                wall_time = time.time() - start_time
+                snapshot_info = '\n\n{0}:\n    name: "{1}"\n    wall_time: "{2}"\n'.format(
+                    str(runjob.uuid),
+                    runjob.job_name,
+                    time.strftime("%H:%M:%S", time.gmtime(wall_time))
+                )
+
+                if len(settings) > 0:
+                    snapshot_info += "    settings:\n"
+                    for key, value in settings.iteritems():
+                        snapshot_info += "        {0}: {1}\n".format(str(key), str(value))
+
+                input_qs = Input.objects.filter(run_job=runjob)
+                if input_qs.count() > 0:
+                    snapshot_info += "    inputs:\n"
+                    for input in input_qs:
+                        snapshot_info += "        - {0}\n".format(str(input.resource.uuid))
+
+                output_qs = Output.objects.filter(run_job=runjob)
+                if output_qs.count() > 0:
+                    snapshot_info += "    outputs:\n"
+                    for output in Output.objects.filter(run_job=runjob):
+                        snapshot_info += "        - {0}\n".format(str(output.resource.uuid))
+
+                snapshot_info += "\n"
+
+                runjob.workflow_run.description += snapshot_info
+                runjob.workflow_run.save(update_fields=["description"])
 
                 # Call master task.
                 master_task = registry.tasks["rodan.core.master_task"]
