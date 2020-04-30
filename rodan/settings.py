@@ -134,6 +134,7 @@ RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
 BASE_JOB_PACKAGES = [
     "rodan.jobs.resource_distributor",
+    "rodan.jobs.labeler",
 ]
 RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.diagonal-neume-slicing",
