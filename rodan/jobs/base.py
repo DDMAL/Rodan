@@ -851,14 +851,6 @@ class RodanTask(Task):
                                     ).format(opt_name)
                                 )
 
-                # save outputs
-                resource_label = None
-                try:
-                    resource_label = ResourceLabel.objects.get(name=str(runjob.workflow_run.uuid))
-                except ResourceLabel.DoesNotExist:
-                    resource_label = ResourceLabel(name=str(runjob.workflow_run.uuid))
-                    resource_label.save()
-
                 for temppath, output in temppath_map.items():
                     if output["is_list"] is False:
                         with open(temppath, "rb") as f:
@@ -866,7 +858,6 @@ class RodanTask(Task):
                             # Django will resolve the path according to upload_to
                             resource.resource_file.save(temppath, File(f), save=False)
                             resource.save(update_fields=["resource_file"])
-                            resource.labels.add(resource_label)
                             if resource.resource_type.mimetype.startswith("image"):
                                 # call synchronously
                                 # registry.tasks['rodan.core.create_thumbnails'].run(resource.uuid.hex)
@@ -907,7 +898,6 @@ class RodanTask(Task):
                                     origin=resourcelist.origin,
                                 )
                                 resource.save()
-                                resource.labels.add(resource_label)
 
                                 # Django will resolve the path according to upload_to
                                 resource.resource_file.save(ff, File(f), save=False)

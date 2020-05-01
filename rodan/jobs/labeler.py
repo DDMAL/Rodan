@@ -28,7 +28,7 @@ class Labeler(RodanTask):
         {
             'name': 'Resource',
             'minimum': 1,
-            'maximum': 1,
+            'maximum': 100,
             'resource_types': lambda mime: re.match("^[-\w]+/[-\w+]+$", mime)
         }
     ]
@@ -40,6 +40,8 @@ class Labeler(RodanTask):
         Return a dictionary of list of input file path and input resource type.
         If with_urls=True, it also includes the resource url and thumbnail urls.
         """
+
+        self.runjob = runjob
 
         def _extract_resource(resource, resource_type_mimetype=None):
             r = {
@@ -88,10 +90,11 @@ class Labeler(RodanTask):
         return inputs
 
     def run_my_task(self, inputs, settings, outputs):
+        label_text = settings['Label'] if settings['Label'] != '' else str(self.runjob.workflow_run.uuid)
         label = None
         try:
-            label = ResourceLabel.objects.get(name=settings['Label'])
+            label = ResourceLabel.objects.get(name=label_text)
         except ResourceLabel.DoesNotExist:
-            label = ResourceLabel(name=settings['Label'])
+            label = ResourceLabel(name=label_text)
             label.save()
         inputs['Resource'][0]['resource'].labels.add(label)
