@@ -30,7 +30,6 @@ from rodan.models import (
     Input,
     Output,
     Resource,
-    ResourceLabel,
     ResourceType,
     Job,
     InputPortType,
@@ -958,7 +957,8 @@ class RodanTask(Task):
                 snapshot_info += "\n"
 
                 with transaction.atomic():
-                    atomic_wfrun = WorkflowRun.objects.select_for_update().get(uuid=runjob.workflow_run.uuid)
+                    atomic_wfrun = WorkflowRun.objects.select_for_update() \
+                        .get(uuid=runjob.workflow_run.uuid)
                     atomic_wfrun.description += snapshot_info
                     atomic_wfrun.save(update_fields=["description"])
 

@@ -1,7 +1,6 @@
 from rodan.jobs.base import RodanTask
 from rodan.models import Input, ResourceLabel
 from django.conf import settings as rodan_settings
-from django.db import transaction
 
 import re
 
@@ -30,7 +29,7 @@ class Labeler(RodanTask):
             'name': 'Resource',
             'minimum': 1,
             'maximum': 100,
-            'resource_types': lambda mime: re.match("^[-\w]+/[-\w+]+$", mime)
+            'resource_types': lambda mime: re.match(r"^[-\w]+/[-\w+]+$", mime)
         }
     ]
 
@@ -91,6 +90,7 @@ class Labeler(RodanTask):
         return inputs
 
     def run_my_task(self, inputs, settings, outputs):
-        label_text = settings['Label'] if settings['Label'] != '' else str(self.runjob.workflow_run.uuid)
+        label_text = settings['Label'] if settings['Label'] != '' \
+            else str(self.runjob.workflow_run.uuid)
         label, _ = ResourceLabel.objects.get_or_create(name=label_text)
         inputs['Resource'][0]['resource'].labels.add(label)
