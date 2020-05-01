@@ -169,23 +169,13 @@ class ResourceList(generics.ListCreateAPIView):
         if submitted_label_names is not None:
             label_names = submitted_label_names.split(',')
             for name in label_names:
-                try:
-                    resource_label = ResourceLabel.objects.get(name=name)
-                    label_urls.append(
-                        ResourceLabelSerializer(
-                            resource_label,
-                            context={'request': request}
-                        ).data['url']
-                    )
-                except ResourceLabel.DoesNotExist as e:
-                    resource_label = ResourceLabel(name=name)
-                    resource_label.save()
-                    label_urls.append(
-                        ResourceLabelSerializer(
-                            ResourceLabel.objects.get(pk=resource_label.uuid),
-                            context={'request': request}
-                        ).data['url']
-                    )
+                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                label_urls.append(
+                    ResourceLabelSerializer(
+                        resource_label,
+                        context={'request': request}
+                    ).data['url']
+                )
 
         initial_data = {
             'labels': label_urls,
@@ -249,13 +239,8 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
             label_objs = []
             label_names = resource_label_names.split(',')
             for name in label_names:
-                try:
-                    resource_label = ResourceLabel.objects.get(name=name)
-                    label_objs.append(resource_label)
-                except ResourceLabel.DoesNotExist:
-                    resource_label = ResourceLabel(name=name)
-                    resource_label.save()
-                    label_objs.append(resource_label)
+                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                label_objs.append(resource_label)
 
             # Update labels in many-to-many field
             current_labels = resource.labels.all()

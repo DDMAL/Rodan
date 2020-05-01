@@ -1,6 +1,7 @@
 from rodan.jobs.base import RodanTask
 from rodan.models import Input, ResourceLabel
 from django.conf import settings as rodan_settings
+from django.db import transaction
 
 import re
 
@@ -91,10 +92,5 @@ class Labeler(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
         label_text = settings['Label'] if settings['Label'] != '' else str(self.runjob.workflow_run.uuid)
-        label = None
-        try:
-            label = ResourceLabel.objects.get(name=label_text)
-        except ResourceLabel.DoesNotExist:
-            label = ResourceLabel(name=label_text)
-            label.save()
+        label, _ = ResourceLabel.objects.get_or_create(name=label_text)
         inputs['Resource'][0]['resource'].labels.add(label)
