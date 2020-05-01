@@ -945,13 +945,15 @@ class RodanTask(Task):
                 if input_qs.count() > 0:
                     snapshot_info += "    inputs:\n"
                     for input in input_qs:
-                        snapshot_info += "        - {0}\n".format(str(input.resource.uuid))
+                        snapshot_info += "        - uuid: {0}\n".format(str(input.resource.uuid))
+                        snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
 
                 output_qs = Output.objects.filter(run_job=runjob)
                 if output_qs.count() > 0:
                     snapshot_info += "    outputs:\n"
                     for output in Output.objects.filter(run_job=runjob):
-                        snapshot_info += "        - {0}\n".format(str(output.resource.uuid))
+                        snapshot_info += "        - uuid: {0}\n".format(str(output.resource.uuid))
+                        snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
 
                 snapshot_info += "\n"
 
