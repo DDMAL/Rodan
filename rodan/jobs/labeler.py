@@ -6,30 +6,30 @@ import re
 
 
 class Labeler(RodanTask):
-    name = 'Labeler'
-    author = 'Juliette Regimbal'
-    description = 'Add a label to resources'
+    name = "Labeler"
+    author = "Juliette Regimbal"
+    description = "Add a label to resources"
     settings = {
-        'title': 'Parameters',
-        'type': 'object',
-        'job_queue': 'celery',
-        'properties': {
-            'Label': {
-                'type': 'string',
-                'default': 'marked'
+        "title": "Parameters",
+        "type": "object",
+        "job_queue": "celery",
+        "properties": {
+            "Label": {
+                "type": "string",
+                "default": "marked"
             }
         }
     }
     enabled = True
-    category = 'Utility'
+    category = "Utility"
     interactive = False
 
     input_port_types = [
         {
-            'name': 'Resource',
-            'minimum': 1,
-            'maximum': 100,
-            'resource_types': lambda mime: re.match(r"^[-\w]+/[-\w+]+$", mime)
+            "name": "Resource",
+            "minimum": 1,
+            "maximum": 100,
+            "resource_types": lambda mime: re.match(r"^[-\w]+/[-\w+]+$", mime)
         }
     ]
 
@@ -90,7 +90,7 @@ class Labeler(RodanTask):
         return inputs
 
     def run_my_task(self, inputs, settings, outputs):
-        label_text = settings['Label'] if settings['Label'] != '' \
+        label_text = settings["Label"] if settings["Label"] != "" \
             else str(self.runjob.workflow_run.uuid)
         label, _ = ResourceLabel.objects.get_or_create(name=label_text)
-        inputs['Resource'][0]['resource'].labels.add(label)
+        inputs["Resource"][0]["resource"].labels.add(label)
