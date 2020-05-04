@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 
-from rodan.models import Workflow, InputPort, OutputPort
+from rodan.models import Workflow, InputPort, OutputPort, Job
 from rodan.serializers.workflow import (
     WorkflowSerializer,
     WorkflowListSerializer,
@@ -122,9 +122,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     def _validate(self, workflow):
         # validate WorkflowJobs
         workflow_jobs = workflow.workflow_jobs.all()
+        labeler_job = Job.objects.get(name='Labeler')
         for wfjob in workflow_jobs:
             number_of_output_ports = wfjob.output_ports.count()
-            if number_of_output_ports == 0:
+            if number_of_output_ports == 0 and wfjob.job_id != labeler_job.uuid:
                 raise WorkflowValidationError(
                     "WFJ_NO_OP",
                     "The WorkflowJob {0} has no OutputPort.".format(wfjob.job_name),

@@ -33,11 +33,13 @@ from rest_framework.views import APIView
 from rodan.constants import task_status
 from rodan.models import (
     Resource,
+    ResourceLabel,
     ResourceType,
     Tempauthtoken,
 )
 from rodan.serializers.resourcetype import ResourceTypeSerializer
 from rodan.serializers.resource import ResourceSerializer
+from rodan.serializers.resourcelabel import ResourceLabelSerializer
 from rodan.permissions import CustomObjectPermissions
 from rodan.exceptions import CustomAPIException
 
@@ -77,6 +79,12 @@ class ResourceList(generics.ListCreateAPIView):
 
         resource_type__in = django_filters.filters.CharFilter(method="filter_resource_type__in")
 
+        labels = django_filters.ModelMultipleChoiceFilter(
+            field_name="labels",
+            conjoined=True,
+            queryset=ResourceLabel.objects.all()
+        )
+
         def filter_resource_type__in(self, qs, name, value):
             value = value.split(",")
             return qs.filter(**{name: value})
@@ -94,7 +102,7 @@ class ResourceList(generics.ListCreateAPIView):
                 "created": ['lt', 'gt'],
                 "project": ['exact'],
                 "resource_type": ['exact'],
-                "name": ['exact', 'icontains']
+                "name": ['exact', 'icontains'],
             }
 
     def get_queryset(self):
@@ -156,7 +164,21 @@ class ResourceList(generics.ListCreateAPIView):
             except (Resolver404, ResourceType.DoesNotExist) as e:
                 print(str(e))
 
+        submitted_label_names = request.data.get('label_names', None)
+        label_urls = []
+        if submitted_label_names is not None:
+            label_names = submitted_label_names.split(',')
+            for name in label_names:
+                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                label_urls.append(
+                    ResourceLabelSerializer(
+                        resource_label,
+                        context={'request': request}
+                    ).data['url']
+                )
+
         initial_data = {
+            'labels': label_urls,
             'resource_type': ResourceTypeSerializer(
                 ResourceType.objects.get(mimetype='application/octet-stream'),
                 context={'request': request}).data['url'],
@@ -211,6 +233,25 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
                 print(str(e))
             if claimed_mimetype.startswith('image'):
                 registry.tasks['rodan.core.create_diva'].si(resource.uuid).apply_async()
+
+        resource_label_names = request.data.get('label_names', None)
+        if resource_label_names is not None:
+            label_objs = []
+            label_names = resource_label_names.split(',')
+            for name in label_names:
+                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                label_objs.append(resource_label)
+
+            # Update labels in many-to-many field
+            current_labels = resource.labels.all()
+            labels_to_add = [label for label in label_objs if label not in current_labels]
+            labels_to_remove = [label for label in current_labels if label not in label_objs]
+            for label in labels_to_add:
+                resource.labels.add(label)
+            for label in labels_to_remove:
+                resource.labels.remove(label)
+                if label.resource_set.count() == 0:
+                    label.delete()
 
         return self.partial_update(request, *args, **kwargs)
 

@@ -10,12 +10,14 @@ import os
 # import re
 import shutil
 import sys
+import time
 import uuid
 
 from celery import Task, registry
 from celery.app.task import TaskType
 from django.conf import settings as rodan_settings
 from django.core.files import File
+from django.db import transaction
 from django.template import Template
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -723,6 +725,8 @@ class RodanTask(Task):
         settings = self._settings(runjob)
         inputs = self._inputs(runjob)
 
+        start_time = time.time()
+
         with self.tempdir() as temp_dir:
             outputs = self._outputs(runjob)
 
@@ -846,7 +850,6 @@ class RodanTask(Task):
                                     ).format(opt_name)
                                 )
 
-                # save outputs
                 for temppath, output in temppath_map.items():
                     if output["is_list"] is False:
                         with open(temppath, "rb") as f:
@@ -923,6 +926,52 @@ class RodanTask(Task):
                         "celery_task_id",
                     ]
                 )
+
+                # Update workflow run description with job info
+                wall_time = time.time() - start_time
+                try:
+                    snapshot_info = "\n\n{0}:\n    name: \"{1}\"\n    wall_time: \"{2}\"\n".format(
+                        str(runjob.uuid),
+                        runjob.job_name,
+                        time.strftime("%H:%M:%S", time.gmtime(wall_time))
+                    )
+
+                    if len(settings) > 0:
+                        snapshot_info += "    settings:\n"
+                        for key, value in settings.iteritems():
+                            snapshot_info += "        {0}: {1}\n".format(str(key), str(value))
+
+                    input_qs = Input.objects.filter(run_job=runjob)
+                    if input_qs.count() > 0:
+                        snapshot_info += "    inputs:\n"
+                        for input in input_qs:
+                            snapshot_info += "        - uuid: {0}\n" \
+                                .format(str(input.resource.uuid))
+                            snapshot_info += "          name: \"{0}\"\n" \
+                                .format(input.resource.name)
+
+                    output_qs = Output.objects.filter(run_job=runjob)
+                    if output_qs.count() > 0:
+                        snapshot_info += "    outputs:\n"
+                        for output in Output.objects.filter(run_job=runjob):
+                            snapshot_info += "        - uuid: {0}\n" \
+                                .format(str(output.resource.uuid))
+                            snapshot_info += "          name: \"{0}\"\n" \
+                                .format(input.resource.name)
+
+                    snapshot_info += "\n"
+
+                    with transaction.atomic():
+                        atomic_wfrun = WorkflowRun.objects.select_for_update() \
+                            .get(uuid=runjob.workflow_run.uuid)
+                        if atomic_wfrun.description is None:
+                            atomic_wfrun.description = ""
+                        atomic_wfrun.description += snapshot_info
+                        atomic_wfrun.save(update_fields=["description"])
+                except AttributeError:  # This happens during tests where not all fields are set
+                    pass
+                except Exception as e:
+                    print(e)
 
                 # Call master task.
                 master_task = registry.tasks["rodan.core.master_task"]

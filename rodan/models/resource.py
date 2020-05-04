@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rodan.constants import task_status
+from rodan.models.resourcelabel import ResourceLabel
 
 import logging
 
@@ -139,6 +140,8 @@ class Resource(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
+    labels = models.ManyToManyField(ResourceLabel, blank=True)
+
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
@@ -153,7 +156,12 @@ class Resource(models.Model):
     def delete(self, *args, **kwargs):
         if os.path.exists(self.resource_path):
             shutil.rmtree(self.resource_path)
+        previous_labels = list(self.labels.all())
         super(Resource, self).delete(*args, **kwargs)
+        for label in previous_labels:
+            # Delete labels that no longer are associated to any resource
+            if label.resource_set.count() == 0:
+                label.delete()
 
     @property
     def resource_file_path(self):

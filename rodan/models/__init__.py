@@ -36,6 +36,7 @@ from rodan.models.workflowrun import WorkflowRun
 from rodan.models.runjob import RunJob
 from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
+from rodan.models.resourcelabel import ResourceLabel
 from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
