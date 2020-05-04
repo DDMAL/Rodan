@@ -929,38 +929,43 @@ class RodanTask(Task):
 
                 # Update workflow run description with job info
                 wall_time = time.time() - start_time
-                snapshot_info = '\n\n{0}:\n    name: "{1}"\n    wall_time: "{2}"\n'.format(
-                    str(runjob.uuid),
-                    runjob.job_name,
-                    time.strftime("%H:%M:%S", time.gmtime(wall_time))
-                )
+                try:
+                    snapshot_info = '\n\n{0}:\n    name: "{1}"\n    wall_time: "{2}"\n'.format(
+                        str(runjob.uuid),
+                        runjob.job_name,
+                        time.strftime("%H:%M:%S", time.gmtime(wall_time))
+                    )
 
-                if len(settings) > 0:
-                    snapshot_info += "    settings:\n"
-                    for key, value in settings.iteritems():
-                        snapshot_info += "        {0}: {1}\n".format(str(key), str(value))
+                    if len(settings) > 0:
+                        snapshot_info += "    settings:\n"
+                        for key, value in settings.iteritems():
+                            snapshot_info += "        {0}: {1}\n".format(str(key), str(value))
 
-                input_qs = Input.objects.filter(run_job=runjob)
-                if input_qs.count() > 0:
-                    snapshot_info += "    inputs:\n"
-                    for input in input_qs:
-                        snapshot_info += "        - uuid: {0}\n".format(str(input.resource.uuid))
-                        snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
+                    input_qs = Input.objects.filter(run_job=runjob)
+                    if input_qs.count() > 0:
+                        snapshot_info += "    inputs:\n"
+                        for input in input_qs:
+                            snapshot_info += "        - uuid: {0}\n".format(str(input.resource.uuid))
+                            snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
 
-                output_qs = Output.objects.filter(run_job=runjob)
-                if output_qs.count() > 0:
-                    snapshot_info += "    outputs:\n"
-                    for output in Output.objects.filter(run_job=runjob):
-                        snapshot_info += "        - uuid: {0}\n".format(str(output.resource.uuid))
-                        snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
+                    output_qs = Output.objects.filter(run_job=runjob)
+                    if output_qs.count() > 0:
+                        snapshot_info += "    outputs:\n"
+                        for output in Output.objects.filter(run_job=runjob):
+                            snapshot_info += "        - uuid: {0}\n".format(str(output.resource.uuid))
+                            snapshot_info += "          name: \"{0}\"\n".format(input.resource.name)
 
-                snapshot_info += "\n"
+                    snapshot_info += "\n"
 
-                with transaction.atomic():
-                    atomic_wfrun = WorkflowRun.objects.select_for_update() \
-                        .get(uuid=runjob.workflow_run.uuid)
-                    atomic_wfrun.description += snapshot_info
-                    atomic_wfrun.save(update_fields=["description"])
+                    with transaction.atomic():
+                        atomic_wfrun = WorkflowRun.objects.select_for_update() \
+                            .get(uuid=runjob.workflow_run.uuid)
+                        if atomic_wfrun.description is None:
+                            atomic_wfrun.description = ""
+                        atomic_wfrun.description += snapshot_info
+                        atomic_wfrun.save(update_fields=["description"])
+                except AttributeError as e:
+                    print(e)
 
                 # Call master task.
                 master_task = registry.tasks["rodan.core.master_task"]
