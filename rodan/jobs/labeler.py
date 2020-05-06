@@ -16,7 +16,7 @@ class Labeler(RodanTask):
         "properties": {
             "Label": {
                 "type": "string",
-                "default": "marked"
+                "default": ""
             }
         }
     }
