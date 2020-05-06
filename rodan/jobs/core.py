@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 
 from celery import task, registry
 from celery import Task
@@ -181,16 +182,28 @@ def create_diva(resource_id):
         name = os.path.basename(tmp_file.name)
         name, ext = os.path.splitext(name)
 
-        subprocess.check_call(
-            args=[
-                BIN_GM,
-                "convert",
-                "-depth", "8",  # output RGB
-                "-compress", "None",
-                task_image,  # image file input
-                tmp_file.name  # tiff file output
-            ]
-        )
+        retries = 3
+        while retries > 0:
+            try:
+                subprocess.check_call(
+                    args=[
+                        BIN_GM,
+                        "convert",
+                        "-depth", "8",  # output RGB
+                        "-compress", "None",
+                        task_image,  # image file input
+                        tmp_file.name  # tiff file output
+                    ]
+                )
+                retries = -1
+            except subprocess.CalledProcessError as e:
+                print(e)
+                print("Sleeping for 10 seconds...")
+                retries -= 1
+                time.sleep(10)
+
+        if retries == 0:
+            raise Exception("Maximum number of retries exceeded")
 
         # With Kakadu
         subprocess.check_call(
