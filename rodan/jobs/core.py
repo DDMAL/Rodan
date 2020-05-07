@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 
 from celery import task, registry
 from celery import Task
@@ -176,40 +177,52 @@ def create_diva(resource_id):
     }
 
     task_image = inputs["Image"][0]["resource_path"]
-    _, tmp_file = tempfile.mkstemp(suffix=".tiff")
+    with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_file:
 
-    name = os.path.basename(tmp_file)
-    name, ext = os.path.splitext(name)
+        name = os.path.basename(tmp_file.name)
+        name, ext = os.path.splitext(name)
 
-    subprocess.check_call(
-        args=[
-            BIN_GM,
-            "convert",
-            "-depth", "8",  # output RGB
-            "-compress", "None",
-            task_image,  # image file input
-            tmp_file  # tiff file output
-        ]
-    )
+        retries = 3
+        while retries > 0:
+            try:
+                subprocess.check_call(
+                    args=[
+                        BIN_GM,
+                        "convert",
+                        "-depth", "8",  # output RGB
+                        "-compress", "None",
+                        task_image,  # image file input
+                        tmp_file.name  # tiff file output
+                    ]
+                )
+                retries = -1
+            except subprocess.CalledProcessError as e:
+                print(e)
+                print("Sleeping for 10 seconds...")
+                retries -= 1
+                time.sleep(10)
 
-    # With Kakadu
-    subprocess.check_call(
-        args=[
-            BIN_KDU_COMPRESS,
-            "-i", tmp_file,
-            "-o", name + ".jp2",
-            "-quiet",
-            "Clevels=5",
-            "Cblk={64,64}",
-            "Cprecincts={256,256},{256,256},{128,128}",
-            "Creversible=yes",
-            "Cuse_sop=yes",
-            "Corder=LRCP",
-            "ORGgen_plt=yes",
-            "ORGtparts=R",
-            "-rate", "-,1,0.5,0.25"
-        ]
-    )
+        if retries == 0:
+            raise Exception("Maximum number of retries exceeded")
+
+        # With Kakadu
+        subprocess.check_call(
+            args=[
+                BIN_KDU_COMPRESS,
+                "-i", tmp_file.name,
+                "-o", name + ".jp2",
+                "-quiet",
+                "Clevels=5",
+                "Cblk={64,64}",
+                "Cprecincts={256,256},{256,256},{128,128}",
+                "Creversible=yes",
+                "Cuse_sop=yes",
+                "Corder=LRCP",
+                "ORGgen_plt=yes",
+                "ORGtparts=R",
+                "-rate", "-,1,0.5,0.25"
+            ]
+        )
 
     # With OpenJPEG
     # creates a dark red tint on the image, it literally replaces the color profile.
