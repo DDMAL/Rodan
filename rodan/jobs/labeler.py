@@ -93,4 +93,5 @@ class Labeler(RodanTask):
         label_text = settings["Label"] if settings["Label"] != "" \
             else str(self.runjob.workflow_run.uuid)
         label, _ = ResourceLabel.objects.get_or_create(name=label_text)
-        inputs["Resource"][0]["resource"].labels.add(label)
+        for input in inputs["Resource"]:
+            input["resource"].labels.add(label)
