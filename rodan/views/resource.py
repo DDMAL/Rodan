@@ -111,7 +111,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         wfrun_uuid = self.request.query_params.get('result_of_workflow_run', None)
         if wfrun_uuid:
-            condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid)) # noqa
+            condition &= Q(origin__run_job__workflow_run__uuid=wfrun_uuid) & (Q(inputs__isnull=True) | ~Q(inputs__run_job__workflow_run__uuid=wfrun_uuid) | Q(inputs__run_job__job_name="Labeler")) # noqa
 
         uploaded = self.request.query_params.get('uploaded', None)
         if uploaded == u'True':
