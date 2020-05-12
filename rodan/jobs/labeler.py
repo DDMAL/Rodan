@@ -16,7 +16,8 @@ class Labeler(RodanTask):
         "properties": {
             "Label": {
                 "type": "string",
-                "default": ""
+                "default": "",
+                "maxLength": 36     # This is specified in the ResourceLabel model
             }
         }
     }
