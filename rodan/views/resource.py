@@ -14,6 +14,7 @@ from django.core.urlresolvers import (
 )
 from django.db.models import ProtectedError
 from django.db.models import Q
+from django.db.utils import DataError
 from django.http import (
     Http404,
     # HttpResponseRedirect
@@ -169,13 +170,17 @@ class ResourceList(generics.ListCreateAPIView):
         if submitted_label_names is not None:
             label_names = submitted_label_names.split(',')
             for name in label_names:
-                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
-                label_urls.append(
-                    ResourceLabelSerializer(
-                        resource_label,
-                        context={'request': request}
-                    ).data['url']
-                )
+                try:
+                    resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                    label_urls.append(
+                        ResourceLabelSerializer(
+                            resource_label,
+                            context={'request': request}
+                        ).data['url']
+                    )
+                except DataError:
+                    # If the label specified is too long
+                    continue
 
         initial_data = {
             'labels': label_urls,
@@ -239,8 +244,12 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
             label_objs = []
             label_names = resource_label_names.split(',')
             for name in label_names:
-                resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
-                label_objs.append(resource_label)
+                try:
+                    resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
+                    label_objs.append(resource_label)
+                except DataError:
+                    # This will happen if the label is too long.
+                    continue
 
             # Update labels in many-to-many field
             current_labels = resource.labels.all()
