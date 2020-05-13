@@ -45,6 +45,7 @@ from rodan.views.resource import (
     ResourceDetail,
     ResourceViewer,
     ResourceAcquireView,
+    ResourceArchive,
 )
 from rodan.views.resourcelabel import ResourceLabelList, ResourceLabelDetail
 from rodan.views.resourcelist import ResourceListList, ResourceListDetail
@@ -219,6 +220,7 @@ api_patterns = [
         name="inputport-detail",
     ),
     url(r"^api/resources/$", ResourceList.as_view(), name="resource-list"),
+    url(r"^api/resources/archive/$", ResourceArchive.as_view(), name="resource-archive"),
     url(
         r"^api/resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
         ResourceDetail.as_view(),
@@ -235,7 +237,8 @@ api_patterns = [
         name="resource-viewer-acquire",
     ),
     url(r"^api/labels/$", ResourceLabelList.as_view(), name="resourcelabel-list"),
-    url(r"^api/label/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
+    url(
+        r"^api/label/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
         ResourceLabelDetail.as_view(),
         name="resourcelabel-detail",
     ),

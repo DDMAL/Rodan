@@ -7,6 +7,9 @@ import shutil
 import subprocess
 import tempfile
 import time
+import zipfile
+
+from StringIO import StringIO
 
 from celery import task, registry
 from celery import Task
@@ -980,6 +983,38 @@ def send_email(subject, body, to):
     email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, to)
     email.send()
 
+
+@task(name="rodan.core.create_archive")
+def create_archive(resource_uuids):
+    """
+    Creates a zip archive of resosurces in memory for a user to download
+    """
+    condition = Q()
+    for uuid in resource_uuids:
+        condition |= Q(uuid=uuid)
+    resources = Resource.objects.filter(Q(resource_file__isnull=False) & condition)
+    temporary_storage = StringIO()
+    with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
+        for resource in resources:
+            if not resource.resource_file:
+                print("{} has no file!".format(resource.name))
+                continue
+
+            archive.write(
+                resource.resource_file.path,
+                resource.name + "." + resource.resource_type.extension
+            )
+
+    temporary_storage.seek(0)
+    return temporary_storage
+
+
+@task(name="rodan.core.clean_buffer")
+def clean_buffer(buffer):
+    """
+    This is to free buffers used for rodan.core.create_archive
+    """
+    buffer.close()
 
 # app.tasks.register(create_resource())
 # app.tasks.register(package_results())
