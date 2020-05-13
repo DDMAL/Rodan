@@ -395,9 +395,9 @@ class ResourceArchive(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
-        resource_uuids = request.query_params.getlist('resource_uuids', None)
+        resource_uuids = request.query_params.getlist('resource_uuid', None)
         if not resource_uuids:
-            raise ValidationError({'resource_uuids': ["You must supply a list of resource UUIDs."]})
+            raise ValidationError({'resource_uuid': ["You must supply a list of resource UUIDs."]})
 
         archive = registry.tasks['rodan.core.create_archive'].si(resource_uuids).apply_async()
         storage = archive.get()
