@@ -387,12 +387,14 @@ class ResourceAcquireView(generics.GenericAPIView):
         })
 
 
-class ResourceArchive(APIView):
+class ResourceArchive(generics.GenericAPIView):
     """
     Create and return an archive of resource files
     """
 
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
 
     def get(self, request, format=None):
         resource_uuids = request.query_params.getlist('resource_uuid', None)
