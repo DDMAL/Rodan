@@ -401,10 +401,10 @@ class ResourceArchive(generics.GenericAPIView):
         if not resource_uuids:
             raise ValidationError({'resource_uuid': ["You must supply a list of resource UUIDs."]})
 
-        archive = registry.tasks['rodan.core.create_archive'].si(resource_uuids).apply_async()
+        archive = registry.tasks['rodan.core.create_archive'].si(resource_uuids).apply_async(queue="celery")
         storage = archive.get()
         # Allow 30 minutes for download
-        registry.tasks['rodan.core.clean_buffer'].si(storage).apply_async(countdown=1800)
+        registry.tasks['rodan.core.clean_buffer'].si(storage).apply_async(queue="celery", countdown=1800)
         response = FileResponse(
             storage,
             content_type="application/zip"
