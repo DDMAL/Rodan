@@ -401,7 +401,8 @@ class ResourceArchive(generics.GenericAPIView):
         if not resource_uuids:
             raise ValidationError({'resource_uuid': ["You must supply a list of resource UUIDs."]})
 
-        archive = registry.tasks['rodan.core.create_archive'].si(resource_uuids).apply_async(queue="celery")
+        archive = registry.tasks['rodan.core.create_archive'] \
+            .si(resource_uuids).apply_async(queue="celery")
         storage = archive.get()
         if storage is None:
             raise ValidationError({'resource_uuid': ["The specified resources must exist."]})

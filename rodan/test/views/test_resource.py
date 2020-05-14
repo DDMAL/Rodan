@@ -301,7 +301,7 @@ class ResourceArchiveTestCase(
     def test_get_invalid_uuid(self):
         response = self.client.get(
             "/api/resources/archive/",
-            { "resource_uuid": ["00000000-0000-0000-0000-000000000000"]}
+            {"resource_uuid": ["00000000-0000-0000-0000-000000000000"]}
         )
         anticipated_message = {
             "resource_uuid": ["The specified resources must exist."]
