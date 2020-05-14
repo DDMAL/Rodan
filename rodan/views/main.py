@@ -65,7 +65,7 @@ class APIRoot(APIView):
                 "resourcelists": reverse(
                     "resourcelist-list", request=request, format=format
                 ),
-                "resource-archive": reverse("resource-archive", request=request),
+                "resource-archive": reverse("resource-archive", request=request, format=format),
                 "resourcetypes": reverse(
                     "resourcetype-list", request=request, format=format
                 ),
