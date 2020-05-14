@@ -5,6 +5,7 @@ import os
 # import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 import zipfile
@@ -1003,9 +1004,17 @@ def create_archive(resource_uuids):
                 print("{} has no file!".format(resource.name))
                 continue
 
+            # determine a path that doesn't conflict
+            filepath = resource.name + "." + resource.resource_type.extension
+            if filepath in archive.namelist():
+                for i in xrange(1, sys.maxint):
+                    filepath = resource.name + " ({}).".format(i) + resource.resource_type.extension
+                    if filepath not in archive.namelist():
+                        break
+
             archive.write(
                 resource.resource_file.path,
-                resource.name + "." + resource.resource_type.extension
+                filepath
             )
 
     temporary_storage.seek(0)
