@@ -403,6 +403,8 @@ class ResourceArchive(generics.GenericAPIView):
 
         archive = registry.tasks['rodan.core.create_archive'].si(resource_uuids).apply_async(queue="celery")
         storage = archive.get()
+        if storage is None:
+            raise ValidationError({'resource_uuid': ["The specified resources must exist."]})
         # Allow 30 minutes for download
         registry.tasks['rodan.core.clean_buffer'].si(storage).apply_async(queue="celery", countdown=1800)
         response = FileResponse(

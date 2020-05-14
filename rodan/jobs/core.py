@@ -993,6 +993,9 @@ def create_archive(resource_uuids):
     for uuid in resource_uuids:
         condition |= Q(uuid=uuid)
     resources = Resource.objects.filter(Q(resource_file__isnull=False) & condition)
+    # Don't return an empty zip file
+    if resources.count() == 0:
+        return None
     temporary_storage = StringIO()
     with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
         for resource in resources:
