@@ -1012,13 +1012,6 @@ def create_archive(resource_uuids):
     return temporary_storage
 
 
-@task(name="rodan.core.clean_buffer")
-def clean_buffer(buffer):
-    """
-    This is to free buffers used for rodan.core.create_archive
-    """
-    buffer.close()
-
 # app.tasks.register(create_resource())
 # app.tasks.register(package_results())
 # app.tasks.register(expire_package)
