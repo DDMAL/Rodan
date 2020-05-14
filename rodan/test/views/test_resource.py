@@ -1,4 +1,6 @@
 import os
+import tempfile
+import zipfile
 from StringIO import StringIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -277,3 +279,46 @@ class ResourceProcessingTestCase(
     #       "/resource/8aa7e270b1c54be49dde5a682b16cda7/",
     #       resource_update, format='json').data
     #     self.assertEqual(response['resource_type'], 'text/plain')
+
+
+class ResourceArchiveTestCase(
+    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
+):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_basic_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+
+    def test_get_no_uuids(self):
+        response = self.client.get("/api/resources/archive/")
+        anticipated_message = {
+            "resource_uuid": ["You must supply a list of resource UUIDs."]
+        }
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, anticipated_message)
+
+    def test_get_invalid_uuid(self):
+        response = self.client.get(
+            "/api/resources/archive/",
+            { "resource_uuid": ["00000000-0000-0000-0000-000000000000"]}
+        )
+        anticipated_message = {
+            "resource_uuid": ["The specified resources must exist."]
+        }
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, anticipated_message)
+
+    def test_get_zip(self):
+        r1 = mommy.make("rodan.Resource", name="r1.txt", _create_files=True)
+        response = self.client.get(
+            "/api/resources/archive/",
+            {
+                "resource_uuid": [str(r1.uuid)]
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        with tempfile.TemporaryFile() as f:
+            f.write(response.getvalue())
+            with zipfile.ZipFile(f, 'r') as archive:
+                self.assertEqual(archive.testzip(), None)
