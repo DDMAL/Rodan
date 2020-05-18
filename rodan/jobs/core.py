@@ -6,6 +6,7 @@ import os
 # import re
 import shutil
 import subprocess
+import six
 import sys
 import tempfile
 import time
@@ -1006,7 +1007,7 @@ def create_archive(resource_uuids):
             # determine a path that doesn't conflict
             filepath = resource.name + "." + resource.resource_type.extension
             if filepath in archive.namelist():
-                for i in xrange(1, sys.maxint):
+                for i in six.moves.range(1, sys.maxint):
                     filepath = resource.name + " ({}).".format(i) + resource.resource_type.extension
                     if filepath not in archive.namelist():
                         break

@@ -1,5 +1,6 @@
 import os
 import json
+import six
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -160,7 +161,7 @@ class WorkflowRunResourceAssignmentTest(
         ra[self.url(self.test_Fip1)] = [self.url(self.test_resource)]
 
         resource_lists = []
-        for i in range(10):
+        for i in six.moves.range(10):
             rl = mommy.make(
                 "rodan.ResourceList",
                 project=self.test_project,
