@@ -24,7 +24,7 @@ import datetime
 import time
 import functools
 import operator
-import six
+import six      # noqa
 import types
 
 
