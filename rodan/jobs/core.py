@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+from six import StringIO
 import os
 # import re
 import shutil
@@ -9,8 +10,6 @@ import sys
 import tempfile
 import time
 import zipfile
-
-from StringIO import StringIO
 
 from celery import task, registry
 from celery import Task
