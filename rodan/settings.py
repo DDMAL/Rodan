@@ -123,8 +123,8 @@ ENABLE_DIVA = True
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
 # 30 days. NULL: never expire
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60
-# Default: 999999 seconds before the authentication token expires.
-RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
+# Default: 15 seconds before the authentication token expires.
+RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 15
 
 ###############################################################################
 # 1.c  Rodan Job Package Registration
@@ -138,17 +138,17 @@ BASE_JOB_PACKAGES = [
 ]
 RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.diagonal-neume-slicing",
-    "rodan.jobs.gamera_rodan",
-    "rodan.jobs.helloworld",
+    #py2 "rodan.jobs.gamera_rodan",
+    #py2 "rodan.jobs.helloworld",
     #py2 "rodan.jobs.heuristic-pitch-finding",
     #py2 "rodan.jobs.interactive_classifier",
     #py2 "rodan.jobs.JSOMR2MEI",
-    "rodan.jobs.neon-wrapper",
     #py2 "rodan.jobs.jSymbolic-Rodan",
-    "rodan.jobs.MEI_encoding",
+    #py2 "rodan.jobs.MEI_encoding",
+    #py2 "rodan.jobs.neon-wrapper",
     #py2 "rodan.jobs.pil-rodan",
-    "rodan.jobs.pixel_wrapper",
-    "rodan.jobs.text_alignment",
+    #py2 "rodan.jobs.pixel_wrapper",
+    #py2 "rodan.jobs.text_alignment",
     #py2 "rodan.jobs.vis-rodan",
 ]
 RODAN_PYTHON3_JOBS = [
