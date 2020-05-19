@@ -1,12 +1,9 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
-from six import StringIO
 import os
-# import re
 import shutil
 import subprocess
-import six
 import sys
 import tempfile
 import time
@@ -20,6 +17,7 @@ from django.core.mail import EmailMessage
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Case, Value, When, BooleanField
 from pybagit.bagit import BagIt
+import six
 
 import rodan  # noqa
 from rodan.models import (
@@ -997,7 +995,7 @@ def create_archive(resource_uuids):
     # Don't return an empty zip file
     if resources.count() == 0:
         return None
-    temporary_storage = StringIO()
+    temporary_storage = six.StringIO()
     with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
         for resource in resources:
             if not resource.resource_file:
