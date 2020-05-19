@@ -406,7 +406,6 @@ class ResourceArchive(generics.GenericAPIView):
         storage = archive.get()
         if storage is None:
             raise ValidationError({'resource_uuid': ["The specified resources must exist."]})
-        print("Have response")
         response = FileResponse(
             storage,
             content_type="application/zip"
