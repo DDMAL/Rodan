@@ -1,13 +1,14 @@
 import os
 import tempfile
 import zipfile
-from StringIO import StringIO
+# from StringIO import StringIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_mommy import mommy
 from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
+import six
 
 from rodan.constants import task_status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -206,7 +207,7 @@ class ResourceProcessingTestCase(
         # kakadu.
 
         if os.environ.get("TRAVIS", "False") != "true":
-            file_obj = StringIO()
+            file_obj = six.StringIO()
             image = Image.new("RGB", size=(50, 50), color=(256, 0, 0))
             image.save(file_obj, "png")
             file_obj.name = "page1.png"
@@ -228,7 +229,7 @@ class ResourceProcessingTestCase(
             self.assertEqual(self.test_resource1.resource_type.mimetype, "image/rgb+png")
 
     def test_post_image_claiming_txt(self):
-        file_obj = StringIO()
+        file_obj = six.StringIO()
         image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
         image.save(file_obj, "png")
         file_obj.name = "page1.png"
