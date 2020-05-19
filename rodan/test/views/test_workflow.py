@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
+import six
 import uuid
 from rodan.serializers.workflow import version_map
 
@@ -149,7 +150,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "IP_TOO_MANY_CONNECTIONS")
 
     def test_input__more_than_maximum(self):
-        for i in range(self.test_inputporttype.maximum):
+        for i in six.moves.range(self.test_inputporttype.maximum):
             ip = mommy.make(  # noqa
                 "rodan.InputPort",
                 workflow_job=self.test_workflowjob,
@@ -179,7 +180,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "OP_TYPE_MISMATCH")
 
     def test_output__more_than_maximum(self):
-        for o in range(self.test_outputporttype.maximum):
+        for o in six.moves.range(self.test_outputporttype.maximum):
             op = mommy.make(  # noqa
                 "rodan.OutputPort",
                 workflow_job=self.test_workflowjob,

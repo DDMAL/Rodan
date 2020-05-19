@@ -2,11 +2,12 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import os
-# import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
+import zipfile
 
 from celery import task, registry
 from celery import Task
@@ -16,6 +17,7 @@ from django.core.mail import EmailMessage
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Case, Value, When, BooleanField
 from pybagit.bagit import BagIt
+import six
 
 import rodan  # noqa
 from rodan.models import (
@@ -979,6 +981,42 @@ def redo_runjob_tree(rj_id):
 def send_email(subject, body, to):
     email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, to)
     email.send()
+
+
+@task(name="rodan.core.create_archive")
+def create_archive(resource_uuids):
+    """
+    Creates a zip archive of resosurces in memory for a user to download
+    """
+    condition = Q()
+    for uuid in resource_uuids:
+        condition |= Q(uuid=uuid)
+    resources = Resource.objects.filter(Q(resource_file__isnull=False) & condition)
+    # Don't return an empty zip file
+    if resources.count() == 0:
+        return None
+    temporary_storage = six.StringIO()
+    with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
+        for resource in resources:
+            if not resource.resource_file:
+                print("{} has no file!".format(resource.name))
+                continue
+
+            # determine a path that doesn't conflict
+            filepath = resource.name + "." + resource.resource_type.extension
+            if filepath in archive.namelist():
+                for i in six.moves.range(1, sys.maxint):
+                    filepath = resource.name + " ({}).".format(i) + resource.resource_type.extension
+                    if filepath not in archive.namelist():
+                        break
+
+            archive.write(
+                resource.resource_file.path,
+                filepath
+            )
+
+    temporary_storage.seek(0)
+    return temporary_storage
 
 
 # app.tasks.register(create_resource())

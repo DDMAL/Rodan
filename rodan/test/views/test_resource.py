@@ -1,11 +1,14 @@
 import os
-from StringIO import StringIO
+import tempfile
+import zipfile
+# from StringIO import StringIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_mommy import mommy
 from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
+import six
 
 from rodan.constants import task_status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -204,7 +207,7 @@ class ResourceProcessingTestCase(
         # kakadu.
 
         if os.environ.get("TRAVIS", "False") != "true":
-            file_obj = StringIO()
+            file_obj = six.StringIO()
             image = Image.new("RGB", size=(50, 50), color=(256, 0, 0))
             image.save(file_obj, "png")
             file_obj.name = "page1.png"
@@ -226,7 +229,7 @@ class ResourceProcessingTestCase(
             self.assertEqual(self.test_resource1.resource_type.mimetype, "image/rgb+png")
 
     def test_post_image_claiming_txt(self):
-        file_obj = StringIO()
+        file_obj = six.StringIO()
         image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
         image.save(file_obj, "png")
         file_obj.name = "page1.png"
@@ -277,3 +280,46 @@ class ResourceProcessingTestCase(
     #       "/resource/8aa7e270b1c54be49dde5a682b16cda7/",
     #       resource_update, format='json').data
     #     self.assertEqual(response['resource_type'], 'text/plain')
+
+
+class ResourceArchiveTestCase(
+    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
+):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_basic_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+
+    def test_get_no_uuids(self):
+        response = self.client.get("/api/resources/archive/")
+        anticipated_message = {
+            "resource_uuid": ["You must supply a list of resource UUIDs."]
+        }
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, anticipated_message)
+
+    def test_get_invalid_uuid(self):
+        response = self.client.get(
+            "/api/resources/archive/",
+            {"resource_uuid": ["00000000-0000-0000-0000-000000000000"]}
+        )
+        anticipated_message = {
+            "resource_uuid": ["The specified resources must exist."]
+        }
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, anticipated_message)
+
+    def test_get_zip(self):
+        r1 = mommy.make("rodan.Resource", name="r1.txt", _create_files=True)
+        response = self.client.get(
+            "/api/resources/archive/",
+            {
+                "resource_uuid": [str(r1.uuid)]
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        with tempfile.TemporaryFile() as f:
+            f.write(response.getvalue())
+            with zipfile.ZipFile(f, 'r') as archive:
+                self.assertEqual(archive.testzip(), None)

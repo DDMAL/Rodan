@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.db.utils import DataError
 from django.http import (
     Http404,
+    FileResponse
     # HttpResponseRedirect
 )
 from django.shortcuts import render
@@ -384,3 +385,31 @@ class ResourceAcquireView(generics.GenericAPIView):
             ),
             'working_user_expiry': expiry_date
         })
+
+
+class ResourceArchive(generics.GenericAPIView):
+    """
+    Create and return an archive of resource files
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+
+    def get(self, request, format=None):
+        resource_uuids = request.query_params.getlist('resource_uuid', None)
+        if not resource_uuids:
+            raise ValidationError({'resource_uuid': ["You must supply a list of resource UUIDs."]})
+
+        archive = registry.tasks['rodan.core.create_archive'] \
+            .si(resource_uuids).apply_async(queue="celery")
+        storage = archive.get()
+        if storage is None:
+            raise ValidationError({'resource_uuid': ["The specified resources must exist."]})
+        print("Have response")
+        response = FileResponse(
+            storage,
+            content_type="application/zip"
+        )
+        response['Content-Disposition'] = "attachment; filename=Archive.zip"
+        return response
