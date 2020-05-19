@@ -70,7 +70,7 @@ from rodan.views.interactive import (
 from rodan.views.main import APIRoot, EmptyView
 
 # run-once import, initialize Rodan database
-if os.environ.get("TRAVIS", "False") != "true":
+if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("MIGRATE", "False") == "False":
     import rodan.jobs.load  # noqa
 
 # Admin URL pattern.
