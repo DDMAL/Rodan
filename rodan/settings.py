@@ -150,6 +150,7 @@ RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.pixel_wrapper",
     #py2 "rodan.jobs.text_alignment",
     #py2 "rodan.jobs.vis-rodan",
+    #py2 "rodan.jobs.biollante-rodan",
 ]
 RODAN_PYTHON3_JOBS = [
     #py3 "rodan.jobs.helloworld",
