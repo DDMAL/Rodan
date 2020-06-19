@@ -26,6 +26,7 @@ rodan/jobs/neon-wrapper/
 rodan/jobs/MEI_encoding
 rodan/jobs/text_alignment
 rodan/jobs/hpc-fast-trainer
+rodan/jobs/biollante-rodan
 
 /.DS_Store
 
