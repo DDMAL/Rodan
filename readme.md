@@ -1,4 +1,4 @@
-# Rodan
+<img src="https://ddmal.music.mcgill.ca/Rodan/img/rodan-logo-sm.png">
 
 Please visit http://ddmal.github.io/Rodan/ for User Documentation.
 
