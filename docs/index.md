@@ -5,6 +5,7 @@
 
 Welcome to the Rodan API documentation!
 =======================================
+.. mdinclude:: ../README.md
 
 .. toctree::
    :maxdepth: 2
@@ -27,11 +28,3 @@ Welcome to the Rodan API documentation!
 
    models/*
 
-.. mdinclude:: ../README.md
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
