@@ -24,6 +24,8 @@ def print_table(table):
 
 
 class Command(BaseCommand):
+    """
+    """
     help = "Alter the description and/or extension of a Rodan resource type."
 
     def handle(self, *args, **options):

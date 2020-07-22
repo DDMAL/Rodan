@@ -10,6 +10,8 @@ if sys.version_info.major == 2:
 
 
 class Command(BaseCommand):
+    """
+    """
     help = "List current rodan jobs"
 
     def add_arguments(self, parser):

@@ -47,3 +47,4 @@ rodan/static/
 *.log
 
 env/
+docs/_build

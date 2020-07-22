@@ -175,10 +175,13 @@ elif RODAN_JOB_QUEUE == "Python3":
 elif RODAN_JOB_QUEUE == "GPU":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_GPU_JOBS
+elif RODAN_JOB_QUEUE == "Docs":
+    RODAN_JOB_PACKAGES = []
 else:
     raise EnvironmentError(
-        "An environment was not built for that specific rodan job-queue yet. " +
-        "Build one and try again."
+        "An environment was not built for that specific rodan job-queue yet.\n"
+        "\tBuild one and try again.\n"
+        "\t{}\n".format(RODAN_JOB_QUEUE)
     )
 
 # Jobs that depend on binaries.
