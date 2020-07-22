@@ -14,7 +14,8 @@ class InputPortList(generics.ListCreateAPIView):
     Returns a list of InputPorts. Accepts a POST request with a data body to create
     a new InputPort. POST requests will return the newly-created InputPort object.
 
-    #### Other GET Parameters
+    **Parameters**
+
     - `has_connections` -- if `true/True/TRUE`, return "satisfied" InputPorts only;
       if `false/False/FALSE`, return "unsatisfied" InputPorts only; other values
       will be ignored.

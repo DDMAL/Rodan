@@ -52,7 +52,8 @@ class WorkflowRunList(generics.ListCreateAPIView):
     Creating a new WorkflowRun instance executes the workflow. Meanwhile, RunJobs,
     Inputs, Outputs and Resources are created corresponding to the workflow.
 
-    #### Other Parameters
+    **Parameters**
+
     - `workflow` -- GET & POST. UUID(GET) or Hyperlink(POST) of a Workflow.
     - `resource_assignments` -- POST-only. A JSON object. Keys are URLs of InputPorts
       in the Workflow, and values are list of Resource URLs.

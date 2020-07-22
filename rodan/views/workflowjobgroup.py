@@ -14,7 +14,8 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     to create a new WorkflowJobGroup. POST requests will return the newly-created
     WorkflowJobGroup object.
 
-    #### Other POST Parameters
+    **Parameters**
+
     - `workflow_jobs`
     """
 

@@ -20,7 +20,8 @@ class UserList(generics.ListCreateAPIView):
     Returns a list of Users. Accepts POST requests to create a new User.
     A successful POST request will return the newly created User object.
 
-    #### Parameters
+    **Parameters**
+
     - `username` -- GET & POST.
     - `password` -- GET & POST.
     """

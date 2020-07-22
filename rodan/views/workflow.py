@@ -23,7 +23,8 @@ class WorkflowList(generics.ListCreateAPIView):
     Returns a list of all Workflows. Accepts a POST request with a data body to
     create a new Workflow. POST requests will return the newly-created Workflow object.
 
-    #### Other Parameters
+    **Parameters**
+
     - `project` -- GET & POST. UUID of a Project for GET, URL of a Project for POST.
     - `name` -- POST-only.
     - `valid` -- (optional) POST-only. Should be empty string.
@@ -61,10 +62,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Performs operations on a single Workflow instance.
 
-    #### Parameters
+    **Parameters**
+
     - `export` -- GET-only. If provided, Rodan will export the workflow into JSON format.
-    - `valid` -- PATCH-only. If provided with non-empty string, workflow validation
-      will be triggered.
+    - `valid` -- PATCH-only. If provided with non-empty string, workflow validation will be triggered.
     """
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
@@ -333,6 +334,11 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class WorkflowValidationError(Exception):
+    """
+    **Parameters**
+
+    TODO: Finish these
+    """
     def __init__(self, error_code, details, associated_objects=[]):
         super(WorkflowValidationError, self).__init__()
         self.error_code = error_code
@@ -341,6 +347,11 @@ class WorkflowValidationError(Exception):
 
 
 class DisjointSet(object):
+    """
+    **Parameters**
+
+    TODO: Finish these
+    """
     def __init__(self, xs):
         self._parent = {}
         # MakeSet
