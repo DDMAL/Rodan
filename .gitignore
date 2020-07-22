@@ -48,3 +48,6 @@ rodan/static/
 
 env/
 docs/_build
+docs/*
+*.egg-info/
+.mypy_cache/
