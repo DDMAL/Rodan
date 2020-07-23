@@ -48,7 +48,7 @@ from rodan.jobs import (
 )
 
 if sys.version_info.major == 2:
-    input = raw_input
+    input = raw_input  # noqa
 
 logger = logging.getLogger('rodan')
 UPDATE_JOBS = getattr(settings, "_update_rodan_jobs", False)  # set when python manage.py migrate

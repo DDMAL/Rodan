@@ -6,7 +6,7 @@ from rodan.models import Job
 from .alter_resource_type import print_table
 
 if sys.version_info.major == 2:
-    input = raw_input
+    input = raw_input  # noqa
 
 
 class Command(BaseCommand):

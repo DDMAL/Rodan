@@ -33,7 +33,7 @@ class RodanTestSetUpMixin(object):
         import rodan.jobs.load
         import rodan.test.dummy_jobs
 
-        reload(rodan.test.dummy_jobs)
+        reload(rodan.test.dummy_jobs)  # noqa
 
     def setUp_user(self):
         self.test_user = User.objects.create_user(

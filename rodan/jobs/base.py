@@ -44,7 +44,7 @@ import logging
 logger = logging.getLogger("rodan")
 
 if sys.version_info.major == 2:
-    input = raw_input
+    input = raw_input  # noqa
 
 
 class RodanTaskType(TaskType):
@@ -692,7 +692,7 @@ class RodanTask(Task):
             self.settings_update = {}
             self.response = response
             for k, v in settings_update.items():
-                if isinstance(k, basestring) and k.startswith("@"):
+                if isinstance(k, basestring) and k.startswith("@"):  # noqa
                     self.settings_update[k] = v
 
     def tempdir(self):
