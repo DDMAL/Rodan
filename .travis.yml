@@ -1,4 +1,4 @@
-if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop)"
+if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop) OR (banch = develop AND type IN (pull_request, cron))"
 language: python
 virtualenv:
   system_site_packages: true
