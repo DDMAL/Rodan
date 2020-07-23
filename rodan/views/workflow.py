@@ -64,8 +64,10 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     **Parameters**
 
-    - `export` -- GET-only. If provided, Rodan will export the workflow into JSON format.
-    - `valid` -- PATCH-only. If provided with non-empty string, workflow validation will be triggered.
+    - `export` -- GET-only. If provided, Rodan will export the workflow into JSON
+        format.
+    - `valid` -- PATCH-only. If provided with non-empty string, workflow validation
+        will be triggered.
     """
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
