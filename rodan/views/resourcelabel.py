@@ -5,7 +5,6 @@ from rest_framework import (
 )
 
 from rodan.models.resourcelabel import ResourceLabel
-from rodan.permissions import CustomObjectPermissions
 from rodan.serializers.resourcelabel import ResourceLabelSerializer
 from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOption
 
