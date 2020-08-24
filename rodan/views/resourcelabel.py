@@ -13,7 +13,7 @@ from rodan.paginators.pagination import CustomPaginationWithDisablePaginationOpt
 class ResourceLabelList(generics.ListAPIView):
     """
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = ResourceLabel.objects.all()
     serializer_class = ResourceLabelSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
@@ -27,7 +27,7 @@ class ResourceLabelList(generics.ListAPIView):
 class ResourceLabelDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = ResourceLabel.objects.all()
     serializer_class = ResourceLabelSerializer
     filter_backends = ()
