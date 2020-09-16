@@ -363,10 +363,10 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
             project = instance.project
         elif sender in (WorkflowJob, WorkflowJobGroup):
             project = instance.workflow.project
-        elif sender in (InputPort, OutputPort, WorkflowJobCoordinateSet):
+        elif sender in (InputPort, OutputPort):  # WorkflowJobCoordinateSet
             project = instance.workflow_job.workflow.project
-        elif sender in (WorkflowJobGroupCoordinateSet, ):
-            project = instance.workflow_job_group.workflow.project
+        # elif sender in (WorkflowJobGroupCoordinateSet, ):
+        #     project = instance.workflow_job_group.workflow.project
         elif sender in (Connection, ):
             project = instance.input_port.workflow_job.workflow.project
         elif sender in (RunJob, ResultsPackage):
