@@ -229,6 +229,7 @@ def create_diva(resource_id):
     # With OpenJPEG
     # creates a dark red tint on the image, it literally replaces the color profile.
     # Should not be used until this bug is fixed.
+    # /opt/openjpeg/build/bin/opj_compress -i original_file.png -o original_file.jp2 -n 5 -b 64,64 -c [256,256],[256,256],[128,128] -I -SOP -p LRCP -r 1,2,4,8
     #
     # subprocess.check_call(
     #     args=[
@@ -257,10 +258,11 @@ def create_diva(resource_id):
     # Uses openjpeg and fixes the color profile issue but resources are
     # avg. 5 times larger than with kakadu.
     # The average speed it takes to convert an image seems fast enough for users
+    # /opt/grok/build/bin/grk_compress -i original_file -o ngrok.jp2 -n 5 -c [256,256],[256,256],[128,128] -SOP -p LRCP -r 16,8,4,2
     #
     # subprocess.check_call(
     #     args=[
-    #         "/opt/grok/bin/opj_compress",
+    #         "/opt/grok/build/bin/grk_compress",
     #         "-i", tmp_file,
     #         "-o", "/tmp/" + name + ".jp2",
     #         "-n", "5",
