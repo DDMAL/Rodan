@@ -17,7 +17,6 @@ def define_json(*args, **kwargs):
 
 
 def define_png(filename, mime=None):
-    # [TODO] Read alpha channel for rgba
     png_mimetypes = {
         "1-bit grayscale": "image/onebit+png",
         "16-bit grayscale": "image/grey16+png",
@@ -81,6 +80,8 @@ def define_text(filename, mime=None):
         "Duration,Acoustic_Guitar_Fraction,Amount_of_Arpeggiation,Average_Melodic_Interval,Average_Note_Duration,Average_Note_To_Note_Dynamics_Change,Average_Number_of_Independent_Voices,Average_Range_of_Glissandos,Average_Time_Between_Attacks,Average_Time_Between_Attacks_For_Each_Voice,Average_Variability_of_Time_Between_Attacks_For_Each_Voice,Brass_Fraction,Changes_of_Meter,Chromatic_Motion,Combined_Strength_of_Two_Strongest_Rhythmic_Pulses,Compound_Or_Simple_Meter,Direction_of_Motion,Distance_Between_Most_Common_Melodic_Intervals,Dominant_Spread,Duration_of_Melodic_Arcs,Electric_Guitar_Fraction,Electric_Instrument_Fraction,Glissando_Prevalence,Harmonicity_of_Two_Strongest_Rhythmic_Pulses,Importance_of_Bass_Register,Importance_of_High_Register,Importance_of_Loudest_Voice,Importance_of_Middle_Register,Initial_Tempo,Interval_Between_Strongest_Pitch_Classes,Interval_Between_Strongest_Pitches,Maximum_Note_Duration,Maximum_Number_of_Independent_Voices,Melodic_Fifths,Melodic_Intervals_in_Lowest_Line,Melodic_Octaves,Melodic_Thirds,Melodic_Tritones,Minimum_Note_Duration,Most_Common_Melodic_Interval,Most_Common_Melodic_Interval_Prevalence,Most_Common_Pitch_Class,Most_Common_Pitch_Class_Prevalence,Most_Common_Pitch,Most_Common_Pitch_Prevalence,Note_Density,Number_of_Common_Melodic_Intervals,Number_of_Common_Pitches,Number_of_Moderate_Pulses,Number_of_Pitched_Instruments,Number_of_Relatively_Strong_Pulses,Number_of_Strong_Pulses,Number_of_Unpitched_Instruments,Orchestral_Strings_Fraction,Overall_Dynamic_Range,Percussion_Prevalence,Pitch_Class_Variety,Pitch_Variety,Polyrhythms,Primary_Register,Quality,Quintuple_Meter,Range,Range_of_Highest_Line,Relative_Note_Density_of_Highest_Line,Relative_Range_of_Loudest_Voice,Relative_Strength_of_Most_Common_Intervals,Relative_Strength_of_Top_Pitch_Classes,Relative_Strength_of_Top_Pitches,Repeated_Notes,Rhythmic_Looseness,Rhythmic_Variability,Saxophone_Fraction,Second_Strongest_Rhythmic_Pulse,Size_of_Melodic_Arcs,Staccato_Incidence,Stepwise_Motion,Strength_of_Second_Strongest_Rhythmic_Pulse,Strength_of_Strongest_Rhythmic_Pulse,Strength_Ratio_of_Two_Strongest_Rhythmic_Pulses,String_Ensemble_Fraction,String_Keyboard_Fraction,Strong_Tonal_Centres,Strongest_Rhythmic_Pulse,Triple_Meter,Variability_of_Note_Duration,Variability_of_Note_Prevalence_of_Pitched_Instruments,Variability_of_Note_Prevalence_of_Unpitched_Instruments,Variability_of_Number_of_Independent_Voices,Variability_of_Time_Between_Attacks,Variation_of_Dynamics,Variation_of_Dynamics_In_Each_Voice,Vibrato_Prevalence,Violin_Fraction,Voice_Equality_-_Dynamics,Voice_Equality_-_Melodic_Leaps,Voice_Equality_-_Note_Duration,Voice_Equality_-_Number_of_Notes,Voice_Equality_-_Range,Voice_Separation,Woodwinds_Fraction,": "application/arff+csv",  # noqa
         ",Basso seguente,Figured bass": "application/x-vis_figuredbass_pandas_series+csv",
         "<features_to_extract>": "application/jsc+txt",
+        # This ought not be called a CSV file.
+        "imagePath,imagesBinary,name,folio,description,classification,mei,review,dob,project": "text/csv", 
     }
 
     try:
@@ -123,6 +124,10 @@ def define_stream(filename, mime=None):
     if data[0:2] == b"\x80\x02":
         # [TODO] Change to application/x-ocropus+pyrnn
         return "application/ocropus+pyrnn"
+    
+    if data[0:4] == b"\x89\x48\x44\x46":
+        # TODO: Change to application/x-hdf 
+        return "keras/model+hdf5"
 
     return "application/octet-stream"
 
@@ -145,6 +150,7 @@ def fileparse(filename):
         "application/zip": define_zip,
         "application/json": define_json,
         "application/octet-stream": define_stream,
+        "application/x-hdf": define_stream,
     }
 
     try:
@@ -159,6 +165,14 @@ def fileparse(filename):
 
 
 if __name__ == "__main__":
+    """
+    Duplicated in tests for simplicity when adding more rodan types.
+
+    Either run:
+        python manage.py test rodan.test.test_mimetype_identification
+    or:
+        python resource_identification.py
+    """
 
     if True:
         assert fileparse("../test/files/LLIA") == "application/ace+xml"
@@ -186,5 +200,7 @@ if __name__ == "__main__":
         assert fileparse("../test/files/QIWR") == "application/json"
         assert fileparse("../test/files/PXCV") == "image/rgba+png"
         assert fileparse("../test/files/OASD") == "image/rgb+png"
+        assert fileparse("../test/files/APFX") == "keras/model+hdf5"
+        assert fileparse("../test/files/2FKA") == "text/csv"
 
         print("[+] Success - Current Filetypes work")
