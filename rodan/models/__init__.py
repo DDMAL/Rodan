@@ -41,8 +41,6 @@ from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.tempauthtoken import Tempauthtoken
-from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
-from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSet
 
 
 if sys.version_info.major == 2:
@@ -351,8 +349,6 @@ def assign_perms_project(sender, instance, created, raw, using, update_fields, *
 @receiver(post_save, sender=WorkflowJobGroup)
 @receiver(post_save, sender=InputPort)
 @receiver(post_save, sender=OutputPort)
-@receiver(post_save, sender=WorkflowJobCoordinateSet)
-@receiver(post_save, sender=WorkflowJobGroupCoordinateSet)
 @receiver(post_save, sender=Connection)
 @receiver(post_save, sender=RunJob)
 @receiver(post_save, sender=ResultsPackage)
