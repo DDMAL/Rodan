@@ -4,8 +4,8 @@ import collections
 
 
 def convert_to_unicode(data):
-    if isinstance(data, basestring):
-        return unicode(data)
+    if isinstance(data, basestring):  # noqa
+        return unicode(data)  # noqa
     elif isinstance(data, collections.Mapping):
         return dict(map(convert_to_unicode, data.items()))
     elif isinstance(data, collections.Iterable):
