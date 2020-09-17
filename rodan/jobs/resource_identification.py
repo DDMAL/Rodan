@@ -81,7 +81,7 @@ def define_text(filename, mime=None):
         ",Basso seguente,Figured bass": "application/x-vis_figuredbass_pandas_series+csv",
         "<features_to_extract>": "application/jsc+txt",
         # This ought not be called a CSV file.
-        "imagePath,imagesBinary,name,folio,description,classification,mei,review,dob,project": "text/csv", 
+        "imagePath,imagesBinary,name,folio,description,classification,mei,review,dob,project": "text/csv",  # noqa
     }
 
     try:
@@ -124,9 +124,9 @@ def define_stream(filename, mime=None):
     if data[0:2] == b"\x80\x02":
         # [TODO] Change to application/x-ocropus+pyrnn
         return "application/ocropus+pyrnn"
-    
+
     if data[0:4] == b"\x89\x48\x44\x46":
-        # TODO: Change to application/x-hdf 
+        # TODO: Change to application/x-hdf
         return "keras/model+hdf5"
 
     return "application/octet-stream"
