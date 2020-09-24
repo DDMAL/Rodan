@@ -74,7 +74,7 @@ class WorkflowJob(models.Model):
     # OneToOneField continuously errors and asks for unique=True when it is already present.
     # For this reason, a ForeignKey is still used.
     appearance = JSONField(
-        default={"x":0.5, "y":0.5},
+        default={"x": 0.5, "y": 0.5},
     )
 
     def save(self, *args, **kwargs):

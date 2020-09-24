@@ -708,7 +708,10 @@ class RodanWorkflowSerializationFormat_v_0_2(RodanWorkflowSerializationFormat_v_
         for wfj_s in serialized["workflow_jobs"]:
             j = Job.objects.get(name=wfj_s["job_name"])
             wfj = WorkflowJob.objects.create(
-                workflow=wf, job=j, job_settings=wfj_s["job_settings"], appearance=wfj_s["appearance"]
+                workflow=wf,
+                job=j,
+                job_settings=wfj_s["job_settings"],
+                appearance=wfj_s["appearance"]
             )
             for ip_s in wfj_s["input_ports"]:
                 ip = InputPort.objects.create(
@@ -735,6 +738,7 @@ class RodanWorkflowSerializationFormat_v_0_2(RodanWorkflowSerializationFormat_v_
             return wf
         elif isinstance(project_or_workflow, Workflow):
             return loaded_wfjs
+
 
 version_map = {
     0.1: RodanWorkflowSerializationFormat_v_0_1(),

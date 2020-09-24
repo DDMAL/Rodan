@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from jsonfield import JSONField
 
+
 class WorkflowJobGroup(models.Model):
     """
     A `WorkflowJobGroup` is a container representing the grouping of `WorkflowJob`s.
@@ -50,7 +51,7 @@ class WorkflowJobGroup(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
     appearance = JSONField(
-        default={"x":0.5, "y":0.5},
+        default={"x": 0.5, "y": 0.5},
     )
 
     def __unicode__(self):
