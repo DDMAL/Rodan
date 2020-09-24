@@ -44,7 +44,7 @@ from rodan.models.tempauthtoken import Tempauthtoken
 
 
 if sys.version_info.major == 2:
-    input = raw_input
+    input = raw_input  # noqa
 
 
 @receiver(post_migrate)
@@ -265,7 +265,7 @@ def update_database_trigger(sender, **kwargs):
                         cur_sudo.execute(publish_message)
                         solved = True
                     except Exception as e:
-                        traceback.print_exc()
+                        traceback.print_exc(e)
                         continue
 
                 elif choice == '2':
@@ -290,7 +290,7 @@ def update_database_trigger(sender, **kwargs):
                         else:
                             solved = True
                     except Exception as e:
-                        traceback.print_exc()
+                        traceback.print_exc(e)
                         continue
         else:
             raise

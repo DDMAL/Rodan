@@ -38,3 +38,5 @@ class MimeTypeTestCase(unittest.TestCase):
         self.assertEqual(fileparse(base_directory + "QIWR"), "application/json")
         self.assertEqual(fileparse(base_directory + "PXCV"), "image/rgba+png")
         self.assertEqual(fileparse(base_directory + "OASD"), "image/rgb+png")
+        self.assertEqual(fileparse(base_directory + "APFX"), "keras/model+hdf5")
+        self.assertEqual(fileparse(base_directory + "2FKA"), "text/csv")

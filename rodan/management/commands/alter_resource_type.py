@@ -7,7 +7,7 @@ from django.core.management.base import (
 from rodan.models import ResourceType
 
 if sys.version_info.major == 2:
-    input = raw_input
+    input = raw_input  # noqa
 
 
 def print_table(table):
