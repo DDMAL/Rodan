@@ -3,9 +3,12 @@ from rodan.models import WorkflowJobGroup
 from rodan.serializers.workflow import version_map
 from django.conf import settings
 from rest_framework import serializers
+from rodan.serializers import TransparentField
 
 
 class WorkflowJobGroupSerializer(serializers.HyperlinkedModelSerializer):
+    appearance = TransparentField(required=False)
+
     class Meta:
         model = WorkflowJobGroup
         read_only_fields = ("created", "updated", "origin", "workflow")
@@ -19,6 +22,7 @@ class WorkflowJobGroupSerializer(serializers.HyperlinkedModelSerializer):
             "workflow_jobs",
             "created",
             "updated",
+            "appearance",
         )
 
     def validate_workflow_jobs(self, wfjs):

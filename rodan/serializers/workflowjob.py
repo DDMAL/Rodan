@@ -10,6 +10,7 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
     job_settings = TransparentField(required=False)
     input_ports = InputPortSerializer(many=True, read_only=True)
     output_ports = OutputPortSerializer(many=True, read_only=True)
+    appearance = TransparentField(required=False)
 
     class Meta:
         model = WorkflowJob
@@ -34,4 +35,5 @@ class WorkflowJobSerializer(serializers.HyperlinkedModelSerializer):
             "group",
             "created",
             "updated",
+            "appearance",
         )

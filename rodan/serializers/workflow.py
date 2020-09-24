@@ -529,4 +529,218 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             return loaded_wfjs
 
 
-version_map = {0.1: RodanWorkflowSerializationFormat_v_0_1()}
+class RodanWorkflowSerializationFormat_v_0_2(RodanWorkflowSerializationFormat_v_0_1):
+    """
+    Same as 0.1 with the addition of the appearance field
+
+    # BUG: Fix group job import in next version of serialization format.
+    """
+    __version__ = 0.2
+
+    schema = {
+        "type": "object",
+        "required": [
+            "__version__",
+            "name",
+            "description",
+            "workflow_jobs",
+            "connections",
+        ],
+        "properties": {
+            "__version__": {"type": "number"},
+            "name": {"type": "string"},
+            "description": {"type": "string"},
+            "workflow_jobs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": [
+                        "input_ports",
+                        "output_ports",
+                        "job_name",
+                        "job_settings",
+                    ],
+                    "properties": {
+                        "input_ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["type", "id", "label"],
+                                "properties": {
+                                    "type": {"type": "string"},
+                                    "id": {"type": "number"},
+                                    "label": {"type": "string"},
+                                },
+                            },
+                            "uniqueItems": True,
+                        },
+                        "output_ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["type", "id", "label"],
+                                "properties": {
+                                    "type": {"type": "string"},
+                                    "id": {"type": "number"},
+                                    "label": {"type": "string"},
+                                },
+                            },
+                            "uniqueItems": True,
+                        },
+                        "job_name": {"type": "string"},
+                        "job_settings": {"type": "object"},
+                        "appearance": {"type": "object"},
+                    },
+                },
+                "uniqueItems": True,
+            },
+            "connections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["input_port", "output_port"],
+                    "properties": {
+                        "input_port": {"type": "number"},
+                        "output_port": {"type": "number"},
+                    },
+                    "uniqueItems": True,
+                },
+            },
+        },
+    }
+
+    def dump(self, wf_or_wfjgroup):
+        if isinstance(wf_or_wfjgroup, Workflow):
+            wf = wf_or_wfjgroup
+            wfjgroup = None
+            name = wf.name
+            description = wf.description or ""
+        elif isinstance(wf_or_wfjgroup, WorkflowJobGroup):
+            wfjgroup = wf_or_wfjgroup
+            wf = wfjgroup.workflow
+            name = wfjgroup.name
+            description = wfjgroup.description or ""
+        else:
+            raise TypeError("dump(wf_or_wfjgroup) receives a wrong type of argument.")
+
+        rep = {
+            "__version__": self.__version__,
+            "name": name,
+            "description": description,
+            "workflow_jobs": [],
+            "connections": [],
+        }
+
+        ip_map = {}
+        op_map = {}
+        ids = itertools.count(start=1, step=1)
+
+        wfj_queryset = (
+            wf.workflow_jobs.all() if wfjgroup is None else wfjgroup.workflow_jobs.all()
+        )
+        for wfj in wfj_queryset:
+            rep_wfj = {
+                "job_name": wfj.job.name,
+                "job_settings": wfj.job_settings,
+                "input_ports": [],
+                "output_ports": [],
+                "appearance": wfj.appearance,
+            }
+
+            for ip in wfj.input_ports.all():
+                ip_map[ip.uuid.hex] = ids.next()
+                rep_ip = {
+                    "label": ip.label,
+                    "type": ip.input_port_type.name,
+                    "id": ip_map[ip.uuid.hex],
+                }
+                rep_wfj["input_ports"].append(rep_ip)
+
+            for op in wfj.output_ports.all():
+                op_map[op.uuid.hex] = ids.next()
+                rep_op = {
+                    "label": op.label,
+                    "type": op.output_port_type.name,
+                    "id": op_map[op.uuid.hex],
+                }
+                rep_wfj["output_ports"].append(rep_op)
+            rep["workflow_jobs"].append(rep_wfj)
+
+        if wfjgroup is None:
+            conn_queryset = Connection.objects.filter(
+                input_port__workflow_job__workflow=wf
+            )
+        else:
+            wfj_pks = list(wfj_queryset.values_list("pk", flat=True))
+            conn_queryset = Connection.objects.filter(
+                input_port__workflow_job__in=wfj_pks,
+                output_port__workflow_job__in=wfj_pks,
+            )
+        for conn in conn_queryset:
+            rep_conn = {
+                "output_port": op_map[conn.output_port.uuid.hex],
+                "input_port": ip_map[conn.input_port.uuid.hex],
+            }
+            rep["connections"].append(rep_conn)
+
+        return rep
+
+    def load(self, serialized, project_or_workflow, **k):
+        if isinstance(project_or_workflow, Project):
+            wf = Workflow.objects.create(
+                name=serialized["name"],
+                project=project_or_workflow,
+                description=serialized["description"],
+                creator=k.get("creator"),
+                valid=False,
+            )
+            loaded_wfjs = []
+        elif isinstance(project_or_workflow, Workflow):
+            wf = project_or_workflow
+            loaded_wfjs = []
+        else:
+            raise TypeError(
+                "load(serialized, project_or_workflow, **k) receives a wrong type of argument."
+            )
+        ip_map = {}
+        op_map = {}
+
+        for wfj_s in serialized["workflow_jobs"]:
+            j = Job.objects.get(name=wfj_s["job_name"])
+            wfj = WorkflowJob.objects.create(
+                workflow=wf,
+                job=j,
+                job_settings=wfj_s["job_settings"],
+                appearance=wfj_s["appearance"]
+            )
+            for ip_s in wfj_s["input_ports"]:
+                ip = InputPort.objects.create(
+                    workflow_job=wfj,
+                    input_port_type=j.input_port_types.get(name=ip_s["type"]),
+                    label=ip_s.get("label"),
+                )
+                ip_map[ip_s["id"]] = ip
+            for op_s in wfj_s["output_ports"]:
+                op = OutputPort.objects.create(
+                    workflow_job=wfj,
+                    output_port_type=j.output_port_types.get(name=op_s["type"]),
+                    label=op_s.get("label"),
+                )
+                op_map[op_s["id"]] = op
+            loaded_wfjs.append(wfj)
+        for conn_s in serialized["connections"]:
+            conn = Connection.objects.create(  # noqa
+                output_port=op_map[conn_s["output_port"]],
+                input_port=ip_map[conn_s["input_port"]],
+            )
+
+        if isinstance(project_or_workflow, Project):
+            return wf
+        elif isinstance(project_or_workflow, Workflow):
+            return loaded_wfjs
+
+
+version_map = {
+    0.1: RodanWorkflowSerializationFormat_v_0_1(),
+    0.2: RodanWorkflowSerializationFormat_v_0_2(),
+}

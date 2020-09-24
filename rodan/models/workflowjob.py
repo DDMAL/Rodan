@@ -22,6 +22,12 @@ class WorkflowJob(models.Model):
     - `name` -- user-defined name. Default: the same as `job_name`.
 
     - `group` -- a nullable reference to the `WorkflowGroup` object.
+    - `appearance` -- a JSON field including:
+        `x` -- coordinate of the center position (% of the canvas size);
+        `y` -- `y` coordinate of the center position (% of the canvas size);
+        `width` -- relative width regarding the canvas size;
+        `height` -- relative height regarding the canvas size;
+        `color` (optional) -- CSS color code.
 
     **Properties**
 
@@ -64,6 +70,12 @@ class WorkflowJob(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+
+    # OneToOneField continuously errors and asks for unique=True when it is already present.
+    # For this reason, a ForeignKey is still used.
+    appearance = JSONField(
+        default={"x": 0.5, "y": 0.5},
+    )
 
     def save(self, *args, **kwargs):
         if not self.name:

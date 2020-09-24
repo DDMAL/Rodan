@@ -120,7 +120,8 @@ ENABLE_DIVA = True
 # Resource thumbnail
 # THUMBNAIL_EXT = "jpg"
 # Supported Workflow serialization versions -- see rodan.views.workflow.version_map
-RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
+# RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.1
+RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.2
 # 30 days. NULL: never expire
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60
 # Default: 15 seconds before the authentication token expires.
