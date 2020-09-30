@@ -1,75 +1,106 @@
+from __future__ import absolute_import
+
+from collections import OrderedDict
 import os
 import shutil
-from pybagit.bagit import BagIt
+import subprocess
+import sys
+import tempfile
+import time
+import zipfile
+
 from celery import task, registry
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.db.models import Q, Case, Value, When, BooleanField
-from rodan.models import Resource, ResourceType, ResultsPackage, Workflow, WorkflowRun, WorkflowJob, Input, OutputPort, Output, Connection, RunJob, ResourceList
-from rodan.models.resultspackage import get_package_path
-from rodan.constants import task_status
 from celery import Task
 from celery.task.control import revoke
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q, Case, Value, When, BooleanField
+from pybagit.bagit import BagIt
+import six
+
+import rodan  # noqa
+from rodan.models import (
+    Resource,
+    ResourceType,
+    ResultsPackage,
+    Workflow,
+    WorkflowRun,
+    WorkflowJob,
+    InputPort,
+    Input,
+    OutputPort,
+    Output,
+    Connection,
+    RunJob,
+    ResourceList,
+)
+from rodan.models.resultspackage import get_package_path
+from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
-from diva_generate_json import GenerateJson
+from rodan.jobs.diva_generate_json import GenerateJson
+from rodan.jobs.resource_identification import fileparse
+# from rodan.celery import app
+
 
 class create_resource(Task):
     name = "rodan.core.create_resource"
+    queue = "celery"
 
     def run(self, resource_id, claimed_mimetype=None):
         resource_query = Resource.objects.filter(uuid=resource_id)
         resource_query.update(processing_status=task_status.PROCESSING)
-        resource_info = resource_query.values('resource_type__mimetype', 'resource_file')[0]
-
-        if not claimed_mimetype:
-            mimetype = resource_info['resource_type__mimetype']
-        else:
-            mimetype = claimed_mimetype
+        resource_info = resource_query.values("resource_type__mimetype", "resource_file")[0]
 
         with TemporaryDirectory() as tmpdir:
-            infile_path = resource_info['resource_file']
-            tmpfile = os.path.join(tmpdir, 'temp')
+            infile_path = resource_info["resource_file"]
+            tmpfile = os.path.join(tmpdir, "temp")
 
-            inputs = {'in': [{
-                'resource_path': infile_path,
-                'resource_type': mimetype
-            }]}
-            outputs = {'out': [{
-                'resource_path': tmpfile,
-                'resource_type': ''
-            }]}
+            if claimed_mimetype == "application/octet-stream":
+                mimetype = fileparse(infile_path)
+            else:
+                mimetype = claimed_mimetype
+
+            inputs = {"in": [{"resource_path": infile_path, "resource_type": mimetype}]}  # noqa
+            outputs = {"out": [{"resource_path": tmpfile, "resource_type": ""}]}  # noqa
 
             new_processing_status = task_status.FINISHED
 
             shutil.copy(infile_path, tmpfile)
 
             try:
-                resource_query.update(resource_type=ResourceType.objects.get(mimetype=mimetype))
-            except:
-                resource_query.update(resource_type=ResourceType.objects.get(mimetype="application/octet-stream"))
+                resource_query.update(
+                    resource_type=ResourceType.objects.get(mimetype=mimetype)
+                )
+            except ObjectDoesNotExist:
+                resource_query.update(
+                    resource_type=ResourceType.objects.get(
+                        mimetype="application/octet-stream"
+                    )
+                )
             new_processing_status = task_status.NOT_APPLICABLE
 
-            with open(tmpfile, 'rb') as f:
-                resource_object = resource_query[0]
-                if mimetype.startswith('image'):
-                    registry.tasks['rodan.core.create_diva'].run(resource_id)
+            if mimetype.startswith("image"):
+                registry.tasks["rodan.core.create_diva"].si(resource_id).apply_async(queue="celery")
 
-                resource_query.update(processing_status=new_processing_status)
+            resource_query.update(processing_status=new_processing_status)
         return True
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         resource_id = args[0]
         resource_query = Resource.objects.filter(uuid=resource_id)
 
-        if hasattr(self, '_task'):
+        if hasattr(self, "_task"):
             update = self._task._add_error_information_to_runjob(exc, einfo)
-            update['processing_status'] = task_status.FAILED
+            update["processing_status"] = task_status.FAILED
             resource_query.update(**update)
             del self._task
         else:
-            resource_query.update(processing_status=task_status.FAILED,
-                                  error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
-                                  error_details=einfo.traceback)
+            resource_query.update(
+                processing_status=task_status.FAILED,
+                error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
+                error_details=einfo.traceback,
+            )
 
 
 # @task(name="rodan.core.create_thumbnails")
@@ -102,55 +133,168 @@ class create_resource(Task):
 
 
 # if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
-if getattr(settings, 'ENABLE_DIVA'):
+if getattr(settings, "ENABLE_DIVA"):
     from distutils.spawn import find_executable
 
-    BIN_KDU_COMPRESS = getattr(settings, 'BIN_KDU_COMPRESS', None) or find_executable('kdu_compress')
+    BIN_KDU_COMPRESS = getattr(settings, "BIN_KDU_COMPRESS", None) or find_executable(
+        "kdu_compress"
+    )
     if not BIN_KDU_COMPRESS:
         raise ImportError("cannot find kdu_compress")
 
-    BIN_GM = getattr(settings, 'BIN_GM', None) or find_executable('gm')
+    BIN_GM = getattr(settings, "BIN_GM", None) or find_executable("gm")
     if not BIN_GM:
         raise ImportError("cannot find gm")
 
 
 @task(name="rodan.core.create_diva")
 def create_diva(resource_id):
-    if not getattr(settings, 'ENABLE_DIVA'):
+    if not getattr(settings, "ENABLE_DIVA"):
         return False
 
-    resource_query = Resource.objects.filter(uuid=resource_id).select_related('resource_type')
+    resource_query = Resource.objects.filter(uuid=resource_id).select_related(
+        "resource_type"
+    )
     resource_object = resource_query[0]
     mimetype = resource_object.resource_type.mimetype
 
     if not os.path.exists(resource_object.diva_path):
         os.makedirs(resource_object.diva_path)
 
-    inputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_INPUT'): [{
-        'resource_path': resource_object.resource_file.path,
-        'resource_type': mimetype
-    }]}
-    outputs = {getattr(settings, 'DIVA_JPEG2000_CONVERTER_OUTPUT'): [{
-        'resource_path': resource_object.diva_jp2_path,
-        'resource_type': 'image/jp2'
-    }]}
-    _task = registry.tasks[getattr(settings, 'DIVA_JPEG2000_CONVERTER')]
-    _task.run_my_task(inputs, {}, outputs)
+    inputs = {
+        "Image": [
+            {
+                "resource_path": resource_object.resource_file.path,
+                "resource_type": mimetype,
+            }
+        ]
+    }
+    outputs = {
+        "JPEG2000 Image": [
+            {
+                "resource_path": resource_object.diva_jp2_path,
+                "resource_type": "image/jp2",
+            }
+        ]
+    }
 
-    gen = GenerateJson(input_directory=resource_object.diva_path,
-                       output_directory=resource_object.diva_path)
-    gen.title = 'measurement'
+    task_image = inputs["Image"][0]["resource_path"]
+    with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_file:
+
+        name = os.path.basename(tmp_file.name)
+        name, ext = os.path.splitext(name)
+
+        retries = 3
+        while retries > 0:
+            try:
+                subprocess.check_call(
+                    args=[
+                        BIN_GM,
+                        "convert",
+                        "-depth", "8",  # output RGB
+                        "-compress", "None",
+                        task_image,  # image file input
+                        tmp_file.name  # tiff file output
+                    ]
+                )
+                retries = -1
+            except subprocess.CalledProcessError as e:
+                print(e)
+                print("Sleeping for 10 seconds...")
+                retries -= 1
+                time.sleep(10)
+
+        if retries == 0:
+            raise Exception("Maximum number of retries exceeded")
+
+        # With Kakadu
+        subprocess.check_call(
+            args=[
+                BIN_KDU_COMPRESS,
+                "-i", tmp_file.name,
+                "-o", name + ".jp2",
+                "-quiet",
+                "Clevels=5",
+                "Cblk={64,64}",
+                "Cprecincts={256,256},{256,256},{128,128}",
+                "Creversible=yes",
+                "Cuse_sop=yes",
+                "Corder=LRCP",
+                "ORGgen_plt=yes",
+                "ORGtparts=R",
+                "-rate", "-,1,0.5,0.25"
+            ]
+        )
+
+    # With OpenJPEG
+    # creates a dark red tint on the image, it literally replaces the color profile.
+    # Should not be used until this bug is fixed.
+    # /opt/openjpeg/build/bin/opj_compress -i original_file.png -o original_file.jp2 -n 5 -b 64,64 -c [256,256],[256,256],[128,128] -I -SOP -p LRCP -r 1,2,4,8  # noqa
+    #
+    # subprocess.check_call(
+    #     args=[
+    #         "/opt/openjpeg/build/bin/opj_compress",
+    #         "-i", tmp_file,
+    #         "-o", name + ".jp2",
+    #         "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
+    #         "-b", "64,64", # Code-block size, Cblk in kakadu
+    #         "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
+    #         # "-I" # Irreversable DWT, meaning reversable must be the default?
+    #         # Creversible in kakadu
+    #         "-SOP", # Add SOP markers
+    #         "-p", "LRCP", # Corder in kakadu
+    #         # ORGgen_plt?
+    #         # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
+    #         # ORGplt_parts in kakadu
+    #         "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
+
+    #         # Kakadu
+    #         # A dash, "-", may be used in place of the first bit-rate in the list to indicate
+    #         # that the final quality layer should include all compressed bits.
+    #     ]
+    # )
+
+    # With OpenJPEG + grok
+    # Uses openjpeg and fixes the color profile issue but resources are
+    # avg. 5 times larger than with kakadu.
+    # The average speed it takes to convert an image seems fast enough for users
+    # /opt/grok/build/bin/grk_compress -i original_file -o ngrok.jp2 -n 5 -c [256,256],[256,256],[128,128] -SOP -p LRCP -r 16,8,4,2  # noqa
+    #
+    # subprocess.check_call(
+    #     args=[
+    #         "/opt/grok/build/bin/grk_compress",
+    #         "-i", tmp_file,
+    #         "-o", "/tmp/" + name + ".jp2",
+    #         "-n", "5",
+    #         "-c", "[256,256],[256,256],[128,128]",
+    #         "-SOP",
+    #         "-p", "LRCP",
+    #         "-r","16,8,4,2"
+    #     ]
+    # )
+
+    # shutil.copyfile(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+
+    # Cleanup temporary files
+    # os.remove(tmp_file)
+    # os.remove(name + ".jp2")
+
+    gen = GenerateJson(
+        input_directory=resource_object.diva_path,
+        output_directory=resource_object.diva_path,
+    )
+    gen.title = "measurement"
     gen.generate()
-
-    #resource_query.update(has_thumb=True)
+    # resource_query.update(has_thumb=True)
     return True
-
 
 
 class package_results(Task):
     # [TODO] this code needs refactoring. It should be possible to parameterize this
     # core job in some way according to user needs...
     name = "rodan.core.package_results"
+    queue = "celery"
 
     def run(self, rp_id):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
@@ -159,32 +303,38 @@ class package_results(Task):
         mode = rp.packaging_mode
         package_path = get_package_path(rp_id)
 
-        output_objs = Output.objects.filter(
-            run_job__workflow_run=rp.workflow_run
-        ).select_related(
-            'resource', 'resource__resource_type', 'resource_list', 'run_job'
-        ).prefetch_related(
-            'resource_list__resources'
-        ).annotate(
-            is_endpoint=Case(
-                When(
-                    condition=(
-                        Q(resource__isnull=False)
-                        & (
-                            Q(resource__inputs__isnull=True)
-                            | ~Q(resource__inputs__run_job__workflow_run=rp.workflow_run)
+        output_objs = (
+            Output.objects.filter(run_job__workflow_run=rp.workflow_run)
+            .select_related(
+                "resource", "resource__resource_type", "resource_list", "run_job"
+            )
+            .prefetch_related("resource_list__resources")
+            .annotate(
+                is_endpoint=Case(
+                    When(
+                        condition=(
+                            Q(resource__isnull=False)
+                            & (
+                                Q(resource__inputs__isnull=True)
+                                | ~Q(
+                                    resource__inputs__run_job__workflow_run=rp.workflow_run
+                                )
+                            )
                         )
-                    ) | (
-                        Q(resource_list__isnull=False)
-                        & (
-                            Q(resource_list__inputs__isnull=True)
-                            | ~Q(resource_list__inputs__run_job__workflow_run=rp.workflow_run)
-                        )
+                        | (
+                            Q(resource_list__isnull=False)
+                            & (
+                                Q(resource_list__inputs__isnull=True)
+                                | ~Q(
+                                    resource_list__inputs__run_job__workflow_run=rp.workflow_run
+                                )
+                            )
+                        ),
+                        then=Value(True),
                     ),
-                    then=Value(True)
-                ),
-                default=Value(False),
-                output_field=BooleanField()
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
             )
         )
 
@@ -195,19 +345,24 @@ class package_results(Task):
         completed = 0.0
 
         with TemporaryDirectory() as td:
-            tmp_dir = os.path.join(td, rp_id)  # because rp_id will be name of the packaged zip
+            tmp_dir = os.path.join(
+                td, rp_id
+            )  # because rp_id will be name of the packaged zip
             bag = BagIt(tmp_dir)
 
             job_namefinder = self._NameFinder()
             res_namefinder = self._NameFinder()
 
             for output in output_objs:
-                if mode == 0:  # only endpoint resources, subdirectoried by different outputs
+                if mode == 0:
+                    # only endpoint resources, subdirectoried by different outputs
                     # continue if not endpoint output
                     if output.is_endpoint is False:
                         continue
 
-                    j_name = job_namefinder.find(output.run_job.workflow_job_id, output.run_job.job_name)
+                    j_name = job_namefinder.find(
+                        output.run_job.workflow_job_id, output.run_job.job_name
+                    )
                     opt_name = output.output_port_type_name
                     op_dir = os.path.join(tmp_dir, "{0} - {1}".format(j_name, opt_name))
 
@@ -216,14 +371,25 @@ class package_results(Task):
                         if output.resource is not None:
                             filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
-
-                            res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                            # [TODO]: or... find the modified resource name if
+                            # the resource_uuid still exists?
+                            res_name = res_namefinder.find(
+                                output.resource_id,
+                                output.resource.name
+                            )
                             result_filename = "{0}{1}".format(res_name, ext)
                             if not os.path.exists(op_dir):
                                 os.makedirs(op_dir)
-                            shutil.copyfile(filepath, os.path.join(op_dir, result_filename))
+                            shutil.copyfile(
+                                filepath, os.path.join(op_dir, result_filename)
+                            )
                         elif output.resource_list is not None:
-                            res_name = res_namefinder.find(output.resource_list_id, output.resource_list.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                            # [TODO]: or... find the modified resource name if the
+                            # resource_uuid still exists?
+                            res_name = res_namefinder.find(
+                                output.resource_list_id,
+                                output.resource_list.name
+                            )
                             result_foldername = "{0}.list".format(res_name)
                             result_folder = os.path.join(op_dir, result_foldername)
                             if not os.path.exists(result_folder):
@@ -231,17 +397,27 @@ class package_results(Task):
 
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
-                            for idx, r in enumerate(output.resource_list.resources.all()):
+                            for idx, r in enumerate(
+                                output.resource_list.resources.all()
+                            ):
                                 filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
-                                new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
-                                shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
+                                new_filename = "{0}{1}".format(
+                                    str(idx).zfill(zfills), ext
+                                )
+                                shutil.copyfile(
+                                    filepath, os.path.join(result_folder, new_filename)
+                                )
 
                 elif mode == 1:
-                    res_name = res_namefinder.find(output.resource_id, output.resource.name)  # [TODO]: or... find the modified resource name if the resource_uuid still exists?
+                    # [TODO]: or... find the modified resource name if the resource_uuid still
+                    # exists?
+                    res_name = res_namefinder.find(output.resource_id, output.resource.name)
                     res_dir = os.path.join(tmp_dir, res_name)
 
-                    j_name = job_namefinder.find(output.run_job.workflow_job_id, output.run_job.job_name)
+                    j_name = job_namefinder.find(
+                        output.run_job.workflow_job_id, output.run_job.job_name
+                    )
                     opt_name = output.output_port_type_name
 
                     rj_status = output.run_job.status
@@ -249,60 +425,77 @@ class package_results(Task):
                         if output.resource is not None:
                             filepath = output.resource.resource_file.path
                             ext = os.path.splitext(filepath)[1]
-                            result_filename = "{0} - {1}{2}".format(j_name, opt_name, ext)
+                            result_filename = "{0} - {1}{2}".format(
+                                j_name, opt_name, ext
+                            )
                             if not os.path.exists(res_dir):
                                 os.makedirs(res_dir)
-                            shutil.copyfile(filepath, os.path.join(res_dir, result_filename))
+                            shutil.copyfile(
+                                filepath, os.path.join(res_dir, result_filename)
+                            )
                         elif output.resource_list is not None:
-                            result_foldername = "{0} - {1}.list".format(j_name, opt_name)
+                            result_foldername = "{0} - {1}.list".format(
+                                j_name, opt_name
+                            )
                             result_folder = os.path.join(res_dir, result_foldername)
                             if not os.path.exists(result_folder):
                                 os.makedirs(result_folder)
 
                             cnt = output.resource_list.resources.count()
                             zfills = len(str(cnt))
-                            for idx, r in enumerate(output.resource_list.resources.all()):
+                            for idx, r in enumerate(
+                                output.resource_list.resources.all()
+                            ):
                                 filepath = r.resource_file.path
                                 ext = os.path.splitext(filepath)[1]
-                                new_filename = "{0}{1}".format(str(idx).zfill(zfills), ext)
-                                shutil.copyfile(filepath, os.path.join(result_folder, new_filename))
+                                new_filename = "{0}{1}".format(
+                                    str(idx).zfill(zfills), ext
+                                )
+                                shutil.copyfile(
+                                    filepath, os.path.join(result_folder, new_filename)
+                                )
 
                     elif rj_status == task_status.FAILED:
-                        result_filename = "{0} - {1} - ERROR.txt".format(j_name, opt_name)
+                        result_filename = "{0} - {1} - ERROR.txt".format(
+                            j_name, opt_name
+                        )
                         if not os.path.exists(res_dir):
                             os.makedirs(res_dir)
-                        with open(os.path.join(res_dir, result_filename), 'w') as f:
+                        with open(os.path.join(res_dir, result_filename), "w") as f:
                             f.write("Error Summary: ")
                             f.write(output.run_job.error_summary)
                             f.write("\n\nError Details:\n")
                             f.write(output.run_job.error_details)
                 elif mode == 2:
-                    raise NotImplementedError() # [TODO]
+                    raise NotImplementedError()  # [TODO]
                 else:
                     raise ValueError("mode {0} is not supported".format(mode))
 
                 completed += percentage_increment
                 rp_query.update(percent_completed=int(completed))
 
-            #print [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn]   # DEBUG
+            # DEBUG
+            # print([os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(tmp_dir)) for f in fn])  # noqa
             bag.update()
             errors = bag.validate()
             if not bag.is_valid:
-                rp_query.update(status=task_status.FAILED,
-                                error_summary="The bag failed validation.",
-                                error_details=str(errors))
+                rp_query.update(
+                    status=task_status.FAILED,
+                    error_summary="The bag failed validation.",
+                    error_details=str(errors),
+                )
 
             target_dir_name = os.path.dirname(package_path)
             if not os.path.isdir(target_dir_name):
                 os.makedirs(target_dir_name)
-            bag.package(target_dir_name, method='zip')
+            bag.package(target_dir_name, method="zip")
 
-
-        rp_query.update(status=task_status.FINISHED,
-                        percent_completed=100)
-        expiry_time = rp_query.values_list('expiry_time', flat=True)[0]
+        rp_query.update(status=task_status.FINISHED, percent_completed=100)
+        expiry_time = rp_query.values_list("expiry_time", flat=True)[0]
         if expiry_time:
-            async_task = registry.tasks['rodan.core.expire_package'].apply_async((rp_id, ), eta=expiry_time)
+            async_task = registry.tasks["rodan.core.expire_package"].apply_async(
+                (rp_id,), eta=expiry_time, queue="celery"
+            )
             expire_task_id = async_task.task_id
         else:
             expire_task_id = None
@@ -313,19 +506,23 @@ class package_results(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         rp_id = args[0]
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
-        rp_query.update(status=task_status.FAILED,
-                        error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
-                        error_details=einfo.traceback,
-                        celery_task_id=None)
+        rp_query.update(
+            status=task_status.FAILED,
+            error_summary="{0}: {1}".format(type(exc).__name__, str(exc)),
+            error_details=einfo.traceback,
+            celery_task_id=None,
+        )
 
     class _NameFinder(object):
         """
         Find a name given unique identifier and a preferred original name.
         """
+
         def __init__(self, new_name_pattern="{0} ({1})"):
             self.original_name_count = {}
             self.id_name_map = {}
             self.new_name_pattern = new_name_pattern
+
         def find(self, identifier, original_name):
             if identifier not in self.id_name_map:
                 if original_name not in self.original_name_count:
@@ -334,14 +531,18 @@ class package_results(Task):
                     return original_name
                 else:
                     self.original_name_count[original_name] += 1
-                    new_name = self.new_name_pattern.format(original_name, self.original_name_count[original_name])
+                    new_name = self.new_name_pattern.format(
+                        original_name, self.original_name_count[original_name]
+                    )
                     self.id_name_map[identifier] = new_name
                     return new_name
             else:
                 return self.id_name_map[identifier]
 
+
 class expire_package(Task):
     name = "rodan.core.expire_package"
+    queue = "celery"
 
     def run(self, rp_id):
         rp_query = ResultsPackage.objects.filter(uuid=rp_id)
@@ -351,35 +552,92 @@ class expire_package(Task):
         return True
 
 
-
 class create_workflowrun(Task):
     """
     Called by WorkflowRun create view. Given the Workflow, create Inputs, Outputs,
     and RunJobs in the newly-created WorkflowRun, and start the WorkflowRun.
     """
 
-    name = 'rodan.core.create_workflowrun'
+    name = "rodan.core.create_workflowrun"
+    queue = "celery"
 
     def run(self, wf_id, wfrun_id, resource_assignment_dict):
         workflow = Workflow.objects.get(uuid=wf_id)
         workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
 
+        def convert_string_to_model_dict(dict_):
+            """
+            Passing messages to celery is faster when using JSON, the problem is you are
+            limited by types. Pickle objects are insecure and slower, but the fact that we
+            are searching for the resource again would slow down things.
+
+            [TODO] Refactor so we don't need to query the database so often, and look
+            into the possibility of using YAML (still faster than pickle but has more
+            options than JSON. It might be possible to pass a model in yaml and that
+            would make be great.)
+            """
+            temp_dict = {}
+            for item in dict_.items():
+                if isinstance(item[1], list):
+                    try:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = [
+                            Resource.objects.get(uuid=x) for x in item[1]
+                        ]
+                    except Resource.DoesNotExist:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = [
+                            ResourceList.objects.get(uuid=x) for x in item[1]
+                        ]
+                elif isinstance(item[1], str):
+                    try:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = Resource.objects.get(
+                            uuid=item[1]
+                        )
+                    except Resource.DoesNotExist:
+                        temp_dict[InputPort.objects.get(uuid=item[0])] = ResourceList.objects.get(
+                            uuid=item[1]
+                        )
+                else:
+                    raise Exception(
+                        "Unusual input to convert_string_to_model_dict: {}".format(dict_)
+                    )
+            return temp_dict
+
+        resource_assignment_dict = convert_string_to_model_dict(resource_assignment_dict)
+
         endpoint_workflowjobs = self._endpoint_workflow_jobs(workflow)
-        singleton_workflowjobs = self._singleton_workflow_jobs(workflow, resource_assignment_dict)
+        singleton_workflowjobs = self._singleton_workflow_jobs(
+            workflow, resource_assignment_dict
+        )
         workflowjob_runjob_map = {}
         output_outputport_map = {}
         outputportrunjob_output_map = {}
 
-        def create_runjob_A(wfjob, arg_resource):
-            run_job = RunJob(workflow_job=wfjob,
-                             workflow_job_uuid=wfjob.uuid.hex,
-                             resource_uuid=arg_resource.uuid.hex if arg_resource else None,
-                             workflow_run=workflow_run,
-                             job_name=wfjob.job.name,
-                             job_settings=wfjob.job_settings)
+        def create_runjob_A(wfjob, this_ip_resource_map):
+            # Backwords compatibility:
+            # RunJob.resource_uuid is used to label which one in the resource collection
+            # the RunJob was created from. But this is not depicting the full image when
+            # there are multiple resource collections. Therefore, if there's only one
+            # resource collection (as we can tell from this_ip_resource_map), we follow
+            # the previous way; otherwise, we simply pick the first one from the map.
+            if len(this_ip_resource_map.keys()) == 0:
+                labelling_resource = None
+            else:
+                _, labelling_resource = next(iter(this_ip_resource_map.items()))
+
+            run_job = RunJob(
+                workflow_job=wfjob,
+                workflow_job_uuid=wfjob.uuid.hex,
+                resource_uuid=labelling_resource.uuid.hex if labelling_resource else None,
+                workflow_run=workflow_run,
+                job_name=wfjob.job.name,
+                job_settings=wfjob.job_settings,
+                job_queue=wfjob.job.job_queue,
+            )
             run_job.save()
 
-            outputports = OutputPort.objects.filter(workflow_job=wfjob).prefetch_related('output_port_type__resource_types')
+            outputports = OutputPort.objects.filter(
+                workflow_job=wfjob
+            ).prefetch_related("output_port_type__resource_types")
 
             for op in outputports:
                 if op.output_port_type.is_list is False:
@@ -389,26 +647,43 @@ class create_workflowrun(Task):
                     model = ResourceList
                     arg_name = "resource_list"
 
-                r = model(project=workflow_run.workflow.project,
-                          resource_type=ResourceType.objects.get(mimetype='application/octet-stream'))  # ResourceType will be determined later (see method _create_runjobs)
+                r = model(
+                    project=workflow_run.workflow.project,
+                    resource_type=ResourceType.objects.get(
+                        mimetype="application/octet-stream"
+                    ),
+                )  # ResourceType will be determined later (see method _create_runjobs)
                 r.save()
 
                 kwargs = {
-                    'output_port': op,
-                    'run_job': run_job,
+                    "output_port": op,
+                    "run_job": run_job,
                     arg_name: r,
-                    'output_port_type_name': op.output_port_type.name
+                    "output_port_type_name": op.output_port_type.name,
                 }
                 output = Output(**kwargs)
                 output.save()
 
-                r.description = """Generated by workflow: {0}-{1} \n workflow_run: {2}-{3} \n job: {4}-{5} \n workflow_job: {6}-{7} \n workflow_job setting: {8} \n run_job: {9}-{10}"""\
-                    .format(workflow_run.workflow.name, workflow_run.workflow.uuid, workflow_run.name, workflow_run.uuid,
-                            wfjob.job.name, wfjob.job.uuid,wfjob.name, wfjob.uuid, wfjob.job_settings, run_job.job_name, run_job.uuid)
-                if arg_resource:   # which resource in multiple resources?
-                    r.name = arg_resource.name
+                r.description = """Generated by workflow: {0}-{1} \n workflow_run: {2}-{3} \n job: {4}-{5} \n workflow_job: {6}-{7} \n workflow_job setting: {8} \n run_job: {9}-{10}""".format(  # noqa
+                    workflow_run.workflow.name,
+                    workflow_run.workflow.uuid,
+                    workflow_run.name,
+                    workflow_run.uuid,
+                    wfjob.job.name,
+                    wfjob.job.uuid,
+                    wfjob.name,
+                    wfjob.uuid,
+                    wfjob.job_settings,
+                    run_job.job_name,
+                    run_job.uuid,
+                )
+                if labelling_resource:
+                    # Same as the comments at the top of this function
+                    r.name = labelling_resource.name
                 else:
-                    r.name = '{0} - {1}'.format(wfjob.job.name, output.output_port_type_name)
+                    r.name = "{0} - {1}".format(
+                        wfjob.job.name, output.output_port_type_name
+                    )
 
                 r.origin = output
                 r.save()
@@ -418,66 +693,85 @@ class create_workflowrun(Task):
 
             return run_job
 
-
-        def create_runjobs(wfjob_A, arg_resource):
+        def create_runjobs(wfjob_A, this_ip_resource_map):
             if wfjob_A in workflowjob_runjob_map:
                 return workflowjob_runjob_map[wfjob_A]
 
-            runjob_A = create_runjob_A(wfjob_A, arg_resource)
+            runjob_A = create_runjob_A(wfjob_A, this_ip_resource_map)
 
-            incoming_connections = Connection.objects.filter(input_port__workflow_job=wfjob_A)
+            incoming_connections = Connection.objects.filter(
+                input_port__workflow_job=wfjob_A
+            )
 
             for conn in incoming_connections:
                 wfjob_B = conn.output_workflow_job
-                runjob_B = create_runjobs(wfjob_B, arg_resource)
+                runjob_B = create_runjobs(wfjob_B, this_ip_resource_map)
 
-                associated_output = outputportrunjob_output_map[(conn.output_port, runjob_B)]
+                associated_output = outputportrunjob_output_map[
+                    (conn.output_port, runjob_B)
+                ]
 
                 if associated_output.resource:
-                    Input(run_job=runjob_A,
-                          input_port=conn.input_port,
-                          input_port_type_name=conn.input_port.input_port_type.name,
-                          resource=associated_output.resource).save()
+                    Input(
+                        run_job=runjob_A,
+                        input_port=conn.input_port,
+                        input_port_type_name=conn.input_port.input_port_type.name,
+                        resource=associated_output.resource,
+                    ).save()
                 else:
-                    Input(run_job=runjob_A,
-                          input_port=conn.input_port,
-                          input_port_type_name=conn.input_port.input_port_type.name,
-                          resource_list=associated_output.resource_list).save()
+                    Input(
+                        run_job=runjob_A,
+                        input_port=conn.input_port,
+                        input_port_type_name=conn.input_port.input_port_type.name,
+                        resource_list=associated_output.resource_list,
+                    ).save()
             # entry inputs
             for wfj_ip in wfjob_A.input_ports.all():
                 if wfj_ip in resource_assignment_dict:
                     ress = resource_assignment_dict[wfj_ip]
                     if len(ress) > 1:
-                        entry_res = arg_resource
+                        # This InputPort links to a resource collection and we
+                        # need to find out the correct resource that we are
+                        # working on for this InputPort.
+                        entry_res = this_ip_resource_map[wfj_ip]
                     else:
+                        # This InputPort does not link to a resource collection
                         entry_res = ress[0]
 
                     if isinstance(entry_res, Resource):
-                        Input(run_job=runjob_A,
-                              input_port=wfj_ip,
-                              input_port_type_name=wfj_ip.input_port_type.name,
-                              resource=entry_res).save()
+                        Input(
+                            run_job=runjob_A,
+                            input_port=wfj_ip,
+                            input_port_type_name=wfj_ip.input_port_type.name,
+                            resource=entry_res,
+                        ).save()
                     else:
-                        Input(run_job=runjob_A,
-                              input_port=wfj_ip,
-                              input_port_type_name=wfj_ip.input_port_type.name,
-                              resource_list=entry_res).save()
+                        Input(
+                            run_job=runjob_A,
+                            input_port=wfj_ip,
+                            input_port_type_name=wfj_ip.input_port_type.name,
+                            resource_list=entry_res,
+                        ).save()
 
             # Determine ResourceType of the outputs of RunJob A
             for o in runjob_A.outputs.all():
-                resource_type_set = set(o.output_port.output_port_type.resource_types.all())
+                resource_type_set = set(
+                    o.output_port.output_port_type.resource_types.all()
+                )
                 res = o.resource or o.resource_list
 
                 if type(res) is Resource:
-                    #if type(res) is Resource:
+                    # if type(res) is Resource:
                     if len(resource_type_set) > 1:
-                        ## Eliminate this set by considering the connected InputPorts
+                        # Eliminate this set by considering the connected InputPorts
                         for connection in o.output_port.connections.all():
-                            in_type_set = set(connection.input_port.input_port_type.resource_types.all())
+                            in_type_set = set(
+                                connection.input_port.input_port_type.resource_types.all()
+                            )
                             resource_type_set.intersection_update(in_type_set)
 
                     if len(resource_type_set) > 1:
-                        ## Try to find a same resource type in the input resources.
+                        # Try to find a same resource type in the input resources.
                         for i in runjob_A.inputs.all():
                             r = i.resource or i.resource_list
                             if r.resource_type in resource_type_set:
@@ -489,7 +783,6 @@ class create_workflowrun(Task):
                         res.resource_type = resource_type_set.pop()
                     res.save()
 
-
             # for o in runjob_A.outputs.all().select_related('output_port__output_port_type'):
             #     resource_type_set = o.output_port.output_port_type.resource_types
             #     pass
@@ -497,10 +790,14 @@ class create_workflowrun(Task):
             workflowjob_runjob_map[wfjob_A] = runjob_A
             return runjob_A
 
-
-        def runjob_creation_loop(arg_resource):
+        def runjob_creation_loop(this_ip_resource_map):
+            """
+            this_ip_resource_map - an OrderedDict containing (input_port, resource)
+            pairs to guide the runjob creation process which input ports are taking
+            an element from resource collection.
+            """
             for wfjob in endpoint_workflowjobs:
-                create_runjobs(wfjob, arg_resource)
+                create_runjobs(wfjob, this_ip_resource_map)
 
             workflow_job_iteration = {}
 
@@ -511,26 +808,35 @@ class create_workflowrun(Task):
                 if wfjob not in singleton_workflowjobs:
                     del workflowjob_runjob_map[wfjob]
 
-
         # Main:
-        ress_multiple = None
-        for ip, ress in resource_assignment_dict.iteritems():
+        # Construct a list of list of (input_port, resource) pairs
+        # The outer list corresponds to the total number of resource
+        # collections assigned to the workflow execution. The inner
+        # list corresponds to the length of every collection (validation
+        # ensures they have same lengths)
+        ip_resource_pairs_collection = []
+        for ip, ress in resource_assignment_dict.items():
             if len(ress) > 1:
-                ress_multiple = ress
-                break
+                ip_resource_pairs = list(map(lambda r: (ip, r), ress))
+                ip_resource_pairs_collection.append(ip_resource_pairs)
 
-        if ress_multiple:
-            for res in ress_multiple:
-                runjob_creation_loop(res)
+        if ip_resource_pairs_collection:
+            for ip_resource_pairs_each in zip(*ip_resource_pairs_collection):
+                # We are iterating through a list of (input_port, resource) pairs
+                # with all different input_port Convert it to a dictionary for
+                # easier lookup. Use OrderedDict to make it easier to find the
+                # first one in create_runjob_A.
+                this_ip_resource_map = OrderedDict(ip_resource_pairs_each)
+                runjob_creation_loop(this_ip_resource_map)
         else:
-            runjob_creation_loop(None)
+            runjob_creation_loop(OrderedDict({}))
 
-        ## ready to process
+        # ready to process
         workflow_run.status = task_status.PROCESSING
-        workflow_run.save(update_fields=['status'])
+        workflow_run.save(update_fields=["status"])
 
-        ## call master_task
-        registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
+        # call master_task
+        registry.tasks["rodan.core.master_task"].apply_async((wfrun_id,))
 
     def _endpoint_workflow_jobs(self, workflow):
         workflow_jobs = WorkflowJob.objects.filter(workflow=workflow)
@@ -550,7 +856,9 @@ class create_workflowrun(Task):
         def traversal(wfjob):
             if wfjob in singleton_workflowjobs:
                 singleton_workflowjobs.remove(wfjob)
-            adjacent_connections = Connection.objects.filter(output_port__workflow_job=wfjob)
+            adjacent_connections = Connection.objects.filter(
+                output_port__workflow_job=wfjob
+            )
             for conn in adjacent_connections:
                 adj_wfjob = WorkflowJob.objects.get(input_ports=conn.input_port)
                 traversal(adj_wfjob)
@@ -558,14 +866,15 @@ class create_workflowrun(Task):
         for wfjob in WorkflowJob.objects.filter(workflow=workflow):
             singleton_workflowjobs.append(wfjob)
 
-        for ip, ress in resource_assignment_dict.iteritems():
+        for ip, ress in resource_assignment_dict.items():
             if len(ress) > 1:
                 initial_wfjob = ip.workflow_job
                 traversal(initial_wfjob)
 
         return singleton_workflowjobs
 
-'''
+
+"""
 @task(name="rodan.core.process_workflowrun")
 def process_workflowrun(wfrun_id):
     workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
@@ -576,40 +885,53 @@ def process_workflowrun(wfrun_id):
 
     # call master_task
     registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
-'''
-
+"""
 
 
 @task(name="rodan.core.cancel_workflowrun")
 def cancel_workflowrun(wfrun_id):
     wfrun = WorkflowRun.objects.get(uuid=wfrun_id)
-    runjobs_to_revoke_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.SCHEDULED, task_status.PROCESSING, task_status.WAITING_FOR_INPUT))
-    runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list('celery_task_id', flat=True)
+    runjobs_to_revoke_query = RunJob.objects.filter(
+        workflow_run=wfrun,
+        status__in=(
+            task_status.SCHEDULED,
+            task_status.PROCESSING,
+            task_status.WAITING_FOR_INPUT,
+        ),
+    )
+    runjobs_to_revoke_celery_id = runjobs_to_revoke_query.values_list(
+        "celery_task_id", flat=True
+    )
     for celery_id in runjobs_to_revoke_celery_id:
         if celery_id is not None:
             revoke(celery_id, terminate=True)
     runjobs_to_revoke_query.update(status=task_status.CANCELLED)
     wfrun.status = task_status.CANCELLED
-    wfrun.save(update_fields=['status'])
+    wfrun.save(update_fields=["status"])
+
 
 @task(name="rodan.core.retry_workflowrun")
 def retry_workflowrun(wfrun_id):
     wfrun = WorkflowRun.objects.get(uuid=wfrun_id)
-    runjobs_to_retry_query = RunJob.objects.filter(workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED))
+    runjobs_to_retry_query = RunJob.objects.filter(
+        workflow_run=wfrun, status__in=(task_status.FAILED, task_status.CANCELLED)
+    )
     for rj in runjobs_to_retry_query:
         rj.status = task_status.SCHEDULED
-        rj.error_summary = ''
-        rj.error_details = ''
+        rj.error_summary = ""
+        rj.error_details = ""
         original_settings = {}
-        for k, v in rj.job_settings.iteritems():
-            if not k.startswith('@'):
+        for k, v in rj.job_settings.items():
+            if not k.startswith("@"):
                 original_settings[k] = v
         rj.job_settings = original_settings
-        rj.save(update_fields=['status', 'job_settings', 'error_summary', 'error_details'])
+        rj.save(
+            update_fields=["status", "job_settings", "error_summary", "error_details"]
+        )
 
     wfrun.status = task_status.RETRYING
-    wfrun.save(update_fields=['status'])
-    registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
+    wfrun.save(update_fields=["status"])
+    registry.tasks["rodan.core.master_task"].apply_async((wfrun_id,))
 
 
 @task(name="rodan.core.redo_runjob_tree")
@@ -627,7 +949,10 @@ def redo_runjob_tree(rj_id):
         # 1. Revoke all downstream runjobs
         for o in rj.outputs.all():
             r = o.resource or o.resource_list
-            for i in r.inputs.filter(Q(run_job__workflow_run=rj.workflow_run) & ~Q(run_job__status=task_status.SCHEDULED)):
+            for i in r.inputs.filter(
+                Q(run_job__workflow_run=rj.workflow_run)
+                & ~Q(run_job__status=task_status.SCHEDULED)
+            ):
                 inner_redo(i.run_job)
 
             # 2. Clear output resources
@@ -641,25 +966,62 @@ def redo_runjob_tree(rj_id):
 
         # 3. Reset status and clear interactive data
         original_settings = {}
-        for k, v in rj.job_settings.iteritems():
-            if not k.startswith('@'):
+        for k, v in rj.job_settings.items():
+            if not k.startswith("@"):
                 original_settings[k] = v
         rj.job_settings = original_settings
         rj.status = task_status.SCHEDULED
-        rj.save(update_fields=['status', 'job_settings'])
+        rj.save(update_fields=["status", "job_settings"])
 
     inner_redo(rj)
     wfrun.status = task_status.RETRYING
-    wfrun.save(update_fields=['status'])
-    registry.tasks['rodan.core.master_task'].apply_async((wfrun.uuid.hex, ))
+    wfrun.save(update_fields=["status"])
+    registry.tasks["rodan.core.master_task"].apply_async((wfrun.uuid.hex,))
 
 
 @task(name="rodan.core.send_email")
 def send_email(subject, body, to):
-    email = EmailMessage(
-        subject,
-        body,
-        settings.EMAIL_HOST_USER,
-        to,
-    )
+    email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, to)
     email.send()
+
+
+@task(name="rodan.core.create_archive")
+def create_archive(resource_uuids):
+    """
+    Creates a zip archive of resosurces in memory for a user to download
+    """
+    condition = Q()
+    for uuid in resource_uuids:
+        condition |= Q(uuid=uuid)
+    resources = Resource.objects.filter(Q(resource_file__isnull=False) & condition)
+    # Don't return an empty zip file
+    if resources.count() == 0:
+        return None
+    temporary_storage = six.StringIO()
+    with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
+        for resource in resources:
+            if not resource.resource_file:
+                print("{} has no file!".format(resource.name))
+                continue
+
+            # determine a path that doesn't conflict
+            filepath = resource.name + "." + resource.resource_type.extension
+            if filepath in archive.namelist():
+                for i in six.moves.range(1, sys.maxint):
+                    filepath = resource.name + " ({}).".format(i) + resource.resource_type.extension
+                    if filepath not in archive.namelist():
+                        break
+
+            archive.write(
+                resource.resource_file.path,
+                filepath
+            )
+
+    temporary_storage.seek(0)
+    return temporary_storage
+
+
+# app.tasks.register(create_resource())
+# app.tasks.register(package_results())
+# app.tasks.register(expire_package)
+# app.tasks.register(create_workflowrun())

@@ -14,6 +14,7 @@ from rodan.serializers.user import UserSerializer, UserListSerializer
 
 import django_filters
 
+
 class UserList(generics.ListCreateAPIView):
     """
     Returns a list of Users. Accepts POST requests to create a new User.
@@ -23,43 +24,50 @@ class UserList(generics.ListCreateAPIView):
     - `username` -- GET & POST.
     - `password` -- GET & POST.
     """
+
     model = User
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     serializer_class = UserListSerializer
 
     class filter_class(django_filters.FilterSet):
-        username__in = django_filters.MethodFilter()
+        # username__in = django_filters.MethodFilter()
+        username__in = django_filters.filters.CharFilter(method="filter_username__in")
 
-        def filter_username__in(self, q, v):
-            vs = v.split(',')
-            return q.filter(username__in=vs)
+        # def filter_username__in(self, q, v):
+        #     vs = v.split(",")
+        #     return q.filter(username__in=vs)
+
+        def filter_username__in(self, qs, name, value):
+            value = value.split(",")
+            return qs.filter(**{name: value})
 
         class Meta:
-            model = User 
-            fields = {
-                "username": ['in']
-            }
+            model = User
+            fields = {"username": ["in"]}
 
     def get_queryset(self):
         queryset = User.objects.exclude(pk=-1)
         return queryset
 
     def post(self, request, *args, **kwargs):
-        userName = request.data.get('username', None)
-        userPass = request.data.get('password', None)
+        userName = request.data.get("username", None)
+        userPass = request.data.get("password", None)
         user = User.objects.create_user(username=userName, password=userPass)
         if not user:
-            return Response({'message': "error creating user"}, status=status.HTTP_200_OK)
-        return Response({'username': user.username}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "error creating user"}, status=status.HTTP_200_OK
+            )
+        return Response({"username": user.username}, status=status.HTTP_201_CREATED)
 
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Performs operations on a single User instance.
     """
+
     model = User
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
     _ignore_model_permissions = True
     serializer_class = UserSerializer
 
@@ -69,7 +77,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         # A user can only view it's own user detail unless it's a superuser
-        if request.user.id == int(kwargs['pk']) or request.user.is_superuser:
+        if request.user.id == int(kwargs["pk"]) or request.user.is_superuser:
             return super(UserDetail, self).get(request, *args, **kwargs)
         else:
             raise PermissionDenied("You cannot view this user's details")

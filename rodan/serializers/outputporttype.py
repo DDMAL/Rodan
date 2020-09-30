@@ -5,11 +5,13 @@ from rodan.models.outputporttype import OutputPortType
 class OutputPortTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OutputPortType
-        fields = ("url",
-                  "uuid",
-                  "job",
-                  "name",
-                  "minimum",
-                  "maximum",
-                  "is_list",
-                  "resource_types")
+        fields = (
+            "url",
+            "uuid",
+            "job",
+            "name",
+            "minimum",
+            "maximum",
+            "is_list",
+            "resource_types",
+        )

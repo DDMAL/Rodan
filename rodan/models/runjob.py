@@ -5,6 +5,7 @@ from rodan.models.job import Job
 from rodan.constants import task_status
 from django.contrib.auth.models import User
 
+
 class RunJob(models.Model):
     """
     A `RunJob` is where a `WorkflowJob` gets executed as part of a `WorkflowRun`.
@@ -24,6 +25,7 @@ class RunJob(models.Model):
       indicate the processing flow for every individual `Resource` in a batch. Allowed
       to be null when it is singleton `RunJob`.
     - `job_name` -- the Rodan `Job` name of this `RunJob`.
+    - `job_queue` -- group of celery workers that can execute this `RunJob`.
     - `job_settings` -- the settings associated with the `WorkflowJob` that is
       being executed in the `RunJob`.
     - `status` -- an integer indicating the status of `RunJob`.
@@ -55,27 +57,42 @@ class RunJob(models.Model):
       needs user input.
     - `project` -- the corresponding Rodan `Project` instance.
     """
-    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
-                      (task_status.PROCESSING, "Processing"),
-                      (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed"),
-                      (task_status.CANCELLED, "Cancelled"),
-                      (task_status.WAITING_FOR_INPUT, "Waiting for input")]
 
     class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_runjob', 'View RunJob'),
-        )
+        app_label = "rodan"
+        permissions = (("view_runjob", "View RunJob"),)
+
+    STATUS_CHOICES = [
+        (task_status.SCHEDULED, "Scheduled"),
+        (task_status.PROCESSING, "Processing"),
+        (task_status.FINISHED, "Finished"),
+        (task_status.FAILED, "Failed"),
+        (task_status.CANCELLED, "Cancelled"),
+        (task_status.WAITING_FOR_INPUT, "Waiting for input"),
+    ]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="run_jobs", on_delete=models.CASCADE, db_index=True)
-    workflow_job = models.ForeignKey("rodan.WorkflowJob", related_name="run_jobs", blank=True, null=True, on_delete=models.SET_NULL, db_index=True)
+    workflow_run = models.ForeignKey(
+        "rodan.WorkflowRun",
+        related_name="run_jobs",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+    workflow_job = models.ForeignKey(
+        "rodan.WorkflowJob",
+        related_name="run_jobs",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        db_index=True,
+    )
 
     workflow_job_uuid = models.CharField(max_length=32, db_index=True)
-    resource_uuid = models.CharField(max_length=32, blank=True, null=True, db_index=True)
+    resource_uuid = models.CharField(
+        max_length=32, blank=True, null=True, db_index=True
+    )
     job_name = models.CharField(max_length=200, db_index=True)
-
+    job_queue = models.CharField(max_length=15, default="celery")
     job_settings = JSONField(default={})
     status = models.IntegerField(choices=STATUS_CHOICES, default=0, db_index=True)
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
@@ -86,9 +103,18 @@ class RunJob(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    interactive_timings = JSONField(default=[]) # track when a person starts and submits the job
+    interactive_timings = JSONField(
+        default=[]
+    )  # track when a person starts and submits the job
 
-    working_user = models.ForeignKey(User, related_name="interactive_runjobs", null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    working_user = models.ForeignKey(
+        User,
+        related_name="interactive_runjobs",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        db_index=True,
+    )
     working_user_token = models.UUIDField(null=True)
     working_user_expiry = models.DateTimeField(null=True, db_index=True)
 

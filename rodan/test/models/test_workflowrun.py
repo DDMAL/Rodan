@@ -9,14 +9,14 @@ class WorkflowRunTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin)
     def setUp(self):
         self.setUp_rodan()
         self.test_user = mommy.make(User)
-        self.test_project = mommy.make('rodan.Project')
-        self.test_workflow = mommy.make('rodan.Workflow')
-        self.test_resource = mommy.make('rodan.resource')
+        self.test_project = mommy.make("rodan.Project")
+        self.test_workflow = mommy.make("rodan.Workflow")
+        self.test_resource = mommy.make("rodan.resource")
 
         self.test_workflowrun_data = {
             "name": "test workflowrun",
             "project": self.test_project,
-            "creator": self.test_user
+            "creator": self.test_user,
         }
 
     def test_delete(self):
@@ -28,4 +28,3 @@ class WorkflowRunTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin)
 
         retr_workflowrun2 = WorkflowRun.objects.filter(name="testworkflowrun.jpg")
         self.assertFalse(retr_workflowrun2.exists())
-

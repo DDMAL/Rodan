@@ -1,9 +1,8 @@
-import rodan
-__version__ = rodan.__version__
-
 import logging
-logger = logging.getLogger('rodan')
 
+import rodan  # noqa
 from rodan.jobs import module_loader
 
-module_loader('rodan.jobs.helloworld.helloworld')
+__version__ = "0.0.2"
+logger = logging.getLogger("rodan")
+module_loader("rodan.jobs.helloworld.helloworld")

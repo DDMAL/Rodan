@@ -3,7 +3,9 @@ from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 
 
-class UserPreferenceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+class UserPreferenceViewTestCase(
+    RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin
+):
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
@@ -12,10 +14,9 @@ class UserPreferenceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestS
 
     def test_post(self):
         up_obj = {
-            "user": "http://localhost:8000/user/{0}/".format(self.test_user.id),
-            "send_email": "false"
+            "user": "http://localhost:8000/api/user/{0}/".format(self.test_user.id),
+            "send_email": False,
         }
 
-        response = self.client.post("/userpreferences/", up_obj, format='json')
+        response = self.client.post("/api/userpreferences/", up_obj, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-

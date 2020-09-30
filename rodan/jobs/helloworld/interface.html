@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hello World INTERACTIVE!</title>
-    <meta charset="UTF-8">
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
-    <script>
-        $(document).ready(function() {
-	    $('button').click(function() {
-		$.ajax({url: '', type: 'POST', data: JSON.stringify({'user_input': $('input:text').val()}), contentType: 'application/json'});	
-	    });
-	});
-    </script>
+  <title>Hello World INTERACTIVE!</title>
+  <meta charset="UTF-8">
+  <!-- <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script> -->
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  <script>
+    $(document).ready(function() {
+        $('button').click(function() {
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: JSON.stringify({'user_input': $('input:text').val()}),
+            contentType: 'application/json',
+            // success: function() {alert("Success!")},
+            // failure: function() {alert("Failure!")}
+        });
+        setTimeout(function(){
+            close();
+        }, 5);
+      });
+    });
+  </script>
 </head>
 <body>
     <input type="text" id="text" value="{{ input }}"><br>

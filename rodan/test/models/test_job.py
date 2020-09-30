@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rodan.models.job import Job
-from model_mommy import mommy
+# from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 

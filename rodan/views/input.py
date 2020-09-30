@@ -7,25 +7,23 @@ from rodan.permissions import CustomObjectPermissions
 
 class InputList(generics.ListAPIView):
     """
-    Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the server.
+    Returns a list of Inputs. Do not accept POST request as Inputs are typically created by the
+    server.
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     queryset = Input.objects.all()
     serializer_class = InputSerializer
-    filter_fields = (
-        "resource",
-        "run_job",
-        "uuid",
-        "input_port_type_name"
-    )
+    filter_fields = ("resource", "run_job", "uuid", "input_port_type_name")
 
 
 class InputDetail(generics.RetrieveAPIView):
     """
     Query a single Input instance.
     """
-    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
+
+    permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     queryset = Input.objects.all()
     serializer_class = InputSerializer

@@ -1,5 +1,9 @@
+from __future__ import absolute_import
 from rodan.models import UserPreference
-from rodan.serializers.userpreference import UserPreferenceListSerializer, UserPreferenceSerializer
+from rodan.serializers.userpreference import (
+    UserPreferenceListSerializer,
+    UserPreferenceSerializer,
+)
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
 
@@ -11,7 +15,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 
-import urlparse
+import six.moves.urllib.parse
 
 
 class UserPreferenceList(generics.ListCreateAPIView):
@@ -29,20 +33,30 @@ class UserPreferenceList(generics.ListCreateAPIView):
         return UserPreference.objects.filter(user=user)
 
     def post(self, request, *args, **kwargs):
-        user_url = request.data.get('user', None)
+        user_url = request.data.get("user", None)
         if user_url:
             try:
-                path = urlparse.urlparse(user_url).path
+                path = six.moves.urllib.parse.urlparse(user_url).path
                 match = resolve(path)
-                user_pk = match.kwargs.get('pk')
-            except (Resolver404, User.DoesNotExist) as e:
-                raise CustomAPIException("You need to send the url of a User to create its UserPreference.", status=status.HTTP_400_BAD_REQUEST)
+                user_pk = match.kwargs.get("pk")
+            except (Resolver404, User.DoesNotExist):
+                raise CustomAPIException(
+                    "You need to send the url of a User to create its UserPreference.",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
-            raise CustomAPIException("You need to identify a User to create its UserPreference.", status=status.HTTP_400_BAD_REQUEST)
+            raise CustomAPIException(
+                "You need to identify a User to create its UserPreference.",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        userpreference_obj = UserPreference(user_id=user_pk, send_email=request.data.get('send_email', False))
+        userpreference_obj = UserPreference(
+            user_id=user_pk, send_email=request.data.get("send_email", False)
+        )
         userpreference_obj.save()
-        d = UserPreferenceSerializer(userpreference_obj, context={'request': request}).data
+        d = UserPreferenceSerializer(
+            userpreference_obj, context={"request": request}
+        ).data
         return Response(d, status=status.HTTP_201_CREATED)
 
 

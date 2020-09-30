@@ -1,8 +1,10 @@
-import os, datetime
+import datetime
+import os
 import uuid
-from django.db import models
 from django.conf import settings
+from django.db import models
 from rodan.constants import task_status
+
 
 class ResultsPackage(models.Model):
     """
@@ -33,26 +35,55 @@ class ResultsPackage(models.Model):
 
     - `delete` -- delete the package in the filesystem.
     """
+
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_resultspackage", "View ResultsPackage"),)
+
     DEFAULT_EXPIRY_TIME = datetime.timedelta(days=30)
 
-    STATUS_CHOICES = [(task_status.SCHEDULED, "Scheduled"),
-                      (task_status.PROCESSING, "Processing"),
-                      (task_status.FINISHED, "Finished"),
-                      (task_status.FAILED, "Failed"),
-                      (task_status.CANCELLED, "Cancelled"),
-                      (task_status.EXPIRED, "Expired")]
+    STATUS_CHOICES = [
+        (task_status.SCHEDULED, "Scheduled"),
+        (task_status.PROCESSING, "Processing"),
+        (task_status.FINISHED, "Finished"),
+        (task_status.FAILED, "Failed"),
+        (task_status.CANCELLED, "Cancelled"),
+        (task_status.EXPIRED, "Expired"),
+    ]
 
-    PACKAGING_MODE_CHOICES = [(0, "Only endpoint resources"),
-                              (1, "All resources -- subdirectoried by resource names"),
-                              (2, "Diagnosis, including all inputs/outputs/settings -- subdirectoried by workflow job and resource names")]
+    PACKAGING_MODE_CHOICES = [
+        (0, "Only endpoint resources"),
+        (1, "All resources -- subdirectoried by resource names"),
+        (
+            2,
+            (
+                "Diagnosis, including all inputs/outputs/settings -- subdirectoried"
+                " by workflow job and resource names"
+            ),
+        ),
+    ]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    status = models.IntegerField(choices=STATUS_CHOICES, default=task_status.SCHEDULED, db_index=True)
+    status = models.IntegerField(
+        choices=STATUS_CHOICES, default=task_status.SCHEDULED, db_index=True
+    )
     percent_completed = models.IntegerField(default=0, db_index=True)
 
-    workflow_run = models.ForeignKey("rodan.WorkflowRun", related_name="results_packages", on_delete=models.CASCADE, db_index=True)
+    workflow_run = models.ForeignKey(
+        "rodan.WorkflowRun",
+        related_name="results_packages",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
     packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES, db_index=True)
-    creator = models.ForeignKey("auth.User", related_name="results_packages", on_delete=models.SET_NULL, blank=True, null=True, db_index=True)
+    creator = models.ForeignKey(
+        "auth.User",
+        related_name="results_packages",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_index=True,
+    )
     celery_task_id = models.CharField(max_length=255, blank=True, null=True)
 
     error_summary = models.TextField(default="", blank=True, null=True)
@@ -70,21 +101,22 @@ class ResultsPackage(models.Model):
     def __unicode__(self):
         return u"<ResultsPackage {0}>".format(str(self.uuid))
 
-    class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_resultspackage', 'View ResultsPackage'),
-        )
-
     @property
     def package_path(self):
-        return get_package_path(self.uuid.hex) # backward compability (not using hyphenated UUID)
+        return get_package_path(
+            self.uuid.hex
+        )  # backward compability (not using hyphenated UUID)
 
     @property
     def package_relurl(self):
-        return "{0}/{1}".format(settings.MEDIA_URL, get_package_relpath(self.uuid.hex)) # backward compability (not using hyphenated UUID)
+        return "{0}/{1}".format(
+            settings.MEDIA_URL, get_package_relpath(self.uuid.hex)
+        )  # backward compability (not using hyphenated UUID)
+
 
 def get_package_relpath(rp_uuid):
-    return 'results_packages/{0}.zip'.format(rp_uuid)
+    return "results_packages/{0}.zip".format(rp_uuid)
+
+
 def get_package_path(rp_uuid):
     return os.path.join(settings.MEDIA_ROOT, get_package_relpath(rp_uuid))

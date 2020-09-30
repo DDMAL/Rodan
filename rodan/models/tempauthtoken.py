@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 
 class Tempauthtoken(models.Model):
     """
-    A temporary token for users to authenticate in new tab. This has been made for viewing resources.
+    A temporary token for users to authenticate in new tab. This has been made
+    for viewing resources.
 
     **Fields**
 
@@ -15,14 +16,14 @@ class Tempauthtoken(models.Model):
     """
 
     class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_tempauthtoken', 'View Temp Authtoken'),
-        )
+        app_label = "rodan"
+        permissions = (("view_tempauthtoken", "View Temp Authtoken"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     expiry = models.DateTimeField(null=True, db_index=True)
-    user = models.OneToOneField(User, related_name="temp_authtoken", on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, related_name="temp_authtoken", on_delete=models.CASCADE
+    )
 
     def __unicode__(self):
         return u"<TempAuthtoken {0} {1}>".format(str(self.uuid), self.user_id)

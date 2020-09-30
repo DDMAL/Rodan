@@ -9,31 +9,42 @@ db.sqlite
 rodan.log
 rodan_env
 .DS_Store
-gunicorn_start.sh
-celery_start.sh
-rodan/settings.py
 rodan/static/Rodan
 rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
+rodan/jobs/vis-rodan/
 rodan/jobs/interactive_classifier
+rodan/jobs/Interactive-Classifier
 rodan/jobs/jSymbolic-Rodan/
 rodan/jobs/pil-rodan/
+rodan/jobs/Calvo-classifier/
+rodan/jobs/diagonal-neume-slicing/
+rodan/jobs/heuristic-pitch-finding/
+rodan/jobs/JSOMR2MEI/
+rodan/jobs/pixel_wrapper/
+rodan/jobs/neon-wrapper/
+rodan/jobs/MEI_encoding
+rodan/jobs/text_alignment
+rodan/jobs/hpc-fast-trainer
+rodan/jobs/biollante-rodan
+rodan/jobs/MEI_resizing
 
 /.DS_Store
-
-# autoconf
-configure
-config.status
-config.log
-autom4te.cache
-
-etc/supervisor/conf.d/rodan.conf
-websocket_start.sh
-
-etc/nginx/sites-available/rodan
 
 # ignore emacs autosave file
 *~
 database.log
 celery.log
 .idea
+
+# Ignore environment variables.
+config/staging.env
+
+# Ignore static files
+staticfiles/
+rodan/static/
+
+# Ignore logs
+*.log
+
+env/

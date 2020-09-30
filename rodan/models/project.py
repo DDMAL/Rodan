@@ -1,10 +1,11 @@
-import os, uuid
+import os
 import shutil
-from django.db import models
+import uuid
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-import uuid
 from django.core.urlresolvers import reverse
+from django.db import models
+
 
 class Project(models.Model):
     """
@@ -32,14 +33,23 @@ class Project(models.Model):
     - `save` -- create the project directory if it does not exist.
     - `delete` -- delete the whole project directory.
     """
+
+    class Meta:
+        app_label = "rodan"
+        permissions = (("view_project", "View Project"),)
+
     @property
     def project_path(self):
-        return os.path.join(settings.MEDIA_ROOT, "projects", self.uuid.hex)  # backward compatible (not using hyphenated UUID)
+        return os.path.join(
+            settings.MEDIA_ROOT, "projects", self.uuid.hex
+        )  # backward compatible (not using hyphenated UUID)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True, db_index=True)
-    creator = models.ForeignKey(User, related_name="projects", on_delete=models.PROTECT, db_index=True)
+    creator = models.ForeignKey(
+        User, related_name="projects", on_delete=models.PROTECT, db_index=True
+    )
 
     admin_group = models.ForeignKey(Group, related_name="project_as_admin")
     worker_group = models.ForeignKey(Group, related_name="project_as_worker")
@@ -56,16 +66,20 @@ class Project(models.Model):
             if self.admin_group is None:
                 raise Group.DoesNotExist("Group not exist")
         except Group.DoesNotExist:
-            self.admin_group = Group.objects.create(name="project/{0}/admin".format(self.pk))
+            self.admin_group = Group.objects.create(
+                name="project/{0}/admin".format(self.pk)
+            )
         try:
             self.worker_group
             if self.worker_group is None:
                 raise Group.DoesNotExist("Worker not exist")
         except Group.DoesNotExist:
-            self.worker_group = Group.objects.create(name="project/{0}/worker".format(self.pk))
+            self.worker_group = Group.objects.create(
+                name="project/{0}/worker".format(self.pk)
+            )
 
         if save:
-            self.save(update_fields=['admin_group', 'worker_group'])
+            self.save(update_fields=["admin_group", "worker_group"])
 
     def save(self, *args, **kwargs):
         self.ensure_groups(save=False)
@@ -74,25 +88,21 @@ class Project(models.Model):
             os.makedirs(self.project_path)
 
     def delete(self, *args, **kwargs):
-        # remove protected links from input/output to resource by deleting all workflowruns prior to resources
+        # remove protected links from input/output to resource by deleting all
+        # workflowruns prior to resources
         from rodan.models import WorkflowRun
+
         WorkflowRun.objects.filter(project=self).delete()
 
         # delete project, project folder, and project groups
         proj_path = self.project_path
         ag = self.admin_group
         wg = self.worker_group
-        super(Project, self).delete(*args, **kwargs)   # cascade deletion of resources
+        super(Project, self).delete(*args, **kwargs)  # cascade deletion of resources
         ag.delete()
         wg.delete()
         if os.path.exists(proj_path):
             shutil.rmtree(proj_path)
-
-    class Meta:
-        app_label = 'rodan'
-        permissions = (
-            ('view_project', 'View Project'),
-        )
 
     @property
     def workflow_count(self):
@@ -108,8 +118,8 @@ class Project(models.Model):
 
     @property
     def admins_relurl(self):
-        return reverse('project-detail-admins', args=(self.pk, ))
+        return reverse("project-detail-admins", args=(self.pk,))
 
     @property
     def workers_relurl(self):
-        return reverse('project-detail-workers', args=(self.pk, ))
+        return reverse("project-detail-workers", args=(self.pk,))

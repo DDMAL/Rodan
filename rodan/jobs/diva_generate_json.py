@@ -22,6 +22,7 @@
 import os
 import re
 import math
+import six
 import sys
 import json
 from optparse import OptionParser
@@ -47,14 +48,14 @@ class GenerateJson(object):
         images = []
 
         for i, f in enumerate(files):
-            print f
+            print(f)
             ignore, ext = os.path.splitext(f)
             if f.startswith("."):
                 continue    # ignore hidden files
 
             if ext in ('.jp2', '.jpx'):
                 width, height = self.__img_size_jp2(os.path.join(img_dir, f))
-                print width, height
+                print(width, height)
             elif ext in ('.tiff', '.tif'):
                 width, height = self.__img_size_tiff(os.path.join(img_dir, f))
             else:
@@ -86,7 +87,7 @@ class GenerateJson(object):
         for im in images:
             page_data = []
 
-            for j in xrange(lowest_max_zoom + 1):
+            for j in six.moves.range(lowest_max_zoom + 1):
                 h = self.__incorporate_zoom(im['mx_h'], lowest_max_zoom - j)
                 w = self.__incorporate_zoom(im['mx_w'], lowest_max_zoom - j)
                 # if the dimensions of the original image are an exact multiple of 256
@@ -126,7 +127,7 @@ class GenerateJson(object):
                 'f': fn
             })
 
-        for j in xrange(lowest_max_zoom + 1):
+        for j in six.moves.range(lowest_max_zoom + 1):
             a_wid.append(t_wid[j] / float(len(images)))
             a_hei.append(t_hei[j] / float(len(images)))
 
@@ -162,8 +163,18 @@ class GenerateJson(object):
         startHeader = d.find('ihdr')
         hs = startHeader + 4
         ws = startHeader + 8
-        height = ord(d[hs]) * 256 ** 3 + ord(d[hs + 1]) * 256 ** 2 + ord(d[hs + 2]) * 256 + ord(d[hs + 3])
-        width = ord(d[ws]) * 256 ** 3 + ord(d[ws + 1]) * 256 ** 2 + ord(d[ws + 2]) * 256 + ord(d[ws + 3])
+        height = (
+            ord(d[hs]) * 256 ** 3
+            + ord(d[hs + 1]) * 256 ** 2
+            + ord(d[hs + 2]) * 256
+            + ord(d[hs + 3])
+        )
+        width = (
+            ord(d[ws]) * 256 ** 3
+            + ord(d[ws + 1]) * 256 ** 2
+            + ord(d[ws + 2]) * 256
+            + ord(d[ws + 3])
+        )
         f.close()
         return (width, height)
 
@@ -193,7 +204,7 @@ class GenerateJson(object):
     def __tryint(self, s):
         try:
             return int(s)
-        except:
+        except ValueError:
             return s
 
     def __alphanum_key(self, s):

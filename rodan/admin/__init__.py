@@ -1,1 +1,1 @@
-from rodan.admin.admin import *
+from rodan.admin.admin import *  # noqa
