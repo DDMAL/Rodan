@@ -1,4 +1,5 @@
 import os
+import logging
 import shutil
 import uuid
 from django.conf import settings
@@ -6,6 +7,8 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.db import models
 
+
+logger = logging.getLogger("rodan")
 
 class Project(models.Model):
     """
@@ -101,8 +104,11 @@ class Project(models.Model):
         super(Project, self).delete(*args, **kwargs)  # cascade deletion of resources
         ag.delete()
         wg.delete()
-        if os.path.exists(proj_path):
+        logger.info("Deleting: {}".format(proj_path))
+        try:
             shutil.rmtree(proj_path)
+        except:
+            logger.warning("Deleting folder failed: {}".format(proj_path))
 
     @property
     def workflow_count(self):
