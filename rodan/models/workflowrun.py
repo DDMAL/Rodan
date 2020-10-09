@@ -1,8 +1,12 @@
 # import os
+import logging
 import uuid
 from django.db import models
 from rodan.constants import task_status
 # import shutil
+
+
+logger = logging.getLogger("rodan")
 
 
 class WorkflowRun(models.Model):
@@ -101,7 +105,15 @@ class WorkflowRun(models.Model):
         # remove protected links from runjobs to workflowrun by deleting the jobruns
         from rodan.models import RunJob
 
-        RunJob.objects.filter(workflow_run=self).delete()
+        logger.info("Stopping workflow run: {}".format(self))
+
+        # Funny these don't work... django version? celery version?
+        # RunJob.objects.filter(workflow_run=self).delete()
+        # RunJob.objects.filter(workflow_run=self.uuid).delete()
+        for i in RunJob.objects.filter(workflow_run=self.uuid):
+            logger.info("Stopping RunJob: {}".format(i))
+            i.delete()
+
         # if os.path.exists(self.resource_path):
         #     shutil.rmtree(self.resource_path)
         super(WorkflowRun, self).delete(*args, **kwargs)

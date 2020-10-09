@@ -1,9 +1,16 @@
+import logging
 import uuid
+
+from celery.task.control import revoke
 from django.db import models
-from jsonfield import JSONField
-from rodan.models.job import Job
-from rodan.constants import task_status
 from django.contrib.auth.models import User
+from jsonfield import JSONField
+
+from rodan.constants import task_status
+from rodan.models.job import Job
+
+
+logger = logging.getLogger("rodan")
 
 
 class RunJob(models.Model):
@@ -133,3 +140,10 @@ class RunJob(models.Model):
     @property
     def project(self):
         return self.workflow_run.project
+
+    def delete(self):
+        logger.info("Killing Celery task_id: {}".format(self.celery_task_id))
+
+        # https://docs.celeryproject.org/en/v4.3.0/reference/celery.app.control.html#celery.app.control.Control.revoke  # noqa
+        # https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
+        revoke(self.celery_task_id, terminate=True, signal="SIGTERM")
