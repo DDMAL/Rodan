@@ -276,7 +276,7 @@ def create_diva(resource_id):
     # BUG: This command occasionally get's a `IOError: [Errno 2] No such file or directory`
     # Can not reliably trigger this error. It's some sort of race condition, maybe struggling
     # to figure out which job creates the resource folder?
-    # 
+    #
     #   1) Did kakadu finish converting the file?
     #   2) Does the folder exist?
     #
@@ -285,7 +285,7 @@ def create_diva(resource_id):
     # except IOError:
     #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
     #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    # 
+    #
     # if not os.path.exists(outputs['JPEG2000 Image'][0]['resource_path']):
     #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
     #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
