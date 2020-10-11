@@ -103,6 +103,7 @@ class Project(models.Model):
         # remove protected links from input/output to resource by deleting all
         # workflowruns prior to resources
         from rodan.models import WorkflowRun
+
         WorkflowRun.objects.filter(project=self).delete()
 
         # delete project, project folder, and project groups
