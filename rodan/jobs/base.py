@@ -831,8 +831,8 @@ class RodanTask(Task):
                                 raise RuntimeError(
                                     (
                                         "The job did not produce the output file"
-                                        " for {0}"
-                                    ).format(opt_name)
+                                        " for {0}.\n\n{1}"
+                                    ).format(opt_name, outputs)
                                 )
                         else:
                             files = [

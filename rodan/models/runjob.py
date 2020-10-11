@@ -133,3 +133,27 @@ class RunJob(models.Model):
     @property
     def project(self):
         return self.workflow_run.project
+
+    def delete(self):
+        from celery.task.control import revoke
+        import logging
+        from socket import error as socket_error
+        import errno
+
+        logger = logging.getLogger("rodan")
+        logger.info("Killing Celery task_id: {}".format(self.celery_task_id))
+
+        # https://docs.celeryproject.org/en/v4.3.0/reference/celery.app.control.html#celery.app.control.Control.revoke  # noqa
+        # https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
+        try:
+            revoke(self.celery_task_id, terminate=True, signal="SIGTERM")
+        except socket_error as serr:
+            # if serr.errno != errno.ECONNREFUSED:
+            if str(errno.ECONNREFUSED) not in repr(serr):
+                raise Exception(
+                    "Got: {} and not: {}\nRepr: {}".format(
+                        serr.errno,
+                        errno.ECONNREFUSED,
+                        repr(serr)
+                    )
+                )
