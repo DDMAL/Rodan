@@ -110,7 +110,8 @@ class InteractiveWorkingView(APIView):
     Rodan makes available interfaces for interactive jobs. Each endpoint accepts
     GET and POST requests.
 
-    #### Parameters
+    **Parameters**
+
     - `**kwargs` -- POST-only. Job settings.
     """
 

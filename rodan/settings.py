@@ -178,10 +178,13 @@ elif RODAN_JOB_QUEUE == "Python3":
 elif RODAN_JOB_QUEUE == "GPU":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_GPU_JOBS
+elif RODAN_JOB_QUEUE == "Docs":
+    RODAN_JOB_PACKAGES = []
 else:
     raise EnvironmentError(
-        "An environment was not built for that specific rodan job-queue yet. " +
-        "Build one and try again."
+        "An environment was not built for that specific rodan job-queue yet.\n"
+        "\tBuild one and try again.\n"
+        "\t{}\n".format(RODAN_JOB_QUEUE)
     )
 
 # Jobs that depend on binaries.
@@ -223,13 +226,13 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "/code/Rodan/rodan.log",
+            "filename": os.environ["DJANGO_ACCESS_LOG"],
             "formatter": "verbose",
         },
         "dblog": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "/code/Rodan/database.log",
+            "filename": os.environ["DJANGO_DEBUG_LOG"],
             "formatter": "verbose",
         },
     },

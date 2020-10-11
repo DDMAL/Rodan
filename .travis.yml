@@ -1,4 +1,4 @@
-if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop)"
+if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop) OR (banch = develop AND type IN (pull_request, cron))"
 language: python
 virtualenv:
   system_site_packages: true
@@ -30,6 +30,8 @@ before_install:
 - export DJANGO_SECRET_KEY=local
 - export DJANGO_ALLOWED_HOSTS=*
 - export DJANGO_MEDIA_ROOT=./data/
+- export DJANGO_ACCESS_LOG=./rodan.log
+- export DJANGO_DEBUG_LOG=./database.log
 - export CELERY_JOB_QUEUE=None
 - export POSTGRES_HOST=localhost
 - export POSTGRES_PORT=5432

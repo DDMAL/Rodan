@@ -25,7 +25,8 @@ class ResultsPackageList(generics.ListCreateAPIView):
 
     Creating a new ResultsPackage instance starts the background packaging task.
 
-    #### Other Parameters
+    **Parameters**
+
     - `workflow_run` -- GET & POST. UUID(GET) or Hyperlink(POST) of a WorkflowRun.
     """
 
@@ -93,7 +94,7 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
     """
     Perform operations on a single ResultsPackage instance.
 
-    #### Parameters
+    **Parameters**
 
     - `status` -- PATCH-only. Only valid as cancellation of the ResultsPackage.
     """

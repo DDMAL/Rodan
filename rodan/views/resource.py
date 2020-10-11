@@ -52,7 +52,8 @@ class ResourceList(generics.ListCreateAPIView):
     multiple files to create new Resource objects. It will return the newly
     created Resource objects.
 
-    #### Other Parameters
+    **Parameters**
+
     - `result_of_workflow_run` -- GET-only. UUID of a WorkflowRun. Filters the results
       of a WorkflowRun.
     - `type` -- (optional) POST-only. User can claim the type of the files using
