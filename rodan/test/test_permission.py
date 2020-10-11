@@ -549,87 +549,87 @@ class PermissionStaticTestCase(
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        # WorkflowJobCoordinateSet
-        for u in [
-            self.test_worker,
-            self.test_worker2,
-            self.test_admin,
-            self.test_creator,
-        ]:
-            workflowjobcoordinateset = mommy.make(
-                "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
-            )
-            self.client.force_authenticate(user=u)
+        # # WorkflowJobCoordinateSet
+        # for u in [
+        #     self.test_worker,
+        #     self.test_worker2,
+        #     self.test_admin,
+        #     self.test_creator,
+        # ]:
+        #     workflowjobcoordinateset = mommy.make(
+        #         "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
+        #     )
+        #     self.client.force_authenticate(user=u)
 
-            response = self.client.get(reverse("workflowjobcoordinateset-list"))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data["count"], 1)
+        #     response = self.client.get(reverse("workflowjobcoordinateset-list"))
+        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #     self.assertEqual(response.data["count"], 1)
 
-            response = self.client.get(
-                reverse(
-                    "workflowjobcoordinateset-detail",
-                    kwargs={"pk": workflowjobcoordinateset.pk},
-                )
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #     response = self.client.get(
+        #         reverse(
+        #             "workflowjobcoordinateset-detail",
+        #             kwargs={"pk": workflowjobcoordinateset.pk},
+        #         )
+        #     )
+        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-            response = self.client.patch(
-                reverse(
-                    "workflowjobcoordinateset-detail",
-                    kwargs={"pk": workflowjobcoordinateset.pk},
-                ),
-                {"user_agent": "new ua{0}".format(u.username)},
-                format="json",
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(
-                response.data["user_agent"], "new ua{0}".format(u.username)
-            )
+        #     response = self.client.patch(
+        #         reverse(
+        #             "workflowjobcoordinateset-detail",
+        #             kwargs={"pk": workflowjobcoordinateset.pk},
+        #         ),
+        #         {"user_agent": "new ua{0}".format(u.username)},
+        #         format="json",
+        #     )
+        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #     self.assertEqual(
+        #         response.data["user_agent"], "new ua{0}".format(u.username)
+        #     )
 
-            response = self.client.delete(
-                reverse(
-                    "workflowjobcoordinateset-detail",
-                    kwargs={"pk": workflowjobcoordinateset.pk},
-                    format="json",
-                )
-            )
-            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        #     response = self.client.delete(
+        #         reverse(
+        #             "workflowjobcoordinateset-detail",
+        #             kwargs={"pk": workflowjobcoordinateset.pk},
+        #             format="json",
+        #         )
+        #     )
+        #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        workflowjobcoordinateset = mommy.make(
-            "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
-        )
-        self.client.force_authenticate(user=self.test_outsider)
+        # workflowjobcoordinateset = mommy.make(
+        #     "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
+        # )
+        # self.client.force_authenticate(user=self.test_outsider)
 
-        response = self.client.get(reverse("workflowjobcoordinateset-list"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 0)
+        # response = self.client.get(reverse("workflowjobcoordinateset-list"))
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertEqual(response.data["count"], 0)
 
-        response = self.client.get(
-            reverse(
-                "workflowjobcoordinateset-detail",
-                kwargs={"pk": workflowjobcoordinateset.pk},
-            )
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # response = self.client.get(
+        #     reverse(
+        #         "workflowjobcoordinateset-detail",
+        #         kwargs={"pk": workflowjobcoordinateset.pk},
+        #     )
+        # )
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = self.client.patch(
-            reverse(
-                "workflowjobcoordinateset-detail",
-                kwargs={"pk": workflowjobcoordinateset.pk},
-            ),
-            {"user_agent": "new ua"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # response = self.client.patch(
+        #     reverse(
+        #         "workflowjobcoordinateset-detail",
+        #         kwargs={"pk": workflowjobcoordinateset.pk},
+        #     ),
+        #     {"user_agent": "new ua"},
+        #     format="json",
+        # )
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = self.client.delete(
-            reverse(
-                "workflowjobcoordinateset-detail",
-                kwargs={"pk": workflowjobcoordinateset.pk},
-                format="json",
-            )
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # response = self.client.delete(
+        #     reverse(
+        #         "workflowjobcoordinateset-detail",
+        #         kwargs={"pk": workflowjobcoordinateset.pk},
+        #         format="json",
+        #     )
+        # )
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # WorkflowJobGroup
 

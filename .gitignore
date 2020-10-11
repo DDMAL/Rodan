@@ -27,6 +27,7 @@ rodan/jobs/MEI_encoding
 rodan/jobs/text_alignment
 rodan/jobs/hpc-fast-trainer
 rodan/jobs/biollante-rodan
+rodan/jobs/MEI_resizing
 
 /.DS_Store
 

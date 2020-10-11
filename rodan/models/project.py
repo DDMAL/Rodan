@@ -1,10 +1,15 @@
 import os
+import logging
 import shutil
+import traceback
 import uuid
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.db import models
+
+
+logger = logging.getLogger("rodan")
 
 
 class Project(models.Model):
@@ -88,6 +93,13 @@ class Project(models.Model):
             os.makedirs(self.project_path)
 
     def delete(self, *args, **kwargs):
+        from rodan.models import RunJob
+
+        # logger.debug(RunJob.objects.filter(workflow_run__project=self))
+        # RunJob.objects.filter(workflow_run__project=self).delete()
+        for i in RunJob.objects.filter(workflow_run__project=self):
+            i.delete()
+
         # remove protected links from input/output to resource by deleting all
         # workflowruns prior to resources
         from rodan.models import WorkflowRun
@@ -101,8 +113,14 @@ class Project(models.Model):
         super(Project, self).delete(*args, **kwargs)  # cascade deletion of resources
         ag.delete()
         wg.delete()
-        if os.path.exists(proj_path):
+        logger.info("Deleting: {}".format(proj_path))
+
+        try:
             shutil.rmtree(proj_path)
+        except Exception as e:
+            logger.warning("Deleting folder failed: {}".format(proj_path))
+            logger.warning(e)
+            traceback.print_exc()
 
     @property
     def workflow_count(self):

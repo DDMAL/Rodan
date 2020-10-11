@@ -1,5 +1,6 @@
-from django.db import models
 import uuid
+from django.db import models
+from jsonfield import JSONField
 
 
 class WorkflowJobGroup(models.Model):
@@ -14,6 +15,12 @@ class WorkflowJobGroup(models.Model):
     - `workflow` -- the `Workflow` that it belongs to.
     - `origin` -- a nullable reference to the `Workflow` indicating where it comes
       from.
+    - `appearance` -- a JSON field including:
+        `x` -- coordinate of the center position (% of the canvas size);
+        `y` -- `y` coordinate of the center position (% of the canvas size);
+        `width` -- relative width regarding the canvas size;
+        `height` -- relative height regarding the canvas size;
+        `color` (optional) -- CSS color code.
 
     - `created`
     - `updated`
@@ -43,6 +50,9 @@ class WorkflowJobGroup(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+    appearance = JSONField(
+        default={"x": 0.5, "y": 0.5},
+    )
 
     def __unicode__(self):
         return u"<WorkflowJobGroup {0}>".format(str(self.uuid))

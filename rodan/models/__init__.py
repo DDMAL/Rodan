@@ -41,8 +41,6 @@ from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.tempauthtoken import Tempauthtoken
-from rodan.models.workflowjobcoordinateset import WorkflowJobCoordinateSet
-from rodan.models.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSet
 
 
 if sys.version_info.major == 2:
@@ -267,8 +265,7 @@ def update_database_trigger(sender, **kwargs):
                         cur_sudo.execute(publish_message)
                         solved = True
                     except Exception as e:
-                        print(e)
-                        traceback.print_exc()
+                        traceback.print_exc(e)
                         continue
 
                 elif choice == '2':
@@ -293,8 +290,7 @@ def update_database_trigger(sender, **kwargs):
                         else:
                             solved = True
                     except Exception as e:
-                        print(e)
-                        traceback.print_exc()
+                        traceback.print_exc(e)
                         continue
         else:
             raise
@@ -353,8 +349,6 @@ def assign_perms_project(sender, instance, created, raw, using, update_fields, *
 @receiver(post_save, sender=WorkflowJobGroup)
 @receiver(post_save, sender=InputPort)
 @receiver(post_save, sender=OutputPort)
-@receiver(post_save, sender=WorkflowJobCoordinateSet)
-@receiver(post_save, sender=WorkflowJobGroupCoordinateSet)
 @receiver(post_save, sender=Connection)
 @receiver(post_save, sender=RunJob)
 @receiver(post_save, sender=ResultsPackage)
@@ -369,10 +363,10 @@ def assign_perms_others(sender, instance, created, raw, using, update_fields, **
             project = instance.project
         elif sender in (WorkflowJob, WorkflowJobGroup):
             project = instance.workflow.project
-        elif sender in (InputPort, OutputPort, WorkflowJobCoordinateSet):
+        elif sender in (InputPort, OutputPort):  # WorkflowJobCoordinateSet
             project = instance.workflow_job.workflow.project
-        elif sender in (WorkflowJobGroupCoordinateSet, ):
-            project = instance.workflow_job_group.workflow.project
+        # elif sender in (WorkflowJobGroupCoordinateSet, ):
+        #     project = instance.workflow_job_group.workflow.project
         elif sender in (Connection, ):
             project = instance.input_port.workflow_job.workflow.project
         elif sender in (RunJob, ResultsPackage):

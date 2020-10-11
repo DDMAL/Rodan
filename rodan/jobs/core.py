@@ -229,6 +229,7 @@ def create_diva(resource_id):
     # With OpenJPEG
     # creates a dark red tint on the image, it literally replaces the color profile.
     # Should not be used until this bug is fixed.
+    # /opt/openjpeg/build/bin/opj_compress -i original_file.png -o original_file.jp2 -n 5 -b 64,64 -c [256,256],[256,256],[128,128] -I -SOP -p LRCP -r 1,2,4,8  # noqa
     #
     # subprocess.check_call(
     #     args=[
@@ -257,10 +258,11 @@ def create_diva(resource_id):
     # Uses openjpeg and fixes the color profile issue but resources are
     # avg. 5 times larger than with kakadu.
     # The average speed it takes to convert an image seems fast enough for users
+    # /opt/grok/build/bin/grk_compress -i original_file -o ngrok.jp2 -n 5 -c [256,256],[256,256],[128,128] -SOP -p LRCP -r 16,8,4,2  # noqa
     #
     # subprocess.check_call(
     #     args=[
-    #         "/opt/grok/bin/opj_compress",
+    #         "/opt/grok/build/bin/grk_compress",
     #         "-i", tmp_file,
     #         "-o", "/tmp/" + name + ".jp2",
     #         "-n", "5",
@@ -271,7 +273,23 @@ def create_diva(resource_id):
     #     ]
     # )
 
-    # shutil.copyfile(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    # BUG: This command occasionally get's a `IOError: [Errno 2] No such file or directory`
+    # Can not reliably trigger this error. It's some sort of race condition, maybe struggling
+    # to figure out which job creates the resource folder?
+    #
+    #   1) Did kakadu finish converting the file?
+    #   2) Does the folder exist?
+    #
+    # try:
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    # except IOError:
+    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    #
+    # if not os.path.exists(outputs['JPEG2000 Image'][0]['resource_path']):
+    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+
     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
 
     # Cleanup temporary files

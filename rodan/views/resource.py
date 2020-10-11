@@ -170,7 +170,7 @@ class ResourceList(generics.ListCreateAPIView):
         submitted_label_names = request.data.get('label_names', None)
         label_urls = []
         if submitted_label_names is not None:
-            label_names = submitted_label_names.split(',')
+            label_names = filter(lambda x: len(x) > 0, submitted_label_names.split(','))
             for name in label_names:
                 try:
                     resource_label, _ = ResourceLabel.objects.get_or_create(name=name)
@@ -244,7 +244,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
         resource_label_names = request.data.get('label_names', None)
         if resource_label_names is not None:
             label_objs = []
-            label_names = resource_label_names.split(',')
+            label_names = filter(lambda x: len(x) > 0, resource_label_names.split(','))
             for name in label_names:
                 try:
                     resource_label, _ = ResourceLabel.objects.get_or_create(name=name)

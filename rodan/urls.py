@@ -52,12 +52,6 @@ from rodan.views.resourcelist import ResourceListList, ResourceListDetail
 from rodan.views.resourcetype import ResourceTypeList, ResourceTypeDetail
 from rodan.views.output import OutputList, OutputDetail
 from rodan.views.input import InputList, InputDetail
-from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetList
-from rodan.views.workflowjobcoordinateset import WorkflowJobCoordinateSetDetail
-from rodan.views.workflowjobgroupcoordinateset import WorkflowJobGroupCoordinateSetList
-from rodan.views.workflowjobgroupcoordinateset import (
-    WorkflowJobGroupCoordinateSetDetail
-)
 from rodan.views.taskqueue import (
     TaskQueueActiveView,
     TaskQueueScheduledView,
@@ -275,26 +269,6 @@ api_patterns = [
         r"^api/interactive/(?P<run_job_uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<working_user_token>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/(?P<additional_url>.*)$",  # noqa
         InteractiveWorkingView.as_view(),
         name="interactive-working",
-    ),
-    url(
-        r"^api/workflowjobcoordinatesets/$",
-        WorkflowJobCoordinateSetList.as_view(),
-        name="workflowjobcoordinateset-list",
-    ),
-    url(
-        r"^api/workflowjobcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
-        WorkflowJobCoordinateSetDetail.as_view(),
-        name="workflowjobcoordinateset-detail",
-    ),
-    url(
-        r"^api/workflowjobgroupcoordinatesets/$",
-        WorkflowJobGroupCoordinateSetList.as_view(),
-        name="workflowjobgroupcoordinateset-list",
-    ),
-    url(
-        r"^api/workflowjobgroupcoordinateset/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",  # noqa
-        WorkflowJobGroupCoordinateSetDetail.as_view(),
-        name="workflowjobgroupcoordinateset-detail",
     ),
     url(r"^api/auth/me/", AuthMeView.as_view(), name="auth-me"),
     url(

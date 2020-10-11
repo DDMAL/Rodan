@@ -18,7 +18,6 @@ class WorkflowRunSerializer(serializers.HyperlinkedModelSerializer):
             "creator",
             "status",
             "name",
-            "description",
             "last_redone_runjob_tree",
             "created",
             "updated",
