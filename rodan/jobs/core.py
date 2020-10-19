@@ -149,6 +149,38 @@ if getattr(settings, "ENABLE_DIVA"):
 
 @task(name="rodan.core.create_diva")
 def create_diva(resource_id):
+    """
+    This celery task creates the DIVA folder and a JPEG2000 image within it.
+
+    The created JPEG2000 file is for viewing purposes inside of IIPSRV only.
+    This JPEG2000 file is NOT used for analysis or other Rodan jobs.
+
+    To enable JPEG2000 in Python Pillow you need to install OpenJPEG anyway. 
+        https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#jpeg-2000
+    
+    There is a colour profile issue that stops us from using OpenJPEG directly. For this reason, we
+    are using Grok to create the JPEG2000 for IIPSRV with the right colour profile.
+    """
+    # TODO: Move to only use python Pillow or CV2.
+    # TODO: Remove GraphicsMagick completely.
+
+    # BUG: The shutil command occasionally get's a `IOError: [Errno 2] No such file or directory`
+    # Can not reliably trigger this error. It's some sort of race condition, maybe struggling
+    # to figure out which job creates the resource folder? It happens very rarely.
+    #
+    #   1) Did kakadu finish converting the file?
+    #   2) Does the folder exist?
+    #
+    # try:
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    # except IOError:
+    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+    #
+    # if not os.path.exists(outputs['JPEG2000 Image'][0]['resource_path']):
+    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
+    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
+
     if not getattr(settings, "ENABLE_DIVA"):
         return False
 
@@ -178,123 +210,80 @@ def create_diva(resource_id):
         ]
     }
 
-    task_image = inputs["Image"][0]["resource_path"]
     with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_file:
 
         name = os.path.basename(tmp_file.name)
         name, ext = os.path.splitext(name)
 
-        retries = 3
-        while retries > 0:
-            try:
-                subprocess.check_call(
-                    args=[
-                        BIN_GM,
-                        "convert",
-                        "-depth", "8",  # output RGB
-                        "-compress", "None",
-                        task_image,  # image file input
-                        tmp_file.name  # tiff file output
-                    ]
-                )
-                retries = -1
-            except subprocess.CalledProcessError as e:
-                print(e)
-                print("Sleeping for 10 seconds...")
-                retries -= 1
-                time.sleep(10)
+        # Files
+        tiff_file = tmp_file.name
+        jp2_file = "/tmp/" + name + ".jp2"  # same file with a different extension
 
-        if retries == 0:
-            raise Exception("Maximum number of retries exceeded")
+        # subprocess.check_call(
+        #     args=[
+        #         BIN_GM,
+        #         "convert",
+        #         "-depth", "8",  # output RGB
+        #         "-compress", "None",
+        #         # image file input
+        #         inputs["Image"][0]["resource_path"],
+        #         tiff_file  # tiff file output
+        #     ]
+        # )
+        from PIL import Image
+        im = Image.open(inputs["Image"][0]["resource_path"])
+        rgb_im = im.convert('RGB')
+        rgb_im.save(tiff_file)
 
-        # With Kakadu
+        # Kakadu and OpenJPEG can only convert certain file formats.
+        # Tiff is one of those formats.
+        # This means we can convert to JPEG2000 for IIPSRV. 
         subprocess.check_call(
             args=[
-                BIN_KDU_COMPRESS,
+                ## With Kakadu
+                # BIN_KDU_COMPRESS,
+                # "-i", tmp_file.name,
+                # "-o", name + ".jp2",
+                # "-quiet",
+                # "Clevels=5",
+                # "Cblk={64,64}",
+                # "Cprecincts={256,256},{256,256},{128,128}",
+                # "Creversible=yes",
+                # "Cuse_sop=yes",
+                # "Corder=LRCP",
+                # "ORGgen_plt=yes",
+                # "ORGtparts=R",
+                # "-rate", "-,1,0.5,0.25"
+
+                ## With OpenJPEG
+                # "/opt/openjpeg/build/bin/opj_compress",
+                # "-i", tmp_file,
+                # "-o", name + ".jp2",
+                # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
+                # "-b", "64,64", # Code-block size, Cblk in kakadu
+                # "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
+                # # "-I" # Irreversable DWT, meaning reversable must be the default?
+                # # Creversible in kakadu
+                # "-SOP", # Add SOP markers
+                # "-p", "LRCP", # Corder in kakadu
+                # # ORGgen_plt?
+                # # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
+                # # ORGplt_parts in kakadu
+                # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
+                
+                ## With Grok + OpenJPEG
+                "/opt/grok/build/bin/grk_compress",
                 "-i", tmp_file.name,
-                "-o", name + ".jp2",
-                "-quiet",
-                "Clevels=5",
-                "Cblk={64,64}",
-                "Cprecincts={256,256},{256,256},{128,128}",
-                "Creversible=yes",
-                "Cuse_sop=yes",
-                "Corder=LRCP",
-                "ORGgen_plt=yes",
-                "ORGtparts=R",
-                "-rate", "-,1,0.5,0.25"
+                "-o", "/tmp/" + name + ".jp2",
+                "-n", "5",
+                "-c", "[256,256],[256,256],[128,128]",
+                "-SOP",
+                "-p", "LRCP",
+                "-r","16,8,4,2"
             ]
         )
 
-    # With OpenJPEG
-    # creates a dark red tint on the image, it literally replaces the color profile.
-    # Should not be used until this bug is fixed.
-    # /opt/openjpeg/build/bin/opj_compress -i original_file.png -o original_file.jp2 -n 5 -b 64,64 -c [256,256],[256,256],[128,128] -I -SOP -p LRCP -r 1,2,4,8  # noqa
-    #
-    # subprocess.check_call(
-    #     args=[
-    #         "/opt/openjpeg/build/bin/opj_compress",
-    #         "-i", tmp_file,
-    #         "-o", name + ".jp2",
-    #         "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
-    #         "-b", "64,64", # Code-block size, Cblk in kakadu
-    #         "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
-    #         # "-I" # Irreversable DWT, meaning reversable must be the default?
-    #         # Creversible in kakadu
-    #         "-SOP", # Add SOP markers
-    #         "-p", "LRCP", # Corder in kakadu
-    #         # ORGgen_plt?
-    #         # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
-    #         # ORGplt_parts in kakadu
-    #         "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
-
-    #         # Kakadu
-    #         # A dash, "-", may be used in place of the first bit-rate in the list to indicate
-    #         # that the final quality layer should include all compressed bits.
-    #     ]
-    # )
-
-    # With OpenJPEG + grok
-    # Uses openjpeg and fixes the color profile issue but resources are
-    # avg. 5 times larger than with kakadu.
-    # The average speed it takes to convert an image seems fast enough for users
-    # /opt/grok/build/bin/grk_compress -i original_file -o ngrok.jp2 -n 5 -c [256,256],[256,256],[128,128] -SOP -p LRCP -r 16,8,4,2  # noqa
-    #
-    # subprocess.check_call(
-    #     args=[
-    #         "/opt/grok/build/bin/grk_compress",
-    #         "-i", tmp_file,
-    #         "-o", "/tmp/" + name + ".jp2",
-    #         "-n", "5",
-    #         "-c", "[256,256],[256,256],[128,128]",
-    #         "-SOP",
-    #         "-p", "LRCP",
-    #         "-r","16,8,4,2"
-    #     ]
-    # )
-
-    # BUG: This command occasionally get's a `IOError: [Errno 2] No such file or directory`
-    # Can not reliably trigger this error. It's some sort of race condition, maybe struggling
-    # to figure out which job creates the resource folder?
-    #
-    #   1) Did kakadu finish converting the file?
-    #   2) Does the folder exist?
-    #
-    # try:
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    # except IOError:
-    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    #
-    # if not os.path.exists(outputs['JPEG2000 Image'][0]['resource_path']):
-    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-
-    shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-
-    # Cleanup temporary files
-    # os.remove(tmp_file)
-    # os.remove(name + ".jp2")
+    shutil.move(jp2_file, outputs['JPEG2000 Image'][0]['resource_path'])
 
     gen = GenerateJson(
         input_directory=resource_object.diva_path,
