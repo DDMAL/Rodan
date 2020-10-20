@@ -6,7 +6,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
 import zipfile
 
 from celery import task, registry
@@ -155,9 +154,9 @@ def create_diva(resource_id):
     The created JPEG2000 file is for viewing purposes inside of IIPSRV only.
     This JPEG2000 file is NOT used for analysis or other Rodan jobs.
 
-    To enable JPEG2000 in Python Pillow you need to install OpenJPEG anyway. 
+    To enable JPEG2000 in Python Pillow you need to install OpenJPEG anyway.
         https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#jpeg-2000
-    
+
     There is a colour profile issue that stops us from using OpenJPEG directly. For this reason, we
     are using Grok to create the JPEG2000 for IIPSRV with the right colour profile.
     """
@@ -237,10 +236,10 @@ def create_diva(resource_id):
 
         # Kakadu and OpenJPEG can only convert certain file formats.
         # Tiff is one of those formats.
-        # This means we can convert to JPEG2000 for IIPSRV. 
+        # This means we can convert to JPEG2000 for IIPSRV.
         subprocess.check_call(
             args=[
-                ## With Kakadu
+                ## With Kakadu  # noqa
                 # BIN_KDU_COMPRESS,
                 # "-i", tmp_file.name,
                 # "-o", name + ".jp2",
@@ -255,7 +254,7 @@ def create_diva(resource_id):
                 # "ORGtparts=R",
                 # "-rate", "-,1,0.5,0.25"
 
-                ## With OpenJPEG
+                ## With OpenJPEG  # noqa
                 # "/opt/openjpeg/build/bin/opj_compress",
                 # "-i", tmp_file,
                 # "-o", name + ".jp2",
@@ -270,8 +269,8 @@ def create_diva(resource_id):
                 # # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
                 # # ORGplt_parts in kakadu
                 # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
-                
-                ## With Grok + OpenJPEG
+
+                ## With Grok + OpenJPEG  # noqa
                 "/opt/grok/build/bin/grk_compress",
                 "-i", tmp_file.name,
                 "-o", "/tmp/" + name + ".jp2",
@@ -279,7 +278,7 @@ def create_diva(resource_id):
                 "-c", "[256,256],[256,256],[128,128]",
                 "-SOP",
                 "-p", "LRCP",
-                "-r","16,8,4,2"
+                "-r", "16,8,4,2"
             ]
         )
 
