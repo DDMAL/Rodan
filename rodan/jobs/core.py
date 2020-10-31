@@ -271,7 +271,7 @@ def create_diva(resource_id):
                 # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
 
                 ## With Grok + OpenJPEG  # noqa
-                "/opt/grok/build/bin/grk_compress",
+                "/vendor/grok/build/bin/grk_compress",
                 "-i", tmp_file.name,
                 "-o", "/tmp/" + name + ".jp2",
                 "-n", "5",
