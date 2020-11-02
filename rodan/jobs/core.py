@@ -240,22 +240,22 @@ def create_diva(resource_id):
         subprocess.check_call(
             args=[
                 ## With Kakadu  # noqa
-                # BIN_KDU_COMPRESS,
-                # "-i", tmp_file.name,
-                # "-o", name + ".jp2",
-                # "-quiet",
-                # "Clevels=5",
-                # "Cblk={64,64}",
-                # "Cprecincts={256,256},{256,256},{128,128}",
-                # "Creversible=yes",
-                # "Cuse_sop=yes",
-                # "Corder=LRCP",
-                # "ORGgen_plt=yes",
-                # "ORGtparts=R",
-                # "-rate", "-,1,0.5,0.25"
+                BIN_KDU_COMPRESS,
+                "-i", tmp_file.name,
+                "-o", name + ".jp2",
+                "-quiet",
+                "Clevels=5",
+                "Cblk={64,64}",
+                "Cprecincts={256,256},{256,256},{128,128}",
+                "Creversible=yes",
+                "Cuse_sop=yes",
+                "Corder=LRCP",
+                "ORGgen_plt=yes",
+                "ORGtparts=R",
+                "-rate", "-,1,0.5,0.25"
 
                 ## With OpenJPEG  # noqa
-                # "/opt/openjpeg/build/bin/opj_compress",
+                # "/vendor/openjpeg/build/bin/opj_compress",
                 # "-i", tmp_file,
                 # "-o", name + ".jp2",
                 # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
@@ -271,14 +271,14 @@ def create_diva(resource_id):
                 # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
 
                 ## With Grok + OpenJPEG  # noqa
-                "/vendor/grok/build/bin/grk_compress",
-                "-i", tmp_file.name,
-                "-o", "/tmp/" + name + ".jp2",
-                "-n", "5",
-                "-c", "[256,256],[256,256],[128,128]",
-                "-SOP",
-                "-p", "LRCP",
-                "-r", "16,8,4,2"
+                # "/vendor/grok/build/bin/grk_compress",
+                # "-i", tmp_file.name,
+                # "-o", "/tmp/" + name + ".jp2",
+                # "-n", "5",
+                # "-c", "[256,256],[256,256],[128,128]",
+                # "-SOP",
+                # "-p", "LRCP",
+                # "-r", "16,8,4,2"
             ]
         )
 
