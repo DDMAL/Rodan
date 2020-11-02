@@ -226,13 +226,13 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": os.environ["DJANGO_ACCESS_LOG"],
+            "filename": os.environ.get("DJANGO_ACCESS_LOG", "/code/Rodan/database.log"),
             "formatter": "verbose",
         },
         "dblog": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": os.environ["DJANGO_DEBUG_LOG"],
+            "filename": os.environ.get("DJANGO_DEBUG_LOG", "/code/Rodan/rodan.log"),
             "formatter": "verbose",
         },
     },
