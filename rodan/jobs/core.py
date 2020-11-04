@@ -241,8 +241,8 @@ def create_diva(resource_id):
             args=[
                 ## With Kakadu  # noqa
                 BIN_KDU_COMPRESS,
-                "-i", tmp_file.name,
-                "-o", name + ".jp2",
+                "-i", tmp_file,
+                "-o", jp2_file,
                 "-quiet",
                 "Clevels=5",
                 "Cblk={64,64}",
@@ -257,7 +257,7 @@ def create_diva(resource_id):
                 ## With OpenJPEG  # noqa
                 # "/vendor/openjpeg/build/bin/opj_compress",
                 # "-i", tmp_file,
-                # "-o", name + ".jp2",
+                # "-o", jp2_file,
                 # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
                 # "-b", "64,64", # Code-block size, Cblk in kakadu
                 # "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
@@ -272,8 +272,8 @@ def create_diva(resource_id):
 
                 ## With Grok + OpenJPEG  # noqa
                 # "/vendor/grok/build/bin/grk_compress",
-                # "-i", tmp_file.name,
-                # "-o", "/tmp/" + name + ".jp2",
+                # "-i", tmp_file,
+                # "-o", jp2_file,
                 # "-n", "5",
                 # "-c", "[256,256],[256,256],[128,128]",
                 # "-SOP",
