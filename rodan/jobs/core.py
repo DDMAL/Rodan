@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Case, Value, When, BooleanField
+import PIL
 from pybagit.bagit import BagIt
 import six
 
@@ -229,8 +230,7 @@ def create_diva(resource_id):
         #         tiff_file  # tiff file output
         #     ]
         # )
-        from PIL import Image
-        im = Image.open(inputs["Image"][0]["resource_path"])
+        im = PIL.Image.open(inputs["Image"][0]["resource_path"])
         rgb_im = im.convert('RGB')
         rgb_im.save(tiff_file)
 
@@ -241,7 +241,7 @@ def create_diva(resource_id):
             args=[
                 ## With Kakadu  # noqa
                 BIN_KDU_COMPRESS,
-                "-i", tmp_file,
+                "-i", tiff_file,
                 "-o", jp2_file,
                 "-quiet",
                 "Clevels=5",
@@ -256,7 +256,7 @@ def create_diva(resource_id):
 
                 ## With OpenJPEG  # noqa
                 # "/vendor/openjpeg/build/bin/opj_compress",
-                # "-i", tmp_file,
+                # "-i", tiff_file,
                 # "-o", jp2_file,
                 # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
                 # "-b", "64,64", # Code-block size, Cblk in kakadu
@@ -272,7 +272,7 @@ def create_diva(resource_id):
 
                 ## With Grok + OpenJPEG  # noqa
                 # "/vendor/grok/build/bin/grk_compress",
-                # "-i", tmp_file,
+                # "-i", tiff_file,
                 # "-o", jp2_file,
                 # "-n", "5",
                 # "-c", "[256,256],[256,256],[128,128]",
