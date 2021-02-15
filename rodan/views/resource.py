@@ -274,8 +274,6 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
         try:
             resource.delete()
         except ProtectedError:
-            # msg = "You can not delete the resource because it is currently Protected. "
-            # msg += "A finished or pending runjob is referencing this resource."
             return Response(
                 {
                     "Error":
