@@ -490,10 +490,8 @@ if TEST:
     CELERY_ALWAYS_EAGER = True
     # Propagate exceptions in synchronous task running by default
     CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-# Use temporary filesystem to store projects and resources during test
-if TEST:
+    # Use temporary filesystem to store projects and resources during test
     import tempfile as _tempfile
-
     MEDIA_ROOT = _tempfile.mkdtemp() + "/"
 
 ###############################################################################
