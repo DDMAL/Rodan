@@ -18,4 +18,4 @@ from .celery import app as celery_app
 # Version numbers also appear in the API.
 __title__ = "Rodan"
 __version__ = "1.4.1"
-__copyright__ = "Copyright 2011-2020 Distributed Digital Music Archives & Libraries Lab"
+__copyright__ = "Copyright 2011-2021 Distributed Digital Music Archives & Libraries Lab"
