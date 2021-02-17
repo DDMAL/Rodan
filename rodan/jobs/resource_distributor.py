@@ -1,3 +1,4 @@
+__version__ = "1.0.0"
 import shutil
 
 from rodan.jobs.base import RodanTask
