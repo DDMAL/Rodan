@@ -237,7 +237,7 @@ def create_diva(resource_id):
         # Kakadu and OpenJPEG can only convert certain file formats.
         # Tiff is one of those formats.
         # This means we can convert to JPEG2000 for IIPSRV.
-        try: 
+        try:
             subprocess.check_call(
                 args=[
                     # With Grok + OpenJPEG  # noqa
