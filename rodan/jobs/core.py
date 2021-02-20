@@ -236,58 +236,56 @@ def create_diva(resource_id):
 
         # Kakadu and OpenJPEG can only convert certain file formats.
         # Tiff is one of those formats.
-        # This means we can convert to JPEG2000 for IIPSRV.
-        try:
-            subprocess.check_call(
-                args=[
-                    # With Grok + OpenJPEG  # noqa
-                    "/vendor/grok/build/bin/grk_compress",
-                    "-i", tiff_file,
-                    "-o", jp2_file,
-                    "-n", "5",
-                    "-c", "[256,256],[256,256],[128,128]",
-                    "-SOP",
-                    "-p", "LRCP",
-                    "-r", "16,8,4,2"
-                ]
-            )
-        except OSError:
-            # During the transition, we're leaving kakadu just in case it fails.
-            print("Using Grok failed, continuing with kakadu for now.")
-            subprocess.check_call(
-                args=[
-                    ## With Kakadu  # noqa
-                    BIN_KDU_COMPRESS,
-                    "-i", tiff_file,
-                    "-o", jp2_file,
-                    "-quiet",
-                    "Clevels=5",
-                    "Cblk={64,64}",
-                    "Cprecincts={256,256},{256,256},{128,128}",
-                    "Creversible=yes",
-                    "Cuse_sop=yes",
-                    "Corder=LRCP",
-                    "ORGgen_plt=yes",
-                    "ORGtparts=R",
-                    "-rate", "-,1,0.5,0.25"
+        # This means we can convert to JPEG2000 for IIPSRV after converting the
+        # original to tiff.
+        subprocess.check_call(
+            args=[
+                # With Grok + OpenJPEG  # noqa
+                "/vendor/grok/build/bin/grk_compress",
+                "-i", tiff_file,
+                "-o", jp2_file,
+                "-n", "5",
+                "-c", "[256,256],[256,256],[128,128]",
+                "-SOP",
+                "-p", "LRCP",
+                "-r", "16,8,4,2"
+            ]
+        )
 
-                    ## With OpenJPEG  # noqa
-                    # "/vendor/openjpeg/build/bin/opj_compress",
-                    # "-i", tiff_file,
-                    # "-o", jp2_file,
-                    # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
-                    # "-b", "64,64", # Code-block size, Cblk in kakadu
-                    # "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
-                    # # "-I" # Ireversable DWT, meaning reversable must be the default?
-                    # # Creversible in kakadu
-                    # "-SOP", # Add SOP markers
-                    # "-p", "LRCP", # Corder in kakadu
-                    # # ORGgen_plt?
-                    # # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
-                    # # ORGplt_parts in kakadu
-                    # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
-                ]
-            )
+        # subprocess.check_call(
+        #     args=[
+        #         ## With Kakadu  # noqa
+        #         BIN_KDU_COMPRESS,
+        #         "-i", tiff_file,
+        #         "-o", jp2_file,
+        #         "-quiet",
+        #         "Clevels=5",
+        #         "Cblk={64,64}",
+        #         "Cprecincts={256,256},{256,256},{128,128}",
+        #         "Creversible=yes",
+        #         "Cuse_sop=yes",
+        #         "Corder=LRCP",
+        #         "ORGgen_plt=yes",
+        #         "ORGtparts=R",
+        #         "-rate", "-,1,0.5,0.25"
+
+        #         ## With OpenJPEG  # noqa
+        #         # "/vendor/openjpeg/build/bin/opj_compress",
+        #         # "-i", tiff_file,
+        #         # "-o", jp2_file,
+        #         # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
+        #         # "-b", "64,64", # Code-block size, Cblk in kakadu
+        #         # "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
+        #         # # "-I" # Ireversable DWT, meaning reversable must be the default?
+        #         # # Creversible in kakadu
+        #         # "-SOP", # Add SOP markers
+        #         # "-p", "LRCP", # Corder in kakadu
+        #         # # ORGgen_plt?
+        #         # # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
+        #         # # ORGplt_parts in kakadu
+        #         # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
+        #     ]
+        # )
 
     shutil.move(jp2_file, outputs['JPEG2000 Image'][0]['resource_path'])
 
