@@ -1,10 +1,6 @@
 import os
 
-from django.conf.urls import (
-    include,
-    url,
-    static
-)
+from django.conf.urls import include, url, static
 from django.conf import settings
 from django.contrib import admin
 from decorator_include import decorator_include
@@ -14,11 +10,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from rodan.admin.helpers import logged_in_or_basicauth
 from rodan.views.auth import AuthMeView, AuthTokenView
 from rodan.views.project import ProjectList
-from rodan.views.project import (
-    ProjectDetail,
-    ProjectDetailAdmins,
-    ProjectDetailWorkers
-)
+from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
 from rodan.views.workflow import WorkflowList
 from rodan.views.workflow import WorkflowDetail
 from rodan.views.workflowjob import WorkflowJobList
@@ -57,15 +49,12 @@ from rodan.views.taskqueue import (
     TaskQueueScheduledView,
     TaskQueueStatusView,
 )
-from rodan.views.interactive import (
-    InteractiveAcquireView,
-    InteractiveWorkingView
-)
+from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingView
 from rodan.views.main import APIRoot, EmptyView
 
 # run-once import, initialize Rodan database
-if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("MIGRATE", "False") == "False":
-    import rodan.jobs.load  # noqa
+# if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("MIGRATE", "False") == "False":
+#     import rodan.jobs.load  # noqa
 
 # Admin URL pattern.
 # [INFO] - Notice that the Admin URL is specified in the settings.py file,
@@ -74,9 +63,8 @@ urlpatterns = [
     url(
         settings.ADMIN_URL,
         decorator_include(
-            logged_in_or_basicauth("Rodan admin"),
-            include(admin.site.urls)
-        )
+            logged_in_or_basicauth("Rodan admin"), include(admin.site.urls)
+        ),
     )
 ]
 
@@ -214,7 +202,9 @@ api_patterns = [
         name="inputport-detail",
     ),
     url(r"^api/resources/$", ResourceList.as_view(), name="resource-list"),
-    url(r"^api/resources/archive/$", ResourceArchive.as_view(), name="resource-archive"),
+    url(
+        r"^api/resources/archive/$", ResourceArchive.as_view(), name="resource-archive"
+    ),
     url(
         r"^api/resource/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
         ResourceDetail.as_view(),
