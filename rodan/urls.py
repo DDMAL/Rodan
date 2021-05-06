@@ -53,8 +53,8 @@ from rodan.views.interactive import InteractiveAcquireView, InteractiveWorkingVi
 from rodan.views.main import APIRoot, EmptyView
 
 # run-once import, initialize Rodan database
-# if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("MIGRATE", "False") == "False":
-#     import rodan.jobs.load  # noqa
+if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("MIGRATE", "False") == "False":
+    import rodan.jobs.load  # noqa
 
 # Admin URL pattern.
 # [INFO] - Notice that the Admin URL is specified in the settings.py file,
