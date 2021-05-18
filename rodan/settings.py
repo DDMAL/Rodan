@@ -148,7 +148,6 @@ RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.MEI_encoding",
     #py2 "rodan.jobs.neon-wrapper",
     #py2 "rodan.jobs.pixel_wrapper",
-    #py2 "rodan.jobs.text_alignment",
     #py2 "rodan.jobs.vis-rodan",
     #py2 "rodan.jobs.biollante-rodan",
     #py2 "rodan.jobs.MEI_resizing",
@@ -160,6 +159,7 @@ RODAN_PYTHON3_JOBS = [
 ]
 RODAN_GPU_JOBS = [
     #gpu "rodan.jobs.Calvo-classifier",
+    #gpu "rodan.jobs.text_alignment",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
