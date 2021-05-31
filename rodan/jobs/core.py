@@ -883,7 +883,7 @@ class create_workflowrun(Task):
         return singleton_workflowjobs
 
 
-"""
+
 @task(name="rodan.core.process_workflowrun")
 def process_workflowrun(wfrun_id):
     workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
@@ -894,7 +894,7 @@ def process_workflowrun(wfrun_id):
 
     # call master_task
     registry.tasks['rodan.core.master_task'].apply_async((wfrun_id,))
-"""
+
 
 
 @task(name="rodan.core.cancel_workflowrun")
