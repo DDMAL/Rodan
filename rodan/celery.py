@@ -21,7 +21,6 @@ from rodan.jobs.core import (  # noqa
     redo_runjob_tree,
     retry_workflowrun,
     send_email,
-    test_task,
 )
 from rodan.jobs.master_task import master_task  # noqa
 
