@@ -56,3 +56,7 @@ docs/*
 # Ignore .vscode
 
 .vscode/
+
+# Ignore python virtual environments.
+
+.env/
