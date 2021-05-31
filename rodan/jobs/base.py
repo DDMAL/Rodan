@@ -530,7 +530,7 @@ class RodanTaskType(TaskType):
             mimelist = value
         return ResourceType.objects.filter(mimetype__in=mimelist)
 
-@app.task(bind=True, base=RodanTaskType)
+
 class RodanTask(Task):
     __metaclass__ = RodanTaskType
     abstract = True
