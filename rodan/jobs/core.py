@@ -102,6 +102,9 @@ class create_resource(Task):
                 error_details=einfo.traceback,
             )
 
+class test_task(Task):
+    name = "rodan.core.test_task"
+    queue = "celery"
 
 # @task(name="rodan.core.create_thumbnails")
 # def create_thumbnails(resource_id):
