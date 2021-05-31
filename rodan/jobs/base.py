@@ -47,7 +47,7 @@ if sys.version_info.major == 2:
     input = raw_input  # noqa
 
 
-class RodanTaskType(Task):
+class RodanTaskType(TaskType):
     """
     This is the metaclass for RodanTask base class.
 
