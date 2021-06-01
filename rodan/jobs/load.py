@@ -497,6 +497,7 @@ We may refactor this later into another file, but right now it works.
 
 from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 from rodan.jobs.resource_distributor import ResourceDistributor
+from rodan.jobs.helloworld.helloworld import HelloWorld3
 from rodan.jobs.labeler import Labeler
 
 # TODO: refactor job loading, add all jobs
