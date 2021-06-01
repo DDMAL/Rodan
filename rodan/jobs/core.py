@@ -40,6 +40,8 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
+from rodan.jobs.base import RodanTask
+
 # from rodan.celery import app
 
 
@@ -1034,6 +1036,10 @@ def create_archive(resource_uuids):
 
 class test_work(Task):
     name = "rodan.core.test_work"
+    queue = "celery"
+
+class test_rodan_task(RodanTask):
+    name = "rodan.core.test_rodan_task"
     queue = "celery"
 
 
