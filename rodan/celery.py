@@ -25,8 +25,6 @@ from rodan.jobs.core import (  # noqa
 )
 from rodan.jobs.master_task import master_task  # noqa
 
-from rodan.jobs.test_rodan.test_rodan import RodanTask
-
 # Core Rodan Tasks
 app.tasks.register(create_resource())
 app.tasks.register(create_workflowrun())
@@ -38,6 +36,5 @@ app.tasks.register(retry_workflowrun)
 app.tasks.register(send_email)
 app.tasks.register(master_task)
 app.tasks.register(test_work)
-app.tasks.register(RodanTask)
 #app.tasks.register(HelloWorld)
 #app.tasks.register(test_task)
