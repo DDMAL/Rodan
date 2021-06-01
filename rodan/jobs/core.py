@@ -1039,8 +1039,11 @@ class test_work(Task):
     queue = "celery"
 
 class test_rodan_task(RodanTask):
-    name = "rodan.core.test_rodan_task"
-    queue = "celery"
+    name = "RodanTask"
+    settings = {}
+
+    def run_my_task(self, inputs, settings, outputs):
+        pass
 
 
 # app.tasks.register(create_resource())
