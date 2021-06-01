@@ -40,12 +40,11 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
-from rodan.jobs.base import RodanTask
 
 # from rodan.celery import app
 
 
-class create_resource(RodanTask):
+class create_resource(Task):
     name = "rodan.core.create_resource"
     queue = "celery"
 
