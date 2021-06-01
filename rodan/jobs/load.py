@@ -483,10 +483,22 @@ logger.warning("Loading Rodan Jobs")
 job_list = list(Job.objects.all().values_list("name", flat=True))
 
 from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
+from rodan.jobs.resource_distributor import ResourceDistributor
+from rodan.jobs.labeler import Labeler
 
 for Job_name in settings.RODAN_PYTHON2_JOBS:
     app = celery_app
     app.register_task(InteractiveClassifier())
+
+    def set_version(module):
+        package_versions[Job_name] = getattr(module, "__version__", "n/a")
+
+    module_loader(Job_name, set_version)  # RodanTaskType will update `job_list`
+
+for Job_name in settings.BASE_JOB_PACKAGES:
+    app = celery_app
+    app.register_task(ResourceDistributor())
+    app.register_task(Labeler())
 
     def set_version(module):
         package_versions[Job_name] = getattr(module, "__version__", "n/a")
