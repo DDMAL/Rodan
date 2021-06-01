@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import yaml
-from rodan.celery import app as celery_app
+from rodan.celery import app
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList  # noqa
@@ -488,28 +488,32 @@ for package_name in settings.RODAN_JOB_PACKAGES:
 
     module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
 
+"""
+In Celery 4.0 and above tasks are not auto registered. While Rodan may see the tasks 
+normally, it fails to put them into Celery through RodanTask. Thus, it is necessary 
+to import the jobs manually below the normal load.py code (so initialization is complete).
+We may refactor this later into another file, but right now it works.
+"""
+
 from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 from rodan.jobs.resource_distributor import ResourceDistributor
 from rodan.jobs.labeler import Labeler
 
-for Job_name in settings.RODAN_PYTHON2_JOBS:
-    app = celery_app
+for job_name in settings.RODAN_PYTHON2_JOBS:
+
     app.register_task(InteractiveClassifier())
 
     def set_version(module):
-        package_versions[Job_name] = getattr(module, "__version__", "n/a")
+        package_versions[job_name] = getattr(module, "__version__", "n/a")
+    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
 
-    module_loader(Job_name, set_version)  # RodanTaskType will update `job_list`
-
-for Job_name in settings.BASE_JOB_PACKAGES:
-    app = celery_app
+for job_name in settings.BASE_JOB_PACKAGES:
     app.register_task(ResourceDistributor())
     app.register_task(Labeler())
 
     def set_version(module):
-        package_versions[Job_name] = getattr(module, "__version__", "n/a")
-
-    module_loader(Job_name, set_version)  # RodanTaskType will update `job_list`
+        package_versions[job_name] = getattr(module, "__version__", "n/a")
+    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.
