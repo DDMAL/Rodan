@@ -1,7 +1,8 @@
 from rodan.jobs.base import RodanTask
+from celery import Task
 
 
-class HelloWorld(RodanTask):
+class HelloWorld(Task):
     name = 'Hello World'
     author = 'Ryan Bannon'
     description = 'Output string "Hello World"'
@@ -9,6 +10,7 @@ class HelloWorld(RodanTask):
     enabled = True
     category = "Test"
     interactive = False
+    queue = "celery"
 
     input_port_types = (
         {'name': 'Text input', 'minimum': 0, 'maximum': 1, 'resource_types': ['text/plain']},
