@@ -22,7 +22,6 @@ from rodan.jobs.core import (  # noqa
     retry_workflowrun,
     send_email,
     test_work,
-    test_rodan_task
 )
 from rodan.jobs.master_task import master_task  # noqa
 
@@ -37,6 +36,5 @@ app.tasks.register(retry_workflowrun)
 app.tasks.register(send_email)
 app.tasks.register(master_task)
 app.tasks.register(test_work)
-app.tasks.register(test_rodan_task)
 #app.tasks.register(HelloWorld)
 #app.tasks.register(test_task)
