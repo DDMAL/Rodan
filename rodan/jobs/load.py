@@ -499,6 +499,10 @@ from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 from rodan.jobs.resource_distributor import ResourceDistributor
 from rodan.jobs.labeler import Labeler
 
+# TODO: refactor job loading, add all jobs
+# loop not potentially necessary for job, add back pre-changes loop
+
+# Python2 jobs
 for job_name in settings.RODAN_PYTHON2_JOBS:
 
     app.register_task(InteractiveClassifier())
@@ -507,6 +511,15 @@ for job_name in settings.RODAN_PYTHON2_JOBS:
         package_versions[job_name] = getattr(module, "__version__", "n/a")
     module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
 
+# Python3 jobs
+for job_name in settings.RODAN_PYTHON3_JOBS:
+    app.register_task(HelloWorld3())
+
+    def set_version(module):
+        package_versions[job_name] = getattr(module, "__version__", "n/a")
+    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
+
+# Core jobs
 for job_name in settings.BASE_JOB_PACKAGES:
     app.register_task(ResourceDistributor())
     app.register_task(Labeler())
