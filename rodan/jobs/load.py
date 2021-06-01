@@ -481,6 +481,12 @@ if registered_rts:  # if there are still registered ones
 logger.warning("Loading Rodan Jobs")
 
 job_list = list(Job.objects.all().values_list("name", flat=True))
+for package_name in settings.RODAN_JOB_PACKAGES:
+
+    def set_version(module):
+        package_versions[package_name] = getattr(module, "__version__", "n/a")
+
+    module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
 
 from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 from rodan.jobs.resource_distributor import ResourceDistributor
