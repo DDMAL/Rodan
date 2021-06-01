@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import yaml
-
+from rodan.celery import app as celery_app
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rodan.models import (  # noqa
@@ -423,6 +423,8 @@ logger.warning("Loading Rodan Jobs")
 
 job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
+    app = celery_app
+    app.task.register(package_name)
     def set_version(module):
         package_versions[package_name] = getattr(module, '__version__', 'n/a')
     module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
