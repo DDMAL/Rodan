@@ -5,11 +5,11 @@ import django
 from django.conf import settings
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rodan.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodan.settings")
 django.setup()
 
-app = Celery('rodan')
-app.config_from_object('django.conf:settings')
+app = Celery("rodan")
+app.config_from_object("django.conf:settings")
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
@@ -24,7 +24,7 @@ from rodan.jobs.core import (  # noqa
 )
 from rodan.jobs.master_task import master_task  # noqa
 
-#from rodan.jobs.helloworld.helloworld import HelloWorld
+from rodan.jobs.helloworld.helloworld import HelloWorld
 
 
 # Core Rodan Tasks
@@ -37,5 +37,5 @@ app.tasks.register(redo_runjob_tree)
 app.tasks.register(retry_workflowrun)
 app.tasks.register(send_email)
 app.tasks.register(master_task)
-#app.tasks.register(HelloWorld)
-#app.tasks.register(test_task)
+app.tasks.register(HelloWorld)
+# app.tasks.register(test_task)
