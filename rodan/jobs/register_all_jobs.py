@@ -13,7 +13,7 @@ try:
     from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
-    # from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+    from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
     # from rodan.jobs.neon-wrapper import Neon
     from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
@@ -33,7 +33,7 @@ def run_register_jobs():
     app.register_task(JSOMR2MEI())
     # app.register_task(extract_features())
     # app.register_task(MiyaoStaffinding())
-    # app.register_task(MEI_encoding())
+    app.register_task(MEI_encoding())
     # app.register_task(Neon())
     app.register_task(PixelInteractive())
     # app.register_task(MEI_Resize())
