@@ -72,6 +72,13 @@ def run_register_jobs():
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalXor
+
+        app.register_task(GameraMaskLogicalXor())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
     # TODO: handle "-" imports
     # TODO: complete the python 3 jobs
     # from rodan.jobs.hpc-fast-trainer.hpc-fast-trainer import HPCFastTrainer
@@ -87,7 +94,9 @@ def run_register_jobs():
     # from rodan.jobs.text_alignment import
 
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
-    # from rodan.jobs.helloworld import
+    # from rodan.jobs.diagonal-neume-slicing import DirtyLayerRepair
+    # from rodan.jobs.helloworld.helloworld import HelloWorld
+    # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
 
     # from rodan.jobs.vis-rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
@@ -104,7 +113,6 @@ def run_register_jobs():
     # from rodan.jobs.vis-rodan.wrappers.indexers.vertical_interval_indexer import VRVerticalIntervalIndexer
 
     # from rodan.jobs.biollante-rodan import BiollanteRodan
-
     # from rodan.jobs.jSymbolic-Rodan import extract_features
     # from rodan.jobs.neon-wrapper import Neon
 
