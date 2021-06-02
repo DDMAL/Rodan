@@ -71,6 +71,11 @@ def run_register_jobs():
         raise ImportError
 
     # TODO: handle "-" imports
+    # TODO: conplete the python 3 jobs
+    # from rodan.jobs.helloworld"
+    # from rodan.jobs.hpc-fast-trainer"
+    # from rodan.jobs.pil-rodan"
+
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
