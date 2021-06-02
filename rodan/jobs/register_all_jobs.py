@@ -76,6 +76,10 @@ def run_register_jobs():
     # from rodan.jobs.hpc-fast-trainer"
     # from rodan.jobs.pil-rodan"
 
+    # TODO: GPU jobs
+    # from rodan.jobs.Calvo-classifier",
+    # from rodan.jobs.text_alignment",
+
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
