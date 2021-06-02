@@ -100,7 +100,7 @@ def run_register_jobs():
 
     # TODO: GPU jobs
     # from rodan.jobs.Calvo_classifier import
-    # from rodan.jobs.text_alignment import
+    # from rodan.jobs.text_alignment.text_alignment import text_alignment
 
     # from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
     # from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
