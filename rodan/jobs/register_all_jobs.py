@@ -74,8 +74,13 @@ def run_register_jobs():
 
     # TODO: handle "-" imports
     # TODO: complete the python 3 jobs
-    # from rodan.jobs.hpc-fast-trainer import
-    # from rodan.jobs.pil-rodan import
+    # from rodan.jobs.hpc-fast-trainer.hpc-fast-trainer import HPCFastTrainer
+
+    # from rodan.jobs.pil-rodan.red_filtering import RedFilter
+    # from rodan.jobs.pil-rodan.resize import resize
+    # from rodan.jobs.pil-rodan.to_jpeg2000 import to_jpeg2000
+    # from rodan.jobs.pil-rodan.to_png import to_png
+    # from rodan.jobs.pil-rodan.to_tiff import to_tiff
 
     # TODO: GPU jobs
     # from rodan.jobs.Calvo-classifier import
