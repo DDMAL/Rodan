@@ -30,6 +30,7 @@ import os
 import sys
 import yaml
 from rodan.celery import app
+from rodan.jobs.register_all_jobs import run_register_jobs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList  # noqa
@@ -502,6 +503,7 @@ from rodan.jobs.labeler import Labeler
 
 
 for Job_name in settings.BASE_JOB_PACKAGES:
+
     def set_version(module):
         package_versions[Job_name] = getattr(module, "__version__", "n/a")
 
@@ -509,13 +511,12 @@ for Job_name in settings.BASE_JOB_PACKAGES:
 
 # TODO: refactor job loading, add all jobs
 # loop not potentially necessary for job, add back pre-changes loop
-
+# run_register_jobs()
 # Python2 jobs
 app.register_task(InteractiveClassifier())
 
 # Python3 jobs
 app.register_task(HelloWorld3())
-
 
 # Core jobs
 app.register_task(ResourceDistributor())
