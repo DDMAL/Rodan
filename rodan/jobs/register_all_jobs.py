@@ -10,6 +10,15 @@ def run_register_jobs():
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
+        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
+            GameraXMLDistributor,
+        )
+
+        app.register_task(GameraXMLDistributor())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
         from rodan.jobs.resource_distributor import ResourceDistributor
 
         app.register_task(ResourceDistributor())
@@ -98,6 +107,7 @@ def run_register_jobs():
     # from rodan.jobs.helloworld.helloworld import HelloWorld
     # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
+    # from rodan.jobs.heuristic-pitch-finding import HeuristicPitchFinding
 
     # from rodan.jobs.vis-rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
     # from rodan.jobs.vis-rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
