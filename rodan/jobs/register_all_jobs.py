@@ -23,10 +23,10 @@ except:
     ImportError
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
-    # from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+    from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
     # from rodan.jobs.neon-wrapper import Neon
-    # from rodan.jobs.pixel_wrapper import PixelInteractive
+    from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
 
     # from rodan.jobs.vis-rodan import
     # from rodan.jobs.biollante-rodan import BiollanteRodan
@@ -36,12 +36,12 @@ except:
 def run_register_jobs():
     # Python2 jobs
     app.register_task(InteractiveClassifier())
-    # app.register_task(JSOMR2MEI())
+    app.register_task(JSOMR2MEI())
     # app.register_task(extract_features())
     # app.register_task(MiyaoStaffinding())
-    # app.register_task(MEI_encoding())
+    app.register_task(MEI_encoding())
     # app.register_task(Neon())
-    # app.register_task(PixelInteractive())
+    app.register_task(PixelInteractive())
     # app.register_task(MEI_Resize())
     # app.register_task(DiagonalNeumeSlicing())
     # app.register_task(BiollanteRodan())
