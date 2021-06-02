@@ -20,7 +20,7 @@ try:
 
     # from rodan.jobs.vis-rodan import
     # from rodan.jobs.biollante-rodan import BiollanteRodan
-    # from rodan.jobs.MEI_resizing.mei_resizing import MEI_Resize
+    rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 except (ImportError):
     raise ImportError(
         "Problem importing jobs, make sure imports are configured correctly"
@@ -36,7 +36,7 @@ def run_register_jobs():
     app.register_task(MEI_encoding())
     # app.register_task(Neon())
     app.register_task(PixelInteractive())
-    # app.register_task(MEI_Resize())
+    app.register_task(MEI_Resize())
     # app.register_task(DiagonalNeumeSlicing())
     # app.register_task(BiollanteRodan())
 
