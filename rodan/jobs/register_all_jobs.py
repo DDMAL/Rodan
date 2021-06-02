@@ -3,10 +3,31 @@ from rodan.jobs.resource_distributor import ResourceDistributor
 from rodan.jobs.helloworld.helloworld import HelloWorld3
 from rodan.jobs.labeler import Labeler
 from rodan.celery import app
+from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
+#from rodan.jobs.gamera_rodan import
+#from rodan.jobs.helloworld import
+from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
+from rodan.jobs.JSOMR2MEI import JSOMR2MEI
+from rodan.jobs.jSymbolic-Rodan import extract_features
+from rodan.jobs.MEI_encoding import MEI_encoding
+from rodan.jobs.neon-wrapper import Neon
+from rodan.jobs.pixel_wrapper import PixelInteractive
+from #rodan.jobs.vis-rodan import
+from rodan.jobs.biollante-rodan import BiollanteRodan
+from rodan.jobs.MEI_resizing import resize
 
 def run_register_jobs():
     # Python2 jobs
     app.register_task(InteractiveClassifier())
+    app.register_task(JSOMR2MEI())
+    app.register_task(extract_features())
+    app.register_task(MiyaoStaffinding())
+    app.register_task(MEI_encoding())
+    app.register_task(Neon())
+    app.register_task(PixelInteractive())
+    app.register_task(resize())
+    app.register_task(DiagonalNeumeSlicing())
+    app.register_task(BiollanteRodan())
 
     # Python3 jobs
     app.register_task(HelloWorld3())
