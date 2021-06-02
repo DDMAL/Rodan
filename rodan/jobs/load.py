@@ -497,39 +497,20 @@ We may refactor this later into another file, but right now it works.
 
 from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 from rodan.jobs.resource_distributor import ResourceDistributor
-from rodan.jobs.helloworld.helloworld import HelloWorld3
 from rodan.jobs.labeler import Labeler
+from rodan.jobs.helloworld.helloworld import HelloWorld3
 
-# TODO: refactor job loading, add all jobs
-# loop not potentially necessary for job, add back pre-changes loop
-
-# Python2 jobs
-for job_name in settings.RODAN_PYTHON2_JOBS:
+all_jobs_list = settings.RODAN_PYTHON2_JOBS + settings.RODAN_PYTHON3_JOBS + settings.BASE_JOB_PACKAGES
+for job_name in all_jobs_list:
 
     def set_version(module):
         package_versions[job_name] = getattr(module, "__version__", "n/a")
     module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
 
 app.register_task(InteractiveClassifier())
-
-# Python3 jobs
-for job_name in settings.RODAN_PYTHON3_JOBS:
-
-    def set_version(module):
-        package_versions[job_name] = getattr(module, "__version__", "n/a")
-    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
-
-app.register_task(HelloWorld3())
-
-# Core jobs
-for job_name in settings.BASE_JOB_PACKAGES:
-
-    def set_version(module):
-        package_versions[job_name] = getattr(module, "__version__", "n/a")
-    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
-
 app.register_task(ResourceDistributor())
 app.register_task(Labeler())
+app.register_task(HelloWorld3())
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.
