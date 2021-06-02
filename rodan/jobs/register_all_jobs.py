@@ -71,8 +71,7 @@ def run_register_jobs():
         raise ImportError
 
     # TODO: handle "-" imports
-    # TODO: conplete the python 3 jobs
-    # from rodan.jobs.helloworld"
+    # TODO: complete the python 3 jobs
     # from rodan.jobs.hpc-fast-trainer"
     # from rodan.jobs.pil-rodan"
 
