@@ -5,13 +5,12 @@ try:
     from rodan.jobs.resource_distributor import ResourceDistributor
     from rodan.jobs.helloworld.helloworld import HelloWorld3
     from rodan.jobs.labeler import Labeler
-    
 
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.gamera_rodan import
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
-    # rom rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
+    from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
     # from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
