@@ -8,17 +8,17 @@ from rodan.celery import app
 # from rodan.jobs.gamera_rodan import
 # from rodan.jobs.helloworld import
 # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
-from rodan.jobs.JSOMR2MEI import JSOMR2MEI
+from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
 # from rodan.jobs.jSymbolic-Rodan import extract_features
-from rodan.jobs.MEI_encoding import MEI_encoding
+from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
 # from rodan.jobs.neon-wrapper import Neon
 # from rodan.jobs.pixel_wrapper import PixelInteractive
 
 # from rodan.jobs.vis-rodan import
 # from rodan.jobs.biollante-rodan import BiollanteRodan
-from rodan.jobs.MEI_resizing import resize
+from rodan.jobs.MEI_resizing.mei_resizing import MEI_Resize
 
 
 def run_register_jobs():
@@ -30,7 +30,7 @@ def run_register_jobs():
     app.register_task(MEI_encoding())
     # app.register_task(Neon())
     # app.register_task(PixelInteractive())
-    app.register_task(resize())
+    app.register_task(MEI_Resize())
     # app.register_task(DiagonalNeumeSlicing())
     # app.register_task(BiollanteRodan())
 
