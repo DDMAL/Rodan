@@ -3,19 +3,22 @@ from rodan.celery import app
 try:
     from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 except:
-    ImportError
+    raise ImportError
+
 try:
     from rodan.jobs.resource_distributor import ResourceDistributor
 except:
-    ImportError
+    raise ImportError
+
 try:
     from rodan.jobs.helloworld.helloworld import HelloWorld3
 except:
-    ImportError
+    raise ImportError
+
 try:
     from rodan.jobs.labeler import Labeler
 except:
-    ImportError
+    raise ImportError
 
 # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
 # from rodan.jobs.gamera_rodan import
@@ -24,20 +27,31 @@ except:
 try:
     from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 except:
-    ImportError
+    raise ImportError
 
+try:
     # from rodan.jobs.jSymbolic-Rodan import extract_features
     from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+except:
+    raise ImportError
 
+try:
     # from rodan.jobs.neon-wrapper import Neon
     from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+except:
+    raise ImportError
 
+try:
+    pass
     # from rodan.jobs.vis-rodan import
     # from rodan.jobs.biollante-rodan import BiollanteRodan
+except:
+    raise ImportError
+
 try:
     from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 except:
-    ImportError
+    raise ImportError
 
 
 def run_register_jobs():
