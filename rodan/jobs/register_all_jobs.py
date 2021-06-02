@@ -30,7 +30,7 @@ except (ImportError):
 def run_register_jobs():
     # Python2 jobs
     app.register_task(InteractiveClassifier())
-    # app.register_task(JSOMR2MEI())
+    app.register_task(JSOMR2MEI())
     # app.register_task(extract_features())
     # app.register_task(MiyaoStaffinding())
     # app.register_task(MEI_encoding())
