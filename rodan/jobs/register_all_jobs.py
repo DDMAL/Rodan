@@ -11,7 +11,7 @@ try:
     # from rodan.jobs.gamera_rodan import
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
-    f  # rom rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
+    # rom rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
     # from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
