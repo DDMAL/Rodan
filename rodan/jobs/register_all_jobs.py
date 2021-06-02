@@ -2,15 +2,25 @@ from rodan.celery import app
 
 try:
     from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
+except: ImportError
+try:
     from rodan.jobs.resource_distributor import ResourceDistributor
+except: ImportError
+try:
     from rodan.jobs.helloworld.helloworld import HelloWorld3
+except: ImportError
+try:
     from rodan.jobs.labeler import Labeler
+except: ImportError
 
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.gamera_rodan import
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
+try:
     from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
+except:
+    ImportError
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
     # from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
@@ -21,10 +31,6 @@ try:
     # from rodan.jobs.vis-rodan import
     # from rodan.jobs.biollante-rodan import BiollanteRodan
     # from rodan.jobs.MEI_resizing.mei_resizing import MEI_Resize
-except (ImportError):
-    raise ImportError(
-        "Problem importing jobs, make sure imports are configured correctly"
-    )
 
 
 def run_register_jobs():
