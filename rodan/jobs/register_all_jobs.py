@@ -60,30 +60,44 @@ def run_register_jobs():
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
+
         app.register_task(ClassificationTask())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
+
         app.register_task(GameraMaskLogicalAnd())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
-
     # TODO: handle "-" imports
     # TODO: complete the python 3 jobs
-    # from rodan.jobs.hpc-fast-trainer"
-    # from rodan.jobs.pil-rodan"
+    # from rodan.jobs.hpc-fast-trainer import
+    # from rodan.jobs.pil-rodan import
 
     # TODO: GPU jobs
-    # from rodan.jobs.Calvo-classifier",
-    # from rodan.jobs.text_alignment",
+    # from rodan.jobs.Calvo-classifier import
+    # from rodan.jobs.text_alignment import
 
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.helloworld import
     # from rodan.jobs.heuristic-pitch-finding import MiyaoStaffinding
-    # from rodan.jobs.vis-rodan import
+
+    # from rodan.jobs.vis-rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.duration_indexer import VRDurationIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.fermata_indexer import VRFermataIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.figuredbass_indexer import VRFiguredBassIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.horizontal_interval_indexer import VRHorizontalIntervalIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.measure_indexer import VRMeasureIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.ngram_indexer import VRNGramIntervalIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.notebeatstrength_indexer import VRNoteBeatStrengthIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.noterest_indexer import VRNoteRestIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.offset_indexer import VROffsetIndexer
+    # from rodan.jobs.vis-rodan.wrappers.indexers.vertical_interval_indexer import VRVerticalIntervalIndexer
+
     # from rodan.jobs.biollante-rodan import BiollanteRodan
 
     # from rodan.jobs.jSymbolic-Rodan import extract_features
