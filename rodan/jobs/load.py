@@ -502,12 +502,12 @@ from rodan.jobs.helloworld.helloworld import HelloWorld3
 from rodan.jobs.labeler import Labeler
 
 
-for Job_name in settings.BASE_JOB_PACKAGES:
+# for Job_name in settings.BASE_JOB_PACKAGES:
 
-    def set_version(module):
-        package_versions[Job_name] = getattr(module, "__version__", "n/a")
+#     def set_version(module):
+#         package_versions[Job_name] = getattr(module, "__version__", "n/a")
 
-    module_loader(Job_name, set_version)  # RodanTaskType will update `job_list`
+#     module_loader(Job_name, set_version)  # RodanTaskType will update `job_list`
 
 # TODO: refactor job loading, add all jobs
 # loop not potentially necessary for job, add back pre-changes loop
