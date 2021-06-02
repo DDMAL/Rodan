@@ -494,23 +494,9 @@ normally, it fails to put them into Celery through RodanTask. Thus, it is necess
 to import the jobs manually below the normal load.py code (so initialization is complete).
 We may refactor this later into another file, but right now it works.
 """
-
-from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
-from rodan.jobs.resource_distributor import ResourceDistributor
-from rodan.jobs.labeler import Labeler
-from rodan.jobs.helloworld.helloworld import HelloWorld3
-
-all_jobs_list = settings.RODAN_PYTHON2_JOBS + settings.RODAN_PYTHON3_JOBS + settings.BASE_JOB_PACKAGES
-for job_name in all_jobs_list:
-
-    def set_version(module):
-        package_versions[job_name] = getattr(module, "__version__", "n/a")
-    module_loader(job_name, set_version)  # RodanTaskType will update `job_list`
-
-app.register_task(InteractiveClassifier())
-app.register_task(ResourceDistributor())
-app.register_task(Labeler())
-app.register_task(HelloWorld3())
+# import job registration function and run
+from rodan.jobs.register_all_jobs import run_register_jobs
+run_register_jobs()
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.
