@@ -30,6 +30,7 @@ import os
 import sys
 import yaml
 from rodan.celery import app
+from rodan.jobs.register_all_jobs import run_register_jobs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList  # noqa
@@ -495,13 +496,14 @@ to import the jobs manually below the normal load.py code (so initialization is 
 We may refactor this later into another file, but right now it works.
 """
 
-from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
-from rodan.jobs.resource_distributor import ResourceDistributor
-from rodan.jobs.helloworld.helloworld import HelloWorld3
-from rodan.jobs.labeler import Labeler
+# from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
+# from rodan.jobs.resource_distributor import ResourceDistributor
+# from rodan.jobs.helloworld.helloworld import HelloWorld3
+# from rodan.jobs.labeler import Labeler
 
 
 for Job_name in settings.BASE_JOB_PACKAGES:
+
     def set_version(module):
         package_versions[Job_name] = getattr(module, "__version__", "n/a")
 
@@ -509,17 +511,16 @@ for Job_name in settings.BASE_JOB_PACKAGES:
 
 # TODO: refactor job loading, add all jobs
 # loop not potentially necessary for job, add back pre-changes loop
+run_register_jobs()
+# # Python2 jobs
+# app.register_task(InteractiveClassifier())
 
-# Python2 jobs
-app.register_task(InteractiveClassifier())
+# # Python3 jobs
+# app.register_task(HelloWorld3())
 
-# Python3 jobs
-app.register_task(HelloWorld3())
-
-
-# Core jobs
-app.register_task(ResourceDistributor())
-app.register_task(Labeler())
+# # Core jobs
+# app.register_task(ResourceDistributor())
+# app.register_task(Labeler())
 
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
