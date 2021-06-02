@@ -1,9 +1,11 @@
+from rodan.celery import app
+
 try:
     from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
     from rodan.jobs.resource_distributor import ResourceDistributor
     from rodan.jobs.helloworld.helloworld import HelloWorld3
     from rodan.jobs.labeler import Labeler
-    from rodan.celery import app
+    
 
     # from rodan.jobs.diagonal-neume-slicing import DiagonalNeumeSlicing
     # from rodan.jobs.gamera_rodan import
