@@ -99,7 +99,12 @@ def run_register_jobs():
     # from rodan.jobs.pil_rodan.to_tiff import to_tiff
 
     # TODO: GPU jobs
-    # from rodan.jobs.Calvo_classifier import
+    # from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+    # from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+    # from rodan.jobs.Calvo_classifier.fast_calvo_classifier import FastCalvoClassifier
+    # from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+    # from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+
     # from rodan.jobs.text_alignment.text_alignment import text_alignment
 
     # from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
