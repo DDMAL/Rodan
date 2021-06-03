@@ -87,60 +87,97 @@ def run_register_jobs():
         app.register_task(GameraMaskLogicalXor())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
 
         app.register_task(HPCFastTrainer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.pil_rodan.red_filtering import RedFilter
 
         app.register_task(RedFilter())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.pil_rodan.resize import resize
 
         app.register_task(resize())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
 
         app.register_task(to_jpeg2000())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.pil_rodan.to_png import to_png
 
         app.register_task(to_png())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.pil_rodan.to_tiff import to_tiff
 
         app.register_task(to_tiff())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+
+        app.register_task(CalvoClassifier())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+
+        app.register_task(CalvoTrainer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+            FastCalvoClassifier,
+        )
+
+        app.register_task(FastCalvoClassifier())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+
+        app.register_task(FastCalvoTrainer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
     
+    try:
+        from rodan.jobs.text_alignment.text_alignment import text_alignment
+
+        app.register_task(text_alignment())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
+
+        app.register_task(DiagonalNeumeSlicing())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+
+
 
     # TODO: GPU jobs
-    # from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
-    # from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
-    # from rodan.jobs.Calvo_classifier.fast_calvo_classifier import FastCalvoClassifier
-    # from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
-    # from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
-
-    # from rodan.jobs.text_alignment.text_alignment import text_alignment
-
-    # from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
     # from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
     # from rodan.jobs.helloworld.helloworld import HelloWorld
     # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
