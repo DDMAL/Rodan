@@ -304,14 +304,14 @@ def run_register_jobs():
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
-        from rodan.jobs.jSymbolic_Rodan import extract_features
+        from rodan.jobs.jSymbolic_Rodan.extract_features import extract_features
 
         app.register_task(extract_features())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
-        from rodan.jobs.neon_wrapper import Neon
+        from rodan.jobs.neon_wrapper.wrapper import Neon
 
         app.register_task(Neon())
     except ImportError as error:
