@@ -29,8 +29,6 @@ rodan/jobs/hpc_fast_trainer
 rodan/jobs/biollante_rodan
 rodan/jobs/MEI_resizing
 
-/.DS_Store
-
 # ignore emacs autosave file
 *~
 database.log

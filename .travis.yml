@@ -42,7 +42,7 @@ install:
 - pip install -r requirements.txt
 - pip install flake8
 - sudo chmod -R 755 /home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/pybagit
-- cd ./rodan/jobs && git clone https://github.com/DDMAL/pil-rodan.git && cd ../..
+- cd ./rodan/jobs && git clone https://github.com/DDMAL/pil_rodan.git && cd ../..
 - sed -i "s/\/code\/Rodan/./g" rodan/settings.py
 before_script:
 - psql -c "CREATE DATABASE rodan;" -U postgres
