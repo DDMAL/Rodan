@@ -87,16 +87,49 @@ def run_register_jobs():
         app.register_task(GameraMaskLogicalXor())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
 
-    # TODO: handle "_" imports
-    # TODO: complete the python 3 jobs
-    # from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
+        app.register_task(HPCFastTrainer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.pil_rodan.red_filtering import RedFilter
 
-    # from rodan.jobs.pil_rodan.red_filtering import RedFilter
-    # from rodan.jobs.pil_rodan.resize import resize
-    # from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
-    # from rodan.jobs.pil_rodan.to_png import to_png
-    # from rodan.jobs.pil_rodan.to_tiff import to_tiff
+        app.register_task(RedFilter())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.pil_rodan.resize import resize
+
+        app.register_task(resize())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
+
+        app.register_task(to_jpeg2000())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.pil_rodan.to_png import to_png
+
+        app.register_task(to_png())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.pil_rodan.to_tiff import to_tiff
+
+        app.register_task(to_tiff())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
 
     # TODO: GPU jobs
     # from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
