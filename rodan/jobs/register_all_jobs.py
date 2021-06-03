@@ -199,8 +199,48 @@ def run_register_jobs():
         app.register_task(VRDissonanceIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import VRDurationIndexer
+        app.register_task(VRDurationIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import VRFermataIndexer
+        app.register_task(VRFermataIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.figuredbass_indexer import VRFiguredBassIndexer
+        app.register_task(VRFiguredBassIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.horizontal_interval_indexer import VRHorizontalIntervalIndexer
+        app.register_task(VRHorizontalIntervalIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.measure_indexer import VRMeasureIndexer
+        app.register_task(VRMeasureIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.ngram_indexer import VRNGramIntervalIndexer
+        app.register_task(VRNGramIntervalIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.notebeatstrength_indexer import VRNoteBeatStrengthIndexer
+        app.register_task(VRNoteBeatStrengthIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
 
     # TODO: GPU jobs
@@ -208,14 +248,6 @@ def run_register_jobs():
     # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
     # from rodan.jobs.helloworld.helloworld import HelloWorld3
 
-    # from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import VRDurationIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import VRFermataIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.figuredbass_indexer import VRFiguredBassIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.horizontal_interval_indexer import VRHorizontalIntervalIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.measure_indexer import VRMeasureIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.ngram_indexer import VRNGramIntervalIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.notebeatstrength_indexer import VRNoteBeatStrengthIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.noterest_indexer import VRNoteRestIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.offset_indexer import VROffsetIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.vertical_interval_indexer import VRVerticalIntervalIndexer
