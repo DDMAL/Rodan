@@ -152,109 +152,191 @@ def run_register_jobs():
         app.register_task(FastCalvoTrainer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.text_alignment.text_alignment import text_alignment
 
         app.register_task(text_alignment())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
 
         app.register_task(DiagonalNeumeSlicing())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
 
         app.register_task(DirtyLayerRepair())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
 
         app.register_task(MiyaoStaffinding())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
         from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
 
         app.register_task(HeuristicPitchFinding())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.cadence_indexer import (
+            VRCadenceIndexer,
+        )
+
         app.register_task(VRCadenceIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import (
+            VRDissonanceIndexer,
+        )
+
         app.register_task(VRDissonanceIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import VRDurationIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import (
+            VRDurationIndexer,
+        )
+
         app.register_task(VRDurationIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import VRFermataIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import (
+            VRFermataIndexer,
+        )
+
         app.register_task(VRFermataIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.figuredbass_indexer import VRFiguredBassIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.figuredbass_indexer import (
+            VRFiguredBassIndexer,
+        )
+
         app.register_task(VRFiguredBassIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.horizontal_interval_indexer import VRHorizontalIntervalIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.horizontal_interval_indexer import (
+            VRHorizontalIntervalIndexer,
+        )
+
         app.register_task(VRHorizontalIntervalIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.measure_indexer import VRMeasureIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.measure_indexer import (
+            VRMeasureIndexer,
+        )
+
         app.register_task(VRMeasureIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.ngram_indexer import VRNGramIntervalIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.ngram_indexer import (
+            VRNGramIntervalIndexer,
+        )
+
         app.register_task(VRNGramIntervalIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
-    
+
     try:
-        from rodan.jobs.vis_rodan.wrappers.indexers.notebeatstrength_indexer import VRNoteBeatStrengthIndexer
+        from rodan.jobs.vis_rodan.wrappers.indexers.notebeatstrength_indexer import (
+            VRNoteBeatStrengthIndexer,
+        )
+
         app.register_task(VRNoteBeatStrengthIndexer())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
 
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.noterest_indexer import (
+            VRNoteRestIndexer,
+        )
 
-    # TODO: GPU jobs
-    # from rodan.jobs.helloworld.helloworld import HelloWorld -- i'll leave this commented out 
-    # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
-    # from rodan.jobs.helloworld.helloworld import HelloWorld3
+        app.register_task(VRNoteRestIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
-    # from rodan.jobs.vis_rodan.wrappers.indexers.noterest_indexer import VRNoteRestIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.offset_indexer import VROffsetIndexer
-    # from rodan.jobs.vis_rodan.wrappers.indexers.vertical_interval_indexer import VRVerticalIntervalIndexer
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.offset_indexer import (
+            VROffsetIndexer,
+        )
 
-    # from rodan.jobs.biollante_rodan import BiollanteRodan
-    # from rodan.jobs.jSymbolic_Rodan import extract_features
-    # from rodan.jobs.neon_wrapper import Neon
+        app.register_task(VROffsetIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.vertical_interval_indexer import (
+            VRVerticalIntervalIndexer,
+        )
+
+        app.register_task(VRVerticalIntervalIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.biollante_rodan import BiollanteRodan
+
+        app.register_task(BiollanteRodan())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.jSymbolic_Rodan import extract_features
+
+        app.register_task(extract_features())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.neon_wrapper import Neon
+
+        app.register_task(Neon())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorld
+
+        app.register_task(HelloWorld())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
+
+        app.register_task(HelloWorldMultiPort())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorld3
+
+        app.register_task(HelloWorld3())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
 
 if __name__ == "__main__":
