@@ -29,249 +29,292 @@ import logging
 import os
 import sys
 import yaml
-
+from rodan.celery import app
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from rodan.models import (  # noqa
-    Job,
-    WorkflowJob,
-    ResourceType,
-    Resource,
-    ResourceList
-)
+from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList  # noqa
 
 import rodan.jobs.core  # noqa
 import rodan.jobs.master_task  # noqa
-from rodan.jobs import (
-    module_loader,
-    package_versions
-)
+from rodan.jobs import module_loader, package_versions
 
 if sys.version_info.major == 2:
     input = raw_input  # noqa
 
-logger = logging.getLogger('rodan')
-UPDATE_JOBS = getattr(settings, "_update_rodan_jobs", False)  # set when python manage.py migrate
+logger = logging.getLogger("rodan")
+UPDATE_JOBS = getattr(
+    settings, "_update_rodan_jobs", False
+)  # set when python manage.py migrate
 
 # Set up ResourceTypes
 logger.warning("Loading Rodan ResourceTypes")
 resourcetypes = {
-    "application/octet-stream": [{
-        "description": "Unknown type",  # RFC 2046
-        "extension": "",
-        "package_name": "built-in"
-    }],
-    "application/zip": [{
-        "description": "Package",
-        "extension": "zip",
-        "package_name": "built-in"
-    }],
-    "application/json": [{
-        "description": "JSON",
-        "extension": "json",
-        "package_name": "built-in"
-    }],
-    "text/plain": [{
-        "description": "Plain text",
-        "extension": "txt",
-        "package_name": "built-in"
-    }],
-    "image/jp2": [{
-        "description": "JPEG2000 image",
-        "extension": "jp2",
-        "package_name": "built-in"
-    }],
-    "image/png": [{
-        "description": "PNG image",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "image/rgb+png": [{
-        # Proper type for all PNGs is image/png
-        "description": "RGB PNG image",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "image/rgb+jpg": [{
-        "description": "JPG image file",
-        "extension": "jpg",
-        "package_name": "built-in"
-    }],
-    "image/rgba+png": [{
-        "description": "PNG image file with alpha channel",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "keras/model+hdf5": [{
-        # Should be application/x-hdf5
-        "description": "Trained network from Keras framework",
-        "extension": "hdf5",
-        "package_name": "built-in"
-    }],
-    "application/gamera+xml": [{
-        # Should be application/xml or application/x-gamera+xml, etc.
-        "description": "Gamera XML file",
-        "extension": "xml",
-        "package_name": "built-in"
-    }],
-    "image/onebit+png": [{
-        "description": "One-bit (black and white) PNG image",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "image/greyscale+png": [{
-        "description": "Greyscale PNG image",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "image/grey16+png": [{
-        "description": "Greyscale 16 PNG image",
-        "extension": "png",
-        "package_name": "built-in"
-    }],
-    "application/gamera-polygons+txt": [{
-        # Should be application/txt or application/x-gamera-polygons+txt
-        "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])",
-        "extension": "txt",
-        "package_name": "built-in"
-    }],
-    "application/mei+xml": [{
-        # application/x-mei+xml
-        "description": "Music Encoding Initiative",
-        "extension": "mei",
-        "package_name": "built-in"
-    }],
-    "application/midi": [{
-        # Should be audio/midi, audio/x-midi
-        "description": "Musical Instrumental Digital Interface",
-        "extension": "midi",
-        "package_name": "built-in"
-    }],
-    "application/ace+xml": [{
-        # application/x-ace+xml or application/xml
-        "description": "ACE XML",
-        "extension": "xml",
-        "package_name": "built-in"
-    }],
-    "application/arff": [{
-        "description": "WEKA ARFF",
-        "extension": "arff",
-        "package_name": "built-in"
-    }],
-    "application/arff+csv": [{
-        "description": "WEKA ARFF CSV",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/jsc+txt": [{
-        # application/x-jsc+txt
-        "description": "jSymbolic Configuration Text File",
-        "extension": "txt",
-        "package_name": "built-in"
-    }],
-    "text/csv": [{
-        "description": "Comma Separated Values",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "image/tiff": [{
-        "description": "TIFF image",
-        "extension": "tiff",
-        "package_name": "built-in"
-    }],
-    "application/ocropus+pyrnn": [{
-        # application/x-ocropus+pyrnn
-        "description": "OCR model trained by OCRopus",
-        "extension": "pyrnn",
-        "package_name": "built-in"
-    }],
-    "application/x-musicxml+xml": [{
-        # application/vnd.recordare.musicxml(+xml)
-        "description": "MusicXML",
-        "extension": "xml",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_noterest_pandas_series+csv": [{
-        # Why not just application/x-pandas_series+csv and application/x-pandas_dataframe+csv
-        "description": "NoteRest Indexer Result (Pandas Series CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_dissonance_pandas_dataframe+csv": [{
-        "description": "Dissonance Interval Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_vertical_pandas_series+csv": [{
-        "description": "Vertical Interval Indexer Result (Pandas Series CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_horizontal_pandas_series+csv": [{
-        "description": "Horizontal Interval Indexer Result (Pandas Series CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_ngram_pandas_dataframe+csv": [{
-        "description": "N-gram Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_fermata_pandas_dataframe+csv": [{
-        "description": "Fermata Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_figuredbass_pandas_dataframe+csv": [{
-        "description": "Figured Bass Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_measure_pandas_dataframe+csv": [{
-        "description": "Measure Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_duration_pandas_dataframe+csv": [{
-        "description": "Duration Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-vis_nbs_pandas_dataframe+csv": [{
-        "description": "Note Beat Strength Indexer Result (Pandas DataFrame CSV)",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-pandas_dataframe+csv": [{
-        "description": "Pandas serialized DataFrame csv",
-        "extension": "csv",
-        "package_name": "built-in"
-    }],
-    "application/x-pandas_series+csv": [{
-        "description": "Pandas serialized Series csv",
-        "extension": "csv",
-        "package_name": "built-in"
-    }]
+    "application/octet-stream": [
+        {
+            "description": "Unknown type",  # RFC 2046
+            "extension": "",
+            "package_name": "built-in",
+        }
+    ],
+    "application/zip": [
+        {"description": "Package", "extension": "zip", "package_name": "built-in"}
+    ],
+    "application/json": [
+        {"description": "JSON", "extension": "json", "package_name": "built-in"}
+    ],
+    "text/plain": [
+        {"description": "Plain text", "extension": "txt", "package_name": "built-in"}
+    ],
+    "image/jp2": [
+        {
+            "description": "JPEG2000 image",
+            "extension": "jp2",
+            "package_name": "built-in",
+        }
+    ],
+    "image/png": [
+        {"description": "PNG image", "extension": "png", "package_name": "built-in"}
+    ],
+    "image/rgb+png": [
+        {
+            # Proper type for all PNGs is image/png
+            "description": "RGB PNG image",
+            "extension": "png",
+            "package_name": "built-in",
+        }
+    ],
+    "image/rgb+jpg": [
+        {
+            "description": "JPG image file",
+            "extension": "jpg",
+            "package_name": "built-in",
+        }
+    ],
+    "image/rgba+png": [
+        {
+            "description": "PNG image file with alpha channel",
+            "extension": "png",
+            "package_name": "built-in",
+        }
+    ],
+    "keras/model+hdf5": [
+        {
+            # Should be application/x-hdf5
+            "description": "Trained network from Keras framework",
+            "extension": "hdf5",
+            "package_name": "built-in",
+        }
+    ],
+    "application/gamera+xml": [
+        {
+            # Should be application/xml or application/x-gamera+xml, etc.
+            "description": "Gamera XML file",
+            "extension": "xml",
+            "package_name": "built-in",
+        }
+    ],
+    "image/onebit+png": [
+        {
+            "description": "One-bit (black and white) PNG image",
+            "extension": "png",
+            "package_name": "built-in",
+        }
+    ],
+    "image/greyscale+png": [
+        {
+            "description": "Greyscale PNG image",
+            "extension": "png",
+            "package_name": "built-in",
+        }
+    ],
+    "image/grey16+png": [
+        {
+            "description": "Greyscale 16 PNG image",
+            "extension": "png",
+            "package_name": "built-in",
+        }
+    ],
+    "application/gamera-polygons+txt": [
+        {
+            # Should be application/txt or application/x-gamera-polygons+txt
+            "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])",
+            "extension": "txt",
+            "package_name": "built-in",
+        }
+    ],
+    "application/mei+xml": [
+        {
+            # application/x-mei+xml
+            "description": "Music Encoding Initiative",
+            "extension": "mei",
+            "package_name": "built-in",
+        }
+    ],
+    "application/midi": [
+        {
+            # Should be audio/midi, audio/x-midi
+            "description": "Musical Instrumental Digital Interface",
+            "extension": "midi",
+            "package_name": "built-in",
+        }
+    ],
+    "application/ace+xml": [
+        {
+            # application/x-ace+xml or application/xml
+            "description": "ACE XML",
+            "extension": "xml",
+            "package_name": "built-in",
+        }
+    ],
+    "application/arff": [
+        {"description": "WEKA ARFF", "extension": "arff", "package_name": "built-in"}
+    ],
+    "application/arff+csv": [
+        {"description": "WEKA ARFF CSV", "extension": "csv", "package_name": "built-in"}
+    ],
+    "application/jsc+txt": [
+        {
+            # application/x-jsc+txt
+            "description": "jSymbolic Configuration Text File",
+            "extension": "txt",
+            "package_name": "built-in",
+        }
+    ],
+    "text/csv": [
+        {
+            "description": "Comma Separated Values",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "image/tiff": [
+        {"description": "TIFF image", "extension": "tiff", "package_name": "built-in"}
+    ],
+    "application/ocropus+pyrnn": [
+        {
+            # application/x-ocropus+pyrnn
+            "description": "OCR model trained by OCRopus",
+            "extension": "pyrnn",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-musicxml+xml": [
+        {
+            # application/vnd.recordare.musicxml(+xml)
+            "description": "MusicXML",
+            "extension": "xml",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_noterest_pandas_series+csv": [
+        {
+            # Why not just application/x-pandas_series+csv and application/x-pandas_dataframe+csv
+            "description": "NoteRest Indexer Result (Pandas Series CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_dissonance_pandas_dataframe+csv": [
+        {
+            "description": "Dissonance Interval Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_vertical_pandas_series+csv": [
+        {
+            "description": "Vertical Interval Indexer Result (Pandas Series CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_horizontal_pandas_series+csv": [
+        {
+            "description": "Horizontal Interval Indexer Result (Pandas Series CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_ngram_pandas_dataframe+csv": [
+        {
+            "description": "N-gram Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_fermata_pandas_dataframe+csv": [
+        {
+            "description": "Fermata Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_figuredbass_pandas_dataframe+csv": [
+        {
+            "description": "Figured Bass Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_measure_pandas_dataframe+csv": [
+        {
+            "description": "Measure Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_duration_pandas_dataframe+csv": [
+        {
+            "description": "Duration Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-vis_nbs_pandas_dataframe+csv": [
+        {
+            "description": "Note Beat Strength Indexer Result (Pandas DataFrame CSV)",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-pandas_dataframe+csv": [
+        {
+            "description": "Pandas serialized DataFrame csv",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
+    "application/x-pandas_series+csv": [
+        {
+            "description": "Pandas serialized Series csv",
+            "extension": "csv",
+            "package_name": "built-in",
+        }
+    ],
 }  # core resourcetypes
 
 # load types from registered job packages
 base_path = os.path.dirname(settings.PROJECT_PATH)
 for package_name in settings.RODAN_JOB_PACKAGES:
-    rel_path = os.sep.join(package_name.split('.'))
-    resource_type_path = os.path.join(base_path, rel_path, 'resource_types.yaml')
+    rel_path = os.sep.join(package_name.split("."))
+    resource_type_path = os.path.join(base_path, rel_path, "resource_types.yaml")
     if os.path.isfile(resource_type_path):
-        logger.info("searching " + resource_type_path + " for custom MIME resource types")
-        with open(resource_type_path, 'r') as f:
+        logger.info(
+            "searching " + resource_type_path + " for custom MIME resource types"
+        )
+        with open(resource_type_path, "r") as f:
             resource_types = yaml.load(f)
             for rt in resource_types:
-                if rt['mimetype'] not in resourcetypes:
-                    resourcetypes[rt['mimetype']] = []
-                resourcetypes[rt['mimetype']].append({
-                    'description': rt.get('description', ''),
-                    'extension': rt.get('extension', ''),
-                    'package_name': package_name
-                })
-                logger.info("resource type " + rt['mimetype'] + " found")
+                if rt["mimetype"] not in resourcetypes:
+                    resourcetypes[rt["mimetype"]] = []
+                resourcetypes[rt["mimetype"]].append(
+                    {
+                        "description": rt.get("description", ""),
+                        "extension": rt.get("extension", ""),
+                        "package_name": package_name,
+                    }
+                )
+                logger.info("resource type " + rt["mimetype"] + " found")
 
 # check database for updating registered ones
 registered_rts = {}
@@ -305,17 +348,17 @@ for mimetype, definitions in resourcetypes.items():
             possible_descriptions = {}
             possible_extensions = {}
             for d in definitions:
-                if d['description']:
-                    if d['description'] not in possible_descriptions:
-                        possible_descriptions[d['description']] = []
-                    possible_descriptions[d['description']].append(d['package_name'])
-                if d['extension']:
-                    if d['extension'] not in possible_extensions:
-                        possible_extensions[d['extension']] = []
-                    possible_extensions[d['extension']].append(d['package_name'])
+                if d["description"]:
+                    if d["description"] not in possible_descriptions:
+                        possible_descriptions[d["description"]] = []
+                    possible_descriptions[d["description"]].append(d["package_name"])
+                if d["extension"]:
+                    if d["extension"] not in possible_extensions:
+                        possible_extensions[d["extension"]] = []
+                    possible_extensions[d["extension"]].append(d["package_name"])
 
             if len(possible_descriptions.keys()) == 0:
-                description = ''
+                description = ""
             elif len(possible_descriptions.keys()) == 1:
                 description = possible_descriptions.keys()[0]
             else:
@@ -324,12 +367,16 @@ for mimetype, definitions in resourcetypes.items():
                 for idx, tup in enumerate(possible_descriptions.items()):
                     desc, packages = tup
                     choices.append(desc)
-                    print("    #{0}: {1} (from {2})".format(idx + 1, desc, ", ".join(packages)))
+                    print(
+                        "    #{0}: {1} (from {2})".format(
+                            idx + 1, desc, ", ".join(packages)
+                        )
+                    )
                 answer = input("  Choose a description (#1, #2, ...) or enter yours: ")
                 if (
-                    answer.startswith('#') and
-                    answer[1:].isdigit() and
-                    0 < int(answer[1:]) <= len(choices)
+                    answer.startswith("#")
+                    and answer[1:].isdigit()
+                    and 0 < int(answer[1:]) <= len(choices)
                 ):
                     description = choices[int(answer[1:]) - 1]
                     print("Your choice: {0}".format(description))
@@ -337,7 +384,7 @@ for mimetype, definitions in resourcetypes.items():
                     description = answer
 
             if len(possible_extensions.keys()) == 0:
-                extension = ''
+                extension = ""
             elif len(possible_extensions.keys()) == 1:
                 extension = possible_extensions.keys()[0]
             else:
@@ -346,24 +393,30 @@ for mimetype, definitions in resourcetypes.items():
                 for idx, tup in enumerate(possible_extensions.items()):
                     ext, packages = tup
                     choices.append(ext)
-                    print("    #{0}: {1} (from {2})".format(idx + 1, ext, ", ".join(packages)))
+                    print(
+                        "    #{0}: {1} (from {2})".format(
+                            idx + 1, ext, ", ".join(packages)
+                        )
+                    )
                 answer = input("  Choose an extension (#1, #2, ...) or enter yours: ")
-                if (answer.startswith('#') and
-                        answer[1:].isdigit() and
-                        0 < int(answer[1:]) <= len(choices)):
+                if (
+                    answer.startswith("#")
+                    and answer[1:].isdigit()
+                    and 0 < int(answer[1:]) <= len(choices)
+                ):
                     extension = choices[int(answer[1:]) - 1]
                     print("Your choice: {0}".format(extension))
                 else:
                     extension = answer
 
-            r = ResourceType.objects.create(mimetype=mimetype,
-                                            description=description,
-                                            extension=extension)
-            print("Added {0} with description='{1}' and extension='{2}'".format(
-                r.mimetype,
-                r.description,
-                r.extension
-            ))
+            r = ResourceType.objects.create(
+                mimetype=mimetype, description=description, extension=extension
+            )
+            print(
+                "Added {0} with description='{1}' and extension='{2}'".format(
+                    r.mimetype, r.description, r.extension
+                )
+            )
     else:
         # exist in DB. Don't touch
         # ([TODO]: for now, perhaps we want the server maintainer to change it somehow...)
@@ -381,7 +434,8 @@ if registered_rts:  # if there are still registered ones
                 " in the code. Perhaps they have been deleted in the code but "
                 "not in the database. Try to run `manage.py migrate` to confirm "
                 "deleting them:\n{0}"
-            ).format('\n'.join(registered_rts.keys())))
+            ).format("\n".join(registered_rts.keys()))
+        )
     else:
         for mimetype, info in registered_rts.items():
             confirm_delete = input(
@@ -389,8 +443,9 @@ if registered_rts:  # if there are still registered ones
                     "ResourceType `{0}` is in database but not registered in the "
                     "code. Perhaps it has been deleted in the code but not yet in"
                     " the database. Confirm deletion (y/N)? "
-                ).format(mimetype))
-            if confirm_delete.lower() == 'y':
+                ).format(mimetype)
+            )
+            if confirm_delete.lower() == "y":
                 try:
                     ResourceType.objects.get(mimetype=mimetype).delete()
                     print("  ..deleted.\n\n")
@@ -400,10 +455,13 @@ if registered_rts:  # if there are still registered ones
                             "  ..not deleted because of an exception: {0}. Perhaps "
                             "there are Resources or ResourceLists using this "
                             "ResourceType. Confirm deletion of related Resources (y/N)? "
-                        ).format(str(e)))
-                    if confirm_delete.lower() == 'y':
+                        ).format(str(e))
+                    )
+                    if confirm_delete.lower() == "y":
                         try:
-                            Resource.objects.filter(resource_type__mimetype=mimetype).delete()
+                            Resource.objects.filter(
+                                resource_type__mimetype=mimetype
+                            ).delete()
                             ResourceType.objects.get(mimetype=mimetype).delete()
                             print("  ..deleted. OK\n\n")
                         except Exception as e:
@@ -411,7 +469,8 @@ if registered_rts:  # if there are still registered ones
                                 (
                                     "  ..not deleted because of an exception: {0}. Please"
                                     " fix it manually.\n\n"
-                                ).format(str(e)))
+                                ).format(str(e))
+                            )
                     else:
                         print("  ..not deleted.\n\n")
             else:
@@ -423,13 +482,28 @@ logger.warning("Loading Rodan Jobs")
 
 job_list = list(Job.objects.all().values_list("name", flat=True))
 for package_name in settings.RODAN_JOB_PACKAGES:
+
     def set_version(module):
-        package_versions[package_name] = getattr(module, '__version__', 'n/a')
+        package_versions[package_name] = getattr(module, "__version__", "n/a")
+
     module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
+
+"""
+In Celery 4.0 and above tasks are not auto registered. While Rodan may see the tasks 
+normally, it fails to put them into Celery through RodanTask. Thus, it is necessary 
+to import the jobs manually below the normal load.py code (so initialization is complete).
+This is handled in register_all_jobs.py
+"""
+# import job registration function and run
+from rodan.jobs.register_all_jobs import run_register_jobs
+run_register_jobs()
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.
-    if os.environ["CELERY_JOB_QUEUE"] != "celery" and os.environ["CELERY_JOB_QUEUE"] != "None":
+    if (
+        os.environ["CELERY_JOB_QUEUE"] != "celery"
+        and os.environ["CELERY_JOB_QUEUE"] != "None"
+    ):
         pass
     elif not UPDATE_JOBS:
         raise ImproperlyConfigured(
@@ -437,7 +511,8 @@ if job_list:  # there are database jobs that are not registered. Should delete t
                 "The following jobs are in database but not registered in the code. Perhaps"
                 " they have been deleted in the code but not in the database. Try to run "
                 "`manage.py migrate` to confirm deleting them:\n{0}"
-            ).format('\n'.join(job_list)))
+            ).format("\n".join(job_list))
+        )
     else:
         for j_name in job_list:
             confirm_delete = input(
@@ -445,8 +520,9 @@ if job_list:  # there are database jobs that are not registered. Should delete t
                     "Job `{0}` is in database but not registered in the code. Perhaps it has "
                     "been deleted in the code but not yet in the database. Confirm deletion "
                     "(y/N)? "
-                ).format(j_name))
-            if confirm_delete.lower() == 'y':
+                ).format(j_name)
+            )
+            if confirm_delete.lower() == "y":
                 try:
                     Job.objects.get(name=j_name).delete()
                     print("  ..deleted.\n\n")
@@ -456,8 +532,9 @@ if job_list:  # there are database jobs that are not registered. Should delete t
                             "  ..not deleted because of an exception: {0}. Perhaps there are "
                             "WorkflowJobs using this Job. Confirm deletion of related "
                             "WorkflowJobs (y/N)? "
-                        ).format(str(e)))
-                    if confirm_delete.lower() == 'y':
+                        ).format(str(e))
+                    )
+                    if confirm_delete.lower() == "y":
                         try:
                             WorkflowJob.objects.filter(job__name=j_name).delete()
                             Job.objects.get(name=j_name).delete()
@@ -467,7 +544,8 @@ if job_list:  # there are database jobs that are not registered. Should delete t
                                 (
                                     "  ..not deleted because of an exception: {0}. Please fix it"
                                     " manually.\n\n"
-                                ).format(str(e)))
+                                ).format(str(e))
+                            )
                     else:
                         print("  ..not deleted.\n\n")
             else:

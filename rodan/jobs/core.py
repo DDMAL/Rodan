@@ -40,6 +40,7 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
+
 # from rodan.celery import app
 
 
@@ -102,6 +103,9 @@ class create_resource(Task):
                 error_details=einfo.traceback,
             )
 
+# class test_task(Task):
+#     name = "rodan.core.test_task"
+#     queue = "celery"
 
 # @task(name="rodan.core.create_thumbnails")
 # def create_thumbnails(resource_id):
@@ -1029,6 +1033,9 @@ def create_archive(resource_uuids):
     temporary_storage.seek(0)
     return temporary_storage
 
+class test_work(Task):
+    name = "rodan.core.test_work"
+    queue = "celery"
 
 # app.tasks.register(create_resource())
 # app.tasks.register(package_results())

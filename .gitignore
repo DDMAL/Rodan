@@ -50,3 +50,11 @@ docs/_build
 docs/*
 *.egg-info/
 .mypy_cache/
+
+# Ignore .vscode
+
+.vscode/
+
+# Ignore python virtual environments.
+
+.env/
