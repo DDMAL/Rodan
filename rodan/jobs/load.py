@@ -492,7 +492,7 @@ for package_name in settings.RODAN_JOB_PACKAGES:
 In Celery 4.0 and above tasks are not auto registered. While Rodan may see the tasks 
 normally, it fails to put them into Celery through RodanTask. Thus, it is necessary 
 to import the jobs manually below the normal load.py code (so initialization is complete).
-We may refactor this later into another file, but right now it works.
+This is handled in register_all_jobs.py
 """
 # import job registration function and run
 from rodan.jobs.register_all_jobs import run_register_jobs
