@@ -26,13 +26,6 @@ def run_register_jobs():
         print(error.__class__.__name__ + ": " + error.message)
 
     try:
-        from rodan.jobs.helloworld.helloworld import HelloWorld3
-
-        app.register_task(HelloWorld3())
-    except ImportError as error:
-        print(error.__class__.__name__ + ": " + error.message)
-
-    try:
         from rodan.jobs.labeler import Labeler
 
         app.register_task(Labeler())
@@ -173,18 +166,48 @@ def run_register_jobs():
         app.register_task(DiagonalNeumeSlicing())
     except ImportError as error:
         print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
+
+        app.register_task(DirtyLayerRepair())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
+
+        app.register_task(MiyaoStaffinding())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
+
+        app.register_task(HeuristicPitchFinding())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
+        app.register_task(VRCadenceIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
+    
+    try:
+        from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
+        app.register_task(VRDissonanceIndexer())
+    except ImportError as error:
+        print(error.__class__.__name__ + ": " + error.message)
 
 
 
 
     # TODO: GPU jobs
-    # from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
-    # from rodan.jobs.helloworld.helloworld import HelloWorld
+    # from rodan.jobs.helloworld.helloworld import HelloWorld -- i'll leave this commented out 
     # from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
-    # from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
-    # from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
+    # from rodan.jobs.helloworld.helloworld import HelloWorld3
 
-    # from rodan.jobs.vis_rodan.wrappers.indexers.cadence_indexer import VRCadenceIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import VRDissonanceIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import VRDurationIndexer
     # from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import VRFermataIndexer
