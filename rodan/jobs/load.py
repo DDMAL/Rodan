@@ -137,7 +137,7 @@ resourcetypes = {
     "application/gamera-polygons+txt": [
         {
             # application/txt or application/x-gamera-polygons+txt
-            "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])",
+            "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])", # noqa 
             "extension": "txt",
             "package_name": "built-in",
         }
@@ -495,10 +495,10 @@ to import the jobs manually below the normal load.py code (so initialization is 
 This is handled in register_all_jobs.py
 """
 # import job registration function and run
-import rodan.jobs.register_all_jobs as job_register
+import rodan.jobs.register_all_jobs as job_register # noqa
 
 # Register jobs based on their respective queue
-if os.environ["CELERY_JOB_QUEUE"] == "None" or os.environ["CELERY_JOB_QUEUE"] == "celery":
+if os.environ["CELERY_JOB_QUEUE"] == "None" or os.environ["CELERY_JOB_QUEUE"] == "celery": 
     job_register.register_all()
 
 if os.environ["CELERY_JOB_QUEUE"] == "Python2":
