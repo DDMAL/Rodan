@@ -554,35 +554,35 @@ def register_py3():
 def register_gpu():
 
     # Register Calvo
-    # try:
-    #     from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
 
-    #     app.register_task(CalvoClassifier())
-    # except ImportError:
-    #     print("Calvo Classifier failed to import.")
+        app.register_task(CalvoClassifier())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
 
-    #     app.register_task(CalvoTrainer())
-    # except ImportError:
-    #     print("Calvo Trainer failed to import.")
+        app.register_task(CalvoTrainer())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
-    #         FastCalvoClassifier,
-    #     )
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+            FastCalvoClassifier,
+        )
 
-    #     app.register_task(FastCalvoClassifier())
-    # except ImportError:
-    #     print("Fast Calvo Classifier failed to import.")
+        app.register_task(FastCalvoClassifier())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
-    #     app.register_task(FastCalvoTrainer())
-    # except ImportError:
-    #     print("Fast Calvo Trainer failed to import.")
+        app.register_task(FastCalvoTrainer())
+    except ImportError:
+        pass
 
     # Register Text Alignment
     try:
