@@ -495,8 +495,20 @@ to import the jobs manually below the normal load.py code (so initialization is 
 This is handled in register_all_jobs.py
 """
 # import job registration function and run
-from rodan.jobs.register_all_jobs import run_register_jobs
-run_register_jobs()
+import rodan.jobs.register_all_jobs as job_register
+
+# Register jobs based on their respective queue
+if os.environ["CELERY_JOB_QUEUE"] == "None" or os.environ["CELERY_JOB_QUEUE"] == "celery":
+    job_register.register_all()
+
+if os.environ["CELERY_JOB_QUEUE"] == "Python2":
+    job_register.register_py2()
+
+if os.environ["CELERY_JOB_QUEUE"] == "Python3":
+    job_register.register_py3()
+
+if os.environ["CELERY_JOB_QUEUE"] == "GPU":
+    job_register.register_gpu()
 
 if job_list:  # there are database jobs that are not registered. Should delete them.
     # To keep docker images small, only the main celery queue NEEDS all jobs.

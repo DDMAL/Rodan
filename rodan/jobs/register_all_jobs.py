@@ -1,7 +1,41 @@
 from rodan.celery import app
 
-# hacky but works
-def run_register_jobs():
+"""
+Script for registering Rodan jobs with Celery, split into their respective queues
+"""
+
+# Register all jobs
+def register_all():
+    
+    # Register all jobs
+    register_base()
+    register_py2()
+    register_py3()
+    register_gpu()
+
+# base jobs
+def register_base():
+
+    # Register Resource Distributor
+    try:
+        from rodan.jobs.resource_distributor import ResourceDistributor
+
+        app.register_task(ResourceDistributor())
+    except ImportError as error:
+        pass
+
+    # Register Labeler
+    try:
+        from rodan.jobs.labeler import Labeler
+
+        app.register_task(Labeler())
+    except ImportError as error:
+        pass
+
+# Python2 Jobs
+def register_py2():
+
+    # Register IC
     try:
         from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 
@@ -18,20 +52,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
-    try:
-        from rodan.jobs.resource_distributor import ResourceDistributor
-
-        app.register_task(ResourceDistributor())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.labeler import Labeler
-
-        app.register_task(Labeler())
-    except ImportError as error:
-        pass
-
+    # Register JSOMR2MEI
     try:
         from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
@@ -39,6 +60,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register MEI Encoding
     try:
         from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
@@ -46,6 +68,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
 
@@ -53,6 +76,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register MEI resizing
     try:
         from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 
@@ -60,6 +84,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register Gamera
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
 
@@ -81,85 +106,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
-    try:
-        from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
-
-        app.register_task(HPCFastTrainer())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.pil_rodan.red_filtering import RedFilter
-
-        app.register_task(RedFilter())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.pil_rodan.resize import resize
-
-        app.register_task(resize())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
-
-        app.register_task(to_jpeg2000())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.pil_rodan.to_png import to_png
-
-        app.register_task(to_png())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.pil_rodan.to_tiff import to_tiff
-
-        app.register_task(to_tiff())
-    except ImportError as error:
-        pass
-
-    try:
-        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
-
-        app.register_task(CalvoClassifier())
-    except ImportError as error:
-        print("Calvo Classifier failed to import.")
-
-    try:
-        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
-
-        app.register_task(CalvoTrainer())
-    except ImportError as error:
-        print("Calvo Trainer failed to import.")
-
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
-            FastCalvoClassifier,
-        )
-
-        app.register_task(FastCalvoClassifier())
-    except ImportError as error:
-        print("Fast Calvo Classifier failed to import.")
-
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
-
-        app.register_task(FastCalvoTrainer())
-    except ImportError as error:
-        print("Fast Calvo Trainer failed to import.")
-
-    try:
-        from rodan.jobs.text_alignment.text_alignment import text_alignment
-
-        app.register_task(text_alignment())
-    except ImportError as error:
-        pass
-
+    # Register Neume Slicing
     try:
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
 
@@ -174,6 +121,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register HPF
     try:
         from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
 
@@ -188,6 +136,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register VIS
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.cadence_indexer import (
             VRCadenceIndexer,
@@ -296,6 +245,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register Biollante
     try:
         from rodan.jobs.biollante_rodan import BiollanteRodan
 
@@ -303,6 +253,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register jSymbolic
     try:
         from rodan.jobs.jSymbolic_Rodan.extract_features import extract_features
 
@@ -310,6 +261,7 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+    # Register Neon
     try:
         from rodan.jobs.neon_wrapper.wrapper import Neon
 
@@ -317,6 +269,10 @@ def run_register_jobs():
     except ImportError as error:
         pass
 
+# Python3 Jobs
+def register_py3():
+
+    # Register Hello World 
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorld
 
@@ -335,6 +291,92 @@ def run_register_jobs():
         from rodan.jobs.helloworld.helloworld import HelloWorld3
 
         app.register_task(HelloWorld3())
+    except ImportError as error:
+        pass
+
+    # Register HPC Fast Trainer
+    try:
+        from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
+
+        app.register_task(HPCFastTrainer())
+    except ImportError as error:
+        pass
+
+    # Register PIL Rodan
+    try:
+        from rodan.jobs.pil_rodan.red_filtering import RedFilter
+
+        app.register_task(RedFilter())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.pil_rodan.resize import resize
+
+        app.register_task(resize())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
+
+        app.register_task(to_jpeg2000())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.pil_rodan.to_png import to_png
+
+        app.register_task(to_png())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.pil_rodan.to_tiff import to_tiff
+
+        app.register_task(to_tiff())
+    except ImportError as error:
+        pass
+
+# GPU Jobs
+def register_gpu():
+
+    # Register Calvo
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+
+        app.register_task(CalvoClassifier())
+    except ImportError as error:
+        print("Calvo Classifier failed to import.")
+
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+
+        app.register_task(CalvoTrainer())
+    except ImportError as error:
+        print("Calvo Trainer failed to import.")
+
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+            FastCalvoClassifier,
+        )
+
+        app.register_task(FastCalvoClassifier())
+    except ImportError as error:
+        print("Fast Calvo Classifier failed to import.")
+
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+
+        app.register_task(FastCalvoTrainer())
+    except ImportError as error:
+        print("Fast Calvo Trainer failed to import.")
+
+    # Register Text Alignment
+    try:
+        from rodan.jobs.text_alignment.text_alignment import text_alignment
+
+        app.register_task(text_alignment())
     except ImportError as error:
         pass
 
