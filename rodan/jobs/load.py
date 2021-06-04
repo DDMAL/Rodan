@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import yaml
-from rodan.celery import app
+# from rodan.celery import app
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rodan.models import Job, WorkflowJob, ResourceType, Resource, ResourceList  # noqa
@@ -136,7 +136,7 @@ resourcetypes = {
     ],
     "application/gamera-polygons+txt": [
         {
-            # Should be application/txt or application/x-gamera-polygons+txt
+            # application/txt or application/x-gamera-polygons+txt
             "description": "Python list of polygons ([[[x,y], [x,y], ...], [[x,y], [x,y], ...], ...])",
             "extension": "txt",
             "package_name": "built-in",
@@ -489,8 +489,8 @@ for package_name in settings.RODAN_JOB_PACKAGES:
     module_loader(package_name, set_version)  # RodanTaskType will update `job_list`
 
 """
-In Celery 4.0 and above tasks are not auto registered. While Rodan may see the tasks 
-normally, it fails to put them into Celery through RodanTask. Thus, it is necessary 
+In Celery 4.0 and above tasks are not auto registered. While Rodan may see the tasks
+normally, it fails to put them into Celery through RodanTask. Thus, it is necessary
 to import the jobs manually below the normal load.py code (so initialization is complete).
 This is handled in register_all_jobs.py
 """

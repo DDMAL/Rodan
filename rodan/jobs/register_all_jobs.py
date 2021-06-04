@@ -4,6 +4,7 @@ from rodan.celery import app
 Script for registering Rodan jobs with Celery, split into their respective queues
 """
 
+
 # Register all jobs
 def register_all():
 
@@ -22,7 +23,7 @@ def register_base():
         from rodan.jobs.resource_distributor import ResourceDistributor
 
         app.register_task(ResourceDistributor())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Labeler
@@ -30,7 +31,7 @@ def register_base():
         from rodan.jobs.labeler import Labeler
 
         app.register_task(Labeler())
-    except ImportError as error:
+    except ImportError:
         pass
 
 
@@ -42,7 +43,7 @@ def register_py2():
         from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 
         app.register_task(InteractiveClassifier())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -51,7 +52,7 @@ def register_py2():
         )
 
         app.register_task(GameraXMLDistributor())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register JSOMR2MEI
@@ -59,7 +60,7 @@ def register_py2():
         from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
         app.register_task(JSOMR2MEI())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register MEI Encoding
@@ -67,7 +68,7 @@ def register_py2():
         from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
         app.register_task(MEI_encoding())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Pixel.js
@@ -75,7 +76,7 @@ def register_py2():
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
 
         app.register_task(PixelInteractive())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register MEI resizing
@@ -83,7 +84,7 @@ def register_py2():
         from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 
         app.register_task(MEI_Resize())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Gamera
@@ -91,7 +92,7 @@ def register_py2():
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
 
         app.register_task(ClassificationTask())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -100,7 +101,7 @@ def register_py2():
         )
 
         app.register_task(gamera_gatos_background())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -109,7 +110,7 @@ def register_py2():
         )
 
         app.register_task(gamera_gatos_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -118,7 +119,7 @@ def register_py2():
         )
 
         app.register_task(gamera_brink_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -127,7 +128,7 @@ def register_py2():
         )
 
         app.register_task(gamera_sauvola_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -136,7 +137,7 @@ def register_py2():
         )
 
         app.register_task(gamera_niblack_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -145,7 +146,7 @@ def register_py2():
         )
 
         app.register_task(CCAnalysis())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -154,7 +155,7 @@ def register_py2():
         )
 
         app.register_task(gamera_to_rgb())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -163,7 +164,7 @@ def register_py2():
         )
 
         app.register_task(gamera_to_greyscale())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -172,7 +173,7 @@ def register_py2():
         )
 
         app.register_task(gamera_to_grey16())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -181,7 +182,7 @@ def register_py2():
         )
 
         app.register_task(gamera_to_onebit())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -190,7 +191,7 @@ def register_py2():
         )
 
         app.register_task(gamera_invert())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -199,7 +200,7 @@ def register_py2():
         )
 
         app.register_task(gamera_despeckle())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -208,7 +209,7 @@ def register_py2():
         )
 
         app.register_task(gamera_dilate())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -217,7 +218,7 @@ def register_py2():
         )
 
         app.register_task(gamera_otsu_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -226,7 +227,7 @@ def register_py2():
         )
 
         app.register_task(gamera_tsai_moment_preserving_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -235,7 +236,7 @@ def register_py2():
         )
 
         app.register_task(gamera_abutaleb_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -244,7 +245,7 @@ def register_py2():
         )
 
         app.register_task(gamera_bernsen_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -253,7 +254,7 @@ def register_py2():
         )
 
         app.register_task(gamera_djvu_threshold())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -262,7 +263,7 @@ def register_py2():
         )
 
         app.register_task(PolyMask())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # try:
@@ -271,7 +272,7 @@ def register_py2():
     #     )
 
     #     app.register_task(StablePaths())
-    # except ImportError as error:
+    # except ImportError:
     #     pass
 
     # try:
@@ -280,7 +281,7 @@ def register_py2():
     #     )
 
     #     app.register_task(StablePathDetection())
-    # except ImportError as error:
+    # except ImportError:
     #     pass
 
     # try:
@@ -289,7 +290,7 @@ def register_py2():
     #     )
 
     #     app.register_task(MiyaoStaffFinder())
-    # except ImportError as error:
+    # except ImportError:
     #     pass
 
     # try:
@@ -298,21 +299,21 @@ def register_py2():
     #     )
 
     #     app.register_task(RoachTatemRemoveStaffLines())
-    # except ImportError as error:
+    # except ImportError:
     #     pass
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
 
         app.register_task(GameraMaskLogicalAnd())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalXor
 
         app.register_task(GameraMaskLogicalXor())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Neume Slicing
@@ -320,14 +321,14 @@ def register_py2():
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
 
         app.register_task(DiagonalNeumeSlicing())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
 
         app.register_task(DirtyLayerRepair())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register HPF
@@ -335,14 +336,14 @@ def register_py2():
         from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
 
         app.register_task(MiyaoStaffinding())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
 
         app.register_task(HeuristicPitchFinding())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register VIS
@@ -352,7 +353,7 @@ def register_py2():
         )
 
         app.register_task(VRCadenceIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -361,7 +362,7 @@ def register_py2():
         )
 
         app.register_task(VRDissonanceIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -370,7 +371,7 @@ def register_py2():
         )
 
         app.register_task(VRDurationIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -379,7 +380,7 @@ def register_py2():
         )
 
         app.register_task(VRFermataIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -388,7 +389,7 @@ def register_py2():
         )
 
         app.register_task(VRFiguredBassIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -397,7 +398,7 @@ def register_py2():
         )
 
         app.register_task(VRHorizontalIntervalIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -406,7 +407,7 @@ def register_py2():
         )
 
         app.register_task(VRMeasureIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -415,7 +416,7 @@ def register_py2():
         )
 
         app.register_task(VRNGramIntervalIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -424,7 +425,7 @@ def register_py2():
         )
 
         app.register_task(VRNoteBeatStrengthIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -433,7 +434,7 @@ def register_py2():
         )
 
         app.register_task(VRNoteRestIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -442,7 +443,7 @@ def register_py2():
         )
 
         app.register_task(VROffsetIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
@@ -451,7 +452,7 @@ def register_py2():
         )
 
         app.register_task(VRVerticalIntervalIndexer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Biollante
@@ -459,7 +460,7 @@ def register_py2():
         from rodan.jobs.biollante_rodan import BiollanteRodan
 
         app.register_task(BiollanteRodan())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register jSymbolic
@@ -467,7 +468,7 @@ def register_py2():
         from rodan.jobs.jSymbolic_Rodan.extract_features import extract_features
 
         app.register_task(extract_features())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register Neon
@@ -475,7 +476,7 @@ def register_py2():
         from rodan.jobs.neon_wrapper.wrapper import Neon
 
         app.register_task(Neon())
-    except ImportError as error:
+    except ImportError:
         pass
 
 
@@ -487,21 +488,21 @@ def register_py3():
         from rodan.jobs.helloworld.helloworld import HelloWorld
 
         app.register_task(HelloWorld())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
 
         app.register_task(HelloWorldMultiPort())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorld3
 
         app.register_task(HelloWorld3())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register HPC Fast Trainer
@@ -509,7 +510,7 @@ def register_py3():
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
 
         app.register_task(HPCFastTrainer())
-    except ImportError as error:
+    except ImportError:
         pass
 
     # Register PIL Rodan
@@ -517,35 +518,35 @@ def register_py3():
         from rodan.jobs.pil_rodan.red_filtering import RedFilter
 
         app.register_task(RedFilter())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.pil_rodan.resize import resize
 
         app.register_task(resize())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
 
         app.register_task(to_jpeg2000())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.pil_rodan.to_png import to_png
 
         app.register_task(to_png())
-    except ImportError as error:
+    except ImportError:
         pass
 
     try:
         from rodan.jobs.pil_rodan.to_tiff import to_tiff
 
         app.register_task(to_tiff())
-    except ImportError as error:
+    except ImportError:
         pass
 
 
@@ -557,14 +558,14 @@ def register_gpu():
         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
 
         app.register_task(CalvoClassifier())
-    except ImportError as error:
+    except ImportError:
         print("Calvo Classifier failed to import.")
 
     try:
         from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
 
         app.register_task(CalvoTrainer())
-    except ImportError as error:
+    except ImportError:
         print("Calvo Trainer failed to import.")
 
     try:
@@ -573,14 +574,14 @@ def register_gpu():
         )
 
         app.register_task(FastCalvoClassifier())
-    except ImportError as error:
+    except ImportError:
         print("Fast Calvo Classifier failed to import.")
 
     try:
         from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
         app.register_task(FastCalvoTrainer())
-    except ImportError as error:
+    except ImportError:
         print("Fast Calvo Trainer failed to import.")
 
     # Register Text Alignment
@@ -588,9 +589,9 @@ def register_gpu():
         from rodan.jobs.text_alignment.text_alignment import text_alignment
 
         app.register_task(text_alignment())
-    except ImportError as error:
+    except ImportError:
         pass
 
 
 if __name__ == "__main__":
-    run_register_jobs()
+    register_all()
