@@ -1033,6 +1033,7 @@ def create_archive(resource_uuids):
     temporary_storage.seek(0)
     return temporary_storage
 
+
 class test_work(Task):
     name = "rodan.core.test_work"
     queue = "celery"

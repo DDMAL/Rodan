@@ -1,5 +1,6 @@
 from rodan.jobs.base import RodanTask
 
+
 class test_rodan_task(RodanTask):
     name = "TestRodan"
     author = 'Kemal Kongar'
