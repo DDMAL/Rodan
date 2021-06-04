@@ -267,7 +267,7 @@ def register_py2():
         pass
 
     # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import (
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import ( # noqa
     #         StablePaths,
     #     )
 
@@ -276,7 +276,7 @@ def register_py2():
     #     pass
 
     # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import (
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import ( # noqa
     #         StablePathDetection,
     #     )
 
