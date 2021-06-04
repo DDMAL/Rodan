@@ -6,12 +6,13 @@ Script for registering Rodan jobs with Celery, split into their respective queue
 
 # Register all jobs
 def register_all():
-    
+
     # Register all jobs
     register_base()
     register_py2()
     register_py3()
     register_gpu()
+
 
 # base jobs
 def register_base():
@@ -31,6 +32,7 @@ def register_base():
         app.register_task(Labeler())
     except ImportError as error:
         pass
+
 
 # Python2 Jobs
 def register_py2():
@@ -91,6 +93,213 @@ def register_py2():
         app.register_task(ClassificationTask())
     except ImportError as error:
         pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+            gamera_gatos_background,
+        )
+
+        app.register_task(gamera_gatos_background())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+            gamera_gatos_threshold,
+        )
+
+        app.register_task(gamera_gatos_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+            gamera_brink_threshold,
+        )
+
+        app.register_task(gamera_brink_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+            gamera_sauvola_threshold,
+        )
+
+        app.register_task(gamera_sauvola_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+            gamera_niblack_threshold,
+        )
+
+        app.register_task(gamera_niblack_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.cc_analysis import (
+            CCAnalysis,
+        )
+
+        app.register_task(CCAnalysis())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+            gamera_to_rgb,
+        )
+
+        app.register_task(gamera_to_rgb())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+            gamera_to_greyscale,
+        )
+
+        app.register_task(gamera_to_greyscale())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+            gamera_to_grey16,
+        )
+
+        app.register_task(gamera_to_grey16())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+            gamera_to_onebit,
+        )
+
+        app.register_task(gamera_to_onebit())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_utilities import (
+            gamera_invert,
+        )
+
+        app.register_task(gamera_invert())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.morphology import (
+            gamera_despeckle,
+        )
+
+        app.register_task(gamera_despeckle())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.morphology import (
+            gamera_dilate,
+        )
+
+        app.register_task(gamera_dilate())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+            gamera_otsu_threshold,
+        )
+
+        app.register_task(gamera_otsu_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+            gamera_tsai_moment_preserving_threshold,
+        )
+
+        app.register_task(gamera_tsai_moment_preserving_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+            gamera_abutaleb_threshold,
+        )
+
+        app.register_task(gamera_abutaleb_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+            gamera_bernsen_threshold,
+        )
+
+        app.register_task(gamera_bernsen_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+            gamera_djvu_threshold,
+        )
+
+        app.register_task(gamera_djvu_threshold())
+    except ImportError as error:
+        pass
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask import (
+            PolyMask,
+        )
+
+        app.register_task(PolyMask())
+    except ImportError as error:
+        pass
+
+    # try:
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import (
+    #         StablePaths,
+    #     )
+
+    #     app.register_task(StablePaths())
+    # except ImportError as error:
+    #     pass
+
+    # try:
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import (
+    #         StablePathDetection,
+    #     )
+
+    #     app.register_task(StablePathDetection())
+    # except ImportError as error:
+    #     pass
+
+    # try:
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.music-staves.miyao import (
+    #         MiyaoStaffFinder,
+    #     )
+
+    #     app.register_task(MiyaoStaffFinder())
+    # except ImportError as error:
+    #     pass
+
+    # try:
+    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.music-staves.roach_tatem import (
+    #         RoachTatemRemoveStaffLines,
+    #     )
+
+    #     app.register_task(RoachTatemRemoveStaffLines())
+    # except ImportError as error:
+    #     pass
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
@@ -269,10 +478,11 @@ def register_py2():
     except ImportError as error:
         pass
 
+
 # Python3 Jobs
 def register_py3():
 
-    # Register Hello World 
+    # Register Hello World
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorld
 
@@ -337,6 +547,7 @@ def register_py3():
         app.register_task(to_tiff())
     except ImportError as error:
         pass
+
 
 # GPU Jobs
 def register_gpu():
