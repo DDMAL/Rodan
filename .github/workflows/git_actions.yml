@@ -50,7 +50,7 @@ jobs:
       - name: Install dependencies
         uses: py-actions/py-dependency-install@v2
         with:
-          path: /requirements.txt
+          path: "requirements.txt"
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
