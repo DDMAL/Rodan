@@ -548,7 +548,12 @@ def register_py3():
         app.register_task(to_tiff())
     except ImportError:
         pass
-
+    
+    try:
+        from rodan.jobs.mei2vol_wrapper.mei2vol import MEI2Vol
+        app.register_task(MEI2Vol())
+    except ImportError:
+        pass
 
 # GPU Jobs
 def register_gpu():
