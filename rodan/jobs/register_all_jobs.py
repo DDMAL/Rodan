@@ -266,41 +266,41 @@ def register_py2():
     except ImportError:
         pass
 
-    # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import ( # noqa
-    #         StablePaths,
-    #     )
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
+            StablePaths,
+        )
 
-    #     app.register_task(StablePaths())
-    # except ImportError:
-    #     pass
+        app.register_task(StablePaths())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.document-preprocessing-toolkit.stable_paths import ( # noqa
-    #         StablePathDetection,
-    #     )
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
+            StablePathDetection,
+        )
 
-    #     app.register_task(StablePathDetection())
-    # except ImportError:
-    #     pass
+        app.register_task(StablePathDetection())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.music-staves.miyao import (
-    #         MiyaoStaffFinder,
-    #     )
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao import (
+            MiyaoStaffFinder,
+        )
 
-    #     app.register_task(MiyaoStaffFinder())
-    # except ImportError:
-    #     pass
+        app.register_task(MiyaoStaffFinder())
+    except ImportError:
+        pass
 
-    # try:
-    #     from rodan.jobs.gamera_rodan.wrappers.toolkits.music-staves.roach_tatem import (
-    #         RoachTatemRemoveStaffLines,
-    #     )
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem import (
+            RoachTatemRemoveStaffLines,
+        )
 
-    #     app.register_task(RoachTatemRemoveStaffLines())
-    # except ImportError:
-    #     pass
+        app.register_task(RoachTatemRemoveStaffLines())
+    except ImportError:
+        pass
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
