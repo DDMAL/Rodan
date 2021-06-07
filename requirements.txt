@@ -26,7 +26,7 @@ model-mommy==1.6.0
 Pillow==6.2.2
 psycopg2==2.8.4
 pybagit==1.5.0; python_version < '3.0'
--e git+https://github.com/deepio/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit ; python_version >= '3.6'
+-e git+https://github.com/raviraina/pybagit.git@86ac67038f57d350dd823c0878328376554b2838#egg=pybagit ; python_version >= '3.6'
 pyparsing==2.0.3
 pypng==0.0.18
 python-dateutil==2.5
