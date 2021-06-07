@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DJANGO_DEBUG_MODE: True
+      DJANGO_ALLOWED_HOSTS: =*
       REDIS_HOST : localhost
       REDIS_PORT : 6379
       REDIS_DB : 0
