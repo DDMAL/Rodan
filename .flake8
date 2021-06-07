@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 100
-exclude = env, ./rodan/migrations/, ./helper_scripts, ./rodan/jobs/pixel_wrapper, ./rodan/jobs/text_alignment, ./rodan/jobs/jSymbolic_Rodan, ./rodan/jobs/gamera_rodan, ./rodan/jobs/neon_wrapper, ./rodan/jobs/vis_rodan, ./rodan/jobs/interactive_classifier, ./rodan/jobs/MEI_encoding, ./rodan/jobs/heuristic_pitch_finding, ./rodan/jobs/diagonal_neume_slicing, ./rodan/jobs/pil_rodan, ./rodan/jobs/Calvo_classifier, ./rodan/jobs/hpc_fast_trainer, ./rodan/jobs/JSOMR2MEI, ./docs
+exclude = env, ./rodan/migrations/, ./helper_scripts, ./rodan/jobs/pixel_wrapper, ./rodan/jobs/text_alignment, ./rodan/jobs/jSymbolic_Rodan, ./rodan/jobs/gamera_rodan, ./rodan/jobs/neon_wrapper, ./rodan/jobs/vis_rodan, ./rodan/jobs/interactive_classifier, ./rodan/jobs/MEI_encoding, ./rodan/jobs/heuristic_pitch_finding, ./rodan/jobs/diagonal_neume_slicing, ./rodan/jobs/pil_rodan, ./rodan/jobs/Calvo_classifier, ./rodan/jobs/hpc_fast_trainer, ./rodan/jobs/JSOMR2MEI, ./docs, ./src
 
 per-file-ignores = 
     ./rodan/models/__init__.py:E501, F401
