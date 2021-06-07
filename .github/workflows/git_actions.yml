@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DJANGO_DEBUG_MODE: False
+      DJANGO_DEBUG_MODE: True
     strategy:
       matrix:
         python-version: [3.6]
