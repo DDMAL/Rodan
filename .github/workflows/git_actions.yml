@@ -13,6 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DJANGO_DEBUG_MODE: True
+      REDIS_HOST : localhost
+      REDIS_PORT : 6379
+      REDIS_DB : 0
+      RABBITMQ_URL : amqp://guest_user:guest_pass@localhost:5672//
+      RABBITMQ_DEFAULT_USER : guest_user
+      RABBITMQ_DEFAULT_PASS : guest_pass
+      DJANGO_SECRET_KEY : local
+      DJANGO_MEDIA_ROOT : ./data/
+      DJANGO_ACCESS_LOG : ./rodan.log
+      DJANGO_DEBUG_LOG : ./database.log
+      CELERY_JOB_QUEUE : None
+      POSTGRES_HOST : localhost
+      POSTGRES_PORT : 5432
+      POSTGRES_DB : rodan
+      POSTGRES_USER : rodan
+      POSTGRES_PASSWORD : rodan
     strategy:
       matrix:
         python-version: [3.6]
