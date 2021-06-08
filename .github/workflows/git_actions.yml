@@ -31,7 +31,7 @@ jobs:
         python-version: [3.6]
     services:
       postgres:
-        image: ddmal/postgres-plpython
+        image: ddmal/postgres-plpython:1.0
         env:
           POSTGRES_DB : rodan
           POSTGRES_USER : rodan
