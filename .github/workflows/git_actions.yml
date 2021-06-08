@@ -73,8 +73,8 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: reinstall postgresssql
         run: |
-          sudo apt-get remove --purge postgresql-9.1
-          sudo apt-get install postgresql-9.1
+          sudo apt-get remove --purge postgresql-12
+          sudo apt-get install postgresql-12
       - name: run migrations
         run: |
           psql -c "CREATE DATABASE rodan;" -U postgres
