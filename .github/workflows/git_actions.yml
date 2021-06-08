@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: rodan-docker
     env:
       DJANGO_DEBUG_MODE: True
       DJANGO_ALLOWED_HOSTS: =*
