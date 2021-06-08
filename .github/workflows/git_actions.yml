@@ -25,6 +25,10 @@ jobs:
       DJANGO_ACCESS_LOG : ./rodan.log
       DJANGO_DEBUG_LOG : ./database.log
       CELERY_JOB_QUEUE : None
+      POSTGRES_DB : rodan
+      POSTGRES_USER : rodan
+      POSTGRES_HOST : localhost
+      POSTGRES_PORT : 5432
     strategy:
       matrix:
         python-version: [3.6]
@@ -32,16 +36,14 @@ jobs:
       postgres:
         image: ddmal/postgres-plpython
         env:
-          POSTGRES_HOST : localhost
-          POSTGRES_PORT : 5432
-          POSTGRES_DB : rodan
-          POSTGRES_USER : rodan
           POSTGRES_PASSWORD : rodan
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
