@@ -74,7 +74,7 @@ jobs:
       - name: install postgres
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql version: '13'  # See https://hub.docker.com/_/postgres for available versions
+          postgresql version: '9.6'  # See https://hub.docker.com/_/postgres for available versions
       - name: run migrations
         run: |
           psql -c "CREATE DATABASE rodan;" -U postgres
