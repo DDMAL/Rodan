@@ -76,9 +76,9 @@ jobs:
           sudo -u postgres createuser --superuser "$USER"
       - name: run migrations
         run: |
-          psql -c "CREATE DATABASE rodan;" -U postgres
           psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
           psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
+          psql -c "CREATE DATABASE rodan;" -U postgres
           psql -c "CREATE LANGUAGE plpython2u;" -U postgres
           psql -c "GRANT ALL PRIVILEGES ON DATABASE "rodan" TO rodan;" -U postgres
           python manage.py makemigrations rodan
