@@ -73,6 +73,7 @@ jobs:
         run: |
           sudo apt-get install postgresql libpq-dev
           sudo service postgresql start
+          sudo -u postgres createuser --superuser "$USER"
       - name: run migrations
         run: |
           psql -c "CREATE DATABASE rodan;" -U postgres
