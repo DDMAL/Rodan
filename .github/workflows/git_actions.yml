@@ -70,7 +70,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: run migrations
         run: |
-          sudo psql --host=localhost --dbname=database-name --username=postgres
+          sudo psql --host=localhost --dbname=database-name --username=postgres --password=postgres
           psql -c "CREATE DATABASE rodan;" -U postgres
           psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
           psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
