@@ -25,6 +25,11 @@ jobs:
       DJANGO_ACCESS_LOG : ./rodan.log
       DJANGO_DEBUG_LOG : ./database.log
       CELERY_JOB_QUEUE : None
+      POSTGRES_DB : rodan
+      POSTGRES_USER : rodan
+      POSTGRES_HOST : localhost
+      POSTGRES_PORT : 5432
+      POSTGRES_PASSWORD : rodan
 
     strategy:
       matrix:
@@ -65,6 +70,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: run migrations
         run: |
+          sudo -u postgres psql
           psql -c "CREATE DATABASE rodan;" -U postgres
           psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
           psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
