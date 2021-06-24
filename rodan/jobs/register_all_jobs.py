@@ -12,7 +12,7 @@ def register_all():
     register_base()
     register_py2()
     register_py3()
-    register_gpu()
+    # register_gpu()
 
 
 # base jobs
@@ -590,12 +590,12 @@ def register_gpu():
         pass
 
     # Register Text Alignment
-    try:
-        from rodan.jobs.text_alignment.text_alignment import text_alignment
+    # try:
+    #     from rodan.jobs.text_alignment.text_alignment import text_alignment
 
-        app.register_task(text_alignment())
-    except ImportError:
-        pass
+    #     app.register_task(text_alignment())
+    # except ImportError:
+    #     pass
 
 
 if __name__ == "__main__":
