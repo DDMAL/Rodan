@@ -156,7 +156,7 @@ RODAN_PYTHON2_JOBS = [
 RODAN_PYTHON3_JOBS = [
     #py3 "rodan.jobs.helloworld",
     #py3 "rodan.jobs.hpc_fast_trainer",
-    #py3 "rodan.jobs.pil_rodan",
+    "rodan.jobs.pil_rodan",
     #py3 "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [
