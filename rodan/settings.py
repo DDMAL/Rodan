@@ -161,7 +161,7 @@ RODAN_PYTHON3_JOBS = [
 ]
 RODAN_GPU_JOBS = [
     #gpu "rodan.jobs.Calvo_classifier",
-    #testing_off "rodan.jobs.text_alignment",
+    # "rodan.jobs.text_alignment",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
