@@ -1,0 +1,24 @@
+language: node_js
+node_js: 10  
+os: osx
+env:
+  - HOMEBREW_NO_AUTO_UPDATE="1"
+sudo: false
+addons:
+  firefox: latest
+before_install:
+  - brew install geckodriver
+
+install:
+  - npm install --no-spin
+
+script:
+  - gulp develop:lint
+  - gulp develop:server &
+  - npm test
+
+notifications:
+  email: false
+  slack:
+    secure: L5mXVsairTeSS5kceNDjmSstqJV7uCsE3gUddG26WTp4dHczaBv/K6nH1WHIFrVvUUi//zIx+dCQqaFx8T22YgRev8IpPqwLtVRlFHCP7bxF1/tLJe+ovnCPqyn2QoAAO7UqcqWQi8xStWjXniQyW6TtIOxWzkAgbsJZOnSWnoG2WAI+kpt/qhgd3054EitiwrZpsAkZHmgDxV6K6helT2kjlUdbYtzIgR2Sf4U0Reibr84pS9Y2z/56OJFB2X8QcvoZpZ9mXOYBur9P209a1SvNyhRcFBXWatLSG172jUaS87Uof9FJqjrT9DJkSs5POBDIyOhI1myU9d0yDnOTGustuedglnesyD4+L+9vvqdHhib3B7LsND9Qlzd2ZWWRKcWkjQjXlHazqgc/5x4m3ptdTnGDsZ+tHQ8b6OkSZJ/R77gc4gOoykoYaSNBL5gqtkEFr6P3w5TJre0mPDKgGBryL6qytuFzaDJadb2iuifo/OTiYifjC0TBikhp6njvBCB0s/SgRHmQCTMv5b3fbpGgUrnGPd9UPv6j8BWwvJS/q74McdVm21lJn5qgEaiyOFYiIriGg2Rl2tIm+Y4OGlm/Nj8nqb903dKbrnE92ttnY1KweGKyGKYAJjy2D8IVkESF/w/DTzKYLLK7+bWPJV50Fvfvbyf9zasabFzF0jM=
+  

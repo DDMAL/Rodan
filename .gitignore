@@ -18,7 +18,6 @@ rodan/jobs/Calvo_classifier/
 rodan/jobs/diagonal_neume_slicing/
 rodan/jobs/heuristic_pitch_finding/
 rodan/jobs/JSOMR2MEI/
-rodan/jobs/pixel_wrapper/
 rodan/jobs/neon_wrapper/
 rodan/jobs/MEI_encoding
 rodan/jobs/text_alignment

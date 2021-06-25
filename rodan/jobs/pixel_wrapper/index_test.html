@@ -1,0 +1,34 @@
+<!-- This is a Diva instantiation example including pixel.js plugin -->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="static/css/pixel.css"/>
+    <link rel="stylesheet" href="static/css/diva.css"/>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
+    <title>Pixel.js</title>
+</head>
+<body>
+
+<div id="diva-wrapper"></div>
+<script src="static/js/diva.js"></script>
+<script src="static/js/download.js"></script>
+<script src="static/js/manipulation.js"></script>
+<script src="static/js/pixel.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function ()
+    {
+        var diva = new Diva('diva-wrapper', {
+            objectData: "https://iiif.bodleian.ox.ac.uk/iiif/manifest/caeb212c-a639-41da-a42a-60f6b05a0d0b.json",
+            plugins: [Diva.DownloadPlugin, Diva.ManipulationPlugin, Diva.PixelPlugin]
+        });
+    }, false)
+
+    var numberInputLayers = 0;
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+- mimetype: text/plain
+  description: Plain text
+  extension: txt
+- mimetype: image/rgba+png
+  description: PNG image file with alpha channel
+  extension: png
