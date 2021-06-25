@@ -39,6 +39,8 @@ Werkzeug==1.0.1
 # pil_rodan
 Pillow==6.2.2
 
+# interactive_classifier
+
 # pixel_wrapper
 numpy==1.16.6
 opencv-python==4.2.0.32
