@@ -142,7 +142,7 @@ RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.gamera_rodan",
     #py2 "rodan.jobs.helloworld",
     #py2 "rodan.jobs.heuristic_pitch_finding",
-    #py2 "rodan.jobs.interactive_classifier",
+    "rodan.jobs.interactive_classifier",
     #py2 "rodan.jobs.JSOMR2MEI",
     #py2 "rodan.jobs.jSymbolic_Rodan",
     #py2 "rodan.jobs.MEI_encoding",

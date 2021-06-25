@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Classifier</title>
+    <meta charset="UTF-8">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/classifier.min.css">
+    <meta name="viewport" content="width=device-width"/>
+</head>
+<body>
+
+<div id="glyphs" data-glyphs="{{ glyphs }}"></div>
+<div id="page" data-page="{{ image_path }}"></div>
+<div id="classNames" data-class-names="{{ class_names }}"></div>
+{% if training_glyphs %}
+    <div id="trainingGlyphs" data-training-glyphs = "{{ training_glyphs }}"></div>
+{% endif %}
+<div id="container" class="container-fluid">
+    <div id="navigation"></div>
+    <div id="content"></div>
+    <div id="root-modal"></div>
+</div>
+
+<!--Load scripts last-->
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"
+        integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="
+        crossorigin="anonymous"></script>
+<script src="js/compiled/classifier.min.js" type="text/javascript"></script>
+</body>
+</html>
