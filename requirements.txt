@@ -46,6 +46,9 @@ Pillow==8.2.0; python_version > "3.4"
 numpy==1.16.6; python_version < "3.4"
 opencv-python==4.2.0.32; python_version < "3.4"
 
+# mei2volpiano
+mei2volpiano >= "0.8.0"
+
 # # text_alignment
 # numpy==1.17.3; python_version > "3.4"
 # tensorflow==2.3.2; python_version > "3.4"
