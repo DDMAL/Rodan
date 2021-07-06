@@ -550,7 +550,7 @@ def register_py3():
         pass
     
     try:
-        from rodan.jobs.mei2vol_wrapper.mei2vol import MEI2Vol
+        from rodan.jobs.mei2vol_wrapper.m2v_wrapper import MEI2Vol
         app.register_task(MEI2Vol())
     except ImportError:
         pass
