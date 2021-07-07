@@ -96,7 +96,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
             gamera_gatos_background,
         )
 
@@ -105,7 +105,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
             gamera_gatos_threshold,
         )
 
@@ -114,7 +114,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
             gamera_brink_threshold,
         )
 
@@ -123,7 +123,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
             gamera_sauvola_threshold,
         )
 
@@ -132,7 +132,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.binarization import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
             gamera_niblack_threshold,
         )
 
@@ -141,7 +141,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.cc_analysis import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.cc_analysis import (
             CCAnalysis,
         )
 
@@ -150,7 +150,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
             gamera_to_rgb,
         )
 
@@ -159,7 +159,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
             gamera_to_greyscale,
         )
 
@@ -168,7 +168,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
             gamera_to_grey16,
         )
 
@@ -177,7 +177,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_conversion import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
             gamera_to_onebit,
         )
 
@@ -186,7 +186,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.image_utilities import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_utilities import (
             gamera_invert,
         )
 
@@ -195,7 +195,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.morphology import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
             gamera_despeckle,
         )
 
@@ -204,7 +204,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.morphology import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
             gamera_dilate,
         )
 
@@ -213,7 +213,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
             gamera_otsu_threshold,
         )
 
@@ -222,7 +222,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
             gamera_tsai_moment_preserving_threshold,
         )
 
@@ -231,7 +231,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
             gamera_abutaleb_threshold,
         )
 
@@ -240,7 +240,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
             gamera_bernsen_threshold,
         )
 
@@ -249,7 +249,7 @@ def register_py2():
         pass
 
     try:
-        from rodan.jobs.gamera_rodan.wrappers.pluggins.threshold import (
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
             gamera_djvu_threshold,
         )
 
