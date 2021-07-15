@@ -1,10 +1,6 @@
 from os.path import isfile, join
 import numpy as np
-import matplotlib.pyplot as plt
-import pickle
-import itertools as iter
 import os
-import re
 from skimage import io
 from skimage.color import rgb2gray
 from skimage.filters import gaussian, threshold_otsu
@@ -243,7 +239,7 @@ def identify_text_lines(img, widen_strips_factor=1):
     return line_strips, peak_locations, smoothed_projection
 
 
-def save_preproc_image(image, line_strips, lines_peak_locs, fname):
+def save_preproc_image(image, line_strips, lines_peak_locs, out_fname):
     im = Image.fromarray((1 - image.astype('uint8')) * 255)
 
     text_size = 70
@@ -262,7 +258,7 @@ def save_preproc_image(image, line_strips, lines_peak_locs, fname):
         draw.rectangle([ul, lr], outline='gray')
 
     # im.show()
-    im.save('test_preproc_{}.png'.format(fname))
+    im.save(out_fname)
 
 
 def find_rotation_angle(img, coarse_bound=3, fine_bound=0.1, rescale_amt=0.5):
@@ -298,31 +294,35 @@ def find_rotation_angle(img, coarse_bound=3, fine_bound=0.1, rescale_amt=0.5):
 
 if __name__ == '__main__':
     from PIL import Image, ImageDraw, ImageFont
-    from matplotlib import pyplot as plt
-    import numpy as np
 
-    folder = r"D:\Desktop\rodan resources\aligner\png"
-    allowed_exts = ['png', 'jpg', 'jpeg']
-    fnames = [x for x in os.listdir(folder) if x.split('.')[-1] in allowed_exts]
-    fnames = [f for f in fnames if 'salz' in f]
+    # To run locally: point the 'folder' variable below at a folder images of the text from manuscripts,
+    # and point the 'out_folder' variable at a folder where you'd like the results to be saved.
+    # increase "widen strips" if the results for a particular manuscript cut off the tops and bottoms of letters.
+    in_folder = r"D:\Desktop\rodan resources\aligner\png"
+    out_folder = r'.\\'
+    widen_strips = 4
+
+
+
+    img_exts = ['png', 'jpg', 'jpeg']
+    fnames = [x for x in os.listdir(in_folder) if x.split('.')[-1] in img_exts]
 
     for fname in fnames:
         print('processing {}...'.format(fname))
-        # input_image = io.imread('./png/{}_text.png'.format(fname))
-        input_image = io.imread(os.path.join(folder, fname))
+        input_image = io.imread(os.path.join(in_folder, fname))
 
         img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt, fill_holes=3)
-        # io.imsave('test.png', img_eroded)
 
-        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded)
-        save_preproc_image(img_bin, line_strips, lines_peak_locs, fname)
+        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips)
+        out_fname = os.path.join(out_folder, f'preproc_{fname}')
+        save_preproc_image(img_bin, line_strips, lines_peak_locs, out_fname)
 
     # plt.clf()
     # plt.plot(proj)
     # for x in lines_peak_locs:
     #     plt.axvline(x=x, linestyle=':')
     # plt.show()
-    #
+
     # diff_proj_peaks = find_peak_locations(np.abs(np.diff(proj)))
     # plt.clf()
     # plt.plot(np.diff(proj))
