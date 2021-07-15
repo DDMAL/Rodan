@@ -163,7 +163,7 @@ def identify_text_lines(img, widen_strips_factor=1):
     peak_locations = find_peak_locations(smoothed_projection)
     diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
 
-    line_strips = []
+    line_margins = []
     for p in peak_locations:
         # get the largest diff-peak smaller than this peak, and the smallest diff-peak that's larger
         lower_peaks = [x for x in diff_proj_peaks if x < p]
@@ -183,12 +183,54 @@ def identify_text_lines(img, widen_strips_factor=1):
         higher_bound += int((higher_bound - p) * widen_strips_factor)
         higher_bound = min(img.shape[0], higher_bound)
 
+        line_margins.append([lower_bound, higher_bound])
+
+    # iterate through every pair of peak locations to make sure consecutive strips are not overlapping 
+    for i in range(len(peak_locations) - 1):
+        prev_peak = peak_locations[i]
+        next_peak = peak_locations[i + 1]
+        prev_higher_bound = line_margins[i][1]
+        next_lower_bound = line_margins[i + 1][0]
+
+        # we don't want strips to overlap at all - if they're not overlapping, assume we're doing fine
+        # and leave these strips alone
+        if prev_higher_bound < next_lower_bound:
+            continue
+
+        # if strips are overlapping, find a horizontal line that is 1) between the peaks AND 2) inside the overlap of the strips
+        # with the smallest number of black pixels. set their higher and lower bounds to both occur at that line.
+
+        search_end = min(next_peak, prev_higher_bound)
+        search_start = max(prev_peak, next_lower_bound)
+
+        # if, somehow, things went SO poorly that the overlap of two strips is not between the two peaks,
+        # then use the two peaks themselves as a failsafe
+        try:
+            new_bound = np.argmin(smoothed_projection[search_start:search_end]) + search_start
+        except ValueError:
+            new_bound = np.argmin(smoothed_projection[prev_peak:next_peak]) + prev_peak
+
+        line_margins[i][1] = new_bound
+        line_margins[i + 1][0] = new_bound
+
+    # extract actual strip bounds from the refined margins from above
+    line_strips = []
+    for i, lm in enumerate(line_margins):
+        lower_bound, higher_bound = lm
+        p = peak_locations[i]
         # tighten up strip by finding bounding box around contents
         mask = np.zeros(img.shape, np.uint8)
         mask[lower_bound:higher_bound, :] = img[lower_bound:higher_bound, :]
 
         hz_proj = mask.sum(0).nonzero()[0]
         vt_proj = mask.sum(1).nonzero()[0]
+
+        # it is possible for a strip to contain only zero-valued pixels, meaning it's totally empty.
+        # this occurs when the page e.g. has an illustration instead of text lines. just skip the offending line.
+        if len(hz_proj) == 0 or len(vt_proj) == 0:
+            # print('empty strip found! skipping')
+            continue
+
         x, y = hz_proj[0], vt_proj[0]
         w, h = hz_proj[-1] - x, vt_proj[-1] - y
 
@@ -211,13 +253,13 @@ def save_preproc_image(image, line_strips, lines_peak_locs, fname):
     # draw lines at identified peak locations
     for i, peak_loc in enumerate(lines_peak_locs):
         draw.text((1, peak_loc - text_size), 'line {}'.format(i), font=fnt, fill='gray')
-        draw.line([0, peak_loc, im.width, peak_loc], fill='gray', width=3)
+        draw.line([0, peak_loc, im.width, peak_loc], fill='black', width=7)
 
     # draw rectangles around identified text lines
     for line in line_strips:
         ul = (line[0], line[1])
         lr = (line[0] + line[2], line[1] + line[3])
-        draw.rectangle([ul, lr], outline='black')
+        draw.rectangle([ul, lr], outline='gray')
 
     # im.show()
     im.save('test_preproc_{}.png'.format(fname))
@@ -259,12 +301,15 @@ if __name__ == '__main__':
     from matplotlib import pyplot as plt
     import numpy as np
 
-    indices = [101, 25, 34, 51, 65, 87, 152, 249, 295, 301, 343, 310, 412]
-    fnames = ['salzinnes_{:03}'.format(x) for x in indices]
+    folder = r"D:\Desktop\rodan resources\aligner\png"
+    allowed_exts = ['png', 'jpg', 'jpeg']
+    fnames = [x for x in os.listdir(folder) if x.split('.')[-1] in allowed_exts]
+    fnames = [f for f in fnames if 'salz' in f]
 
     for fname in fnames:
         print('processing {}...'.format(fname))
-        input_image = io.imread('./png/{}_text.png'.format(fname))
+        # input_image = io.imread('./png/{}_text.png'.format(fname))
+        input_image = io.imread(os.path.join(folder, fname))
 
         img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt, fill_holes=3)
         # io.imsave('test.png', img_eroded)
