@@ -43,6 +43,6 @@ for fname in fnames:
     strip_folder = os.path.join(out_folder, f"{fname}_strips")
     os.mkdir(strip_folder)
     for i, img_strip in enumerate(img_strips):
-        fname = f"{i:02}_{fname}"
-        io.imsave(os.path.join(strip_folder, fname), img_strip)
+        out_fname = f"{i:02}_{fname}"
+        io.imsave(os.path.join(strip_folder, out_fname), img_strip)
 
