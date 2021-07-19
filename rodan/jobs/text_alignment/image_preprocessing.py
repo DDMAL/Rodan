@@ -10,6 +10,7 @@ from skimage.color import rgb2gray
 from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
+from skimage.segmentation import flood_fill
 
 
 # PARAMETERS FOR PREPROCESSING
@@ -121,6 +122,24 @@ def moving_avg_filter(data, filter_size=filter_size):
         smoothed[n] = np.mean(vals)
     return smoothed
 
+def fill_corners(input_image):
+    '''
+    Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
+    enable peak location.
+    '''
+    #the value of fifty is the max colour that will considered (in this case dark gray)
+    if input_image[0,0] < 50:
+        input_image = flood_fill(input_image, (0, 0), 255, tolerance = 0.3)
+    if input_image[-1, 0] < 50:
+        input_image = flood_fill(input_image, (-1, 0), 255, tolerance = 0.3)
+    if input_image[0, -1] < 50:
+        input_image = flood_fill(input_image, (0, -1), 255, tolerance = 0.3)   
+
+    # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
+    # if input_image[-1, -1] < 50:
+    #     input_image = flood_fill(input_image, (-1, -1), 255, tolerance = 0.3)
+
+    return input_image
 
 def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     '''
@@ -128,8 +147,7 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     optimal angle for rotation and returns a "cleaned" rotated version along with a raw, binarized
     rotated version.
     '''
-
-    gray_img = rgb2gray(input_image)
+    gray_img = fill_corners(rgb2gray(input_image))
     thresh = threshold_otsu(gray_img)
     img_bin = gray_img < thresh
     img_blur_bin = gaussian(gray_img, soften) < thresh
