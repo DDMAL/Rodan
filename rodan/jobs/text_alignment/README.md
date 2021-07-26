@@ -48,6 +48,18 @@ median_line_spacing: [median space between adjacent text lines, in pixels]
 
 # Training a New Calamari model
 
-Calamari has a command-line interface for training models. What you need is a list of text-lines, in `png` format, and a bunch of accompanying `.txt` files, each of which has the ground-truth text for the corresponding text line. Further information, and the exact commands necessary: [OCRopus getting started guide](https://github.com/Calamari-OCR/calamari)
+What's necessary to train a new model is, essentially, a whole bunch of binarized image files containing individual lines of text, and a bunch of corresponding `.txt` files containing, in plain-text, the text that is on each strip. Each text file should have the same name as its corresponding image file (so `001r_5.png` should be transcribed in `001r_5.txt`). This text should be a perfectly _diplomatic_ transcription: that is, it should represent exactly what characters are in the text script, with no editorializing, expansion of abbreviations, or corrections of spelling. For example: 
+
+- "regnū" should be transcribed as "regnū" and not "regnum"
+- "eius" should be transcribed as "eius" and not "ejus"
+- "dn̄s" should be transcribed as "dn̄s" and not "dominus." 
+- "alla" should be transcribed as "alla" and not "alleluia" 
+- "&" should be transcribed as "&" and not "et"
+
+And so on. For blots of ink on the page, large capital characters that are only partially captured in the strip of text, or characters that don't have an equivalent in unicode, just ignore them. For a detailed description of how the training data needs to be set up, check [the Calamari documentation](https://calamari-ocr.readthedocs.io/en/latest/doc.dataset-formats.html).
+
+The script  `/training_new_models/save_text_strips.py` can be used to segment layer-separated images (specifically, whichever layer has the text and doesn't have the neumes or staff lines) into text strips that can then be used for training. Use the command-line interface of that script to point at a folder full of such images and it'll segment each of them, saving the strips from each image into their own folder. For example, you could run: `python save_text_strips.py /path/to/image/files /path/to/output/destination `.
+
+Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train)
 
  You don't need to do _too_ many for text alignment to work correctly; 99% accuracy is overkill! For the Salzinnes manuscript, I transcribed about 40 pages, which took ~3 hours, and let it train for about 12 hours, and this was perfectly sufficient.
