@@ -1,0 +1,10 @@
+*.pyc
+
+/.DS_Store
+
+# ignore emacs autosave file
+*~
+
+.DS_Store
+
+/Images
