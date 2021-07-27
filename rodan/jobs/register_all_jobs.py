@@ -23,16 +23,18 @@ def register_base():
         from rodan.jobs.resource_distributor import ResourceDistributor
 
         app.register_task(ResourceDistributor())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Resource Distributor"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Labeler
     try:
         from rodan.jobs.labeler import Labeler
 
         app.register_task(Labeler())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Labeler"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
 # Python2 Jobs
@@ -43,8 +45,9 @@ def register_py2():
         from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 
         app.register_task(InteractiveClassifier())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Interactive Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
@@ -52,48 +55,54 @@ def register_py2():
         )
 
         app.register_task(GameraXMLDistributor())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "XML Distributor"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register JSOMR2MEI
     try:
         from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
 
         app.register_task(JSOMR2MEI())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "JSOMR2MEI"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register MEI Encoding
     try:
         from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
 
         app.register_task(MEI_encoding())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
 
         app.register_task(PixelInteractive())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register MEI resizing
     try:
         from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 
         app.register_task(MEI_Resize())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "MEI Resizing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Gamera
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
 
         app.register_task(ClassificationTask())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Classification"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
@@ -101,8 +110,9 @@ def register_py2():
         )
 
         app.register_task(gamera_gatos_background())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Gatos Background"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
@@ -110,8 +120,9 @@ def register_py2():
         )
 
         app.register_task(gamera_gatos_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Gatos Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
@@ -119,8 +130,9 @@ def register_py2():
         )
 
         app.register_task(gamera_brink_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Brink Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
@@ -128,8 +140,9 @@ def register_py2():
         )
 
         app.register_task(gamera_sauvola_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Sauvola Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
@@ -137,8 +150,9 @@ def register_py2():
         )
 
         app.register_task(gamera_niblack_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Niblack Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.cc_analysis import (
@@ -146,8 +160,9 @@ def register_py2():
         )
 
         app.register_task(CCAnalysis())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "CC Analysis"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
@@ -155,8 +170,9 @@ def register_py2():
         )
 
         app.register_task(gamera_to_rgb())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "To RGB"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
@@ -164,8 +180,9 @@ def register_py2():
         )
 
         app.register_task(gamera_to_greyscale())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "To Greyscale"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
@@ -173,8 +190,9 @@ def register_py2():
         )
 
         app.register_task(gamera_to_grey16())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "To Grey16"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
@@ -182,8 +200,9 @@ def register_py2():
         )
 
         app.register_task(gamera_to_onebit())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "To ONEBIT"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.image_utilities import (
@@ -191,8 +210,9 @@ def register_py2():
         )
 
         app.register_task(gamera_invert())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Invert"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
@@ -200,8 +220,9 @@ def register_py2():
         )
 
         app.register_task(gamera_despeckle())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Despeckle"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
@@ -209,8 +230,9 @@ def register_py2():
         )
 
         app.register_task(gamera_dilate())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Dilate"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
@@ -218,8 +240,9 @@ def register_py2():
         )
 
         app.register_task(gamera_otsu_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Otsu Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
@@ -227,8 +250,9 @@ def register_py2():
         )
 
         app.register_task(gamera_tsai_moment_preserving_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Tsai Moment Preserving Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
@@ -236,8 +260,9 @@ def register_py2():
         )
 
         app.register_task(gamera_abutaleb_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Abutaleb Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
@@ -245,8 +270,9 @@ def register_py2():
         )
 
         app.register_task(gamera_bernsen_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Bernsen Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
@@ -254,8 +280,9 @@ def register_py2():
         )
 
         app.register_task(gamera_djvu_threshold())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Djvu Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask import (
@@ -263,8 +290,9 @@ def register_py2():
         )
 
         app.register_task(PolyMask())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Poly Mask"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
@@ -272,8 +300,9 @@ def register_py2():
         )
 
         app.register_task(StablePaths())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Stable Paths"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
@@ -281,8 +310,9 @@ def register_py2():
         )
 
         app.register_task(StablePathDetection())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Stable Path Detection"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao import (
@@ -290,8 +320,9 @@ def register_py2():
         )
 
         app.register_task(MiyaoStaffFinder())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Miyao Staff Finder"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem import (
@@ -299,52 +330,59 @@ def register_py2():
         )
 
         app.register_task(RoachTatemRemoveStaffLines())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Roach Tatem Remove Staff Lines"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
 
         app.register_task(GameraMaskLogicalAnd())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Logical And"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalXor
 
         app.register_task(GameraMaskLogicalXor())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Logical Xor"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Neume Slicing
     try:
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
 
         app.register_task(DiagonalNeumeSlicing())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Diagonal Neume Slicing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
 
         app.register_task(DirtyLayerRepair())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Dirty Layer Repair"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register HPF
     try:
         from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
 
         app.register_task(MiyaoStaffinding())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Miyao Staff Finding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
 
         app.register_task(HeuristicPitchFinding())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Heuristic Pitch Finding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register VIS
     try:
@@ -353,8 +391,9 @@ def register_py2():
         )
 
         app.register_task(VRCadenceIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Cadence Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.dissonance_indexer import (
@@ -362,8 +401,9 @@ def register_py2():
         )
 
         app.register_task(VRDissonanceIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Dissonance Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.duration_indexer import (
@@ -371,8 +411,9 @@ def register_py2():
         )
 
         app.register_task(VRDurationIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Duration Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.fermata_indexer import (
@@ -380,8 +421,9 @@ def register_py2():
         )
 
         app.register_task(VRFermataIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Fermata Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.figuredbass_indexer import (
@@ -389,8 +431,9 @@ def register_py2():
         )
 
         app.register_task(VRFiguredBassIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Figured Bass Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.horizontal_interval_indexer import (
@@ -398,8 +441,9 @@ def register_py2():
         )
 
         app.register_task(VRHorizontalIntervalIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Horizontal Interval Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.measure_indexer import (
@@ -407,8 +451,9 @@ def register_py2():
         )
 
         app.register_task(VRMeasureIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Measure Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.ngram_indexer import (
@@ -416,8 +461,9 @@ def register_py2():
         )
 
         app.register_task(VRNGramIntervalIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Ngram Interval Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.notebeatstrength_indexer import (
@@ -425,8 +471,9 @@ def register_py2():
         )
 
         app.register_task(VRNoteBeatStrengthIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Note Beat Strength Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.noterest_indexer import (
@@ -434,8 +481,9 @@ def register_py2():
         )
 
         app.register_task(VRNoteRestIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Note Rest Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.offset_indexer import (
@@ -443,8 +491,9 @@ def register_py2():
         )
 
         app.register_task(VROffsetIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Offset Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.vis_rodan.wrappers.indexers.vertical_interval_indexer import (
@@ -452,32 +501,36 @@ def register_py2():
         )
 
         app.register_task(VRVerticalIntervalIndexer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "VR Vertical Interval Indexer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Biollante
     try:
         from rodan.jobs.biollante_rodan import BiollanteRodan
 
         app.register_task(BiollanteRodan())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Biollante"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register jSymbolic
     try:
         from rodan.jobs.jSymbolic_Rodan.extract_features import extract_features
 
         app.register_task(extract_features())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "jSymbolic Extract Features"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Neon
     try:
         from rodan.jobs.neon_wrapper.wrapper import Neon
 
         app.register_task(Neon())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
 # Python3 Jobs
@@ -488,72 +541,82 @@ def register_py3():
         from rodan.jobs.helloworld.helloworld import HelloWorld
 
         app.register_task(HelloWorld())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Hello World"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
 
         app.register_task(HelloWorldMultiPort())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Hello World Multi Port"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.helloworld.helloworld import HelloWorld3
 
         app.register_task(HelloWorld3())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Hello World Python3"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register HPC Fast Trainer
     try:
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
 
         app.register_task(HPCFastTrainer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "HPC Fast Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register PIL Rodan
     try:
         from rodan.jobs.pil_rodan.red_filtering import RedFilter
 
         app.register_task(RedFilter())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "PIL Red Filter"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.pil_rodan.resize import resize
 
         app.register_task(resize())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "PIL Resize"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
 
         app.register_task(to_jpeg2000())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "PIL To JPEG2000"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.pil_rodan.to_png import to_png
 
         app.register_task(to_png())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "PIL To PNG"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.pil_rodan.to_tiff import to_tiff
 
         app.register_task(to_tiff())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "PIL To TIFF"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
     
     try:
         from rodan.jobs.mei2vol_wrapper.m2v_wrapper import MEI2Vol
         app.register_task(MEI2Vol())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "MEI2Volpiano"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 # GPU Jobs
 def register_gpu():
@@ -563,15 +626,17 @@ def register_gpu():
         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
 
         app.register_task(CalvoClassifier())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Calvo Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
 
         app.register_task(CalvoTrainer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Calvo Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
@@ -579,23 +644,26 @@ def register_gpu():
         )
 
         app.register_task(FastCalvoClassifier())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Fast Calvo Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
         app.register_task(FastCalvoTrainer())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Fast Calvo Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Text Alignment
     try:
         from rodan.jobs.text_alignment.text_alignment import text_alignment
 
         app.register_task(text_alignment())
-    except ImportError:
-        pass
+    except Exception as exception:
+        import_name = "Text Alignment"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
 if __name__ == "__main__":
