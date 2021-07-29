@@ -15,7 +15,7 @@ soften_amt = 5          # size of gaussian blur to apply before taking threshold
 fill_holes = 5          # size of kernel used for morphological operations when despeckling
 
 # PARAMETERS FOR TEXT LINE SEGMENTATION
-filter_size = 80                # size of moving-average filter used to smooth projection
+filter_size = 30                # size of moving-average filter used to smooth projection
 prominence_tolerance = 0.70     # log-projection peaks must be at least this prominent
 
 
@@ -112,7 +112,11 @@ def moving_avg_filter(data, filter_size=filter_size):
     returns a list containing the data in @data filtered through a moving-average filter of size
     @filter_size to either side; that is, filter_size = 1 gives a size of 3, filter size = 2 gives
     a size of 5, and so on.
+
+    Ideally, filter_size should be about half the height of a letter on the page (not counting ascenders
+    or descenders), in pixels.
     '''
+    filter_size = int(filter_size)
     smoothed = np.zeros(len(data))
     for n in range(filter_size, len(data) - filter_size):
         vals = data[n - filter_size: n + filter_size + 1]
@@ -123,7 +127,7 @@ def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thr
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
-    
+
     @ input image: grayscale or binarized input image (must be in float format, not int)
     @ fill_value: determines the value to flood-fill with.
     @ thresh: pixel value above/below which a flood fill will be instantiated.
@@ -184,7 +188,7 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     return img_bin_rot, img_cleaned_rot, angle
 
 
-def identify_text_lines(img, widen_strips_factor=1):
+def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     '''
     finds text lines on preprocessed image. step-by-step:
     1. find peak locations of vertical projection
@@ -345,6 +349,7 @@ if __name__ == '__main__':
     in_folder = r"D:\Desktop\rodan resources\aligner\png"
     out_folder = r'.\\'
     widen_strips = 3
+    letter_height = 60
 
     img_exts = ['png', 'jpg', 'jpeg']
     fnames = [x for x in os.listdir(in_folder) if x.split('.')[-1] in img_exts]
@@ -355,7 +360,7 @@ if __name__ == '__main__':
 
         img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt, fill_holes=3)
 
-        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips)
+        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips, filter_size=letter_height//2)
         out_fname = os.path.join(out_folder, f'preproc_{fname}')
         save_preproc_image(img_bin, line_strips, lines_peak_locs, out_fname)
 
