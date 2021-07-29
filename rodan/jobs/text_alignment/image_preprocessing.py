@@ -119,22 +119,22 @@ def moving_avg_filter(data, filter_size=filter_size):
         smoothed[n] = np.mean(vals)
     return smoothed
 
-def fill_corners(input_image):
+def fill_corners(input_image, thresh=0.1, tol=0.3):
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
     '''
     #the value of fifty is the max colour that will considered (in this case dark gray)
-    if input_image[0,0] < 0.1:
-        input_image = flood_fill(input_image, (0, 0), 1, tolerance = 0.3)
-    if input_image[-1, 0] < 0.1:
-        input_image = flood_fill(input_image, (-1, 0), 1, tolerance = 0.3)
-    if input_image[0, -1] < 0.1:
-        input_image = flood_fill(input_image, (0, -1), 1, tolerance = 0.3)   
+    if input_image[0,0] < thresh:
+        input_image = flood_fill(input_image, (0, 0), 1, tolerance=tol)
+    if input_image[-1, 0] < thresh:
+        input_image = flood_fill(input_image, (-1, 0), 1, tolerance=tol)
+    if input_image[0, -1] < thresh:
+        input_image = flood_fill(input_image, (0, -1), 1, tolerance=tol)   
 
     # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
-    # if input_image[-1, -1] < 50:
-    #     input_image = flood_fill(input_image, (-1, -1), 255, tolerance = 0.3)
+    # if input_image[-1, -1] < thresh:
+    #     input_image = flood_fill(input_image, (-1, -1), 1, tolerance=tol)
 
     return input_image
 
@@ -287,7 +287,7 @@ def save_preproc_image(image, line_strips, lines_peak_locs, out_fname):
     im.save(out_fname)
 
 
-def find_rotation_angle(img, coarse_bound=3, fine_bound=0.1, rescale_amt=0.5):
+def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.5):
     '''
     find most likely angle of rotation in two-step refining process
     similar process in gamera, see the paper:
@@ -324,9 +324,9 @@ if __name__ == '__main__':
     # To run locally: point the 'folder' variable below at a folder images of the text from manuscripts,
     # and point the 'out_folder' variable at a folder where you'd like the results to be saved.
     # increase "widen strips" if the results for a particular manuscript cut off the tops and bottoms of letters.
-    in_folder = r"D:\Desktop\rodan resources\aligner\png"
+    in_folder = r"D:\Desktop\test"
     out_folder = r'.\\'
-    widen_strips = 4
+    widen_strips = 3
 
 
 
