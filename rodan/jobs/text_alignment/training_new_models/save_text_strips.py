@@ -1,8 +1,14 @@
-import image_preprocessing as preproc
+import sys
 import os
 from skimage import io
 from skimage.util import img_as_ubyte
 import argparse
+
+# adding parent folder to path so that image_preprocessing is accessible
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+import image_preprocessing as preproc
+
+
 
 parser = argparse.ArgumentParser(description='Generate training data for training text alignment models.')
 parser.add_argument('input_folder', type=str,
