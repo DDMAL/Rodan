@@ -2,7 +2,8 @@ from os.path import isfile, join
 import numpy as np
 import os
 from skimage import io
-from skimage.color import rgb2gray
+from skimage.color import rgb2gray, rgba2rgb
+from skimage.util import img_as_float32
 from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
@@ -124,12 +125,12 @@ def fill_corners(input_image):
     enable peak location.
     '''
     #the value of fifty is the max colour that will considered (in this case dark gray)
-    if input_image[0,0] < 50:
-        input_image = flood_fill(input_image, (0, 0), 255, tolerance = 0.3)
-    if input_image[-1, 0] < 50:
-        input_image = flood_fill(input_image, (-1, 0), 255, tolerance = 0.3)
-    if input_image[0, -1] < 50:
-        input_image = flood_fill(input_image, (0, -1), 255, tolerance = 0.3)   
+    if input_image[0,0] < 0.1:
+        input_image = flood_fill(input_image, (0, 0), 1, tolerance = 0.3)
+    if input_image[-1, 0] < 0.1:
+        input_image = flood_fill(input_image, (-1, 0), 1, tolerance = 0.3)
+    if input_image[0, -1] < 0.1:
+        input_image = flood_fill(input_image, (0, -1), 1, tolerance = 0.3)   
 
     # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
     # if input_image[-1, -1] < 50:
@@ -146,11 +147,11 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
 
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
+    input_image = img_as_float32(input_image)
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
-        mask = (input_image[:, :, 3] == 0)
-        input_image[mask] = 255
-
+        input_image = rgba2rgb(input_image)
     gray_img = fill_corners(rgb2gray(input_image))
+
     thresh = threshold_otsu(gray_img)
     img_bin = gray_img < thresh
     img_blur_bin = gaussian(gray_img, soften) < thresh
