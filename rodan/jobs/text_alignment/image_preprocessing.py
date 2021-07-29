@@ -123,6 +123,7 @@ def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thr
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
+    
     @ input image: grayscale or binarized input image (must be in float format, not int)
     @ fill_value: determines the value to flood-fill with.
     @ thresh: pixel value above/below which a flood fill will be instantiated.
