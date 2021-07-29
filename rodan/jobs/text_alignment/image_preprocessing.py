@@ -119,18 +119,18 @@ def moving_avg_filter(data, filter_size=filter_size):
         smoothed[n] = np.mean(vals)
     return smoothed
 
-def fill_corners(input_image, thresh=0.1, tol=0.3):
+def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thresh=True):
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
     '''
     #the value of fifty is the max colour that will considered (in this case dark gray)
-    if input_image[0,0] < thresh:
-        input_image = flood_fill(input_image, (0, 0), 1, tolerance=tol)
-    if input_image[-1, 0] < thresh:
-        input_image = flood_fill(input_image, (-1, 0), 1, tolerance=tol)
-    if input_image[0, -1] < thresh:
-        input_image = flood_fill(input_image, (0, -1), 1, tolerance=tol)   
+    if (input_image[0,0] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (0, 0), fill_value, tolerance=tol)
+    if (input_image[-1, 0] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (-1, 0), fill_value, tolerance=tol)
+    if (input_image[0, -1] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (0, -1), fill_value, tolerance=tol)   
 
     # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
     # if input_image[-1, -1] < thresh:
@@ -150,12 +150,23 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     input_image = img_as_float32(input_image)
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
         input_image = rgba2rgb(input_image)
-    gray_img = fill_corners(rgb2gray(input_image))
+    # gray_img = fill_corners(rgb2gray(input_image))
+    gray_img = rgb2gray(input_image)
 
-    thresh = threshold_otsu(gray_img)
+    # get the otsu threshold after running a flood fill on the corners, so that those huge clumps of
+    # dark pixels don't mess up the statistics too much (we only care about text!)
+    thresh = threshold_otsu(fill_corners(gray_img, 1, tol=0.3, fill_below_thresh=True))
+
+    # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
+    # what you would get from a normal binarization, because the math gets easier this way)
     img_bin = gray_img < thresh
     img_blur_bin = gaussian(gray_img, soften) < thresh
 
+    # now, fill corners of binarized image with black (value 0)
+    img_bin = fill_corners(img_bin, fill_value=0, tol=None, fill_below_thresh=False)
+    img_blur_bin = fill_corners(img_blur_bin, fill_value=0, tol=None, fill_below_thresh=False)
+
+    # now, fill corners of binarized image with black (value 0)
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
 
@@ -324,11 +335,9 @@ if __name__ == '__main__':
     # To run locally: point the 'folder' variable below at a folder images of the text from manuscripts,
     # and point the 'out_folder' variable at a folder where you'd like the results to be saved.
     # increase "widen strips" if the results for a particular manuscript cut off the tops and bottoms of letters.
-    in_folder = r"D:\Desktop\test"
+    in_folder = r"D:\Desktop\rodan resources\aligner\png"
     out_folder = r'.\\'
     widen_strips = 3
-
-
 
     img_exts = ['png', 'jpg', 'jpeg']
     fnames = [x for x in os.listdir(in_folder) if x.split('.')[-1] in img_exts]
