@@ -162,14 +162,15 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     img_bin = gray_img < thresh
     img_blur_bin = gaussian(gray_img, soften) < thresh
 
-    # now, fill corners of binarized image with black (value 0)
+    # now, fill corners of binarized images with black (value 0)
     img_bin = fill_corners(img_bin, fill_value=0, tol=None, fill_below_thresh=False)
     img_blur_bin = fill_corners(img_blur_bin, fill_value=0, tol=None, fill_below_thresh=False)
 
-    # now, fill corners of binarized image with black (value 0)
+    # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
 
+    # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
     img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode='edge') > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode='edge') > 0
