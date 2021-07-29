@@ -143,6 +143,13 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     optimal angle for rotation and returns a "cleaned" rotated version along with a raw, binarized
     rotated version.
     '''
+
+    # ensure that all points which are transparent have RGB values of 255 (will become white when
+    # converted to non-transparent grayscale.)
+    if len(input_image.shape) == 3 and input_image.shape[2] == 4:
+        mask = (input_image[:, :, 3] == 0)
+        input_image[mask] = 255
+
     gray_img = fill_corners(rgb2gray(input_image))
     thresh = threshold_otsu(gray_img)
     img_bin = gray_img < thresh
