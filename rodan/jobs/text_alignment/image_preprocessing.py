@@ -15,7 +15,7 @@ soften_amt = 5          # size of gaussian blur to apply before taking threshold
 fill_holes = 5          # size of kernel used for morphological operations when despeckling
 
 # PARAMETERS FOR TEXT LINE SEGMENTATION
-filter_size = 30                # size of moving-average filter used to smooth projection
+filter_size = 80                # size of moving-average filter used to smooth projection
 prominence_tolerance = 0.70     # log-projection peaks must be at least this prominent
 
 
