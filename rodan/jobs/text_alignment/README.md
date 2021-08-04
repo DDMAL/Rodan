@@ -48,7 +48,7 @@ median_line_spacing: [median space between adjacent text lines, in pixels]
 
 # Training a New Calamari model
 
-What's necessary to train a new model is, essentially, a whole bunch of binarized image files containing individual lines of text, and a bunch of corresponding `.txt` files containing, in plain-text, the text that is on each strip. Each text file should have the same name as its corresponding image file (so `001r_5.png` should be transcribed in `001r_5.txt`). This text should be a perfectly _diplomatic_ transcription: that is, it should represent exactly what characters are in the text script, with no editorializing, expansion of abbreviations, or corrections of spelling. For example: 
+What's necessary to train a new model is, essentially, a whole bunch of binarized image files containing individual lines of text, and a bunch of corresponding `.gt.txt` files containing, in plain-text, the text that is on each strip. Each text file should have the same name as its corresponding image file (so `001r_5.png` should be transcribed in `001r_5.gt.txt`). This text should be a perfectly _diplomatic_ transcription: that is, it should represent exactly what characters are in the text script, with no editorializing, expansion of abbreviations, or corrections of spelling. For example: 
 
 - "regnū" should be transcribed as "regnū" and not "regnum"
 - "eius" should be transcribed as "eius" and not "ejus"
