@@ -6,7 +6,6 @@ Given an image of the text layer of a chant manuscript, and a transcript of text
 
 Python 3.5+ only. Currently requires Calamari 1.0.5, which is a slightly older version than current.
 
-
 ### How To Run Locally
 Run from alignToOCR.py. Edit the parameters at the top of the ```__main__``` method to change what is processed.
 
@@ -48,7 +47,22 @@ median_line_spacing: [median space between adjacent text lines, in pixels]
 
 # Training a New Calamari model
 
-What's necessary to train a new model is, essentially, a whole bunch of binarized image files containing individual lines of text, and a bunch of corresponding `.txt` files containing, in plain-text, the text that is on each strip. Each text file should have the same name as its corresponding image file (so `001r_5.png` should be transcribed in `001r_5.txt`). This text should be a perfectly _diplomatic_ transcription: that is, it should represent exactly what characters are in the text script, with no editorializing, expansion of abbreviations, or corrections of spelling. For example: 
+### Installation
+
+Install the following packages with Python 3.6 (worked with 3.6.8 and 3.6.13; any 3.6 should work), and make sure to install `tensorflow`, `scikit-image`, and `numpy` before `calamari-ocr`, because calamari will try to install the wrong versions.
+
+```
+tensorflow==2.2.1
+scikit-image==0.15.0
+numpy==1.17.3
+calamari-ocr==1.0.5
+unidecode==1.0.22
+scipy
+```
+
+### How to Run Locally
+
+What's necessary to train a new model is, essentially, a whole bunch of binarized image files containing individual lines of text, and a bunch of corresponding `.gt.txt` files containing, in plain-text, the text that is on each strip. Each text file should have the same name as its corresponding image file (so `001r_5.png` should be transcribed in `001r_5.gt.txt`). This text should be a perfectly _diplomatic_ transcription: that is, it should represent exactly what characters are in the text script, with no editorializing, expansion of abbreviations, or corrections of spelling. For example: 
 
 - "regnū" should be transcribed as "regnū" and not "regnum"
 - "eius" should be transcribed as "eius" and not "ejus"
@@ -60,6 +74,11 @@ And so on. For blots of ink on the page, large capital characters that are only 
 
 The script  `/training_new_models/save_text_strips.py` can be used to segment layer-separated images (specifically, whichever layer has the text and doesn't have the neumes or staff lines) into text strips that can then be used for training. Use the command-line interface of that script to point at a folder full of such images and it'll segment each of them, saving the strips from each image into their own folder. For example, you could run: `python save_text_strips.py /path/to/image/files /path/to/output/destination `.
 
-Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train)
+In addition, the script `/training_new_models/save_text_strips.py` has three parameters other than input and output paths. 
+- `-w` (default = 2.0): Factor by which to manually increase width of text strips (default 2.0). Increase if the tops or bottoms of letters are cut off.
+- `-d` (default = 6): Controls amount of despeckling to run on image before line-finding. Higher values increase tolerance to noise but may remove small markings or diacritics.
+- `-l` (default = 70): Approximate height of letters in text lines in the manuscript, from baseline to median (i.e., the height of an "a" or an "e")
+
+Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train). With `calamari-ocr==1.0.5`, following the instrunctions [here](https://github.com/Calamari-OCR/calamari/tree/calamari/1.0#training-of-a-model).
 
  You don't need to do _too_ many for text alignment to work correctly; 99% accuracy is overkill! For the Salzinnes manuscript, I transcribed about 40 pages, which took ~3 hours, and let it train for about 12 hours, and this was perfectly sufficient.

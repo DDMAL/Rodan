@@ -2,7 +2,8 @@ from os.path import isfile, join
 import numpy as np
 import os
 from skimage import io
-from skimage.color import rgb2gray
+from skimage.color import rgb2gray, rgba2rgb
+from skimage.util import img_as_float32
 from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
@@ -111,29 +112,39 @@ def moving_avg_filter(data, filter_size=filter_size):
     returns a list containing the data in @data filtered through a moving-average filter of size
     @filter_size to either side; that is, filter_size = 1 gives a size of 3, filter size = 2 gives
     a size of 5, and so on.
+
+    Ideally, filter_size should be about half the height of a letter on the page (not counting ascenders
+    or descenders), in pixels.
     '''
+    filter_size = int(filter_size)
     smoothed = np.zeros(len(data))
     for n in range(filter_size, len(data) - filter_size):
         vals = data[n - filter_size: n + filter_size + 1]
         smoothed[n] = np.mean(vals)
     return smoothed
 
-def fill_corners(input_image):
+def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thresh=True):
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
+
+    @ input image: grayscale or binarized input image (must be in float format, not int)
+    @ fill_value: determines the value to flood-fill with.
+    @ thresh: pixel value above/below which a flood fill will be instantiated.
+    @ tol: tolerance for flood fill algorithm, in [0, 1] (grayscale input only: must be None if a binary image is input).
+    @ fill_below_thresh: if true, fill regions lower (darker) than the threshold, if false, fill regions higher (lighter)
     '''
-    #the value of fifty is the max colour that will considered (in this case dark gray)
-    if input_image[0,0] < 50:
-        input_image = flood_fill(input_image, (0, 0), 255, tolerance = 0.3)
-    if input_image[-1, 0] < 50:
-        input_image = flood_fill(input_image, (-1, 0), 255, tolerance = 0.3)
-    if input_image[0, -1] < 50:
-        input_image = flood_fill(input_image, (0, -1), 255, tolerance = 0.3)   
+
+    if (input_image[0,0] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (0, 0), fill_value, tolerance=tol)
+    if (input_image[-1, 0] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (-1, 0), fill_value, tolerance=tol)
+    if (input_image[0, -1] < thresh) == fill_below_thresh:
+        input_image = flood_fill(input_image, (0, -1), fill_value, tolerance=tol)   
 
     # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
-    # if input_image[-1, -1] < 50:
-    #     input_image = flood_fill(input_image, (-1, -1), 255, tolerance = 0.3)
+    # if input_image[-1, -1] < thresh:
+    #     input_image = flood_fill(input_image, (-1, -1), 1, tolerance=tol)
 
     return input_image
 
@@ -143,14 +154,33 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     optimal angle for rotation and returns a "cleaned" rotated version along with a raw, binarized
     rotated version.
     '''
-    gray_img = fill_corners(rgb2gray(input_image))
-    thresh = threshold_otsu(gray_img)
+
+    # ensure that all points which are transparent have RGB values of 255 (will become white when
+    # converted to non-transparent grayscale.)
+    input_image = img_as_float32(input_image)
+    if len(input_image.shape) == 3 and input_image.shape[2] == 4:
+        input_image = rgba2rgb(input_image)
+    # gray_img = fill_corners(rgb2gray(input_image))
+    gray_img = rgb2gray(input_image)
+
+    # get the otsu threshold after running a flood fill on the corners, so that those huge clumps of
+    # dark pixels don't mess up the statistics too much (we only care about text!)
+    thresh = threshold_otsu(fill_corners(gray_img, 1, tol=0.3, fill_below_thresh=True))
+
+    # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
+    # what you would get from a normal binarization, because the math gets easier this way)
     img_bin = gray_img < thresh
     img_blur_bin = gaussian(gray_img, soften) < thresh
 
+    # now, fill corners of binarized images with black (value 0)
+    img_bin = fill_corners(img_bin, fill_value=0, tol=None, fill_below_thresh=False)
+    img_blur_bin = fill_corners(img_blur_bin, fill_value=0, tol=None, fill_below_thresh=False)
+
+    # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
 
+    # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
     img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode='edge') > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode='edge') > 0
@@ -158,7 +188,7 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     return img_bin_rot, img_cleaned_rot, angle
 
 
-def identify_text_lines(img, widen_strips_factor=1):
+def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     '''
     finds text lines on preprocessed image. step-by-step:
     1. find peak locations of vertical projection
@@ -279,7 +309,7 @@ def save_preproc_image(image, line_strips, lines_peak_locs, out_fname):
     im.save(out_fname)
 
 
-def find_rotation_angle(img, coarse_bound=3, fine_bound=0.1, rescale_amt=0.5):
+def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.5):
     '''
     find most likely angle of rotation in two-step refining process
     similar process in gamera, see the paper:
@@ -318,9 +348,8 @@ if __name__ == '__main__':
     # increase "widen strips" if the results for a particular manuscript cut off the tops and bottoms of letters.
     in_folder = r"D:\Desktop\rodan resources\aligner\png"
     out_folder = r'.\\'
-    widen_strips = 4
-
-
+    widen_strips = 3
+    letter_height = 60
 
     img_exts = ['png', 'jpg', 'jpeg']
     fnames = [x for x in os.listdir(in_folder) if x.split('.')[-1] in img_exts]
@@ -331,7 +360,7 @@ if __name__ == '__main__':
 
         img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt, fill_holes=3)
 
-        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips)
+        line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips, filter_size=letter_height//2)
         out_fname = os.path.join(out_folder, f'preproc_{fname}')
         save_preproc_image(img_bin, line_strips, lines_peak_locs, out_fname)
 

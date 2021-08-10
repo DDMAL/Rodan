@@ -30,7 +30,7 @@ class text_alignment(RodanTask):
         'properties': {
             'OCR Model': {
                 'type': 'string',
-                'enum': ['salzinnes-gothic-2019', 'stgall-carolingian-2019'],
+                'enum': ['salzinnes-gothic-2019', 'ms073-2021'],
                 'default': 'salzinnes-gothic-2019',
                 'description': ('The OCR model used to obtain a \'messy\' transcript, which will '
                                 'then be aligned to the given transcript.')
