@@ -3,7 +3,7 @@ import numpy as np
 import os
 from skimage import io
 from skimage.color import rgb2gray, rgba2rgb
-from skimage.util import img_as_float32
+from skimage.util import img_as_float32, img_as_ubyte
 from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
@@ -123,7 +123,8 @@ def moving_avg_filter(data, filter_size=filter_size):
         smoothed[n] = np.mean(vals)
     return smoothed
 
-def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thresh=True):
+
+def fill_corners(input_image, fill_value=0, thresh=1, tol=None, fill_below_thresh=True):
     '''
     Checks each corner of the image to identify areas of black pixels. Converts such regions into white pixels to 
     enable peak location.
@@ -135,18 +136,21 @@ def fill_corners(input_image, fill_value=0, thresh=0.5, tol=None, fill_below_thr
     @ fill_below_thresh: if true, fill regions lower (darker) than the threshold, if false, fill regions higher (lighter)
     '''
 
+    s = input_image.shape
+
     if (input_image[0,0] < thresh) == fill_below_thresh:
         input_image = flood_fill(input_image, (0, 0), fill_value, tolerance=tol)
     if (input_image[-1, 0] < thresh) == fill_below_thresh:
-        input_image = flood_fill(input_image, (-1, 0), fill_value, tolerance=tol)
+        input_image = flood_fill(input_image, (s[0] - 1, 0), fill_value, tolerance=tol)
     if (input_image[0, -1] < thresh) == fill_below_thresh:
-        input_image = flood_fill(input_image, (0, -1), fill_value, tolerance=tol)   
+        input_image = flood_fill(input_image, (0, s[1] - 1), fill_value, tolerance=tol)   
 
     # This statement would cause the job to hang, but a statement like this could be used for the bottom right corner.
     # if input_image[-1, -1] < thresh:
     #     input_image = flood_fill(input_image, (-1, -1), 1, tolerance=tol)
 
     return input_image
+
 
 def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     '''
@@ -160,21 +164,20 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     input_image = img_as_float32(input_image)
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
         input_image = rgba2rgb(input_image)
-    # gray_img = fill_corners(rgb2gray(input_image))
-    gray_img = rgb2gray(input_image)
+    gray_img = img_as_ubyte(rgb2gray(input_image))
 
     # get the otsu threshold after running a flood fill on the corners, so that those huge clumps of
     # dark pixels don't mess up the statistics too much (we only care about text!)
-    thresh = threshold_otsu(fill_corners(gray_img, 1, tol=0.3, fill_below_thresh=True))
+    thresh = threshold_otsu(fill_corners(gray_img, fill_value=255, thresh=25, tol=25, fill_below_thresh=True))
 
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)
-    img_bin = gray_img < thresh
-    img_blur_bin = gaussian(gray_img, soften) < thresh
+    img_bin = img_as_ubyte(gray_img < thresh)
+    img_blur_bin = img_as_ubyte(img_as_ubyte(gaussian(gray_img, soften)) < thresh)
 
     # now, fill corners of binarized images with black (value 0)
-    img_bin = fill_corners(img_bin, fill_value=0, tol=None, fill_below_thresh=False)
-    img_blur_bin = fill_corners(img_blur_bin, fill_value=0, tol=None, fill_below_thresh=False)
+    img_bin = fill_corners(img_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
+    img_blur_bin = fill_corners(img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
 
     # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
@@ -346,7 +349,7 @@ if __name__ == '__main__':
     # To run locally: point the 'folder' variable below at a folder images of the text from manuscripts,
     # and point the 'out_folder' variable at a folder where you'd like the results to be saved.
     # increase "widen strips" if the results for a particular manuscript cut off the tops and bottoms of letters.
-    in_folder = r"D:\Desktop\rodan resources\aligner\png"
+    in_folder = r"D:\Desktop\adsf"
     out_folder = r'.\\'
     widen_strips = 3
     letter_height = 60
