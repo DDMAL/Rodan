@@ -156,7 +156,7 @@ def process(raw_image,
     # finally, rotate syl_boxes back by the angle that the page was rotated by
     pivot = (image.shape[0] // 2, image.shape[1] // 2)
     for i in range(len(syl_boxes)):
-        syl_boxes[i] = rotate_bbox(syl_boxes[i], -1 * angle, pivot)
+        syl_boxes[i] = rotate_bbox(syl_boxes[i], angle, pivot)
 
     return syl_boxes, image, lines_peak_locs, all_chars_copy
 
@@ -182,7 +182,7 @@ def to_JSON_dict(syl_boxes, lines_peak_locs):
     return data
 
 
-def draw_results_on_page(image, syl_boxes, lines_peak_locs, fname=''):
+def draw_results_on_page(image, syl_boxes, lines_peak_locs, out_fname):
     '''
     draws a list of char_boxes on a given image and saves the image to file (local dev use only).
     '''
@@ -206,8 +206,7 @@ def draw_results_on_page(image, syl_boxes, lines_peak_locs, fname=''):
     #     draw.text((1, peak_loc - text_size), 'line {}'.format(i), font=fnt, fill='gray')
     #     draw.line([0, peak_loc, im.width, peak_loc], fill='gray', width=3)
 
-    im.save('./out_imgs/{}_alignment.png'.format(fname))
-    # im.show()
+    im.save(out_fname)
 
 
 if __name__ == '__main__':
@@ -248,35 +247,27 @@ if __name__ == '__main__':
             continue
 
         fname = '{}_{}'.format(manuscript, f_id)
-        ocr_pickle = None  # './pik/{}_boxes.pickle'.format(fname)
-        text_layer_fname = './png/{}_text.png'.format(fname)
+        ocr_pickle = None 
+        text_layer_fname = r'D:\Desktop\rodan resources\aligner\png\{}_text.png'.format(fname)
 
         if not os.path.isfile(text_layer_fname):
             print('cannot find files for {}.'.format(fname))
             continue
 
         print('processing {}...'.format(fname))
-        raw_image = io.imread('./png/{}_text.png'.format(fname))
+        raw_image = io.imread(text_layer_fname)
 
         existing_ocr = None
-        # if ocr_pickle:
-        #     try:
-        #         with open(ocr_pickle) as f:
-        #             existing_ocr = pickle.load(f)
-        #         print('using pickled ocr results in {}...'.format(ocr_pickle))
-        #     except IOError:
-        #         print('Pickle file {} not found - performing ocr instead'.format(ocr_pickle))
-        #     except AttributeError:
-        #         print('Pickle error: re-performing ocr')
 
         result = process(raw_image, transcript, ocr_model, existing_ocr=existing_ocr, verbose=True)
 
         if result is None:
             continue
         syl_boxes, image, lines_peak_locs, all_chars = result
-        with open('./out_json/{}.json'.format(fname), 'w') as outjson:
+        with open(r'D:\Desktop\rodan resources\aligner\out_json\{}.json'.format(fname), 'w') as outjson:
             json.dump(to_JSON_dict(syl_boxes, lines_peak_locs), outjson)
-        with open('./pik/{}_boxes.pickle'.format(fname), 'wb') as f:
-            pickle.dump(all_chars, f, -1)
+        # with open('./pik/{}_boxes.pickle'.format(fname), 'wb') as f:
+        #     pickle.dump(all_chars, f, -1)
 
-        draw_results_on_page(raw_image, syl_boxes, lines_peak_locs)
+        out_fname = r'D:\Desktop\rodan resources\aligner\out_imgs\aligned_{}.png'.format(fname)
+        draw_results_on_page(raw_image, syl_boxes, lines_peak_locs, out_fname)
