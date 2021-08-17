@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 try:
-    from calamari_ocr.ocr.predictor import Predictor
+    from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 except ImportError:
     print('Calamari OCR failed to import. This is normal only when loading Rodan.')
 import os
-
+import numpy as np
 
 abbreviations = {
     u'dns': ['do', 'mi', 'nus'],
@@ -69,7 +69,11 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     dir = os.path.dirname(__file__)
     ocr_model_path = os.path.join(dir, 'models/{}'.format(ocr_model_name))
 
-    predictor = Predictor(checkpoint=ocr_model_path, processes=1)
+    # predictor = Predictor(checkpoint=ocr_model_path, processes=1)
+    predictor = MultiPredictor.from_paths(
+        checkpoints=[ocr_model_path],
+        params=PredictorParams())
+
     img_white_back = (1 - img).astype(float)
 
     # x, y, width, height
@@ -80,7 +84,7 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
         strips.append(strip)
 
     results = []
-    for r in predictor.predict_raw(strips, progress_bar=False):
+    for r in predictor.predict_raw(strips):
         results.append(r)
 
     all_chars = []
@@ -89,13 +93,21 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     for i, cs in enumerate(line_strips):
 
         strip_x_min, strip_y_min, strip_width, strip_height = cs
-        res_line = [
-            CharBox(
-                clean_special_chars(x.chars[0].char),
-                (x.global_start + strip_x_min, strip_y_min),
-                (x.global_end + strip_x_min, strip_y_min + strip_height))
-            for x in results[i].prediction.positions
-            ]
+
+        r = results[i]
+        chars = list(r.outputs[1].sentence)
+        global_starts = [x.global_start for x in r.outputs[1].positions]
+
+        # to find width of final character, append median char width to end of line
+        med_char_width = int(np.median(np.diff(global_starts)))
+        global_starts = global_starts + [med_char_width + global_starts[-1]]
+
+        res_line = []
+        for i in range(len(chars)):
+            c = chars[i]
+            ul = (global_starts[i] + strip_x_min, strip_y_min)
+            lr = (global_starts[i + 1] + strip_x_min, strip_y_min + strip_height)
+            res_line.append(CharBox(c, ul, lr))
 
         all_chars += res_line
 
@@ -137,13 +149,13 @@ if __name__ == '__main__':
     import image_preprocessing as preproc
     from skimage import io
 
-    fname = 'salzinnes_378'
-    raw_image = io.imread('./png/{}_text.png'.format(fname))
+    fname = r"D:\Desktop\adsf\056_text_layer.png"
+    raw_image = io.imread(fname)
 
     img_bin, img_eroded, angle = preproc.preprocess_images(raw_image)
     line_strips, lines_peak_locs, proj = preproc.identify_text_lines(img_eroded)
 
-    ocr_model_name = 'salzinnes-gothic-2019'
+    ocr_model_name = 'hist2'
 
     all_chars = recognize_text_strips(img_bin, line_strips, ocr_model_name, True)
     all_chars = handle_abbreviations(all_chars, max_iters=10e4)
