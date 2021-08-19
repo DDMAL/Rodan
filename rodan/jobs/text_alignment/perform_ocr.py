@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-try:
-    from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
-except ImportError:
-    print('Calamari OCR failed to import. This is normal only when loading Rodan.')
+
 import os
 import numpy as np
 
@@ -65,6 +62,10 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     takes in an image and a list of bounding boxes around text strips, extracts these strips, and
     performs OCR on the resulting set of strips. returns results character-by-character within CharBoxes.
     '''
+    
+    # Importing calamari needs to be here because otherwise it will try to create a unique thread for
+    # every text strip (since we're processing them in sequence and not in parallel).
+    from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 
     dir = os.path.dirname(__file__)
     ocr_model_path = os.path.join(dir, 'models/{}'.format(ocr_model_name))
@@ -148,6 +149,7 @@ if __name__ == '__main__':
 
     import image_preprocessing as preproc
     from skimage import io
+    __spec__ = None
 
     fname = r"D:\Desktop\adsf\056_text_layer.png"
     raw_image = io.imread(fname)
@@ -157,5 +159,16 @@ if __name__ == '__main__':
 
     ocr_model_name = 'hist2'
 
+    img_white_back = (1 - img_bin).astype(float)
+
+    # x, y, width, height
+    strips = []
+    for ls in line_strips:
+        x, y, w, h = ls
+        strip = img_white_back[y:y + h, x:x + w]
+        strips.append(strip)
+
     all_chars = recognize_text_strips(img_bin, line_strips, ocr_model_name, True)
     all_chars = handle_abbreviations(all_chars, max_iters=10e4)
+
+    print(all_chars)
