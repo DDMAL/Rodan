@@ -157,7 +157,7 @@ if __name__ == '__main__':
     img_bin, img_eroded, angle = preproc.preprocess_images(raw_image)
     line_strips, lines_peak_locs, proj = preproc.identify_text_lines(img_eroded)
 
-    ocr_model_name = 'hist2'
+    ocr_model_name = 'gothic_salzinnes_2021'
 
     img_white_back = (1 - img_bin).astype(float)
 
