@@ -623,22 +623,6 @@ def register_gpu():
 
     # Register Calvo
     try:
-        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
-
-        app.register_task(CalvoClassifier())
-    except Exception as exception:
-        import_name = "Calvo Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
-
-        app.register_task(CalvoTrainer())
-    except Exception as exception:
-        import_name = "Calvo Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
         from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
             FastCalvoClassifier,
         )
