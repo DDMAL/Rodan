@@ -63,6 +63,7 @@ class text_alignment(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
         from skimage import io
+        from . import align_to_ocr as align
 
         self.logger.info(settings)
 

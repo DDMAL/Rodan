@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt
 import os
 import shutil
 import numpy as np
@@ -210,7 +209,7 @@ def draw_results_on_page(image, syl_boxes, lines_peak_locs, out_fname):
 
 
 if __name__ == '__main__':
-
+    import matplotlib.pyplot as plt
     import parse_cantus_csv as pcc
     import PIL
     import pickle
