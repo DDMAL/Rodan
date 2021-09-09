@@ -70,10 +70,16 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     dir = os.path.dirname(__file__)
     ocr_model_path = os.path.join(dir, 'models/{}'.format(ocr_model_name))
 
+    params = PredictorParams()
+    params.pipeline.num_processes = 1
+
     # predictor = Predictor(checkpoint=ocr_model_path, processes=1)
     predictor = MultiPredictor.from_paths(
         checkpoints=[ocr_model_path],
-        params=PredictorParams())
+        params=params)
+    predictor.params.pipeline.num_processes = 1
+    predictor.data.params.pre_proc.run_parallel = False
+    predictor.data.params.post_proc.run_parallel = False
 
     img_white_back = (1 - img).astype(float)
 
