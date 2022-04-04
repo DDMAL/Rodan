@@ -1,5 +1,0 @@
-[submodule "source/js/plugins/pixel.js"]
-	path = source/js/plugins/pixel.js
-	url = https://github.com/DDMAL/Pixel.js.git
-	branch = master
-	ignore = dirty
