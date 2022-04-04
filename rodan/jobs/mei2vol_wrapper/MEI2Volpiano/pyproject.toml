@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "MEI2Volpiano"
+version = "0.8.1"
+description = ""
+authors = ["DDMAL"]
+readme = "README.md"
+repository = "https://github.com/DDMAL/MEI2Volpiano"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pytz = "^2021.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+m2r2 = "^0.2.7"
+Sphinx = "^4.0.1"
+
+[tool.poetry.scripts]
+mei2vol = 'mei2volpiano:driver.main'
+mei2volpiano = 'mei2volpiano:driver.main'
+
+[tool.poetry.extras]
+docs = ["sphinx", ]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

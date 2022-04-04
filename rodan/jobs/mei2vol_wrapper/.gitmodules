@@ -1,0 +1,3 @@
+[submodule "MEI2Volpiano"]
+	path = MEI2Volpiano
+	url = https://github.com/DDMAL/MEI2Volpiano
