@@ -191,8 +191,6 @@ else:
 # Jobs that depend on binaries.
 # If None, Rodan will call `which gm` to find it.
 BIN_GM = "/usr/bin/gm"
-# If None, Rodan will call `which kdu_compress` to find it.
-BIN_KDU_COMPRESS = "/vendor/kakadu_v7_6/bin/Linux-x86-64-gcc/kdu_compress"
 # If None, Rodan will call `which vips` to find it.
 BIN_VIPS = "/usr/bin/vips"
 # If None, Rodan will call `which xmllint` to find it.
