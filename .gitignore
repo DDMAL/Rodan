@@ -14,7 +14,6 @@ rodan/jobs/diva_wrapper/
 rodan/jobs/gamera_rodan/
 rodan/jobs/vis_rodan/
 rodan/jobs/jSymbolic_Rodan/
-rodan/jobs/Calvo_classifier/
 rodan/jobs/diagonal_neume_slicing/
 rodan/jobs/heuristic_pitch_finding/
 rodan/jobs/JSOMR2MEI/
