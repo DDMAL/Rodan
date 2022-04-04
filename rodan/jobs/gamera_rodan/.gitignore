@@ -1,0 +1,31 @@
+*.pyc
+db.sqlite
+*.swp
+*.tif
+*.tiff
+*.cib
+*.xcodeproj/*
+.XcodeSupport/*
+rodan.log
+rodan_env
+.DS_Store
+gunicorn_start.sh
+celery_start.sh
+rodan/settings.py
+rodan/static/Rodan
+
+/.DS_Store
+
+# autoconf
+configure
+config.status
+config.log
+autom4te.cache
+
+etc/supervisor/conf.d/rodan.conf
+websocket_start.sh
+
+etc/nginx/sites-available/rodan
+._*
+# ignore emacs autosave file
+*~

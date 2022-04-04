@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the static directory -->
+    <link rel="stylesheet" href='./normalize.css' />
+    <link rel="stylesheet" href='./main.css' />
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/kineticjs/4.6.0/kinetic.min.js"></script>
+    <script src="./Stats.js"></script>
+    <script src="./show_stats.js"></script>
+    <script src="./RKSegment.js"></script>
+  </head>
+  <body>
+    <div style="padding: 1em; overflow: hidden; min-width: 1450px">
+      <div style="float: left; width: 350px; margin: 1em">
+        <h2>Polygon Masking Interface</h2>
+        <p>Select a polygon or anchor by clicking on it, then use the mouse to drag it to a new position.
+          <br/>
+          <br/>
+        With a polygon selected, you can:<br/>
+        - delete it (d, Delete key, Backspace key)<br/>
+        - transform it to a rectangle (r)<br/>
+        - add an anchor (Alt key and mouse click)<br/>
+          <br/>
+        With an anchor selected, you can:<br/>
+        - delete it (d, Delete key, Backspace key)<br/>
+          <br/>
+        You can create a new polygon by pressing n (no other polygon must be selected).
+        </p>
+        <div style="margin-bottom: 1em;">
+          <button class="submit" id="submit">Segment</button>
+        </div>
+      </div>
+      <div id="segment-view" style="border: 2px solid; margin: 1em; float: left">
+      </div>
+    </div>
+    <script type="text/javascript">
+     $(document).ready(function() {
+       $("#segment-view").RKSegment(
+         {
+           image: "{{ image_url | safe }}",
+           originalWidth: {{ image_width }},
+           polyPoints: {{ polygon_outer_points }}
+         });
+       var rks = $("#segment-view").data('RKSegment');
+
+       $('#submit').click(function () {
+         $.ajax({
+           url: '',
+           type: 'POST',
+           data: JSON.stringify({'polygon_outer_points': rks.getPolyPoints()}),
+           contentType: 'application/json',
+           complete: function () {
+             window.location = 'about:blank';
+           }
+         });
+       });
+     });
+    </script>
+  </body>
+</html>
