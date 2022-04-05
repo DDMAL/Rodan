@@ -78,6 +78,7 @@ RUN rm -rf /var/lib/apt/lists/*
 # RUN pip install git+https://github.com/hsnr-gamera/gamera.git --global-option="--nowx"
 # pip broke again: https://github.com/pypa/pip/issues/6560
 # Let's not rely on pip to install this again.
+
 RUN set -e \
   && mkdir -p /rodan/data /code/jobs \
   && chown -R www-data /rodan \
@@ -86,11 +87,9 @@ RUN set -e \
   && cd /code/gamera \
   # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
   && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
-  && python setup.py install --nowx >/dev/null 2>&1 \
+  && python setup.py install --nowx >/dev/null 2>&1
   # Prep for Rodan
-  # Rodan folder MUST be uppercase, otherwise many unittests fail.
-  && chown -R www-data /rodan \
-  && git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan
+  # && git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan
 
 # Install framework dependencies for Rodan Jobs.
 COPY ./rodan/scripts/install_rodan_job_dependencies /run/
@@ -99,6 +98,11 @@ COPY ./rodan/scripts/install_rodan /run/
 COPY ./rodan/scripts/wait-for-app /run/
 COPY ./rodan/scripts/entrypoint /opt/
 COPY ./rodan/scripts/start-celery /run/
+
+# Copying rodan core from build context into container
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY ./rodan/code /code/Rodan
+
 
 RUN set -x \
   && chmod +x /run/install_rodan_job_dependencies \

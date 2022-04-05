@@ -140,14 +140,19 @@ COPY ./rodan/scripts/entrypoint /opt/
 COPY ./rodan/scripts/start-celery /run/
 COPY ./rodan/scripts/wait-for-app /run/
 
+# Copying rodan core from build context into container
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY ./rodan/code /code/Rodan
+
 # necessary for scikit-image > 0.17, or else it will try to make a cache directory
 # in a place where the www-data user does not have permissions to do so
 ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
 
+
 RUN set -x \
   # Create Folders
   && mkdir -p /code/jobs \
-  && git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan \
+  #&& git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan \
   # Install GPU Jobs
   && chmod +x /opt/install_gpu_rodan_jobs \
   && chown www-data /opt/install_gpu_rodan_jobs \
