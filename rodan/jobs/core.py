@@ -140,12 +140,6 @@ class create_resource(Task):
 if getattr(settings, "ENABLE_DIVA"):
     from distutils.spawn import find_executable
 
-    # BIN_KDU_COMPRESS = getattr(settings, "BIN_KDU_COMPRESS", None) or find_executable(
-    #     "kdu_compress"
-    # )
-    # if not BIN_KDU_COMPRESS:
-    #     raise ImportError("cannot find kdu_compress")
-
     BIN_GM = getattr(settings, "BIN_GM", None) or find_executable("gm")
     if not BIN_GM:
         raise ImportError("cannot find gm")
@@ -255,41 +249,6 @@ def create_diva(resource_id):
                 "-r", "16,8,4,2"
             ]
         )
-
-        # subprocess.check_call(
-        #     args=[
-        #         ## With Kakadu  # noqa
-        #         BIN_KDU_COMPRESS,
-        #         "-i", tiff_file,
-        #         "-o", jp2_file,
-        #         "-quiet",
-        #         "Clevels=5",
-        #         "Cblk={64,64}",
-        #         "Cprecincts={256,256},{256,256},{128,128}",
-        #         "Creversible=yes",
-        #         "Cuse_sop=yes",
-        #         "Corder=LRCP",
-        #         "ORGgen_plt=yes",
-        #         "ORGtparts=R",
-        #         "-rate", "-,1,0.5,0.25"
-
-        #         ## With OpenJPEG  # noqa
-        #         # "/vendor/openjpeg/build/bin/opj_compress",
-        #         # "-i", tiff_file,
-        #         # "-o", jp2_file,
-        #         # "-n", "5", # Number of DWT decompositions +1, Clevels in kakadu
-        #         # "-b", "64,64", # Code-block size, Cblk in kakadu
-        #         # "-c", "[256,256],[256,256],[128,128]", # Precinct size, Cprecincts in kakadu
-        #         # # "-I" # Ireversable DWT, meaning reversable must be the default?
-        #         # # Creversible in kakadu
-        #         # "-SOP", # Add SOP markers
-        #         # "-p", "LRCP", # Corder in kakadu
-        #         # # ORGgen_plt?
-        #         # # this argument segfaults "-TP", "R", # Divide packets into tile-parts,
-        #         # # ORGplt_parts in kakadu
-        #         # "-r", "1,2,4,8", # "-rate", "-,1,0.5,0.25"
-        #     ]
-        # )
 
     shutil.move(jp2_file, outputs['JPEG2000 Image'][0]['resource_path'])
 

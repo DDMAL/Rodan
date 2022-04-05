@@ -587,13 +587,6 @@ def register_py3():
         import_name = "PIL Resize"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # try:
-    #     from rodan.jobs.pil_rodan.to_jpeg2000 import to_jpeg2000
-
-    #     app.register_task(to_jpeg2000())
-    # except Exception as exception:
-    #     import_name = "PIL To JPEG2000"
-    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
         from rodan.jobs.pil_rodan.to_png import to_png
