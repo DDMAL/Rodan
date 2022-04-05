@@ -124,8 +124,8 @@ ENABLE_DIVA = True
 RODAN_WORKFLOW_SERIALIZATION_FORMAT_VERSION = 0.2
 # 30 days. NULL: never expire
 RODAN_RESULTS_PACKAGE_AUTO_EXPIRY_SECONDS = 30 * 24 * 60 * 60
-# Default: 15 seconds before the authentication token expires.
-RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 15
+# Default: 999999 seconds before the authentication token expires.
+RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 
 ###############################################################################
 # 1.c  Rodan Job Package Registration
