@@ -1,0 +1,12 @@
+#!/bin/sh
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o nounset # Treat unset variables as an error when substituting.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+#chmod 700 /etc/nginx/keys
+#chmod -R 600 /etc/nginx/keys/*
+#chown -R root /etc/nginx/keys
+
+chown -R www-data:www-data /var/www/default
+find /var/www/default -type d | xargs chmod 755
+find /var/www/default -type f | xargs chmod 644

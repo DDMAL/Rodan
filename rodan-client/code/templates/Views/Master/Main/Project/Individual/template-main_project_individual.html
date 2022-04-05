@@ -1,0 +1,20 @@
+<div class="fixed_individual">
+    <h3>Project</h3>
+    <label for="text-project_name">Name:</label>
+    <input type="text" class="form-control input-sm" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
+    <label for="text-project_description">Description:</label>
+    <textarea type="text" class="form-control input-sm" id="text-project_description" name="text-project_description"><%= _.unescape(description) %></textarea>
+    Creator: <%= creator %> <br>
+    Created on: <%= _.formatFromUTC(created) %><br>
+    Updated on: <%= _.formatFromUTC(updated) %><br>
+    URL: <%= url %><br>
+    <div class="btn-group" role="group">
+        <button class="btn btn-xs btn-success" id="button-project_users">Users</button>
+        <button class="btn btn-xs btn-success" id="resource_count">Resources: <%= resource_count%></button>
+     <!--   <button class="btn btn-xs btn-success" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button>-->
+        <button class="btn btn-xs btn-success" id="workflow_count">Workflows: <%= workflow_count%></button>
+        <button class="btn btn-xs btn-success" id="button-runjobs">Run Jobs</button>
+        <button class="btn btn-xs btn-warning" id="button-save_project">Save</button>
+        <button class="btn btn-xs btn-danger" id="button-delete_project">Delete</button>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+if: "(branch = master AND type IN (pull_request, cron)) OR (branch = develop) OR (banch = develop AND type IN (pull_request, cron))"
+language: python
+virtualenv:
+  system_site_packages: true
+cache: pip
+services:
+- redis-server
+addons:
+  postgresql: '9.5'
+  apt:
+    packages:
+    - postgresql-plpython-9.5
+matrix:
+  include:
+  - os: linux
+    sudo: required
+    python: 2.7
+before_install:
+- sudo apt-get update -qy
+- sudo /etc/init.d/postgresql restart
+- sudo pip install redis
+- sudo redis-server /etc/redis/redis.conf --port 6379
+- export REDIS_HOST=localhost
+- export REDIS_PORT=6379
+- export REDIS_DB=0
+- export RABBITMQ_URL=amqp://guest_user:guest_pass@localhost:5672//
+- export RABBITMQ_DEFAULT_USER=guest_user
+- export RABBITMQ_DEFAULT_PASS=guest_pass
+- export DJANGO_DEBUG_MODE=True
+- export DJANGO_SECRET_KEY=local
+- export DJANGO_ALLOWED_HOSTS=*
+- export DJANGO_MEDIA_ROOT=./data/
+- export DJANGO_ACCESS_LOG=./rodan.log
+- export DJANGO_DEBUG_LOG=./database.log
+- export CELERY_JOB_QUEUE=None
+- export POSTGRES_HOST=localhost
+- export POSTGRES_PORT=5432
+- export POSTGRES_DB=rodan
+- export POSTGRES_USER=rodan
+- export POSTGRES_PASSWORD=rodan
+install:
+- pip install -r requirements.txt
+- pip install flake8
+- sudo chmod -R 755 /home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/pybagit
+- cd ./rodan/jobs && git clone https://github.com/DDMAL/pil_rodan.git && cd ../..
+- sed -i "s/\/code\/Rodan/./g" rodan/settings.py
+before_script:
+- psql -c "CREATE DATABASE rodan;" -U postgres
+- psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
+- psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
+- psql -c "CREATE LANGUAGE plpython2u;" -U postgres
+- psql -c "GRANT ALL PRIVILEGES ON DATABASE "rodan" TO rodan;" -U postgres
+- python manage.py makemigrations rodan
+- python manage.py migrate
+script:
+- flake8
+# - python -W error manage.py test
+# - python -W once manage.py test
+- python manage.py test
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: HDF/98yAM+vTFndMuwkHfnUfWfdcU5E0Wjkccn9jrJg2FiaW+SxoT7Gb/PBoWmYWke0BIEERop0khfEOlsa/n3d7N0eZcZ6IrJa2PDnyP6C9QK/wiagl2uC3NZeCVHuz7aXI2iRYcSjQt7iXlSfQqczhov4qhfhDwNZoddotWNU=

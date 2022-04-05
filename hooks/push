@@ -1,0 +1,47 @@
+#!/bin/bash
+# hooks/post_push
+# https://docs.docker.com/docker-cloud/builds/advanced/
+
+RODAN_TAG=`cd rodan/code && git describe --tags --always`
+RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
+RODAN_DOCKER_TAG=`git describe --tags --always`
+
+echo "[+] Pushing Python3-Celery"
+
+if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
+fi
+
+docker push ddmal/rodan-python3-celery:nightly
+
+echo "[+] Pushing GPU-Celery"
+
+if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+  docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
+fi
+
+docker push ddmal/rodan-gpu-celery:nightly
+
+echo "[+] Pushing Postgres"
+
+if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+  docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
+fi
+
+docker push ddmal/postgres-plpython:nightly
+
+echo "[+] Pushing Nginx"
+
+if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+  docker push ddmal/nginx:${RODAN_DOCKER_TAG}
+fi
+
+docker push ddmal/nginx:nightly
+
+echo "[+] Pushing HPC-RabbitMQ"
+
+if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+  docker push ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG}
+fi
+
+docker push ddmal/hpc-rabbitmq:nightly

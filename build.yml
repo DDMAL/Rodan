@@ -1,0 +1,58 @@
+version: "3.2"
+services:
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: "ddmal/nginx:nightly"
+
+  rodan:
+    build:
+      context: ./rodan
+      dockerfile: Dockerfile
+      args:
+        BRANCHES: develop
+    image: "ddmal/rodan:nightly"
+
+  py2-celery:
+    build:
+      context: .
+      dockerfile: ./python2-celery/Dockerfile
+      args:
+        BRANCHES: develop
+    image: "ddmal/rodan-python2-celery:nightly"
+
+  py3-celery:
+    build:
+      context: .
+      dockerfile: ./python3-celery/Dockerfile
+      args:
+        BRANCHES: develop
+    image: "ddmal/rodan-python3-celery:nightly"
+
+  gpu-celery:
+    build:
+      context: .
+      dockerfile: ./gpu-celery/Dockerfile
+      args:
+        BRANCHES: develop
+    image: "ddmal/rodan-gpu-celery:nightly"
+
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    image: "ddmal/postgres-plpython:nightly"
+
+  rodan-client:
+    build:
+      context: ./rodan-client
+      dockerfile: Dockerfile
+    image: "ddmal/rodan-client:nightly"
+
+  hpc-rabbitmq:
+    build:
+      context: ./hpc-rabbitmq
+      dockerfile: Dockerfile
+    image: "ddmal/hpc-rabbitmq:nightly"

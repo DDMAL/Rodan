@@ -1,0 +1,40 @@
+<div class="row gui">
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="margin: 0; position: absolute">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Workflow <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a id="button-edit">Edit Name/Description</a></li>
+                            <li><a id="button-add_job">Add Job</a></li>
+                            <li><a id="button-import_workflow">Import Workflow</a></li>
+                            <li><a id="button-run">Run</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">View <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a id="button-zoom_in">Zoom in</a></li>
+                            <li><a id="button-zoom_out">Zoom out</a></li>
+                            <li><a id="button-zoom_reset">Reset</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a>Automatically add ports to job  <input type="checkbox" checked="checked" id="checkbox-add_ports"/></a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a><span id="data-workflow_status"></span></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="canvas-wrap" class="col-xs-12">
+        <canvas id="canvas-workspace"></canvas>
+        <div id="canvas-tooltip"></div>
+    </div>
+</div>
