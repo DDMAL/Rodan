@@ -1,0 +1,20 @@
+<div class="fixed_individual">
+    <h3>Resource List</h3>
+    <label for="text-resourcelist_name">Name:</label>
+    <input type="text" class="form-control input-sm" id="text-resourcelist_name" value="<%= _.escape(name) %>" name="text-resourcelist_name">
+    <label for="text-resourcelist_description">Description:</label>
+    <textarea type="text" class="form-control input-sm" id="text-resourcelist_description" name="text-resourcelist_description"><%= _.escape(description) %></textarea>
+    Creator: <%= creator %><br>
+    Created: <%= _.formatFromUTC(created) %><br>
+    Updated: <%= _.formatFromUTC(updated) %><br>
+    Type: <select id="select-resourcetype"></select><br>
+    <br>
+    <div class="btn-group" role="group">
+        <button class="btn btn-xs  btn-warning" id="button-main_resourcelist_individual_save">Save</button>
+        <button class="btn btn-xs  btn-warning" id="button-main_resourcelist_individual_addremove">Add/Remove Resources</button>
+        <button class="btn btn-xs btn-primary" id="button-main_resourcelist_individual_download">Download</button>
+        <button class="btn btn-xs btn-danger" id="button-main_resourcelist_individual_delete">Delete</button>
+    </div>
+    <br>
+    <p class="instruction">Note: make sure to Save your Resource List after assigning/unassigning Resources.</p>
+</div>

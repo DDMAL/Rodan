@@ -1,0 +1,84 @@
+{
+  "name": "rodan-client",
+  "version": "0.20.0",
+  "description": "Rodan Client",
+  "keywords": [
+    "workflow",
+    "music",
+    "mcgill",
+    "rodan"
+  ],
+  "bugs": {
+    "url": "https://github.com/DDMAL/rodan-client/issues"
+  },
+  "scripts": {
+    "clean": "gulp clean",
+    "start": "gulp",
+    "dist": "gulp dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pretest": "node scripts/pretest.js",
+    "postversion": "git push && git push --tags",
+    "prestart": "node scripts/prestart.js",
+    "preversion": "node scripts/preversion.js"
+  },
+  "author": {
+    "name": "Distributed Digital Music Archives & Library Laboratory",
+    "url": "http://ddmal.music.mcgill.ca/"
+  },
+  "main": "src/rodan.js",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ddmal/rodan-client"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "async": "^3.2.0",
+    "babel-loader": "^8.1.0",
+    "core-js": "^3.6.5",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-sass": "^4.1.0",
+    "ip": "^1.1.4",
+    "paper": "^0.12.4",
+    "prompt-sync": "^4.2.0",
+    "recursive-readdir": "^2.2.2",
+    "regenerator-runtime": "^0.13.5",
+    "simple-git": "^1.132.0",
+    "tags-input": "^1.1.1",
+    "vinyl-fs": "^3.0.3",
+    "webpack": "^4.43.0",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "babel-preset-env": "^1.7.0",
+    "backbone": "^1.4.0",
+    "backbone.marionette": "^4.1.2",
+    "backbone.radio": "^2.0.0",
+    "bootstrap": "^4.4.1",
+    "eonasdan-bootstrap-datetimepicker": "4.17.47",
+    "file-saver": "^2.0.2",
+    "jquery": "^3.5.0",
+    "jqueryui": "^1.11.1",
+    "json-editor": "0.7.28",
+    "moment": "^2.25.3",
+    "moment-timezone": "^0.5.28",
+    "popper.js": "^1.16.1",
+    "underscore": "^1.10.2"
+  },
+  "engines": {
+    "node": ">=4.2.6"
+  },
+  "jspm": {
+    "directories": {
+      "baseURL": "node_modules/.bin"
+    },
+    "dependencies": {},
+    "devDependencies": {
+      "babel": "npm:babel-core@^5.8.24",
+      "babel-runtime": "npm:babel-runtime@^5.8.24",
+      "core-js": "npm:core-js@^1.1.4"
+    }
+  }
+}

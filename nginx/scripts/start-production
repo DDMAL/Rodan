@@ -1,0 +1,22 @@
+#!/bin/sh
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o nounset # Treat unset variables as an error when substituting.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+/run/setup
+sed -i "s/localhost/${SERVER_HOST}/g" /var/www/default/dist/configuration.json
+sed -i "s/SERVER_HOST/${SERVER_HOST}/g" /etc/nginx/conf.d/ssl.conf
+
+if [ $TLS -eq 1 ]; then
+    if [ ! -f /etc/letsencrypt/ssl-dhparams.pem ]; then
+        openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 4096
+    fi
+    sed -i "s/#tls //g" /etc/nginx/nginx.conf \
+        /etc/nginx/sites-available/rodan.conf \
+        /etc/nginx/sites-available/rodan.stream
+    sed -i 's/"SERVER_PORT": "80/"SERVER_PORT": "443/g' /var/www/default/dist/configuration.json
+    sed -i 's/"SERVER_HTTPS": false,/"SERVER_HTTPS": true,/g' /var/www/default/dist/configuration.json
+    nginx
+fi
+
+tail -f /dev/null

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -o xtrace # Print commands and their arguments as they are executed.
+
+## View remove older backups.
+##
+## Usage:
+##     $ docker-compose exec postgres clean
+
+working_dir="$(dirname ${0})"
+source "${working_dir}/_functions/constants.sh"
+source "${working_dir}/_functions/messages.sh"
+
+
+message_welcome "Removing all backups older than 30 days, but ensuring there are at least 10 files in the backup folder."
+
+
+shopt -s nullglob # causes unmatched globs to return empty instead of the glob itself
+files=(*) # put all files in the current directory into an array
+if (( "${#files[@]}" >= 10 )); then
+  find /backups/back* -mtime +30 -delete
+fi
+shopt -u nullglob # disable null glob

@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-xs-6">
+        <h3>Workflow Run</h3>
+        <label for="text-workflowrun_name">Name:</label>
+        <input type="text" class="form-control input-sm" id="text-workflowrun_name" value="<%= _.unescape(name) %>" name="text-workflowrun_name">
+        <label for="text-workflowrun_description">Description:</label>
+        <textarea type="text" class="form-control input-sm" id="text-workflowrun_description" name="text-workflowrun_description"><%= _.unescape(description) %></textarea>
+	    Creator: <%= creator %><br/>
+        Created on: <%= _.formatFromUTC(created) %><br/>
+        Updated on: <%= _.formatFromUTC(updated) %><br/>
+        URL: <%= url %><br>
+        Status: <%= statusText %><br/>
+        <button class="btn btn-xs btn-warning" id="button-save_workflowrun">Save</button>
+        <button class="btn btn-xs btn-danger" id="button-delete_workflowrun">Delete</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <h3><span id="button-resources_show">Resources</span> | <span id="button-runjobs_show">Run Jobs</span></h3>
+        <div id="region-main_workflowrun_individual_resources"></div>
+        <div id="region-main_workflowrun_individual_runjobs"></div>
+    </div>
+</div>

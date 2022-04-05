@@ -1,0 +1,9 @@
+#!/bin/sh
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o nounset # Treat unset variables as an error when substituting.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+# Local credentials
+cd /code/Rodan
+# flower -A rodan --port=5555 --url_prefix=flower --broker_api=amqp://guest_user:guest_pass@rabbitmq:5672//
+flower -A rodan --port=5555 --url_prefix=flower --broker_api=http://guest_user:guest_pass@rabbitmq:5672/api/

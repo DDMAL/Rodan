@@ -1,0 +1,11 @@
+#!/bin/bash
+# This script is a nightly cronjob to update the docker swarm deployment.
+
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+cd /srv/webapps/rodan-docker
+echo `date` >> /var/log/docker/rodan-update.log
+make update tag1=nightly tag2=nightly >> /var/log/docker/rodan-update.log

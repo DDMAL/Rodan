@@ -1,0 +1,10 @@
+<div class="form-group" id="filter_<%- field %>">
+    <label><%- label %>:</label>
+    <div class="form-group" id="filter_gt_<%- field %>">
+	    <input type="text" class="form-control input-sm" id="<%- field %>__gt" name="<%- field %>__gt">
+	</div>
+	<div class="form-group" id="filter_lt_<%- field %>">
+    	<input type="text" class="form-control input-sm" id="<%- field %>__lt" name="<%- field %>__lt">
+	</div>
+	<button type="button" class="btn btn-warning btn-xs" id="button-remove" data-id="filter_<%- field %>">&times;</button>
+</div>

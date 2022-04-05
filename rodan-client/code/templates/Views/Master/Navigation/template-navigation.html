@@ -1,0 +1,27 @@
+<nav>
+	<h3>Rodan</h3>
+	<div class="btn-group" role="group">
+		<button class="btn btn-xs btn-primary" id="button-navigation_about">About</button>
+		<button class="btn btn-xs btn-primary" id="button-navigation_dev">Dev</button>
+		<button class="btn btn-xs btn-primary" id="button-navigation_help">Help</button>
+		<button class="btn btn-xs btn-primary" id="button-navigation_preferences" disabled>Preferences</button>
+		<button class="btn btn-xs btn-danger" id="button-navigation_logout" disabled>Logout</button>
+	</div>
+	<br>
+	<br>
+	<div id="region-status"></div>
+	<!--
+	Uploads pending: <span id="navigation-upload_count_pending"></span><br>
+	Uploads completed: <span id="navigation-upload_count_completed"></span><br>
+	Uploads failed: <span id="navigation-upload_count_failed"></span>
+	-->
+	<div class="navigation_buttons">
+		<div class="btn-group" role="group" aria-label="...">
+			<button type="button" class="btn btn-xs btn-primary" id="button-navigation_first" style="display:none;">&lt;&lt;</button>
+			<button type="button" class="btn btn-xs btn-primary" id="button-navigation_previous" style="display:none;">&lt;</button>
+			<button type="button" class="btn btn-xs btn-primary" id="button-navigation_next" style="display:none;">&gt;</button>
+			<button type="button" class="btn btn-xs btn-primary" id="button-navigation_last" style="display:none;">&gt;&gt;</button>
+		</div>
+		<ul id="region-navigation_tree"></ul>
+	</div>
+</nav>
