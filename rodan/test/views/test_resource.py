@@ -203,8 +203,7 @@ class ResourceProcessingTestCase(
         # [TODO] When there's time, try these tests again in the Travis Docker image.
         # For whatever reason, this and one another test always fail on travis only.
         # They do not fail locally. Somehow mkstemp silently fails to create a file
-        # that subprocess.check_call needs for converting it to a JPEG2000 using
-        # kakadu.
+        # that subprocess.check_call needs for converting it to a JPEG2000
 
         if os.environ.get("TRAVIS", "False") != "true":
             file_obj = six.StringIO()

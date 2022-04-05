@@ -136,7 +136,7 @@ class create_resource(Task):
 #         return False
 
 
-# if ENABLE_DIVA set, try to import the executables kdu_compress and convert.
+# if ENABLE_DIVA set, try to import the executables convert.
 if getattr(settings, "ENABLE_DIVA"):
     from distutils.spawn import find_executable
 
@@ -159,25 +159,6 @@ def create_diva(resource_id):
     There is a colour profile issue that stops us from using OpenJPEG directly. For this reason, we
     are using Grok to create the JPEG2000 for IIPSRV with the right colour profile.
     """
-    # TODO: Move to only use python Pillow or CV2.
-    # TODO: Remove GraphicsMagick completely.
-
-    # BUG: The shutil command occasionally get's a `IOError: [Errno 2] No such file or directory`
-    # Can not reliably trigger this error. It's some sort of race condition, maybe struggling
-    # to figure out which job creates the resource folder? It happens very rarely.
-    #
-    #   1) Did kakadu finish converting the file?
-    #   2) Does the folder exist?
-    #
-    # try:
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    # except IOError:
-    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
-    #
-    # if not os.path.exists(outputs['JPEG2000 Image'][0]['resource_path']):
-    #     os.makedirs(outputs['JPEG2000 Image'][0]['resource_path'])
-    #     shutil.move(name + ".jp2", outputs['JPEG2000 Image'][0]['resource_path'])
 
     if not getattr(settings, "ENABLE_DIVA"):
         return False
@@ -232,7 +213,7 @@ def create_diva(resource_id):
         rgb_im = im.convert("RGB")
         rgb_im.save(tiff_file)
 
-        # Kakadu and OpenJPEG can only convert certain file formats.
+        # OpenJPEG can only convert certain file formats.
         # Tiff is one of those formats.
         # This means we can convert to JPEG2000 for IIPSRV after converting the
         # original to tiff.
