@@ -140,11 +140,11 @@ class create_resource(Task):
 if getattr(settings, "ENABLE_DIVA"):
     from distutils.spawn import find_executable
 
-    BIN_KDU_COMPRESS = getattr(settings, "BIN_KDU_COMPRESS", None) or find_executable(
-        "kdu_compress"
-    )
-    if not BIN_KDU_COMPRESS:
-        raise ImportError("cannot find kdu_compress")
+    # BIN_KDU_COMPRESS = getattr(settings, "BIN_KDU_COMPRESS", None) or find_executable(
+    #     "kdu_compress"
+    # )
+    # if not BIN_KDU_COMPRESS:
+    #     raise ImportError("cannot find kdu_compress")
 
     BIN_GM = getattr(settings, "BIN_GM", None) or find_executable("gm")
     if not BIN_GM:
