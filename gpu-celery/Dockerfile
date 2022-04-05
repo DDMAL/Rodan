@@ -152,7 +152,6 @@ ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
 RUN set -x \
   # Create Folders
   && mkdir -p /code/jobs \
-  #&& git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan \
   # Install GPU Jobs
   && chmod +x /opt/install_gpu_rodan_jobs \
   && chown www-data /opt/install_gpu_rodan_jobs \

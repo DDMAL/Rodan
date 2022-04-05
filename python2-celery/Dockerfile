@@ -88,8 +88,6 @@ RUN set -e \
   # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
   && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
   && python setup.py install --nowx >/dev/null 2>&1
-  # Prep for Rodan
-  # && git clone -b ${BRANCHES} https://github.com/DDMAL/Rodan.git /code/Rodan
 
 # Install framework dependencies for Rodan Jobs.
 COPY ./rodan/scripts/install_rodan_job_dependencies /run/
