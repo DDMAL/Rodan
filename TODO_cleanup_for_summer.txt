@@ -1,0 +1,6 @@
+- move scripts currently in ./rodan/scripts into centralized location (say, ./building_helper_scripts)
+- rename the "rodan" docker container to "rodan-container" or something so there aren't three "Rodan"s in the file path
+- remove all those huge images from calvo classifier to dramatically reduce image sizes
+- clean up makefile to remove / change unneeded commands (i.e. get rid of all the git clones)
+- figure out what to do about vis-rodan
+- look at gamera 4 to see if it'll work? mess around with it in a venv?
