@@ -29,6 +29,8 @@ backup_db:
 restore_db:
 	@docker exec `docker ps -f name=rodan_postgres -q` restore
 
+# Keep in mind, you may need to deal with the postgres/maintenance/backup or backups files depending on setup
+
 run:
 	# Run local version for dev
 	@docker-compose up
@@ -206,22 +208,7 @@ pull:
 
 rodan_folder_path = ./rodan/code/rodan
 jobs_folder_path = ./rodan/code/rodan/jobs/
-all_local_jobs:
-	@echo "[+] Installing Python2 Jobs"
-	@cd $(jobs_folder_path); git clone -b master https://github.com/ELVIS-Project/vis_rodan.git || echo "[+] vis_rodan already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/pil_rodan.git || echo "[+] pil_rodan already exists"
-	@cd $(jobs_folder_path); git clone -b dev2021 https://github.com/DDMAL/gamera_rodan.git || echo "[+] gamera_rodan already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/jSymbolic_Rodan.git || echo "[+] jSymbolic_Rodan already exists"
-	# 1) Check if IC exists by trying to git clone it
-	# 2) Move files around
-	# 3) Remove IC or else Rodan will complain
-	# 4) Finish with a try/except via an OR
-	@cd $(jobs_folder_path); \
-		git clone -b develop https://github.com/DDMAL/Interactive-Classifier.git ./interactive_classifier && \
-		mv ./interactive_classifier ./Interactive-Classifier && \
-		mv Interactive-Classifier/rodan_job interactive_classifier && \
-		rm -rf ./Interactive-Classifier \
-		|| echo "[+] Interactive-Classifier already exists"
+remote_jobs:
 	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git || echo "[+] pixel_wrapper already exists"
 	@cd $(jobs_folder_path); \
 		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git && \
@@ -231,27 +218,8 @@ all_local_jobs:
 		yarn install && \
 		yarn build \
 		|| echo "[+] neon-wrapper already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/heuristic_pitch_finding.git || echo "[+] heuristic_pitch_finding already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/diagonal_neume_slicing.git || echo "[+] diagonal_neume_slicing already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/text_alignment.git || echo "[+] text_alignment already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/MEI_encoding.git || echo "[+] MEI_encoding already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/JSOMR2MEI.git || echo "[+] JSOMR2MEI already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/biollante_rodan.git || echo "[+] Biollante already exists"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/MEI_resizing.git || echo "[+] MEI resizing already exists"
 	@cd $(rodan_folder_path); gsed -i "s/#py2 //g" ./settings.py
-
-	@echo "[+] Installing Python3 Jobs"
-	@cd $(jobs_folder_path); git clone https://github.com/DDMAL/hpc_fast_trainer.git || echo "[+] hpc_fast_trainer already exists"
-	@cd $(jobs_folder_path); \
-	git clone --recurse-submodules -b develop https://github.com/DDMAL/mei2vol_wrapper.git && \
-	cd mei2vol_wrapper && \
-	git submodule update --init &&\
-	mv ./MEI2Volpiano/mei2volpiano/mei2volpiano.py . \
-	|| echo "[+] mei2volpiano already exists"
 	@cd $(rodan_folder_path); gsed -i "s/#py3 //g" ./settings.py
-
-	@echo "[+] Installing GPU Jobs"
-	@cd $(jobs_folder_path); git clone -b develop https://github.com/DDMAL/Calvo_classifier.git || echo "[+] Calvo_classifier already exists"
 	@cd $(rodan_folder_path); gsed -i "s/#gpu //g" ./settings.py
 
 # Command Groups

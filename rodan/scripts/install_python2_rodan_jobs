@@ -5,14 +5,6 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 cd /code/Rodan/rodan/jobs
 
-# Install vis-rodan
-git clone -b master https://github.com/ELVIS-Project/vis_rodan.git
-pip install pandas vis-framework >/dev/null
-cd /usr/local/lib/python2.7/dist-packages/vis/analyzers/indexers
-mv meter.py metre.py
-cd /code/Rodan/rodan/jobs
-
-
 # Install Calvo-Trainer-HPC
 pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
 
