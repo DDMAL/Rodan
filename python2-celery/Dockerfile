@@ -90,12 +90,12 @@ RUN set -e \
   && python setup.py install --nowx >/dev/null 2>&1
 
 # Install framework dependencies for Rodan Jobs.
-COPY ./rodan/scripts/install_rodan_job_dependencies /run/
-COPY ./rodan/scripts/install_python2_rodan_jobs /run/
-COPY ./rodan/scripts/install_rodan /run/
-COPY ./rodan/scripts/wait-for-app /run/
-COPY ./rodan/scripts/entrypoint /opt/
-COPY ./rodan/scripts/start-celery /run/
+COPY ./scripts/install_rodan_job_dependencies /run/
+COPY ./scripts/install_python2_rodan_jobs /run/
+COPY ./scripts/install_rodan /run/
+COPY ./scripts/wait-for-app /run/
+COPY ./scripts/entrypoint /opt/
+COPY ./scripts/start-celery /run/
 
 # Copying rodan core from build context into container
 # Rodan folder MUST be uppercase, otherwise many unittests fail.

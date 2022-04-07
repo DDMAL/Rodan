@@ -9,7 +9,7 @@ services:
 
   rodan:
     build:
-      context: ./rodan
+      context: .
       dockerfile: Dockerfile
       args:
         BRANCHES: develop

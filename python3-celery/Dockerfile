@@ -22,10 +22,10 @@ RUN set -e \
 
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY ./rodan/scripts/install_python3_rodan_jobs /run/
-COPY ./rodan/scripts/install_rodan /run/
-COPY ./rodan/scripts/start-celery /run/
-COPY ./rodan/scripts/wait-for-app /run/
+COPY ./scripts/install_python3_rodan_jobs /run/
+COPY ./scripts/install_rodan /run/
+COPY ./scripts/start-celery /run/
+COPY ./scripts/wait-for-app /run/
 
 # Copying rodan core from build context into container
 # Rodan folder MUST be uppercase, otherwise many unittests fail.

@@ -32,7 +32,6 @@ RUN \
   cd /vendor \
   && git clone https://github.com/ruven/iipsrv \
   && cd iipsrv \
-  # && git checkout d4a701864877cb22ec6212c284ccd733ce3106d8 \
   && git checkout 6d8390f48fe242369b65ef63539bc15b5b9e0f22 \
   && ./autogen.sh \
   && ./configure 'CFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'CXXFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'LDFLAGS=-g' '--enable-openjpeg' \
