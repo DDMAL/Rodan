@@ -8,7 +8,7 @@ services:
       - postgres
       - rabbitmq
       - redis
-      - rodan
+      - rodan-main
     ports:
       - "80:80"
       - "443:443"
@@ -16,7 +16,7 @@ services:
     volumes:
       - "resources:/rodan/data"
 
-  rodan:
+  rodan-main:
     image: "ddmal/rodan:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
@@ -31,11 +31,11 @@ services:
       - postgres
       - rabbitmq
       - redis
-    env_file:
+    env_file
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   celery:
     image: "ddmal/rodan:nightly"
@@ -50,14 +50,14 @@ services:
       retries: 3
     depends_on:
       - postgres
-      - rodan
+      - rodan-main
       - rabbitmq
       - redis
     env_file:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
@@ -66,7 +66,7 @@ services:
       CELERY_JOB_QUEUE: Python2
     depends_on:
       - postgres
-      - rodan
+      - rodan-main
       - rabbitmq
       - redis
       - celery
@@ -74,7 +74,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
@@ -83,7 +83,7 @@ services:
       CELERY_JOB_QUEUE: Python3
     depends_on:
       - postgres
-      - rodan
+      - rodan-main
       - rabbitmq
       - redis
       - celery
@@ -92,7 +92,7 @@ services:
       - ./hpc-rabbitmq/scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
     image: "ddmal/rodan-gpu-celery:nightly"
@@ -101,7 +101,7 @@ services:
       CELERY_JOB_QUEUE: GPU
     depends_on:
       - postgres
-      - rodan
+      - rodan-main
       - rabbitmq
       - redis
       - celery
@@ -109,7 +109,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   redis:
     image: "redis:alpine"

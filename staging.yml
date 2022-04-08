@@ -37,7 +37,7 @@ services:
       - "resources:/rodan/data"
       - "certbot:/etc/letsencrypt"
 
-  rodan:
+  rodan-main:
     image: "ddmal/rodan:nightly"
     deploy:
       replicas: 1

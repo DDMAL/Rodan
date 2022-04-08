@@ -206,8 +206,8 @@ pull:
 	@docker-compose pull
 	@echo "[+] Done."
 
-rodan_folder_path = ./rodan/code/rodan
-jobs_folder_path = ./rodan/code/rodan/jobs/
+rodan_folder_path = ./rodan-main/code/rodan
+jobs_folder_path = ./rodan-main/code/rodan/jobs/
 remote_jobs:
 	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git || echo "[+] pixel_wrapper already exists"
 	@cd $(jobs_folder_path); \

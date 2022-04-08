@@ -2,7 +2,7 @@
 # hooks/post_push
 # https://docs.docker.com/docker-cloud/builds/advanced/
 
-RODAN_TAG=`cd rodan/code && git describe --tags --always`
+RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
 RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
 RODAN_DOCKER_TAG=`git describe --tags --always`
 

@@ -15,7 +15,7 @@ cd /code/Rodan
 # Wait until other services are up before going up
 /run/wait-for-app postgres:5432
 /run/wait-for-app redis:6379
-/run/wait-for-app rodan:8000 --timeout=900
+/run/wait-for-app rodan-main:8000 --timeout=900
 
 runuser -u www-data -- celery worker -A rodan --workdir /code/Rodan -Q ${CELERY_JOB_QUEUE} --concurrency=10 -n "${CELERY_JOB_QUEUE}" -l INFO --logfile /code/Rodan/rodan-celery-${CELERY_JOB_QUEUE}.log &
 child_2=$!
