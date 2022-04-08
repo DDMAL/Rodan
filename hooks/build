@@ -54,7 +54,7 @@ docker build \
   --build-arg VERSION=${RODAN_TAG} \
   --tag ddmal/rodan-main:nightly \
   --tag ddmal/rodan-main:${RODAN_TAG} \
-  --file ./rodan/Dockerfile \
+  --file ./rodan-main/Dockerfile \
   .
 
 echo "[+] Building Rodan-Client"
