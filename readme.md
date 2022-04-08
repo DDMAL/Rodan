@@ -1,4 +1,4 @@
-# rodan-docker
+# Rodan
 
 - Rodan ![GitHub release](https://img.shields.io/github/release/ddmal/rodan) ![GitHub pull requests](https://img.shields.io/github/issues-pr/ddmal/rodan) ![GitHub issues](https://img.shields.io/github/issues/ddmal/rodan)
   - Master Branch ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ddmal/rodan/master)
