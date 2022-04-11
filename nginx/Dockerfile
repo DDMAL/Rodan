@@ -7,7 +7,7 @@ RUN /code/node_modules/.bin/gulp dist
 
 
 ###########################################################
-FROM ddmal/rodan:nightly as rodan-static
+FROM ddmal/rodan-main:nightly as rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
 
