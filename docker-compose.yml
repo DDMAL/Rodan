@@ -17,7 +17,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "ddmal/rodan:nightly"
+    image: "ddmal/rodan-main:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -31,14 +31,14 @@ services:
       - postgres
       - rabbitmq
       - redis
-    env_file
+    env_file:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
 
   celery:
-    image: "ddmal/rodan:nightly"
+    image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: celery
