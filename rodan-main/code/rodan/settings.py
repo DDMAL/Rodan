@@ -148,7 +148,6 @@ RODAN_PYTHON2_JOBS = [
     #py2 "rodan.jobs.MEI_encoding",
     #py2 "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
-    #py2 "rodan.jobs.vis_rodan",
     #py2 "rodan.jobs.biollante_rodan",
     #py2 "rodan.jobs.MEI_resizing",
     #py2 "rodan.jobs.test_rodan"
