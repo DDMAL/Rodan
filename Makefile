@@ -33,6 +33,7 @@ restore_db:
 
 run:
 	# Run local version for dev
+	# Hello, 2022 hires!
 	@docker-compose up
 
 run_client:
