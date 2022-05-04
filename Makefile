@@ -94,7 +94,7 @@ update:
 		--update-order start-first \
 		--update-delay 10m \
 		--image ddmal/rodan:$(tag1) \
-		rodan_rodan
+		rodan_rodan-main
 
 	# These images might need time to update.
 	@docker service update \
