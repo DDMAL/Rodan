@@ -84,101 +84,99 @@ ARG PYTHON=python3.7
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=2.5.1
 
+# RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y ${PYTHON} \
+#   && apt install python3.7-distutils \
+#   && wget https://bootstrap.pypa.io/get-pip.py \
+#   && ${PYTHON} get-pip.py \
+#   && ln -sf /usr/bin/${PYTHON} /usr/local/bin/python3 \
+#   && ln -sf /usr/local/bin/pip /usr/local/bin/pip3 \
+#   && pip3 --no-cache-dir install --upgrade pip setuptools==57.0.0 \
+#   # Some TF tools expect a "python" binary
+#   && ln -s $(which python3) /usr/local/bin/python \
+#   && python3 -m pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
 
-RUN apt-get install --reinstall ca-certificates
+# # RUN ln -s $(which python3) /usr/local/bin/python
 
-RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y ${PYTHON} \
-  && wget https://bootstrap.pypa.io/get-pip.py \
-  && ${PYTHON} get-pip.py \
-  && ln -sf /usr/bin/${PYTHON} /usr/local/bin/python3 \
-  && ln -sf /usr/local/bin/pip /usr/local/bin/pip3 \
-  && pip3 --no-cache-dir install --upgrade pip setuptools==57.0.0 \
-  # Some TF tools expect a "python" binary
-  && ln -s $(which python3) /usr/local/bin/python \
-  && python3 -m pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
+# # Options:
+# #   tensorflow
+# #   tensorflow-gpu
+# #   tf-nightly
+# #   tf-nightly-gpu
+# # Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
+# # Installs the latest version by default.
 
-# RUN ln -s $(which python3) /usr/local/bin/python
+# # COPY bashrc /etc/bash.bashrc
+# # RUN chmod a+rwx /etc/bash.bashrc
 
-# Options:
-#   tensorflow
-#   tensorflow-gpu
-#   tf-nightly
-#   tf-nightly-gpu
-# Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
-# Installs the latest version by default.
+# # This ends the material obtained from TensorFlow's dockerfile. the remainder is rodan-docker-specific setup.
 
-# COPY bashrc /etc/bash.bashrc
-# RUN chmod a+rwx /etc/bash.bashrc
+# # FROM base
+# RUN set -e \
+#   && apt-get update \
+#   && DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
+#     git \
+#     # Python lxml dependencies
+#     python3.7-dev \
+#     python3-opencv \
+#     libxml2-dev \
+#     libxslt1-dev \
+#     zlib1g-dev \
+#     lib32ncurses5-dev \
+#     # Psycopg2 dependencies
+#     libpq-dev \
+#     # For resource identification
+#     libmagic-dev \
+#     unzip \
+#     # Remove when done
+#     vim
 
-# This ends the material obtained from TensorFlow's dockerfile. the remainder is rodan-docker-specific setup.
+# RUN rm -rf /var/lib/apt/lists/*
 
-# FROM base
-RUN set -e \
-  && apt-get update \
-  && DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
-    git \
-    # Python lxml dependencies
-    python3.7-dev \
-    python3-opencv \
-    libxml2-dev \
-    libxslt1-dev \
-    zlib1g-dev \
-    lib32ncurses5-dev \
-    # Psycopg2 dependencies
-    libpq-dev \
-    # For resource identification
-    libmagic-dev \
-    unzip \
-    # Remove when done
-    vim
+# # Install GPU Rodan Jobs
+# COPY ./scripts/install_gpu_rodan_jobs /opt/
+# # Install Rodan
+# COPY ./scripts/install_rodan /run/
+# # Runs on both Rodan service, and Rodan-Celery
+# COPY ./scripts/entrypoint /opt/
+# COPY ./scripts/start-celery /run/
+# COPY ./scripts/wait-for-app /run/
 
-RUN rm -rf /var/lib/apt/lists/*
+# # Copying rodan core from build context into container
+# # Rodan folder MUST be uppercase, otherwise many unittests fail.
+# COPY ./rodan-main/code /code/Rodan
 
-# Install GPU Rodan Jobs
-COPY ./scripts/install_gpu_rodan_jobs /opt/
-# Install Rodan
-COPY ./scripts/install_rodan /run/
-# Runs on both Rodan service, and Rodan-Celery
-COPY ./scripts/entrypoint /opt/
-COPY ./scripts/start-celery /run/
-COPY ./scripts/wait-for-app /run/
-
-# Copying rodan core from build context into container
-# Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY ./rodan-main/code /code/Rodan
-
-# necessary for scikit-image > 0.17, or else it will try to make a cache directory
-# in a place where the www-data user does not have permissions to do so
-ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
+# # necessary for scikit-image > 0.17, or else it will try to make a cache directory
+# # in a place where the www-data user does not have permissions to do so
+# ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
 
 
-RUN set -x \
-  # Create Folders
-  && mkdir -p /code/jobs \
-  # Install GPU Jobs
-  && chmod +x /opt/install_gpu_rodan_jobs \
-  && chown www-data /opt/install_gpu_rodan_jobs \
-  && /opt/install_gpu_rodan_jobs \
-  # Install Rodan
-  && sed -i "s/pip /pip3 /g" /run/install_rodan \
-  && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
-  # && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
-  # Add Entrypoints
-  && sed -i 's/\r//' /opt/entrypoint \
-  && chmod +x /opt/entrypoint \
-  && chown www-data /opt/entrypoint \
-  # Install Rodan
-  && chmod +x /run/install_rodan \
-  && chown www-data /run/install_rodan \
-  && /run/install_rodan \
-  # Add Celery script
-  && chmod +x /run/start-celery \
-  && chown www-data /run/start-celery \
-  # Change the concurency for gpu jobs because Calvo is very expensive
-  && sed -i "s/=10/=1/g" /run/start-celery \
-  # Script to wait for postgres and redis to be running before attempting to connect to them.
-  && chmod +x /run/wait-for-app \
-  && chown www-data /run/wait-for-app \
-  && chown -R www-data /code/Rodan /code/jobs
+# RUN set -x \
+#   # Create Folders
+#   && mkdir -p /code/jobs \
+#   # Install GPU Jobs
+#   && chmod +x /opt/install_gpu_rodan_jobs \
+#   && chown www-data /opt/install_gpu_rodan_jobs \
+#   && /opt/install_gpu_rodan_jobs \
+#   # Install Rodan
+#   && sed -i "s/pip /pip3 /g" /run/install_rodan \
+#   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
+#   # && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
+#   # Add Entrypoints
+#   && sed -i 's/\r//' /opt/entrypoint \
+#   && chmod +x /opt/entrypoint \
+#   && chown www-data /opt/entrypoint \
+#   # Install Rodan
+#   && chmod +x /run/install_rodan \
+#   && chown www-data /run/install_rodan \
+#   && /run/install_rodan \
+#   # Add Celery script
+#   && chmod +x /run/start-celery \
+#   && chown www-data /run/start-celery \
+#   # Change the concurency for gpu jobs because Calvo is very expensive
+#   && sed -i "s/=10/=1/g" /run/start-celery \
+#   # Script to wait for postgres and redis to be running before attempting to connect to them.
+#   && chmod +x /run/wait-for-app \
+#   && chown www-data /run/wait-for-app \
+#   && chown -R www-data /code/Rodan /code/jobs
 
 ENTRYPOINT ["/opt/entrypoint"]
