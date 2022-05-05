@@ -84,6 +84,9 @@ ARG PYTHON=python3.7
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=2.5.1
 
+
+RUN apt-get install --reinstall ca-certificates
+
 RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y ${PYTHON} \
   && wget https://bootstrap.pypa.io/get-pip.py \
   && ${PYTHON} get-pip.py \
