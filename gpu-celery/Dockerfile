@@ -39,6 +39,8 @@ ARG VERSION
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
+RUN apt update 
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cuda-command-line-tools-${CUDA/./-} \
@@ -61,11 +63,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install TensorRT if not building for PowerPC
 # NOTE: libnvinfer uses cuda11.1 versions
-RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*; }
+# RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
+#         apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
+#         libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
+#         && apt-get clean \
+#         && rm -rf /var/lib/apt/lists/*; }
 
 # For CUDA profiling, TensorFlow requires CUPTI.
 ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:/usr/local/cuda-11.1/lib64:$LD_LIBRARY_PATH
@@ -84,7 +86,12 @@ ARG PYTHON=python3.7
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=2.5.1
 
-RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y ${PYTHON} \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.7 \
+    python3-pip \
+    && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* \
   && wget https://bootstrap.pypa.io/get-pip.py \
   && ${PYTHON} get-pip.py \
   && ln -sf /usr/bin/${PYTHON} /usr/local/bin/python3 \
