@@ -71,7 +71,7 @@ services:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan:nightly"
+    image: "ddmal/rodan-main:nightly"
     deploy:
       replicas: 1
       resources:
