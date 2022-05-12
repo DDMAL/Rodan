@@ -8,7 +8,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 # Changed to http socket instead, temporary. Let's see how much faster a unix socket is, and we can use
 # unix sockets between docker containers.
 JPEG_QUALITY='100' MAX_LAYERS='4' MAX_CVT='7000' FILESYSTEM_PREFIX='/rodan/data/' VERBOSITY=2 \
-  runuser -u www-data -- /vendor/iipsrv/src/iipsrv.fcgi --bind 0.0.0.0:9002 &
+  runuser -u www-data -- /vendor/iipsrv/src/iipsrv.fcgi --bind 0.0.0.0:9003 &
 
 chmod -R 777 /code/Rodan/
 cd /code/Rodan
