@@ -4,8 +4,6 @@ ARG VERSION
 
 # Install Grok
 RUN wget https://github.com/GrokImageCompression/grok/releases/download/v9.7.6/grok-ubuntu-latest.zip
-RUN apt update
-RUN apt install unzip
 RUN unzip /grok-ubuntu-latest.zip
 RUN mkdir -p /vendor/build/bin
 RUN cp /grok-ubuntu-latest/bin/* /vendor/build/bin
