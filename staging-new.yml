@@ -1,0 +1,314 @@
+version: "3.4"
+
+services:
+
+  nginx:
+    image: "ddmal/nginx:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+        limits:
+          cpus: "0.5"
+          memory: 1G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "/usr/sbin/service", "nginx", "status"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
+      start_period: "5m"
+    command: /run/start-production
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      TLS: 1
+    ports:
+      - "80:80"
+      - "443:443"
+      - "5671:5671"
+      - "9002:9002"
+    volumes:
+      - "resources:/rodan/data"
+      - "certbot:/etc/letsencrypt"
+
+  rodan-main:
+    image: "ddmal/rodan-main:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    # TODO: Make the healthcheck a service status call instead of adding to the logfile.
+    # https://github.com/DDMAL/rodan-docker/issues/61
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 2
+      start_period: "2m"
+    command: /run/start
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      CELERY_JOB_QUEUE: None
+    env_file:
+      - ./scripts/staging.env
+    ports:
+      - "9003:9003"
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
+
+  celery:
+    image: "ddmal/rodan-main:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
+      # first run interval seconds after the container is started, and then again interval seconds after each previous
+      interval: "30s"
+      # How long to wait for the healthcheck to succeed
+      timeout: "10s"
+      # Ignore failures during the start_period
+      start_period: "1m"
+      # accept 3 consecutive failures before 
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      CELERY_JOB_QUEUE: celery
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  py2-celery:
+    image: "ddmal/rodan-python2-celery:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python2"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      CELERY_JOB_QUEUE: Python2
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  py3-celery:
+    image: "ddmal/rodan-python3-celery:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      CELERY_JOB_QUEUE: Python3
+    env_file:
+      - ./scripts/staging.env
+      - ./hpc-rabbitmq/scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  gpu-celery:
+    image: "ddmal/rodan-gpu-celery:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 4G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan-staging.simssa.ca
+      CELERY_JOB_QUEUE: GPU
+    depends_on:
+      - postgres
+      - rodan
+      - rabbitmq
+      - redis
+      - celery
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  redis:
+    image: "redis:alpine"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: America/Toronto
+
+  postgres:
+    image: "ddmal/postgres-plpython:nightly"
+    deploy:
+      replicas: 1
+      endpoint_mode: dnsrr
+      resources:
+        reservations:
+          cpus: "2"
+          memory: 4G
+        limits:
+          cpus: "2"
+          memory: 4G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: America/Toronto
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+      - "pg_backup:/backups"
+    env_file:
+      - ./scripts/staging.env
+
+  rabbitmq:
+    image: "rabbitmq:alpine"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    environment:
+      TZ: America/Toronto
+    env_file:
+      - ./scripts/staging.env
+
+  hpc-rabbitmq:
+    image: "ddmal/hpc-rabbitmq:nightly"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    environment:
+      TZ: America/Toronto
+    env_file:
+      - ./hpc-rabbitmq/scripts/staging.env
+
+volumes:
+  resources:
+  pg_backup:
+  pg_data:
+  certbot:
