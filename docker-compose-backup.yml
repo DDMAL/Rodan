@@ -1,9 +1,13 @@
 version: "3.4"
 services:
   nginx:
-    image: "nginx-local:latest"
+    image: "ddmal/nginx:nightly"
     command: /run/start
     depends_on:
+      - celery
+      - postgres
+      - rabbitmq
+      - redis
       - rodan-main
     ports:
       - "80:80"
@@ -11,7 +15,7 @@ services:
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
-  
+
   rodan-main:
     image: "ddmal/rodan-main:nightly"
     healthcheck:
@@ -32,6 +36,7 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
   celery:
     image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"
@@ -53,6 +58,7 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
     command: bash -c "tail -f /dev/null"
@@ -87,8 +93,24 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
-  
-  
+
+  gpu-celery:
+    image: "ddmal/rodan-gpu-celery:nightly"
+    command: bash -c "tail -f /dev/null"
+    environment:
+      CELERY_JOB_QUEUE: GPU
+    depends_on:
+      - postgres
+      - rodan-main
+      - rabbitmq
+      - redis
+      - celery
+    env_file:
+      - ./scripts/local.env
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
+
   redis:
     image: "redis:alpine"
     healthcheck:
@@ -108,7 +130,7 @@ services:
       retries: 5
     env_file:
       - ./scripts/local.env
-  
+
   rabbitmq:
     image: "rabbitmq:alpine"
     healthcheck:
@@ -120,6 +142,18 @@ services:
       - redis
     env_file:
       - ./scripts/local.env
+
+  hpc-rabbitmq:
+    image: "ddmal/hpc-rabbitmq:nightly"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    env_file:
+      - ./hpc-rabbitmq/scripts/local.env
+    ports:
+      - "5672:5672"
 
 volumes:
   resources:
