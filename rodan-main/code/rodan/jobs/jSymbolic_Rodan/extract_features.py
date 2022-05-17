@@ -7,7 +7,7 @@ import jsymbolic_utilities
 from rodan.jobs.base import RodanTask
 from django.conf import settings
 from tempfile import mkdtemp
-from music21 import *
+#from music21 import *
 
 
 class extract_features(RodanTask):
