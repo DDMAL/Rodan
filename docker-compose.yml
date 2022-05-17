@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   nginx:
-    image: "nginx-local"
+    image: "ddmal/nginx:nightly"
     command: /run/start
     depends_on:
       - celery
@@ -17,7 +17,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "rodan-main-local"
+    image: "ddmal/rodan-main:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
       network: host
     volumes:
-      - "./rodan-main/code:/code/Rodan"
+      - "resources:/rodan/data"
 
   celery:
     image: "ddmal/rodan-main:nightly"

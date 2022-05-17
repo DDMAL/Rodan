@@ -68,10 +68,19 @@ services:
     env_file:
       - ./scripts/staging.env
     ports:
-      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
+  iipsrv:
+    image: "iipsrv"
+    build:
+      context: ./iipsrv
+      dockerfile: Dockerfile
+      network: host
+    volumes:
+      - "resources:/rodan/data"
+
 
   celery:
     image: "ddmal/rodan-main:nightly"
