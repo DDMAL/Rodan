@@ -10,10 +10,9 @@ rodan.log
 rodan_env
 .DS_Store
 rodan/static/Rodan
-rodan-main/code/jobs/diva_wrapper/
-rodan-main/code//jobs/vis_rodan/
-rodan-main/code/jobs/neon_wrapper/
-rodan-main/code/jobs/pixel_wrapper/
+rodan/jobs/diva_wrapper/
+rodan/jobs/vis_rodan/
+rodan/jobs/neon_wrapper/
 
 # ignore emacs autosave file
 *~

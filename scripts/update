@@ -6,6 +6,6 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-cd /srv/webapps/Rodan
+cd /srv/webapps/rodan-docker
 echo `date` >> /var/log/docker/rodan-update.log
 make update tag1=nightly tag2=nightly >> /var/log/docker/rodan-update.log
