@@ -138,29 +138,29 @@ BASE_JOB_PACKAGES = [
     "rodan.jobs.labeler",
 ]
 RODAN_PYTHON2_JOBS = [
-    #py2 "rodan.jobs.diagonal_neume_slicing",
-    #py2 "rodan.jobs.gamera_rodan",
-    #py2 "rodan.jobs.helloworld",
-    #py2 "rodan.jobs.heuristic_pitch_finding",
+    "rodan.jobs.diagonal_neume_slicing",
+    "rodan.jobs.gamera_rodan",
+    "rodan.jobs.helloworld",
+    "rodan.jobs.heuristic_pitch_finding",
     "rodan.jobs.interactive_classifier",
-    #py2 "rodan.jobs.JSOMR2MEI",
-    #py2 "rodan.jobs.jSymbolic_Rodan",
-    #py2 "rodan.jobs.MEI_encoding",
-    #py2 "rodan.jobs.neon_wrapper",
+    "rodan.jobs.JSOMR2MEI",
+    "rodan.jobs.jSymbolic_Rodan",
+    "rodan.jobs.MEI_encoding",
+    "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
-    #py2 "rodan.jobs.biollante_rodan",
-    #py2 "rodan.jobs.MEI_resizing",
-    #py2 "rodan.jobs.test_rodan"
+    "rodan.jobs.biollante_rodan",
+    "rodan.jobs.MEI_resizing",
+    "rodan.jobs.test_rodan"
 ]
 RODAN_PYTHON3_JOBS = [
-    #py3 "rodan.jobs.helloworld",
-    #py3 "rodan.jobs.hpc_fast_trainer",
+    "rodan.jobs.helloworld",
+    "rodan.jobs.hpc_fast_trainer",
     "rodan.jobs.pil_rodan",
-    #py3 "rodan.jobs.mei2vol_wrapper"
+    "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [
-    #gpu "rodan.jobs.Calvo_classifier",
-    #gpu "rodan.jobs.text_alignment",
+    "rodan.jobs.Calvo_classifier",
+    "rodan.jobs.text_alignment",
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
