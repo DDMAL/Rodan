@@ -19,9 +19,9 @@ services:
         window: 30s
     healthcheck:
       test: ["CMD", "/usr/sbin/service", "nginx", "status"]
-      interval: "10s"
-      timeout: "5s"
-      retries: 2
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
       start_period: "5m"
     command: /run/start-production
     environment:
@@ -67,11 +67,14 @@ services:
       CELERY_JOB_QUEUE: None
     env_file:
       - ./scripts/staging.env
+    ports:
+      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   celery:
-    image: "ddmal/rodan:nightly"
+    image: "ddmal/rodan-main:nightly"
     deploy:
       replicas: 1
       resources:

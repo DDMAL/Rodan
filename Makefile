@@ -4,6 +4,10 @@
 # We are taking advantage of .PHONY that is available in makefiles to create this simple looking
 # list of command shortcuts
 
+# Portable replacement for `sed` or `gsed`
+# See https://unix.stackexchange.com/questions/92895/how-can-i-achieve-portability-with-sed-i-in-place-editing
+REPLACE := perl -i -pe
+
 # Individual Commands
 
 build:
@@ -17,10 +21,10 @@ build:
 	# DockerHub is not intuitive. You won't be able to build from the source root folder in both build contextes.
 	# When you build locally, the COPY command is relative to the dockerfile. When you build on DockerHub, its relative to the source root.
 	# For this reason we replace the name to build locally because we build more often on DockerHub than on local.
-	@gsed -i "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || sed -i "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
+	@$(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
 	@docker-compose -f build.yml build --no-cache --parallel nginx py3-celery gpu-celery postgres hpc-rabbitmq
 	# Revert back the change to the COPY command so it will work on Docker Hub.
-	@gsed -i "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || sed -i "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
+	@$(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
 	@echo "[+] Done."
 
 backup_db:
@@ -219,9 +223,9 @@ remote_jobs:
 		yarn install && \
 		yarn build \
 		|| echo "[+] neon-wrapper already exists"
-	@cd $(rodan_folder_path); gsed -i "s/#py2 //g" ./settings.py
-	@cd $(rodan_folder_path); gsed -i "s/#py3 //g" ./settings.py
-	@cd $(rodan_folder_path); gsed -i "s/#gpu //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py2 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py3 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#gpu //g" ./settings.py
 
 # Command Groups
 reset: stop clean pull run

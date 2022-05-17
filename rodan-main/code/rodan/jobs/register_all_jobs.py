@@ -12,7 +12,7 @@ def register_all():
     register_base()
     register_py2()
     register_py3()
-    register_gpu()
+    # register_gpu()
 
 
 # base jobs
