@@ -37,6 +37,16 @@ RUN \
   && ./configure 'CFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'CXXFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'LDFLAGS=-g' '--enable-openjpeg' \
   && make
 
+# Install pixel and Neon
+RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git /code/Rodan/jobs/pixel_wrapper
+RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git /code/Rodan/jobs/neon_wrapper
+RUN cd /code/Rodan/jobs/neon_wrapper && \
+  git submodule update --init && \
+  git submodule update --remote
+RUN cd /code/Rodan/jobs/neon_wrapper && \
+  yarn install && yarn build
+RUN perl -i -pe "s/#py2 |#py3 |#gpu //g" /code/Rodan/rodan/settings.py
+
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
