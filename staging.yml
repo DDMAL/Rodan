@@ -33,7 +33,6 @@ services:
       - "443:443"
       - "5671:5671"
       - "9002:9002"
-      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
       - "certbot:/etc/letsencrypt"
@@ -68,7 +67,6 @@ services:
       CELERY_JOB_QUEUE: None
     env_file:
       - ./scripts/staging.env
-    ports:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
@@ -79,8 +77,6 @@ services:
       context: ./iipsrv
       dockerfile: Dockerfile
       network: host
-    ports:
-      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
 
