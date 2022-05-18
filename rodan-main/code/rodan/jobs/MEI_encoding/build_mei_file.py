@@ -172,6 +172,7 @@ def generate_base_document():
     mei = new_el("mei")
     mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
     mei.set("meiversion", "5.0.0")
+    mei.set("idontknow", "alright")
 
     meiHead = new_el("meiHead", mei)
 
@@ -434,7 +435,8 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
-
+        # print (gs)
+        # print ("  ")
         # first add information about the text itself
         cur_syllable = new_el("syllable",  layer)
         bb = {
@@ -453,6 +455,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
+            
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
@@ -464,16 +467,29 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # 1. no line break and done with this syllable (usually a clef)
             # 2. no line break and not done with this syllable (more neume components to add)
             # 3. a line break and done with this syllable (a custos OUTSIDE a <syllable> tag)
-            # 4. a line break and not done with this syllable (a custos INSIDE a <syllable> tag)
-
+            # 4. a line break and not done with this syllable (custos still OUTSIDE <syllable> tag, need to split the syllable) 
+            tag = new_element.tag 
 
             if not glyph['system_begin']:
+
                 # case 1
                 if syllable_over:
                     layer.append(new_element)
                 # case 2
                 else:
-                    cur_syllable.append(new_element)
+                    #Clefs and custos should be outside the syllable 
+                    if (tag == "custos") | (tag == "clef") | (tag == "sb"):
+                        layer.append(new_element)
+
+                        new_syllable = new_el("syllable", layer)
+
+                        new_syllable.set("xml:precedes", cur_syllable.get('xml:id'))
+                        cur_syllable.set("xml:follows", new_syllable.get('xml:id'))
+
+                        cur_syllable = new_syllable
+                    else:    #continue as normal
+                        cur_syllable.append(new_element)
+                    #cur_syllable.append(new_element)
                 continue
 
             cur_staff = int(glyph['staff'])
@@ -485,7 +501,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
                 'lrx': bb['ulx'] + bb['ncols'],
                 'lry': bb['uly'] + bb['nrows'],
             }
-            zoneId = generate_zone(surface, bb)  #This method needs to be updated
+            zoneId = generate_zone(surface, bb)  
             
             sb = new_el('sb')
             sb.set('facs', '#' + zoneId)   
@@ -495,10 +511,25 @@ def build_mei(pairs, classifier, width_container, staves, page):
             if syllable_over:
                 layer.append(new_element)
                 layer.append(sb)
-            # case 4
+            # case 4 
+            # syllable not over, so need to split up the current syllable and add the custos and sb to the layer 
             else:
-                cur_syllable.append(new_element)
-                cur_syllable.append(sb)
+                if (tag == "custos") | (tag == "clef") | (tag == ""): 
+                    layer.append(new_element)
+                    
+                    layer.append(sb)
+
+                    new_syllable = new_el("syllable", layer)
+
+                    new_syllable.set("xml:precedes", cur_syllable.get('xml:id'))
+                    cur_syllable.set("xml:follows", new_syllable.get('xml:id'))
+
+                    cur_syllable = new_syllable
+                else: 
+                    cur_syllable.append(new_element)
+                    cur_syllable.append(sb)
+                #cur_syllable.append(new_element)
+                # cur_syllable.append(sb)
                
 
     return meiDoc
@@ -538,8 +569,7 @@ def merge_nearby_neume_components(meiDoc, width_mult):
         return (distance <= med_neume_width)
 
     for syllable in all_syllables:
-        children = list(syllable) # need to only get all the direct children! can neumes be nested though? cause thenn you
-        #would have to try to merge them as well
+        children = list(syllable) # need to only get all the direct children! 
         
         # holds children of the current syllable that will be added to target
         accumulator = []
@@ -584,8 +614,10 @@ def removeEmptySyl(meiDoc):
 
     for i in list(layer): 
         if (i.tag == "syllable"): 
-            if (len(list(i)) == 1) & (list(i)[0].tag == "syl"):  #Do you remove a syl with text? - ask tim to confirm 
-                layer.remove(i)
+            if (len(list(i)) == 1):
+                if (list(i)[0].tag == "syl") & ((i.get("precedes") is None) | (i.get("follows") is None)) :  #Do you remove a syl with text? - ask tim to confirm 
+                    layer.remove(i)
+                
 
     return meiDoc
 
@@ -626,8 +658,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/070rPF.json'
-        in_syls = './tests/resources/070r.json'
+        inJSOMR = './tests/resources/077vPF.json'
+        in_syls = './tests/resources/077v.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -658,5 +690,5 @@ if __name__ == '__main__':
     print('remove empty syllables.... ')
     meiDoc = removeEmptySyl(meiDoc)
 
-    #tree = meiDoc
-    #tree.write("070.xml", encoding="utf-8")
+    tree = meiDoc
+    tree.write("077.xml", encoding="utf-8")
