@@ -45,7 +45,9 @@ RUN cd /code/Rodan/jobs/neon_wrapper && \
   git submodule update --remote
 RUN cd /code/Rodan/jobs/neon_wrapper && \
   yarn install && yarn build
-RUN perl -i -pe "s/#py2 |#py3 |#gpu //g" /code/Rodan/rodan/settings.py
+RUN sed -i "s/#py2 //g" /code/Rodan/rodan/settings.py
+RUN sed -i "s/#py3 //g" /code/Rodan/rodan/settings.py
+RUN sed -i "s/#gpu //g" /code/Rodan/rodan/settings.py
 
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
