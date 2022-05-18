@@ -17,7 +17,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "rodan-main-local"
+    image: "ddmal/rodan-main:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -35,7 +35,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      # - "./rodan-main/code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   celery:
     image: "ddmal/rodan-main:nightly"
@@ -57,6 +57,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
