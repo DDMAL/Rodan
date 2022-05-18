@@ -13,9 +13,9 @@ RUN apk add --no-cache \
   pkgconfig \
   tiff-dev
 
-RUN wget https://github.com/ruven/iipsrv/archive/refs/tags/iipsrv-1.1.zip
-RUN unzip iipsrv-1.1.zip
-WORKDIR iipsrv-iipsrv-1.1
+RUN wget https://github.com/ruven/iipsrv/archive/refs/heads/master.zip
+RUN unzip master.zip
+WORKDIR iipsrv-master
 RUN ./autogen.sh
 RUN ./configure
 RUN make
