@@ -13,7 +13,6 @@ services:
       - "80:80"
       - "443:443"
       - "9002:9002"
-      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
 
@@ -45,8 +44,6 @@ services:
       context: ./iipsrv
       dockerfile: Dockerfile
       network: host
-    ports:
-      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
 
