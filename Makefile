@@ -50,7 +50,7 @@ run_arm:
 
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
-	@docker-compose -f rodan-client.yml up
+	@docker run -p 8080:9002 -v `pwd`/rodan-client/code:/code ddmal/rodan-client:nightly bash
 
 deploy_staging:
 	# Can also be used to update a configuration (point to a different image.)
