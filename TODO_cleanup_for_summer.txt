@@ -1,3 +1,0 @@
-- move scripts currently in ./rodan/scripts into centralized location (say, ./building_helper_scripts)
-- rename the "rodan" docker container to "rodan-container" or something so there aren't three "Rodan"s in the file path
-- look at gamera 4 to see if it'll work? mess around with it in a venv?

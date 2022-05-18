@@ -40,6 +40,14 @@ run:
 	# Hello, 2022 hires!
 	@docker-compose up
 
+build_arm:
+	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
+
+run_arm:
+	# Run build_arm first if you don't have the NGINX container.
+	# Launch ARM instance 
+	@docker-compose -f arm-compose.yml up
+
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
 	@docker-compose -f rodan-client.yml up
