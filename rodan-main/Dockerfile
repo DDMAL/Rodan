@@ -38,12 +38,12 @@ RUN \
   && make
 
 # Install pixel and Neon
-RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git /code/Rodan/jobs/pixel_wrapper
-RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git /code/Rodan/jobs/neon_wrapper
-RUN cd /code/Rodan/jobs/neon_wrapper && \
+RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git /code/Rodan/rodan/jobs/pixel_wrapper
+RUN git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git /code/Rodan/rodan/jobs/neon_wrapper
+RUN cd /code/Rodan/rodan/jobs/neon_wrapper && \
   git submodule update --init && \
   git submodule update --remote
-RUN cd /code/Rodan/jobs/neon_wrapper && \
+RUN cd /code/Rodan/rodan/jobs/neon_wrapper && \
   yarn install && yarn build
 RUN sed -i "s/#py2 //g" /code/Rodan/rodan/settings.py
 RUN sed -i "s/#py3 //g" /code/Rodan/rodan/settings.py
