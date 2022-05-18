@@ -40,9 +40,17 @@ run:
 	# Hello, 2022 hires!
 	@docker-compose up
 
+build_arm:
+	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
+
+run_arm:
+	# Run build_arm first if you don't have the NGINX container.
+	# Launch ARM instance 
+	@docker-compose -f arm-compose.yml up
+
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
-	@docker-compose -f rodan-client.yml up
+	@docker run -p 8080:9002 -v `pwd`/rodan-client/code:/code ddmal/rodan-client:nightly bash
 
 deploy_staging:
 	# Can also be used to update a configuration (point to a different image.)
@@ -214,15 +222,17 @@ pull:
 rodan_folder_path = ./rodan-main/code/rodan
 jobs_folder_path = ./rodan-main/code/rodan/jobs/
 remote_jobs:
-	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git || echo "[+] pixel_wrapper already exists"
+	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git \
+		|| echo "[+] pixel_wrapper already exists"
 	@cd $(jobs_folder_path); \
-		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git && \
-		cd neon_wrapper && \
-		git submodule update --init && \
-		git submodule update --remote && \
-		yarn install && \
-		yarn build \
+		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git \
 		|| echo "[+] neon-wrapper already exists"
+	@cd $(jobs_folder_path)/neon_wrapper; \
+		git submodule update --init && \
+		git submodule update --remote
+	@cd $(jobs_folder_path)/neon_wrapper; \
+		yarn install && \
+		yarn build
 	@cd $(rodan_folder_path); $(REPLACE) "s/#py2 //g" ./settings.py
 	@cd $(rodan_folder_path); $(REPLACE) "s/#py3 //g" ./settings.py
 	@cd $(rodan_folder_path); $(REPLACE) "s/#gpu //g" ./settings.py
