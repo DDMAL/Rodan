@@ -33,6 +33,7 @@ services:
       - "443:443"
       - "5671:5671"
       - "9002:9002"
+      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
       - "certbot:/etc/letsencrypt"
@@ -73,11 +74,13 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   iipsrv:
-    image: "iipsrv"
+    image: "ddmal/iipsrv:nightly"
     build:
       context: ./iipsrv
       dockerfile: Dockerfile
       network: host
+    ports:
+      - "9003:9003"
     volumes:
       - "resources:/rodan/data"
 

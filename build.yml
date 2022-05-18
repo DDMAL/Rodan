@@ -8,7 +8,7 @@ services:
     image: "ddmal/nginx:nightly"
 
   iipsrv:
-    image: "iipsrv"
+    image: "ddmal/iipsrv:nightly"
     build:
       context: ./iipsrv
       dockerfile: Dockerfile
