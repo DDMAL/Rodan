@@ -27,9 +27,6 @@ build:
 	@$(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
 	@echo "[+] Done."
 
-build_rodan_main_local:
-	@docker build --network host --no-cache --tag rodan-main-local --file ./rodan-main/Dockerfile . 
-
 backup_db:
 	@docker exec `docker ps -f name=rodan_postgres -q` backup
 
