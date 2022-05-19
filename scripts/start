@@ -3,13 +3,6 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 # set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
-# Run the IIPSRV FCGI executable from the commandline to serve requests from a Unix socket. Nginx will forward http
-# requests to /fcgi-bin/iipsrv.fcgi to this Unix socket. Run as the www_user - the same user running Nginx.
-# Changed to http socket instead, temporary. Let's see how much faster a unix socket is, and we can use
-# unix sockets between docker containers.
-JPEG_QUALITY='100' MAX_LAYERS='4' MAX_CVT='7000' FILESYSTEM_PREFIX='/rodan/data/' VERBOSITY=2 \
-  runuser -u www-data -- /vendor/iipsrv/src/iipsrv.fcgi --bind 0.0.0.0:9003 &
-
 chmod --verbose -R 777 /code/Rodan/
 cd /code/Rodan
 runuser -u www-data -- yes | MIGRATE="True" python manage.py migrate --noinput

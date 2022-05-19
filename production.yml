@@ -27,6 +27,16 @@ services:
       - "resources:/rodan/data"
       - "certbot:/etc/letsencrypt"
 
+  # TODO: This will need to be updated to work with production.
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    build:
+      context: ./iipsrv
+      dockerfile: Dockerfile
+      network: host
+    volumes:
+      - "resources:/rodan/data"
+
   rodan-main:
     image: "ddmal/rodan-main:v1.5.0rc0"
     deploy:
