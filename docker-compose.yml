@@ -31,11 +31,21 @@ services:
       - postgres
       - rabbitmq
       - redis
+      - iipsrv
     env_file:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    build:
+      context: ./iipsrv
+      dockerfile: Dockerfile
+      network: host
+    volumes:
+      - "resources:/rodan/data"
 
   celery:
     image: "ddmal/rodan-main:nightly"
