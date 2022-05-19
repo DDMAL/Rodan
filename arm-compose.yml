@@ -31,7 +31,6 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
   celery:
     image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"
@@ -52,7 +51,6 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
     command: bash -c "tail -f /dev/null"
@@ -68,7 +66,6 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
@@ -86,7 +83,6 @@ services:
       - ./hpc-rabbitmq/scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
   
   
   redis:
