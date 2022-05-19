@@ -78,13 +78,13 @@ def register_py2():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Pixel.js
-    try:
-        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+    # try:
+    #     from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
 
-        app.register_task(PixelInteractive())
-    except Exception as exception:
-        import_name = "Pixel"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    #     app.register_task(PixelInteractive())
+    # except Exception as exception:
+    #     import_name = "Pixel"
+    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register MEI resizing
     try:
@@ -403,13 +403,13 @@ def register_py2():
     #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
+    # try:
+    #     from rodan.jobs.neon_wrapper.wrapper import Neon
 
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    #     app.register_task(Neon())
+    # except Exception as exception:
+    #     import_name = "Neon"
+    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
 # Python3 Jobs
