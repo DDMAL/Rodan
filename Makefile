@@ -8,9 +8,6 @@
 # See https://unix.stackexchange.com/questions/92895/how-can-i-achieve-portability-with-sed-i-in-place-editing
 REPLACE := perl -i -pe
 
-RODAN_PATH := ./rodan-main/code/rodan
-JOBS_PATH := $(RODAN_PATH)/jobs
-
 # Individual Commands
 
 build:
@@ -38,7 +35,7 @@ restore_db:
 
 # Keep in mind, you may need to deal with the postgres/maintenance/backup or backups files depending on setup
 
-run: remote_jobs
+run:
 	# Run local version for dev
 	# Hello, 2022 hires!
 	@docker-compose up
@@ -222,24 +219,23 @@ pull:
 	@docker-compose pull
 	@echo "[+] Done."
 
-# We use the /static directory to ensure that `yarn build` has been run.
-$(JOBS_PATH)/neon_wrapper/static:
-	@cd $(JOBS_PATH); \
-		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git
-	@cd $(JOBS_PATH)/neon_wrapper; \
+rodan_folder_path = ./rodan-main/code/rodan
+jobs_folder_path = ./rodan-main/code/rodan/jobs/
+remote_jobs:
+	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git \
+		|| echo "[+] pixel_wrapper already exists"
+	@cd $(jobs_folder_path); \
+		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git \
+		|| echo "[+] neon-wrapper already exists"
+	@cd $(jobs_folder_path)/neon_wrapper; \
 		git submodule update --init && \
 		git submodule update --remote
-	@cd $(JOBS_PATH)/neon_wrapper; \
+	@cd $(jobs_folder_path)/neon_wrapper; \
 		yarn install && \
 		yarn build
-
-$(JOBS_PATH)/pixel_wrapper:
-	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
-
-remote_jobs: $(JOBS_PATH)/neon_wrapper/static $(JOBS_PATH)/pixel_wrapper
-	@cd $(RODAN_PATH); $(REPLACE) "s/#py2 //g" ./settings.py
-	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
-	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py2 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py3 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#gpu //g" ./settings.py
 
 # Command Groups
 reset: stop clean pull run
