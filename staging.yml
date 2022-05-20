@@ -65,7 +65,7 @@ services:
       TZ: America/Toronto
       SERVER_HOST: rodan-staging.simssa.ca
       CELERY_JOB_QUEUE: None
-      REMOTE_JOBS: yes
+      REMOTE_JOBS: "true"
     env_file:
       - ./scripts/staging.env
     volumes:
