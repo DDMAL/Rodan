@@ -8,7 +8,6 @@ RUN unzip /grok-ubuntu-latest.zip
 RUN mkdir -p /vendor/build/bin
 RUN cp /grok-ubuntu-latest/bin/* /vendor/build/bin
 
-
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
