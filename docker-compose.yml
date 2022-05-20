@@ -27,6 +27,7 @@ services:
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: None
+      REMOTE_JOBS: false
     depends_on:
       - postgres
       - rabbitmq
