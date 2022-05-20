@@ -1,7 +1,6 @@
 FROM ddmal/rodan-python2-celery:nightly
 ARG BRANCHES
 ARG VERSION
-ARG REMOTE_JOBS=no
 
 # Install Grok
 RUN wget https://github.com/GrokImageCompression/grok/releases/download/v9.7.6/grok-ubuntu-latest.zip
@@ -9,11 +8,12 @@ RUN unzip /grok-ubuntu-latest.zip
 RUN mkdir -p /vendor/build/bin
 RUN cp /grok-ubuntu-latest/bin/* /vendor/build/bin
 
-COPY ./scripts/install_remote_jobs /opt/install_remote_jobs
 
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
+# This script will be run only in staging and production.
+COPY ./scripts/install_remote_jobs /opt/install_remote_jobs
 COPY ./scripts/start /run/
 RUN set -e \
   && chmod +x \
@@ -30,7 +30,6 @@ RUN set -e \
 RUN \
   /opt/install_python3_rodan_jobs \
   && /opt/install_gpu_rodan_jobs \
-  && /opt/install_remote_jobs \
   && /run/install_rodan
 
 RUN chmod -R 777 /code/Rodan/

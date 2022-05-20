@@ -59,6 +59,7 @@ services:
       TZ: America/Toronto
       SERVER_HOST: rodan2.simssa.ca
       CELERY_JOB_QUEUE: None
+      REMOTE_JOBS: yes
     env_file:
       - ./scripts/production.env
     volumes:

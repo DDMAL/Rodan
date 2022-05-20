@@ -65,11 +65,11 @@ services:
       TZ: America/Toronto
       SERVER_HOST: rodan-staging.simssa.ca
       CELERY_JOB_QUEUE: None
+      REMOTE_JOBS: yes
     env_file:
       - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
