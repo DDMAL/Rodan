@@ -3,11 +3,6 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
-# This is passed from an environment variable set by the docker-compose file.
-if [ $1 != "true" ]; then
-  exit
-fi
-
 git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git /code/Rodan/rodan/jobs/pixel_wrapper
 git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git /code/Rodan/rodan/jobs/neon_wrapper
 cd /code/Rodan/rodan/jobs/neon_wrapper && \
