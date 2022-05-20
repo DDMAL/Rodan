@@ -24,7 +24,7 @@ services:
       timeout: "5s"
       retries: 2
       start_period: "2m"
-    command: /run/start
+    command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: None
     depends_on:
@@ -36,7 +36,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "rodan-code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
@@ -49,7 +49,7 @@ services:
 
   celery:
     image: "ddmal/rodan-main:nightly"
-    command: /run/start-celery
+    command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: celery
     healthcheck:
@@ -67,11 +67,11 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "rodan-code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
-    command: /run/start-celery
+    command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python2
     depends_on:
@@ -84,11 +84,11 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "rodan-code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
-    command: /run/start-celery
+    command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python3
     depends_on:
@@ -102,11 +102,11 @@ services:
       - ./hpc-rabbitmq/scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "rodan-code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
     image: "ddmal/rodan-gpu-celery:nightly"
-    command: /run/start-celery
+    command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: GPU
     depends_on:
@@ -119,7 +119,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
-      - "rodan-code:/code/Rodan"
+      - "./rodan-main/code:/code/Rodan"
 
   redis:
     image: "redis:alpine"
@@ -167,4 +167,3 @@ services:
 
 volumes:
   resources:
-  rodan-code:
