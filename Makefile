@@ -219,6 +219,24 @@ pull:
 	@docker-compose pull
 	@echo "[+] Done."
 
+rodan_folder_path = ./rodan-main/code/rodan
+jobs_folder_path = ./rodan-main/code/rodan/jobs/
+remote_jobs:
+	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git \
+		|| echo "[+] pixel_wrapper already exists"
+	@cd $(jobs_folder_path); \
+		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git \
+		|| echo "[+] neon-wrapper already exists"
+	@cd $(jobs_folder_path)/neon_wrapper; \
+		git submodule update --init && \
+		git submodule update --remote
+	@cd $(jobs_folder_path)/neon_wrapper; \
+		yarn install && \
+		yarn build
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py2 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#py3 //g" ./settings.py
+	@cd $(rodan_folder_path); $(REPLACE) "s/#gpu //g" ./settings.py
+
 # Command Groups
 reset: stop clean pull run
 clean_reset: stop clean build run
