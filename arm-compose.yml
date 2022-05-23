@@ -27,12 +27,12 @@ services:
       - postgres
       - rabbitmq
       - redis
-      - iipsrv
     env_file:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
@@ -43,7 +43,7 @@ services:
     volumes:
       - "resources:/rodan/data"
 
-
+      
   celery:
     image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"

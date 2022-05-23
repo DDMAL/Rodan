@@ -1,9 +1,0 @@
-version: "3.2"
-services:
-  rodan-client:
-    image: "ddmal/rodan-client:nightly"
-    command: bash -c "tail -f /dev/null"
-    ports:
-      - "8080:9002"
-    volumes:
-      - "./rodan-client/code:/code"

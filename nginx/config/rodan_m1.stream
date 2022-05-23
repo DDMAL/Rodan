@@ -1,0 +1,8 @@
+server {
+  #tls listen 5671 ssl;
+  #tls listen [::]:5671 ssl;
+  #no_tls listen 5671;
+  #no_tls listen [::]:5671;
+
+  proxy_pass rabbitmq:5672;
+}

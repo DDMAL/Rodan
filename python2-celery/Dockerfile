@@ -22,6 +22,7 @@ RUN set -e \
     cmake \
     g++ \
     apt-utils \
+    unzip \
     # Gamera Dependencies
     autoconf \
     graphicsmagick \
