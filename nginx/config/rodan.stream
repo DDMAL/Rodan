@@ -4,5 +4,5 @@ server {
   #no_tls listen 5671;
   #no_tls listen [::]:5671;
 
-  proxy_pass rabbitmq:5672;
+  proxy_pass hpc-rabbitmq:5672;
 }

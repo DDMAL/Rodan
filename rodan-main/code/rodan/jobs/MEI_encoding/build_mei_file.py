@@ -1,43 +1,18 @@
 # -*- coding: utf-8 -*-
-from uuid import uuid4
 import xml.etree.ElementTree as ET
-import math
 import numpy as np
 import json
-from rodan.jobs.MEI_encoding import parse_classifier_table as pct
-#from pymei import MeiDocument, MeiElement, MeiAttribute, documentToText, documentToFile
+import parse_classifier_table as pct
+from pymei import MeiDocument, MeiElement, MeiAttribute, documentToText, documentToFile
 from itertools import groupby
-#from visualize_alignment import draw_mei_doc
+from visualize_alignment import draw_mei_doc
 
 try:
     from rodan.jobs.MEI_encoding import __version__
 except ImportError:
     __version__ = "[Not encoded using Rodan]"
 
-'''
-Additional to look/hardcode:
-    1. header (version etc)
-    2. certain structural Element doesn't need xml:id
-    3. (will add more)
-''''''
 
-
-'''
-def new_el(name, p=None): 
-    '''
-    Create a new ElementTree Element with the given name and generate uuid4, with prefix 'm-'
-    to conform with previous MeiElement id's 
-    '''
-    if p is None: 
-        element = ET.Element(name)
-        element.set("xml:id", 'm'+str(uuid4()))
-        return element 
-    else: 
-        element = ET.SubElement(p, name)
-        element.set("xml:id", 'm'+str(uuid4()))
-        return element
-
-#DONE but not tested
 def add_flags_to_glyphs(glyphs):
     '''
     Given the raw list of glyphs from pitch-finding containing position and classification
@@ -83,7 +58,7 @@ def add_flags_to_glyphs(glyphs):
 
     return glyphs
 
-#DONE but not tested
+
 def neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing):
     '''
     Given the processed glyphs from add_flags_to_glyphs and the information from the text alignment
@@ -165,51 +140,68 @@ def generate_base_document():
 
     Currently a bit of this is hardcoded and should probably be made more customizable.
     '''
-    #create document (eventually going to need to link a bunch of documents together 
-    # under mei)
+    meiDoc = MeiDocument("4.0.0")
 
-    mei = new_el("mei")
-    mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
-    mei.set("meiversion", "5.0.0")
-
-    meiHead = new_el("meiHead", mei)
-
-    fileDesc = new_el("fileDesc", meiHead)
-    titleStmt = new_el("titleStmt", fileDesc)
-    title = new_el("title", titleStmt)
-    title.text = "MEI Encoding Output (1.0.0)"
-
-    pubStmt = new_el("pubStmt", fileDesc)
-
-    music = new_el("music", mei)
-
-    facsimile = new_el("facsimile", music)
-    surface = new_el("surface", facsimile)
-    front = new_el("front", music)
-
-    body = new_el("body", music)
-    mdiv = new_el("mdiv", body)
-    score = new_el("score", mdiv)
-    scoreDef = new_el("scoreDef", score)
-    staffGrp = new_el("staffGrp", scoreDef)
-    staffDef = new_el("staffDef", staffGrp)
-
-    staffDef.set("n", "1")
-    staffDef.set("lines", "4")
-    staffDef.set('notationtype', 'neume')
-    staffDef.set('clef.line', '3')
-    staffDef.set('clef.shape', 'C') #come back to this !
-
-    section = new_el("section", score)
-    staff = new_el("staff", section)
-    layer = new_el("layer", staff)
-
-    back = new_el("back", music)
+    mei = MeiElement("mei")
+    mei.addAttribute("meiversion", "4.0.0")
+    meiDoc.root = mei
 
     # placeholder meiHead
-    # title.setValue('MEI Encoding Output (%s)' % __version__)
+    meihead = MeiElement('meiHead')
+    mei.addChild(meihead)
+    fileDesc = MeiElement('fileDesc')
+    meihead.addChild(fileDesc)
+    titleSt = MeiElement('titleStmt')
+    fileDesc.addChild(titleSt)
+    title = MeiElement('title')
+    titleSt.addChild(title)
+    title.setValue('MEI Encoding Output (%s)' % __version__)
+    pubStmt = MeiElement('pubStmt')
+    fileDesc.addChild(pubStmt)
 
-    meiDoc = ET.ElementTree(mei)
+    music = MeiElement("music")
+    mei.addChild(music)
+
+    facs = MeiElement("facsimile")
+    music.addChild(facs)
+
+    surface = MeiElement("surface")
+    facs.addChild(surface)
+
+    body = MeiElement('body')
+    music.addChild(body)
+
+    mdiv = MeiElement('mdiv')
+    body.addChild(mdiv)
+
+    score = MeiElement('score')
+    mdiv.addChild(score)
+
+    scoreDef = MeiElement('scoreDef')
+    score.addChild(scoreDef)
+
+    staffGrp = MeiElement('staffGrp')
+    scoreDef.addChild(staffGrp)
+
+    staffDef = MeiElement('staffDef')
+    staffGrp.addChild(staffDef)
+
+    # these hardcoded attributes define a single staff with 4 lines, neume notation, with a default c clef
+    staffDef.addAttribute('n', '1')
+    staffDef.addAttribute('lines', '4')
+    staffDef.addAttribute('notationtype', 'neume')
+    staffDef.addAttribute('clef.line', '3')
+    staffDef.addAttribute('clef.shape', 'C')
+
+    section = MeiElement('section')
+    score.addChild(section)
+
+    staff = MeiElement('staff')
+    section.addChild(staff)
+
+    layer = MeiElement('layer')
+    staff.addChild(layer)
+
     return meiDoc, surface, layer
 
 
@@ -221,7 +213,7 @@ def add_attributes_to_element(el, add):
     for key in add.keys():
         if add[key] == 'None':
             continue
-        el.set(key, str(add[key]))
+        el.addAttribute(key, str(add[key]))
     return el
 
 
@@ -230,10 +222,8 @@ def create_primitive_element(xml, glyph, idx, surface):
     Creates a "lowest-level" element out of the xml retrieved from the MEI mapping tool (passed as
     an ElementTree object in @xml) and registers its bounding box in the given surface.
     '''
-    #res = MeiElement(xml.tag) #xml.tag gets the root of the whole thing 
-    #MeiElement() --> makes a branch with all the predefined stuff
-    res = new_el(xml.tag)
-    attribs = xml.attrib #gets the attributes of them 
+    res = MeiElement(xml.tag)
+    attribs = xml.attrib
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == 'clef':
@@ -243,11 +233,12 @@ def create_primitive_element(xml, glyph, idx, surface):
     attribs['pname'] = str(glyph['note'])
     res = add_attributes_to_element(res, attribs)
 
+
     if type(glyph['bounding_box']) == dict:
         zoneId = generate_zone(surface, glyph['bounding_box'])
     else:
         zoneId = generate_zone(surface, glyph['bounding_box'][idx])
-    res.set('facs', '#' + zoneId)
+    res.addAttribute('facs', '#' + zoneId)
     return res
 
 
@@ -278,11 +269,10 @@ def glyph_to_element(classifier, width_container, glyph, surface):
     # if this is an element with no children, then just apply a pitch and position to it
     if not list(xml):
         return create_primitive_element(xml, glyph, 0, surface)
-        
 
     # else, this element has at least one child (is a neume)
     ncs = list(xml)
-    
+
     # divide bbox according to the width column
     bb_org = glyph['bounding_box']
     bb_new = []
@@ -311,22 +301,21 @@ def glyph_to_element(classifier, width_container, glyph, surface):
             continue
         els.append(el)
 
-    parent = new_el(xml.tag)
-    parent.extend(els) #append sequence of subelements (https://docs.python.org/3.8/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.extend)
+    parent = MeiElement(xml.tag)
+    parent.setChildren(els)
 
     if len(els) < 2:
         return parent
 
     # if there's more than one element, must resolve intervals between ncs
     for i in range(1, len(els)):
-        prev_nc = parent[i - 1]
-        cur_nc = parent[i]
+        prev_nc = parent.children[i - 1]
+        cur_nc = parent.children[i]
         new_pname, new_octave = resolve_interval(prev_nc, cur_nc)
-        cur_nc.set('pname', new_pname)
-        cur_nc.set('oct', new_octave)
-        #cur_nc.removeAttribute('intm')
-        cur_nc.attrib.pop('intm',None) #remove attribute by popping it from the attrib list
-    
+        cur_nc.addAttribute('pname', new_pname)
+        cur_nc.addAttribute('oct', new_octave)
+        cur_nc.removeAttribute('intm')
+
     return parent
 
 
@@ -342,7 +331,7 @@ def resolve_interval(prev_nc, cur_nc):
 
     scale = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 
-    interval = cur_nc.get('intm')
+    interval = cur_nc.getAttribute('intm').value
     try:
         interval = interval.lower().replace('s', '')
         interval = int(interval)
@@ -351,8 +340,8 @@ def resolve_interval(prev_nc, cur_nc):
     except AttributeError:
         interval = 0
 
-    starting_pitch = prev_nc.get('pname')
-    starting_octave = int(prev_nc.get('oct'))
+    starting_pitch = prev_nc.getAttribute('pname').value
+    starting_octave = int(prev_nc.getAttribute('oct').value)
     end_octave = starting_octave
 
     try:
@@ -378,17 +367,19 @@ def generate_zone(surface, bb):
     Given a bounding box, generates a zone element, adds it to the given @surface,
     and returns its ID.
     '''
-    el = new_el("zone", surface)
+    el = MeiElement('zone')
+    surface.addChild(el)
+
     # could be cleaner, but necessary so that we don't add extra attributes from @bb
     attribs = {
-        'ulx': math.trunc(bb['ulx']),
-        'uly': math.trunc(bb['uly']),
-        'lrx': math.trunc(bb['lrx']),
-        'lry': math.trunc(bb['lry']),
+        'ulx': bb['ulx'],
+        'uly': bb['uly'],
+        'lrx': bb['lrx'],
+        'lry': bb['lry'],
     }
 
     el = add_attributes_to_element(el, attribs)
-    return el.get('xml:id')
+    return el.getId()
 
 
 def build_mei(pairs, classifier, width_container, staves, page):
@@ -410,16 +401,13 @@ def build_mei(pairs, classifier, width_container, staves, page):
         'lrx': page['bounding_box']['ulx'] + page['bounding_box']['ncols'],
         'lry': page['bounding_box']['uly'] + page['bounding_box']['nrows']
     }
+    surface.addAttribute('ulx', str(surface_bb['ulx']))
+    surface.addAttribute('uly', str(surface_bb['uly']))
+    surface.addAttribute('lrx', str(surface_bb['lrx']))
+    surface.addAttribute('lry', str(surface_bb['lry']))
 
-
-    surface.set('lry', str(math.trunc(surface_bb['lry'])))
-    surface.set('lrx', str(math.trunc(surface_bb['lrx'])))
-    surface.set('ulx', str(math.trunc(surface_bb['ulx'])))
-    surface.set('uly', str(math.trunc(surface_bb['uly'])))
-
-
-    #add an initial system beginning
-    sb = new_el("sb")
+    # add an initial system beginning
+    sb = MeiElement('sb')
     bb = staves[0]['bounding_box']
     bb = {
         'ulx': bb['ulx'],
@@ -428,14 +416,14 @@ def build_mei(pairs, classifier, width_container, staves, page):
         'lry': bb['uly'] + bb['nrows'],
     }
     zoneId = generate_zone(surface, bb)
-    sb.set('facs', '#' + zoneId)
-    layer.append(sb)
+    sb.addAttribute('facs', '#' + zoneId)
+    layer.addChild(sb)
 
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
 
         # first add information about the text itself
-        cur_syllable = new_el("syllable",  layer)
+        cur_syllable = MeiElement('syllable')
         bb = {
             'ulx': syl_box['ul'][0],
             'uly': syl_box['ul'][1],
@@ -443,21 +431,21 @@ def build_mei(pairs, classifier, width_container, staves, page):
             'lry': syl_box['lr'][1],
         }
         zoneId = generate_zone(surface, bb)
+        layer.addChild(cur_syllable)
 
         # add syl element containing text on page
-        syl = new_el("syl", cur_syllable)
-        syl.text =  syl_box['syl']
-        syl.set('facs', '#' + zoneId)
-
+        syl = MeiElement('syl')
+        syl.setValue(str(syl_box['syl']))
+        syl.addAttribute('facs', '#' + zoneId)
+        cur_syllable.addChild(syl)
 
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
-            new_element = glyph_to_element(classifier, width_container, glyph, surface)
-            
-            if new_element is None:
+            new_el = glyph_to_element(classifier, width_container, glyph, surface)
+            if not new_el:
                 continue
             # four cases to consider:
             # 1. no line break and done with this syllable (usually a clef)
@@ -465,16 +453,16 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # 3. a line break and done with this syllable (a custos OUTSIDE a <syllable> tag)
             # 4. a line break and not done with this syllable (a custos INSIDE a <syllable> tag)
 
-
             if not glyph['system_begin']:
                 # case 1
                 if syllable_over:
-                    layer.append(new_element)
+                    layer.addChild(new_el)
                 # case 2
                 else:
-                    cur_syllable.append(new_element)
+                    cur_syllable.addChild(new_el)
                 continue
 
+            sb = MeiElement('sb')
             cur_staff = int(glyph['staff'])
 
             bb = staves[cur_staff]['bounding_box']
@@ -484,29 +472,21 @@ def build_mei(pairs, classifier, width_container, staves, page):
                 'lrx': bb['ulx'] + bb['ncols'],
                 'lry': bb['uly'] + bb['nrows'],
             }
-            zoneId = generate_zone(surface, bb)  #This method needs to be updated
-            
-            sb = new_el('sb')
-            sb.set('facs', '#' + zoneId)   
+            zoneId = generate_zone(surface, bb)
+            sb.addAttribute('facs', '#' + zoneId)
 
             # case 3: the syllable is over, so the custos goes outside the syllable
             # do not include custos in <sb> tags! this was a typo in the MEI documentation
             if syllable_over:
-                layer.append(new_element)
-                layer.append(sb)
+                layer.addChild(new_el)
+                layer.addChild(sb)
             # case 4
             else:
-                cur_syllable.append(new_element)
-                cur_syllable.append(sb)
-               
+                cur_syllable.addChild(new_el)
+                cur_syllable.addChild(sb)
 
-    return meiDoc, layer
+    return meiDoc
 
-def getChildren(parent): 
-    return list(parent)
-
-def allChildren(parent):
-    return [elem for elem in parent.iter() if elem is not parent]
 
 def merge_nearby_neume_components(meiDoc, width_mult):
     '''
@@ -515,36 +495,34 @@ def merge_nearby_neume_components(meiDoc, width_mult):
     average width of a neume component within this page, but can be modified using the
     @width_multiplier argument. The output MEI will still be correct even if this method is not run.
     '''
-    all_syllables = (meiDoc.getroot()).iter("syllable")
-    allSurfaces = list((meiDoc.getroot()).iter('surface'))
-    surface = allSurfaces[0]
-    
+    all_syllables = meiDoc.getElementsByName('syllable')
+    surface = meiDoc.getElementsByName('surface')[0]
+
     surf_dict = {}
     neume_widths = []
-    
-    sc = getChildren(surface)
-    for c in sc:
-        surf_dict[c.get('xml:id')] = {}  #double check the id stuff
-        for coord in c.attrib:
-            if coord != "xml:id":
-                coord_val = int(c.get(coord)) 
-                surf_dict[c.get('xml:id')][coord] = coord_val
+    for c in surface.getChildren():
+        surf_dict[c.id] = {}
+        for coord in c.attributes:
+            surf_dict[c.id][coord.name] = int(coord.value)
+
 
     neume_widths = [x['lrx'] - x['ulx'] for x in surf_dict.values()]
     med_neume_width = np.median(neume_widths) * width_mult
+
     # returns True if both inputs are of type 'neume' and they are close enough to be merged
     def compare_neumes(nl, nr):
-        if not (nl.tag == 'neume' and nr.tag == 'neume'):
+        if not (nl.name == 'neume' and nr.name == 'neume'):
             return False
-        nl_right_bound = max([surf_dict[n.get('facs')[1:]]['lrx'] for n in getChildren(nl)])
-        nr_left_bound = min([surf_dict[n.get('facs')[1:]]['ulx'] for n in getChildren(nr)])
 
-        distance = nr_left_bound - nl_right_bound  #ask tim about getting negative distances
+        nl_right_bound = max([surf_dict[n.getAttribute('facs').value[1:]]['lrx'] for n in nl.children])
+        nr_left_bound = min([surf_dict[n.getAttribute('facs').value[1:]]['ulx'] for n in nr.children])
+
+        distance = nr_left_bound - nl_right_bound
+
         return (distance <= med_neume_width)
 
     for syllable in all_syllables:
-        children = getChildren(syllable) # need to only get all the direct children! can neumes be nested though? cause thenn you
-        #would have to try to merge them as well
+        children = syllable.getChildren()
         
         # holds children of the current syllable that will be added to target
         accumulator = []
@@ -558,36 +536,28 @@ def merge_nearby_neume_components(meiDoc, width_mult):
         # iterate over all children. for each neume decide whether or not it should be merged
         # with the next one using compare_neumes. if yes, add the next one to the accumulator.
         # if not, empty the accumulator and add its contents to the target.
-
         for i in range(len(children)):
             if (i + 1 < len(children)) and (compare_neumes(children[i], children[i+1])):
                 accumulator.append(children[i+1])
-                if target is None:
+                if not target:
                     target = children[i]
             else:
                 ncs_to_merge = []
                 for neume in accumulator:           # empty contents of accumulator into ncs_to_merge
-                    ncs_to_merge += getChildren(neume)
-                for nc in ncs_to_merge:             # merge all neume components 
-                    target.append(nc)
+                    ncs_to_merge += neume.children
+                for nc in ncs_to_merge:             # merge all neume components
+                    target.addChild(nc)
                 children_to_remove += accumulator
+                # for neume in accumulator:           # clean up neumes that were merged
+                #     syllable.removeChild(neume)
                 target = None
                 accumulator = []
 
         for neume in children_to_remove:
-            syllable.remove(neume)
+            syllable.removeChild(neume)
 
     return meiDoc
 
-def removeEmptySyl(meiDoc, layer): 
-    for i in getChildren(layer): 
-        print(i.tag)
-        if (i.tag == "syllable"): 
-            print ("Yess")
-            if (len(getChildren(i)) == 1) & (getChildren(i)[0].tag == "syl"):  #Do you remove a syl with text?
-                layer.remove(i)
-
-    return meiDoc
 
 def process(jsomr, syls, classifier, width_mult, width_container,verbose=True):
     '''
@@ -600,15 +570,12 @@ def process(jsomr, syls, classifier, width_mult, width_container,verbose=True):
 
     glyphs = add_flags_to_glyphs(glyphs)
     pairs = neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing)
-    meiDoc,layer = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'])
+    meiDoc = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'])
 
     if width_mult > 0:
         meiDoc = merge_nearby_neume_components(meiDoc, width_mult=width_mult)
 
-    meiDoc = removeEmptySyl(meiDoc, layer)
-    tree = ET.ElementTree(meiDoc.getroot())
-    
-    return ET.tostring(tree.getroot(),encoding='utf8').decode('utf8')
+    return documentToText(meiDoc)
 
 
 if __name__ == '__main__':
@@ -618,18 +585,18 @@ if __name__ == '__main__':
     # Assumes that all files are numbered with the "CF-" filenames that the images of the manuscript
     # originally came with.
 
-    classifier_fname = './tests/resources/square_notation_basic_classifier.csv'
+    classifier_fname = 'csv-square notation test_20190725015554.csv'
     classifier, width_container = pct.fetch_table_from_csv(classifier_fname)
 
     f_inds = range(0, 200)
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/070rPF.json'
-        in_syls = './tests/resources/070r.json'
-        #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
-        #out_fname = './out_mei/output_split_{}.mei'.format(fname)
-        #out_fname_png = './out_png/{}_alignment.png'.format(fname)
+        inJSOMR = './jsomr-split/pitches_{}.json'.format(fname)
+        in_syls = './syl_json/{}.json'.format(fname)
+        in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
+        out_fname = './out_mei/output_split_{}.mei'.format(fname)
+        out_fname_png = './out_png/{}_alignment.png'.format(fname)
 
         try:
             with open(inJSOMR, 'r') as file:
@@ -651,11 +618,10 @@ if __name__ == '__main__':
         print('performing neume-to-lyric alignment...')
         pairs = neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing)
         print('building MEI...')
-        meiDoc, layer = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'])
+        meiDoc = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'])
         print('neume component spacing > 0, merging nearby components...')
-        meiDoc = merge_nearby_neume_components(meiDoc, width_mult=0.55)
-    print('remove empty syllables.... ')
-    meiDoc = removeEmptySyl(meiDoc, layer)
+        meiDoc = merge_nearby_neume_components(meiDoc, width_mult=0.25)
 
-    tree = meiDoc
-    tree.write("070.xml", encoding="utf-8")
+        #draw_mei_doc(in_png, out_fname_png, meiDoc)
+
+        documentToFile(meiDoc, out_fname)

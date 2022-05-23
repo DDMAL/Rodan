@@ -17,9 +17,6 @@ $PIP install -r ./pil_rodan/requirements.txt
 # Install HPC Fast Trainer
 $PIP install -r ./hpc_fast_trainer/requirements.txt
 
-# Install MEI_encoding
-$PIP install -r ./MEI_encoding/requirements.txt
-
 # At the end, add all the jobs together.
 cd /code/Rodan/rodan
 

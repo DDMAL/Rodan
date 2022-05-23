@@ -4,4 +4,4 @@ Encodes the output from [`Pitch Finding`](https://github.com/DDMAL/heuristic-pit
 
 Can take additional JSON input from [Text Alignment](https://github.com/DDMAL/text-alignment), so that textual information will be included in the MEI and the neumes will be correctly partitioned into syllables. If this input is not present the output will still be valid MEI, just with "blank" syllables.
 
-**Updated to Python 3**. Requires numpy>=1.16.0. Scripts requiring PIL>=6.1.0 are in ```visualize_alignment.py``` for local development.
+**Currently uses Python 2; Next major version will update to Python 3** (at least, that's the plan). Requires numpy>=1.16.0 and libMEI>=3.1.0. Scripts requiring PIL>=6.1.0 are in ```visualize_alignment.py``` for local development.

@@ -13,7 +13,6 @@ rodan/static/Rodan
 rodan/jobs/diva_wrapper/
 rodan/jobs/neon_wrapper/
 rodan/jobs/pixel_wrapper/
-
 # ignore emacs autosave file
 *~
 database.log
