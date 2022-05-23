@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from hashlib import new
 from uuid import uuid4
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more concise?
@@ -15,16 +16,7 @@ try:
 except ImportError:
     __version__ = "[Not encoded using Rodan]"
 
-'''
-Other things to look into:
-    1. header (version etc)
-    2. mei-neumes vs mei-all 
-    3. title info stuff and things like that 
-    4. custos sb issue (kinda relates to 2)
-''''''
 
-
-'''
 def new_el(name, p=None): 
     '''
     Create a new ElementTree Element with the given name and generate uuid4, with prefix 'm-'
@@ -39,7 +31,6 @@ def new_el(name, p=None):
         element.set("xml:id", 'm-'+str(uuid4()))
         return element
 
-#DONE but not tested
 def add_flags_to_glyphs(glyphs):
     '''
     Given the raw list of glyphs from pitch-finding containing position and classification
@@ -169,10 +160,10 @@ def generate_base_document():
     #create document (eventually going to need to link a bunch of documents together 
     # under mei)
 
+
     mei = new_el("mei")
     mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
-    mei.set("meiversion", "5.0.0")
-    mei.set("idontknow", "alright")
+    mei.set("meiversion", "5.0.0-dev")
 
     meiHead = new_el("meiHead", mei)
 
@@ -187,7 +178,6 @@ def generate_base_document():
 
     facsimile = new_el("facsimile", music)
     surface = new_el("surface", facsimile)
-    #front = new_el("front", music) double check with tim 
 
     body = new_el("body", music)
     mdiv = new_el("mdiv", body)
@@ -200,18 +190,17 @@ def generate_base_document():
     staffDef.set("lines", "4")
     staffDef.set('notationtype', 'neume')
     staffDef.set('clef.line', '3')
-    staffDef.set('clef.shape', 'C') #come back to this !
+    staffDef.set('clef.shape', 'C') 
 
     section = new_el("section", score)
     staff = new_el("staff", section)
     layer = new_el("layer", staff)
 
-    #back = new_el("back", music)
-
     # placeholder meiHead
     # title.setValue('MEI Encoding Output (%s)' % __version__)
-
+   
     meiDoc = ET.ElementTree(mei)
+
     return meiDoc, surface, layer
 
 
@@ -452,6 +441,9 @@ def build_mei(pairs, classifier, width_container, staves, page):
         syl.text =  syl_box['syl']
         syl.set('facs', '#' + zoneId)
 
+        syl_dict = {"opening_syl": cur_syllable, "latest": ""}
+        
+        
 
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
@@ -469,6 +461,9 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # 3. a line break and done with this syllable (a custos OUTSIDE a <syllable> tag)
             # 4. a line break and not done with this syllable (custos still OUTSIDE <syllable> tag, need to split the syllable) 
             tag = new_element.tag 
+            #print (tag)
+            if(tag == "sb"):
+                print("amesn")
 
             if not glyph['system_begin']:
 
@@ -478,18 +473,35 @@ def build_mei(pairs, classifier, width_container, staves, page):
                 # case 2
                 else:
                     #Clefs and custos should be outside the syllable 
-                    if (tag == "custos") | (tag == "clef") | (tag == "sb"):
+                    if (tag == "custos") | (tag == "clef") | (tag == "sb") | (tag == "accid"):
+                        #add to layer and add this element as the lastest element to the dict
+                        syl_dict["latest"] = new_element
                         layer.append(new_element)
 
-                        new_syllable = new_el("syllable", layer)
+                    else:    
+                        #continue as normal (append to current syllable) if nothing is in the dictionary 
+                        if (syl_dict["latest"] == "") :   
+                            cur_syllable.append(new_element)
+                            syl_dict["latest"] = new_element
+                        #if the last element was added inside the current syllable (i.e. was a neume, divLine or syl) then continue as normal
+                        elif ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume" ) | (syl_dict["latest"].tag == "syl") ):
+                            cur_syllable.append(new_element) 
+                            syl_dict["latest"] = new_element
+                        #if the last element was added outside of the current syllable (custos, sb, clef, accid) then need to create a new syllable
+                        #and add according precedes and follows attributes
+                        else: 
+                            prev_syllable = syl_dict['opening_syl']
+                            new_syllable = new_el("syllable", layer)
+                            prev_syllable.set("xml:precedes", new_syllable.get('xml:id'))
+                            new_syllable.set("xml:follows", prev_syllable.get('xml:id'))
 
-                        new_syllable.set("xml:precedes", cur_syllable.get('xml:id'))
-                        cur_syllable.set("xml:follows", new_syllable.get('xml:id'))
+                            syl_dict["latest"] = new_element  #update latest
+                            syl_dict['opening_syl'] = new_syllable  #to be able to access most recent syllable 
 
-                        cur_syllable = new_syllable
-                    else:    #continue as normal
-                        cur_syllable.append(new_element)
-                    #cur_syllable.append(new_element)
+                            new_syllable.append(new_element)  #add new element to new syllable
+                            cur_syllable = new_syllable #update current syllable
+
+                    
                 continue
 
             cur_staff = int(glyph['staff'])
@@ -514,22 +526,38 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # case 4 
             # syllable not over, so need to split up the current syllable and add the custos and sb to the layer 
             else:
-                if (tag == "custos") | (tag == "clef") | (tag == ""): 
+                #if new element needs to be added to the layer: 
+                if (tag == "custos") | (tag == "clef") | (tag == "sb") | (tag == "accid"): 
+                    syl_dict["latest"] = new_element
+
                     layer.append(new_element)
-                    
                     layer.append(sb)
+        
+                else:
+                    #if no latest element in dictionary continue as normal  
+                    if (syl_dict["latest"] == ""): 
+                        cur_syllable.append(new_element)
+                    #if latest element in dictionary was added inside a syllable continue as normal 
+                    elif ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume" ) | (syl_dict["latest"].tag == "syl") ):
+                        cur_syllable.append(new_element)
+                    #if latest element was added outside the syllable (to the layer)
+                    else: 
+                        #create new syllable and add precedes and follows attributes to previous syllable and the new one
+                        new_syllable = new_el("syllable", layer)
+                        prev_syllable = syl_dict['opening_syl']
+                        
+                        prev_syllable.set("xml:precedes", new_syllable.get("xml:id"))
+                        new_syllable.set("xml:follows", prev_syllable.get("xml:id"))
 
-                    new_syllable = new_el("syllable", layer)
+                        syl_dict["opening_syl"] = new_syllable
 
-                    new_syllable.set("xml:precedes", cur_syllable.get('xml:id'))
-                    cur_syllable.set("xml:follows", new_syllable.get('xml:id'))
+                        new_syllable.append(new_element)
+                        cur_syllable = new_syllable
 
-                    cur_syllable = new_syllable
-                else: 
-                    cur_syllable.append(new_element)
-                    cur_syllable.append(sb)
-                #cur_syllable.append(new_element)
-                # cur_syllable.append(sb)
+                    #in all cases a system break must be added to the layer 
+                    layer.append(sb)
+                    syl_dict["latest"] = sb
+
                
 
     return meiDoc
@@ -612,12 +640,12 @@ def removeEmptySyl(meiDoc):
     layers = list((meiDoc.getroot()).iter('layer')) 
     layer = layers[0] #only one layer so this gets the corresponding element  
 
+    #this could be cleaner
     for i in list(layer): 
         if (i.tag == "syllable"): 
             if (len(list(i)) == 1):
-                if (list(i)[0].tag == "syl") & ((i.get("precedes") is None) | (i.get("follows") is None)) :  #Do you remove a syl with text? - ask tim to confirm 
+                if (list(i)[0].tag == "syl") & ((i.get("xml:precedes") is None) & (i.get("xml:follows") is None)) : 
                     layer.remove(i)
-                
 
     return meiDoc
 
@@ -658,8 +686,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/077vPF.json'
-        in_syls = './tests/resources/077v.json'
+        inJSOMR = './tests/resources/037vPF.json'
+        in_syls = './tests/resources/037vTA.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -691,4 +719,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("077.xml", encoding="utf-8")
+    tree.write("037test.mei", encoding="utf-8")
