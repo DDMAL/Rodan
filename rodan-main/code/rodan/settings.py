@@ -145,7 +145,6 @@ RODAN_PYTHON2_JOBS = [
     "rodan.jobs.interactive_classifier",
     "rodan.jobs.JSOMR2MEI",
     "rodan.jobs.jSymbolic_Rodan",
-    "rodan.jobs.MEI_encoding",
     # "rodan.jobs.neon_wrapper",
     # "rodan.jobs.pixel_wrapper",
     "rodan.jobs.biollante_rodan",
@@ -156,7 +155,8 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.hpc_fast_trainer",
     "rodan.jobs.pil_rodan",
-    "rodan.jobs.mei2vol_wrapper"
+    "rodan.jobs.mei2vol_wrapper",
+    "rodan.jobs.MEI_encoding",
 ]
 RODAN_GPU_JOBS = [
     "rodan.jobs.Calvo_classifier",
