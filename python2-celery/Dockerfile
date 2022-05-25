@@ -77,7 +77,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 # Install music21
 
- RUN pip install --upgrade music21
+RUN pip install --upgrade music21
 
 # Install Gamera. This takes a very long time to build. Do not move it!
 # RUN pip install git+https://github.com/hsnr-gamera/gamera.git --global-option="--nowx"
