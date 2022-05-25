@@ -7,6 +7,7 @@ RUN wget https://github.com/GrokImageCompression/grok/releases/download/v9.7.6/g
 RUN unzip /grok-ubuntu-latest.zip
 RUN mkdir -p /vendor/build/bin
 RUN cp /grok-ubuntu-latest/bin/* /vendor/build/bin
+RUN rm -rf /grok-ubuntu-latest /grok-ubuntu-latest.zip
 
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
