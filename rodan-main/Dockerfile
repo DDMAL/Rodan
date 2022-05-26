@@ -5,8 +5,8 @@ ARG VERSION
 # Install Grok
 RUN wget https://github.com/GrokImageCompression/grok/releases/download/v9.7.6/grok-ubuntu-latest.zip
 RUN unzip /grok-ubuntu-latest.zip
-RUN mkdir -p /vendor/build/bin
-RUN cp /grok-ubuntu-latest/bin/* /vendor/build/bin
+RUN mkdir -p /vendor/grok/build/bin
+RUN cp /grok-ubuntu-latest/bin/* /vendor/grok/build/bin
 RUN rm -rf /grok-ubuntu-latest /grok-ubuntu-latest.zip
 
 # This script gets the python3 jobs into celery
