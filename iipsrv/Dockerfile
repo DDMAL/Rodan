@@ -6,10 +6,11 @@ RUN apk add --no-cache \
   autoconf \
   automake \
   build-base \
-  jpeg-dev \
   libtool \
+  libpng-dev \
   m4 \
   make \
+  openjpeg-dev \
   pkgconfig \
   tiff-dev
 
@@ -17,7 +18,7 @@ RUN wget https://github.com/ruven/iipsrv/archive/refs/heads/master.zip
 RUN unzip master.zip
 WORKDIR iipsrv-master
 RUN ./autogen.sh
-RUN ./configure
+RUN ./configure --enable-openjpeg
 RUN make
 
 ENV JPEG_QUALITY 90

@@ -244,3 +244,4 @@ upload: clean_reset push
 deploy: clean_git pull run_swarm
 reset_swarm: stop clean_git clean_swarm clean pull deploy_staging
 update_swarm: clean_git update
+staging: stop clean pull deploy_staging
