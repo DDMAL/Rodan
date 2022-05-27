@@ -40,10 +40,6 @@ services:
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
-    build:
-      context: ./iipsrv
-      dockerfile: Dockerfile
-      network: host
     volumes:
       - "resources:/rodan/data"
 
@@ -65,9 +61,8 @@ services:
       - redis
     env_file:
       - ./scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
+    volumes_from:
+      - rodan-main
 
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
@@ -82,9 +77,8 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
+    volumes_from:
+      - rodan-main
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
@@ -100,9 +94,8 @@ services:
     env_file:
       - ./scripts/local.env
       - ./hpc-rabbitmq/scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
+    volumes_from:
+      - rodan-main
 
   gpu-celery:
     image: "ddmal/rodan-gpu-celery:nightly"
@@ -117,9 +110,8 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
+    volumes_from:
+      - rodan-main
 
   redis:
     image: "redis:alpine"

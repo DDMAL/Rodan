@@ -32,6 +32,14 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+
+
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    volumes:
+      - "resources:/rodan/data"
+
+      
   celery:
     image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"

@@ -172,14 +172,6 @@ resourcetypes = {
     "application/arff+csv": [
         {"description": "WEKA ARFF CSV", "extension": "csv", "package_name": "built-in"}
     ],
-    "application/jsc+txt": [
-        {
-            # application/x-jsc+txt
-            "description": "jSymbolic Configuration Text File",
-            "extension": "txt",
-            "package_name": "built-in",
-        }
-    ],
     "text/csv": [
         {
             "description": "Comma Separated Values",

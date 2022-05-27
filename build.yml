@@ -8,12 +8,10 @@ services:
     image: "ddmal/nginx:nightly"
 
   iipsrv:
-    image: "ddmal/iipsrv:nightly"
     build:
       context: ./iipsrv
       dockerfile: Dockerfile
-      network: host
-
+    image: "ddmal/iipsrv:nightly"
 
   rodan:
     build:
