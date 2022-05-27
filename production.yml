@@ -30,10 +30,6 @@ services:
   # TODO: This will need to be updated to work with production.
   iipsrv:
     image: "ddmal/iipsrv:nightly"
-    build:
-      context: ./iipsrv
-      dockerfile: Dockerfile
-      network: host
     volumes:
       - "resources:/rodan/data"
 
