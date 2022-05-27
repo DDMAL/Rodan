@@ -61,8 +61,9 @@ services:
       - redis
     env_file:
       - ./scripts/local.env
-    volumes_from:
-      - rodan-main
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   py2-celery:
     image: "ddmal/rodan-python2-celery:nightly"
@@ -77,8 +78,9 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-    volumes_from:
-      - rodan-main
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
@@ -94,8 +96,9 @@ services:
     env_file:
       - ./scripts/local.env
       - ./hpc-rabbitmq/scripts/local.env
-    volumes_from:
-      - rodan-main
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
     image: "ddmal/rodan-gpu-celery:nightly"
@@ -110,8 +113,9 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-    volumes_from:
-      - rodan-main
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   redis:
     image: "redis:alpine"
