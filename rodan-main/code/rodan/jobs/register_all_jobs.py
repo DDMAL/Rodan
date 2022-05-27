@@ -393,15 +393,6 @@ def register_py2():
         import_name = "Biollante"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register jSymbolic
-    try:
-        from rodan.jobs.jSymbolic_Rodan.extract_features import extract_features
-
-        app.register_task(extract_features())
-    except Exception as exception:
-        import_name = "jSymbolic Extract Features"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register Neon
     try:
         from rodan.jobs.neon_wrapper.wrapper import Neon
