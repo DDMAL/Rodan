@@ -73,10 +73,6 @@ services:
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
-    build:
-      context: ./iipsrv
-      dockerfile: Dockerfile
-      network: host
     volumes:
       - "resources:/rodan/data"
 
