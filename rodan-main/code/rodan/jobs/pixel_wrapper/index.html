@@ -1,0 +1,54 @@
+<!-- This is a Diva instantiation example including pixel.js plugin -->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/pixel.css"/>
+    <link rel="stylesheet" href="css/diva.css"/>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
+    <title>Pixel.js</title>
+</head>
+<body>
+
+<div id="image-elements">
+</div>
+
+<div id="diva-wrapper"></div>
+<script src="js/diva.js"></script>
+<script src="js/download.js"></script>
+<script src="js/manipulation.js"></script>
+<script src="js/pixel.js"></script>
+
+<script>
+        $(document).ready(function() {
+        $('button').click(function() {
+          $.ajax({url: '', type: 'POST', data: JSON.stringify({'user_input': $('input:text').val()}), contentType: 'application/json'});    
+        });
+    });
+</script>
+
+<script>
+    // Dynamically create img elements 
+    var inputLayers = {{layer_urls|safe}};
+    var numberInputLayers = inputLayers.length;
+    for (var i = 0; i < numberInputLayers; i++) {
+        var img = document.createElement("IMG");
+        img.id = "layer" + (i+1) + "-img";
+        img.src = inputLayers[i];
+        img.style.display = "none";
+        document.getElementById("image-elements").appendChild(img);
+    }
+
+    document.addEventListener('DOMContentLoaded', function ()
+    {
+        var diva = new Diva('diva-wrapper', {
+            objectData: JSON.parse("{{json}}".replace(/&quot;/g,'"')),
+            plugins: [Diva.DownloadPlugin, Diva.ManipulationPlugin, Diva.PixelPlugin]
+        });
+    }, false)
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+    "@context": "https://ddmal.music.mcgill.ca/Neon/contexts/1/manifest.jsonld",
+    "@id": "/uploads/manifests/test.jsonld",
+    "title": "Neon View Test Manifest",
+    "timestamp": "2019-06-27T16:49:39-0400",
+    "image": "/uploads/img/test.png",
+    "mei_annotations": [
+        {
+            "id": "urn:uuid:361FDAAC-AACB-4BF1-B205-27B0397D45F5",
+            "type": "Annotation",
+            "body": "/uploads/mei/test.mei",
+            "target": "/uploads/img/test.png"
+        }
+    ]
+}

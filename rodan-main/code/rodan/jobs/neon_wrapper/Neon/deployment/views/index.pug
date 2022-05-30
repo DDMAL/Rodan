@@ -1,0 +1,57 @@
+html
+block head
+    title Neon
+    block sripts
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css')
+    script(defer='', src='https://use.fontawesome.com/releases/v5.0.7/js/all.js')
+block body
+section.hero.is-info
+  .hero-body
+    .container
+        h1.title
+          | Neon
+        h2.subtitle
+          | Neon is a browser-based score editor used to manipulate digitally encoded early music notation.
+
+section.container
+  h3.subtitle
+  | Score Selection:
+  p.has-text-danger= nofiles
+  ul
+    each file in files
+      li
+        a(href='/edit/' + file)= file
+        a(href='/delete/' + file)
+          span.icon
+             i.fas.fa-times
+  h3.subtitle
+  | IIIF Demo:
+  ul
+    each entry in iiif
+      li
+        a(href='/edit/' + entry[0] + '/' + entry[1])= entry[0] + ' (' + entry[1] + ')'
+        a(href='/delete/' + entry[0] + '/' + entry[1])
+          span.icon
+            i.fas.fa-times
+
+section.container
+  h3.subtitle
+  | Single Upload:
+  form(action='/upload_file', enctype='multipart/form-data', method='post')
+      | select an MEI file to upload:
+      input(type='file', name='resource')
+      br
+      | select a PNG file to upload:
+      input(type='file', accept='image/png', name='resource')
+      br
+      input(type='submit', value='Upload')
+
+section.container
+  h3.subtitle
+  | IIIF Upload: 
+  button
+    a(href='/add-iiif')
+      | Add IIIF File
+
+section.container
+  p.has-text-danger #{err}

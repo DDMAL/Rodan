@@ -1,0 +1,10 @@
+html
+  block head
+    title= statusCode
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css')
+  block body
+    section.hero.is-info
+      .hero-body
+        .container
+          h1.title= statusCode
+            h2.subtitle= message

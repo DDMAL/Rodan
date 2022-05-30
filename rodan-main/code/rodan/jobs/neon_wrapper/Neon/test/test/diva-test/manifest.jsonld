@@ -1,0 +1,21 @@
+{
+    "@context": "https://ddmal.music.mcgill.ca/Neon/contexts/1/manifest.jsonld",
+    "@id": "/uploads/iiif/test/diva-test/manifest.jsonld",
+    "title": "test",
+    "timestamp": "2019-07-03T12:14:04.168Z",
+    "image": "https://images.simssa.ca/iiif/manuscripts/cdn-hsmu-m2149l4/manifest.json",
+    "mei_annotations": [
+        {
+            "id": "urn:uuid:dd0cda12-e36d-47e9-aba6-64cde75c3b3c",
+            "type": "Annotation",
+            "body": "/uploads/iiif/test/diva-test/output_split_salzinnes_014.mei",
+            "target": "https://images.simssa.ca/iiif/manuscripts/cdn-hsmu-m2149l4/canvas/folio-001r.json"
+        },
+        {
+            "id": "urn:uuid:b6014254-9229-4df0-a8d5-e02315d4399a",
+            "type": "Annotation",
+            "body": "/uploads/iiif/test/diva-test/output_split_salzinnes_522.mei",
+            "target": "https://images.simssa.ca/iiif/manuscripts/cdn-hsmu-m2149l4/canvas/folio-001v.json"
+        }
+    ]
+}

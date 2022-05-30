@@ -1,0 +1,155 @@
+@import url("https://unpkg.com/diva.js@6.0.2/build/diva.css");
+
+html {
+    overflow: hidden;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.columns {
+    overflow: hidden;
+    height: 94%;
+    margin: 0;
+}
+
+#right-column {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#container {
+    overflow: hidden;
+    padding: 0;
+}
+
+#displayContents .button {
+    width: 10.5em;
+}
+
+#validation_status a {
+    color: inherit;
+}
+
+.container {
+    display: flex;
+}
+
+.diva-inner {
+    cursor: default;
+}
+
+#moreEdit {
+    overflow: auto;
+    padding: 1;
+}
+
+.item {
+    order: 1;
+}
+
+.smallel {
+    width: 42px;
+    height: 42px;
+}
+
+.longel {
+    width: 100px;
+    height: 42px;
+}
+
+.tallel {
+    width: 42px;
+    height: 80px;
+}
+
+.button.is-active {
+    background-color: whitesmoke;
+}
+
+button:focus {
+    outline:0;
+}
+
+.scrollable-dropdown {
+    height: 9em;
+    overflow: auto;
+}
+
+#notification-content {
+    z-index: 8;
+    position: fixed;
+}
+
+.neon-notification {
+    padding: 0.4rem;
+    margin: 0.5rem;
+    background: #f5f5f577; /* whitesmoke with opacity */
+    border: 0.05rem solid;
+    border-radius: 1rem;
+    z-index: 8;
+    cursor: pointer;
+}
+
+.overlay {
+    background-color: black;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+}
+
+.loader {
+    width: 120px;
+    height: 120px;
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid grey;
+    border-radius: 50%;
+    margin: 25% auto;
+    animation: spin 2s linear infinite;
+}
+
+.text {
+    display: none;
+}
+
+.sylTextRect {
+    display: none;
+}
+
+.sylTextRect-display {
+    fill: blue;
+    opacity: 0.2;
+}
+
+.selected {
+    fill: #d00;
+}
+
+.diva-wrapper {
+    min-height: inherit;
+    height: 100%;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    #navMenu {
+        position: fixed;
+        height: 100%;
+    }
+}

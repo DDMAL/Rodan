@@ -1,0 +1,52 @@
+<div class="overlay" id="loading">
+  <div class="loader"></div>
+</div>
+<nav class="navbar is-light">
+  <div class="navbar-brand">
+    <a class="navbar-item" id="home-link">
+      <p>Neon</p>
+    </a>
+    <a class="navbar-burger" id="burgerMenu" role="button" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu" id="navMenu">
+    <div class="navbar-start">
+      <div id="dropdown_toggle">
+      </div>
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item"
+      href="https://forms.gle/vGUpvZKZxGX5QGJZ9" target="_blank">
+        Feedback Form
+      </a>
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">Help</a>
+        <div class="navbar-dropdown is-right">
+          <a class="navbar-item" href="//github.com/DDMAL/Neon/wiki/Instructions" target="_blank">User Guide</a>
+          <a class="navbar-item" href="//github.com/DDMAL/Neon/wiki" target="_blank">Wiki</a>
+          <a class="navbar-item" href="//ddmal.music.mcgill.ca" target="_blank">DDMAL</a>
+          <a class="navbar-item" onclick="hotkeyDialog()">Hotkeys</a>
+          <a class="navbar-item" id="neon-version"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="columns">
+  <div id="notification-content" style="display:none;"></div>
+  <div class="column is-two-thirds box" id="container" style="height:getHeight()"></div>
+  <div class="column is-one-third is-hidden-mobile" id="right-column">
+    <div class="panel">
+      <div id="display_controls"></div>
+      <div id="insert_controls"></div>
+      <div id="edit_controls"></div>
+      <div id="undoRedo_controls"></div>
+    </div>
+    <div id="neume_info"></div>
+    <div id="syl_text" class="box" style="display:none;"></div>
+  </div>
+</div>

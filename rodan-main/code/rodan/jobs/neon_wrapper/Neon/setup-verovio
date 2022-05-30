@@ -1,0 +1,13 @@
+#!/bin/bash
+# A helper script to deploy a plain verovio into a standalone JS toolkit
+# and an NPM module.
+
+## Make NPM Module
+
+cat verovio-util/verovio-npm-start.js verovio-util/verovio.js verovio-util/verovio-proxy.js \
+    verovio-util/verovio-npm-end.js > verovio-util/verovio-dev/index.js
+
+## Make regular toolkit
+
+cat verovio-util/verovio.js verovio-util/verovio-js-start.js verovio-util/verovio-proxy.js \
+    > assets/js/verovio-toolkit.js

@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "outDir": "./build",
+        "allowJs": true,
+        "target": "es2017",
+        "sourceMap": true,
+        "module": "commonjs",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./src/**/*.ts",
+        "./test/**/*.ts",
+        "./deployment/server/editor.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "awesomeTypescriptLoaderOptions": {
+        "useCache": true
+    }
+}

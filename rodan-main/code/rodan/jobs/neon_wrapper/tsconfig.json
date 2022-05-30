@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "outDir": "./build",
+        "allowJs": true,
+        "target": "es2016",
+        "module": "commonjs",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./Neon/src/**/*.ts"
+    ]
+}

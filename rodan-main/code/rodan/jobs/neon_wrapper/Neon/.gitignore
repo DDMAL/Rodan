@@ -1,0 +1,13 @@
+/node_modules
+/deployment/public/*.js
+/deployment/public/*.rng
+/deployment/public/*.map
+/deployment/public/*.css
+/deployment/public/img
+/deployment/public/assets
+/deployment/public/Neon
+/deployment/public/uploads/*
+/views/*.png
+/dist
+.DS_Store
+.awcache

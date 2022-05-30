@@ -1,0 +1,59 @@
+html
+  block head
+    title Associate MEI files to Manifest
+    block scripts
+      link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css')
+  block body
+    section.section
+      .container.level
+        .level-item
+          h1.title Associate MEI Files
+      .container.level
+        .level-item
+          h2.subtitle= label
+      section.section.level
+        .level-item
+          form(id='form', method='post')
+            each file in files
+              .field.level
+                .control
+                  label.label.level-item= file
+                  .select.level-item
+                    select(name='select', id=file)
+                      each label, index in labels
+                        option(value=JSON.stringify({ 'file': file, 'index': index, 'label': label, 'id': ids[index]}), id=label)= label
+            .field
+              .control
+                button.button.is-link(id='submit') Submit Associations
+      section.section.level
+        .level-item
+          .h3.has-text-danger= message
+    script.
+      Array.from(document.getElementsByTagName('select')).forEach(select => {
+        select.addEventListener('change', (e) => {
+          updateAllValidity();
+        });
+      });
+      document.getElementById('form').action = '/associate-mei-iiif/' + '#{label}' + '/' + '#{rev}';
+      updateAllValidity();
+      
+      function updateAllValidity () {
+        let selects = Array.from(document.getElementsByTagName('select'));
+        for (let sel1 of selects) {
+          if (isSelectValid(sel1)) {
+            sel1.setCustomValidity('');
+          } else {
+            sel1.setCustomValidity('Selections must be unique!');
+          }
+        }
+      }
+      
+      function isSelectValid (select) {
+        let selects = Array.from(document.getElementsByTagName('select'));
+        for (let sel of selects) {
+          if (select.id !== sel.id && select.selectedIndex === sel.selectedIndex) {
+            return false;
+          }
+        }
+        return true;
+      }
