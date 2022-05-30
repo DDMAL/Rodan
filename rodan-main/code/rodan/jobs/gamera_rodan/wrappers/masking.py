@@ -73,7 +73,7 @@ class GameraMaskLogicalXor(RodanTask):
     name = 'Mask (logical \'xor\')'
     author = 'Ryan Bannon'
     description = Image.xor_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Masking'
     interactive = False
