@@ -8,7 +8,7 @@
 
 ## To install Gamera-4 do the following:
 
-* Inside the container, run `cd && cd ..`.
+* Inside the container, run `cd /`.
 * Run `apt upgrade` and after updating apt, run `apt-get install libpng-dev &&  apt-get install libtiff5-dev` to install the dependencies for some of Gamera4 C++ files.
 * Run `git clone https://github.com/hsnr-gamera/gamera-4.git` to have Gamera4 downloaded in the root directory of the container.
 

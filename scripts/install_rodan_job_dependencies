@@ -37,3 +37,4 @@ cd /code/libmei/python
 # See https://github.com/DDMAL/libmei/issues/81.
 sed -i 's/boost_python-mt/boost_python/g' setup.py
 pip install . >/dev/null
+ 
