@@ -10,9 +10,9 @@ def register_all():
 
     # Register all jobs
     register_base()
-    register_py2()
+    #register_py2()
     register_py3()
-    register_gpu()
+   #register_gpu()
 
 
 # base jobs
@@ -489,6 +489,241 @@ def register_py3():
     except Exception as exception:
         import_name = "MEI2Volpiano"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    
+    # Register Gamera
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
+
+        app.register_task(ClassificationTask())
+    except Exception as exception:
+        import_name = "Classification"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
+            gamera_gatos_background,
+        )
+
+        app.register_task(gamera_gatos_background())
+    except Exception as exception:
+        import_name = "Gatos Background"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
+            gamera_gatos_threshold,
+        )
+
+        app.register_task(gamera_gatos_threshold())
+    except Exception as exception:
+        import_name = "Gatos Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
+            gamera_brink_threshold,
+        )
+
+        app.register_task(gamera_brink_threshold())
+    except Exception as exception:
+        import_name = "Brink Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
+            gamera_sauvola_threshold,
+        )
+
+        app.register_task(gamera_sauvola_threshold())
+    except Exception as exception:
+        import_name = "Sauvola Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.binarization import (
+            gamera_niblack_threshold,
+        )
+
+        app.register_task(gamera_niblack_threshold())
+    except Exception as exception:
+        import_name = "Niblack Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.cc_analysis import (
+            CCAnalysis,
+        )
+
+        app.register_task(CCAnalysis())
+    except Exception as exception:
+        import_name = "CC Analysis"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
+            gamera_to_rgb,
+        )
+
+        app.register_task(gamera_to_rgb())
+    except Exception as exception:
+        import_name = "To RGB"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
+            gamera_to_greyscale,
+        )
+
+        app.register_task(gamera_to_greyscale())
+    except Exception as exception:
+        import_name = "To Greyscale"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
+            gamera_to_grey16,
+        )
+
+        app.register_task(gamera_to_grey16())
+    except Exception as exception:
+        import_name = "To Grey16"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion import (
+            gamera_to_onebit,
+        )
+
+        app.register_task(gamera_to_onebit())
+    except Exception as exception:
+        import_name = "To ONEBIT"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.image_utilities import (
+            gamera_invert,
+        )
+
+        app.register_task(gamera_invert())
+    except Exception as exception:
+        import_name = "Invert"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
+            gamera_despeckle,
+        )
+
+        app.register_task(gamera_despeckle())
+    except Exception as exception:
+        import_name = "Despeckle"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.morphology import (
+            gamera_dilate,
+        )
+
+        app.register_task(gamera_dilate())
+    except Exception as exception:
+        import_name = "Dilate"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
+            gamera_otsu_threshold,
+        )
+
+        app.register_task(gamera_otsu_threshold())
+    except Exception as exception:
+        import_name = "Otsu Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
+            gamera_tsai_moment_preserving_threshold,
+        )
+
+        app.register_task(gamera_tsai_moment_preserving_threshold())
+    except Exception as exception:
+        import_name = "Tsai Moment Preserving Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
+            gamera_abutaleb_threshold,
+        )
+
+        app.register_task(gamera_abutaleb_threshold())
+    except Exception as exception:
+        import_name = "Abutaleb Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
+            gamera_bernsen_threshold,
+        )
+
+        app.register_task(gamera_bernsen_threshold())
+    except Exception as exception:
+        import_name = "Bernsen Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.plugins.threshold import (
+            gamera_djvu_threshold,
+        )
+
+        app.register_task(gamera_djvu_threshold())
+    except Exception as exception:
+        import_name = "Djvu Threshold"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+   # Register Biollante
+    try:
+        from rodan.jobs.biollante_rodan import BiollanteRodan
+
+        app.register_task(BiollanteRodan())
+    except Exception as exception:
+        import_name = "Biollante"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    
+    # Register IC
+    try:
+        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
+
+        app.register_task(InteractiveClassifier())
+    except Exception as exception:
+        import_name = "Interactive Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
+            GameraXMLDistributor,
+        )
+
+        app.register_task(GameraXMLDistributor())
+    except Exception as exception:
+        import_name = "XML Distributor"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+
+ # Register Neume Slicing
+    try:
+        from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
+
+        app.register_task(DiagonalNeumeSlicing())
+    except Exception as exception:
+        import_name = "Diagonal Neume Slicing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
+
+        app.register_task(DirtyLayerRepair())
+    except Exception as exception:
+        import_name = "Dirty Layer Repair"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
 # GPU Jobs
 def register_gpu():

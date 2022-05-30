@@ -1,5 +1,5 @@
 from rodan.jobs.base import RodanTask
-from interactive_classifier import *
+from rodan.jobs.interactive_classifier.interactive_classifier import *
 
 class InteractiveClassifier(RodanTask):
     #############
@@ -9,7 +9,7 @@ class InteractiveClassifier(RodanTask):
     name = 'Interactive Classifier'
     author = 'Andrew Fogarty'
     description = 'A GUI for Gamera interactive kNN classification.'
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Classification'
     interactive = True

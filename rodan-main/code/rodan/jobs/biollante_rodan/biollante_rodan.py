@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile as NTF
 from time import sleep
 
 import json
-import knnga_util as util
+from rodan.jobs.biollante_rodan import knnga_util as util
 import shutil
 
 
@@ -25,7 +25,7 @@ class BiollanteRodan(RodanTask):
     author = "Juliette Regimbal"
     description = "GA Optimizer for kNN Classifiers"
     settings = {
-        "job_queue": "Python2"  # This is due to using gamera
+        "job_queue": "Python3"  # This is due to using gamera
     }
     enabled = True
     category = "Optimization"

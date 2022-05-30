@@ -692,7 +692,7 @@ class RodanTask(Task):
             self.settings_update = {}
             self.response = response
             for k, v in settings_update.items():
-                if isinstance(k, basestring) and k.startswith("@"):  # noqa
+                if isinstance(k, str) and k.startswith("@"):  # noqa
                     self.settings_update[k] = v
 
     def tempdir(self):

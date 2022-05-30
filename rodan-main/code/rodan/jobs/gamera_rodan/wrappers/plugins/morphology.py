@@ -40,6 +40,7 @@ class gamera_despeckle(RodanTask):
     settings = {
         'title': 'Despeckle settings',
         'type': 'object',
+        'job_queue': 'Python3',
         'properties': {
             'Connected component size': {
                 'type': 'integer',

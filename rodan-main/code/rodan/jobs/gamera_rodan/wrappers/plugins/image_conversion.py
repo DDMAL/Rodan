@@ -36,7 +36,7 @@ class gamera_to_rgb(RodanTask):
     name = 'Convert to RGB PNG'
     author = 'Ryan Bannon'
     description = image_conversion.to_rgb.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Conversion'

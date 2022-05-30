@@ -38,7 +38,7 @@ class CCAnalysis(RodanTask):
     enabled = True
     category = "Gamera - Classification"
     interactive = False
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     input_port_types = [{
         'name': '1-Bit PNG Image',
         'resource_types': ['image/onebit+png'],
