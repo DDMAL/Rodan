@@ -12,7 +12,7 @@
 * Run `apt upgrade` and after updating apt, run `apt-get install libpng-dev &&  apt-get install libtiff5-dev` to install the dependencies for some of Gamera4 C++ files.
 * Run `git clone https://github.com/hsnr-gamera/gamera-4.git` to have Gamera4 downloaded in the root directory of the container.
 
-* `cd gamera-4` and run the following command: `python3.7 setup.py --nowx build && sudo python3.7 setup.py --nowx install`.
+* `cd gamera-4` and run the following command: `python3.7 setup.py --nowx build && python3.7 setup.py --nowx install`.
   * If the process is terminated with an error such as below:
   <br>
 
