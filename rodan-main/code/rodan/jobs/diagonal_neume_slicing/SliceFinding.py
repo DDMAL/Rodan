@@ -92,7 +92,7 @@ class SliceFinder (object):
 
         # DEBUG
         if self.print_projection_array:
-            print '--------------------------------------------------'
+            print ('--------------------------------------------------')
             self._print_projection_array(col_arrays)
             self._print_projection_array(row_arrays)
 
@@ -155,8 +155,8 @@ class SliceFinder (object):
 
     def _print_projection_array(self, array):
         for x in array:
-            print x
-        print ''
+            print (x)
+        print ('')
 
     def _plot_projection_array(self, array1, array2):
         plt.plot(array1)
@@ -186,7 +186,8 @@ class SliceFinder (object):
 
         return minima, maxima
 
-    def _find_slices(self, (minima, maxima), dim):
+    def _find_slices(self, mm, dim):
+        minima, maxima = mm
         slices = []
         rel_max = self.x_max_proj if dim is 'x' else self.y_max_proj
 

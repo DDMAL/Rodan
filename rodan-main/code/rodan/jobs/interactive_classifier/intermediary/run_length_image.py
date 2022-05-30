@@ -1,5 +1,5 @@
 import base64
-import cStringIO
+from io import StringIO
 from PIL import ImageDraw
 from PIL import Image as PILImage
 from gamera.core import Image as GameraImage
@@ -82,7 +82,7 @@ class RunLengthImage:
 
     def get_base64_image(self):
         pil_image = self.get_pil_image()
-        string_buffer = cStringIO.StringIO()
+        string_buffer = StringIO()
         pil_image.save(string_buffer, format="PNG")
         return base64.b64encode(string_buffer.getvalue())
 

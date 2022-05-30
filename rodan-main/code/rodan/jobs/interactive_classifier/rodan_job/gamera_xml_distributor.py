@@ -7,7 +7,7 @@ class GameraXMLDistributor(RodanTask):
     name = "GameraXML Distributor"
     author = "Andrew Fogarty"
     description = "Distribute a GameraXML file."
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = "Resource Distributor"
     interactive = False

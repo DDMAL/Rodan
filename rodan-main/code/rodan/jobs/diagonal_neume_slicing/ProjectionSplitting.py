@@ -3,7 +3,7 @@ from gamera import gamera_xml
 
 import numpy as np
 
-from SliceFinding import SliceFinder
+from .SliceFinding import SliceFinder
 
 import sys
 import datetime
@@ -110,7 +110,7 @@ class ProjectionSplitter (object):
 
     def _get_best_rotation(self, slice1, rot1, slice2, rot2):
 
-        print rot1, slice1, rot2, slice2
+        print (rot1, slice1, rot2, slice2)
 
         if not slice1:
             if not slice2:
@@ -126,7 +126,8 @@ class ProjectionSplitter (object):
         else:
             return (slice1, rot1)
 
-    def _get_best_slice(self, (x_slices, y_slices)):
+    def _get_best_slice(self, xy):
+        x_slices, y_slices=xy
         best_x_slice = self._best_slice(x_slices)
         best_y_slice = self._best_slice(y_slices)
 
@@ -331,7 +332,8 @@ class ProjectionSplitter (object):
     # Math
     ########
 
-    def _rotate_point_around_origin(self, (x1, y1), degrees):
+    def _rotate_point_around_origin(self, xy, degrees):
+        x1 ,y1 =xy
         rads = np.radians(degrees)
 
         x2 = -1 * y1 * np.sin(rads) + x1 * np.cos(rads)
