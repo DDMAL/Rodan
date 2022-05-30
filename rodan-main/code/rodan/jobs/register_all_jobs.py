@@ -59,15 +59,6 @@ def register_py2():
         import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register JSOMR2MEI
-    try:
-        from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
-
-        app.register_task(JSOMR2MEI())
-    except Exception as exception:
-        import_name = "JSOMR2MEI"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register MEI Encoding
     try:
         from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
