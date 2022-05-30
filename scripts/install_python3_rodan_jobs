@@ -37,7 +37,7 @@ git clone https://github.com/hsnr-gamera/gamera-4.git
 
 # install gamera-4 on the container
 cd gamera-4
-python3.7 setup.py --nowx build && sudo python3.7 setup.py --nowx install
+python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
 # THEN RERUN THE SCRIPT.
