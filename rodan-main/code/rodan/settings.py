@@ -151,7 +151,7 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.hpc_fast_trainer",
     "rodan.jobs.pil_rodan",
-    "rodan.jobs.mei2vol_wrapper"
+    "rodan.jobs.mei2vol_wrapper",
     "rodan.jobs.gamera_rodan",
     "rodan.jobs.biollante_rodan",
     "rodan.jobs.interactive_classifier",
