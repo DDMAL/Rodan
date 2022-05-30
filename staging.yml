@@ -69,7 +69,6 @@ services:
       - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
