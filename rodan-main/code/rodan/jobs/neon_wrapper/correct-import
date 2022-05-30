@@ -1,9 +1,0 @@
-#!/bin/bash
-
-PATH_TO_SOURCE="./node_modules/diva.js/source/js"
-
-sed "s/import maxBy from 'lodash.maxby'/import { maxBy } from 'lodash'/g" $PATH_TO_SOURCE/document-handler.js > temp.file
-mv temp.file $PATH_TO_SOURCE/document-handler.js
-
-sed "s/import maxBy from 'lodash.maxby'/import { maxBy } from 'lodash'/g" $PATH_TO_SOURCE/grid-handler.js > temp.file
-mv temp.file $PATH_TO_SOURCE/grid-handler.js
