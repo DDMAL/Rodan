@@ -40,13 +40,23 @@ def register_base():
 # Python2 Jobs
 def register_py2():
 
-    # Register JSOMR2MEI
+    # Register IC
     try:
-        from rodan.jobs.JSOMR2MEI.base import JSOMR2MEI
+        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 
-        app.register_task(JSOMR2MEI())
+        app.register_task(InteractiveClassifier())
     except Exception as exception:
-        import_name = "JSOMR2MEI"
+        import_name = "Interactive Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
+            GameraXMLDistributor,
+        )
+
+        app.register_task(GameraXMLDistributor())
+    except Exception as exception:
+        import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register MEI Encoding

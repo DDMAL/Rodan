@@ -27,7 +27,6 @@
 
     ```python
     from gamera.core import *
-    from gamera.plugins.png_support import load_PNG
 
     def test(image):
         img = load_image(image)
