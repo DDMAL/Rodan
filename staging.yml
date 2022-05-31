@@ -1,4 +1,4 @@
-version: "3.4"
+git@github.com:DDMAL/Rodan.gitversion: "3.4"
 
 services:
 
@@ -74,7 +74,6 @@ services:
     image: "ddmal/iipsrv:nightly"
     volumes:
       - "resources:/rodan/data"
-
 
   celery:
     image: "ddmal/rodan-main:nightly"
