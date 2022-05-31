@@ -1,6 +1,0 @@
-- mimetype: application/json
-  description: JSON
-  extension: json
-- mimetype: application/mei+xml
-  extension: mei
-  description: Music Encoding Initiative
