@@ -69,7 +69,7 @@ class gamera_to_greyscale(RodanTask):
     name = 'Convert to greyscale PNG'
     author = 'Ryan Bannon'
     description = image_conversion.to_greyscale.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Conversion'
@@ -101,7 +101,7 @@ class gamera_to_grey16(RodanTask):
     name = 'Convert to greyscale 16 PNG'
     author = 'Ryan Bannon'
     description = image_conversion.to_grey16.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Conversion'
@@ -133,7 +133,7 @@ class gamera_to_onebit(RodanTask):
     name = 'Convert to one-bit (black and white) PNG'
     author = 'Ryan Bannon'
     description = image_conversion.to_onebit.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Conversion'

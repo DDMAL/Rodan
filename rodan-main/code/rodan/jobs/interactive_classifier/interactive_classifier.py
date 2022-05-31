@@ -199,8 +199,8 @@ def group_and_correct(glyphs, user_options, training_database, features_file_pat
 
     # Reassigning values after classification
     for i in range(len(gamera_glyphs)):
-        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id()
-        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence()
+        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id().decode()
+        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence().decode()
 
     # Adding new glyphs
     for elem in add:
@@ -261,6 +261,9 @@ def serialize_glyphs_to_json(glyphs):
     """
     output = {}
     for glyph in glyphs:
+        for k in glyph.keys():
+            if type(glyph[k]) is bytes:
+                glyph[k]=glyph[k].decode()
         class_name = glyph['class_name']
         if class_name not in output:
             output[class_name] = []
