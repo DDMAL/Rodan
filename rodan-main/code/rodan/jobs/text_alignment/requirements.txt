@@ -1,0 +1,6 @@
+#numpy==1.17.3; python_version > "3.4"
+git+https://github.com/timothydereuse/calamari@calamari/2.1#egg=calamari_ocr; python_version > "3.4"
+scipy; python_version > "3.4"
+Unidecode==1.0.22; python_version > "3.4"
+scikit-image==0.17.2; python_version > "3.4"
+keras==2.5.0rc0; python_version > "3.4"

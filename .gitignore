@@ -10,26 +10,10 @@ rodan.log
 rodan_env
 .DS_Store
 rodan/static/Rodan
-rodan/jobs/diva_wrapper/
-rodan/jobs/gamera_rodan/
-rodan/jobs/vis-rodan/
-rodan/jobs/interactive_classifier
-rodan/jobs/Interactive-Classifier
-rodan/jobs/jSymbolic-Rodan/
-rodan/jobs/pil-rodan/
-rodan/jobs/Calvo-classifier/
-rodan/jobs/diagonal-neume-slicing/
-rodan/jobs/heuristic-pitch-finding/
-rodan/jobs/JSOMR2MEI/
-rodan/jobs/pixel_wrapper/
-rodan/jobs/neon-wrapper/
-rodan/jobs/MEI_encoding
-rodan/jobs/text_alignment
-rodan/jobs/hpc-fast-trainer
-rodan/jobs/biollante-rodan
-rodan/jobs/MEI_resizing
-
-/.DS_Store
+rodan-main/code/jobs/diva_wrapper/
+rodan-main/code//jobs/vis_rodan/
+rodan-main/code/jobs/neon_wrapper/
+rodan-main/code/jobs/pixel_wrapper/
 
 # ignore emacs autosave file
 *~
@@ -48,3 +32,15 @@ rodan/static/
 *.log
 
 env/
+docs/_build
+docs/*
+*.egg-info/
+.mypy_cache/
+
+# Ignore .vscode
+
+.vscode/
+
+# Ignore python virtual environments.
+
+.env/

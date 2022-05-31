@@ -1,0 +1,20 @@
+<div class="fixed_individual">
+    <h3>Resources</h3>
+    <%- count %> Resources Selected<br>
+    <label for="select-resourcetype">Type:&nbsp;</label>
+    <select id="select-resourcetype"></select>
+    <% if (isSameLabel) { %>
+    <label>
+        Label(s) <input id="label-multi-input" type="tags" name="labelInput">
+    </label>
+    <% } %>
+    <br>
+    <div class="btn-group" role="group">
+        <button class="btn btn-xs btn-warning" id="button-main_resource_individual_save">Save</button>
+        <button class="btn btn-xs btn-primary" id="button-main_resource_individual_view">View</button>
+        <button class="btn btn-xs btn-primary" id="button-main_resource_individual_download">Download</button>
+        <button class="btn btn-xs btn-danger" id="button-main_resource_individual_delete">Delete</button><br>
+    </div>
+    <br>
+    <p class="instruction">Note: multi-selecting resources is still experimental.</p>
+</div>

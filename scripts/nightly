@@ -1,0 +1,14 @@
+#!/bin/bash
+# This script is a nightly cronjob to tell dockerhub to build all of Rodan's many containers
+
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o xtrace # Print commands and their arguments as they are executed.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+echo `date` >> /var/log/docker/rodan-build.log
+
+# jq nicely indents the json response from dockerhub.
+jq || apt install jq -yq
+http || apt install httpie -yq
+
+http POST https://hub.docker.com/api/build/v1/source/5b0f11c1-d438-44a4-aee3-de94c9628755/trigger/7776337e-a10b-46df-b33c-6b36208888a8/call/ | jq '.' >> /var/log/docker/rodan-build.log

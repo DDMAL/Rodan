@@ -1,0 +1,11 @@
+<td><%= name %></td>
+<td><%= creator %></td>
+<td><%= _.formatFromUTC(created) %></td>
+<td><%= resource_type_full.mimetype %></td>
+<td><%= _.map(resource_label_full, (label) => { return label.name; }) %></td>
+<td>
+  <button type="button" class="move-up btn btn-success btn-xs">&uarr;</button>
+</td>
+<td>
+  <button type="button" class="move-down btn btn-success btn-xs">&darr;</button>
+</td>

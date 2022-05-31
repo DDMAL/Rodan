@@ -1,0 +1,10 @@
+<div class="form-group" id="filter_<%- field %>">
+    <label for="<%- field %>"><%- label %>:</label>
+    <select class="form-control input-sm" id="<%- field %>" name="<%- field %>">
+        <option value="">All</option>
+        <% _(values).each(function(value) { %>
+        <option value="<%= value.value %>"><%= value.label %></option>
+        <% }); %>
+    </select>
+	<button type="button" class="btn btn-warning btn-xs" id="button-remove" data-id="filter_<%- field %>">&times;</button>
+</div>

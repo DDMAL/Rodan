@@ -1,0 +1,18 @@
+- mimetype: image/rgb+png
+  description: RGB PNG image
+  extension: png
+- mimetype: image/jp2
+  description: JPEG2000 image
+  extension: jp2
+- mimetype: image/tiff
+  description: TIFF image
+  extension: tiff
+- mimetype: image/onebit+png
+  extension: png
+  description: One-bit (black and white) PNG image
+- mimetype: image/greyscale+png
+  extension: png
+  description: Greyscale PNG image
+- mimetype: image/grey16+png
+  description: Greyscale 16 PNG image
+  extension: png

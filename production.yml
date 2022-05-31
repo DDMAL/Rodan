@@ -1,0 +1,307 @@
+version: "3.4"
+
+services:
+
+  nginx:
+    image: "ddmal/nginx:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "/usr/sbin/service", "nginx", "status"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
+      start_period: "5m"
+    command: /run/start-production
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      TLS: 1
+    ports:
+      - "80:80"
+      - "443:443"
+      - "5671:5671"
+      - "9002:9002"
+    volumes:
+      - "resources:/rodan/data"
+      - "certbot:/etc/letsencrypt"
+
+  rodan-main:
+    image: "ddmal/rodan-main:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 2
+      start_period: "2m"
+    command: /run/start
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      CELERY_JOB_QUEUE: None
+    env_file:
+      - ./scripts/production.env
+    volumes:
+      - "resources:/rodan/data"
+  
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    volumes:
+      - "resources:/rodan/data"
+
+  celery:
+    image: "ddmal/rodan-main:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
+      interval: "30s"
+      timeout: "10s"
+      start_period: "1m"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      CELERY_JOB_QUEUE: celery
+    env_file:
+      - ./scripts/production.env
+    volumes:
+      - "resources:/rodan/data"
+
+  py2-celery:
+    image: "ddmal/rodan-python2-celery:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python2"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      CELERY_JOB_QUEUE: Python2
+    env_file:
+      - ./scripts/production.env
+    volumes:
+      - "resources:/rodan/data"
+
+  py3-celery:
+    image: "ddmal/rodan-python3-celery:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      CELERY_JOB_QUEUE: Python3
+    env_file:
+      - ./scripts/production.env
+      - ./hpc-rabbitmq/scripts/production.env
+    volumes:
+      - "resources:/rodan/data"
+
+  gpu-celery:
+    image: "ddmal/rodan-gpu-celery:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "6"
+          memory: 45G
+        limits:
+          cpus: "6"
+          memory: 45G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+      placement:
+        constraints:
+          - node.labels.queue == GPU
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+    command: /run/start-celery
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan2.simssa.ca
+      CELERY_JOB_QUEUE: GPU
+    env_file:
+      - ./scripts/production.env
+    volumes:
+      - "resources:/rodan/data"
+
+  redis:
+    image: "redis:alpine"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: America/Toronto
+
+  postgres:
+    image: "ddmal/postgres-plpython:v2.0.0"
+    deploy:
+      replicas: 1
+      endpoint_mode: dnsrr
+      resources:
+        reservations:
+          cpus: "4"
+          memory: 10G
+        limits:
+          cpus: "4"
+          memory: 10G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: America/Toronto
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+      - "pg_backup:/backups"
+    env_file:
+      - ./scripts/production.env
+
+  rabbitmq:
+    image: "rabbitmq:alpine"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    environment:
+      TZ: America/Toronto
+    env_file:
+      - ./scripts/production.env
+
+  hpc-rabbitmq:
+    image: "ddmal/hpc-rabbitmq:v2.0.0"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2G
+        limits:
+          cpus: "1"
+          memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    environment:
+      TZ: America/Toronto
+    env_file:
+      - ./hpc-rabbitmq/scripts/production.env
+
+volumes:
+  resources:
+  pg_backup:
+  pg_data:
+  certbot:

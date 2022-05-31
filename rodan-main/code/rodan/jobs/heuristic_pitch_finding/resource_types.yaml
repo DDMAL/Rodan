@@ -1,0 +1,15 @@
+- mimetype: image/rgb+png
+  description: RGB PNG image
+  extension: png
+- mimetype: image/onebit+png
+  description: One-bit (black and white) PNG image
+  extension: png
+- mimetype: image/greyscale+png
+  description: Greyscale PNG image
+  extension: png
+- mimetype: application/json
+  description: JSON
+  extension: json
+- mimetype: application/gamera+xml
+  description: Gamera XML file
+  extension: xml

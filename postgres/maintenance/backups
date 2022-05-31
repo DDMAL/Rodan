@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o nounset # Treat unset variables as an error when substituting.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+## View backups.
+##
+## Usage:
+##     $ docker-compose exec postgres backups
+
+
+working_dir="$(dirname ${0})"
+source "${working_dir}/_functions/constants.sh"
+source "${working_dir}/_functions/messages.sh"
+
+
+message_welcome "These are the backups you have got:"
+
+ls -lht "${BACKUP_DIR_PATH}"

@@ -1,0 +1,19 @@
+<div class="fixed_individual">
+    <h3>Workflow</h3>
+    <label for="text-workflow_name">Name:</label>
+    <input type="text" class="form-control input-sm" id="text-workflow_name" value="<%= _.unescape(name) %>" name="text-workflow_name">
+    <label for="text-workflow_description">Description:</label>
+    <textarea type="text" class="form-control input-sm" id="text-workflow_description" name="text-workflow_description"><%= _.unescape(description) %></textarea>
+    Creator: <%= creator %><br>
+    Created: <%= _.formatFromUTC(created) %><br>
+    Updated: <%= _.formatFromUTC(updated) %><br>
+    URL: <%= url %><br>
+    Valid: <%= valid %><br>
+    <div class="btn-group" role="group">
+        <button class="btn btn-xs btn-primary" id="button-copy_workflow" disabled>Copy</button>
+        <button class="btn btn-xs btn-primary" id="button-export_workflow">Export</button>
+        <button class="btn btn-xs btn-warning" id="button-save_workflow">Save</button>
+        <button class="btn btn-xs btn-warning" id="button-edit_workflow">Edit</button>
+        <button class="btn btn-xs btn-danger" id="button-delete_workflow">Delete</button>
+    </div>
+</div>

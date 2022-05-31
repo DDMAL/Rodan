@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xml:id="m-1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" meiversion="3.0.0">
+	<meiHead xml:id="m-539e9cac-4ac3-43ff-bf92-5afe13afdad7">
+		<fileDesc xml:id="m-4c570bb4-873b-44c5-b31a-e57f7137ae6d">
+			<titleStmt xml:id="m-8be44c71-e641-49b6-a36e-0accb0a527cf">
+				<title xml:id="m-7c266bdb-839d-4567-abcb-0435aba7e454">Gloria_et_honore_coronasti_eum_domine_alleluia_alleluia</title>
+			</titleStmt>
+			<pubStmt xml:id="m-b6142e8a-42af-4f22-b545-38ff0fed0e35" />
+		</fileDesc>
+		<extMeta xml:id="m-a913b425-5dcc-43e3-baa0-ad9480e45db6">mode:6###final:c###office:H###saint:0504_XC68_Holy_Crown_of_Thorns###lyrics: gloria et honore coronasti eum domine Alleluia alleluia ###</extMeta>
+		<extMeta xml:id="m-87e0c9e3-a268-4088-8484-7d7af95b01d0" />
+		<extMeta xml:id="m-7632fe8b-c3cd-4050-bdf4-f6c61aa9d2ab" />
+	</meiHead>
+	<music xml:id="m-4e0e20f7-b9f6-4254-b0fe-34b48d1a4916">
+		<body xml:id="m-0cb2ad85-c7de-4d49-851b-fe4a971c2a8b">
+			<mdiv xml:id="m-7ae0cb17-bbcb-4391-a16e-70edc6e4f369">
+				<score xml:id="m-916dc0f1-ec0d-45cf-88c9-0dac3986a1c4">
+					<scoreDef xml:id="m-7a4eeb51-24f8-450c-ae3b-b40fc24a1e7b">
+						<staffGrp xml:id="m-c34e7383-f3b8-4935-b5db-e7645e412798">
+							<staffDef xml:id="m-5893f9c1-fa35-4b72-9f05-9f2fcafb6aeb" clef.line="2" clef.shape="G" lines="5" n="1" />
+						</staffGrp>
+					</scoreDef>
+					<section xml:id="m-63c7d822-9edf-44ba-8224-e6e1fa3adbd3">
+						<measure xml:id="m-12f9e51b-4b71-4177-8d37-1b1599eade7b" right="invis">
+							<staff xml:id="m-aebf1705-14eb-4217-a306-4893c6df9909">
+								<layer xml:id="m-ea5cf5f0-2213-4eb0-9a3d-61f70e276f4a">
+									<note xml:id="m-80fe635b-243b-4c04-a043-ae181c248dfa" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-def19281-f4a6-41ba-b83f-4a0110950920" n="1">
+											<syl xml:id="m-6e3e3a58-dfeb-4c6b-b0e3-5c8669f64e75">Glo-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-ca9e2487-4011-44d0-86db-08b5ad18c6da" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-6d8d5918-a718-4fbe-a457-348c76c78a15" n="1">
+											<syl xml:id="m-22ad5fbe-66dd-4652-8821-7dc5af518f44">ri-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-0241732c-9749-4f04-b202-51520d45a8ca" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-0bcf60f1-eb56-428a-aad9-638317271598" n="1">
+											<syl xml:id="m-bd904150-0903-47ba-92fc-749aedd5e98c">a</syl>
+										</verse>
+									</note>
+									<note xml:id="m-6dc5afe9-2c7b-45b2-9c9d-89f8e4c84c68" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-f880cc9e-6444-4510-a653-4b2e83937da9" n="1">
+											<syl xml:id="m-df1084a3-38f7-4b68-b934-024dfda47284">et</syl>
+										</verse>
+									</note>
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-5295a22f-94cc-42fe-afe1-572e6fc3a9c8" right="invis">
+							<staff xml:id="m-1fc1b818-aaff-49fc-89c9-c8d771e715bf">
+								<layer xml:id="m-743200e1-eca7-46e1-89b2-56e35282bbfa">
+									<note xml:id="m-4e6133f9-7462-455b-a8d4-3d3d47ace940" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-d96268f8-e5f0-4a4e-8af3-101e3166c65a" n="1">
+											<syl xml:id="m-2d8baad0-e58f-4f77-accf-5db08d9fc19c">ho-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-3c60d8d5-d01b-49ba-b021-746a4d2465ab" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-daa2444e-eeb5-4971-b1a2-94719394cf92" n="1">
+											<syl xml:id="m-71366de7-57ea-4493-8e69-5af489a25e52">no-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-d7bd515b-6237-4d08-8b43-ff40ab8261ae" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-b9aec00c-af3d-4e11-9ccf-50973b49fd8e" n="1">
+											<syl xml:id="m-207175b5-88ef-495b-93f0-045ec50f914b">re</syl>
+										</verse>
+									</note>
+									<note xml:id="m-760f3b05-6d27-4d3e-9994-fbb967a91913" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-f4abe3b3-935b-4359-9780-e18ce1b51e92" n="1">
+											<syl xml:id="m-d77f5261-492b-42a3-824a-f702671aeec2">co-</syl>
+										</verse>
+									</note>
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-ff564809-251e-4595-a2b8-825c6e050bf6" right="invis">
+							<staff xml:id="m-095bdf42-e35d-4578-be5c-58f5d1fb6455">
+								<layer xml:id="m-4973a672-a489-435e-803c-c73ef0a77475">
+									<note xml:id="m-49a64f6a-01b0-4929-99ef-354cc0c2e158" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-8997458c-1c02-4f9d-8377-adee626e7bf0" n="1">
+											<syl xml:id="m-38e0046c-62d2-4fc7-9af3-62524c5671c6">ro-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-65e398dc-8067-40d3-832c-e36c80a1b8db" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-0be8b3cb-e070-4e47-94e8-a72eb1ca2a64" n="1">
+											<syl xml:id="m-0dfcd7e8-ffe1-4319-872a-ebaa2efdea6d">nas-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-3e887572-ab68-4657-b4d7-7f70303c3882" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-656d701f-05c5-48fc-9262-59d7a0d017b3" n="1">
+											<syl xml:id="m-d42aa5f4-a94f-462e-8760-68df67229dbd">ti</syl>
+										</verse>
+									</note>
+									<note xml:id="m-216950f0-7d26-4a22-beb1-4122ac89a309" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-477a750d-b82c-4619-a37d-5e9bad2cc922" n="1">
+											<syl xml:id="m-9bc6c00b-bbfc-4e62-8641-d32275644399">e-</syl>
+										</verse>
+									</note>
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-ec5c5f38-0283-4315-ae48-b940d1614d77" right="invis">
+							<staff xml:id="m-c6070669-3c76-4406-b2eb-6f4464b8fe4b">
+								<layer xml:id="m-42d30a11-8424-4ca5-9ab9-4ffe541f026a">
+									<note xml:id="m-baa873bb-6525-4e8d-9825-d372c36b730e" pname="b" oct="3" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-9585dba1-bc78-45ab-a281-33e18f1fd489" n="1">
+											<syl xml:id="m-bfa93a5a-2464-4302-9185-921ba9b1e052">um</syl>
+										</verse>
+									</note>
+									<note xml:id="m-3ab9bd4e-a661-479e-bc9d-1d236602d2e4" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-015d9740-7ec2-4dea-bf4d-c208c838636d" n="1">
+											<syl xml:id="m-58739cdc-16a4-416c-b751-aef59f2c8ec0">do-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-ca103cbe-df67-4adf-8815-7268705bce08" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-87f47912-d24d-4d98-ab47-40896d9bb779" n="1">
+											<syl xml:id="m-18cf9ebb-bc36-4b51-b3cf-d2a8b525e7f9">mi-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-6b297f28-068d-40af-8e09-de352ca204f8" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-6c104f55-07a8-42f4-8021-8546197bd96e" n="1">
+											<syl xml:id="m-d4a47d46-f22b-4421-a4f7-5b9870aafbb8">ne</syl>
+										</verse>
+									</note>
+									<space xml:id="new phrase" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-74e548b4-46c8-4dbb-83bd-6de2b0ad9fa0" right="invis">
+							<staff xml:id="m-19a8f805-6417-4b87-a434-11ac040c6de7">
+								<layer xml:id="m-596c3c40-cd6d-4f3e-898e-e50cb01edf0e">
+									<note xml:id="m-8a9f5b49-4bb2-49f3-a093-bb33f2f4bfe3" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-a0255825-cc12-4b3e-a9ed-f9e188b38035" n="1">
+											<syl xml:id="m-083a6b7c-a9d7-47e7-935c-d6845ea30c49">Al-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-4722e271-0284-488f-bc81-b6cbdc1c7810" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-6ea6649e-ba28-4470-a3b7-7d71ea4acad3" n="1">
+											<syl xml:id="m-887cdeaf-f926-41c1-80a1-f0ed5fdc57dc">le-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-b10182ac-a9e4-48e3-a83e-f71acf34e87b" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" />
+									<note xml:id="m-a05b19d3-cc6f-40e8-a93c-1489eaab75f9" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-20390359-5318-4d0e-a25b-fc4cab4179ea" n="1">
+											<syl xml:id="m-9af73f1e-5cad-476a-bbe5-3422dccd72a2">lu-</syl>
+										</verse>
+									</note>
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-237e8711-83f4-4007-bbc4-d5885269a396" right="invis">
+							<staff xml:id="m-af11f96e-d81e-4c4d-9ae2-6b9063c5f0f3">
+								<layer xml:id="m-46665929-1cc9-4604-bb5a-7f2a80455f3f">
+									<note xml:id="m-2474dcc2-9778-48f2-a9d4-4756974de5c0" pname="c" oct="4" dur="8" stem.dir="up" stem.len="0" grace="unacc" />
+									<note xml:id="m-9d7538aa-fcaa-4d98-bd08-40e50cba59b1" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-2a8ca422-0f4c-4463-9ee1-510462284658" n="1">
+											<syl xml:id="m-2804be66-5159-4f1d-be16-52e142ea711e">ia</syl>
+										</verse>
+									</note>
+									<note xml:id="m-2cc8868e-f002-4f17-8d26-d25f46ddff3b" pname="a" oct="3" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-9a6cb5f3-02b1-4649-83ce-d19629427468" n="1">
+											<syl xml:id="m-91c5b03a-950e-4cf4-bd14-cfd29c32202a">al-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-949c1ca5-d691-4ecd-b832-579cc0309271" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-35a2cd7d-8063-45ad-bbf0-d3be5dc617d4" n="1">
+											<syl xml:id="m-9e48ad0b-ae74-45b9-a309-c5941bb51ad0">le-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-b579378f-5a39-458c-83fe-735196c8bed0" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-48061df0-21e5-4fa3-a04e-ae55e52ac359" right="invis">
+							<staff xml:id="m-76178d74-f986-43f0-a98c-05560d188a52">
+								<layer xml:id="m-43056126-f29a-4041-9dd4-f0fafd17b3d7">
+									<note xml:id="m-e92ccccd-445e-44a5-8c14-7b40309b0271" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-462a3eb8-19fb-4e40-a9b3-871cf3f79108" n="1">
+											<syl xml:id="m-aa369eb5-846c-4606-9454-d6894f49eadc">lu-</syl>
+										</verse>
+									</note>
+									<note xml:id="m-128688d0-859c-4667-b8de-800dbe3705f9" pname="c" oct="4" dur="8" stem.dir="up" stem.len="0" grace="unacc" />
+									<note xml:id="m-c12719d5-d8ea-4b40-b200-fc055b8e1c16" pname="c" oct="4" dur="4" stem.dir="up" stem.len="0">
+										<verse xml:id="m-4edb9d73-c58a-41da-a025-6818738ea9aa" n="1">
+											<syl xml:id="m-5c0b0dc7-a6e5-4b7d-b27d-9aa4df483208">ia</syl>
+										</verse>
+									</note>
+								</layer>
+							</staff>
+						</measure>
+					</section>
+				</score>
+			</mdiv>
+		</body>
+	</music>
+</mei>

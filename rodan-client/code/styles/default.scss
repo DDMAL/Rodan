@@ -1,0 +1,282 @@
+/**
+ * Styles for Rodan client.
+ */
+
+/**************************************************************************************
+ * General parameters
+ *************************************************************************************/
+/* Navigation area */
+$background-color-navigation: #000000;
+$text-color-navigation: #cccccc;
+
+/* Status area */
+$background-color-status: #000000;
+$text-color-status-user: #cccccc;
+$text-color-status-user: #cccccc;
+$text-color-status-server: #cccccc;
+
+/* Main area */
+$background-color-main: #ffffff;
+
+/* WorkflowBuilder area */
+$background-color-workflowbuilder-workspace: #dddddd;
+$background-color-workflowbuilder-menu: #000000;
+$text-color-workflowbuilder-menu: #ffffff;
+
+/* WorkflowBuilder control area */
+$background-color-workflowbuilder-control: #ffffff;
+
+/**************************************************************************************
+ * DO NOT TOUCH unless you know what you're doing.
+ *************************************************************************************/
+$height-top: 100; // % of vertical space in viewport
+$height-gui: 100; // % of vertical space in GUI viewport
+$height-gui_menu: 4; // % of vertical space in GUI viewport for menu
+$size-font: 11px; // pixels
+
+///////////////////////////////////////////////////////////////////////////////////////
+// General classes
+///////////////////////////////////////////////////////////////////////////////////////
+.text-small
+{
+    font-size: x-small;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Navigation region
+///////////////////////////////////////////////////////////////////////////////////////
+div#region-navigation
+{
+    background: $background-color-navigation;
+    height: 100%;
+    color: $text-color-navigation;
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: default;
+}
+
+div#region-navigation ul
+{
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 10px;
+}
+
+div#region-navigation div.node_text
+{
+    cursor: pointer;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Main region
+///////////////////////////////////////////////////////////////////////////////////////
+div#region-main
+{
+//    background-image: url("resources/rodan.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: default;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Canvas
+///////////////////////////////////////////////////////////////////////////////////////
+div#canvas-wrap
+{
+    height: 100%;
+    overflow-y: hidden;
+    padding: 0px;
+}
+
+div#canvas-tooltip
+{
+    position: fixed;
+    background-color: #ffff88;
+    margin-left: 3px;
+    padding: 2px;
+    height: auto;
+    border-style: solid;
+    border-width: 2px;
+    width: auto;
+    visiblity: visible;
+    display: inline-block;
+}
+
+canvas#canvas-workspace
+{
+    background-color: $background-color-workflowbuilder-workspace;
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Input fields
+///////////////////////////////////////////////////////////////////////////////////////
+textarea[type=text]
+{
+    height: 200px;
+    width: 100%;
+    resize: vertical;
+}
+
+.vertical-center {
+    height: $height-top * 1%; //fallback
+    height: $height-top * 1vh;
+    display: flex;
+    align-items: center;
+}
+
+.horizontal-center
+{
+    width: 100%;
+    text-align: center;
+}
+
+body
+{
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: $size-font;
+}
+
+div.fixed_individual {
+    //position: fixed;
+    width: 100%;
+}
+
+div.top {
+    height: $height-top * 1%; //fallback
+    height: $height-top * 1vh;
+}
+
+div.gui {
+    height: $height-gui * 1%; //fallback
+    height: $height-gui * 1vh;
+}
+
+div#main_workflowbuilder
+{
+    background-color: white;
+    height: 100%;
+    overflow: auto;
+}
+
+.instruction
+{
+    font-style: italic;
+}
+
+:disabled
+{
+    background: #dddddd;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Modals
+///////////////////////////////////////////////////////////////////////////////////////
+.modal-body
+{
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.modal-content
+{
+    opacity: 0.88 !important;
+}
+
+.modal-backdrop
+{
+    opacity: 0.3 !important;
+}
+
+.modal-footer
+{
+    text-align: left !important;
+}
+
+.modal-footer-error
+{
+    color: #aa0000;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Table overrides
+///////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Make text in table unselectable. This helps make multiple selection look better.
+ */
+table
+{
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    width: 100%;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Table controls
+///////////////////////////////////////////////////////////////////////////////////////
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th
+{
+    background-color: #93DB70;
+}
+
+div.table-control
+{
+   width: 100%;
+   padding-left: 10px;
+   padding-right: 10px;
+}
+
+div.table-control span
+{
+    display:inline-block;
+    font-size: $size-font;
+    font-weight: bold;
+}
+
+div.table-control span
+{
+    display:inline-block;
+    width: 50%;
+}
+
+div.table-control span.align-right
+{
+    text-align: right;
+}
+
+div.table-control p
+{
+    font-size:0; /* Fixes inline block spacing */
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Sortable tables
+///////////////////////////////////////////////////////////////////////////////////////
+th.sort-ascending .glyphicon .glyphicon-arrow-up
+{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Scrollable tables
+///////////////////////////////////////////////////////////////////////////////////////
+table.scroll
+{
+    display: block;
+    height: 400px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.tags-input{display:inline-block;padding:0 2px;background:#FFF;border:1px solid #CCC;width:16em;border-radius:2px;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}.tags-input .tag{display:inline-block;background:#EEE;color:#444;padding:0 4px;margin:2px;border:1px solid #CCC;border-radius:2px;font:inherit;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition:all .1s ease}.tags-input .tag.selected{background-color:#777;border-color:#777;color:#EEE}.tags-input .tag.dupe{-webkit-transform:scale3d(1.2,1.2,1.2);transform:scale3d(1.2,1.2,1.2);background-color:#FCC;border-color:#700}.tags-input input{-webkit-appearance:none!important;-moz-appearance:none!important;appearance:none!important;display:inline-block!important;padding:3px;margin:0!important;background:0 0!important;border:none!important;box-shadow:none!important;font:inherit!important;font-size:100%!important;outline:0!important}.tags-input .selected~input{opacity:.3}

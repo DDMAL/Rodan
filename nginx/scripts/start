@@ -1,0 +1,12 @@
+#!/bin/sh
+set -o errexit # Exit immediately if a command exits with a non-zero status.
+set -o nounset # Treat unset variables as an error when substituting.
+set -o xtrace # Print commands and their arguments as they are executed.
+
+/run/setup
+sed -i "s/#no_tls //g" /etc/nginx/nginx.conf \
+    /etc/nginx/sites-available/rodan.conf \
+    /etc/nginx/sites-available/rodan.stream
+
+nginx
+tail -f /var/log/nginx/access.log & tail -f /var/log/nginx/error.log
