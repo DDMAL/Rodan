@@ -427,7 +427,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
         # print (gs)
         # print ("  ")
         # first add information about the text itself
-        cur_syllable = new_el("syllable",  layer)
+        cur_syllable = new_el("syllable")
         bb = {
             'ulx': syl_box['ul'][0],
             'uly': syl_box['ul'][1],
@@ -441,10 +441,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
         syl.text =  syl_box['syl']
         syl.set('facs', '#' + zoneId)
 
-        syl_dict = {"opening_syl": cur_syllable, "latest": ""}
-        
-        
-
+        syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
             
@@ -462,14 +459,16 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # 4. a line break and not done with this syllable (custos still OUTSIDE <syllable> tag, need to split the syllable) 
             tag = new_element.tag 
             #print (tag)
-            if(tag == "sb"):
-                print("amesn")
-
+        
             if not glyph['system_begin']:
 
                 # case 1
                 if syllable_over:
                     layer.append(new_element)
+                    if (syl_dict["added"] is False):
+                        layer.append(cur_syllable)
+                        syl_dict["added"] = True
+
                 # case 2
                 else:
                     #Clefs and custos should be outside the syllable 
@@ -478,28 +477,46 @@ def build_mei(pairs, classifier, width_container, staves, page):
                         syl_dict["latest"] = new_element
                         layer.append(new_element)
 
-                    else:    
+                    else: #divline or neume 
                         #continue as normal (append to current syllable) if nothing is in the dictionary 
-                        if (syl_dict["latest"] == "") :   
+                        if ((syl_dict["latest"].tag == "syl") | (syl_dict["latest"].tag == "divLine")) :   
                             cur_syllable.append(new_element)
                             syl_dict["latest"] = new_element
+                            if (tag == "neume"): 
+                                if (syl_dict["added"] is False):
+                                    layer.append(cur_syllable)
+                                    syl_dict["added"] = True
+               
                         #if the last element was added inside the current syllable (i.e. was a neume, divLine or syl) then continue as normal
-                        elif ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume" ) | (syl_dict["latest"].tag == "syl") ):
+                        elif (syl_dict["latest"].tag == "neume" ):
+                            if (syl_dict["added"] is False):
+                                layer.append(cur_syllable)
+                                syl_dict["added"] = True
                             cur_syllable.append(new_element) 
                             syl_dict["latest"] = new_element
                         #if the last element was added outside of the current syllable (custos, sb, clef, accid) then need to create a new syllable
-                        #and add according precedes and follows attributes
+                        #and add according precedes and follows attributes 
                         else: 
-                            prev_syllable = syl_dict['opening_syl']
-                            new_syllable = new_el("syllable", layer)
-                            prev_syllable.set("xml:precedes", new_syllable.get('xml:id'))
-                            new_syllable.set("xml:follows", prev_syllable.get('xml:id'))
+                            if (syl_dict["added"] is True):  #syl, neume now precedes follows 
+                                prev_syllable = syl_dict['opening_syl']
+                                new_syllable = new_el("syllable", layer)
+                                prev_syllable.set("xml:precedes", new_syllable.get('xml:id'))
+                                new_syllable.set("xml:follows", prev_syllable.get('xml:id'))
 
-                            syl_dict["latest"] = new_element  #update latest
-                            syl_dict['opening_syl'] = new_syllable  #to be able to access most recent syllable 
+                                syl_dict["latest"] = new_element  #update latest
+                                syl_dict['opening_syl'] = new_syllable  #to be able to access most recent syllable 
 
-                            new_syllable.append(new_element)  #add new element to new syllable
-                            cur_syllable = new_syllable #update current syllable
+                                new_syllable.append(new_element)  #add new element to new syllable
+                                cur_syllable = new_syllable #update current syllable
+                            else : #syl divLine clef neume or divline
+                                cur_syllable.append(new_element)
+                                if (tag == "neume"):
+                                    if (syl_dict["added"] is False):
+                                        layer.append(cur_syllable)
+                                        syl_dict["added"] = True
+                                syl_dict["latest"] = new_element
+                                
+
 
                     
                 continue
@@ -535,30 +552,46 @@ def build_mei(pairs, classifier, width_container, staves, page):
         
                 else:
                     #if no latest element in dictionary continue as normal  
-                    if (syl_dict["latest"] == ""): 
+                    if ((syl_dict["latest"].tag == "syl") | (syl_dict["latest"].tag == "divLine")): 
                         cur_syllable.append(new_element)
+                        if (tag == "neume"): 
+                            if (syl_dict["added"] is False):
+                                layer.append(cur_syllable)
+                                syl_dict["added"] = True
+               
                     #if latest element in dictionary was added inside a syllable continue as normal 
-                    elif ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume" ) | (syl_dict["latest"].tag == "syl") ):
+                    elif  (syl_dict["latest"].tag == "neume" ) :
+                        if (syl_dict["added"] is False):
+                            layer.append(cur_syllable)
+                            syl_dict["added"] = True
                         cur_syllable.append(new_element)
                     #if latest element was added outside the syllable (to the layer)
                     else: 
                         #create new syllable and add precedes and follows attributes to previous syllable and the new one
-                        new_syllable = new_el("syllable", layer)
-                        prev_syllable = syl_dict['opening_syl']
+                        if  (syl_dict["added"] is True): 
+                            new_syllable = new_el("syllable", layer)
+                            prev_syllable = syl_dict['opening_syl']
                         
-                        prev_syllable.set("xml:precedes", new_syllable.get("xml:id"))
-                        new_syllable.set("xml:follows", prev_syllable.get("xml:id"))
+                            prev_syllable.set("xml:precedes", new_syllable.get("xml:id"))
+                            new_syllable.set("xml:follows", prev_syllable.get("xml:id"))
 
-                        syl_dict["opening_syl"] = new_syllable
+                            syl_dict["opening_syl"] = new_syllable
 
-                        new_syllable.append(new_element)
-                        cur_syllable = new_syllable
+                            new_syllable.append(new_element)
+                            cur_syllable = new_syllable
+
+                        else : #syl divLine clef neume or divline
+                            cur_syllable.append(new_element)
+                            if (tag == "neume"):
+                                if (syl_dict["added"] is False):
+                                    layer.append(cur_syllable)
+                                    syl_dict["added"] = True
+                                
 
                     #in all cases a system break must be added to the layer 
                     layer.append(sb)
                     syl_dict["latest"] = sb
 
-               
 
     return meiDoc
 
@@ -686,8 +719,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/037vPF.json'
-        in_syls = './tests/resources/037vTA.json'
+        inJSOMR = './tests/resources/070rPF.json'
+        in_syls = './tests/resources/070r.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -719,4 +752,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("037test.mei", encoding="utf-8")
+    tree.write("070r.mei", encoding="utf-8")
