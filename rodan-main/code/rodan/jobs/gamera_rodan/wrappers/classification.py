@@ -42,6 +42,7 @@ class ClassificationTask(RodanTask):
     settings = {
         'title': 'Bounding box size',
         'type': 'object',
+        'job_queue': 'Python3',
         'properties': {
             'Bounding box size': {
                 'type': 'integer',

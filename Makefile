@@ -4,6 +4,13 @@
 # We are taking advantage of .PHONY that is available in makefiles to create this simple looking
 # list of command shortcuts
 
+# Portable replacement for `sed` or `gsed`
+# See https://unix.stackexchange.com/questions/92895/how-can-i-achieve-portability-with-sed-i-in-place-editing
+REPLACE := perl -i -pe
+
+RODAN_PATH := ./rodan-main/code/rodan
+JOBS_PATH := $(RODAN_PATH)/jobs
+
 # Individual Commands
 
 build:
@@ -17,10 +24,10 @@ build:
 	# DockerHub is not intuitive. You won't be able to build from the source root folder in both build contextes.
 	# When you build locally, the COPY command is relative to the dockerfile. When you build on DockerHub, its relative to the source root.
 	# For this reason we replace the name to build locally because we build more often on DockerHub than on local.
-	@gsed -i "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || sed -i "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
+	@$(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
 	@docker-compose -f build.yml build --no-cache --parallel nginx py3-celery gpu-celery postgres hpc-rabbitmq
 	# Revert back the change to the COPY command so it will work on Docker Hub.
-	@gsed -i "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || sed -i "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
+	@$(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
 	@echo "[+] Done."
 
 backup_db:
@@ -31,14 +38,22 @@ restore_db:
 
 # Keep in mind, you may need to deal with the postgres/maintenance/backup or backups files depending on setup
 
-run:
+run: remote_jobs
 	# Run local version for dev
 	# Hello, 2022 hires!
 	@docker-compose up
 
+build_arm:
+	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
+
+run_arm:
+	# Run build_arm first if you don't have the NGINX container.
+	# Launch ARM instance 
+	@docker-compose -f arm-compose.yml up
+
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
-	@docker-compose -f rodan-client.yml up
+	@docker run -p 8080:9002 -v `pwd`/rodan-client/code:/code ddmal/rodan-client:nightly bash
 
 deploy_staging:
 	# Can also be used to update a configuration (point to a different image.)
@@ -207,21 +222,24 @@ pull:
 	@docker-compose pull
 	@echo "[+] Done."
 
-rodan_folder_path = ./rodan-main/code/rodan
-jobs_folder_path = ./rodan-main/code/rodan/jobs/
-remote_jobs:
-	@cd $(jobs_folder_path); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git || echo "[+] pixel_wrapper already exists"
-	@cd $(jobs_folder_path); \
-		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git && \
-		cd neon_wrapper && \
+# We use the /static directory to ensure that `yarn build` has been run.
+$(JOBS_PATH)/neon_wrapper/static:
+	@cd $(JOBS_PATH); \
+		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git
+	@cd $(JOBS_PATH)/neon_wrapper; \
 		git submodule update --init && \
-		git submodule update --remote && \
+		git submodule update --remote
+	@cd $(JOBS_PATH)/neon_wrapper; \
 		yarn install && \
-		yarn build \
-		|| echo "[+] neon-wrapper already exists"
-	@cd $(rodan_folder_path); gsed -i "s/#py2 //g" ./settings.py
-	@cd $(rodan_folder_path); gsed -i "s/#py3 //g" ./settings.py
-	@cd $(rodan_folder_path); gsed -i "s/#gpu //g" ./settings.py
+		yarn build
+
+$(JOBS_PATH)/pixel_wrapper:
+	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
+
+remote_jobs: $(JOBS_PATH)/neon_wrapper/static $(JOBS_PATH)/pixel_wrapper
+	@cd $(RODAN_PATH); $(REPLACE) "s/#py2 //g" ./settings.py
+	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
+	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py
 
 # Command Groups
 reset: stop clean pull run
@@ -230,3 +248,4 @@ upload: clean_reset push
 deploy: clean_git pull run_swarm
 reset_swarm: stop clean_git clean_swarm clean pull deploy_staging
 update_swarm: clean_git update
+staging: stop clean pull deploy_staging

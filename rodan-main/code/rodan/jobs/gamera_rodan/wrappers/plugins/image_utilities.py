@@ -36,7 +36,7 @@ class gamera_invert(RodanTask):
     name = 'Invert'
     author = 'Ryan Bannon'
     description = image_utilities.invert.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Utilities'

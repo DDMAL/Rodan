@@ -3,11 +3,15 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
+  && apt upgrade \
   && apt-get -qq update \
+  && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
     python3 \
     python3-pip \
+    # Opencv Dependency
+    python3-opencv \
     # Python lxml dependencies
     python3-dev \
     libxml2-dev \
@@ -56,4 +60,5 @@ RUN set -x \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
   && chmod +x /run/wait-for-app \
   && chown www-data /run/wait-for-app \
-  && chown -R www-data /code/Rodan /code/jobs
+  && chown -R www-data /code/Rodan /code/jobs \
+  && pip3 install opencv-python==4.5.5.64

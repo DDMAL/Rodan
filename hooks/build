@@ -57,6 +57,13 @@ docker build \
   --file ./rodan-main/Dockerfile \
   .
 
+echo "[+] Building iipsrv"
+
+docker build \
+  --no-cache \
+  --tag ddmal/iipsrv:nightly \
+  ./iipsrv
+
 echo "[+] Building Rodan-Client"
 
 docker build \

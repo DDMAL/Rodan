@@ -9,7 +9,7 @@ class InteractiveClassifier(RodanTask):
     name = 'Interactive Classifier'
     author = 'Andrew Fogarty'
     description = 'A GUI for Gamera interactive kNN classification.'
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Classification'
     interactive = True

@@ -27,16 +27,6 @@ RUN \
   && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON ..  \
   && make -j3
 
-# Install IIPSRV to serve image files and manifests for the Diva.js viewer used to preview TIFF and JPEG2000 resources.
-RUN \
-  cd /vendor \
-  && git clone https://github.com/ruven/iipsrv \
-  && cd iipsrv \
-  && git checkout 6d8390f48fe242369b65ef63539bc15b5b9e0f22 \
-  && ./autogen.sh \
-  && ./configure 'CFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'CXXFLAGS=-g -O2 -Wall -Wextra -Wno-unused-parameter' 'LDFLAGS=-g' '--enable-openjpeg' \
-  && make
-
 # This script gets the python3 jobs into celery
 COPY ./scripts/install_python3_rodan_jobs /opt/install_python3_rodan_jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
