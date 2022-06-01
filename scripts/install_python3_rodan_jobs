@@ -43,9 +43,9 @@ apt-get install libpng-dev && apt-get install libtiff5-dev
 
 # clone the gamera-4 repository 
 git clone https://github.com/hsnr-gamera/gamera-4.git
+cd gamera-4
 git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
 # install gamera-4 on the container
-cd gamera-4
 python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
