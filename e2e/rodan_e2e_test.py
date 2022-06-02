@@ -1,14 +1,14 @@
 # Some code has been borrowed from https://github.com/jsoma/selenium-github-actions
 # Under the MIT License.
 
+# Standard libraries
 import json
-
-import requests
-
 from os import environ
 from time import sleep
 from urllib.parse import urljoin
 
+# Third-party libraries
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
