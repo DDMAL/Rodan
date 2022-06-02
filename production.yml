@@ -13,7 +13,7 @@ services:
         limits:
           cpus: "0.5"
           memory: 1G
-        restart_policy:
+      restart_policy:
         condition: any
         delay: 5s
         window: 30s

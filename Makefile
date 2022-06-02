@@ -45,6 +45,12 @@ run: remote_jobs
 	# Hello, 2022 hires!
 	@docker-compose up
 
+test_prod: pull_prod 
+	# Test production Rodan images with specified tag
+	# May want to change test-prod-compose.yml if you want a 
+	# different tag.
+	docker-compose -f test-prod-compose.yml up
+
 build_arm:
 	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
 
