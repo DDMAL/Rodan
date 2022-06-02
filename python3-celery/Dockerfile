@@ -30,6 +30,10 @@ COPY ./scripts/install_rodan /run/
 COPY ./scripts/start-celery /run/
 COPY ./scripts/wait-for-app /run/
 
+# Copying rodan core from build context into container
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY ./rodan-main/code /code/Rodan
+
 RUN set -x \
   && mkdir -p /code/jobs \
   # Install Python3 Rodan Jobs

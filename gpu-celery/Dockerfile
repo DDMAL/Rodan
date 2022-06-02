@@ -150,6 +150,10 @@ COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
 COPY ./scripts/wait-for-app /run/
 
+# Copying rodan core from build context into container
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY ./rodan-main/code /code/Rodan
+
 # necessary for scikit-image > 0.17, or else it will try to make a cache directory
 # in a place where the www-data user does not have permissions to do so
 ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
