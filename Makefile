@@ -11,6 +11,8 @@ REPLACE := perl -i -pe
 RODAN_PATH := ./rodan-main/code/rodan
 JOBS_PATH := $(RODAN_PATH)/jobs
 
+PROD_TAG := v2.0.0
+
 # Individual Commands
 
 build:
@@ -73,6 +75,18 @@ copy_docker_tag:
 	@docker image tag $(docker images ddmal/rodan-python2-celery:nightly -q) ddmal/rodan-python2-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-python3-celery:nightly -q) ddmal/rodan-python3-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-gpu-celery:nightly -q) ddmal/rodan-gpu-celery:$(tag)
+
+pull_prod:
+	docker pull ddmal/hpc-rabbitmq:$(PROD_TAG)
+	docker pull ddmal/iipsrv:nightly
+	docker pull ddmal/nginx:$(PROD_TAG)
+	docker pull ddmal/postgres-plpython:$(PROD_TAG)
+	docker pull ddmal/rodan-gpu-celery:$(PROD_TAG)
+	docker pull ddmal/rodan-main:$(PROD_TAG)
+	docker pull ddmal/rodan-python2-celery:$(PROD_TAG)
+	docker pull ddmal/rodan-python3-celery:$(PROD_TAG)
+	docker pull rabbitmq:alpine
+	docker pull redis:alpine
 
 pull_docker_tag:
 	# tag=v1.5.0rc0 make pull_docker_tag
