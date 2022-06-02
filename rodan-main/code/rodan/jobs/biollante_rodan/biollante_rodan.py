@@ -60,6 +60,7 @@ class BiollanteRodan(RodanTask):
 
     def get_my_interface(self, inputs, settings):
         self.logger.info(settings)
+        print("settings[\"@base\"] has type:", )
         context = {
             "base": json.loads(settings["@base"]),
             "selection": json.loads(settings["@selection"]),
