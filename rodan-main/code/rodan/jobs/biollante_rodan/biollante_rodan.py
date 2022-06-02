@@ -60,7 +60,15 @@ class BiollanteRodan(RodanTask):
 
     def get_my_interface(self, inputs, settings):
         self.logger.info(settings)
-        print("settings[\"@base\"] has type:", )
+        print("settings[\"@base\"] has type:", type(settings["@base"]))
+        print("settings[\"@selection\"] has type:", type(settings["@selection"]))
+        print("settings[\"@replacement\"] has type:", type(settings["@replacement"]))
+        print("settings[\"@mutation\"] has type:", type(settings["@mutation"]))
+        print("settings[\"@crossover\"] has type:", type(settings["@crossover"]))
+        print("settings[\"@stop_criteria\"] has type:", type(settings["@stop_criteria"]))
+        print("settings[\"@results\"] has type:", type(settings["@results"]))
+        print("settings[\"@weights\"] has type:", type(settings["@weights"]))
+
         context = {
             "base": json.loads(settings["@base"]),
             "selection": json.loads(settings["@selection"]),
