@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   nginx:
-    image: "ddmal/nginx:v1.3.1"
+    image: "ddmal/nginx:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -13,6 +13,16 @@ services:
         limits:
           cpus: "0.5"
           memory: 1G
+        restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
+    healthcheck:
+      test: ["CMD", "/usr/sbin/service", "nginx", "status"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
+      start_period: "5m"
     command: /run/start-production
     environment:
       TZ: America/Toronto
@@ -27,14 +37,8 @@ services:
       - "resources:/rodan/data"
       - "certbot:/etc/letsencrypt"
 
-  # TODO: This will need to be updated to work with production.
-  iipsrv:
-    image: "ddmal/iipsrv:nightly"
-    volumes:
-      - "resources:/rodan/data"
-
   rodan-main:
-    image: "ddmal/rodan-main:v1.5.0rc0"
+    image: "ddmal/rodan-main:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -44,6 +48,10 @@ services:
         limits:
           cpus: "1"
           memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -59,9 +67,14 @@ services:
       - ./scripts/production.env
     volumes:
       - "resources:/rodan/data"
+  
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    volumes:
+      - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:v1.5.0rc0"
+    image: "ddmal/rodan-main:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -71,10 +84,14 @@ services:
         limits:
           cpus: "1"
           memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
     healthcheck:
       test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
       interval: "30s"
-      timeout: "3s"
+      timeout: "10s"
       start_period: "1m"
       retries: 3
     command: /run/start-celery
@@ -88,7 +105,7 @@ services:
       - "resources:/rodan/data"
 
   py2-celery:
-    image: "ddmal/rodan-python2-celery:v1.5.0rc0"
+    image: "ddmal/rodan-python2-celery:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -98,10 +115,14 @@ services:
         limits:
           cpus: "1"
           memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
     healthcheck:
       test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python2"]
       interval: "30s"
-      timeout: "3s"
+      timeout: "10s"
       retries: 3
     command: /run/start-celery
     environment:
@@ -114,7 +135,7 @@ services:
       - "resources:/rodan/data"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:v1.5.0rc0"
+    image: "ddmal/rodan-python3-celery:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -124,10 +145,14 @@ services:
         limits:
           cpus: "1"
           memory: 2G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
     healthcheck:
       test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3"]
       interval: "30s"
-      timeout: "3s"
+      timeout: "10s"
       retries: 3
     command: /run/start-celery
     environment:
@@ -141,7 +166,7 @@ services:
       - "resources:/rodan/data"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:v1.5.0rc0"
+    image: "ddmal/rodan-gpu-celery:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -151,13 +176,17 @@ services:
         limits:
           cpus: "6"
           memory: 45G
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 30s
       placement:
         constraints:
           - node.labels.queue == GPU
     healthcheck:
       test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU"]
       interval: "30s"
-      timeout: "3s"
+      timeout: "10s"
       retries: 3
     command: /run/start-celery
     environment:
@@ -193,7 +222,7 @@ services:
       TZ: America/Toronto
 
   postgres:
-    image: "ddmal/postgres-plpython:v1.3.1"
+    image: "ddmal/postgres-plpython:v2.0.0"
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
@@ -216,8 +245,8 @@ services:
     environment:
       TZ: America/Toronto
     volumes:
-      - "postgres_data:/var/lib/postgresql/data"
-      - "postgres_backup:/backups"
+      - "pg_data:/var/lib/postgresql/data"
+      - "pg_backup:/backups"
     env_file:
       - ./scripts/production.env
 
@@ -247,7 +276,7 @@ services:
       - ./scripts/production.env
 
   hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:v1.3.1"
+    image: "ddmal/hpc-rabbitmq:v2.0.0"
     deploy:
       replicas: 1
       resources:
@@ -273,6 +302,6 @@ services:
 
 volumes:
   resources:
-  postgres_data:
-  postgres_backup:
+  pg_backup:
+  pg_data:
   certbot:

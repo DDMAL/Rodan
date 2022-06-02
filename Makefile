@@ -11,6 +11,8 @@ REPLACE := perl -i -pe
 RODAN_PATH := ./rodan-main/code/rodan
 JOBS_PATH := $(RODAN_PATH)/jobs
 
+PROD_TAG := v2.0.0
+
 # Individual Commands
 
 build:
@@ -43,6 +45,12 @@ run: remote_jobs
 	# Hello, 2022 hires!
 	@docker-compose up
 
+test_prod: pull_prod 
+	# Test production Rodan images with specified tag
+	# May want to change test-prod-compose.yml if you want a 
+	# different tag.
+	docker-compose -f test-prod-compose.yml up
+
 build_arm:
 	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
 
@@ -73,6 +81,18 @@ copy_docker_tag:
 	@docker image tag $(docker images ddmal/rodan-python2-celery:nightly -q) ddmal/rodan-python2-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-python3-celery:nightly -q) ddmal/rodan-python3-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-gpu-celery:nightly -q) ddmal/rodan-gpu-celery:$(tag)
+
+pull_prod:
+	docker pull ddmal/hpc-rabbitmq:$(PROD_TAG)
+	docker pull ddmal/iipsrv:nightly
+	docker pull ddmal/nginx:$(PROD_TAG)
+	docker pull ddmal/postgres-plpython:$(PROD_TAG)
+	docker pull ddmal/rodan-gpu-celery:$(PROD_TAG)
+	docker pull ddmal/rodan-main:$(PROD_TAG)
+	docker pull ddmal/rodan-python2-celery:$(PROD_TAG)
+	docker pull ddmal/rodan-python3-celery:$(PROD_TAG)
+	docker pull rabbitmq:alpine
+	docker pull redis:alpine
 
 pull_docker_tag:
 	# tag=v1.5.0rc0 make pull_docker_tag
@@ -222,21 +242,19 @@ pull:
 	@docker-compose pull
 	@echo "[+] Done."
 
-# We use the /static directory to ensure that `yarn build` has been run.
-$(JOBS_PATH)/neon_wrapper/static:
+$(JOBS_PATH)/neon_wrapper/Neon/package.json:
 	@cd $(JOBS_PATH); \
 		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git
-	@cd $(JOBS_PATH)/neon_wrapper; \
-		git submodule update --init && \
-		git submodule update --remote
+
+$(JOBS_PATH)/neon_wrapper/static/editor.html: $(JOBS_PATH)/neon_wrapper/Neon/package.json
 	@cd $(JOBS_PATH)/neon_wrapper; \
 		yarn install && \
 		yarn build
 
-$(JOBS_PATH)/pixel_wrapper:
+$(JOBS_PATH)/pixel_wrapper/package.json:
 	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
 
-remote_jobs: $(JOBS_PATH)/neon_wrapper/static $(JOBS_PATH)/pixel_wrapper
+remote_jobs: $(JOBS_PATH)/neon_wrapper/static/editor.html $(JOBS_PATH)/pixel_wrapper/package.json
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py2 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py
