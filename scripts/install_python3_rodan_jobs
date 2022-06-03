@@ -15,10 +15,8 @@ PIP=$(which pip3) || PIP=:
 # update pip
 $PIP install -U pip
 
-# Install pil_rodan
-# pil_rodan is required for Calvo-Classifier because of the jpeg2000 resource type.
+# Install requirements for all jobs except for gamera
 $PIP install -r ./py3_requirements.txt
-
 
 # GAMERA 4 INSTALLATION
 echo
@@ -33,7 +31,7 @@ git clone https://github.com/hsnr-gamera/gamera-4.git
 cd ./gamera-4
 
 git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b #using this particular commit for now
-python3 setup.py --nowx build && python3 setup.py --nowx install
+python3 setup.py --nowx build && python3 setup.py --nowx install >/dev/null 2>&1
 
 # remove the gamera-4 directory from the container. 
 cd / && rm -rf gamera-4

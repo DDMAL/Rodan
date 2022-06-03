@@ -5,7 +5,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 cd /code/Rodan/rodan/jobs
 
-# Install Calvo-Trainer-HPC
+# Installing py2 job requirements
 pip install -r ./py2_requirements.txt >/dev/null
 
 # Install Pixel_wrapper
