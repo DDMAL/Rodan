@@ -141,7 +141,6 @@ RODAN_PYTHON2_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.heuristic_pitch_finding",
     "rodan.jobs.interactive_classifier",
-    "rodan.jobs.MEI_encoding",
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
     "rodan.jobs.MEI_resizing",
@@ -153,6 +152,7 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.pil_rodan",
     "rodan.jobs.mei2vol_wrapper",
     "rodan.jobs.gamera_rodan",
+    "rodan.jobs.MEI_encoding",
     "rodan.jobs.biollante_rodan",
     "rodan.jobs.interactive_classifier",
     "rodan.jobs.diagonal_neume_slicing"
