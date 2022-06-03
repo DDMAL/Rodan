@@ -464,6 +464,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
                 # case 1
                 if syllable_over:
+                    print (tag)
                     layer.append(new_element)
                     if (syl_dict["added"] is False):
                         layer.append(cur_syllable)
@@ -752,4 +753,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("070r.mei", encoding="utf-8")
+    tree.write("070r.xml", encoding="utf-8")
