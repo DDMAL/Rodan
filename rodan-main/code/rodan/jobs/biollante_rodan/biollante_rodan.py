@@ -25,6 +25,7 @@ class BiollanteRodan(RodanTask):
     author = "Juliette Regimbal"
     description = "GA Optimizer for kNN Classifiers"
     settings = {
+        # TODO: uncomment the following line 
         "job_queue": "Python3"  # This is due to using gamera
     }
     enabled = True
@@ -60,14 +61,6 @@ class BiollanteRodan(RodanTask):
 
     def get_my_interface(self, inputs, settings):
         self.logger.info(settings)
-        print("settings[\"@base\"] has type:", type(settings["@base"]))
-        print("settings[\"@selection\"] has type:", type(settings["@selection"]))
-        print("settings[\"@replacement\"] has type:", type(settings["@replacement"]))
-        print("settings[\"@mutation\"] has type:", type(settings["@mutation"]))
-        print("settings[\"@crossover\"] has type:", type(settings["@crossover"]))
-        print("settings[\"@stop_criteria\"] has type:", type(settings["@stop_criteria"]))
-        print("settings[\"@results\"] has type:", type(settings["@results"]))
-        print("settings[\"@weights\"] has type:", type(settings["@weights"]))
 
         context = {
             "base": json.loads(settings["@base"]),
@@ -108,6 +101,14 @@ class BiollanteRodan(RodanTask):
             return {}
 
     def run_my_task(self, inputs, settings, outputs):
+        self.logger.info("settings[\"@base\"] has type:", type(settings["@base"]))
+        self.logger.info("settings[\"@selection\"] has type:", type(settings["@selection"]))
+        self.logger.info("settings[\"@replacement\"] has type:", type(settings["@replacement"]))
+        self.logger.info("settings[\"@mutation\"] has type:", type(settings["@mutation"]))
+        self.logger.info("settings[\"@crossover\"] has type:", type(settings["@crossover"]))
+        self.logger.info("settings[\"@stop_criteria\"] has type:", type(settings["@stop_criteria"]))
+        self.logger.info("settings[\"@results\"] has type:", type(settings["@results"]))
+        self.logger.info("settings[\"@weights\"] has type:", type(settings["@weights"]))
         if "@state" not in settings:
             settings["@state"] = STATE_INIT
 
