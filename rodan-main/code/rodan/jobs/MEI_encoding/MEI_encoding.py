@@ -19,7 +19,7 @@ class MEI_encoding(RodanTask):
     settings = {
         'title': 'Mei Encoding Settings',
         'type': 'object',
-        'job_queue': 'Python2',
+        'job_queue': 'Python3',
         'required': ['Neume Component Spacing'],
         'properties': {
             'Neume Component Spacing': {
