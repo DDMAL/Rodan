@@ -3,12 +3,16 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
+  && apt upgrade \
   && apt-get -qq update \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
     python3 \
     python3-pip \
+    #gamera-4 dependencies
+    libpng-dev \
+    libtiff5-dev \
     # Opencv Dependency
     python3-opencv \
     # Python lxml dependencies
@@ -38,6 +42,7 @@ RUN set -x \
   && mkdir -p /code/jobs \
   # Install Python3 Rodan Jobs
   && chmod +x /run/install_python3_rodan_jobs \
+  && echo "works" \
   && chown www-data /run/install_python3_rodan_jobs \
   && /run/install_python3_rodan_jobs \
   # Install Rodan
