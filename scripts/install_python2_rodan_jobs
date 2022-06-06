@@ -27,9 +27,6 @@ yarn install
 yarn build
 cd /code/Rodan/rodan/jobs
 
-# Install MEI_encoding
-pip install -r ./MEI_encoding/requirements.txt >/dev/null
-
 cd /code/Rodan/rodan
 # At the end, add all the jobs together.
 sed -i 's/#py2 //g' /code/Rodan/rodan/settings.py
