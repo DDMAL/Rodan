@@ -453,17 +453,26 @@ def build_mei(pairs, classifier, width_container, staves, page):
             if new_element is None:
                 continue
             # four cases to consider:
-            # 1. no line break and done with this syllable (usually a clef)
-            # 2. no line break and not done with this syllable (more neume components to add)
-            # 3. a line break and done with this syllable (a custos OUTSIDE a <syllable> tag)
-            # 4. a line break and not done with this syllable (custos still OUTSIDE <syllable> tag, need to split the syllable) 
+            # 1. no line break and done with this syllable (everything gets added to layer)
+            # 2. no line break and not done with this syllable
+                # Case a: no neume has been added yet and new element is not neume (added to layer)
+                # Case b: custos, clef, accid (added to layer)
+                # Case c: neume or divline to be added, latest element was added inside the syllable 
+                # Case d: neume or divline to be added, latest element was added outside the syllable, syllable has been
+                #         added to the mei file (precedes and follows)
+                # Case e: neume or divline to be added, latest element was added outside the syllable, syllable has not been 
+                #         added to the mei file (add element to syllable & add syllable to file if new element is neume)
+            # 3. a line break and done with this syllable (everything gets added to layer)
+            # 4. a line break and not done with this syllable 
+                # Same cases a to e (with added line break) 
+            
             tag = new_element.tag 
-            #print (tag)
         
             if not glyph['system_begin']:
 
                 # case 1
                 if syllable_over:
+                    layer.append(new_element)
                     if (syl_dict["added"] is False):
                         layer.append(cur_syllable)
                         syl_dict["added"] = True
@@ -471,30 +480,27 @@ def build_mei(pairs, classifier, width_container, staves, page):
                 # case 2
                 else:
 
-                    if ((tag != "neume") and ("neume_added" is False)): 
+                    if ((tag != "neume") and ("neume_added" == False)): 
                         layer.append(new_element)
                         syl_dict["latest"] = new_element
                     #Clefs and custos should be outside the syllable 
-                    elif (tag == "custos") | (tag == "clef") | (tag == "sb") | (tag == "accid"):
+                    elif (tag == "custos") | (tag == "clef") | (tag == "accid"):
                         #add to layer and add this element as the lastest element to the dict
                         syl_dict["latest"] = new_element
                         layer.append(new_element)
 
                     else: #divline or neume 
-                        #continue as normal (append to current syllable) if nothing is in the dictionary 
+                        #continue as normal (append to current syllable) 
                         if ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume")): 
                             cur_syllable.append(new_element)
                             syl_dict["latest"] = new_element
                             if ((syl_dict["added"] is False) and (tag == "neume")):
                                 layer.append(cur_syllable)
                                 syl_dict["added"] = True
-                           
-               
-                        #if the last element was added inside the current syllable (i.e. was a neume, divLine or syl) then continue as normal
-                      
-                        #if the last element was added outside of the current syllable (custos, sb, clef, accid) then need to create a new syllable
-                        #and add according precedes and follows attributes 
+                                              
+                        #if the last element was added outside of the current syllable 
                         else: 
+                            #need to create a new syllable and add according precedes and follows attributes 
                             if (syl_dict["added"] is True):  #syl, neume now precedes follows 
                                 prev_syllable = syl_dict['opening_syl']
                                 new_syllable = new_el("syllable", layer)
@@ -506,17 +512,14 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
                                 new_syllable.append(new_element)  #add new element to new syllable
                                 cur_syllable = new_syllable #update current syllable
-                            else : #syl divLine clef neume or divline
+                            #if the syllable hasn't been added yet (no neume so far) then add new element to current syllable
+                            else : 
                                 cur_syllable.append(new_element)
-                                if (tag == "neume"):
-                                    if (syl_dict["added"] is False):
-                                        layer.append(cur_syllable)
-                                        syl_dict["added"] = True
                                 syl_dict["latest"] = new_element
-                                
 
-
-                    
+                                if ((syl_dict["added"] is False) and (tag == "neume")):
+                                    layer.append(cur_syllable)
+                                    syl_dict["added"] = True  
                 continue
 
             cur_staff = int(glyph['staff'])
@@ -539,9 +542,9 @@ def build_mei(pairs, classifier, width_container, staves, page):
                 layer.append(new_element)
                 layer.append(sb)
             # case 4 
-            # syllable not over, so need to split up the current syllable and add the custos and sb to the layer 
+            # syllable not over, so need to handle all five cases
             else:
-                if ((tag != "neume") and ("neume_added" is False)): 
+                if ((tag != "neume") and ("neume_added" == False)): 
                         layer.append(new_element)
                         syl_dict["latest"] = new_element
                 #if new element needs to be added to the layer: 
@@ -553,7 +556,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
                     #if no latest element in dictionary continue as normal  
                     if ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume")): 
                         cur_syllable.append(new_element)
-                        if ((syl_dict["added"] is False) and (tag == "neume")):
+                        if ((syl_dict["added"] is False) and (tag == "neume")): 
                             layer.append(cur_syllable)
                             syl_dict["added"] = True
                     #if latest element was added outside the syllable (to the layer)
@@ -570,8 +573,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
                             new_syllable.append(new_element)
                             cur_syllable = new_syllable
-
-                        else : #syl divLine clef neume or divline
+                        else :
                             cur_syllable.append(new_element)
                             if ((syl_dict["added"] is False) and (tag == "neume")):
                                 layer.append(cur_syllable)
@@ -708,8 +710,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/070rPF.json'
-        in_syls = './tests/resources/070r.json'
+        inJSOMR = './tests/resources/258rPF.json'
+        in_syls = './tests/resources/258rTA.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -741,4 +743,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("070r.xml", encoding="utf-8")
+    tree.write("258r2.xml", encoding="utf-8")
