@@ -101,14 +101,16 @@ class BiollanteRodan(RodanTask):
             return {}
 
     def run_my_task(self, inputs, settings, outputs):
-        self.logger.info("settings[\"@base\"] has type:", type(settings["@base"]))
-        self.logger.info("settings[\"@selection\"] has type:", type(settings["@selection"]))
-        self.logger.info("settings[\"@replacement\"] has type:", type(settings["@replacement"]))
-        self.logger.info("settings[\"@mutation\"] has type:", type(settings["@mutation"]))
-        self.logger.info("settings[\"@crossover\"] has type:", type(settings["@crossover"]))
-        self.logger.info("settings[\"@stop_criteria\"] has type:", type(settings["@stop_criteria"]))
-        self.logger.info("settings[\"@results\"] has type:", type(settings["@results"]))
-        self.logger.info("settings[\"@weights\"] has type:", type(settings["@weights"]))
+        
+        # debugging tests printed in the log
+        dict_check_list = ["@base", "@selection", "@replacement", "@mutation", "@crossover", "@stop_criteria",
+        "@results", "@weights"]
+        for key in dict_check_list:
+            if key in settings:
+                self.logger.info(("settings[{0}] has type: {1} and the value is {2}").format(str(key), type(settings[key]), settings[key]))
+            else:
+                self.logger.info(str(key) + " does not exist inside the settings dictionary")
+
         if "@state" not in settings:
             settings["@state"] = STATE_INIT
 
@@ -122,13 +124,21 @@ class BiollanteRodan(RodanTask):
                     inputs["Classifier Data"][0]["resource_path"],
                     temp.name
                 )
+                self.logger.info("copied the file")
+                # will be doing machine learning in the next line 
                 classifier = knn.kNNNonInteractive(temp.name)
+                self.logger.info("created the classifier variable")
 
             with NTF() as temp:
                 classifier.save_settings(temp.name)
+                self.logger.info("saved the settings")
                 temp.flush()
+                self.logger.info("done flushing")
                 temp.seek(0)
+                self.logger.info("done seeking")
                 settings["@settings"] = temp.read()
+                self.logger.info("done reading and writing settings[\"@settings\"]")
+                self.logger.info("type of the above thing is: " + str(type(settings["@settings"])))
 
             # Preserve the number of features and weights for
             # certain kinds of operations the GA optimizer might perform.
@@ -151,8 +161,16 @@ class BiollanteRodan(RodanTask):
             # Create set of parameters for template
             d = self.knnga_dict()
             d["@state"] = STATE_NOT_OPTIMIZING
-            d["@settings"] = settings["@settings"]
+            d["@settings"] = settings["@settings"].decode("UTF-8")
             d["@weights"] = settings["@weights"]
+            self.logger.info("returning waiting for user input") 
+            self.logger.info("here are the settings and the types: ")
+            coutner = 1
+            for key in settings:
+                self.logger.info(
+                ("{0}th key: {1} with type {2} and its value: {3} with type {4}").format(coutner, key, type(key), settings[key], type(settings[key]))
+                )
+                coutner += 1
             return self.WAITING_FOR_INPUT(d)
 
         elif settings["@state"] == STATE_OPTIMIZING:

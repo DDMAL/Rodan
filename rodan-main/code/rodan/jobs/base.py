@@ -694,6 +694,8 @@ class RodanTask(Task):
             for k, v in settings_update.items():
                 if isinstance(k, str) and k.startswith("@"):  # noqa
                     self.settings_update[k] = v
+            
+            # this is not throwing error in rodan for python3 
 
     def tempdir(self):
         """
@@ -767,10 +769,12 @@ class RodanTask(Task):
                         )
                         output["resource_temp_folder"] = output_res_tempfolder
                         temppath_map[output_res_tempfolder] = output
-
+            logger.info("started running the task!")
             retval = self.run_my_task(inputs, settings, arg_outputs)
+            logger.info(("ran the task and the returned object is {0}").format(retval))
 
             if isinstance(retval, self.WAITING_FOR_INPUT):
+                logger.info(("the settings_update field is: {0}").format(retval.settings_update))
                 settings.update(retval.settings_update)
 
                 runjob.status = task_status.WAITING_FOR_INPUT
