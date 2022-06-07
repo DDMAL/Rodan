@@ -17,6 +17,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 URL = "rodan2.simssa.ca"
 
+
 class RodanConnection:
     def __init__(self, url, username, password, protocol="https"):
         self.url = f"{protocol}://{url}"
@@ -40,7 +41,7 @@ class RodanConnection:
         driver = webdriver.Chrome(
             service=Service(ChromeDriverManager().install()), options=chrome_options
         )
-        driver.implicitly_wait(5)
+        driver.implicitly_wait(3)
         return driver
 
     def delete_all_projects(self):
@@ -70,13 +71,19 @@ class RodanConnection:
     def create_new_project(self):
         self.driver.get(self.url)
         new_project_button = self.driver.find_element(By.ID, "button-new_project")
-        while not new_project_button.is_enabled():
+        projects = None
+        while not projects:
+            new_project_button.click()
             sleep(1)
-        new_project_button.click()
+            projects = self.driver.find_elements(
+                By.XPATH, '//*[@id="table-projects"]/tbody/tr'
+            )
+        return projects[0]
 
-        projects_table = self.driver.find_element(By.XPATH, '//*[@id="table-projects"]')
 
-        print(projects_table.get_attribute("innerHTML"))
+    def enter_project(self, project):
+        project.doubleclick()
+
 
 def test():
     username = environ["RODAN_USERNAME"]
@@ -92,7 +99,10 @@ def main():
 
     rodan = RodanConnection(URL, username, password)
     rodan.login_to_rodan()
-    rodan.create_new_project()
+    rodan.delete_all_projects()
+    project = rodan.create_new_project()
+    rodan.enter_project(project)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
