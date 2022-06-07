@@ -59,6 +59,15 @@ def register_py2():
         import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register MEI Encoding
+    try:
+        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+
+        app.register_task(MEI_encoding())
+    except Exception as exception:
+        import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
     # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
@@ -66,6 +75,15 @@ def register_py2():
         app.register_task(PixelInteractive())
     except Exception as exception:
         import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Gamera
@@ -402,24 +420,6 @@ def register_py3():
         app.register_task(HelloWorld3())
     except Exception as exception:
         import_name = "Hello World Python3"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register MEI Encoding
-    try:
-        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
-
-        app.register_task(MEI_encoding())
-    except Exception as exception:
-        import_name = "MEI Encoding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register MEI resizing
-    try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
-
-        app.register_task(MEI_Resize())
-    except Exception as exception:
-        import_name = "MEI Resizing"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register HPC Fast Trainer
