@@ -6,7 +6,7 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-import parse_classifier_table as pct
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct
 #from pymei import MeiDocument, MeiElement, MeiAttribute, documentToText, documentToFile
 from itertools import groupby
 #from visualize_alignment import draw_mei_doc
