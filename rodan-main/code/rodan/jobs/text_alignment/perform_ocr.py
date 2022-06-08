@@ -65,6 +65,10 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     
     # Importing calamari needs to be here because otherwise it will try to create a unique thread for
     # every text strip (since we're processing them in sequence and not in parallel).
+    import tensorflow as tf
+    tf.config.set_visible_devices([], 'GPU')
+    print(tf.config.get_visible_devices())
+
     from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 
     dir = os.path.dirname(__file__)
@@ -72,6 +76,7 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
 
     params = PredictorParams()
     params.pipeline.num_processes = 1
+    params.device.gpus = []
 
     # predictor = Predictor(checkpoint=ocr_model_path, processes=1)
     predictor = MultiPredictor.from_paths(
@@ -93,6 +98,7 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     results = []
     for r in predictor.predict_raw(strips):
         results.append(r)
+        print("prediction: {}".format(r))
 
     all_chars = []
 
@@ -157,7 +163,7 @@ if __name__ == '__main__':
     from skimage import io
     __spec__ = None
 
-    fname = r"D:\Desktop\adsf\056_text_layer.png"
+    fname = r"/Users/tim/Desktop/transcript text files/salzinnes_056_text.png"
     raw_image = io.imread(fname)
 
     img_bin, img_eroded, angle = preproc.preprocess_images(raw_image)

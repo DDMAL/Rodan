@@ -157,7 +157,7 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [
-    "rodan.jobs.Calvo_classifier",
+    # "rodan.jobs.Calvo_classifier",
     "rodan.jobs.text_alignment",
 ]
 
