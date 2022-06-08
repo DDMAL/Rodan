@@ -60,6 +60,7 @@ class BiollanteRodan(RodanTask):
 
     def get_my_interface(self, inputs, settings):
         self.logger.info(settings)
+
         context = {
             "base": json.loads(settings["@base"]),
             "selection": json.loads(settings["@selection"]),
@@ -99,6 +100,16 @@ class BiollanteRodan(RodanTask):
             return {}
 
     def run_my_task(self, inputs, settings, outputs):
+        
+        # debugging tests printed in the log
+        dict_check_list = ["@base", "@selection", "@replacement", "@mutation", "@crossover", "@stop_criteria",
+        "@results", "@weights"]
+        for key in dict_check_list:
+            if key in settings:
+                self.logger.info(("settings[{0}] has type: {1} and the value is {2}").format(str(key), type(settings[key]), settings[key]))
+            else:
+                self.logger.info(str(key) + " does not exist inside the settings dictionary")
+
         if "@state" not in settings:
             settings["@state"] = STATE_INIT
 
@@ -112,13 +123,21 @@ class BiollanteRodan(RodanTask):
                     inputs["Classifier Data"][0]["resource_path"],
                     temp.name
                 )
+                self.logger.info("copied the file")
+                # will be doing machine learning in the next line 
                 classifier = knn.kNNNonInteractive(temp.name)
+                self.logger.info("created the classifier variable")
 
             with NTF() as temp:
                 classifier.save_settings(temp.name)
+                self.logger.info("saved the settings")
                 temp.flush()
+                self.logger.info("done flushing")
                 temp.seek(0)
+                self.logger.info("done seeking")
                 settings["@settings"] = temp.read()
+                self.logger.info("done reading and writing settings[\"@settings\"]")
+                self.logger.info("type of the above thing is: " + str(type(settings["@settings"])))
 
             # Preserve the number of features and weights for
             # certain kinds of operations the GA optimizer might perform.
@@ -141,13 +160,23 @@ class BiollanteRodan(RodanTask):
             # Create set of parameters for template
             d = self.knnga_dict()
             d["@state"] = STATE_NOT_OPTIMIZING
-            d["@settings"] = settings["@settings"]
+            # decoding for python3 must be done manually
+            d["@settings"] = settings["@settings"].decode("UTF-8")
             d["@weights"] = settings["@weights"]
+            self.logger.info("returning waiting for user input") 
+            self.logger.info("here are the settings and the types: ")
+            coutner = 1
+            for key in settings:
+                self.logger.info(
+                ("{0}th key: {1} with type {2} and its value: {3} with type {4}").format(coutner, key, type(key), settings[key], type(settings[key]))
+                )
+                coutner += 1
             return self.WAITING_FOR_INPUT(d)
 
         elif settings["@state"] == STATE_OPTIMIZING:
             self.logger.info("State: Optimizing")
             self.load_from_settings(settings)
+            self.logger.info("loaded the settings and continuing the job after optimizing")
 
             # Load data
             with NTF(suffix=".xml") as temp:
@@ -156,10 +185,12 @@ class BiollanteRodan(RodanTask):
                     temp.name
                 )
                 classifier = knn.kNNNonInteractive(temp.name)
+                self.logger.info("created the classifier object")
 
             # Load selection and weights
             with NTF(suffix=".xml") as temp:
-                temp.write(settings["@settings"])
+                temp.write(settings["@settings"].encode("UTF-8"))
+                self.logger.info("encoded again and it will be as bytes from now on ")
                 temp.flush()
                 classifier.load_settings(temp.name)
 
@@ -173,7 +204,7 @@ class BiollanteRodan(RodanTask):
                 self.stop_criteria.sc,
                 knnga.GAParallelization(True, 4)
             )
-
+            self.logger.info("created the self.optimizer field and continuing")
             assert isinstance(self.optimizer, knnga.GAOptimization), \
                 "Optimizer is %s" % str(type(self.optimizer))
 
@@ -197,10 +228,12 @@ class BiollanteRodan(RodanTask):
                 temp.flush()
                 temp.seek(0)
                 settings["@settings"] = temp.read()
+                self.logger.info("read the settings again, now going to classify and get the features.")
 
             self.logger.info(classifier.get_weights_by_features())
             settings["@state"] = STATE_NOT_OPTIMIZING
             settings["@weights"] = classifier.get_weights_by_features()
+            self.logger.info("created settings[@state] and settings[@weights]")
             return self.WAITING_FOR_INPUT(settings)
 
         else:   # Finish
@@ -208,6 +241,7 @@ class BiollanteRodan(RodanTask):
             with open(
                 outputs["Feature Weights/Selection"][0]["resource_path"], 'w'
             ) as f:
+                self.logger.info("gonna write as the final step ")            
                 f.write(settings["@settings"])
             return True
 
