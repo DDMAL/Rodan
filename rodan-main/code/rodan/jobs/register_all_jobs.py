@@ -375,15 +375,6 @@ def register_py2():
         import_name = "Biollante"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
-
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
 
 # Python3 Jobs
 def register_py3():
@@ -472,6 +463,17 @@ def register_py3():
     except Exception as exception:
         import_name = "MEI2Volpiano"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+        
+    # Register Neon
+    try:
+        from rodan.jobs.neon_wrapper.wrapper import Neon
+
+        app.register_task(Neon())
+    except Exception as exception:
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
 # GPU Jobs
 def register_gpu():
