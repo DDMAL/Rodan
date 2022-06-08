@@ -775,7 +775,16 @@ class RodanTask(Task):
 
             if isinstance(retval, self.WAITING_FOR_INPUT):
                 logger.info(("the settings_update field is: {0}").format(retval.settings_update))
+                if type(retval.settings_update["@settings"]) == bytes:
+                    retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
                 settings.update(retval.settings_update)
+                logger.info(("After being updated the settings_update field is: {0}").format(retval.settings_update))
+
+                # for python3 we have to use decode utf 8 for jason format 
+                # for the last step of the biollante job
+                # first iteration the updated version is the same as the initial version
+                # encoded again? biollante is working?
+                # before updating have to decode
 
                 runjob.status = task_status.WAITING_FOR_INPUT
                 runjob.job_settings = settings

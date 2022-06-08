@@ -25,7 +25,6 @@ class BiollanteRodan(RodanTask):
     author = "Juliette Regimbal"
     description = "GA Optimizer for kNN Classifiers"
     settings = {
-        # TODO: uncomment the following line 
         "job_queue": "Python3"  # This is due to using gamera
     }
     enabled = True
@@ -161,6 +160,7 @@ class BiollanteRodan(RodanTask):
             # Create set of parameters for template
             d = self.knnga_dict()
             d["@state"] = STATE_NOT_OPTIMIZING
+            # decoding for python3 must be done manually
             d["@settings"] = settings["@settings"].decode("UTF-8")
             d["@weights"] = settings["@weights"]
             self.logger.info("returning waiting for user input") 
@@ -176,6 +176,7 @@ class BiollanteRodan(RodanTask):
         elif settings["@state"] == STATE_OPTIMIZING:
             self.logger.info("State: Optimizing")
             self.load_from_settings(settings)
+            self.logger.info("loaded the settings and continuing the job after optimizing")
 
             # Load data
             with NTF(suffix=".xml") as temp:
@@ -184,10 +185,12 @@ class BiollanteRodan(RodanTask):
                     temp.name
                 )
                 classifier = knn.kNNNonInteractive(temp.name)
+                self.logger.info("created the classifier object")
 
             # Load selection and weights
             with NTF(suffix=".xml") as temp:
-                temp.write(settings["@settings"])
+                temp.write(settings["@settings"].encode("UTF-8"))
+                self.logger.info("encoded again and it will be as bytes from now on ")
                 temp.flush()
                 classifier.load_settings(temp.name)
 
@@ -201,7 +204,7 @@ class BiollanteRodan(RodanTask):
                 self.stop_criteria.sc,
                 knnga.GAParallelization(True, 4)
             )
-
+            self.logger.info("created the self.optimizer field and continuing")
             assert isinstance(self.optimizer, knnga.GAOptimization), \
                 "Optimizer is %s" % str(type(self.optimizer))
 
@@ -225,10 +228,12 @@ class BiollanteRodan(RodanTask):
                 temp.flush()
                 temp.seek(0)
                 settings["@settings"] = temp.read()
+                self.logger.info("read the settings again, now going to classify and get the features.")
 
             self.logger.info(classifier.get_weights_by_features())
             settings["@state"] = STATE_NOT_OPTIMIZING
             settings["@weights"] = classifier.get_weights_by_features()
+            self.logger.info("created settings[@state] and settings[@weights]")
             return self.WAITING_FOR_INPUT(settings)
 
         else:   # Finish
@@ -236,6 +241,7 @@ class BiollanteRodan(RodanTask):
             with open(
                 outputs["Feature Weights/Selection"][0]["resource_path"], 'w'
             ) as f:
+                self.logger.info("gonna write as the final step ")            
                 f.write(settings["@settings"])
             return True
 
