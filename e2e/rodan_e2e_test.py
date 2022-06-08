@@ -12,6 +12,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -44,16 +45,16 @@ class RodanConnection:
         driver.implicitly_wait(3)
         return driver
 
-    def delete_all_projects(self):
-        projects_url = urljoin(f"{self.url}", "api/projects/?format=json")
-        projects_json = requests.get(projects_url, auth=(self.username, self.password))
-        if not projects_json.ok:
+    def delete_all_resources(self, resource_type):
+        resource_url = urljoin(f"{self.url}", f"api/{resource_type}/?format=json")
+        resource_json = requests.get(resource_url, auth=(self.username, self.password))
+        if not resource_json.ok:
             raise Exception(
-                f"Couldn't load {projects_url}: received HTTP {projects_json.status_code}."
+                f"Couldn't load {resource_url}: received HTTP {resource_json.status_code}."
             )
-        projects = json.loads(projects_json.text)
-        for project in projects["results"]:
-            requests.delete(project["url"], auth=(self.username, self.password))
+        resources = json.loads(resource_json.text)
+        for resource in resources["results"]:
+            requests.delete(resource["url"], auth=(self.username, self.password))
 
     def login_to_rodan(self):
         self.driver.get(self.url)
@@ -68,21 +69,61 @@ class RodanConnection:
         while not self.driver.get_cookies():
             sleep(1)
 
-    def create_new_project(self):
+    def navigate_home(self):
         self.driver.get(self.url)
+
+    def create_new_project(self):
+        self.navigate_home()
         new_project_button = self.driver.find_element(By.ID, "button-new_project")
         projects = None
         while not projects:
             new_project_button.click()
-            sleep(1)
+            sleep(3)
             projects = self.driver.find_elements(
                 By.XPATH, '//*[@id="table-projects"]/tbody/tr'
             )
         return projects[0]
 
+    def double_click(self, element):
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element)
+        actions.double_click()
+        actions.perform()
 
-    def enter_project(self, project):
-        project.doubleclick()
+    def create_workflow(self, project_element):
+        self.double_click(project_element)
+        self.driver.find_element(By.ID, "workflow_count").click()
+        self.driver.find_element(By.ID, "button-new_workflow").click()
+        workflows = None
+        while not workflows:
+            workflows = self.driver.find_elements(
+                By.XPATH, '//*[@id="table-workflows"]/tbody/tr'
+            )
+            sleep(3)
+        return workflows[0]
+
+    def build_workflow(self):
+        workflow_dropdown = self.driver.find_element(
+            By.XPATH, '//*[@id="region-main"]//*[contains(text(), "Workflow")]'
+        )
+        workflow_dropdown.click()
+        add_job_button = workflow_dropdown.find_element(
+            By.XPATH, '//*[@id="button-add_job"]'
+        )
+        add_job_button.click()
+        filter_button = self.driver.find_element(By.ID, "filter-menu")
+        filter_button.click()
+        name_button = filter_button.find_element(
+            By.CSS_SELECTOR, 'a[data-id="filter_name"]'
+        )
+        name_button.click()
+        name_filter.send_keys("one-bit")
+        onebit_job_row = self.driver.find_element(
+            By.XPATH, '//*[@id="table-jobs"]//tr[contains(@title, "**to_onebit**")]'
+        )
+        add_button = onebit_job_row.find_element(By.ID, 'button-main_job_button_add')
+        add_button.click()
+
 
 
 def test():
