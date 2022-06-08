@@ -1,5 +1,5 @@
 from rodan.jobs.base import RodanTask
-from interactive_classifier import *
+from rodan.jobs.interactive_classifier.interactive_classifier import *
 
 class InteractiveClassifier(RodanTask):
     #############
@@ -472,3 +472,4 @@ class InteractiveClassifier(RodanTask):
                 '@deleted_classes': user_input['deleted_classes'],
                 '@renamed_classes': user_input['renamed_classes']
             }
+            

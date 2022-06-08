@@ -40,25 +40,6 @@ def register_base():
 # Python2 Jobs
 def register_py2():
 
-    # Register IC
-    try:
-        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
-
-        app.register_task(InteractiveClassifier())
-    except Exception as exception:
-        import_name = "Interactive Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
-            GameraXMLDistributor,
-        )
-
-        app.register_task(GameraXMLDistributor())
-    except Exception as exception:
-        import_name = "XML Distributor"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register MEI Encoding
     try:
         from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
@@ -443,6 +424,7 @@ def register_py3():
         import_name = "Biollante"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
     
+    
     # Register IC
     try:
         from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
@@ -463,7 +445,7 @@ def register_py3():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
- # Register Neume Slicing
+    # Register Neume Slicing
     try:
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
 
