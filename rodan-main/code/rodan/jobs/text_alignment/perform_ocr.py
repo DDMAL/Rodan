@@ -98,7 +98,10 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     results = []
     for r in predictor.predict_raw(strips):
         results.append(r)
-        print("prediction: {}".format(r))
+
+        print("prediction: {} \n".format(r.outputs[1].sentence))
+        for p in r.outputs[1].positions:
+            print("{} {} {} {} {}".format(p.chars[0], p.local_start, p.local_end, p.global_start, p.global_end))
 
     all_chars = []
 
@@ -110,6 +113,8 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
         r = results[i]
         chars = list(r.outputs[1].sentence)
         global_starts = [x.global_start for x in r.outputs[1].positions]
+
+        print('global_starts : {}'.format(global_starts))
 
         # to find width of final character, append median char width to end of line
         med_char_width = int(np.median(np.diff(global_starts)))
@@ -183,4 +188,4 @@ if __name__ == '__main__':
     all_chars = recognize_text_strips(img_bin, line_strips, ocr_model_name, True)
     all_chars = handle_abbreviations(all_chars, max_iters=10e4)
 
-    print(all_chars)
+    # print(all_chars)
