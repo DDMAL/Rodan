@@ -2,7 +2,7 @@ import unittest
 import logging
 from os import environ
 
-from rodan_connection import RodanConnection
+from .rodan_connection import RodanConnection
 
 DEFAULT_URL = "rodan-staging.simssa.ca"
 
