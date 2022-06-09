@@ -67,8 +67,6 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     # every text strip (since we're processing them in sequence and not in parallel).
     import tensorflow as tf
     tf.config.set_visible_devices([], 'GPU')
-    print(tf.config.get_visible_devices())
-
     from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 
     dir = os.path.dirname(__file__)
@@ -115,6 +113,10 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
         global_starts = [x.global_start for x in r.outputs[1].positions]
 
         print('global_starts : {}'.format(global_starts))
+
+        # do not continue with this line if less than two characters have been found
+        if len(global_starts) < 2:
+            continue
 
         # to find width of final character, append median char width to end of line
         med_char_width = int(np.median(np.diff(global_starts)))
