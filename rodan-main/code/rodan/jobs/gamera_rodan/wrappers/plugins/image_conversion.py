@@ -23,6 +23,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
+# gamera4 works in python3 so we can use the same functions as used in the former gamera versions 
+
 import gamera
 from gamera.core import load_image
 from gamera.plugins import image_conversion

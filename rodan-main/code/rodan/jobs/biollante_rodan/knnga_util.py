@@ -310,9 +310,8 @@ class SerializableMutation:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
-        # the sort is either by the keys or the values. maybe using external libs? maybe skipping? maybe checking gamera source code?
         self.mutation.setBinaryMutation(rate, normalize)
 
     def setGaussMutation(self, numFeatures, minVal, maxVal, sigma, rate):
@@ -329,9 +328,8 @@ class SerializableMutation:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
-        # mostly the same as list - most prolly have to be sorted with the key of the dict
         self.mutation.setGaussMutation(
             numFeatures,
             minVal,
@@ -348,7 +346,7 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.mutation.setInversionMutation()
 
@@ -360,7 +358,7 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.mutation.setShiftMutation()
 
@@ -372,7 +370,7 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.mutation.setSwapMutation()
 
@@ -457,7 +455,7 @@ class SerializableCrossover:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.crossover.setHypercubeCrossover(numFeatures, min, max, alpha)
 
@@ -469,7 +467,7 @@ class SerializableCrossover:
                 "parameters": {"n": n}
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.crossover.setNPointCrossover(n)
 
@@ -486,7 +484,7 @@ class SerializableCrossover:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.crossover.setSBXcrossover(numFeatures, min, max, eta)
 
@@ -503,7 +501,7 @@ class SerializableCrossover:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.crossover.setSegmentCrossover(numFeatures, min, max, alpha)
 
@@ -515,7 +513,7 @@ class SerializableCrossover:
                 "parameters": {"preference": preference}
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.crossover.setUniformCrossover(preference)
 
@@ -619,7 +617,7 @@ class SerializableStopCriteria:
                 "parameters": {"optimum": optimum}
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.sc.setBestFitnessStop(optimum)
 
@@ -632,7 +630,7 @@ class SerializableStopCriteria:
                 "parameters": {"n": n}
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.sc.setMaxFitnessEvals(n)
 
@@ -645,7 +643,7 @@ class SerializableStopCriteria:
                 "parameters": {"n": n}
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.sc.setMaxGenerations(n)
 
@@ -665,7 +663,7 @@ class SerializableStopCriteria:
                 }
             }
         )
-        logger.info(("methods is {0}").format(self.methods))
+        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
         self.methods = simple_sort(self.methods)
         self.sc.setSteadyStateStop(minGens, noChangeGens)
 
