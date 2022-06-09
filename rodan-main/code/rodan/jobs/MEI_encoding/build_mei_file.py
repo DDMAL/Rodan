@@ -6,10 +6,9 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-from rodan.jobs.MEI_encoding import parse_classifier_table as pct
-#from pymei import MeiDocument, MeiElement, MeiAttribute, documentToText, documentToFile
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan 
+#import parse_classifier_table as pct ---> for testing locally 
 from itertools import groupby
-#from visualize_alignment import draw_mei_doc
 
 try:
     from rodan.jobs.MEI_encoding import __version__
@@ -479,15 +478,12 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
                 # case 2
                 else:
-
-                    if ((tag != "neume") and ("neume_added" == False)): 
+                    #To ensure that divLines are not leftmost element 
+                    #clefs and custos should be outside of the syllable 
+                    if ((tag != "neume") and ((syl_dict["neume_added"] == False) | (tag != "divLine"))): 
                         layer.append(new_element)
                         syl_dict["latest"] = new_element
-                    #Clefs and custos should be outside the syllable 
-                    elif (tag == "custos") | (tag == "clef") | (tag == "accid"):
-                        #add to layer and add this element as the lastest element to the dict
-                        syl_dict["latest"] = new_element
-                        layer.append(new_element)
+                    
 
                     else: #divline or neume 
                         #continue as normal (append to current syllable) 
@@ -544,14 +540,12 @@ def build_mei(pairs, classifier, width_container, staves, page):
             # case 4 
             # syllable not over, so need to handle all five cases
             else:
-                if ((tag != "neume") and ("neume_added" == False)): 
-                        layer.append(new_element)
-                        syl_dict["latest"] = new_element
-                #if new element needs to be added to the layer: 
-                elif (tag == "custos") | (tag == "clef") | (tag == "sb") | (tag == "accid"): 
+                #To ensure that divLines are not leftmost element 
+                #clefs and custos should be outside of the syllable 
+                if ((tag != "neume") and ((syl_dict["neume_added"] == False) | (tag != "divLine"))): 
                     layer.append(new_element)
-                    layer.append(sb)
-        
+                    syl_dict["latest"] = new_element
+                    
                 else:
                     #if no latest element in dictionary continue as normal  
                     if ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume")): 
@@ -710,8 +704,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/258rPF.json'
-        in_syls = './tests/resources/258rTA.json'
+        inJSOMR = './tests/resources/070rPF.json'
+        in_syls = './tests/resources/070r.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -743,4 +737,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("258r2.xml", encoding="utf-8")
+    tree.write("070r.xml", encoding="utf-8")
