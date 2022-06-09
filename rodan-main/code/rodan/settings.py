@@ -140,7 +140,6 @@ BASE_JOB_PACKAGES = [
 RODAN_PYTHON2_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.interactive_classifier",
     "rodan.jobs.MEI_encoding",
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
