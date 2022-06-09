@@ -67,77 +67,6 @@ def register_py2():
         import_name = "MEI Resizing"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register toolkits jobs
-
-    try:
-        from rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask import (
-            PolyMask,
-        )
-
-        app.register_task(PolyMask())
-    except Exception as exception:
-        import_name = "Poly Mask"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
-            StablePaths,
-        )
-
-        app.register_task(StablePaths())
-    except Exception as exception:
-        import_name = "Stable Paths"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
-            StablePathDetection,
-        )
-
-        app.register_task(StablePathDetection())
-    except Exception as exception:
-        import_name = "Stable Path Detection"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao import (
-            MiyaoStaffFinder,
-        )
-
-        app.register_task(MiyaoStaffFinder())
-    except Exception as exception:
-        import_name = "Miyao Staff Finder"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem import (
-            RoachTatemRemoveStaffLines,
-        )
-
-        app.register_task(RoachTatemRemoveStaffLines())
-    except Exception as exception:
-        import_name = "Roach Tatem Remove Staff Lines"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-
-    # Register HPF
-    try:
-        from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
-
-        app.register_task(MiyaoStaffinding())
-    except Exception as exception:
-        import_name = "Miyao Staff Finding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
-
-        app.register_task(HeuristicPitchFinding())
-    except Exception as exception:
-        import_name = "Heuristic Pitch Finding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-
     # Register Neon
     try:
         from rodan.jobs.neon_wrapper.wrapper import Neon
@@ -184,6 +113,7 @@ def register_py3():
     except Exception as exception:
         import_name = "HPC Fast Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        
 
     # Register PIL Rodan
     try:
@@ -415,6 +345,18 @@ def register_py3():
         import_name = "Djvu Threshold"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register miyao toolkit jobs
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao import (
+            MiyaoStaffFinder,
+        )
+
+        app.register_task(MiyaoStaffFinder())
+    except Exception as exception:
+        import_name = "Miyao Staff Finder"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+
    # Register Biollante
     try:
         from rodan.jobs.biollante_rodan import BiollanteRodan
@@ -460,6 +402,24 @@ def register_py3():
         app.register_task(DirtyLayerRepair())
     except Exception as exception:
         import_name = "Dirty Layer Repair"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    
+    # Register HPF
+    try:
+        from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
+
+        app.register_task(MiyaoStaffinding())
+    except Exception as exception:
+        import_name = "Miyao Staff Finding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
+
+        app.register_task(HeuristicPitchFinding())
+    except Exception as exception:
+        import_name = "Heuristic Pitch Finding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
