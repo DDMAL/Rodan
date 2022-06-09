@@ -21,7 +21,7 @@
     ```
     You have to __```vim```__ to the python file throwing the error. Then replace ```os.path.join(internal_png_dir, x) for x in``` with ```("src/libpng-1.2.5/" + x) for x in``` (in the line that the error comes from) and retry.
 
-* You have successfully built and installed Gamera4 on the container. Now, you can remove **gamera-4** directory by running `cd && cd .. && rm -rf gamera-4`
+* You have successfully built and installed Gamera4 on the container. Now, you can remove **gamera-4** directory by running `cd / && rm -rf gamera-4`
 
 * To test if Gamera4 is working properly or not, you can create a python test script and use Gamera4's methods. For instance: <br>
 
