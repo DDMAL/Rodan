@@ -5,7 +5,8 @@ from __future__ import unicode_literals
 from gamera import knnga
 
 import json
-
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 # All default values are taken from the
 # corresponding Gamera functions.
@@ -22,6 +23,96 @@ DEFAULT_GEN_N = 100
 DEFAULT_MIN_GEN = 40
 DEFAULT_NO_CHANGE_GEN = 10
 
+# A function to compare dictionaries in python 3
+# and A function to sort a list of dictionaries 
+def dict_comparison(dict1, dict2):
+    """Returns 0 if the two dicts are equal. Returns -1 if the first
+    dict input is less than the second dict input and returns 1 otherwise. The rule is based on 
+    python2 comparison between two dictionaries algorithm. 
+
+    Args:
+        dict1 (dict): first dictionary 
+        dict2 (dict): second dictionary 
+
+    Returns:
+        int: 0 if dict1 == dict2 -1 if dict1 < dict2 1 otherwise.
+    """
+    # check if the dicts are equal 
+    if dict1 == dict2: 
+        return 0
+        
+    # check the keys of both 
+    keys1= list(dict1.keys())
+    keys2= list(dict2.keys())
+ 
+    # unequal lengths in the first priority 
+    # first to prevent the errors 
+    if len(keys1) == 0:
+        if len(keys2) == 0:
+            return 0
+        else:
+            return -1
+    if len(keys2) == 0:
+        return 1
+
+    list(dict1.keys()).sort()
+    list(dict2.keys()).sort()
+
+    if len(keys1) < len(keys2):
+        return -1
+    elif len(keys1) > len(keys1):
+        return 1
+
+    # equal lengths: compare the keys 
+    for key_index in range(len(keys1)):
+        if keys1[key_index] < keys2[key_index]:
+            # the min element of the first is less 
+            # so, in general, its less
+            return -1
+        elif keys1[key_index] > keys2[key_index]:
+            # the min element of the first is greater
+            # so, in general, its greater
+            return 1
+
+    # exited the loop -> same key lists 
+    # now, looking into the values of the dictionary 
+    for key_index in range(len(keys1)):
+        value1 = dict1[keys1[key_index]]
+        value2 = dict2[keys1[key_index]]
+        if type(value1) == dict:
+            # if both values are of type dict
+            value_comparison= dict_comparison(value1, value2)
+            if value_comparison < 0:
+                return -1
+            elif value_comparison > 0:
+                return 1
+            
+        else:
+            # when the type of the values are is not dict
+            # python 3 allows comparison for those types 
+            if value1 < value2 : return -1
+            elif value1 > value2 : return 1
+
+    # just in case (to avoid errors) - meaning that the two dicts are equal 
+    return 0
+
+# bubble sort for the methods list
+# using bubble sort because the list is consisted of very limited number of dicts
+def simple_sort(list_of_dicts):
+    """To sort a list of dictionaries for the methods of the classes below 
+
+    Args:
+        list_of_dicts (list): the list to be sorted
+
+    Returns:
+        list: the sorted list of dicts 
+    """
+    for item in range(len(list_of_dicts)):
+        for j in range(0, (len(list_of_dicts) - item - 1)):
+            if dict_comparison(list_of_dicts[j],list_of_dicts[j + 1]) > 0:
+                (list_of_dicts[j], list_of_dicts[j + 1]) = (list_of_dicts[j + 1], list_of_dicts[j])
+
+    return list_of_dicts
 
 class SerializableSelection():
     """
@@ -219,7 +310,9 @@ class SerializableMutation:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
+        # the sort is either by the keys or the values. maybe using external libs? maybe skipping? maybe checking gamera source code?
         self.mutation.setBinaryMutation(rate, normalize)
 
     def setGaussMutation(self, numFeatures, minVal, maxVal, sigma, rate):
@@ -236,7 +329,9 @@ class SerializableMutation:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
+        # mostly the same as list - most prolly have to be sorted with the key of the dict
         self.mutation.setGaussMutation(
             numFeatures,
             minVal,
@@ -253,7 +348,8 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.mutation.setInversionMutation()
 
     def setShiftMutation(self):
@@ -264,7 +360,8 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.mutation.setShiftMutation()
 
     def setSwapMutation(self):
@@ -275,7 +372,8 @@ class SerializableMutation:
                     "parameters": {}
                 }
             )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.mutation.setSwapMutation()
 
     def toJSON(self):
@@ -359,7 +457,8 @@ class SerializableCrossover:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.crossover.setHypercubeCrossover(numFeatures, min, max, alpha)
 
     def setNPointCrossover(self, n):
@@ -370,7 +469,8 @@ class SerializableCrossover:
                 "parameters": {"n": n}
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.crossover.setNPointCrossover(n)
 
     def setSBXCrossover(self, numFeatures, min, max, eta=DEFAULT_ETA):
@@ -386,7 +486,8 @@ class SerializableCrossover:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.crossover.setSBXcrossover(numFeatures, min, max, eta)
 
     def setSegmentCrossover(self, numFeatures, min, max, alpha=DEFAULT_ALPHA):
@@ -402,7 +503,8 @@ class SerializableCrossover:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.crossover.setSegmentCrossover(numFeatures, min, max, alpha)
 
     def setUniformCrossover(self, preference=DEFAULT_PREFERENCE):
@@ -413,7 +515,8 @@ class SerializableCrossover:
                 "parameters": {"preference": preference}
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.crossover.setUniformCrossover(preference)
 
     def toJSON(self):
@@ -516,7 +619,8 @@ class SerializableStopCriteria:
                 "parameters": {"optimum": optimum}
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.sc.setBestFitnessStop(optimum)
 
     def setMaxFitnessEvals(self, n=DEFAULT_EVAL_N):
@@ -528,7 +632,8 @@ class SerializableStopCriteria:
                 "parameters": {"n": n}
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.sc.setMaxFitnessEvals(n)
 
     def setMaxGenerations(self, n=DEFAULT_GEN_N):
@@ -540,7 +645,8 @@ class SerializableStopCriteria:
                 "parameters": {"n": n}
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.sc.setMaxGenerations(n)
 
     def setSteadyStateStop(
@@ -559,7 +665,8 @@ class SerializableStopCriteria:
                 }
             }
         )
-        self.methods.sort()
+        logger.info(("methods is {0}").format(self.methods))
+        self.methods = simple_sort(self.methods)
         self.sc.setSteadyStateStop(minGens, noChangeGens)
 
     def toJSON(self):
