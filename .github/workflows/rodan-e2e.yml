@@ -2,7 +2,7 @@
 # Under the MIT License.
 #
 name: Rodan E2E Tests
-on: [push]
+on: [workflow_dispatch]
 jobs:
   Rodan-E2E-Tests:
     runs-on: ubuntu-latest
