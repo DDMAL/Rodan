@@ -3,11 +3,12 @@ from rodan.jobs.base import RodanTask
 from gamera.core import load_image, init_gamera
 from gamera import gamera_xml
 
-from StaffFinding import StaffFinder
-from PitchFinding import PitchFinder
+from .StaffFinding import StaffFinder
+from .PitchFinding import PitchFinder
 
 import sys
 import json
+import json.encoder
 
 init_gamera()
 
@@ -23,7 +24,7 @@ class MiyaoStaffinding(RodanTask):
     settings = {
         'title': 'Settings',
         'type': 'object',
-        'job_queue': 'Python2',
+        'job_queue': 'Python3',
         'required': ['Number of lines', 'Interpolation'],
         'properties': {
             'Number of lines': {
@@ -93,6 +94,8 @@ class HeuristicPitchFinding(RodanTask):
     settings = {
         'title': 'aOMR settings',
         'type': 'object',
+        'job_queue': 'Python3',
+
         'required': ['Discard Size'],
         'properties': {
             'Discard Size': {
@@ -155,9 +158,12 @@ class HeuristicPitchFinding(RodanTask):
             'staves': staves,
             'glyphs': pitches,
         }
+        #jsomr = json.decoder(jsomr)
 
         outfile_path = outputs['JSOMR of glyphs, staves, and page properties'][0]['resource_path']
-        with open(outfile_path, 'w') as outfile:
-            outfile.write(json.dumps(jsomr))
+        
+        with open(outfile_path, "w") as outfile:
+            r = json.dumps(jsomr)
+            outfile.write(r)
 
         return True

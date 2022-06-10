@@ -400,7 +400,7 @@ class StaffFinder(object):
                             y_intersects = True,
                             if st['coords'][0] > st2['coords'][0]:
                                 row_placement = k + 1   # get row pos
-                            print 'y_intersects', k
+                            print ('y_intersects', k)
 
                     # place in correct row
                     if y_intersects:
@@ -423,8 +423,8 @@ class StaffFinder(object):
                 st['staff_no'] = count
                 numbered_staves.append(st)
 
-        print [[x['staff_no'] for x in group] for group in ordered_staves]
-        print [x['staff_no'] for x in numbered_staves]
+        print ([[x['staff_no'] for x in group] for group in ordered_staves])
+        print ([x['staff_no'] for x in numbered_staves])
 
         return numbered_staves
 
