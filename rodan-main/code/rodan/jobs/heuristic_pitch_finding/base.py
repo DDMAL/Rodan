@@ -148,6 +148,22 @@ class HeuristicPitchFinding(RodanTask):
 
         pf = PitchFinder(**kwargs)
 
+        def rec_serialize(byte2str):
+            """
+            A recursive function that iterates over a JSON object and changes all the bytes values to string
+            """
+            for key in byte2str:
+                value = byte2str[key]
+                tp = type(value)
+                if tp != dict:
+                    if tp == bytes:
+                        value = value.decode("UTF-8")
+                    
+                else: 
+                    byte2str(value)
+            return byte2str
+
+
         page = jsomr['page']
         staves = jsomr['staves']
         pitches = pf.get_pitches(glyphs, staves)
