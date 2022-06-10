@@ -3,7 +3,6 @@
 
 # Standard libraries
 import json
-from os import environ
 from time import sleep
 from typing import List
 from urllib.parse import urljoin
@@ -111,7 +110,8 @@ class RodanConnection:
             sleep(3)
         return workflows[0]
 
-    def build_workflow(self):
+    def build_workflow(self, workflow):
+        self.double_click(workflow)
         workflow_dropdown = self.driver.find_element(
             By.XPATH, '//*[@id="region-main"]//*[contains(text(), "Workflow")]'
         )
@@ -126,6 +126,7 @@ class RodanConnection:
             By.CSS_SELECTOR, 'a[data-id="filter_name"]'
         )
         name_button.click()
+        name_filter = self.driver.find_element(By.ID, "name__icontains")
         name_filter.send_keys("one-bit")
         onebit_job_row = self.driver.find_element(
             By.XPATH, '//*[@id="table-jobs"]//tr[contains(@title, "**to_onebit**")]'
