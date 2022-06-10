@@ -147,7 +147,7 @@ RODAN_PYTHON2_JOBS = [
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
     "rodan.jobs.biollante_rodan",
-=    "rodan.jobs.test_rodan"
+    "rodan.jobs.test_rodan"
 ]
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
