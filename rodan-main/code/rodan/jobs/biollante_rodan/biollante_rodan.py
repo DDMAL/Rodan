@@ -160,8 +160,10 @@ class BiollanteRodan(RodanTask):
             # Create set of parameters for template
             d = self.knnga_dict()
             d["@state"] = STATE_NOT_OPTIMIZING
+
             # decoding for python3 must be done manually
             d["@settings"] = settings["@settings"].decode("UTF-8")
+
             d["@weights"] = settings["@weights"]
             self.logger.info("returning waiting for user input") 
             self.logger.info("here are the settings and the types: ")
@@ -176,7 +178,7 @@ class BiollanteRodan(RodanTask):
         elif settings["@state"] == STATE_OPTIMIZING:
             self.logger.info("State: Optimizing")
             self.load_from_settings(settings)
-            self.logger.info("loaded the settings and continuing the job after optimizing")
+            self.logger.info("loaded the settings and optimizing...")
 
             # Load data
             with NTF(suffix=".xml") as temp:
@@ -190,7 +192,7 @@ class BiollanteRodan(RodanTask):
             # Load selection and weights
             with NTF(suffix=".xml") as temp:
                 temp.write(settings["@settings"].encode("UTF-8"))
-                self.logger.info("encoded again and it will be as bytes from now on ")
+                self.logger.info("encoded settings[\"@settings\"] again and it will have type bytes from now on (until modified later)")
                 temp.flush()
                 classifier.load_settings(temp.name)
 
@@ -204,7 +206,7 @@ class BiollanteRodan(RodanTask):
                 self.stop_criteria.sc,
                 knnga.GAParallelization(True, 4)
             )
-            self.logger.info("created the self.optimizer field and continuing")
+            self.logger.info("Created the self.optimizer field and continuing")
             assert isinstance(self.optimizer, knnga.GAOptimization), \
                 "Optimizer is %s" % str(type(self.optimizer))
 
@@ -241,7 +243,7 @@ class BiollanteRodan(RodanTask):
             with open(
                 outputs["Feature Weights/Selection"][0]["resource_path"], 'w'
             ) as f:
-                self.logger.info("gonna write as the final step ")            
+                self.logger.info("writing the result as the final step")            
                 f.write(settings["@settings"])
             return True
 
