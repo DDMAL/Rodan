@@ -180,7 +180,7 @@ class HeuristicPitchFinding(RodanTask):
         outfile_path = outputs['JSOMR of glyphs, staves, and page properties'][0]['resource_path']
         
         with open(outfile_path, "w") as outfile:
-            r = json.dumps(jsomr)
-            outfile.write(rec_serialize(r))
+            r = json.dumps(rec_serialize(jsomr))
+            outfile.write(r)
 
         return True
