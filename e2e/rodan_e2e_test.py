@@ -18,7 +18,7 @@ class RodanE2ETestCase(unittest.TestCase):
         except KeyError:
             print(
                 "RODAN_URL not found in environment variables, "
-                f"Falling back to default: {DEFAULT_URL}"
+                f"falling back to default: {DEFAULT_URL}"
             )
             url = DEFAULT_URL
         cls.rodan = RodanConnection(url, username, password)
