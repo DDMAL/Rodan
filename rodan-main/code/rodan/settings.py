@@ -139,9 +139,6 @@ BASE_JOB_PACKAGES = [
 ]
 RODAN_PYTHON2_JOBS = [
     "rodan.jobs.helloworld",
-    "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.biollante_rodan",
     "rodan.jobs.test_rodan"
 ]
 RODAN_PYTHON3_JOBS = [
@@ -153,6 +150,13 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.pixel_wrapper",
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.mei2vol_wrapper"
+    "rodan.jobs.mei2vol_wrapper",
+    "rodan.jobs.gamera_rodan",
+    "rodan.jobs.heuristic_pitch_finding",
+    "rodan.jobs.biollante_rodan",
+    "rodan.jobs.interactive_classifier",
+    "rodan.jobs.diagonal_neume_slicing"
+   
 ]
 RODAN_GPU_JOBS = [
     "rodan.jobs.Calvo_classifier",

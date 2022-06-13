@@ -35,7 +35,7 @@ def convert_arg_list(arglist):
 				value['minimum'] = a.rng[0]
 				value['maximum'] = a.rng[1]
 		elif isinstance(a, args.ImageType):
-			raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')
+			raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')	
 		elif isinstance(a, args.Bool):
 			value['type'] = 'boolean'
 		elif isinstance(a, args.Check):

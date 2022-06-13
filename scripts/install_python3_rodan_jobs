@@ -1,4 +1,9 @@
 #!/bin/sh
+echo
+echo "############################"
+echo "started installing python3 jobs"
+echo "############################"
+echo
 set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
@@ -73,4 +78,5 @@ cd / && rm -rf gamera-4
 
 # for more information refer to:
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
-############################### 
+###############################
+

@@ -1,7 +1,8 @@
 from gamera import gamera_xml
 from gamera.plugins.image_utilities import union_images
 from operator import itemgetter, attrgetter
-
+import logging
+logger = logging.getLogger("__name__")
 
 class PitchFinder(object):
 
@@ -40,7 +41,6 @@ class PitchFinder(object):
 
         output = []
         for i, g in enumerate(self.sorted_glyphs):
-
             cur_json = {}
             pitch_info = {}
             glyph_info = {}
@@ -60,6 +60,7 @@ class PitchFinder(object):
                 'uly': g[0].ul.y,
             }
             glyph_info['state'] = gamera_xml.classification_state_to_name(g[0].classification_state)
+            #logger.info(g[0].id_name)
             glyph_info['name'] = g[0].id_name[0][1]
             cur_json['glyph'] = glyph_info
 
@@ -84,7 +85,7 @@ class PitchFinder(object):
         proc_glyphs = []
 
         for g in self.glyphs:
-            glyph_var = g.get_main_id().split('.')
+            glyph_var = g.get_main_id().decode().split('.')
             glyph_type = glyph_var[0]
 
             center_of_mass = self._x_projection_vector(g)
@@ -124,7 +125,7 @@ class PitchFinder(object):
         g = glyph
         y_add = 0
 
-        if 'clef.f' in glyph.get_main_id():
+        if bytes('clef.f', encoding='utf8') in glyph.get_main_id():
             g, y_add = self._vector_process_f_clef(g)
 
         center_of_mass = 0
@@ -190,7 +191,7 @@ class PitchFinder(object):
 
     def _get_staff_no(self, g, center_of_mass):
         # find which staff a glyph belongs to
-        if g.get_main_id().split('.')[0] in self.staffless_glyphs:
+        if g.get_main_id().decode().split('.')[0] in self.staffless_glyphs:
             return None
 
         glyph_coords = [g.offset_x, g.offset_y, g.offset_x + g.ncols, g.offset_y + g.nrows]
@@ -351,7 +352,7 @@ class PitchFinder(object):
         line_pos = None
 
         # clefs snap to lines only
-        line_snap = True if 'clef' in glyph.get_main_id().split('.')[0] else False
+        line_snap = True if 'clef' in glyph.get_main_id().decode().split('.')[0] else False
 
         # find left/right staffline position to compare against center_of_mass
         for i, point in enumerate(staff[0]):
@@ -450,7 +451,7 @@ class PitchFinder(object):
     def _sort_glyphs(self, proc_glyphs):
 
         def __glyph_type(g):
-            return g[0].get_main_id().split(".")[0]
+            return g[0].get_main_id().decode().split(".")[0]
 
         # Sorts the glyphs by its place in the page (up-bottom, left-right) and appends
         # the proper note according to the clef at the beginning of each stave
@@ -462,7 +463,7 @@ class PitchFinder(object):
             if gtype == 'clef':
 
                 # overwrite last defined clef
-                self.clef = glyph_array[0].get_main_id().split('.')[1], glyph_array[3]
+                self.clef = glyph_array[0].get_main_id().decode().split('.')[1], glyph_array[3]
                 glyph_array[3] = 6 - glyph_array[3] / 2  # get clef line excluding spaces
                 glyph_array.extend([None, None, None, None])
 
@@ -491,7 +492,7 @@ class PitchFinder(object):
 
         return sorted_glyphs
 
-    ###########
+    ########
     # Utility
     ###########
 
