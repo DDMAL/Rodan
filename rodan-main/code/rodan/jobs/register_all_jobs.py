@@ -39,41 +39,29 @@ def register_base():
 
 # Python2 Jobs
 def register_py2():
-
-    # Register MEI Encoding
+      # Register Hello World
     try:
-        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+        from rodan.jobs.helloworld.helloworld import HelloWorld
 
-        app.register_task(MEI_encoding())
+        app.register_task(HelloWorld())
     except Exception as exception:
-        import_name = "MEI Encoding"
+        import_name = "Hello World"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Pixel.js
     try:
-        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
 
-        app.register_task(PixelInteractive())
+        app.register_task(HelloWorldMultiPort())
     except Exception as exception:
-        import_name = "Pixel"
+        import_name = "Hello World Multi Port"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register MEI resizing
     try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+        from rodan.jobs.helloworld.helloworld import HelloWorld3
 
-        app.register_task(MEI_Resize())
+        app.register_task(HelloWorld3())
     except Exception as exception:
-        import_name = "MEI Resizing"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
-
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
+        import_name = "Hello World Python3"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
@@ -114,6 +102,43 @@ def register_py3():
         import_name = "HPC Fast Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
         
+    
+    # Register MEI Encoding
+    try:
+        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+
+        app.register_task(MEI_encoding())
+    except Exception as exception:
+        import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Pixel.js
+    try:
+        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+
+        app.register_task(PixelInteractive())
+    except Exception as exception:
+        import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Neon
+    try:
+        from rodan.jobs.neon_wrapper.wrapper import Neon
+
+        app.register_task(Neon())
+    except Exception as exception:
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
     # Register PIL Rodan
     try:
