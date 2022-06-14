@@ -127,9 +127,18 @@ class RodanConnection:
         )
         name_button.click()
         name_filter = self.driver.find_element(By.ID, "name__icontains")
-        name_filter.send_keys("one-bit")
-        onebit_job_row = self.driver.find_element(
-            By.XPATH, '//*[@id="table-jobs"]//tr[contains(@title, "**to_onebit**")]'
+        name_filter.send_keys("hello")
+        hello_job_row = self.driver.find_element(
+            By.XPATH, '//*[@id="table-jobs"]//td[text()="Hello World - Python3"]'
         )
-        add_button = onebit_job_row.find_element(By.ID, "button-main_job_button_add")
-        add_button.click()
+        self.double_click(hello_job_row)
+        close_button = self.driver.find_element(By.XPATH, '//*[@id="modal-generic"]//button[@class="close"]')
+        close_button.click()
+        # Without this sleep, the test breaks.
+        sleep(1)
+        workflow_dropdown.click()
+        run_job_button = workflow_dropdown.find_element(
+            By.XPATH, '//*[@id="button-run"]'
+        )
+        run_job_button.click()
+
