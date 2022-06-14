@@ -35,9 +35,6 @@ echo
 # In the root directory
 cd /
 rm -rf gamera-4
-# upgrade apt to download the dependencies of the Cpp files
-apt upgrade 
-apt-get install libpng-dev && apt-get install libtiff5-dev
 
 # clone the gamera-4 repository 
 git clone https://github.com/hsnr-gamera/gamera-4.git
