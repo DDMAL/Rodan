@@ -36,34 +36,6 @@ def register_base():
         import_name = "Labeler"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Pixel.js
-    try:
-        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
-
-        app.register_task(PixelInteractive())
-    except Exception as exception:
-        import_name = "Pixel"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register MEI resizing
-    try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
-
-        app.register_task(MEI_Resize())
-    except Exception as exception:
-        import_name = "MEI Resizing"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
-
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-
 
 # Python2 Jobs
 def register_py2():
@@ -138,6 +110,33 @@ def register_py3():
         app.register_task(MEI_encoding())
     except Exception as exception:
         import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Pixel.js
+    try:
+        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+
+        app.register_task(PixelInteractive())
+    except Exception as exception:
+        import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Neon
+    try:
+        from rodan.jobs.neon_wrapper.wrapper import Neon
+
+        app.register_task(Neon())
+    except Exception as exception:
+        import_name = "Neon"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
