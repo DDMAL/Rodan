@@ -9,6 +9,9 @@ RUN set -e \
     git \
     python3 \
     python3-pip \
+    #gamera-4 dependencies
+    libpng-dev \
+    libtiff5-dev \
     # Opencv Dependency
     python3-opencv \
     # Python lxml dependencies
