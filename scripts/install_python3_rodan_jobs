@@ -15,15 +15,8 @@ PIP=$(which pip3) || PIP=:
 # update pip
 $PIP install -U pip
 
-# Install pil_rodan
-# pil_rodan is required for Calvo-Classifier because of the jpeg2000 resource type.
-$PIP install -r ./pil_rodan/requirements.txt
-
-# Install HPC Fast Trainer
-$PIP install -r ./hpc_fast_trainer/requirements.txt
-
 # Install MEI_encoding
-$PIP install -r ./MEI_encoding/requirements.txt >/dev/null
+$PIP install -r ./py3_requirements.txt >/dev/null
 
 # Install Pixel_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git

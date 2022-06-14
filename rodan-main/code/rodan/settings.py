@@ -138,8 +138,7 @@ BASE_JOB_PACKAGES = [
     "rodan.jobs.labeler",
 ]
 RODAN_PYTHON2_JOBS = [
-    "rodan.jobs.helloworld",
-    "rodan.jobs.test_rodan"
+    "rodan.jobs.helloworld"
 ]
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
@@ -155,7 +154,8 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.heuristic_pitch_finding",
     "rodan.jobs.biollante_rodan",
     "rodan.jobs.interactive_classifier",
-    "rodan.jobs.diagonal_neume_slicing"
+    "rodan.jobs.diagonal_neume_slicing",
+    "rodan.jobs.test_rodan"
    
 ]
 RODAN_GPU_JOBS = [

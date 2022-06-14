@@ -5,9 +5,6 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 cd /code/Rodan/rodan/jobs
 
-# Install Calvo-Trainer-HPC
-pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
-
 cd /code/Rodan/rodan
 # At the end, add all the jobs together.
 sed -i 's/#py2 //g' /code/Rodan/rodan/settings.py
