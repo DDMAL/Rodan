@@ -23,7 +23,7 @@ cd ./pixel_wrapper/
 $PIP install -r requirements.txt >/dev/null
 python3 activate_wrapper.py
 # [TODO] Test with yarn.
-npm install
+npm install -g npm@6.14.12 
 ./node_modules/.bin/gulp develop:rodan
 cd /code/Rodan/rodan/jobs
 
