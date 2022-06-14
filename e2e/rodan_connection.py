@@ -54,7 +54,6 @@ class RodanConnection:
         self.driver.get(self.url)
 
     def login_to_rodan(self):
-        self.navigate_home()
         username_field = self.driver.find_element(By.ID, "text-login_username")
         password_field = self.driver.find_element(By.ID, "text-login_password")
         login_button = self.driver.find_element(By.ID, "button-login")
@@ -78,24 +77,16 @@ class RodanConnection:
             requests.delete(resource["url"], auth=(self.username, self.password))
 
     def create_new_project(self):
-        self.navigate_home()
         new_project_button = self.driver.find_element(By.ID, "button-new_project")
         # This seems like an adequate time to wait for the page to load.
         sleep(3)
         new_project_button.click()
 
-    def get_all_projects(self) -> List[WebElement]:
-        self.navigate_home()
-        projects = self.driver.find_elements(
-            By.XPATH, '//*[@id="table-projects"]/tbody/tr'
-        )
-        return projects
-
-    def get_most_recent_project(self) -> WebElement:
-        projects = self.get_all_projects()
+    def get_most_recent_from_table(self, item: str) -> WebElement:
+        items = self.driver.find_elements(By.XPATH, f'//*[@id="table-{item}"]/tbody/tr')
         # td[3] corresponds to the "Created" field in the table.
         return sorted(
-            projects, reverse=True, key=lambda p: str(p.find_element(By.XPATH, "td[3]"))
+            items, reverse=True, key=lambda p: str(p.find_element(By.XPATH, "td[3]"))
         )[0]
 
     def create_workflow(self, project: WebElement) -> WebElement:
@@ -132,7 +123,9 @@ class RodanConnection:
             By.XPATH, '//*[@id="table-jobs"]//td[text()="Hello World - Python3"]'
         )
         self.double_click(hello_job_row)
-        close_button = self.driver.find_element(By.XPATH, '//*[@id="modal-generic"]//button[@class="close"]')
+        close_button = self.driver.find_element(
+            By.XPATH, '//*[@id="modal-generic"]//button[@class="close"]'
+        )
         close_button.click()
         # Without this sleep, the test breaks.
         sleep(1)
@@ -141,4 +134,3 @@ class RodanConnection:
             By.XPATH, '//*[@id="button-run"]'
         )
         run_job_button.click()
-
