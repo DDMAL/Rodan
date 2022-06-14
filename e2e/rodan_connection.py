@@ -2,7 +2,10 @@
 # Under the MIT License.
 
 # Standard libraries
+import atexit
 import json
+import os
+from tempfile import TemporaryDirectory
 from time import sleep
 from typing import List
 from urllib.parse import urljoin
@@ -23,10 +26,18 @@ class RodanConnection:
         self.url = f"{protocol}://{url}"
         self.username = username
         self.password = password
+        self.downloads_dir = TemporaryDirectory()
         self.driver = self.setup_driver()
+        atexit.register(self.cleanup)
+
+    def cleanup(self):
+        self.downloads_dir.cleanup()
 
     def setup_driver(self):
-        chrome_options = Options()
+        prefs = {
+            "profile.default_content_settings.popups": 0,
+            "download.default_directory": self.downloads_dir.name,
+        }
         options = [
             "--headless",
             "--disable-gpu",
@@ -36,8 +47,10 @@ class RodanConnection:
             "--no-sandbox",
             "--disable-dev-shm-usage",
         ]
+        chrome_options = Options()
         for option in options:
             chrome_options.add_argument(option)
+        chrome_options.add_experimental_option("prefs", prefs)
         driver = webdriver.Chrome(
             service=Service(ChromeDriverManager().install()), options=chrome_options
         )
@@ -101,7 +114,7 @@ class RodanConnection:
             sleep(3)
         return workflows[0]
 
-    def build_workflow(self, workflow):
+    def build_hello_world_workflow(self, workflow) -> str:
         self.double_click(workflow)
         workflow_dropdown = self.driver.find_element(
             By.XPATH, '//*[@id="region-main"]//*[contains(text(), "Workflow")]'
@@ -128,9 +141,29 @@ class RodanConnection:
         )
         close_button.click()
         # Without this sleep, the test breaks.
-        sleep(1)
+        sleep(3)
         workflow_dropdown.click()
         run_job_button = workflow_dropdown.find_element(
             By.XPATH, '//*[@id="button-run"]'
         )
         run_job_button.click()
+        while True:
+            try:
+                workflow_run = self.get_most_recent_from_table("workflowruns")
+            except IndexError:
+                sleep(1)
+        while workflow_run.find_element(By.XPATH, "td[5]").text != "Finished":
+            sleep(1)
+        resources_button = self.driver.find_element(By.ID, "button-resources_show")
+        resources_button.click()
+        resource_row = self.get_most_recent_from_table("resources")
+        self.double_click(resource_row)
+        with open(
+            os.path.join(
+                self.downloads_dir.name,
+                "Hello World - Python3 - Text output.txt",
+            ),
+            "r",
+        ) as f:
+            hello_world_output = f.read()
+            return hello_world_output

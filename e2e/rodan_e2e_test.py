@@ -44,5 +44,5 @@ class RodanE2ETestCase(unittest.TestCase):
         self.rodan.create_new_project()
         project = self.rodan.get_most_recent_from_table("projects")
         workflow = self.rodan.create_workflow(project)
-        self.rodan.build_workflow(workflow)
+        self.rodan.build_hello_world_workflow(workflow)
 
