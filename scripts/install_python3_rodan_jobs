@@ -35,6 +35,8 @@ git submodule update --remote
 yarn install
 yarn build
 cd /code/Rodan/rodan/jobs
+# Install MEI_encoding
+$PIP install -r ./MEI_encoding/requirements.txt >/dev/null
 
 # At the end, add all the jobs together.
 cd /code/Rodan/rodan
