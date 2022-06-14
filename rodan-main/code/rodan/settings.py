@@ -139,7 +139,6 @@ BASE_JOB_PACKAGES = [
 ]
 RODAN_PYTHON2_JOBS = [
     "rodan.jobs.helloworld",
-    "rodan.jobs.MEI_encoding",
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
     "rodan.jobs.MEI_resizing",
@@ -148,6 +147,7 @@ RODAN_PYTHON2_JOBS = [
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.hpc_fast_trainer",
+    "rodan.jobs.MEI_encoding",
     "rodan.jobs.pil_rodan",
     "rodan.jobs.mei2vol_wrapper",
     "rodan.jobs.gamera_rodan",

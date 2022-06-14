@@ -36,19 +36,6 @@ def register_base():
         import_name = "Labeler"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-
-# Python2 Jobs
-def register_py2():
-
-    # Register MEI Encoding
-    try:
-        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
-
-        app.register_task(MEI_encoding())
-    except Exception as exception:
-        import_name = "MEI Encoding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
@@ -74,6 +61,35 @@ def register_py2():
         app.register_task(Neon())
     except Exception as exception:
         import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+
+
+# Python2 Jobs
+def register_py2():
+      # Register Hello World
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorld
+
+        app.register_task(HelloWorld())
+    except Exception as exception:
+        import_name = "Hello World"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
+
+        app.register_task(HelloWorldMultiPort())
+    except Exception as exception:
+        import_name = "Hello World Multi Port"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.helloworld.helloworld import HelloWorld3
+
+        app.register_task(HelloWorld3())
+    except Exception as exception:
+        import_name = "Hello World Python3"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
@@ -114,6 +130,16 @@ def register_py3():
         import_name = "HPC Fast Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
         
+    
+    # Register MEI Encoding
+    try:
+        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+
+        app.register_task(MEI_encoding())
+    except Exception as exception:
+        import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
     # Register PIL Rodan
     try:
