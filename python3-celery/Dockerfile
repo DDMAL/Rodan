@@ -17,6 +17,9 @@ RUN set -e \
     libxslt1-dev \
     zlib1g-dev \
     lib32ncurses5-dev \
+    #gamera and music staves dependencies
+    libpng-dev  \
+    libtiff5-dev \ 
     # Psycopg2 dependencies
     libpq-dev \
     # >/dev/null
