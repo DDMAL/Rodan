@@ -3,8 +3,10 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
+  && apt update \
   && apt upgrade \
-  && apt-get -qq update \
+  && apt-get update \
+  && apt-get upgrade \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
