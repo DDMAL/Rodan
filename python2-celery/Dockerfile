@@ -61,7 +61,17 @@ RUN set -e \
     libtool \
     subversion \
     pkg-config \
-    >/dev/null 
+    >/dev/null \
+     # Needed for pixel_wrapper (node_js)
+  && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
+  && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+  && apt-get -qq update \
+  && apt-get -qq install -y nodejs >/dev/null \
+  # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
+  && apt-get -qq remove cmdtest \
+  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+  && apt-get -qq update && apt-get -qq install yarn -y >/dev/null \
 
 # Clean out repository list.
 RUN rm -rf /var/lib/apt/lists/*

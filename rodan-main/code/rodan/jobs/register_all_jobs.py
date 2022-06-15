@@ -101,17 +101,16 @@ def register_py3():
     except Exception as exception:
         import_name = "HPC Fast Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-        
+
     
-    # Register MEI Encoding
+    # Register Neon
     try:
-        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+        from rodan.jobs.neon_wrapper.wrapper import Neon
 
-        app.register_task(MEI_encoding())
+        app.register_task(Neon())
     except Exception as exception:
-        import_name = "MEI Encoding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__) 
     # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
@@ -119,6 +118,16 @@ def register_py3():
         app.register_task(PixelInteractive())
     except Exception as exception:
         import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+
+    # Register MEI Encoding
+    try:
+        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+
+        app.register_task(MEI_encoding())
+    except Exception as exception:
+        import_name = "MEI Encoding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register MEI resizing
@@ -130,14 +139,6 @@ def register_py3():
         import_name = "MEI Resizing"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
-
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
     # Register PIL Rodan
