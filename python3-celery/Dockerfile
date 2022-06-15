@@ -41,9 +41,11 @@ COPY ./scripts/wait-for-app /run/
 COPY ./rodan-main/code /code/Rodan
 
 RUN set -x \
+  && echo hello \
   && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
   && apt-get -qq install -y nodejs >/dev/null \
+  && echo hello2 \ 
   #&& apt-get -qq install -y nodejs npm \ 
   && npm install -g npm@6.14.12 \
   && node -v \ 
