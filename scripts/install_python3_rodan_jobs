@@ -9,12 +9,13 @@ PIP=$(which pip3) || PIP=:
 
 # update pip
 $PIP install -U pip
-
+echo node -v 
 # Install Pixel_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
 cd ./pixel_wrapper/
 $PIP install -r requirements.txt >/dev/null
 python3 activate_wrapper.py
+echo node -v
 # [TODO] Test with yarn.
 npm install 
 ./node_modules/.bin/gulp develop:rodan
