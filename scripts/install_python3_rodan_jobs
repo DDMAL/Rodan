@@ -34,11 +34,9 @@ echo "############################"
 echo
 # In the root directory
 cd /
-rm -rf gamera-4
-# upgrade apt to download the dependencies of the Cpp files
-apt upgrade 
-apt-get install libpng-dev && apt-get install libtiff5-dev
 
+rm -rf gamera-4
+ 
 # clone the gamera-4 repository 
 git clone https://github.com/hsnr-gamera/gamera-4.git
 cd gamera-4
@@ -49,7 +47,7 @@ python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
 # THEN RERUN THE SCRIPT.
 
-# remove the gamera-4 directory from the container. 
+# remove the gamera-4 directory from the container 
 cd / && rm -rf gamera-4
 
 # for more information refer to:
