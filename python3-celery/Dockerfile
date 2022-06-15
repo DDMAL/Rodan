@@ -3,7 +3,10 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
-  && apt-get -qq update \
+  && apt update \
+  && apt upgrade \
+  && apt-get update \
+  && apt-get upgrade \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
@@ -29,20 +32,7 @@ RUN set -e \
     vim 
    
   # Needed for pixel_wrapper (node_js)
-
-RUN rm -rf /var/lib/apt/lists/*
-
-COPY ./scripts/install_python3_rodan_jobs /run/
-COPY ./scripts/install_rodan /run/
-COPY ./scripts/start-celery /run/
-COPY ./scripts/wait-for-app /run/
-
-# Copying rodan core from build context into container
-# Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY ./rodan-main/code /code/Rodan
-
-RUN set -x \
-  && echo hello \
+RUN set -e \
   && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
   && apt-get -qq update \
@@ -60,8 +50,22 @@ RUN set -x \
   && node -v \
   && apt-get -qq update && apt-get -qq install yarn -y >/dev/null \
   && mkdir -p /code/jobs \
-  && node -v \
+  && node -v 
+
+RUN rm -rf /var/lib/apt/lists/*
+
+COPY ./scripts/install_python3_rodan_jobs /run/
+COPY ./scripts/install_rodan /run/
+COPY ./scripts/start-celery /run/
+COPY ./scripts/wait-for-app /run/
+
+# Copying rodan core from build context into container
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY ./rodan-main/code /code/Rodan
+
+RUN set -x \
   # Install Python3 Rodan Jobs
+  && node -v \
   && chmod +x /run/install_python3_rodan_jobs \
   && chown www-data /run/install_python3_rodan_jobs \
   && node -v \
