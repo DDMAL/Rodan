@@ -25,6 +25,7 @@ class RodanE2ETestCase(unittest.TestCase):
         cls.rodan.navigate_home()
         cls.rodan.login_to_rodan()
 
+    # This is run before every test method.
     def setUp(self):
         self.rodan.delete_all_resources("projects")
         self.rodan.delete_all_resources("workflows")
@@ -44,5 +45,5 @@ class RodanE2ETestCase(unittest.TestCase):
         self.rodan.create_new_project()
         project = self.rodan.get_most_recent_from_table("projects")
         workflow = self.rodan.create_workflow(project)
-        self.rodan.build_hello_world_workflow(workflow)
-
+        hello_world_output = self.rodan.build_hello_world_workflow(workflow)
+        self.assertEqual(hello_world_output, "Hello World")
