@@ -1,12 +1,154 @@
-imagePath,imagesBinary,name,folio,width,description,classification,mei,review,dob,project
-[],[],Punctum,001r,1,,neume.punctum,"<neume>    <nc tilt=""n""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Podastus 2,001r,2,,neume.podastus2,"<neume>    <nc/>    <nc intm=""1S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Inclinatum,001r,1,,neume.inclinatum,"<neume>   <nc tilt=""se""/> </neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Podastus 3,001r,2,,neume.podastus3,"<neume>    <nc/>    <nc intm=""2S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Podastus 4,001r,2,,neume.podastus4,"<neume>    <nc/>    <nc intm=""3S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Oblique 2,001r,"1,1",,neume.oblique2,"<neume>    <nc ligated=""true""/>    <nc ligated=""true"" intm=""-1S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Oblique 3,001r,"1,1",,neume.oblique3,"<neume>    <nc ligated=""true""/>    <nc ligated=""true"" intm=""-2S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Oblique 4,001r,"1,1",,neume.oblique4,"<neume>    <nc ligated=""true""/>    <nc ligated=""true"" intm=""-3S""/></neume>",No,,5d39e8755fbd53216a2fa442
-[],[],Custos,001r,1,,custos,<custos/>,No,,5d39e8755fbd53216a2fa442
-[],[],C clef,001r,1,clef.c,clef.c,"<clef shape=""C""/>",No,,5d39e8755fbd53216a2fa442
-[],[],F Clef,001r,1,,clef.f,"<clef shape=""F""/>",No,,5d39e8755fbd53216a2fa442
+imagePath,imagesBinary,name,folio,description,classification,width,mei,review,dob,project,
+[],[],C clef,001r,clef.c,clef.c,1,"<clef shape=""C""/>",No,,5d39e8755fbd53216a2fa442,
+[],[],F Clef,001r,,clef.f,1,"<clef shape=""F""/>",No,,5d39e8755fbd53216a2fa442,
+[],[],Custos,001r,,custos,1,<custos/>,No,,5d39e8755fbd53216a2fa442,
+,,Divisio,001r,,divisio.maxima,1,"<divLine form=""maxima""/>",,,,
+,,Flat,001r,,accidental.flat,1,"<accid accid=""f""/>",,,,
+,,Natural,001r,,accidental.natural,1,"<accid accid=""n""/>",,,,
+[],[],Punctum,001r,,neume.punctum,1,"<neume>
+    <nc/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+[],[],Inclinatum,001r,,neume.inclinatum,1,"<neume>
+   <nc tilt=""se""/> 
+</neume>",No,,5d39e8755fbd53216a2fa442,
+,,Virga,001r,,neume.virga,1,"<neume>
+    <nc tilt=""s""/>
+</neume>",,,,
+,,Reverse virga,001r,,neume.reversevirga,1,"<neume>
+    <nc tilt=""n""/>
+</neume>",,,,
+,,Upwards liquescent,001r,,neume.liquescent.up,1,"<neume>
+    <nc curve=""a"">
+        <liquescent/>
+    </nc>
+</neume>",<neume>,,,
+,,Downwards liquescent,001r,,neume.liquescent.down,1,"<neume>
+    <nc curve=""c"">
+        <liquescent/>
+    </nc>
+</neume>",,,,
+[],,"Podatus 2, width 2",001r,podatus salzinnes,neume.podatus2a,"[1, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,giving it the width to be able to divide the neume bbox (horizontally) into that number of vertical boxes.
+,,"Podatus 2, width 1",001r,podatus einsiedeln,neume.podatus2b,2,"<neume>
+    <nc/>
+    <nc intm=""1S""/>
+</neume>",No,,,Where should this bbox division into vertical bboxes be done? Heuristic pitch finding (how is that working? because it is getting the pitch of the individual neume-components correcly even having only one bbox for the whole neume) or MEI Encoding job?
+[],[],Podatus 3,001r,,neume.podatus3,2,"<neume>
+    <nc/>
+    <nc intm=""2S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,"This file is received by the MEI Encoding job, so it can do the mapping of the IC class into both the MEI code (for encoding the <neume>) and the width column (for dividing the bbox and encoding the <zone>s)"
+[],[],Podatus 4,001r,,neume.podatus4,2,"<neume>
+    <nc/>
+    <nc intm=""3S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+,,Podatus 5,001r,,neume.podatus5,2,"<neume>
+    <nc/>
+    <nc intm=""4S""/>
+</neume>",,,,
+,,Clivis 2,001r,,neume.clivis2,"[1, 1]","<neume>
+    <nc tilt=""n""/>
+    <nc intm=""-1S""/>
+</neume>",,,,
+,,Clivis 3,001r,,neume.clivis3,"[1, 1]","<neume>
+    <nc tilt=""n""/>
+    <nc intm=""-2S""/>
+</neume>",,,,
+,,Clivis 4,001r,,neume.clivis4,"[1, 1]","<neume>
+    <nc tilt=""n""/>
+    <nc intm=""-3S""/>
+</neume>",,,,
+,,Clivis 5,001r,,neume.clivis5,"[1, 1]","<neume>
+    <nc tilt=""n""/>
+    <nc intm=""-4S""/>
+</neume>",,,,
+,,Pes cephalicus 2,,,neume.pescephalicus2,"[1, 1]","<neume>
+    <nc/>
+    <nc curve=""c"" intm=""1S"">
+        <liquescent/>
+    </nc>
+</neume>",,,,
+,,Pes cephalicus 3,,,neume.pescephalicus3,"[1, 1]","<neume>
+    <nc/>
+    <nc curve=""c"" intm=""2S"">
+        <liquescent/>
+    </nc>
+</neume>",,,,
+[],[],Oblique 2,001r,,neume.oblique2,2,"<neume>
+    <nc ligated=""true""/>
+    <nc ligated=""true"" intm=""-1S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+[],[],Oblique 3,001r,,neume.oblique3,2,"<neume>
+    <nc ligated=""true""/>
+    <nc ligated=""true"" intm=""-2S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+[],[],Oblique 4,001r,,neume.oblique4,2,"<neume>
+    <nc ligated=""true""/>
+    <nc ligated=""true"" intm=""-3S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+[],[],Torculus22,001r,,neume.torculus22,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""-1S""/>
+</neume>",No,,5d39e8755fbd53216a2fa442,
+,,Torculus23,001r,,neume.torculus23,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""-2S""/>
+</neume>",,,,
+,,Torculus24,001r,,neume.torculus24,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""-3S""/>
+</neume>",,,,
+,,Torculus32,001r,,neume.torculus32,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""2S""/>
+    <nc intm=""-1S""/>
+</neume>",,,,
+,,Torculus33,001r,,neume.torculus33,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""2S""/>
+    <nc intm=""-2S""/>
+</neume>",,,,
+,,Torculus34,001r,,neume.torculus34,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""2S""/>
+    <nc intm=""-3S""/>
+</neume>",,,,
+,,Torculus42,001r,,neume.torculus42,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""3S""/>
+    <nc intm=""-1S""/>
+</neume>",,,,
+,,Torculus43,001r,,neume.torculus43,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""3S""/>
+    <nc intm=""-2S""/>
+</neume>",,,,
+,,Scandicus 22,001r,,neume.scandicus22a,"[1, 2]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""1S""/>
+</neume>",,,,CRES would need to check that # of <nc> == # in width column
+,,Scandicus 22,001r,,neume.scandicus22b,"[2, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""1S""/>
+</neume>",,,,
+,,Scandicus 22,001r,,neume.scandicus22c,"[1, 1, 1]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""1S""/>
+</neume>",,,,
+,,Scandicus 23,001r,,neume.scandicus23,"[1, 2]","<neume>
+    <nc/>
+    <nc intm=""1S""/>
+    <nc intm=""2S""/>
+</neume>",,,,
+,,Scandicus 33,001r,,neume.scandicus33,"[1, 2]","<neume>
+    <nc/>
+    <nc intm=""2S""/>
+    <nc intm=""2S""/>
+</neume>",,,,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rodan.jobs.base import RodanTask
-import build_mei_file as bm
-import parse_classifier_table as pct
+from rodan.jobs.MEI_encoding import build_mei_file as bm
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct
 import json
 
 from celery.utils.log import get_task_logger
@@ -19,7 +19,7 @@ class MEI_encoding(RodanTask):
     settings = {
         'title': 'Mei Encoding Settings',
         'type': 'object',
-        'job_queue': 'Python2',
+        'job_queue': 'Python3',
         'required': ['Neume Component Spacing'],
         'properties': {
             'Neume Component Spacing': {

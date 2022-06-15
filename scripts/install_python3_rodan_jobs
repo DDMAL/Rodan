@@ -17,7 +17,41 @@ $PIP install -r ./pil_rodan/requirements.txt
 # Install HPC Fast Trainer
 $PIP install -r ./hpc_fast_trainer/requirements.txt
 
+# Install MEI_encoding
+$PIP install -r ./MEI_encoding/requirements.txt >/dev/null
+
 # At the end, add all the jobs together.
 cd /code/Rodan/rodan
 
 sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
+
+###############################
+# GAMERA 4 INSTALLATION
+echo
+echo "############################"
+echo "started installing gamera 4"
+echo "############################"
+echo
+# In the root directory
+cd /
+rm -rf gamera-4
+# upgrade apt to download the dependencies of the Cpp files
+apt upgrade 
+apt-get install libpng-dev && apt-get install libtiff5-dev
+
+# clone the gamera-4 repository 
+git clone https://github.com/hsnr-gamera/gamera-4.git
+cd gamera-4
+git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
+# install gamera-4 on the container
+python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
+# IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
+# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
+# THEN RERUN THE SCRIPT.
+
+# remove the gamera-4 directory from the container. 
+cd / && rm -rf gamera-4
+
+# for more information refer to:
+# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
+############################### 
