@@ -43,7 +43,6 @@ COPY ./rodan-main/code /code/Rodan
 RUN set -x \
   && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-  && apt-get -qq update \
   && apt-get -qq install -y nodejs >/dev/null \
   #&& apt-get -qq install -y nodejs npm \ 
   && npm install -g npm@6.14.12 \
