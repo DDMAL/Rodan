@@ -5,6 +5,9 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 cd /code/Rodan/rodan/jobs
 
+# Install Calvo-Trainer-HPC
+pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
+
 # Install Pixel_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
 cd ./pixel_wrapper/
@@ -23,13 +26,6 @@ git submodule update --remote
 yarn install
 yarn build
 cd /code/Rodan/rodan/jobs
-
-# Install MEI_encoding
-pip install -r ./MEI_encoding/requirements.txt >/dev/null
-
-
-# Install Calvo-Trainer-HPC
-pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
 
 cd /code/Rodan/rodan
 # At the end, add all the jobs together.
