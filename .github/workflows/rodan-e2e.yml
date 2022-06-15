@@ -20,4 +20,5 @@ jobs:
         env:
           RODAN_USERNAME: ${{ secrets.RODAN_USERNAME }}
           RODAN_PASSWORD: ${{ secrets.RODAN_PASSWORD }}
+          RODAN_URL: 'rodan-staging.simssa.ca'
         run: python -m unittest e2e/rodan_e2e_test.py
