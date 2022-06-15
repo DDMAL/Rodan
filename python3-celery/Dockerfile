@@ -9,10 +9,11 @@ RUN set -e \
     git \
     python3 \
     python3-pip \
-    #gamera-4 dependencies
+    apt-utils \
+    #gamera-4 dependencies 
     libpng-dev \
     libtiff5-dev \
-    # Opencv Dependency
+    # Opencv Dependency  
     python3-opencv \
     # Python lxml dependencies
     python3-dev \
@@ -30,6 +31,7 @@ RUN set -e \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
   && apt-get -qq update \
   && apt-get -qq install -y nodejs >/dev/null \
+  #&& apt-get -qq install -y nodejs npm \ 
   && npm install -g npm@6.14.12 \
   # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
   && apt-get -qq remove cmdtest \
