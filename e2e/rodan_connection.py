@@ -99,6 +99,17 @@ class RodanConnection:
         for resource in resources["results"]:
             requests.delete(resource["url"], auth=(self.username, self.password))
 
+    def get_rodan_build_hash(self) -> str:
+        build_hash_url = urljoin(self.url, "api/build_hash")
+        build_hash_request = requests.get(
+            build_hash_url, auth=(self.username, self.password)
+        )
+        if not build_hash_request.ok:
+            raise Exception(
+                f"Couldn't load {build_hash_url}: received HTTP {build_hash_request.status_code}."
+            )
+        return build_hash_request.text
+
     def create_new_project(self):
         new_project_button = self.find_visible(By.ID, "button-new_project")
         new_project_button.click()
