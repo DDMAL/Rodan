@@ -89,7 +89,7 @@ class RodanConnection:
             sleep(1)
 
     def delete_all_resources(self, resource_type: str):
-        resource_url = urljoin(f"{self.url}", f"api/{resource_type}/?format=json")
+        resource_url = urljoin(self.url, f"api/{resource_type}/?format=json")
         resource_json = requests.get(resource_url, auth=(self.username, self.password))
         if not resource_json.ok:
             raise Exception(
