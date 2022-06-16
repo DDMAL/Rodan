@@ -5,6 +5,7 @@
 import atexit
 import json
 import os
+import time
 from tempfile import TemporaryDirectory
 from time import sleep
 from typing import List
@@ -22,7 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-TIMEOUT_SECONDS = 5
+TIMEOUT_SECONDS = 10
 
 
 class RodanConnection:
@@ -158,16 +159,23 @@ class RodanConnection:
         )
         close_button.click()
         # Wait for workflow to be validated before running it.
-        sleep(3)
+        sleep(5)
         workflow_dropdown.click()
         run_job_button = self.find_visible(By.ID, "button-run")
         run_job_button.click()
-        while True:
+        now_time = start_time = time.monotonic()
+        workflow_run = None
+        while now_time - start_time < TIMEOUT_SECONDS:
             try:
                 workflow_run = self.get_most_recent_from_table("workflowruns")
                 break
             except IndexError:
                 sleep(1)
+            now_time = time.monotonic()
+        if workflow_run is None:
+            raise Exception(
+                f"Couldn't get workflow runs before timeout of {TIMEOUT_SECONDS} seconds was reached!"
+            )
         while workflow_run.find_element(By.XPATH, "td[5]").text != "Finished":
             sleep(1)
         self.double_click(workflow_run)
