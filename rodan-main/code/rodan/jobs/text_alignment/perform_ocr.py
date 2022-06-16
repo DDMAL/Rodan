@@ -65,6 +65,8 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     
     # Importing calamari needs to be here because otherwise it will try to create a unique thread for
     # every text strip (since we're processing them in sequence and not in parallel).
+    import tensorflow as tf
+    tf.config.set_visible_devices([], 'GPU')
     from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 
     dir = os.path.dirname(__file__)
@@ -72,6 +74,7 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
 
     params = PredictorParams()
     params.pipeline.num_processes = 1
+    params.device.gpus = []
 
     # predictor = Predictor(checkpoint=ocr_model_path, processes=1)
     predictor = MultiPredictor.from_paths(
@@ -94,6 +97,10 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     for r in predictor.predict_raw(strips):
         results.append(r)
 
+        print("prediction: {} \n".format(r.outputs[1].sentence))
+        for p in r.outputs[1].positions:
+            print("{} {} {} {} {}".format(p.chars[0], p.local_start, p.local_end, p.global_start, p.global_end))
+
     all_chars = []
 
     # iterate over results and make charbox objects out of every character
@@ -104,6 +111,12 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
         r = results[i]
         chars = list(r.outputs[1].sentence)
         global_starts = [x.global_start for x in r.outputs[1].positions]
+
+        print('global_starts : {}'.format(global_starts))
+
+        # do not continue with this line if less than two characters have been found
+        if len(global_starts) < 2:
+            continue
 
         # to find width of final character, append median char width to end of line
         med_char_width = int(np.median(np.diff(global_starts)))
@@ -157,7 +170,7 @@ if __name__ == '__main__':
     from skimage import io
     __spec__ = None
 
-    fname = r"D:\Desktop\adsf\056_text_layer.png"
+    fname = r"/Users/tim/Desktop/transcript text files/salzinnes_056_text.png"
     raw_image = io.imread(fname)
 
     img_bin, img_eroded, angle = preproc.preprocess_images(raw_image)
@@ -177,4 +190,4 @@ if __name__ == '__main__':
     all_chars = recognize_text_strips(img_bin, line_strips, ocr_model_name, True)
     all_chars = handle_abbreviations(all_chars, max_iters=10e4)
 
-    print(all_chars)
+    # print(all_chars)
