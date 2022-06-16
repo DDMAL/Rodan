@@ -1,6 +1,7 @@
 FROM ddmal/rodan-python2-celery:nightly
 ARG BRANCHES
 ARG VERSION
+ARG BUILD_HASH
 
 # Install OpenJPEG
 RUN \
@@ -46,5 +47,8 @@ RUN \
   /opt/install_python3_rodan_jobs \
   && /opt/install_gpu_rodan_jobs \
   && /run/install_rodan
+
+# Substitute the build hash for our actual build hash
+RUN sed -i "s/__build_hash__ = \"local\"/__build_hash__ = \"${BUILD_HASH}\"/" /code/Rodan/rodan/__init__.py
 
 ENTRYPOINT ["/opt/entrypoint"]
