@@ -3,7 +3,10 @@
 #
 # These E2E tests assume that Chrome is already installed.
 name: Rodan E2E Tests
-on: [workflow_dispatch]
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 */6 * * *'
 jobs:
   Rodan-E2E-Tests:
     runs-on: ubuntu-latest
