@@ -59,15 +59,6 @@ def register_py2():
         import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Pixel.js
-    try:
-        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
-
-        app.register_task(PixelInteractive())
-    except Exception as exception:
-        import_name = "Pixel"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register Gamera
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
@@ -366,15 +357,6 @@ def register_py2():
         import_name = "Biollante"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Neon
-    try:
-        from rodan.jobs.neon_wrapper.wrapper import Neon
-
-        app.register_task(Neon())
-    except Exception as exception:
-        import_name = "Neon"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
 
 # Python3 Jobs
 def register_py3():
@@ -520,6 +502,23 @@ def register_gpu():
         import_name = "Text Alignment"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register Neon
+    try:
+        from rodan.jobs.neon_wrapper.wrapper import Neon
+
+        app.register_task(Neon())
+    except Exception as exception:
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Pixel.js
+    try:
+        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+
+        app.register_task(PixelInteractive())
+    except Exception as exception:
+        import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 if __name__ == "__main__":
     register_all()
