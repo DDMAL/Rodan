@@ -62,12 +62,6 @@ class RodanConnection:
         )
         return driver
 
-    def find_visible(self, by, arg):
-        return self.wait.until(EC.visibility_of_element_located((by, arg)))
-
-    def find_visibles(self, by, arg):
-        return self.wait.until(EC.visibility_of_all_elements_located((by, arg)))
-
     def double_click(self, element: WebElement):
         actions = ActionChains(self.driver)
         actions.move_to_element(element)
@@ -101,38 +95,66 @@ class RodanConnection:
             requests.delete(resource["url"], auth=(self.username, self.password))
 
     def get_rodan_build_hash(self) -> str:
-        build_hash_url = urljoin(self.url, "api/build_hash")
-        build_hash_request = requests.get(
-            build_hash_url, auth=(self.username, self.password)
-        )
-        if not build_hash_request.ok:
+        api_url = urljoin(self.url, "api?format=json")
+        api_request = requests.get(api_url, auth=(self.username, self.password))
+        if not api_request.ok:
             raise Exception(
-                f"Couldn't load {build_hash_url}: received HTTP {build_hash_request.status_code}."
+                f"Couldn't load {api_url}: received HTTP {api_request.status_code}."
             )
-        return build_hash_request.text
+        api_json = json.loads(api_request.text)
+        return api_json["build_hash"]
+
+    def find_visible(self, by, arg):
+        element = self.wait.until(EC.visibility_of_element_located((by, arg)))
+        self.wait.until(EC.element_to_be_clickable(element))
+        return element
+
+    def find_visibles(self, by, arg):
+        return self.wait.until(EC.visibility_of_all_elements_located((by, arg)))
+
+    def get_most_recent_from_table(
+        self, item_type: str, timeout_secs=TIMEOUT_SECONDS
+    ) -> WebElement:
+        now_time = start_time = time.monotonic()
+        items = None
+        while not items:
+            items = self.find_visibles(
+                By.XPATH, f'//*[@id="table-{item_type}"]/tbody/tr'
+            )
+            now_time = time.monotonic()
+            if now_time - start_time > timeout_secs:
+                break
+        if not items:
+            raise Exception(
+                f"Couldn't get item from {item_type} table before timeout of {timeout_secs} seconds was reached!"
+            )
+        # td[3] corresponds to the "Created" field in the table.
+        items = sorted(
+            items, reverse=True, key=lambda p: str(p.find_element(By.XPATH, "td[3]"))
+        )
+        most_recent = items[0]
+        self.wait.until(EC.element_to_be_clickable(most_recent))
+        return most_recent
 
     def create_new_project(self):
         new_project_button = self.find_visible(By.ID, "button-new_project")
         new_project_button.click()
 
-    def get_most_recent_from_table(self, item: str) -> WebElement:
-        items = self.find_visibles(By.XPATH, f'//*[@id="table-{item}"]/tbody/tr')
-        # td[3] corresponds to the "Created" field in the table.
-        return sorted(
-            items, reverse=True, key=lambda p: str(p.find_element(By.XPATH, "td[3]"))
-        )[0]
-
     def create_workflow(self, project: WebElement) -> WebElement:
         self.double_click(project)
         self.find_visible(By.ID, "workflow_count").click()
         self.find_visible(By.ID, "button-new_workflow").click()
-        workflows = None
-        while not workflows:
-            workflows = self.find_visibles(
-                By.XPATH, '//*[@id="table-workflows"]/tbody/tr'
-            )
+        return self.get_most_recent_from_table("workflows")
+
+    def wait_for_text_present(
+        self, element: WebElement, text: str, timeout_secs=TIMEOUT_SECONDS
+    ):
+        now_time = start_time = time.monotonic()
+        while now_time - start_time < timeout_secs:
+            if text in element.text:
+                return
             sleep(1)
-        return workflows[0]
+        raise Exception(f"Timed out waiting for {text} to be present in {element}!")
 
     def build_hello_world_workflow(self, workflow) -> str:
         self.double_click(workflow)
@@ -163,31 +185,18 @@ class RodanConnection:
         workflow_dropdown.click()
         run_job_button = self.find_visible(By.ID, "button-run")
         run_job_button.click()
-        now_time = start_time = time.monotonic()
-        workflow_run = None
-        while now_time - start_time < TIMEOUT_SECONDS:
-            try:
-                workflow_run = self.get_most_recent_from_table("workflowruns")
-                break
-            except IndexError:
-                sleep(1)
-            now_time = time.monotonic()
-        if workflow_run is None:
-            raise Exception(
-                f"Couldn't get workflow runs before timeout of {TIMEOUT_SECONDS} seconds was reached!"
-            )
-        while workflow_run.find_element(By.XPATH, "td[5]").text != "Finished":
-            sleep(1)
+        workflow_run = self.get_most_recent_from_table("workflowruns")
+        # from pudb import set_trace; set_trace()
+        self.wait_for_text_present(workflow_run, "Finished")
         self.double_click(workflow_run)
         # For some reason we need this sleep before we click Resources.
         sleep(1)
         resources_button = self.find_visible(By.ID, "button-resources_show")
         resources_button.click()
         resource_row = self.get_most_recent_from_table("resources")
-        EC.element_to_be_clickable(resource_row)
         self.double_click(resource_row)
         # Wait for download to complete.
-        sleep(3)
+        sleep(5)
         with open(
             os.path.join(
                 self.downloads_dir.name,

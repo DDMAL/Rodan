@@ -24,6 +24,8 @@ class RodanE2ETestCase(unittest.TestCase):
         cls.rodan = RodanConnection(url, username, password, protocol)
         cls.rodan.navigate_home()
         cls.rodan.login_to_rodan()
+        # TODO: Uncomment this once https://github.com/DDMAL/Rodan/pull/675 is merged.
+        # print(f"rodan-main build hash: {cls.rodan.get_rodan_build_hash()}")
 
     # This is run before every test method.
     def setUp(self):
