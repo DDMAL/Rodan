@@ -12,16 +12,16 @@ class RodanE2ETestCase(unittest.TestCase):
     def setUpClass(cls):
         username = environ["RODAN_USERNAME"]
         password = environ["RODAN_PASSWORD"]
-        url = None
-        try:
+        protocol = environ.get("RODAN_PROTOCOL", "https")
+        if "RODAN_URL" in environ:
             url = environ["RODAN_URL"]
-        except KeyError:
+        else:
             print(
                 "RODAN_URL not found in environment variables, "
                 f"falling back to default: {DEFAULT_URL}"
             )
             url = DEFAULT_URL
-        cls.rodan = RodanConnection(url, username, password)
+        cls.rodan = RodanConnection(url, username, password, protocol)
         cls.rodan.navigate_home()
         cls.rodan.login_to_rodan()
 
