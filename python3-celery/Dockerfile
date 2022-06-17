@@ -3,16 +3,19 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
-  && apt-get -qq update \
+  && apt update \
+  #&& apt upgrade \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
     python3 \
     python3-pip \
-    #gamera-4 dependencies
+    apt-utils \
+    curl \
+    #gamera-4 dependencies 
     libpng-dev \
     libtiff5-dev \
-    # Opencv Dependency
+    # Opencv Dependency  
     python3-opencv \
     # Python lxml dependencies
     python3-dev \
@@ -38,12 +41,11 @@ COPY ./scripts/wait-for-app /run/
 COPY ./rodan-main/code /code/Rodan
 
 RUN set -x \
-  && mkdir -p /code/jobs \
   # Install Python3 Rodan Jobs
   && chmod +x /run/install_python3_rodan_jobs \
   && chown www-data /run/install_python3_rodan_jobs \
-  && /run/install_python3_rodan_jobs \
-  # Install Rodan
+  && /run/install_python3_rodan_jobs \ 
+    # Install Rodan
   # Django-Guardian suddenly failed to build.
   # https://github.com/DDMAL/rodan-docker/issues/60
   && pip3 install -U pip \
@@ -64,3 +66,15 @@ RUN set -x \
   && chown www-data /run/wait-for-app \
   && chown -R www-data /code/Rodan /code/jobs \
   && pip3 install opencv-python==4.5.5.64
+  # # Runs on both Rodan service, and Rodan-Celery
+  # && sed -i 's/\r//' /opt/entrypoint \
+  # && chmod +x /opt/entrypoint \
+  # && chown www-data /opt/entrypoint \
+  # # This script starts Rodan-Celery
+  # && sed -i 's/\r//' /run/start-celery \
+  # && chmod +x /run/start-celery \
+  # && chown www-data /run/start-celery \
+  # && chown -R www-data /code/Rodan /code/jobs
+
+
+

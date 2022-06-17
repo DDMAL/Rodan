@@ -3,38 +3,30 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
-# Install tools made with Gamera
-cd /code
-git clone https://github.com/DDMAL/document-preprocessing-toolkit.git
-cd document-preprocessing-toolkit/
-pip install ./background-estimation ./border-removal ./new_binarization_toolkit ./stable_paths_toolkit ./staffline-removal >/dev/null
-pip install ./lyric-extraction >/dev/null
-pip install svn+svn://svn.code.sf.net/p/music-staves/code/ >/dev/null
-cd /code
-git clone https://github.com/DDMAL/rodan_plugins.git
-pip install /code/rodan_plugins >/dev/null
+###############################
+# GAMERA 4 INSTALLATION
+echo
+echo "############################"
+echo "started installing gamera 4"
+echo "############################"
+echo
+# In the root directory
+cd /
+rm -rf gamera-4
 
-# Install LibMEI.
-cd /code
-git clone https://github.com/DDMAL/libmei
-cd /code/libmei/tools
-cp /code/Rodan/helper_scripts/mei-all-4.0.1.odd .
-pip install lxml >/dev/null
-python parseschema2.py mei-all-4.0.1.odd -o src -l cpp
-python parseschema2.py mei-all-4.0.1.odd -o src -l python
-rm -rf ../src/modules/*
-rm -rf ../python/pymei/Modules/*
-mv src/cpp/* ../src/modules/
-mv src/python/* ../python/pymei/Modules/
-cd /code/libmei
-sed -i '86i\ \ \ \ add_definitions( -Wno-error=deprecated )' CMakeLists.txt
-cmake .
-make >/dev/null && make install >/dev/null 
+# clone the gamera-4 repository 
+git clone https://github.com/hsnr-gamera/gamera-4.git
+cd gamera-4
+git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
+# install gamera-4 on the container
+python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
+# IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
+# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
+# THEN RERUN THE SCRIPT.
 
-# Install the LibMEI Python bindings.
-cd /code/libmei/python
-# Manually patch pymei's setup.py because boost.python dropped the -mt suffix of its libraries several years ago.
-# See https://github.com/DDMAL/libmei/issues/81.
-sed -i 's/boost_python-mt/boost_python/g' setup.py
-pip install . >/dev/null
- 
+# remove the gamera-4 directory from the container. 
+cd / && rm -rf gamera-4
+
+# for more information refer to:
+# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
+############################### 
