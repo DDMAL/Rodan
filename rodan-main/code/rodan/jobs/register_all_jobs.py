@@ -520,6 +520,25 @@ def register_gpu():
         import_name = "Text Alignment"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register Paco's Trainer
+    try:
+        from rodan.jobs.Paco_classifier.fast_calvo_trainer import FastCalvoTrainer
+
+        app.register_task(FastCalvoTrainer())
+    except Exception as exception:
+        import_name = "Paco Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Paco's Classifier
+    try:
+        from rodan.jobs.Paco_classifier.fast_calvo_classifier import FastCalvoClassifier
+
+        app.register_task(FastCalvoClassifier())
+    except Exception as exception:
+        import_name = "Paco Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+
 
 if __name__ == "__main__":
     register_all()
