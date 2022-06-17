@@ -27,7 +27,8 @@ RUN set -e \
     libpq-dev \
     # >/dev/null
     # Remove when done
-    vim
+    vim 
+   
 
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -75,6 +76,5 @@ RUN set -x \
   # && chmod +x /run/start-celery \
   # && chown www-data /run/start-celery \
   # && chown -R www-data /code/Rodan /code/jobs
-
 
 

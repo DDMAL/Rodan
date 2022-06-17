@@ -448,7 +448,6 @@ def register_py3():
         import_name = "Heuristic Pitch Finding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-
 # GPU Jobs
 def register_gpu():
 
@@ -496,6 +495,23 @@ def register_gpu():
         import_name = "Text Alignment"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register Neon
+    try:
+        from rodan.jobs.neon_wrapper.wrapper import Neon
+
+        app.register_task(Neon())
+    except Exception as exception:
+        import_name = "Neon"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Pixel.js
+    try:
+        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+
+        app.register_task(PixelInteractive())
+    except Exception as exception:
+        import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 if __name__ == "__main__":
     register_all()
