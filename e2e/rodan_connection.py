@@ -27,6 +27,11 @@ TIMEOUT_SECONDS = 10
 
 
 class RodanConnection:
+    """RodanConnection allows one to programmatically interact with the Rodan website.
+    It has functions that interact with the Rodan API and those that
+    directly interact with the page.
+    """
+
     def __init__(self, url, username, password, protocol="https"):
         self.url = f"{protocol}://{url}"
         self.username = username
@@ -37,9 +42,14 @@ class RodanConnection:
         atexit.register(self.cleanup)
 
     def cleanup(self):
+        """Cleanup any filesystem resources that were allocated."""
         self.downloads_dir.cleanup()
 
     def setup_driver(self):
+        """Set up the Chrome webdriver.
+        These options make the driver headless (no GUI) so that it can be
+        run on GitHub Actions. We also specify a custom downloads directory.
+        """
         prefs = {
             "profile.default_content_settings.popups": 0,
             "download.default_directory": self.downloads_dir.name,
@@ -63,15 +73,18 @@ class RodanConnection:
         return driver
 
     def double_click(self, element: WebElement):
+        """Double click on a WebElement."""
         actions = ActionChains(self.driver)
         actions.move_to_element(element)
         actions.double_click()
         actions.perform()
 
     def navigate_home(self):
+        """Get the Rodan homepage."""
         self.driver.get(self.url)
 
     def login_to_rodan(self):
+        """Login to Rodan and wait for the login cookie to be set."""
         username_field = self.find_visible(By.ID, "text-login_username")
         password_field = self.find_visible(By.ID, "text-login_password")
         login_button = self.find_visible(By.ID, "button-login")
@@ -80,10 +93,12 @@ class RodanConnection:
         password_field.send_keys(self.password)
         login_button.click()
 
+        # Wait for the login cookie to be present.
         while not self.driver.get_cookies():
             sleep(1)
 
     def delete_all_resources(self, resource_type: str):
+        """Delete all resources of a particular type."""
         resource_url = urljoin(self.url, f"api/{resource_type}/?format=json")
         resource_json = requests.get(resource_url, auth=(self.username, self.password))
         if not resource_json.ok:
@@ -119,7 +134,8 @@ class RodanConnection:
         self, item_type: str, timeout_secs=TIMEOUT_SECONDS
     ) -> WebElement:
         """Find the most recent item from a Rodan table.
-        Raises an exception if the table doesn't have any elements before TIMEOUT_SECONDS."""
+        Raises an exception if the table doesn't have any elements before TIMEOUT_SECONDS.
+        """
         now_time = start_time = time.monotonic()
         items = None
         while not items:
@@ -142,10 +158,12 @@ class RodanConnection:
         return most_recent
 
     def create_project(self):
+        """Create a new project."""
         new_project_button = self.find_visible(By.ID, "button-new_project")
         new_project_button.click()
 
     def create_workflow(self, project: WebElement) -> WebElement:
+        """Create a new workflow and return the WebElement that represents it in the Workflows table."""
         self.double_click(project)
         self.find_visible(By.ID, "workflow_count").click()
         self.find_visible(By.ID, "button-new_workflow").click()
