@@ -34,17 +34,17 @@ class RodanE2ETestCase(unittest.TestCase):
         self.rodan.navigate_home()
 
     def test_create_project(self):
-        self.rodan.create_new_project()
+        self.rodan.create_project()
         self.assertTrue(self.rodan.get_most_recent_from_table("projects"))
 
     def test_create_workflow(self):
-        self.rodan.create_new_project()
+        self.rodan.create_project()
         project = self.rodan.get_most_recent_from_table("projects")
         workflow = self.rodan.create_workflow(project)
         self.assertIsNotNone(workflow)
 
     def test_build_workflow(self):
-        self.rodan.create_new_project()
+        self.rodan.create_project()
         project = self.rodan.get_most_recent_from_table("projects")
         workflow = self.rodan.create_workflow(project)
         hello_world_output = self.rodan.build_hello_world_workflow(workflow)

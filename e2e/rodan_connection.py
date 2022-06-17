@@ -95,6 +95,7 @@ class RodanConnection:
             requests.delete(resource["url"], auth=(self.username, self.password))
 
     def get_rodan_build_hash(self) -> str:
+        """Retrieve the hash of the commit from which rodan-main was built."""
         api_url = urljoin(self.url, "api?format=json")
         api_request = requests.get(api_url, auth=(self.username, self.password))
         if not api_request.ok:
@@ -104,17 +105,21 @@ class RodanConnection:
         api_json = json.loads(api_request.text)
         return api_json["build_hash"]
 
-    def find_visible(self, by, arg):
+    def find_visible(self, by: By, arg):
+        """Find an element on the page that is both visible and clickable."""
         element = self.wait.until(EC.visibility_of_element_located((by, arg)))
         self.wait.until(EC.element_to_be_clickable(element))
         return element
 
-    def find_visibles(self, by, arg):
+    def find_visibles(self, by: By, arg):
+        """Find all matching elements on the page that are visible."""
         return self.wait.until(EC.visibility_of_all_elements_located((by, arg)))
 
     def get_most_recent_from_table(
         self, item_type: str, timeout_secs=TIMEOUT_SECONDS
     ) -> WebElement:
+        """Find the most recent item from a Rodan table.
+        Raises an exception if the table doesn't have any elements before TIMEOUT_SECONDS."""
         now_time = start_time = time.monotonic()
         items = None
         while not items:
@@ -136,7 +141,7 @@ class RodanConnection:
         self.wait.until(EC.element_to_be_clickable(most_recent))
         return most_recent
 
-    def create_new_project(self):
+    def create_project(self):
         new_project_button = self.find_visible(By.ID, "button-new_project")
         new_project_button.click()
 
@@ -149,6 +154,9 @@ class RodanConnection:
     def wait_for_text_present(
         self, element: WebElement, text: str, timeout_secs=TIMEOUT_SECONDS
     ):
+        """Wait for an element to contain certain text.
+        Raises an exception if TIMEOUT_SECONDS is reached.
+        """
         now_time = start_time = time.monotonic()
         while now_time - start_time < timeout_secs:
             if text in element.text:
@@ -157,46 +165,62 @@ class RodanConnection:
         raise Exception(f"Timed out waiting for {text} to be present in {element}!")
 
     def build_hello_world_workflow(self, workflow) -> str:
+        """Build and run an entire "hello world" workflow.
+        Returns the text from the file created by running this workflow.
+        """
+        # Enter the workflow editor.
         self.double_click(workflow)
+        # Click the "Workflow" dropdown menu.
         workflow_dropdown = self.find_visible(
             By.XPATH, '//*[@id="region-main"]//*[contains(text(), "Workflow")]'
         )
         workflow_dropdown.click()
+        # Click "Add Job".
         add_job_button = self.find_visible(By.ID, "button-add_job")
         add_job_button.click()
+        # Click "Add Search Filter".
         filter_button = self.find_visible(By.ID, "filter-menu")
         filter_button.click()
+        # Click "Name".
         name_button = self.find_visible(
             By.XPATH, '//*[@id="filter-menu"]//*[@data-id="filter_name"]'
         )
         name_button.click()
+        # Type "hello" into the search field.
         name_filter = self.find_visible(By.ID, "name__icontains")
         name_filter.send_keys("hello")
+        # Double click the "Hello World - Python3" job.
         hello_job_row = self.find_visible(
             By.XPATH, '//*[@id="table-jobs"]//td[text()="Hello World - Python3"]'
         )
         self.double_click(hello_job_row)
+        # Close the "Jobs" modal.
         close_button = self.find_visible(
             By.XPATH, '//*[@id="modal-generic"]//button[@class="close"]'
         )
         close_button.click()
         # Wait for workflow to be validated before running it.
         sleep(5)
+        # Run the workflow, which takes us to the Workflow Runs page.
         workflow_dropdown.click()
         run_job_button = self.find_visible(By.ID, "button-run")
         run_job_button.click()
+        # Double click the workflow run we just created.
         workflow_run = self.get_most_recent_from_table("workflowruns")
-        # from pudb import set_trace; set_trace()
         self.wait_for_text_present(workflow_run, "Finished")
         self.double_click(workflow_run)
         # For some reason we need this sleep before we click Resources.
         sleep(1)
+        # Click "Resources".
         resources_button = self.find_visible(By.ID, "button-resources_show")
         resources_button.click()
+        # Double click the resource created by the workflow run.
+        # This downloads the resource.
         resource_row = self.get_most_recent_from_table("resources")
         self.double_click(resource_row)
         # Wait for download to complete.
         sleep(5)
+        # Return the text of the downloaded resource.
         with open(
             os.path.join(
                 self.downloads_dir.name,
