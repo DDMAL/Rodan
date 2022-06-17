@@ -34,7 +34,6 @@ echo "############################"
 echo
 # In the root directory
 cd /
-
 rm -rf gamera-4
  
 # clone the gamera-4 repository 

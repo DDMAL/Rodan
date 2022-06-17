@@ -68,15 +68,6 @@ def register_py2():
         import_name = "Pixel"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register MEI resizing
-    try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
-
-        app.register_task(MEI_Resize())
-    except Exception as exception:
-        import_name = "MEI Resizing"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register Gamera
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
@@ -422,7 +413,15 @@ def register_py3():
         import_name = "MEI Encoding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        
     # Register HPC Fast Trainer
     try:
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
@@ -475,6 +474,7 @@ def register_py3():
 
 # GPU Jobs
 def register_gpu():
+
 
     # Register Calvo
     try:
