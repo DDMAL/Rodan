@@ -474,8 +474,6 @@ def register_py3():
 
 # GPU Jobs
 def register_gpu():
-
-
     # Register Calvo
     try:
         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
