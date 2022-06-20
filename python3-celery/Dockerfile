@@ -26,9 +26,7 @@ RUN set -e \
     # Psycopg2 dependencies
     libpq-dev \
     # >/dev/null
-    # Remove when done
     vim 
-   
 
 RUN rm -rf /var/lib/apt/lists/*
 
