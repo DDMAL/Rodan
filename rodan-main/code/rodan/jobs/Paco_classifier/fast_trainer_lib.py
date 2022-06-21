@@ -15,7 +15,7 @@ except Exception:
     import rodan.jobs.Paco_classifier.training_engine_sae as training
 
 
-class CalvoTrainer:
+class PacoTrainer:
     def __init__(
         self,
         batch_size,

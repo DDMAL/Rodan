@@ -476,22 +476,22 @@ def register_py3():
 def register_gpu():
 
 
-    # # Register Calvo
-    # try:
-    #     from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+    # Register Calvo
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
 
-    #     app.register_task(CalvoClassifier())
-    # except Exception as exception:
-    #     import_name = "Calvo Classifier"
-    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        app.register_task(CalvoClassifier())
+    except Exception as exception:
+        import_name = "Calvo Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+    try:
+        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
 
-    #     app.register_task(CalvoTrainer())
-    # except Exception as exception:
-    #     import_name = "Calvo Trainer"
-    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        app.register_task(CalvoTrainer())
+    except Exception as exception:
+        import_name = "Calvo Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # try:
     #     from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
@@ -522,18 +522,18 @@ def register_gpu():
 
     # Register Paco's Trainer
     try:
-        from rodan.jobs.Paco_classifier.fast_calvo_trainer import FastCalvoTrainer
+        from rodan.jobs.Paco_classifier.fast_paco_trainer import FastPacoTrainer
 
-        app.register_task(FastCalvoTrainer())
+        app.register_task(FastPacoTrainer())
     except Exception as exception:
         import_name = "Paco Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Paco's Classifier
     try:
-        from rodan.jobs.Paco_classifier.fast_calvo_classifier import FastCalvoClassifier
+        from rodan.jobs.Paco_classifier.fast_paco_classifier import FastPacoClassifier
 
-        app.register_task(FastCalvoClassifier())
+        app.register_task(FastPacoClassifier())
     except Exception as exception:
         import_name = "Paco Classifier"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
