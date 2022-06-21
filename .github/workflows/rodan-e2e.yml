@@ -1,0 +1,30 @@
+# Some code has been borrowed from https://github.com/jsoma/selenium-github-actions
+# Under the MIT License.
+#
+# These E2E tests assume that Chrome is already installed.
+name: Rodan E2E Tests
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # Run every 6 hours.
+    - cron:  '0 */6 * * *'
+jobs:
+  Rodan-E2E-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v3
+        with:
+          ref: 'develop'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install all necessary packages
+        run: pip install -r e2e/requirements.txt
+      - name: Run the end-to-end tests
+        env:
+          RODAN_USERNAME: ${{ secrets.RODAN_USERNAME }}
+          RODAN_PASSWORD: ${{ secrets.RODAN_PASSWORD }}
+          RODAN_URL: 'rodan-staging.simssa.ca'
+        run: python -m unittest -v e2e/rodan_e2e_test.py
