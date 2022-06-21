@@ -81,7 +81,7 @@ RUN set -e \
   # && python setup.py install --nowx >/dev/null 2>&1
 
 # Install framework dependencies for Rodan Jobs.
-COPY ./scripts/install_rodan_job_dependencies /run/
+#COPY ./scripts/install_rodan_job_dependencies /run/
 COPY ./scripts/install_python2_rodan_jobs /run/
 COPY ./scripts/install_rodan /run/
 COPY ./scripts/wait-for-app /run/
