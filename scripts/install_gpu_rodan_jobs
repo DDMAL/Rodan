@@ -26,5 +26,14 @@ cd /code/Rodan/rodan/jobs
 # Install Text Alignment
 $PIP install -r ./text_alignment/requirements.txt
 
+# Install Paco classifier
+cd /
+git clone https://github.com/DDMAL/Paco_classifier.git
+mv Paco_classifier .Paco_classifier
+cd .Paco_classifier
+git fetch origin release
+git reset --hard origin/release
+which pip3 && $PIP install . 
+
 cd /code/Rodan/rodan
 sed -i 's/#gpu //g' /code/Rodan/rodan/settings.py
