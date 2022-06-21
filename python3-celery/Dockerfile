@@ -9,9 +9,6 @@ RUN set -e \
     git \
     python3 \
     python3-pip \
-    #gamera-4 dependencies
-    libpng-dev \
-    libtiff5-dev \
     # Opencv Dependency
     python3-opencv \
     # Python lxml dependencies
@@ -75,14 +72,3 @@ RUN set -x \
   && chown www-data /run/wait-for-app \
   && chown -R www-data /code/Rodan /code/jobs \
   && pip3 install opencv-python==4.5.5.64
-  # # Runs on both Rodan service, and Rodan-Celery
-  # && sed -i 's/\r//' /opt/entrypoint \
-  # && chmod +x /opt/entrypoint \
-  # && chown www-data /opt/entrypoint \
-  # # This script starts Rodan-Celery
-  # && sed -i 's/\r//' /run/start-celery \
-  # && chmod +x /run/start-celery \
-  # && chown www-data /run/start-celery \
-  # && chown -R www-data /code/Rodan /code/jobs
-
-
