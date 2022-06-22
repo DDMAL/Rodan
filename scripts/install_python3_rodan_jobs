@@ -63,7 +63,7 @@ cd /code/Rodan/rodan
 sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
 
 #!/bin/bash
-###############################
+
 # INSTALLATION SCRIPT FOR RODAN CONTAINER
 # In the root directory
 cd /
@@ -85,9 +85,11 @@ cd ../musicstaves
 python3.7 setup.py build && python3.7 setup.py install
 
 
+
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
 # THEN RERUN THE SCRIPT.
+
 
 # remove the gamera-4 directory from the container. 
 echo "###### removing gamera4-rodan ######"
@@ -96,4 +98,5 @@ cd / && rm -rf gamera4-rodan
 # for more information refer to:
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
 ###############################
+
 
