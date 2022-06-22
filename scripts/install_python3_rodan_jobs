@@ -84,7 +84,6 @@ echo "###### build and install musicstaves ######"
 cd ../musicstaves
 python3.7 setup.py build && python3.7 setup.py install
 
-
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
 # THEN RERUN THE SCRIPT.
@@ -96,4 +95,5 @@ cd / && rm -rf gamera4-rodan
 # for more information refer to:
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
 ###############################
+
 
