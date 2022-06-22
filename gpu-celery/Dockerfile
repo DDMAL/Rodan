@@ -166,6 +166,8 @@ RUN set -x \
   && chmod +x /opt/install_gpu_rodan_jobs \
   && chown www-data /opt/install_gpu_rodan_jobs \
   && /opt/install_gpu_rodan_jobs \
+  # Temporary bandaid fix (required for /code/Rodan/requirements.txt) 
+  pip install typing_extensions==4.2.0 \
   # Install Rodan
   && sed -i "s/pip /pip3 /g" /run/install_rodan \
   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \

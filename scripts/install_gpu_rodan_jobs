@@ -26,8 +26,5 @@ cd /code/Rodan/rodan/jobs
 # Install Text Alignment
 $PIP install -r ./text_alignment/requirements.txt
 
-#Needed for django installation (seems to be needed in gpu container only)
-$PIP install typing_extensions==4.2.0
-
 cd /code/Rodan/rodan
 sed -i 's/#gpu //g' /code/Rodan/rodan/settings.py
