@@ -25,7 +25,7 @@ from rodan.jobs.base import RodanTask
 logger = get_task_logger(__name__)
 
 
-class FastCalvoTrainer(RodanTask):
+class FastPacoTrainer(RodanTask):
     name = "Fast Pixelwise Analysis of Music Document, Training"
     author = "Jorge Calvo-Zaragoza, Francisco J. Castellanos, Gabriel Vigliensoni, and Ichiro Fujinaga"
     description = "The job performs the training of many Selection Auto-Encoder model for the pixelwise analysis of music document images."

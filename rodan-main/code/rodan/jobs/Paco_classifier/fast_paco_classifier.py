@@ -26,7 +26,7 @@ from rodan.models import Input
 logger = get_task_logger(__name__)
 # logger = get_task_logger('rodan')
 
-class FastCalvoClassifier(RodanTask):
+class FastPacoClassifier(RodanTask):
     name = "Fast Pixelwise Analysis of Music Document, Classifying"
     author = "Jorge Calvo-Zaragoza, Gabriel Vigliensoni, and Ichiro Fujinaga"
     description = "Given a pre-trained Convolutional neural network, the job performs a (fast) pixelwise analysis of music document images." 
