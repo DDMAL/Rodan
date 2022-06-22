@@ -121,8 +121,6 @@ RUN set -e \
   && apt-get update \
   && DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
     git \
-    # bandaid fix for typing requirement
-    typing_extensions==4.2.0 \
     # Python lxml dependencies
     python3.7-dev \
     python3-opencv \
