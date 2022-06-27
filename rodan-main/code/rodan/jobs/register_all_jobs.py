@@ -68,15 +68,6 @@ def register_py2():
         import_name = "Pixel"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register MEI resizing
-    try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
-
-        app.register_task(MEI_Resize())
-    except Exception as exception:
-        import_name = "MEI Resizing"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
     # Register Gamera
     try:
         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
@@ -422,7 +413,15 @@ def register_py3():
         import_name = "MEI Encoding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
 
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        
     # Register HPC Fast Trainer
     try:
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
@@ -476,6 +475,7 @@ def register_py3():
 # GPU Jobs
 def register_gpu():
 
+
     # Register Calvo
     try:
         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
@@ -493,23 +493,23 @@ def register_gpu():
         import_name = "Calvo Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
-            FastCalvoClassifier,
-        )
+    # try:
+    #     from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+    #         FastCalvoClassifier,
+    #     )
 
-        app.register_task(FastCalvoClassifier())
-    except Exception as exception:
-        import_name = "Fast Calvo Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    #     app.register_task(FastCalvoClassifier())
+    # except Exception as exception:
+    #     import_name = "Fast Calvo Classifier"
+    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+    # try:
+    #     from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
-        app.register_task(FastCalvoTrainer())
-    except Exception as exception:
-        import_name = "Fast Calvo Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+    #     app.register_task(FastCalvoTrainer())
+    # except Exception as exception:
+    #     import_name = "Fast Calvo Trainer"
+    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Text Alignment
     try:
@@ -519,6 +519,25 @@ def register_gpu():
     except Exception as exception:
         import_name = "Text Alignment"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Paco's Trainer
+    try:
+        from rodan.jobs.Paco_classifier.fast_paco_trainer import FastPacoTrainer
+
+        app.register_task(FastPacoTrainer())
+    except Exception as exception:
+        import_name = "Paco Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register Paco's Classifier
+    try:
+        from rodan.jobs.Paco_classifier.fast_paco_classifier import FastPacoClassifier
+
+        app.register_task(FastPacoClassifier())
+    except Exception as exception:
+        import_name = "Paco Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
 
 if __name__ == "__main__":

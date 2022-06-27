@@ -13,6 +13,7 @@ docker build \
 RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
 RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
 RODAN_DOCKER_TAG=`git describe --tags --always`
+BUILD_HASH=`git rev-parse --verify HEAD`
 
 ###############################################################################
 # Stage 1
@@ -52,6 +53,7 @@ docker build \
   --no-cache \
   --build-arg BRANCHES="develop" \
   --build-arg VERSION=${RODAN_TAG} \
+  --build-arg build_hash=${BUILD_HASH} \
   --tag ddmal/rodan-main:nightly \
   --tag ddmal/rodan-main:${RODAN_TAG} \
   --file ./rodan-main/Dockerfile \

@@ -9,6 +9,9 @@ RUN set -e \
     git \
     python3 \
     python3-pip \
+    #gamera-4 dependencies
+    libpng-dev \
+    libtiff5-dev \
     # Opencv Dependency
     python3-opencv \
     # Python lxml dependencies
@@ -21,7 +24,20 @@ RUN set -e \
     libpq-dev \
     # >/dev/null
     # Remove when done
-    vim
+    vim 
+    # \
+  # # Needed for pixel_wrapper (node_js)
+  # && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
+  # && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+  # && apt-get -qq update \
+  # && apt-get -qq install -y nodejs >/dev/null \
+  # && npm install -g npm@6.14.12 \
+  # # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
+  # && apt-get -qq remove cmdtest \
+  # && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  # && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+  # && apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
+
 
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -61,3 +77,14 @@ RUN set -x \
   && chown www-data /run/wait-for-app \
   && chown -R www-data /code/Rodan /code/jobs \
   && pip3 install opencv-python==4.5.5.64
+  # # Runs on both Rodan service, and Rodan-Celery
+  # && sed -i 's/\r//' /opt/entrypoint \
+  # && chmod +x /opt/entrypoint \
+  # && chown www-data /opt/entrypoint \
+  # # This script starts Rodan-Celery
+  # && sed -i 's/\r//' /run/start-celery \
+  # && chmod +x /run/start-celery \
+  # && chown www-data /run/start-celery \
+  # && chown -R www-data /code/Rodan /code/jobs
+
+
