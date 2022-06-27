@@ -10,9 +10,12 @@ docker build \
   --tag ddmal/rodan:placeholder \
   .
 
-RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
-RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
-RODAN_DOCKER_TAG=`git describe --tags --always`
+RODAN_TAG='test'
+#`cd rodan-main/code && git describe --tags --always`
+RODAN_CLIENT_TAG='test'
+#`cd rodan-client/code && git describe --tags --always`
+RODAN_DOCKER_TAG='test'
+#`git describe --tags --always`
 BUILD_HASH=`git rev-parse --verify HEAD`
 
 ###############################################################################
@@ -24,7 +27,7 @@ echo "[+] Building Python2-Celery"
 # Too many times did docker cache mess up a build. No more cache.
 docker build \
   --no-cache \
-  --build-arg BRANCHES="develop" \
+  --build-arg BRANCHES="migration_test" \
   --build-arg VERSION=${RODAN_TAG} \
   --tag ddmal/rodan-python2-celery:nightly \
   --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
@@ -51,7 +54,7 @@ echo "[+] Building Rodan & Celery Core"
 # Don't remove --no-cache
 docker build \
   --no-cache \
-  --build-arg BRANCHES="develop" \
+  --build-arg BRANCHES="migration_test" \
   --build-arg VERSION=${RODAN_TAG} \
   --build-arg build_hash=${BUILD_HASH} \
   --tag ddmal/rodan-main:nightly \
@@ -70,7 +73,7 @@ echo "[+] Building Rodan-Client"
 
 docker build \
   --no-cache \
-  --build-arg BRANCHES="develop" \
+  --build-arg BRANCHES="migration_test" \
   --build-arg VERSION=${RODAN_CLIENT_TAG} \
   --tag ddmal/rodan-client:nightly \
   --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
@@ -102,7 +105,7 @@ echo "[+] Building Python3-Celery"
 
 docker build \
   --no-cache \
-  --build-arg BRANCHES="develop" \
+  --build-arg BRANCHES="migration_test" \
   --build-arg VERSION=${RODAN_TAG} \
   --tag ddmal/rodan-python3-celery:nightly \
   --tag ddmal/rodan-python3-celery:${RODAN_TAG} \
@@ -113,7 +116,7 @@ echo "[+] Building GPU-Celery"
 
 docker build \
   --no-cache \
-  --build-arg BRANCHES="develop" \
+  --build-arg BRANCHES="migration_test" \
   --build-arg VERSION=${RODAN_TAG} \
   --tag ddmal/rodan-gpu-celery:nightly \
   --tag ddmal/rodan-gpu-celery:${RODAN_TAG} \
