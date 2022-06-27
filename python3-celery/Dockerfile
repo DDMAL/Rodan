@@ -28,6 +28,11 @@ RUN set -e \
     # >/dev/null
     # Remove when done
     vim \
+  # Needed for Ocropy (Text-Alignment)
+  && apt -qq install -y \
+    wget \
+    python-scipy \
+    python-matplotlib \
   # Needed for pixel_wrapper (node_js)
   && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
