@@ -25,9 +25,10 @@
 
 # gamera4 works in python3 so we can use the same functions as used in the former gamera versions 
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import image_conversion
+# Imports temporarly moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import load_image
+# from gamera.plugins import image_conversion
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -59,6 +60,9 @@ class gamera_to_rgb(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
 
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_conversion
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_result = image_source.to_rgb()
         image_result.save_PNG(outputs['RGB PNG image'][0]['resource_path'])
@@ -70,7 +74,8 @@ class gamera_to_greyscale(RodanTask):
 
     name = 'Convert to greyscale PNG'
     author = 'Ryan Bannon'
-    description = image_conversion.to_greyscale.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description = ""
+    #image_conversion.to_greyscale.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings ={'job_queue': 'Python3'}
 
     enabled = True
@@ -91,6 +96,9 @@ class gamera_to_greyscale(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_conversion
 
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_result = image_source.to_greyscale()
@@ -123,6 +131,9 @@ class gamera_to_grey16(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_conversion
 
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_result = image_source.to_grey16()
@@ -155,6 +166,9 @@ class gamera_to_onebit(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_conversion
 
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_result = image_source.to_onebit()

@@ -23,9 +23,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import image_utilities
+# temporarily moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import load_image
+# from gamera.plugins import image_utilities
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -56,7 +57,10 @@ class gamera_invert(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_utilities
+        
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_source.invert()
         for i in range(len(outputs['PNG image'])):

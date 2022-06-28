@@ -23,9 +23,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import binarization
+# temporarily moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import load_image
+# from gamera.plugins import binarization
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -73,6 +74,9 @@ class gamera_gatos_background(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
 		image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
@@ -139,6 +143,10 @@ class gamera_gatos_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import binarization
+
 
 		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
 		image_background = load_image(inputs['Greyscale PNG - estimated background of the image'][0]['resource_path'])
@@ -173,6 +181,10 @@ class gamera_brink_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import binarization
+
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.brink_threshold() 
@@ -242,6 +254,9 @@ class gamera_sauvola_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.sauvola_threshold(settings['Region size'], settings['Sensitivity'], settings['Dynamic range'], settings['Lower bound'], settings['Upper bound']) 
@@ -304,6 +319,9 @@ class gamera_niblack_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.niblack_threshold(settings['Region size'], settings['Sensitivity'], settings['Lower bound'], settings['Upper bound']) 

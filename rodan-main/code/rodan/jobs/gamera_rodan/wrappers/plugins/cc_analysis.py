@@ -23,11 +23,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
-import gamera.core
-import gamera.gamera_xml
-import gamera.classify
-import gamera.knn
-from gamera.plugins import segmentation
+# Temporarily moved to run my task while rodan is in python 2 
+# import gamera.core
+# import gamera.gamera_xml
+# import gamera.classify
+# import gamera.knn
+# from gamera.plugins import segmentation
 from rodan.jobs.base import RodanTask
 
 
@@ -53,6 +54,12 @@ class CCAnalysis(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+        import gamera.core
+        import gamera.gamera_xml
+        import gamera.classify
+        import gamera.knn
+        from gamera.plugins import segmentation
+        
         image_path = inputs['1-Bit PNG Image'][0]['resource_path']
         input_image = gamera.core.load_image(image_path)
         ccs = input_image.cc_analysis()

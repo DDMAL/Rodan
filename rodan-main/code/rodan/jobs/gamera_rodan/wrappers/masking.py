@@ -23,8 +23,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import Image, load_image
+# Temporarily moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import Image, load_image
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -60,6 +61,9 @@ class GameraMaskLogicalAnd(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+
+        import gamera
+        from gamera.core import Image, load_image
 
         image_source = load_image(inputs['Source image'][0]['resource_path'])
         image_mask = load_image(inputs['Mask image'][0]['resource_path'])
@@ -98,7 +102,9 @@ class GameraMaskLogicalXor(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-
+        import gamera
+        from gamera.core import Image, load_image
+        
         image_source = load_image(inputs['Source image'][0]['resource_path'])
         image_mask = load_image(inputs['Mask image'][0]['resource_path'])
         image_result = image_source.xor_image(image_mask)

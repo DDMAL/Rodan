@@ -23,9 +23,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import morphology
+# temporarily moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import load_image
+# from gamera.plugins import morphology
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -69,7 +70,10 @@ class gamera_despeckle(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-
+        import gamera
+        from gamera.core import load_image
+        from gamera.plugins import image_utilities
+        
         image_result = load_image(inputs['Onebit PNG image'][0]['resource_path'])
         image_result.despeckle(settings['Connected component size']) 
         for i in range(len(outputs['Onebit PNG despeckled image'])):

@@ -23,9 +23,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import threshold
+#temporarily moved to run my task while rodan is in python 2 
+# import gamera
+# from gamera.core import load_image
+# from gamera.plugins import threshold
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -68,6 +69,9 @@ class gamera_otsu_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import threshold
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.otsu_threshold(settings['Storage format']) 
@@ -112,6 +116,9 @@ class gamera_tsai_moment_preserving_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import threshold
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.tsai_moment_preserving_threshold(settings['Storage format']) 
@@ -156,6 +163,9 @@ class gamera_abutaleb_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import threshold
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.abutaleb_threshold(settings['Storage format']) 
@@ -219,6 +229,9 @@ class gamera_bernsen_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import threshold
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.bernsen_threshold(settings['Storage format'], settings['Region size'], settings['Contrast limit'], settings['Doubt to black']) 
@@ -283,7 +296,10 @@ class gamera_djvu_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-
+		import gamera
+		from gamera.core import load_image
+		from gamera.plugins import threshold
+		
 		image_source = load_image(inputs['RGB PNG image'][0]['resource_path'])
 		image_result = image_source.djvu_threshold(settings['Smoothness'], settings['Maximum block size'], settings['Minimum block size'], settings['Block factor']) 
 		for i in range(len(outputs['Onebit PNG image'])):

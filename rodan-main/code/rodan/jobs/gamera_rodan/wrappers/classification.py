@@ -25,11 +25,12 @@
 
 import os
 from shutil import copyfile
-import gamera.core
-import gamera.gamera_xml
-import gamera.classify
-import gamera.knn
-from gamera.gamera_xml import glyphs_from_xml
+# Temporarily moved to run my task while gamera is in python 2 
+# import gamera.core
+# import gamera.gamera_xml
+# import gamera.classify
+# import gamera.knn
+# from gamera.gamera_xml import glyphs_from_xml
 from rodan.jobs.base import RodanTask
 
 
@@ -77,6 +78,12 @@ class ClassificationTask(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
+        import gamera.core
+        import gamera.gamera_xml
+        import gamera.classify
+        import gamera.knn
+        from gamera.gamera_xml import glyphs_from_xml
+        
         classifier_path = inputs['GameraXML - Training Data'][0]['resource_path']
         with self.tempdir() as tdir:
             tempPath = os.path.join(tdir, classifier_path + '.xml')
