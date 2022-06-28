@@ -16,7 +16,7 @@ class PolyMask(RodanTask):
     name = 'Manual Polygon Masking'
     author = "Ling-Xiao Yang"
     description = "Interactive interface to create polygon masks"
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = "Gamera - Masking"
     interactive = True

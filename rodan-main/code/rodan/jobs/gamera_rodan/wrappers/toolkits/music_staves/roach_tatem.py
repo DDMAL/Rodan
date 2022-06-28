@@ -9,6 +9,7 @@ class RoachTatemRemoveStaffLines(RodanTask):
     settings = {
         'title': 'Roach-Tatem settings',
         'type': 'object',
+        'job_queue': 'Python3', 
         'properties': {
             'Number of lines per staff': {
                 'type': 'integer',

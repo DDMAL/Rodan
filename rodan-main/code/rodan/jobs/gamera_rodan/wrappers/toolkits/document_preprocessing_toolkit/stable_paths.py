@@ -36,7 +36,7 @@ class StablePaths(RodanTask):
     name = 'Stable Paths - remove'
     author = 'Ryan Bannon'
     description = stable_path_staff_detection.removeStaves.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Document Preprocessing Toolkit'
@@ -71,6 +71,7 @@ class StablePathDetection(RodanTask):
     settings ={
         'title': 'Stable Paths Detection',
         'type': 'object',
+        'job_queue': 'Python3',
         'properties': {
             'Trimming': {
                 'type': 'boolean',

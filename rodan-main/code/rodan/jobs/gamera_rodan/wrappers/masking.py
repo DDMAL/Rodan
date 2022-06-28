@@ -35,7 +35,7 @@ class GameraMaskLogicalAnd(RodanTask):
     name = 'Mask (logical \'and\')'
     author = 'Ryan Bannon'
     description = Image.and_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    settings ={'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Masking'
     interactive = False
