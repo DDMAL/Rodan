@@ -26,6 +26,11 @@ RUN set -e \
     # Psycopg2 dependencies
     libpq-dev \
     # >/dev/null
+    # wget \
+    # python-scipy \
+    # python-matplotlib \
+    # python-lxml \
+    # >/dev/null \
     # Remove when done
     vim \
   # Needed for pixel_wrapper (node_js)
