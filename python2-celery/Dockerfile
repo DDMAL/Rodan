@@ -42,12 +42,12 @@ RUN set -e \
     # Silent the output
     >/dev/null \
   # Needed for Ocropy (Text-Alignment)
-  # && apt -qq install -y \
-  #   wget \
-  #   python-scipy \
-  #   python-matplotlib \
-  #   python-lxml \
-  #   >/dev/null \
+  && apt -qq install -y \
+    wget \
+    python-scipy \
+    python-matplotlib \
+    python-lxml \
+    >/dev/null \
   # [TODO] Check these
   && apt-get -qq install -y \
     libxml2-dev \
