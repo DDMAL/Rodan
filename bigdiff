@@ -1,0 +1,3809 @@
+diff --git a/hooks/build b/hooks/build
+index 9943e1c9..2e6f2115 100755
+--- a/hooks/build
++++ b/hooks/build
+@@ -26,13 +26,13 @@ docker build \
+   --no-cache \
+   --build-arg BRANCHES="develop" \
+   --build-arg VERSION=${RODAN_TAG} \
+-  --tag ddmal/rodan-python2-celery:nightly \
++  --tag ddmal/rodan-python2-celery:py3test \
+   --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
+   --file ./python2-celery/Dockerfile \
+   .
+ 
+ echo "[+] Pushing Python2-Celery"
+-docker push ddmal/rodan-python2-celery:nightly
++docker push ddmal/rodan-python2-celery:py3test
+ 
+ echo "[+] Python2-Celery needs to be made and pushed before Rodan/Celery because the Rodan image uses the Python2 image as its base."
+ 
+@@ -54,7 +54,7 @@ docker build \
+   --build-arg BRANCHES="develop" \
+   --build-arg VERSION=${RODAN_TAG} \
+   --build-arg build_hash=${BUILD_HASH} \
+-  --tag ddmal/rodan-main:nightly \
++  --tag ddmal/rodan-main:py3test \
+   --tag ddmal/rodan-main:${RODAN_TAG} \
+   --file ./rodan-main/Dockerfile \
+   .
+@@ -72,7 +72,7 @@ docker build \
+   --no-cache \
+   --build-arg BRANCHES="develop" \
+   --build-arg VERSION=${RODAN_CLIENT_TAG} \
+-  --tag ddmal/rodan-client:nightly \
++  --tag ddmal/rodan-client:py3test \
+   --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
+   ./rodan-client
+ 
+@@ -83,7 +83,7 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/rodan-main:${RODAN_TAG}
+ fi
+ 
+-docker push ddmal/rodan-main:nightly
++docker push ddmal/rodan-main:py3test
+ 
+ echo "[+] Pushing Rodan-Client"
+ 
+@@ -92,7 +92,7 @@ if [ -z `echo ${RODAN_CLIENT_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/rodan-client:${RODAN_CLIENT_TAG}
+ fi
+ 
+-docker push ddmal/rodan-client:nightly
++docker push ddmal/rodan-client:py3test
+ 
+ ###############################################################################
+ # Stage 3
+@@ -104,7 +104,7 @@ docker build \
+   --no-cache \
+   --build-arg BRANCHES="develop" \
+   --build-arg VERSION=${RODAN_TAG} \
+-  --tag ddmal/rodan-python3-celery:nightly \
++  --tag ddmal/rodan-python3-celery:py3test \
+   --tag ddmal/rodan-python3-celery:${RODAN_TAG} \
+   --file ./python3-celery/Dockerfile \
+   .
+@@ -115,7 +115,7 @@ docker build \
+   --no-cache \
+   --build-arg BRANCHES="develop" \
+   --build-arg VERSION=${RODAN_TAG} \
+-  --tag ddmal/rodan-gpu-celery:nightly \
++  --tag ddmal/rodan-gpu-celery:py3test \
+   --tag ddmal/rodan-gpu-celery:${RODAN_TAG} \
+   --file ./gpu-celery/Dockerfile \
+   .
+@@ -125,7 +125,7 @@ echo "[+] Building Postgres"
+ docker build \
+   --no-cache \
+   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+-  --tag ddmal/postgres-plpython:nightly \
++  --tag ddmal/postgres-plpython:py3test \
+   --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
+   --file ./postgres/Dockerfile \
+   .
+@@ -135,7 +135,7 @@ echo "[+] Building Nginx"
+ docker build \
+   --no-cache \
+   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+-  --tag ddmal/nginx:nightly \
++  --tag ddmal/nginx:py3test \
+   --tag ddmal/nginx:${RODAN_DOCKER_TAG} \
+   ./nginx
+ 
+@@ -144,7 +144,7 @@ echo "[+] Building HPC-RabbitMQ"
+ docker build \
+   --no-cache \
+   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+-  --tag ddmal/hpc-rabbitmq:nightly \
++  --tag ddmal/hpc-rabbitmq:py3test \
+   --tag ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG} \
+   ./hpc-rabbitmq
+ 
+diff --git a/hooks/push b/hooks/push
+index 8f279e51..84ce2478 100644
+--- a/hooks/push
++++ b/hooks/push
+@@ -12,7 +12,7 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/rodan-python3-celery:${RODAN_TAG}
+ fi
+ 
+-docker push ddmal/rodan-python3-celery:nightly
++docker push ddmal/rodan-python3-celery:py3test
+ 
+ echo "[+] Pushing GPU-Celery"
+ 
+@@ -20,7 +20,7 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
+ fi
+ 
+-docker push ddmal/rodan-gpu-celery:nightly
++docker push ddmal/rodan-gpu-celery:py3test
+ 
+ echo "[+] Pushing Postgres"
+ 
+@@ -28,7 +28,7 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
+ fi
+ 
+-docker push ddmal/postgres-plpython:nightly
++docker push ddmal/postgres-plpython:py3test
+ 
+ echo "[+] Pushing Nginx"
+ 
+@@ -36,7 +36,7 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/nginx:${RODAN_DOCKER_TAG}
+ fi
+ 
+-docker push ddmal/nginx:nightly
++docker push ddmal/nginx:py3test
+ 
+ echo "[+] Pushing HPC-RabbitMQ"
+ 
+@@ -44,4 +44,4 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+   docker push ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG}
+ fi
+ 
+-docker push ddmal/hpc-rabbitmq:nightly
++docker push ddmal/hpc-rabbitmq:py3test
+diff --git a/python2-celery/Dockerfile b/python2-celery/Dockerfile
+index 257e5ae9..98d32cd8 100644
+--- a/python2-celery/Dockerfile
++++ b/python2-celery/Dockerfile
+@@ -41,16 +41,6 @@ RUN set -e \
+     openjdk-11-jdk \
+     # Silent the output
+     >/dev/null \
+-  # Needed for pixel_wrapper (node_js)
+-  && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
+-  && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+-  && apt-get -qq update \
+-  && apt-get -qq install -y nodejs >/dev/null \
+-  # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
+-  && apt-get -qq remove cmdtest \
+-  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+-  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+-  && apt-get -qq update && apt-get -qq install yarn -y >/dev/null \
+   # Needed for Ocropy (Text-Alignment)
+   && apt -qq install -y \
+     wget \
+@@ -81,17 +71,17 @@ RUN rm -rf /var/lib/apt/lists/*
+ # Let's not rely on pip to install this again.
+ 
+ RUN set -e \
+-  && mkdir -p /rodan/data /code/jobs \
+-  && chown -R www-data /rodan \
+-  && git clone https://github.com/hsnr-gamera/gamera.git /code/gamera \
+-  # Without this gamera's setup can't find the version file.
+-  && cd /code/gamera \
+-  # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
+-  && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
+-  && python setup.py install --nowx >/dev/null 2>&1
++  && mkdir -p /rodan/data /code/jobs 
++  # && chown -R www-data /rodan \
++  # && git clone https://github.com/hsnr-gamera/gamera.git /code/gamera \
++  # # Without this gamera's setup can't find the version file.
++  # && cd /code/gamera \
++  # # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
++  # && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
++  # && python setup.py install --nowx >/dev/null 2>&1
+ 
+ # Install framework dependencies for Rodan Jobs.
+-COPY ./scripts/install_rodan_job_dependencies /run/
++#COPY ./scripts/install_rodan_job_dependencies /run/
+ COPY ./scripts/install_python2_rodan_jobs /run/
+ COPY ./scripts/install_rodan /run/
+ COPY ./scripts/wait-for-app /run/
+@@ -104,9 +94,9 @@ COPY ./rodan-main/code /code/Rodan
+ 
+ 
+ RUN set -x \
+-  && chmod +x /run/install_rodan_job_dependencies \
+-  && chown www-data /run/install_rodan_job_dependencies \
+-  && /run/install_rodan_job_dependencies \
++  # && chmod +x /run/install_rodan_job_dependencies \
++  # && chown www-data /run/install_rodan_job_dependencies \
++  # && /run/install_rodan_job_dependencies \
+   # Install Rodan Jobs
+   && chmod +x /run/install_python2_rodan_jobs \
+   && chown www-data /run/install_python2_rodan_jobs \
+diff --git a/python3-celery/Dockerfile b/python3-celery/Dockerfile
+index c90d67af..257f2268 100644
+--- a/python3-celery/Dockerfile
++++ b/python3-celery/Dockerfile
+@@ -3,16 +3,19 @@ ARG BRANCHES
+ ARG VERSION
+ 
+ RUN set -e \ 
+-  && apt-get -qq update \
++  && apt update \
++  #&& apt upgrade \
+   && apt-get install ffmpeg libsm6 libxext6 -y \
+   && apt-get -qq install -y \
+     git \
+     python3 \
+     python3-pip \
+-    #gamera-4 dependencies
++    apt-utils \
++    curl \
++    #gamera-4 dependencies 
+     libpng-dev \
+     libtiff5-dev \
+-    # Opencv Dependency
++    # Opencv Dependency  
+     python3-opencv \
+     # Python lxml dependencies
+     python3-dev \
+@@ -24,19 +27,22 @@ RUN set -e \
+     libpq-dev \
+     # >/dev/null
+     # Remove when done
+-    vim 
+-    # \
+-  # # Needed for pixel_wrapper (node_js)
+-  # && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
+-  # && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+-  # && apt-get -qq update \
+-  # && apt-get -qq install -y nodejs >/dev/null \
+-  # && npm install -g npm@6.14.12 \
+-  # # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
+-  # && apt-get -qq remove cmdtest \
+-  # && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+-  # && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+-  # && apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
++    vim \
++    # Needed for Ocropy (Text-Alignment)
++    # wget \
++    # python-scipy \
++    # python-matplotlib \
++  # Needed for pixel_wrapper (node_js)
++  && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
++  && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
++  && apt-get -qq update \
++  && apt-get -qq install -y nodejs >/dev/null \
++  && npm install -g npm@6.14.12 \
++  # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
++  && apt-get -qq remove cmdtest \
++  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
++  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
++  && apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
+ 
+ 
+ RUN rm -rf /var/lib/apt/lists/*
+@@ -51,12 +57,11 @@ COPY ./scripts/wait-for-app /run/
+ COPY ./rodan-main/code /code/Rodan
+ 
+ RUN set -x \
+-  && mkdir -p /code/jobs \
+   # Install Python3 Rodan Jobs
+   && chmod +x /run/install_python3_rodan_jobs \
+   && chown www-data /run/install_python3_rodan_jobs \
+-  && /run/install_python3_rodan_jobs \
+-  # Install Rodan
++  && /run/install_python3_rodan_jobs \ 
++    # Install Rodan
+   # Django-Guardian suddenly failed to build.
+   # https://github.com/DDMAL/rodan-docker/issues/60
+   && pip3 install -U pip \
+diff --git a/rodan-main/code/.github/workflows/git_actions.yml b/rodan-main/code/.github/workflows/git_actions.yml
+deleted file mode 100644
+index da5ccce3..00000000
+--- a/rodan-main/code/.github/workflows/git_actions.yml
++++ /dev/null
+@@ -1,83 +0,0 @@
+-name: GitHub Actions Rodan
+-
+-
+-on:
+-
+-  push:
+-    branches: [ develop ]
+-      
+-  workflow_dispatch:
+-
+-jobs:
+-  build:
+-    runs-on: ubuntu-latest
+-    env:
+-      DJANGO_DEBUG_MODE: True
+-      DJANGO_ALLOWED_HOSTS: =*
+-      REDIS_HOST : localhost
+-      REDIS_PORT : 6379
+-      REDIS_DB : 0
+-      RABBITMQ_URL : amqp://guest_user:guest_pass@localhost:5672//
+-      RABBITMQ_DEFAULT_USER : guest_user
+-      RABBITMQ_DEFAULT_PASS : guest_pass
+-      DJANGO_SECRET_KEY : local
+-      DJANGO_MEDIA_ROOT : ./data/
+-      DJANGO_ACCESS_LOG : ./rodan.log
+-      DJANGO_DEBUG_LOG : ./database.log
+-      CELERY_JOB_QUEUE : None
+-      POSTGRES_DB : rodan
+-      POSTGRES_USER : rodan
+-      POSTGRES_HOST : localhost
+-      POSTGRES_PORT : 5432
+-      POSTGRES_PASSWORD : rodan
+-
+-    strategy:
+-      matrix:
+-        python-version: [3.6]
+-    steps:
+-      - uses: actions/checkout@v2
+-      - name: Set up Python ${{ matrix.python-version }}
+-        uses: actions/setup-python@v2
+-        with:
+-          python-version: ${{ matrix.python-version }}
+-      - name: psycopg2 prerequisites
+-        run: sudo apt-get install libpq-dev
+-      - name: Install libxml2-dev
+-        run: sudo apt-get install libxml2-dev
+-      - name: Install libxslt1-dev
+-        run: sudo apt-get install libxslt1-dev   
+-      - name: Set up PostgreSQL and Redis
+-        run: |
+-          sudo apt-get install postgresql libpq-dev
+-          sudo service postgresql start
+-          sudo apt-get update -qy
+-          sudo /etc/init.d/postgresql restart
+-          sudo pip install redis
+-          # sudo redis-server /etc/redis/redis.conf --port 6379
+-      - name: Install flake8
+-        run: |
+-          python -m pip install --upgrade pip
+-          pip install flake8 pytest
+-      - name: Install dependencies
+-        uses: py-actions/py-dependency-install@v2
+-        with:
+-          path: "requirements.txt"
+-      - name: Lint with flake8
+-        run: |
+-          # stop the build if there are Python syntax errors or undefined names
+-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+-      - name: run migrations
+-        run: |
+-          sudo psql --host=localhost --dbname=database-name --username=postgres
+-          psql -c "CREATE DATABASE rodan;" -U postgres
+-          psql -c "CREATE USER rodan WITH PASSWORD 'rodan';" -U postgres
+-          psql -c "ALTER USER rodan WITH SUPERUSER;" -U postgres
+-          psql -c "CREATE LANGUAGE plpython2u;" -U postgres
+-          psql -c "GRANT ALL PRIVILEGES ON DATABASE "rodan" TO rodan;" -U postgres
+-          python manage.py makemigrations rodan
+-          python manage.py migrate
+-      - name: run manage.py test
+-        run: |
+-          python manage.py test
+diff --git a/rodan-main/code/rodan/jobs/MEI_encoding/build_mei_file.py b/rodan-main/code/rodan/jobs/MEI_encoding/build_mei_file.py
+index 18cf6c1e..5c65dba7 100755
+--- a/rodan-main/code/rodan/jobs/MEI_encoding/build_mei_file.py
++++ b/rodan-main/code/rodan/jobs/MEI_encoding/build_mei_file.py
+@@ -2,12 +2,12 @@
+ from hashlib import new
+ from uuid import uuid4
+ import xml.etree.ElementTree as ET
+-from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more concise?
++from xml.etree.ElementTree import Element
+ import math
+ import numpy as np
+ import json
+ from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan 
+-#import parse_classifier_table as pct #---> for testing locally 
++#import parse_classifier_table as pct ---> for testing locally 
+ from itertools import groupby
+ 
+ try:
+@@ -573,9 +573,9 @@ def build_mei(pairs, classifier, width_container, staves, page):
+                                 layer.append(cur_syllable)
+                                 syl_dict["added"] = True
+ 
+-                #in all cases a system break must be added to the layer 
+-                layer.append(sb)
+-                syl_dict["latest"] = sb
++                    #in all cases a system break must be added to the layer 
++                    layer.append(sb)
++                    syl_dict["latest"] = sb
+ 
+ 
+     return meiDoc
+@@ -704,8 +704,8 @@ if __name__ == '__main__':
+ 
+     for f_ind in f_inds:
+         fname = 'salzinnes_{:0>3}'.format(f_ind)
+-        inJSOMR = './tests/resources/112rPF.json'
+-        in_syls = './tests/resources/112r.json'
++        inJSOMR = './tests/resources/070rPF.json'
++        in_syls = './tests/resources/070r.json'
+         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
+         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
+         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
+@@ -737,4 +737,4 @@ if __name__ == '__main__':
+     meiDoc = removeEmptySyl(meiDoc)
+ 
+     tree = meiDoc
+-    tree.write("112r-new.mei", encoding="utf-8")
++    tree.write("070r.xml", encoding="utf-8")
+diff --git a/rodan-main/code/rodan/jobs/Paco_classifier/fast_paco_trainer.py b/rodan-main/code/rodan/jobs/Paco_classifier/fast_paco_trainer.py
+index 7b366312..ad869580 100644
+--- a/rodan-main/code/rodan/jobs/Paco_classifier/fast_paco_trainer.py
++++ b/rodan-main/code/rodan/jobs/Paco_classifier/fast_paco_trainer.py
+@@ -71,28 +71,20 @@ class FastPacoTrainer(RodanTask):
+     }
+ 
+     input_port_types = (
+-        {'name': 'Sample 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'Image', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Selected regions', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
+         # We did not go this route because it would be more difficult for the user to track layers
+         # {'name': 'rgba PNG - Layers', 'minimum': 1, 'maximum': 10, 'resource_types': ['image/rgba+png']},
+-        {'name': 'Sample 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 10', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 11', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 12', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 13', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 14', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 15', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 16', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 17', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 18', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 19', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+-        {'name': 'Sample 20', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 0 (Background)', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
++        {'name': 'rgba PNG - Layer 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+     )
+ 
+     output_port_types = (
+@@ -139,24 +131,15 @@ class FastPacoTrainer(RodanTask):
+                 rmtree('unzipping_folder')
+             os.mkdir('unzipping_folder')
+             new_input = {}
+-            create_folder = True
+-            folder_num = 1
+             for ipt in inputs:
+-                dir_path = 'unzipping_folder/{}'.format(folder_num)
+-                folder_num += 1
++                dir_path = 'unzipping_folder/{}'.format(ipt)
+                 with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
+                     zip_ref.extractall(dir_path)
+                 full_path = os.path.join(os.getcwd(), dir_path)
+-                for f in os.listdir(dir_path):
+-                    if os.path.isfile(os.path.join(dir_path, f)):
+-                        layer_name = f.split(".")[0]
+-                        if create_folder:
+-                            new_input[layer_name] = []
+-                        new_input[layer_name].append({'resource_path': os.path.join(full_path, f)})
+-                create_folder = False
++                onlyfiles = [{'resource_path': os.path.join(full_path, f)} for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
++                new_input[ipt] = onlyfiles
+ 
+             # SANITY CHECK
+-            # logger.info(new_input)
+             input_settings_test.pre_training_check(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
+ 
+             rlevel = app.conf.CELERY_REDIRECT_STDOUTS_LEVEL
+diff --git a/rodan-main/code/rodan/jobs/Paco_classifier/training_engine_sae.py b/rodan-main/code/rodan/jobs/Paco_classifier/training_engine_sae.py
+index 22dd1c9b..9f1d0342 100644
+--- a/rodan-main/code/rodan/jobs/Paco_classifier/training_engine_sae.py
++++ b/rodan-main/code/rodan/jobs/Paco_classifier/training_engine_sae.py
+@@ -511,7 +511,7 @@ def train_msae(
+             verbose=2,
+             steps_per_epoch=steps_per_epoch,
+             validation_data=generators_validation[label],
+-            validation_steps=100,
++            validation_steps=1,
+             callbacks=callbacks_list,
+             epochs=epochs
+         )
+diff --git a/rodan-main/code/rodan/jobs/base.py b/rodan-main/code/rodan/jobs/base.py
+index 633beb43..828d4b38 100644
+--- a/rodan-main/code/rodan/jobs/base.py
++++ b/rodan-main/code/rodan/jobs/base.py
+@@ -692,8 +692,10 @@ class RodanTask(Task):
+             self.settings_update = {}
+             self.response = response
+             for k, v in settings_update.items():
+-                if isinstance(k, basestring) and k.startswith("@"):  # noqa
++                if isinstance(k, str) and k.startswith("@"):  # noqa
+                     self.settings_update[k] = v
++            
++            # this is not throwing error in rodan for python3 
+ 
+     def tempdir(self):
+         """
+@@ -767,11 +769,22 @@ class RodanTask(Task):
+                         )
+                         output["resource_temp_folder"] = output_res_tempfolder
+                         temppath_map[output_res_tempfolder] = output
+-
++            logger.info("started running the task!")
+             retval = self.run_my_task(inputs, settings, arg_outputs)
++            logger.info(("ran the task and the returned object is {0}").format(retval))
+ 
+             if isinstance(retval, self.WAITING_FOR_INPUT):
++                logger.info(("the settings_update field is: {0}").format(retval.settings_update))
++                if type(retval.settings_update["@settings"]) == bytes:
++                    retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
+                 settings.update(retval.settings_update)
++                logger.info(("After being updated the settings_update field is: {0}").format(retval.settings_update))
++
++                # for python3 we have to use decode utf 8 for jason format 
++                # for the last step of the biollante job
++                # first iteration the updated version is the same as the initial version
++                # encoded again? biollante is working?
++                # before updating have to decode
+ 
+                 runjob.status = task_status.WAITING_FOR_INPUT
+                 runjob.job_settings = settings
+diff --git a/rodan-main/code/rodan/jobs/biollante_rodan/.github/workflows/rodan-job.yml b/rodan-main/code/rodan/jobs/biollante_rodan/.github/workflows/rodan-job.yml
+deleted file mode 100644
+index b4c110df..00000000
+--- a/rodan-main/code/rodan/jobs/biollante_rodan/.github/workflows/rodan-job.yml
++++ /dev/null
+@@ -1,38 +0,0 @@
+-# This workflow will lint the project using flake8 and run tests.
+-
+-name: Biollante Rodan Job
+-on:
+-  push:
+-    branches: [ master, develop ]
+-  pull_request:
+-    branches: [ master, develop ]
+-
+-jobs:
+-  build:
+-    runs-on: ubuntu-latest
+-    steps:
+-    - uses: actions/checkout@v2
+-    - name: Set up Python 2.7
+-      uses: actions/setup-python@v2
+-      with:
+-        python-version: 2.7
+-    - name: Install Gamera
+-      run: |
+-        git clone https://github.com/hsnr-gamera/gamera.git ./gamera
+-        cd gamera
+-        # Checkout version used in Rodan
+-        git reset --hard c77194d5e839204efc617971233967ba5a6c53bc
+-        python setup.py install --nowx
+-        cd ..
+-        rm -rf gamera
+-    - name: Install flake8
+-      run: |
+-        python -m pip install --upgrade pip
+-        pip install flake8
+-        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+-    - name: Lint with flake8
+-      run: |
+-        flake8 . --count --statistics
+-    - name: Run tests
+-      run: |
+-        python -m unittest knnga_util_test
+diff --git a/rodan-main/code/rodan/jobs/biollante_rodan/README.md b/rodan-main/code/rodan/jobs/biollante_rodan/README.md
+index 8f830627..85a39a37 100644
+--- a/rodan-main/code/rodan/jobs/biollante_rodan/README.md
++++ b/rodan-main/code/rodan/jobs/biollante_rodan/README.md
+@@ -4,6 +4,13 @@ This is [Gamera's](https://gamera.informatik.hsnr.de/) genetic algorithm optimiz
+ 
+ This is a work in progress.
+ 
++## UPDATE FOR RUNNING IN PYTHON3
++- Python3 does not convert between JSON objects and bytes automatically. Thus, you have to use encode and decode manually. 
++- I created a function to sort a list of dictionaries for the settings of celery jobs. 
++- Biollante now works in python3.
++- For more information regarding how gamera runs in python3 you can refer to Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-Py3doc.md
++
++
+ ## License
+ 
+ This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+diff --git a/rodan-main/code/rodan/jobs/biollante_rodan/__init__.py b/rodan-main/code/rodan/jobs/biollante_rodan/__init__.py
+index a6bbf5c0..a261f27d 100644
+--- a/rodan-main/code/rodan/jobs/biollante_rodan/__init__.py
++++ b/rodan-main/code/rodan/jobs/biollante_rodan/__init__.py
+@@ -2,5 +2,5 @@
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ 
+ 
+-__version__ = "0.2.2"
+-from biollante_rodan import BiollanteRodan      # noqa
++__version__ = "1.0.0"
++from rodan.jobs.biollante_rodan.biollante_rodan import BiollanteRodan      # noqa
+diff --git a/rodan-main/code/rodan/jobs/biollante_rodan/biollante_rodan.py b/rodan-main/code/rodan/jobs/biollante_rodan/biollante_rodan.py
+index bcea94f2..051baafe 100644
+--- a/rodan-main/code/rodan/jobs/biollante_rodan/biollante_rodan.py
++++ b/rodan-main/code/rodan/jobs/biollante_rodan/biollante_rodan.py
+@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile as NTF
+ from time import sleep
+ 
+ import json
+-import knnga_util as util
++from rodan.jobs.biollante_rodan import knnga_util as util
+ import shutil
+ 
+ 
+@@ -25,7 +25,7 @@ class BiollanteRodan(RodanTask):
+     author = "Juliette Regimbal"
+     description = "GA Optimizer for kNN Classifiers"
+     settings = {
+-        "job_queue": "Python2"  # This is due to using gamera
++        "job_queue": "Python3"  # This is due to using gamera
+     }
+     enabled = True
+     category = "Optimization"
+@@ -60,6 +60,7 @@ class BiollanteRodan(RodanTask):
+ 
+     def get_my_interface(self, inputs, settings):
+         self.logger.info(settings)
++
+         context = {
+             "base": json.loads(settings["@base"]),
+             "selection": json.loads(settings["@selection"]),
+@@ -99,6 +100,16 @@ class BiollanteRodan(RodanTask):
+             return {}
+ 
+     def run_my_task(self, inputs, settings, outputs):
++        
++        # debugging tests printed in the log
++        dict_check_list = ["@base", "@selection", "@replacement", "@mutation", "@crossover", "@stop_criteria",
++        "@results", "@weights"]
++        for key in dict_check_list:
++            if key in settings:
++                self.logger.info(("settings[{0}] has type: {1} and the value is {2}").format(str(key), type(settings[key]), settings[key]))
++            else:
++                self.logger.info(str(key) + " does not exist inside the settings dictionary")
++
+         if "@state" not in settings:
+             settings["@state"] = STATE_INIT
+ 
+@@ -112,13 +123,21 @@ class BiollanteRodan(RodanTask):
+                     inputs["Classifier Data"][0]["resource_path"],
+                     temp.name
+                 )
++                self.logger.info("copied the file")
++                # will be doing machine learning in the next line 
+                 classifier = knn.kNNNonInteractive(temp.name)
++                self.logger.info("created the classifier variable")
+ 
+             with NTF() as temp:
+                 classifier.save_settings(temp.name)
++                self.logger.info("saved the settings")
+                 temp.flush()
++                self.logger.info("done flushing")
+                 temp.seek(0)
++                self.logger.info("done seeking")
+                 settings["@settings"] = temp.read()
++                self.logger.info("done reading and writing settings[\"@settings\"]")
++                self.logger.info("type of the above thing is: " + str(type(settings["@settings"])))
+ 
+             # Preserve the number of features and weights for
+             # certain kinds of operations the GA optimizer might perform.
+@@ -141,13 +160,25 @@ class BiollanteRodan(RodanTask):
+             # Create set of parameters for template
+             d = self.knnga_dict()
+             d["@state"] = STATE_NOT_OPTIMIZING
+-            d["@settings"] = settings["@settings"]
++
++            # decoding for python3 must be done manually
++            d["@settings"] = settings["@settings"].decode("UTF-8")
++
+             d["@weights"] = settings["@weights"]
++            self.logger.info("returning waiting for user input") 
++            self.logger.info("here are the settings and the types: ")
++            coutner = 1
++            for key in settings:
++                self.logger.info(
++                ("{0}th key: {1} with type {2} and its value: {3} with type {4}").format(coutner, key, type(key), settings[key], type(settings[key]))
++                )
++                coutner += 1
+             return self.WAITING_FOR_INPUT(d)
+ 
+         elif settings["@state"] == STATE_OPTIMIZING:
+             self.logger.info("State: Optimizing")
+             self.load_from_settings(settings)
++            self.logger.info("loaded the settings and optimizing...")
+ 
+             # Load data
+             with NTF(suffix=".xml") as temp:
+@@ -156,10 +187,12 @@ class BiollanteRodan(RodanTask):
+                     temp.name
+                 )
+                 classifier = knn.kNNNonInteractive(temp.name)
++                self.logger.info("created the classifier object")
+ 
+             # Load selection and weights
+             with NTF(suffix=".xml") as temp:
+-                temp.write(settings["@settings"])
++                temp.write(settings["@settings"].encode("UTF-8"))
++                self.logger.info("encoded settings[\"@settings\"] again and it will have type bytes from now on (until modified later)")
+                 temp.flush()
+                 classifier.load_settings(temp.name)
+ 
+@@ -173,7 +206,7 @@ class BiollanteRodan(RodanTask):
+                 self.stop_criteria.sc,
+                 knnga.GAParallelization(True, 4)
+             )
+-
++            self.logger.info("Created the self.optimizer field and continuing")
+             assert isinstance(self.optimizer, knnga.GAOptimization), \
+                 "Optimizer is %s" % str(type(self.optimizer))
+ 
+@@ -197,10 +230,12 @@ class BiollanteRodan(RodanTask):
+                 temp.flush()
+                 temp.seek(0)
+                 settings["@settings"] = temp.read()
++                self.logger.info("read the settings again, now going to classify and get the features.")
+ 
+             self.logger.info(classifier.get_weights_by_features())
+             settings["@state"] = STATE_NOT_OPTIMIZING
+             settings["@weights"] = classifier.get_weights_by_features()
++            self.logger.info("created settings[@state] and settings[@weights]")
+             return self.WAITING_FOR_INPUT(settings)
+ 
+         else:   # Finish
+@@ -208,6 +243,7 @@ class BiollanteRodan(RodanTask):
+             with open(
+                 outputs["Feature Weights/Selection"][0]["resource_path"], 'w'
+             ) as f:
++                self.logger.info("writing the result as the final step")            
+                 f.write(settings["@settings"])
+             return True
+ 
+diff --git a/rodan-main/code/rodan/jobs/biollante_rodan/knnga_util.py b/rodan-main/code/rodan/jobs/biollante_rodan/knnga_util.py
+index 8fc5bf2d..6744dd80 100644
+--- a/rodan-main/code/rodan/jobs/biollante_rodan/knnga_util.py
++++ b/rodan-main/code/rodan/jobs/biollante_rodan/knnga_util.py
+@@ -5,7 +5,8 @@ from __future__ import unicode_literals
+ from gamera import knnga
+ 
+ import json
+-
++from celery.utils.log import get_task_logger
++logger = get_task_logger(__name__)
+ 
+ # All default values are taken from the
+ # corresponding Gamera functions.
+@@ -22,6 +23,96 @@ DEFAULT_GEN_N = 100
+ DEFAULT_MIN_GEN = 40
+ DEFAULT_NO_CHANGE_GEN = 10
+ 
++# A function to compare dictionaries in python 3
++# and A function to sort a list of dictionaries 
++def dict_comparison(dict1, dict2):
++    """Returns 0 if the two dicts are equal. Returns -1 if the first
++    dict input is less than the second dict input and returns 1 otherwise. The rule is based on 
++    python2 comparison between two dictionaries algorithm. 
++
++    Args:
++        dict1 (dict): first dictionary 
++        dict2 (dict): second dictionary 
++
++    Returns:
++        int: 0 if dict1 == dict2 -1 if dict1 < dict2 1 otherwise.
++    """
++    # check if the dicts are equal 
++    if dict1 == dict2: 
++        return 0
++        
++    # check the keys of both 
++    keys1= list(dict1.keys())
++    keys2= list(dict2.keys())
++ 
++    # unequal lengths in the first priority 
++    # first to prevent the errors 
++    if len(keys1) == 0:
++        if len(keys2) == 0:
++            return 0
++        else:
++            return -1
++    if len(keys2) == 0:
++        return 1
++
++    list(dict1.keys()).sort()
++    list(dict2.keys()).sort()
++
++    if len(keys1) < len(keys2):
++        return -1
++    elif len(keys1) > len(keys1):
++        return 1
++
++    # equal lengths: compare the keys 
++    for key_index in range(len(keys1)):
++        if keys1[key_index] < keys2[key_index]:
++            # the min element of the first is less 
++            # so, in general, its less
++            return -1
++        elif keys1[key_index] > keys2[key_index]:
++            # the min element of the first is greater
++            # so, in general, its greater
++            return 1
++
++    # exited the loop -> same key lists 
++    # now, looking into the values of the dictionary 
++    for key_index in range(len(keys1)):
++        value1 = dict1[keys1[key_index]]
++        value2 = dict2[keys1[key_index]]
++        if type(value1) == dict:
++            # if both values are of type dict
++            value_comparison= dict_comparison(value1, value2)
++            if value_comparison < 0:
++                return -1
++            elif value_comparison > 0:
++                return 1
++            
++        else:
++            # when the type of the values are is not dict
++            # python 3 allows comparison for those types 
++            if value1 < value2 : return -1
++            elif value1 > value2 : return 1
++
++    # just in case (to avoid errors) - meaning that the two dicts are equal 
++    return 0
++
++# bubble sort for the methods list
++# using bubble sort because the list is consisted of very limited number of dicts
++def simple_sort(list_of_dicts):
++    """To sort a list of dictionaries for the methods of the classes below 
++
++    Args:
++        list_of_dicts (list): the list to be sorted
++
++    Returns:
++        list: the sorted list of dicts 
++    """
++    for item in range(len(list_of_dicts)):
++        for j in range(0, (len(list_of_dicts) - item - 1)):
++            if dict_comparison(list_of_dicts[j],list_of_dicts[j + 1]) > 0:
++                (list_of_dicts[j], list_of_dicts[j + 1]) = (list_of_dicts[j + 1], list_of_dicts[j])
++
++    return list_of_dicts
+ 
+ class SerializableSelection():
+     """
+@@ -219,7 +310,8 @@ class SerializableMutation:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.mutation.setBinaryMutation(rate, normalize)
+ 
+     def setGaussMutation(self, numFeatures, minVal, maxVal, sigma, rate):
+@@ -236,7 +328,8 @@ class SerializableMutation:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.mutation.setGaussMutation(
+             numFeatures,
+             minVal,
+@@ -253,7 +346,8 @@ class SerializableMutation:
+                     "parameters": {}
+                 }
+             )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.mutation.setInversionMutation()
+ 
+     def setShiftMutation(self):
+@@ -264,7 +358,8 @@ class SerializableMutation:
+                     "parameters": {}
+                 }
+             )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.mutation.setShiftMutation()
+ 
+     def setSwapMutation(self):
+@@ -275,7 +370,8 @@ class SerializableMutation:
+                     "parameters": {}
+                 }
+             )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.mutation.setSwapMutation()
+ 
+     def toJSON(self):
+@@ -359,7 +455,8 @@ class SerializableCrossover:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.crossover.setHypercubeCrossover(numFeatures, min, max, alpha)
+ 
+     def setNPointCrossover(self, n):
+@@ -370,7 +467,8 @@ class SerializableCrossover:
+                 "parameters": {"n": n}
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.crossover.setNPointCrossover(n)
+ 
+     def setSBXCrossover(self, numFeatures, min, max, eta=DEFAULT_ETA):
+@@ -386,7 +484,8 @@ class SerializableCrossover:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.crossover.setSBXcrossover(numFeatures, min, max, eta)
+ 
+     def setSegmentCrossover(self, numFeatures, min, max, alpha=DEFAULT_ALPHA):
+@@ -402,7 +501,8 @@ class SerializableCrossover:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.crossover.setSegmentCrossover(numFeatures, min, max, alpha)
+ 
+     def setUniformCrossover(self, preference=DEFAULT_PREFERENCE):
+@@ -413,7 +513,8 @@ class SerializableCrossover:
+                 "parameters": {"preference": preference}
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.crossover.setUniformCrossover(preference)
+ 
+     def toJSON(self):
+@@ -516,7 +617,8 @@ class SerializableStopCriteria:
+                 "parameters": {"optimum": optimum}
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.sc.setBestFitnessStop(optimum)
+ 
+     def setMaxFitnessEvals(self, n=DEFAULT_EVAL_N):
+@@ -528,7 +630,8 @@ class SerializableStopCriteria:
+                 "parameters": {"n": n}
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.sc.setMaxFitnessEvals(n)
+ 
+     def setMaxGenerations(self, n=DEFAULT_GEN_N):
+@@ -540,7 +643,8 @@ class SerializableStopCriteria:
+                 "parameters": {"n": n}
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.sc.setMaxGenerations(n)
+ 
+     def setSteadyStateStop(
+@@ -559,7 +663,8 @@ class SerializableStopCriteria:
+                 }
+             }
+         )
+-        self.methods.sort()
++        logger.info(("Knnga Optimization Process: methods list is {0}").format(self.methods))
++        self.methods = simple_sort(self.methods)
+         self.sc.setSteadyStateStop(minGens, noChangeGens)
+ 
+     def toJSON(self):
+diff --git a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/ProjectionSplitting.py b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/ProjectionSplitting.py
+index 1aa1a4c8..75405891 100755
+--- a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/ProjectionSplitting.py
++++ b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/ProjectionSplitting.py
+@@ -3,7 +3,7 @@ from gamera import gamera_xml
+ 
+ import numpy as np
+ 
+-from SliceFinding import SliceFinder
++from .SliceFinding import SliceFinder
+ 
+ import sys
+ import datetime
+@@ -110,7 +110,7 @@ class ProjectionSplitter (object):
+ 
+     def _get_best_rotation(self, slice1, rot1, slice2, rot2):
+ 
+-        print rot1, slice1, rot2, slice2
++        print (rot1, slice1, rot2, slice2)
+ 
+         if not slice1:
+             if not slice2:
+@@ -126,7 +126,8 @@ class ProjectionSplitter (object):
+         else:
+             return (slice1, rot1)
+ 
+-    def _get_best_slice(self, (x_slices, y_slices)):
++    def _get_best_slice(self, xy):
++        x_slices, y_slices=xy
+         best_x_slice = self._best_slice(x_slices)
+         best_y_slice = self._best_slice(y_slices)
+ 
+@@ -331,7 +332,8 @@ class ProjectionSplitter (object):
+     # Math
+     ########
+ 
+-    def _rotate_point_around_origin(self, (x1, y1), degrees):
++    def _rotate_point_around_origin(self, xy, degrees):
++        x1 ,y1 =xy
+         rads = np.radians(degrees)
+ 
+         x2 = -1 * y1 * np.sin(rads) + x1 * np.cos(rads)
+diff --git a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/SliceFinding.py b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/SliceFinding.py
+index a172c5a8..10246b24 100755
+--- a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/SliceFinding.py
++++ b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/SliceFinding.py
+@@ -92,7 +92,7 @@ class SliceFinder (object):
+ 
+         # DEBUG
+         if self.print_projection_array:
+-            print '--------------------------------------------------'
++            print ('--------------------------------------------------')
+             self._print_projection_array(col_arrays)
+             self._print_projection_array(row_arrays)
+ 
+@@ -155,8 +155,8 @@ class SliceFinder (object):
+ 
+     def _print_projection_array(self, array):
+         for x in array:
+-            print x
+-        print ''
++            print (x)
++        print ('')
+ 
+     def _plot_projection_array(self, array1, array2):
+         plt.plot(array1)
+@@ -186,7 +186,8 @@ class SliceFinder (object):
+ 
+         return minima, maxima
+ 
+-    def _find_slices(self, (minima, maxima), dim):
++    def _find_slices(self, mm, dim):
++        minima, maxima = mm
+         slices = []
+         rel_max = self.x_max_proj if dim is 'x' else self.y_max_proj
+ 
+diff --git a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/__init__.py b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/__init__.py
+index 3e2ca73a..3a14f3c2 100755
+--- a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/__init__.py
++++ b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/__init__.py
+@@ -1,3 +1,3 @@
+-from base import DiagonalNeumeSlicing, DirtyLayerRepair
++from .base import DiagonalNeumeSlicing, DirtyLayerRepair
+ 
+ __version__ = "0.0.1"
+diff --git a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/base.py b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/base.py
+index 9a071d3f..47996923 100755
+--- a/rodan-main/code/rodan/jobs/diagonal_neume_slicing/base.py
++++ b/rodan-main/code/rodan/jobs/diagonal_neume_slicing/base.py
+@@ -3,8 +3,8 @@ from rodan.jobs.base import RodanTask
+ from gamera.core import init_gamera, Image, load_image
+ from gamera import gamera_xml
+ 
+-from ProjectionSplitting import ProjectionSplitter
+-from DirtyLayerRepair import DirtyLayerRepairman
++from .ProjectionSplitting import ProjectionSplitter
++from .DirtyLayerRepair import DirtyLayerRepairman
+ 
+ init_gamera()
+ 
+@@ -20,6 +20,7 @@ class DiagonalNeumeSlicing(RodanTask):
+     settings = {
+         'title': 'Settings',
+         'type': 'object',
++        "job_queue": "Python3",
+         'required': ['Smoothing', 'Minimum Glyph Size', 'Maximum Recursive Cuts', 'Angle', 'Minimum Slice Spread', 'Low Valley Threshold', 'Minimum Segment Length', 'Slice Prioritization'],
+         'properties': {
+             'Smoothing': {
+@@ -99,7 +100,7 @@ class DiagonalNeumeSlicing(RodanTask):
+ 
+         glyphs = gamera_xml.glyphs_from_xml(inputs['GameraXML - Connected Components'][0]['resource_path'])
+ 
+-        print settings
++        print (settings)
+ 
+         kwargs = {
+             'smoothing': settings['Smoothing'],
+@@ -153,6 +154,7 @@ class DirtyLayerRepair(RodanTask):
+     settings = {
+         'title': 'Settings',
+         'type': 'object',
++        "job_queue": "Python3",
+         'required': ['Minimum Density', 'Despeckle Size'],
+         'properties': {
+             'Minimum Density': {
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/__init__.py b/rodan-main/code/rodan/jobs/gamera_rodan/__init__.py
+index 1b3e1528..155d61c2 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/__init__.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/__init__.py
+@@ -15,6 +15,6 @@ module_loader('rodan.jobs.gamera_rodan.wrappers.plugins.threshold')
+ module_loader('rodan.jobs.gamera_rodan.wrappers.plugins.image_utilities')
+ 
+ module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao')
+-module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem')
+-module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths')
+-module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask')
++# module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem')
++# module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths')
++# module_loader('rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask')
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-Py3doc.md b/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-Py3doc.md
+new file mode 100755
+index 00000000..fc4f02dd
+--- /dev/null
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-Py3doc.md
+@@ -0,0 +1,43 @@
++# Documentation of installing and running Gamera4 on Rodan
++
++## *Here you can find the documentation for running Gamera4 on the Python3Celery Rodan container*
++
++**NOTE: Py3 container's docker file will have the instructions built-in. This doc is to only assist you with the understanding of how Gamera4 is run on the container.**
++
++---
++
++## To install Gamera-4 do the following:
++
++* Inside the container, run `cd /`.
++* Run `apt upgrade` and after updating apt, run `apt-get install libpng-dev &&  apt-get install libtiff5-dev` to install the dependencies for some of Gamera4 C++ files.
++* Run `git clone https://github.com/hsnr-gamera/gamera-4.git` to have Gamera4 downloaded in the root directory of the container.
++
++* `cd gamera-4` and run the following command: `python3.7 setup.py --nowx build && python3.7 setup.py --nowx install`.
++  * If the process is terminated with an error such as below:
++  <br>
++
++    ```python
++    internal_png_dir not found 
++    ```
++    You have to __```vim```__ to the python file throwing the error. Then replace ```os.path.join(internal_png_dir, x) for x in``` with ```("src/libpng-1.2.5/" + x) for x in``` (in the line that the error comes from) and retry.
++
++* You have successfully built and installed Gamera4 on the container. Now, you can remove **gamera-4** directory by running `cd / && rm -rf gamera-4`
++
++* To test if Gamera4 is working properly or not, you can create a python test script and use Gamera4's methods. For instance: <br>
++
++    ```python
++    from gamera.core import *
++
++    def test(image):
++        img = load_image(image)
++        img2 = img.to_onebit()
++        img2.save_PNG("out.png")
++
++    if __name__ == "__main__":
++        image = "in.png"
++        init_gamera()
++        test(image)
++    ```
++Author: Shahrad Mohammadzadeh
++
++---
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/helpers/argconvert.py b/rodan-main/code/rodan/jobs/gamera_rodan/helpers/argconvert.py
+index f0c7e595..012a070b 100644
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/helpers/argconvert.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/helpers/argconvert.py
+@@ -1,116 +1,116 @@
+ from gamera import enums, args
+ 
+ def convert_arg_list(arglist):
+-    """
+-    Convert Gamera argument list to a JSON schema
++	"""
++	Convert Gamera argument list to a JSON schema
+ 
+-    For Gamera argument class, see https://github.com/DDMAL/Gamera/blob/master/doc/src/args.txt
+-    """
+-    if not arglist:
+-        return {}
+-    schema = {
+-        'type': 'object',
+-        'required': [],
+-        'properties': {}
+-    }
+-    for i, a in enumerate(arglist):
+-        key = a.name.replace(' ', '_')  # some Gamera fns have the argument name problem.
+-        schema['required'].append(key)
+-        value = {}
+-        if a.has_default:
+-            # so we don't have to use Gamera's NoneType
+-            if str(a.default) == 'None':
+-                value['default'] = None
+-            else:
+-                value['default'] = a.default
++	For Gamera argument class, see https://github.com/DDMAL/Gamera/blob/master/doc/src/args.txt
++	"""
++	if not arglist:
++		return {}
++	schema = {
++		'type': 'object',
++		'required': [],
++		'properties': {}
++	}
++	for i, a in enumerate(arglist):
++		key = a.name.replace(' ', '_')  # some Gamera fns have the argument name problem.
++		schema['required'].append(key)
++		value = {}
++		if a.has_default:
++			# so we don't have to use Gamera's NoneType
++			if str(a.default) == 'None':
++				value['default'] = None
++			else:
++				value['default'] = a.default
+ 
+-        if isinstance(a, args.Int):
+-            value['type'] = 'integer'
+-            if a.rng:
+-                value['minimum'] = a.rng[0]
+-                value['maximum'] = a.rng[1]
+-        elif isinstance(a, args.Real):
+-            value['type'] = 'number'
+-            if a.rng:
+-                value['minimum'] = a.rng[0]
+-                value['maximum'] = a.rng[1]
+-        elif isinstance(a, args.ImageType):
+-            raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')
+-	elif isinstance(a, args.Bool):
+-	    value['type'] = 'boolean'
+-	elif isinstance(a, args.Check):
+-	    value['type'] = 'boolean' 
+-        elif isinstance(a, args.Choice):
+-            value['enum'] = a.choices
+-        elif isinstance(a, args.FloatVector):
+-            value['type'] = 'array'
+-            value['items'] = {'type': 'number'}
+-            if a.length != -1:
+-                value['minItems'] = a.length
+-                value['maxItems'] = a.length
+-        elif isinstance(a, args.IntVector):
+-            value['type'] = 'array'
+-            value['items'] = {'type': 'integer'}
+-            if a.length != -1:
+-                value['minItems'] = a.length
+-                value['maxItems'] = a.length
+-        else:
+-            raise TypeError('Rodan does not support Gamera argument type {0}'.format(str(a)))
++		if isinstance(a, args.Int):
++			value['type'] = 'integer'
++			if a.rng:
++				value['minimum'] = a.rng[0]
++				value['maximum'] = a.rng[1]
++		elif isinstance(a, args.Real):
++			value['type'] = 'number'
++			if a.rng:
++				value['minimum'] = a.rng[0]
++				value['maximum'] = a.rng[1]
++		elif isinstance(a, args.ImageType):
++			raise TypeError('Rodan does not support Gamera jobs with argument as ImageType')
++		elif isinstance(a, args.Bool):
++			value['type'] = 'boolean'
++		elif isinstance(a, args.Check):
++			value['type'] = 'boolean' 
++		elif isinstance(a, args.Choice):
++			value['enum'] = a.choices
++		elif isinstance(a, args.FloatVector):
++			value['type'] = 'array'
++			value['items'] = {'type': 'number'}
++			if a.length != -1:
++				value['minItems'] = a.length
++				value['maxItems'] = a.length
++		elif isinstance(a, args.IntVector):
++			value['type'] = 'array'
++			value['items'] = {'type': 'integer'}
++			if a.length != -1:
++				value['minItems'] = a.length
++				value['maxItems'] = a.length
++		else:
++			raise TypeError('Rodan does not support Gamera argument type {0}'.format(str(a)))
+ 
+-        value['_order'] = i  # JSON object is unordered.
+-        schema['properties'][key] = value
+-    return schema
++		value['_order'] = i  # JSON object is unordered.
++		schema['properties'][key] = value
++	return schema
+ 
+ 
+ def convert_to_arg_type(atype, value):
+-    if atype in ['float', 'real']:
+-        return float(value)
+-    elif atype in ['int']:
+-        return int(value)
+-    elif atype in ['complex']:
+-        return complex(value)
+-    elif atype in ['str']:
+-        return str(value)
+-    elif atype in ['choice']:
+-        return int(value)
+-    else:
+-        return value
++	if atype in ['float', 'real']:
++		return float(value)
++	elif atype in ['int']:
++		return int(value)
++	elif atype in ['complex']:
++		return complex(value)
++	elif atype in ['str']:
++		return str(value)
++	elif atype in ['choice']:
++		return int(value)
++	else:
++		return value
+ 
+ 
+ def convert_input_type(input_type):
+-    dict_repr = input_type.__dict__
+-    if 'klass' in dict_repr.keys():
+-        del dict_repr['klass']
++	dict_repr = input_type.__dict__
++	if 'klass' in dict_repr.keys():
++		del dict_repr['klass']
+ 
+-    # convert pixel types to Rodan mimetypes
+-    dict_repr['resource_types'] = []
+-    dict_repr['has_float'] = False
+-    dict_repr['has_complex'] = False
+-    for pt in dict_repr['pixel_types']:
+-        if pt == enums.ONEBIT:
+-            dict_repr['resource_types'].append('image/onebit+png')
+-        elif pt == enums.GREYSCALE:
+-            dict_repr['resource_types'].append('image/greyscale+png')
+-        elif pt == enums.GREY16:
+-            dict_repr['resource_types'].append('image/grey16+png')
+-        elif pt == enums.RGB:
+-            dict_repr['resource_types'].append('image/rgb+png')
+-        # Drop COMPLEX and FLOAT pixel types, as they are only Gamera's internal representation and cannot be saved to a PNG file.
+-        # But tell the caller that it has COMPLEX or FLOAT types.
+-        elif pt == enums.FLOAT:
+-            dict_repr['has_float'] = True
+-        elif pt == enums.COMPLEX:
+-            dict_repr['has_complex'] = True
+-    return dict_repr
++	# convert pixel types to Rodan mimetypes
++	dict_repr['resource_types'] = []
++	dict_repr['has_float'] = False
++	dict_repr['has_complex'] = False
++	for pt in dict_repr['pixel_types']:
++		if pt == enums.ONEBIT:
++			dict_repr['resource_types'].append('image/onebit+png')
++		elif pt == enums.GREYSCALE:
++			dict_repr['resource_types'].append('image/greyscale+png')
++		elif pt == enums.GREY16:
++			dict_repr['resource_types'].append('image/grey16+png')
++		elif pt == enums.RGB:
++			dict_repr['resource_types'].append('image/rgb+png')
++		# Drop COMPLEX and FLOAT pixel types, as they are only Gamera's internal representation and cannot be saved to a PNG file.
++		# But tell the caller that it has COMPLEX or FLOAT types.
++		elif pt == enums.FLOAT:
++			dict_repr['has_float'] = True
++		elif pt == enums.COMPLEX:
++			dict_repr['has_complex'] = True
++	return dict_repr
+ 
+ convert_output_type = convert_input_type
+ 
+ 
+ def convert_mimetype_to_pixel(mimetype):
+-    mapp = {
+-        'image/onebit+png': enums.ONEBIT,
+-        'image/greyscale+png': enums.GREYSCALE,
+-        'image/grey16+png': enums.GREY16,
+-        'image/rgb+png': enums.RGB
+-    }
+-    return mapp[mimetype]
++	mapp = {
++		'image/onebit+png': enums.ONEBIT,
++		'image/greyscale+png': enums.GREYSCALE,
++		'image/grey16+png': enums.GREY16,
++		'image/rgb+png': enums.RGB
++	}
++	return mapp[mimetype]
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/classification.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/classification.py
+index 625be837..95cdb445 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/classification.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/classification.py
+@@ -42,6 +42,7 @@ class ClassificationTask(RodanTask):
+     settings = {
+         'title': 'Bounding box size',
+         'type': 'object',
++        'job_queue': 'Python3',
+         'properties': {
+             'Bounding box size': {
+                 'type': 'integer',
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/masking.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/masking.py
+index c49c5306..a6adce2a 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/masking.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/masking.py
+@@ -35,7 +35,7 @@ class GameraMaskLogicalAnd(RodanTask):
+     name = 'Mask (logical \'and\')'
+     author = 'Ryan Bannon'
+     description = Image.and_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+     enabled = True
+     category = 'Gamera - Masking'
+     interactive = False
+@@ -73,7 +73,7 @@ class GameraMaskLogicalXor(RodanTask):
+     name = 'Mask (logical \'xor\')'
+     author = 'Ryan Bannon'
+     description = Image.xor_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+     enabled = True
+     category = 'Gamera - Masking'
+     interactive = False
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/binarization.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/binarization.py
+index 1094f985..92932f1a 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/binarization.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/binarization.py
+@@ -33,276 +33,280 @@ logger = logging.getLogger('rodan')
+ 
+ class gamera_gatos_background(RodanTask):
+ 
+-    name = 'Gatos Background'
+-    author = 'Ryan Bannon'
+-    description = binarization.gatos_background.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={
+-    	'title': 'Gatos background settings',
+-    	'type': 'object',
+-    	'properties': {
+-    	    'Region size': {
+-    		'type': 'integer',
+-    		'minimum': 1,
+-    		'default': 15
+-    	    }	
++	name = 'Gatos Background'
++	author = 'Ryan Bannon'
++	description = binarization.gatos_background.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings ={
++		'title': 'Gatos background settings',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Region size': {
++			'type': 'integer',
++			'minimum': 1,
++			'default': 15
++			}	
+ 	   }
+-    }
+-
+-    enabled = True
+-    category = 'Gamera - Binarization'
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Onebit PNG - preliminary binarization of the image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    },
+-    {
+-        'name': 'Greyscale PNG - source image to binarize',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Greyscale PNG - background estimation image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
+-        image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
+-        image_result = image_source.gatos_background(image_prelim, settings['Region size'])
+-        for i in range(len(outputs['Greyscale PNG - background estimation image'])):
+-            image_result.save_PNG(outputs['Greyscale PNG - background estimation image'][i]['resource_path'])
+-        return True
++	}
++
++	enabled = True
++	category = 'Gamera - Binarization'
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Onebit PNG - preliminary binarization of the image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 1
++	},
++	{
++		'name': 'Greyscale PNG - source image to binarize',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Greyscale PNG - background estimation image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
++		image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
++		image_result = image_source.gatos_background(image_prelim, settings['Region size'])
++		for i in range(len(outputs['Greyscale PNG - background estimation image'])):
++			image_result.save_PNG(outputs['Greyscale PNG - background estimation image'][i]['resource_path'])
++		return True
+ 
+ class gamera_gatos_threshold(RodanTask):
+ 
+-    name = 'Gatos Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.binarization.gatos_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Gatos threshold settings',
+-        'type': 'object',
+-        'properties': {
+-            'q': {
+-                'type': 'number',
+-                'default': 0.6,
+-                'description': 'Use default setting (unless you know what you are doing).'
+-            },
+-            'p1': {
+-                'type': 'number',
+-                'default': 0.5,
+-                'description': 'Use default setting (unless you know what you are doing).' 
+-            },
+-            'p2': {
+-                'type': 'number',
+-                'default': 0.8,
+-                'description': 'Use default setting (unless you know what you are doing).'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Binarization"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Onebit PNG - preliminary binarization of the image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    },
+-    {
+-    	'name': 'Greyscale PNG - estimated background of the image',
+-    	'resource_types': ['image/greyscale+png'],
+-    	'minimum': 1,
+-    	'maximum': 1
+-    },
+-    {
+-    	'name': 'Greyscale PNG - source image to binarize',
+-    	'resource_types': ['image/greyscale+png'],
+-    	'minimum': 1,
+-    	'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
+-        image_background = load_image(inputs['Greyscale PNG - estimated background of the image'][0]['resource_path'])
+-    	image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
+-    	image_result = image_source.gatos_threshold(image_background, image_prelim, settings['q'], settings['p1'], settings['p2']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Gatos Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.binarization.gatos_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Gatos threshold settings',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'q': {
++				'type': 'number',
++				'default': 0.6,
++				'description': 'Use default setting (unless you know what you are doing).'
++			},
++			'p1': {
++				'type': 'number',
++				'default': 0.5,
++				'description': 'Use default setting (unless you know what you are doing).' 
++			},
++			'p2': {
++				'type': 'number',
++				'default': 0.8,
++				'description': 'Use default setting (unless you know what you are doing).'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Binarization"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Onebit PNG - preliminary binarization of the image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 1
++	},
++	{
++		'name': 'Greyscale PNG - estimated background of the image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	},
++	{
++		'name': 'Greyscale PNG - source image to binarize',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
++		image_background = load_image(inputs['Greyscale PNG - estimated background of the image'][0]['resource_path'])
++		image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
++		image_result = image_source.gatos_threshold(image_background, image_prelim, settings['q'], settings['p1'], settings['p2']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_brink_threshold(RodanTask):
+ 
+-    name = 'Brink Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.binarization.brink_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {}
+-
+-    enabled = True
+-    category = "Gamera - Binarization"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.brink_threshold() 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Brink Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.binarization.brink_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {'job_queue': 'Python3'}
++
++	enabled = True
++	category = "Gamera - Binarization"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.brink_threshold() 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_sauvola_threshold(RodanTask):
+ 
+-    name = 'Sauvola Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.binarization.sauvola_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Sauvola threshold settings',
+-        'type': 'object',
+-        'properties': {
+-            'Region size': {
+-                'type': 'integer',
+-                'default': 15,
+-                'description': 'The size of the region in which to calculate a threshold.'
+-            },
+-            'Sensitivity': {
+-                'type': 'number',
+-                'default': 0.5,
+-                'description': 'The sensitivity weight on the adjusted variance.' 
+-            },
+-            'Dynamic range': {
+-                'type': 'integer',
+-                'minimum': 1,
+-                'maximum': 255,
+-                'default': 128,
+-                'description': 'The dynamic range of the variance.'
+-            },
+-            'Lower bound': {
+-                'type': 'integer',
+-                'minimum': 0,
+-                'maximum': 255,
+-                'default': 20,
+-                'description': 'A global threshold beneath which all pixels are considered black.'
+-            },
+-            'Upper bound': {
+-                'type': 'integer',
+-                'minimum': 0,
+-                'maximum': 255,
+-                'default': 150,
+-                'description': 'A global threshold above which all pixels are considered white.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Binarization"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.sauvola_threshold(settings['Region size'], settings['Sensitivity'], settings['Dynamic range'], settings['Lower bound'], settings['Upper bound']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Sauvola Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.binarization.sauvola_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Sauvola threshold settings',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Region size': {
++				'type': 'integer',
++				'default': 15,
++				'description': 'The size of the region in which to calculate a threshold.'
++			},
++			'Sensitivity': {
++				'type': 'number',
++				'default': 0.5,
++				'description': 'The sensitivity weight on the adjusted variance.' 
++			},
++			'Dynamic range': {
++				'type': 'integer',
++				'minimum': 1,
++				'maximum': 255,
++				'default': 128,
++				'description': 'The dynamic range of the variance.'
++			},
++			'Lower bound': {
++				'type': 'integer',
++				'minimum': 0,
++				'maximum': 255,
++				'default': 20,
++				'description': 'A global threshold beneath which all pixels are considered black.'
++			},
++			'Upper bound': {
++				'type': 'integer',
++				'minimum': 0,
++				'maximum': 255,
++				'default': 150,
++				'description': 'A global threshold above which all pixels are considered white.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Binarization"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.sauvola_threshold(settings['Region size'], settings['Sensitivity'], settings['Dynamic range'], settings['Lower bound'], settings['Upper bound']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_niblack_threshold(RodanTask):
+ 
+-    name = 'Niblack Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.binarization.niblack_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Niblack threshold settings',
+-        'type': 'object',
+-        'properties': {
+-            'Region size': {
+-                'type': 'integer',
+-                'default': 15,
+-                'description': 'The size of the region in which to calculate a threshold.'
+-            },
+-            'Sensitivity': {
+-                'type': 'number',
+-                'default': -0.2,
+-                'description': 'The sensitivity weight on the adjusted variance.' 
+-            },
+-            'Lower bound': {
+-                'type': 'integer',
+-                'minimum': 0,
+-                'maximum': 255,
+-                'default': 20,
+-                'description': 'A global threshold beneath which all pixels are considered black.'
+-            },
+-            'Upper bound': {
+-                'type': 'integer',
+-                'minimum': 0,
+-                'maximum': 255,
+-                'default': 150,
+-                'description': 'A global threshold above which all pixels are considered white.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Binarization"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.niblack_threshold(settings['Region size'], settings['Sensitivity'], settings['Lower bound'], settings['Upper bound']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Niblack Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.binarization.niblack_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Niblack threshold settings',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Region size': {
++				'type': 'integer',
++				'default': 15,
++				'description': 'The size of the region in which to calculate a threshold.'
++			},
++			'Sensitivity': {
++				'type': 'number',
++				'default': -0.2,
++				'description': 'The sensitivity weight on the adjusted variance.' 
++			},
++			'Lower bound': {
++				'type': 'integer',
++				'minimum': 0,
++				'maximum': 255,
++				'default': 20,
++				'description': 'A global threshold beneath which all pixels are considered black.'
++			},
++			'Upper bound': {
++				'type': 'integer',
++				'minimum': 0,
++				'maximum': 255,
++				'default': 150,
++				'description': 'A global threshold above which all pixels are considered white.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Binarization"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.niblack_threshold(settings['Region size'], settings['Sensitivity'], settings['Lower bound'], settings['Upper bound']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/cc_analysis.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/cc_analysis.py
+index 841cf779..5fb4cb53 100644
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/cc_analysis.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/cc_analysis.py
+@@ -38,7 +38,7 @@ class CCAnalysis(RodanTask):
+     enabled = True
+     category = "Gamera - Classification"
+     interactive = False
+-    settings = {}
++    settings = {'job_queue': 'Python3'}
+     input_port_types = [{
+         'name': '1-Bit PNG Image',
+         'resource_types': ['image/onebit+png'],
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_conversion.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_conversion.py
+index 1e27ecc1..42cda2e4 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_conversion.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_conversion.py
+@@ -23,6 +23,8 @@
+ # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ #--------------------------------------------------------------------------------------------------
+ 
++# gamera4 works in python3 so we can use the same functions as used in the former gamera versions 
++
+ import gamera
+ from gamera.core import load_image
+ from gamera.plugins import image_conversion
+@@ -36,7 +38,7 @@ class gamera_to_rgb(RodanTask):
+     name = 'Convert to RGB PNG'
+     author = 'Ryan Bannon'
+     description = image_conversion.to_rgb.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+ 
+     enabled = True
+     category = 'Gamera - Image Conversion'
+@@ -69,7 +71,7 @@ class gamera_to_greyscale(RodanTask):
+     name = 'Convert to greyscale PNG'
+     author = 'Ryan Bannon'
+     description = image_conversion.to_greyscale.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+ 
+     enabled = True
+     category = 'Gamera - Image Conversion'
+@@ -101,7 +103,7 @@ class gamera_to_grey16(RodanTask):
+     name = 'Convert to greyscale 16 PNG'
+     author = 'Ryan Bannon'
+     description = image_conversion.to_grey16.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+ 
+     enabled = True
+     category = 'Gamera - Image Conversion'
+@@ -133,7 +135,7 @@ class gamera_to_onebit(RodanTask):
+     name = 'Convert to one-bit (black and white) PNG'
+     author = 'Ryan Bannon'
+     description = image_conversion.to_onebit.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+ 
+     enabled = True
+     category = 'Gamera - Image Conversion'
+@@ -158,4 +160,4 @@ class gamera_to_onebit(RodanTask):
+         image_result = image_source.to_onebit()
+         for i in range(len(outputs['One-bit PNG image'])):
+             image_result.save_PNG(outputs['One-bit PNG image'][i]['resource_path'])
+-        return True
++        return True
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_utilities.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_utilities.py
+index fc6a8249..4efdd75b 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_utilities.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/image_utilities.py
+@@ -36,7 +36,7 @@ class gamera_invert(RodanTask):
+     name = 'Invert'
+     author = 'Ryan Bannon'
+     description = image_utilities.invert.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings ={}
++    settings ={'job_queue': 'Python3'}
+ 
+     enabled = True
+     category = 'Gamera - Image Utilities'
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/morphology.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/morphology.py
+index 88a7e5ce..2fb2d520 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/morphology.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/morphology.py
+@@ -40,6 +40,7 @@ class gamera_despeckle(RodanTask):
+     settings = {
+         'title': 'Despeckle settings',
+         'type': 'object',
++        'job_queue': 'Python3',
+         'properties': {
+             'Connected component size': {
+                 'type': 'integer',
+@@ -82,7 +83,8 @@ class gamera_dilate(RodanTask):
+     author = 'Gabriel Vigliensoni'
+     description = morphology.dilate.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+     settings = {'title': 'Despeckle settings',
+-                'type': 'object'
++                'type': 'object',
++                'job_queue': 'Python3'
+                 }
+ 
+     enabled = True
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/threshold.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/threshold.py
+index 8671f08d..ae450c91 100755
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/threshold.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/plugins/threshold.py
+@@ -33,255 +33,260 @@ logger = logging.getLogger('rodan')
+ 
+ class gamera_otsu_threshold(RodanTask):
+ 
+-    name = 'Otsu Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.threshold.otsu_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Otsu threshold settings',
+-        'type': 'object',
+-        'properties': {
+-            'Storage format': {
+-                'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
+-                'type': 'string',
+-                'default': 'Dense (no compression)',
+-                'description': 'Specifies the compression type for the result.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Threshold"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-    	image_result = image_source.otsu_threshold(settings['Storage format']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Otsu Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.threshold.otsu_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Otsu threshold settings',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Storage format': {
++				'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
++				'type': 'string',
++				'default': 'Dense (no compression)',
++				'description': 'Specifies the compression type for the result.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Threshold"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.otsu_threshold(settings['Storage format']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_tsai_moment_preserving_threshold(RodanTask):
+ 
+-    name = 'Tsai Moment Preserving Threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.threshold.tsai_moment_preserving_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Tsai Moment Preserving Threshold',
+-        'type': 'object',
+-        'properties': {
+-            'Storage format': {
+-                'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
+-                'type': 'string',
+-                'default': 'Dense (no compression)',
+-                'description': 'Specifies the compression type for the result.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Threshold"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.tsai_moment_preserving_threshold(settings['Storage format']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Tsai Moment Preserving Threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.threshold.tsai_moment_preserving_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Tsai Moment Preserving Threshold',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Storage format': {
++				'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
++				'type': 'string',
++				'default': 'Dense (no compression)',
++				'description': 'Specifies the compression type for the result.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Threshold"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.tsai_moment_preserving_threshold(settings['Storage format']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_abutaleb_threshold(RodanTask):
+ 
+-    name = 'Abutaleb locally-adaptive threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.threshold.abutaleb_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Abutaleb locally-adaptive threshold',
+-        'type': 'object',
+-        'properties': {
+-            'Storage format': {
+-                'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
+-                'type': 'string',
+-                'default': 'Dense (no compression)',
+-                'description': 'Specifies the compression type for the result.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Threshold"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.abutaleb_threshold(settings['Storage format']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Abutaleb locally-adaptive threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.threshold.abutaleb_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Abutaleb locally-adaptive threshold',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Storage format': {
++				'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
++				'type': 'string',
++				'default': 'Dense (no compression)',
++				'description': 'Specifies the compression type for the result.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Threshold"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.abutaleb_threshold(settings['Storage format']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_bernsen_threshold(RodanTask):
+ 
+-    name = 'Bernsen threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.threshold.bernsen_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'Bernsen threshold',
+-        'type': 'object',
+-        'properties': {
+-            'Storage format': {
+-                'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
+-                'type': 'string',
+-                'default': 'Dense (no compression)',
+-                'description': 'Specifies the compression type for the result.'
+-            },
+-            'Region size': {
+-                'type': 'integer',
+-                'minimum': 1,
+-                'maximum': 50,
+-                'default': 11,
+-                'description': 'The size of each region in which to calculate a threshold.'
+-            },
+-            'Contrast limit': {
+-                'type': 'integer',
+-                'minimum': 0,
+-                'maximum': 255,
+-                'default': 80,
+-                'description': 'The minimum amount of contrast required to threshold.'
+-            },
+-            'Doubt to black': {
+-                'type': 'boolean',
+-                'default': False,
+-                'description': 'When True, ''doubtful'' values are set to black, otherwise to white.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Threshold"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'Greyscale PNG image',
+-        'resource_types': ['image/greyscale+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+-        image_result = image_source.bernsen_threshold(settings['Storage format'], settings['Region size'], settings['Contrast limit'], settings['Doubt to black']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'Bernsen threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.threshold.bernsen_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'Bernsen threshold',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Storage format': {
++				'enum': ['Dense (no compression)', 'RLE (run-length encoding compression)'],
++				'type': 'string',
++				'default': 'Dense (no compression)',
++				'description': 'Specifies the compression type for the result.'
++			},
++			'Region size': {
++				'type': 'integer',
++				'minimum': 1,
++				'maximum': 50,
++				'default': 11,
++				'description': 'The size of each region in which to calculate a threshold.'
++			},
++			'Contrast limit': {
++				'type': 'integer',
++				'minimum': 0,
++				'maximum': 255,
++				'default': 80,
++				'description': 'The minimum amount of contrast required to threshold.'
++			},
++			'Doubt to black': {
++				'type': 'boolean',
++				'default': False,
++				'description': 'When True, ''doubtful'' values are set to black, otherwise to white.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Threshold"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'Greyscale PNG image',
++		'resource_types': ['image/greyscale+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
++		image_result = image_source.bernsen_threshold(settings['Storage format'], settings['Region size'], settings['Contrast limit'], settings['Doubt to black']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+ class gamera_djvu_threshold(RodanTask):
+ 
+-    name = 'DjVu threshold'
+-    author = 'Ryan Bannon'
+-    description = gamera.plugins.threshold.djvu_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+-    settings = {
+-        'title': 'DjVu threshold',
+-        'type': 'object',
+-        'properties': {
+-            'Smoothness': {
+-                'type': 'number',
+-                'minimum': 0.0,
+-                'maximum': 1.0,
+-                'default': 0.2,
+-                'description': 'The amount of effect that parent blocks have on their children blocks. Higher values will result in more smoothness between blocks.  Expressed as a percentage between 0.0 and 1.0.'
+-            },
+-            'Maximum block size': {
+-                'type': 'integer',
+-                'minimum': 1,
+-                'default': 512,
+-                'description': 'The size of the largest block to determine a threshold.'
+-            },
+-            'Minimum block size': {
+-                'type': 'integer',
+-                'minimum': 1,
+-                'default': 64,
+-                'description': 'The size of the smallest block to determine a threshold.'
+-            },
+-            'Block factor': {
+-                'type': 'integer',
+-                'minimum': 1,
+-                'maximum': 8,
+-                'default': 2,
+-                'description': 'The number of child blocks (in each direction) per parent block. For instance, a *block_factor* of 2 results in 4 children per parent.'
+-            }
+-        }
+-    }
+-
+-    enabled = True
+-    category = "Gamera - Threshold"
+-    interactive = False
+-
+-    input_port_types = [{
+-        'name': 'RGB PNG image',
+-        'resource_types': ['image/rgb+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'Onebit PNG image',
+-        'resource_types': ['image/onebit+png'],
+-        'minimum': 1,
+-        'maximum': 2
+-    }]
+-
+-    def run_my_task(self, inputs, settings, outputs):
+-
+-        image_source = load_image(inputs['RGB PNG image'][0]['resource_path'])
+-        image_result = image_source.djvu_threshold(settings['Smoothness'], settings['Maximum block size'], settings['Minimum block size'], settings['Block factor']) 
+-        for i in range(len(outputs['Onebit PNG image'])):
+-            image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+-        return True
++	name = 'DjVu threshold'
++	author = 'Ryan Bannon'
++	description = gamera.plugins.threshold.djvu_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
++	settings = {
++		'title': 'DjVu threshold',
++		'type': 'object',
++		'job_queue': 'Python3',
++		'properties': {
++			'Smoothness': {
++				'type': 'number',
++				'minimum': 0.0,
++				'maximum': 1.0,
++				'default': 0.2,
++				'description': 'The amount of effect that parent blocks have on their children blocks. Higher values will result in more smoothness between blocks.  Expressed as a percentage between 0.0 and 1.0.'
++			},
++			'Maximum block size': {
++				'type': 'integer',
++				'minimum': 1,
++				'default': 512,
++				'description': 'The size of the largest block to determine a threshold.'
++			},
++			'Minimum block size': {
++				'type': 'integer',
++				'minimum': 1,
++				'default': 64,
++				'description': 'The size of the smallest block to determine a threshold.'
++			},
++			'Block factor': {
++				'type': 'integer',
++				'minimum': 1,
++				'maximum': 8,
++				'default': 2,
++				'description': 'The number of child blocks (in each direction) per parent block. For instance, a *block_factor* of 2 results in 4 children per parent.'
++			}
++		}
++	}
++
++	enabled = True
++	category = "Gamera - Threshold"
++	interactive = False
++
++	input_port_types = [{
++		'name': 'RGB PNG image',
++		'resource_types': ['image/rgb+png'],
++		'minimum': 1,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'Onebit PNG image',
++		'resource_types': ['image/onebit+png'],
++		'minimum': 1,
++		'maximum': 2
++	}]
++
++	def run_my_task(self, inputs, settings, outputs):
++
++		image_source = load_image(inputs['RGB PNG image'][0]['resource_path'])
++		image_result = image_source.djvu_threshold(settings['Smoothness'], settings['Maximum block size'], settings['Minimum block size'], settings['Block factor']) 
++		for i in range(len(outputs['Onebit PNG image'])):
++			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
++		return True
+ 
+diff --git a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/toolkits/custom/poly_mask.py b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/toolkits/custom/poly_mask.py
+index 3035c95d..78cbbdc7 100644
+--- a/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/toolkits/custom/poly_mask.py
++++ b/rodan-main/code/rodan/jobs/gamera_rodan/wrappers/toolkits/custom/poly_mask.py
+@@ -9,93 +9,93 @@ from rodan.jobs.gamera_rodan.helpers.ensure_pixel_type import ensure_pixel_type
+ from rodan.settings import MEDIA_URL, MEDIA_ROOT
+ 
+ def media_file_path_to_public_url(media_file_path):
+-    chars_to_remove = len(MEDIA_ROOT)
+-    return os.path.join(MEDIA_URL, media_file_path[chars_to_remove:])
++	chars_to_remove = len(MEDIA_ROOT)
++	return os.path.join(MEDIA_URL, media_file_path[chars_to_remove:])
+ 
+ class PolyMask(RodanTask):
+-    name = 'Manual Polygon Masking'
+-    author = "Ling-Xiao Yang"
+-    description = "Interactive interface to create polygon masks"
+-    settings = {}
+-    enabled = True
+-    category = "Gamera - Masking"
+-    interactive = True
++	name = 'Manual Polygon Masking'
++	author = "Ling-Xiao Yang"
++	description = "Interactive interface to create polygon masks"
++	settings = {'job_queue': 'Python3'}
++	enabled = True
++	category = "Gamera - Masking"
++	interactive = True
+ 
+-    input_port_types = [{
+-        'name': 'PNG image',
+-        'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
+-        'minimum': 1,
+-        'maximum': 1
+-    },
+-    {
+-        'name': 'Polygons',
+-        'resource_types': ['application/gamera-polygons+txt'],
+-        'minimum': 0,
+-        'maximum': 1
+-    }]
+-    output_port_types = [{
+-        'name': 'PNG image (masked)',
+-        'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
+-        'minimum': 0,
+-        'maximum': 1
+-    },
+-    {
+-        'name': 'Polygons',
+-        'resource_types': ['application/gamera-polygons+txt'],
+-        'minimum': 0,
+-        'maximum': 1
+-    }]
++	input_port_types = [{
++		'name': 'PNG image',
++		'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
++		'minimum': 1,
++		'maximum': 1
++	},
++	{
++		'name': 'Polygons',
++		'resource_types': ['application/gamera-polygons+txt'],
++		'minimum': 0,
++		'maximum': 1
++	}]
++	output_port_types = [{
++		'name': 'PNG image (masked)',
++		'resource_types': ['image/onebit+png', 'image/greyscale+png', 'image/grey16+png', 'image/rgb+png'],
++		'minimum': 0,
++		'maximum': 1
++	},
++	{
++		'name': 'Polygons',
++		'resource_types': ['application/gamera-polygons+txt'],
++		'minimum': 0,
++		'maximum': 1
++	}]
+ 
+-    def run_my_task(self, inputs, settings, outputs):
+-        if '@polygon_outer_points' not in settings:
+-            task_image = load_image(inputs['PNG image'][0]['resource_path'])
+-            polygon_outer_points = '[]'
+-            if 'Polygons' in inputs:
+-                with open(inputs['Polygons'][0]['resource_path'], 'r') as myfile:
+-                    polygon_outer_points = myfile.read().replace('\n', '')
+-            settings_update = {'@image_width': task_image.ncols, '@polygon_outer_points': polygon_outer_points}
+-            return self.WAITING_FOR_INPUT(settings_update)
+-        else:
+-            polygon_outer_points = settings['@polygon_outer_points']
++	def run_my_task(self, inputs, settings, outputs):
++		if '@polygon_outer_points' not in settings:
++			task_image = load_image(inputs['PNG image'][0]['resource_path'])
++			polygon_outer_points = '[]'
++			if 'Polygons' in inputs:
++				with open(inputs['Polygons'][0]['resource_path'], 'r') as myfile:
++					polygon_outer_points = myfile.read().replace('\n', '')
++			settings_update = {'@image_width': task_image.ncols, '@polygon_outer_points': polygon_outer_points}
++			return self.WAITING_FOR_INPUT(settings_update)
++		else:
++			polygon_outer_points = settings['@polygon_outer_points']
+ 
+-            # If image output port, write image
+-            if 'PNG image (masked)' in outputs:
+-                task_image = load_image(inputs['PNG image'][0]['resource_path'])
++			# If image output port, write image
++			if 'PNG image (masked)' in outputs:
++				task_image = load_image(inputs['PNG image'][0]['resource_path'])
+ 
+-                mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
+-                mask_drawer = ImageDraw.Draw(mask_img)
++				mask_img = Image.new('L', (task_image.ncols, task_image.nrows), color='white')
++				mask_drawer = ImageDraw.Draw(mask_img)
+ 
+-                for polygon in polygon_outer_points:
+-                    flattened_poly = [j for i in polygon for j in i]
+-                    mask_drawer.polygon(flattened_poly, outline='black', fill='black')
+-                del mask_drawer
++				for polygon in polygon_outer_points:
++					flattened_poly = [j for i in polygon for j in i]
++					mask_drawer.polygon(flattened_poly, outline='black', fill='black')
++				del mask_drawer
+ 
+-                task_image_rgb = task_image.to_rgb()    # Because gamera masking doesn't work on onebit or grey16 images.
+-                segment_mask = from_pil(mask_img).to_onebit()
+-                result_image_rgb = task_image_rgb.mask(segment_mask)
+-                result_image = ensure_pixel_type(result_image_rgb, outputs['PNG image (masked)'][0]['resource_type'])
++				task_image_rgb = task_image.to_rgb()    # Because gamera masking doesn't work on onebit or grey16 images.
++				segment_mask = from_pil(mask_img).to_onebit()
++				result_image_rgb = task_image_rgb.mask(segment_mask)
++				result_image = ensure_pixel_type(result_image_rgb, outputs['PNG image (masked)'][0]['resource_type'])
+ 
+-                result_image.save_PNG(outputs['PNG image (masked)'][0]['resource_path'])
++				result_image.save_PNG(outputs['PNG image (masked)'][0]['resource_path'])
+ 
+-            # If polygons image output port, write poly file
+-            if 'Polygons' in outputs:
+-                poly_string = str(polygon_outer_points)
+-                f = open(outputs['Polygons'][0]['resource_path'], 'w')
+-                f.write(poly_string)
+-                f.close()
++			# If polygons image output port, write poly file
++			if 'Polygons' in outputs:
++				poly_string = str(polygon_outer_points)
++				f = open(outputs['Polygons'][0]['resource_path'], 'w')
++				f.write(poly_string)
++				f.close()
+ 
+-    def get_my_interface(self, inputs, settings):
+-	image_path = inputs['PNG image'][0]['resource_path']
+-        interface = 'interfaces/poly_mask.html'
+-        data = {
+-            'image_url': media_file_path_to_public_url(image_path),
+-            'image_width': settings['@image_width'],
+-            'polygon_outer_points': settings['@polygon_outer_points']
+-        }
+-        return (interface, data)
++	def get_my_interface(self, inputs, settings):
++		image_path = inputs['PNG image'][0]['resource_path']
++		interface = 'interfaces/poly_mask.html'
++		data = {
++			'image_url': media_file_path_to_public_url(image_path),
++			'image_width': settings['@image_width'],
++			'polygon_outer_points': settings['@polygon_outer_points']
++		}
++		return (interface, data)
+ 
+-    def validate_my_user_input(self, inputs, settings, user_input):
+-        if 'polygon_outer_points' not in user_input:
+-            raise self.ManualPhaseException("Bad data")
+-        # [TODO] validate userdata
+-        return {'@polygon_outer_points': user_input['polygon_outer_points']}
++	def validate_my_user_input(self, inputs, settings, user_input):
++		if 'polygon_outer_points' not in user_input:
++			raise self.ManualPhaseException("Bad data")
++		# [TODO] validate userdata
++		return {'@polygon_outer_points': user_input['polygon_outer_points']}
+diff --git a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/PitchFinding.py b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/PitchFinding.py
+index 3ccf577b..40473517 100755
+--- a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/PitchFinding.py
++++ b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/PitchFinding.py
+@@ -1,7 +1,8 @@
+ from gamera import gamera_xml
+ from gamera.plugins.image_utilities import union_images
+ from operator import itemgetter, attrgetter
+-
++import logging
++logger = logging.getLogger("__name__")
+ 
+ class PitchFinder(object):
+ 
+@@ -40,7 +41,6 @@ class PitchFinder(object):
+ 
+         output = []
+         for i, g in enumerate(self.sorted_glyphs):
+-
+             cur_json = {}
+             pitch_info = {}
+             glyph_info = {}
+@@ -60,6 +60,7 @@ class PitchFinder(object):
+                 'uly': g[0].ul.y,
+             }
+             glyph_info['state'] = gamera_xml.classification_state_to_name(g[0].classification_state)
++            #logger.info(g[0].id_name)
+             glyph_info['name'] = g[0].id_name[0][1]
+             cur_json['glyph'] = glyph_info
+ 
+@@ -84,7 +85,7 @@ class PitchFinder(object):
+         proc_glyphs = []
+ 
+         for g in self.glyphs:
+-            glyph_var = g.get_main_id().split('.')
++            glyph_var = g.get_main_id().decode().split('.')
+             glyph_type = glyph_var[0]
+ 
+             center_of_mass = self._x_projection_vector(g)
+@@ -124,7 +125,7 @@ class PitchFinder(object):
+         g = glyph
+         y_add = 0
+ 
+-        if 'clef.f' in glyph.get_main_id():
++        if bytes('clef.f', encoding='utf8') in glyph.get_main_id():
+             g, y_add = self._vector_process_f_clef(g)
+ 
+         center_of_mass = 0
+@@ -190,7 +191,7 @@ class PitchFinder(object):
+ 
+     def _get_staff_no(self, g, center_of_mass):
+         # find which staff a glyph belongs to
+-        if g.get_main_id().split('.')[0] in self.staffless_glyphs:
++        if g.get_main_id().decode().split('.')[0] in self.staffless_glyphs:
+             return None
+ 
+         glyph_coords = [g.offset_x, g.offset_y, g.offset_x + g.ncols, g.offset_y + g.nrows]
+@@ -351,7 +352,7 @@ class PitchFinder(object):
+         line_pos = None
+ 
+         # clefs snap to lines only
+-        line_snap = True if 'clef' in glyph.get_main_id().split('.')[0] else False
++        line_snap = True if 'clef' in glyph.get_main_id().decode().split('.')[0] else False
+ 
+         # find left/right staffline position to compare against center_of_mass
+         for i, point in enumerate(staff[0]):
+@@ -450,7 +451,7 @@ class PitchFinder(object):
+     def _sort_glyphs(self, proc_glyphs):
+ 
+         def __glyph_type(g):
+-            return g[0].get_main_id().split(".")[0]
++            return g[0].get_main_id().decode().split(".")[0]
+ 
+         # Sorts the glyphs by its place in the page (up-bottom, left-right) and appends
+         # the proper note according to the clef at the beginning of each stave
+@@ -462,7 +463,7 @@ class PitchFinder(object):
+             if gtype == 'clef':
+ 
+                 # overwrite last defined clef
+-                self.clef = glyph_array[0].get_main_id().split('.')[1], glyph_array[3]
++                self.clef = glyph_array[0].get_main_id().decode().split('.')[1], glyph_array[3]
+                 glyph_array[3] = 6 - glyph_array[3] / 2  # get clef line excluding spaces
+                 glyph_array.extend([None, None, None, None])
+ 
+@@ -491,7 +492,7 @@ class PitchFinder(object):
+ 
+         return sorted_glyphs
+ 
+-    ###########
++    ########
+     # Utility
+     ###########
+ 
+diff --git a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/StaffFinding.py b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/StaffFinding.py
+index f5b91e3d..96eb4b14 100755
+--- a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/StaffFinding.py
++++ b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/StaffFinding.py
+@@ -400,7 +400,7 @@ class StaffFinder(object):
+                             y_intersects = True,
+                             if st['coords'][0] > st2['coords'][0]:
+                                 row_placement = k + 1   # get row pos
+-                            print 'y_intersects', k
++                            print ('y_intersects', k)
+ 
+                     # place in correct row
+                     if y_intersects:
+@@ -423,8 +423,8 @@ class StaffFinder(object):
+                 st['staff_no'] = count
+                 numbered_staves.append(st)
+ 
+-        print [[x['staff_no'] for x in group] for group in ordered_staves]
+-        print [x['staff_no'] for x in numbered_staves]
++        print ([[x['staff_no'] for x in group] for group in ordered_staves])
++        print ([x['staff_no'] for x in numbered_staves])
+ 
+         return numbered_staves
+ 
+diff --git a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/__init__.py b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/__init__.py
+index 0438158f..0d361a86 100755
+--- a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/__init__.py
++++ b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/__init__.py
+@@ -1,4 +1,4 @@
+ import rodan
+-from base import MiyaoStaffinding, HeuristicPitchFinding
++from .base import MiyaoStaffinding, HeuristicPitchFinding
+ 
+ __version__ = "0.1.1"
+diff --git a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/base.py b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/base.py
+index afc03f23..cd367b35 100755
+--- a/rodan-main/code/rodan/jobs/heuristic_pitch_finding/base.py
++++ b/rodan-main/code/rodan/jobs/heuristic_pitch_finding/base.py
+@@ -3,11 +3,12 @@ from rodan.jobs.base import RodanTask
+ from gamera.core import load_image, init_gamera
+ from gamera import gamera_xml
+ 
+-from StaffFinding import StaffFinder
+-from PitchFinding import PitchFinder
++from .StaffFinding import StaffFinder
++from .PitchFinding import PitchFinder
+ 
+ import sys
+ import json
++import json.encoder
+ 
+ init_gamera()
+ 
+@@ -23,7 +24,7 @@ class MiyaoStaffinding(RodanTask):
+     settings = {
+         'title': 'Settings',
+         'type': 'object',
+-        'job_queue': 'Python2',
++        'job_queue': 'Python3',
+         'required': ['Number of lines', 'Interpolation'],
+         'properties': {
+             'Number of lines': {
+@@ -93,6 +94,8 @@ class HeuristicPitchFinding(RodanTask):
+     settings = {
+         'title': 'aOMR settings',
+         'type': 'object',
++        'job_queue': 'Python3',
++
+         'required': ['Discard Size'],
+         'properties': {
+             'Discard Size': {
+@@ -155,9 +158,36 @@ class HeuristicPitchFinding(RodanTask):
+             'staves': staves,
+             'glyphs': pitches,
+         }
++        #jsomr = json.decoder(jsomr)
++
++
++        def rec_serialize(byte2str):
++ 
++            """
++            A recursive function that iterates over a JSON object and changes all the bytes values to string
++            """
++            # dealing with dictionaries and lists and other stuff as three categories
++            if type(byte2str) == list:
++                # recursively for all elements 
++                for index in range(len(byte2str)):
++                    element = byte2str[index]
++                    byte2str[index] = rec_serialize(element)
++
++            elif type(byte2str) == dict:
++                for key in byte2str:
++                    value = byte2str[key]
++                    byte2str[key] = rec_serialize(value)
++            elif type(byte2str) == bytes:
++                # the element must be decoded
++                return byte2str.decode("UTF-8")
++
++            return byte2str
+ 
+         outfile_path = outputs['JSOMR of glyphs, staves, and page properties'][0]['resource_path']
+-        with open(outfile_path, 'w') as outfile:
+-            outfile.write(json.dumps(jsomr))
++        
++        with open(outfile_path, "w") as outfile:
++            serialized = rec_serialize(jsomr)
++            r = json.dumps(serialized)
++            outfile.write(r)
+ 
+         return True
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/__init__.py b/rodan-main/code/rodan/jobs/interactive_classifier/__init__.py
+index cbf23c93..218449be 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/__init__.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/__init__.py
+@@ -1,4 +1,3 @@
+-__version__ = "1.1.0"
+-
+-from wrapper import InteractiveClassifier
+-from gamera_xml_distributor import GameraXMLDistributor
++__version__ = "1.0.0"
++from .gamera_xml_distributor import GameraXMLDistributor
++from .wrapper import InteractiveClassifier
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/gamera_xml_distributor.py b/rodan-main/code/rodan/jobs/interactive_classifier/gamera_xml_distributor.py
+index bdf16c39..836386ba 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/gamera_xml_distributor.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/gamera_xml_distributor.py
+@@ -7,7 +7,7 @@ class GameraXMLDistributor(RodanTask):
+     name = "GameraXML Distributor"
+     author = "Andrew Fogarty"
+     description = "Distribute a GameraXML file."
+-    settings = {}
++    settings = {'job_queue': 'Python3'}
+     enabled = True
+     category = "Resource Distributor"
+     interactive = False
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/interactive_classifier.py b/rodan-main/code/rodan/jobs/interactive_classifier/interactive_classifier.py
+index b31483bc..28753daf 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/interactive_classifier.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/interactive_classifier.py
+@@ -199,8 +199,8 @@ def group_and_correct(glyphs, user_options, training_database, features_file_pat
+ 
+     # Reassigning values after classification
+     for i in range(len(gamera_glyphs)):
+-        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id()
+-        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence()
++        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id().decode()
++        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence().decode()
+ 
+     # Adding new glyphs
+     for elem in add:
+@@ -261,6 +261,9 @@ def serialize_glyphs_to_json(glyphs):
+     """
+     output = {}
+     for glyph in glyphs:
++        for k in glyph.keys():
++            if type(glyph[k]) is bytes:
++                glyph[k]=glyph[k].decode()
+         class_name = glyph['class_name']
+         if class_name not in output:
+             output[class_name] = []
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/intermediary/run_length_image.py b/rodan-main/code/rodan/jobs/interactive_classifier/intermediary/run_length_image.py
+index 0984429c..1f902fd6 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/intermediary/run_length_image.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/intermediary/run_length_image.py
+@@ -1,5 +1,5 @@
+ import base64
+-import cStringIO
++from io import BytesIO
+ from PIL import ImageDraw
+ from PIL import Image as PILImage
+ from gamera.core import Image as GameraImage
+@@ -62,7 +62,7 @@ class RunLengthImage:
+          width * height - 1
+         :return: (x,y) tuple
+         """
+-        y = pixel_number / self.width
++        y = pixel_number // self.width
+         x = pixel_number % self.width
+         return x, y
+ 
+@@ -82,7 +82,7 @@ class RunLengthImage:
+ 
+     def get_base64_image(self):
+         pil_image = self.get_pil_image()
+-        string_buffer = cStringIO.StringIO()
++        string_buffer = BytesIO()
+         pil_image.save(string_buffer, format="PNG")
+         return base64.b64encode(string_buffer.getvalue())
+ 
+@@ -105,4 +105,4 @@ class RunLengthImage:
+         return u"run_length_image[{0}, {1}, {2}, {3}]".format(self.ulx,
+                                                               self.uly,
+                                                               self.width,
+-                                                              self.height)
++                                                              self.height)
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/gamera_xml_distributor.py b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/gamera_xml_distributor.py
+index bdf16c39..836386ba 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/gamera_xml_distributor.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/gamera_xml_distributor.py
+@@ -7,7 +7,7 @@ class GameraXMLDistributor(RodanTask):
+     name = "GameraXML Distributor"
+     author = "Andrew Fogarty"
+     description = "Distribute a GameraXML file."
+-    settings = {}
++    settings = {'job_queue': 'Python3'}
+     enabled = True
+     category = "Resource Distributor"
+     interactive = False
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/interactive_classifier.py b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/interactive_classifier.py
+index b31483bc..7ea2cac0 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/interactive_classifier.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/interactive_classifier.py
+@@ -199,8 +199,8 @@ def group_and_correct(glyphs, user_options, training_database, features_file_pat
+ 
+     # Reassigning values after classification
+     for i in range(len(gamera_glyphs)):
+-        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id()
+-        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence()
++        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id().decode()
++        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence().decode()
+ 
+     # Adding new glyphs
+     for elem in add:
+@@ -261,6 +261,9 @@ def serialize_glyphs_to_json(glyphs):
+     """
+     output = {}
+     for glyph in glyphs:
++        for k in glyph.keys():
++            if type(glyph[k]) is bytes:
++                glyph[k]=glyph[k].decode()
+         class_name = glyph['class_name']
+         if class_name not in output:
+             output[class_name] = []
+@@ -455,4 +458,4 @@ def update_renamed_classes(settings):
+ 
+     settings['imported_class_names'] = updated_classes
+     updated_classes = []
+-    settings['@renamed_classes'] = []
++    settings['@renamed_classes'] = []
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/intermediary/run_length_image.py b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/intermediary/run_length_image.py
+index 0984429c..0aa7d1f3 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/intermediary/run_length_image.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/intermediary/run_length_image.py
+@@ -1,5 +1,5 @@
+ import base64
+-import cStringIO
++from io import StringIO
+ from PIL import ImageDraw
+ from PIL import Image as PILImage
+ from gamera.core import Image as GameraImage
+@@ -82,7 +82,7 @@ class RunLengthImage:
+ 
+     def get_base64_image(self):
+         pil_image = self.get_pil_image()
+-        string_buffer = cStringIO.StringIO()
++        string_buffer = StringIO()
+         pil_image.save(string_buffer, format="PNG")
+         return base64.b64encode(string_buffer.getvalue())
+ 
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/wrapper.py b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/wrapper.py
+index 5b90fcb3..0292e456 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/wrapper.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/rodan_job/wrapper.py
+@@ -1,5 +1,5 @@
+ from rodan.jobs.base import RodanTask
+-from interactive_classifier import *
++from rodan.jobs.interactive_classifier.interactive_classifier import *
+ 
+ class InteractiveClassifier(RodanTask):
+     #############
+@@ -9,7 +9,7 @@ class InteractiveClassifier(RodanTask):
+     name = 'Interactive Classifier'
+     author = 'Andrew Fogarty'
+     description = 'A GUI for Gamera interactive kNN classification.'
+-    settings = {}
++    settings = {'job_queue': 'Python3'}
+     enabled = True
+     category = 'Gamera - Classification'
+     interactive = True
+@@ -472,3 +472,4 @@ class InteractiveClassifier(RodanTask):
+                 '@deleted_classes': user_input['deleted_classes'],
+                 '@renamed_classes': user_input['renamed_classes']
+             }
++            
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/jobs/interactive_classifier/wrapper.py b/rodan-main/code/rodan/jobs/interactive_classifier/wrapper.py
+index 5b90fcb3..ca5152a1 100644
+--- a/rodan-main/code/rodan/jobs/interactive_classifier/wrapper.py
++++ b/rodan-main/code/rodan/jobs/interactive_classifier/wrapper.py
+@@ -1,5 +1,5 @@
+ from rodan.jobs.base import RodanTask
+-from interactive_classifier import *
++from rodan.jobs.interactive_classifier.interactive_classifier import *
+ 
+ class InteractiveClassifier(RodanTask):
+     #############
+@@ -9,7 +9,7 @@ class InteractiveClassifier(RodanTask):
+     name = 'Interactive Classifier'
+     author = 'Andrew Fogarty'
+     description = 'A GUI for Gamera interactive kNN classification.'
+-    settings = {}
++    settings = {'job_queue': 'Python3'}
+     enabled = True
+     category = 'Gamera - Classification'
+     interactive = True
+diff --git a/rodan-main/code/rodan/jobs/mei2vol_wrapper/MEI2Volpiano/resources/neume_mei/Neon - Corrected 016r reviewed.mei b/rodan-main/code/rodan/jobs/mei2vol_wrapper/MEI2Volpiano/resources/neume_mei/Neon - Corrected 016r reviewed.mei
+old mode 100644
+new mode 100755
+diff --git a/rodan-main/code/rodan/jobs/register_all_jobs.py b/rodan-main/code/rodan/jobs/register_all_jobs.py
+index e7f93b8d..301ec24d 100644
+--- a/rodan-main/code/rodan/jobs/register_all_jobs.py
++++ b/rodan-main/code/rodan/jobs/register_all_jobs.py
+@@ -39,35 +39,112 @@ def register_base():
+ 
+ # Python2 Jobs
+ def register_py2():
++      # Register Hello World
++    try:
++        from rodan.jobs.helloworld.helloworld import HelloWorld
++
++        app.register_task(HelloWorld())
++    except Exception as exception:
++        import_name = "Hello World"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    # Register IC
+     try:
+-        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
++        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
+ 
+-        app.register_task(InteractiveClassifier())
++        app.register_task(HelloWorldMultiPort())
+     except Exception as exception:
+-        import_name = "Interactive Classifier"
++        import_name = "Hello World Multi Port"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+     try:
+-        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
+-            GameraXMLDistributor,
+-        )
++        from rodan.jobs.helloworld.helloworld import HelloWorld3
+ 
+-        app.register_task(GameraXMLDistributor())
++        app.register_task(HelloWorld3())
+     except Exception as exception:
+-        import_name = "XML Distributor"
++        import_name = "Hello World Python3"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    # Register Pixel.js
++
++# Python3 Jobs
++def register_py3():
++
++    # Register Hello World
+     try:
+-        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
++        from rodan.jobs.helloworld.helloworld import HelloWorld
+ 
+-        app.register_task(PixelInteractive())
++        app.register_task(HelloWorld())
+     except Exception as exception:
+-        import_name = "Pixel"
++        import_name = "Hello World"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++    try:
++        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
++
++        app.register_task(HelloWorldMultiPort())
++    except Exception as exception:
++        import_name = "Hello World Multi Port"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++    try:
++        from rodan.jobs.helloworld.helloworld import HelloWorld3
++
++        app.register_task(HelloWorld3())
++    except Exception as exception:
++        import_name = "Hello World Python3"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++    # Register MEI resizing
++    try:
++        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
++
++        app.register_task(MEI_Resize())
++    except Exception as exception:
++        import_name = "MEI Resizing"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++
++
++    # Register PIL Rodan
++    try:
++        from rodan.jobs.pil_rodan.red_filtering import RedFilter
++
++        app.register_task(RedFilter())
++    except Exception as exception:
++        import_name = "PIL Red Filter"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++    try:
++        from rodan.jobs.pil_rodan.resize import resize
++
++        app.register_task(resize())
++    except Exception as exception:
++        import_name = "PIL Resize"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++
++
++    try:
++        from rodan.jobs.pil_rodan.to_png import to_png
++
++        app.register_task(to_png())
++    except Exception as exception:
++        import_name = "PIL To PNG"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
++    try:
++        from rodan.jobs.pil_rodan.to_tiff import to_tiff
++
++        app.register_task(to_tiff())
++    except Exception as exception:
++        import_name = "PIL To TIFF"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++    
++    try:
++        from rodan.jobs.mei2vol_wrapper.m2v_wrapper import MEI2Vol
++        app.register_task(MEI2Vol())
++    except Exception as exception:
++        import_name = "MEI2Volpiano"
++        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
++    
+     # Register Gamera
+     try:
+         from rodan.jobs.gamera_rodan.wrappers.classification import ClassificationTask
+@@ -257,36 +334,7 @@ def register_py2():
+         import_name = "Djvu Threshold"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    try:
+-        from rodan.jobs.gamera_rodan.wrappers.toolkits.custom.poly_mask import (
+-            PolyMask,
+-        )
+-
+-        app.register_task(PolyMask())
+-    except Exception as exception:
+-        import_name = "Poly Mask"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-    try:
+-        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
+-            StablePaths,
+-        )
+-
+-        app.register_task(StablePaths())
+-    except Exception as exception:
+-        import_name = "Stable Paths"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-    try:
+-        from rodan.jobs.gamera_rodan.wrappers.toolkits.document_preprocessing_toolkit.stable_paths import ( # noqa
+-            StablePathDetection,
+-        )
+-
+-        app.register_task(StablePathDetection())
+-    except Exception as exception:
+-        import_name = "Stable Path Detection"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
++    # Register miyao toolkit jobs
+     try:
+         from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao import (
+             MiyaoStaffFinder,
+@@ -297,32 +345,37 @@ def register_py2():
+         import_name = "Miyao Staff Finder"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
++
++   # Register Biollante
+     try:
+-        from rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.roach_tatem import (
+-            RoachTatemRemoveStaffLines,
+-        )
++        from rodan.jobs.biollante_rodan import BiollanteRodan
+ 
+-        app.register_task(RoachTatemRemoveStaffLines())
++        app.register_task(BiollanteRodan())
+     except Exception as exception:
+-        import_name = "Roach Tatem Remove Staff Lines"
++        import_name = "Biollante"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
++    
++    
++    # Register IC
+     try:
+-        from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
++        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
+ 
+-        app.register_task(GameraMaskLogicalAnd())
++        app.register_task(InteractiveClassifier())
+     except Exception as exception:
+-        import_name = "Logical And"
++        import_name = "Interactive Classifier"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+     try:
+-        from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalXor
++        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
++            GameraXMLDistributor,
++        )
+ 
+-        app.register_task(GameraMaskLogicalXor())
++        app.register_task(GameraXMLDistributor())
+     except Exception as exception:
+-        import_name = "Logical Xor"
++        import_name = "XML Distributor"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
++
+     # Register Neume Slicing
+     try:
+         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
+@@ -340,6 +393,7 @@ def register_py2():
+         import_name = "Dirty Layer Repair"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
++    
+     # Register HPF
+     try:
+         from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
+@@ -357,52 +411,6 @@ def register_py2():
+         import_name = "Heuristic Pitch Finding"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    # Register Biollante
+-    try:
+-        from rodan.jobs.biollante_rodan import BiollanteRodan
+-
+-        app.register_task(BiollanteRodan())
+-    except Exception as exception:
+-        import_name = "Biollante"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-    # Register Neon
+-    try:
+-        from rodan.jobs.neon_wrapper.wrapper import Neon
+-
+-        app.register_task(Neon())
+-    except Exception as exception:
+-        import_name = "Neon"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-
+-# Python3 Jobs
+-def register_py3():
+-
+-    # Register Hello World
+-    try:
+-        from rodan.jobs.helloworld.helloworld import HelloWorld
+-
+-        app.register_task(HelloWorld())
+-    except Exception as exception:
+-        import_name = "Hello World"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-    try:
+-        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
+-
+-        app.register_task(HelloWorldMultiPort())
+-    except Exception as exception:
+-        import_name = "Hello World Multi Port"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-    try:
+-        from rodan.jobs.helloworld.helloworld import HelloWorld3
+-
+-        app.register_task(HelloWorld3())
+-    except Exception as exception:
+-        import_name = "Hello World Python3"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+     # Register MEI Encoding
+     try:
+@@ -413,15 +421,6 @@ def register_py3():
+         import_name = "MEI Encoding"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    # Register MEI resizing
+-    try:
+-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+-
+-        app.register_task(MEI_Resize())
+-    except Exception as exception:
+-        import_name = "MEI Resizing"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-        
+     # Register HPC Fast Trainer
+     try:
+         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
+@@ -431,51 +430,27 @@ def register_py3():
+         import_name = "HPC Fast Trainer"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+-    # Register PIL Rodan
+-    try:
+-        from rodan.jobs.pil_rodan.red_filtering import RedFilter
+-
+-        app.register_task(RedFilter())
+-    except Exception as exception:
+-        import_name = "PIL Red Filter"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
++     # Register Neon
+     try:
+-        from rodan.jobs.pil_rodan.resize import resize
+-
+-        app.register_task(resize())
+-    except Exception as exception:
+-        import_name = "PIL Resize"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-
+-
+-    try:
+-        from rodan.jobs.pil_rodan.to_png import to_png
++        from rodan.jobs.neon_wrapper.wrapper import Neon
+ 
+-        app.register_task(to_png())
++        app.register_task(Neon())
+     except Exception as exception:
+-        import_name = "PIL To PNG"
++        import_name = "Neon"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
++    # Register Pixel.js
+     try:
+-        from rodan.jobs.pil_rodan.to_tiff import to_tiff
++        from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
+ 
+-        app.register_task(to_tiff())
+-    except Exception as exception:
+-        import_name = "PIL To TIFF"
+-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+-    
+-    try:
+-        from rodan.jobs.mei2vol_wrapper.m2v_wrapper import MEI2Vol
+-        app.register_task(MEI2Vol())
++        app.register_task(PixelInteractive())
+     except Exception as exception:
+-        import_name = "MEI2Volpiano"
++        import_name = "Pixel"
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+ # GPU Jobs
+ def register_gpu():
+ 
+-
+     # Register Calvo
+     try:
+         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+@@ -539,6 +514,5 @@ def register_gpu():
+         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+ 
+ 
+-
+ if __name__ == "__main__":
+-    register_all()
++    register_all()
+\ No newline at end of file
+diff --git a/rodan-main/code/rodan/settings.py b/rodan-main/code/rodan/settings.py
+index eab326a6..d4780b97 100644
+--- a/rodan-main/code/rodan/settings.py
++++ b/rodan-main/code/rodan/settings.py
+@@ -138,14 +138,7 @@ BASE_JOB_PACKAGES = [
+     "rodan.jobs.labeler",
+ ]
+ RODAN_PYTHON2_JOBS = [
+-    "rodan.jobs.diagonal_neume_slicing",
+-    "rodan.jobs.gamera_rodan",
+     "rodan.jobs.helloworld",
+-    "rodan.jobs.heuristic_pitch_finding",
+-    "rodan.jobs.interactive_classifier",
+-    "rodan.jobs.neon_wrapper",
+-    "rodan.jobs.pixel_wrapper",
+-    "rodan.jobs.biollante_rodan",
+     "rodan.jobs.test_rodan"
+ ]
+ RODAN_PYTHON3_JOBS = [
+@@ -153,7 +146,15 @@ RODAN_PYTHON3_JOBS = [
+     "rodan.jobs.hpc_fast_trainer",
+     "rodan.jobs.MEI_encoding",
+     "rodan.jobs.pil_rodan",
++    "rodan.jobs.mei2vol_wrapper",
++    "rodan.jobs.gamera_rodan",
++    "rodan.jobs.heuristic_pitch_finding",
++    "rodan.jobs.biollante_rodan",
++    "rodan.jobs.interactive_classifier",
++    "rodan.jobs.diagonal_neume_slicing",
+     "rodan.jobs.MEI_resizing",
++    "rodan.jobs.neon_wrapper",
++    "rodan.jobs.pixel_wrapper",
+     "rodan.jobs.mei2vol_wrapper"
+ ]
+ RODAN_GPU_JOBS = [
+diff --git a/scripts/install_gamera4 b/scripts/install_gamera4
+new file mode 100755
+index 00000000..e69de29b
+diff --git a/scripts/install_python2_rodan_jobs b/scripts/install_python2_rodan_jobs
+index 7c138c19..68135e33 100644
+--- a/scripts/install_python2_rodan_jobs
++++ b/scripts/install_python2_rodan_jobs
+@@ -8,25 +8,8 @@ cd /code/Rodan/rodan/jobs
+ # Install Calvo-Trainer-HPC
+ pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
+ 
+-# Install Pixel_wrapper
+-git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
+-cd ./pixel_wrapper/
+-pip install -r requirements.txt >/dev/null
+-python activate_wrapper.py
+-# [TODO] Test with yarn.
+-npm install
+-./node_modules/.bin/gulp develop:rodan
+-cd /code/Rodan/rodan/jobs
+ 
+-# Install Neon
+-git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
+-cd ./neon_wrapper
+-git submodule update --init
+-git submodule update --remote
+-yarn install
+-yarn build
+-cd /code/Rodan/rodan/jobs
+ 
+ cd /code/Rodan/rodan
+ # At the end, add all the jobs together.
+-sed -i 's/#py2 //g' /code/Rodan/rodan/settings.py
++sed -i 's/#py2 //g' /code/Rodan/rodan/settings.py
+\ No newline at end of file
+diff --git a/scripts/install_python3_rodan_jobs b/scripts/install_python3_rodan_jobs
+index 6e6df32e..5fc748ed 100644
+--- a/scripts/install_python3_rodan_jobs
++++ b/scripts/install_python3_rodan_jobs
+@@ -1,4 +1,9 @@
+ #!/bin/sh
++echo
++echo "############################"
++echo "started installing python3 jobs"
++echo "############################"
++echo
+ set -o errexit # Exit immediately if a command exits with a non-zero status.
+ set -o nounset # Treat unset variables as an error when substituting.
+ set -o xtrace # Print commands and their arguments as they are executed.
+@@ -10,13 +15,45 @@ PIP=$(which pip3) || PIP=:
+ # update pip
+ $PIP install -U pip
+ 
++#Neon and pixel dependencies --> not placed on dockerfile due to dockerhub build fails
++apt-get -qq install -y apt-transport-https curl gnupg >/dev/null 
++curl -sL https://deb.nodesource.com/setup_10.x | bash - 
++apt-get -qq update 
++apt-get -qq install -y nodejs >/dev/null 
++npm install -g npm@6.14.12 
++# Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
++apt-get -qq remove cmdtest 
++curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - 
++echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list 
++apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
++mkdir -p /code/jobs 
++
++
++# Install Pixel_wrapper
++git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
++cd ./pixel_wrapper/
++$PIP install -r requirements.txt >/dev/null
++python3 activate_wrapper.py
++# [TODO] Test with yarn.
++npm install 
++./node_modules/.bin/gulp develop:rodan
++cd /code/Rodan/rodan/jobs
++
++# Install Neon
++git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
++cd ./neon_wrapper
++git submodule update --init
++git submodule update --remote
++yarn install
++yarn build
++cd /code/Rodan/rodan/jobs
++
+ # Install pil_rodan
+ # pil_rodan is required for Calvo-Classifier because of the jpeg2000 resource type.
+ $PIP install -r ./pil_rodan/requirements.txt
+ 
+ # Install HPC Fast Trainer
+ $PIP install -r ./hpc_fast_trainer/requirements.txt
+-
+ # Install MEI_encoding
+ $PIP install -r ./MEI_encoding/requirements.txt >/dev/null
+ 
+@@ -25,31 +62,38 @@ cd /code/Rodan/rodan
+ 
+ sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
+ 
++#!/bin/bash
+ ###############################
+-# GAMERA 4 INSTALLATION
+-#echo
+-#echo "############################"
+-#echo "started installing gamera 4"
+-#echo "############################"
+-#echo
++# INSTALLATION SCRIPT FOR RODAN CONTAINER
+ # In the root directory
+-#cd /
+-#rm -rf gamera-4
+- 
+-# clone the gamera-4 repository 
+-#git clone https://github.com/hsnr-gamera/gamera-4.git
+-#cd gamera-4
+-#git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
++cd /
++
++# clone the repository 
++echo "###### cloning git repo ######"
++git clone https://github.com/DDMAL/gamera4-rodan.git
++cd gamera4-rodan
++git checkout c7e2f84 #specifies commit
++
+ # install gamera-4 on the container
+-#python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
++echo "###### build and install gamera ######"
++cd gamera-4
++python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
++
++# install musicstaves toolkits
++echo "###### build and install musicstaves ######"
++cd ../musicstaves
++python3.7 setup.py build && python3.7 setup.py install
++
+ # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
+ # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
+ # THEN RERUN THE SCRIPT.
+ 
+-# remove the gamera-4 directory from the container 
+-#cd / && rm -rf gamera-4
++# remove the gamera-4 directory from the container. 
++echo "###### removing gamera4-rodan ######"
++cd / && rm -rf gamera4-rodan
+ 
+ # for more information refer to:
+ # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
+-############################### 
++###############################
++
+ 
+diff --git a/scripts/install_rodan_job_dependencies b/scripts/install_rodan_job_dependencies
+index b0c60821..7ce00773 100644
+--- a/scripts/install_rodan_job_dependencies
++++ b/scripts/install_rodan_job_dependencies
+@@ -3,37 +3,30 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
+ set -o nounset # Treat unset variables as an error when substituting.
+ set -o xtrace # Print commands and their arguments as they are executed.
+ 
+-# Install tools made with Gamera
+-cd /code
+-git clone https://github.com/DDMAL/document-preprocessing-toolkit.git
+-cd document-preprocessing-toolkit/
+-pip install ./background-estimation ./border-removal ./new_binarization_toolkit ./stable_paths_toolkit ./staffline-removal >/dev/null
+-pip install ./lyric-extraction >/dev/null
+-pip install svn+svn://svn.code.sf.net/p/music-staves/code/ >/dev/null
+-cd /code
+-git clone https://github.com/DDMAL/rodan_plugins.git
+-pip install /code/rodan_plugins >/dev/null
++###############################
++# GAMERA 4 INSTALLATION
++echo
++echo "############################"
++echo "started installing gamera 4"
++echo "############################"
++echo
++# In the root directory
++cd /
++rm -rf gamera-4
+ 
+-# Install LibMEI.
+-cd /code
+-git clone https://github.com/DDMAL/libmei
+-cd /code/libmei/tools
+-cp /code/Rodan/helper_scripts/mei-all-4.0.1.odd .
+-pip install lxml >/dev/null
+-python parseschema2.py mei-all-4.0.1.odd -o src -l cpp
+-python parseschema2.py mei-all-4.0.1.odd -o src -l python
+-rm -rf ../src/modules/*
+-rm -rf ../python/pymei/Modules/*
+-mv src/cpp/* ../src/modules/
+-mv src/python/* ../python/pymei/Modules/
+-cd /code/libmei
+-sed -i '86i\ \ \ \ add_definitions( -Wno-error=deprecated )' CMakeLists.txt
+-cmake .
+-make >/dev/null && make install >/dev/null 
++# clone the gamera-4 repository 
++git clone https://github.com/hsnr-gamera/gamera-4.git
++cd gamera-4
++git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
++# install gamera-4 on the container
++python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
++# IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
++# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
++# THEN RERUN THE SCRIPT.
+ 
+-# Install the LibMEI Python bindings.
+-cd /code/libmei/python
+-# Manually patch pymei's setup.py because boost.python dropped the -mt suffix of its libraries several years ago.
+-# See https://github.com/DDMAL/libmei/issues/81.
+-sed -i 's/boost_python-mt/boost_python/g' setup.py
+-pip install . >/dev/null
++# remove the gamera-4 directory from the container. 
++cd / && rm -rf gamera-4
++
++# for more information refer to:
++# Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
++############################### 
