@@ -22,26 +22,26 @@ BUILD_HASH=`git rev-parse --verify HEAD`
 # Stage 1
 #   Build and push Python2-Celery image
 
-echo "[+] Building Python2-Celery"
-
 # Too many times did docker cache mess up a build. No more cache.
+echo "[+] Building Python3-Celery"
+
 docker build \
   --no-cache \
   --build-arg BRANCHES="develop" \
   --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-python2-celery:test \
-  --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
-  --file ./python2-celery/Dockerfile \
+  --tag ddmal/rodan-python3-celery:test \
+  --tag ddmal/rodan-python3-celery:${RODAN_TAG} \
+  --file ./python3-celery/Dockerfile \
   .
 
-echo "[+] Pushing Python2-Celery"
-docker push ddmal/rodan-python2-celery:test
+echo "[+] Pushing Python3-Celery"
+docker push ddmal/rodan-python3-celery:test
 
-echo "[+] Python2-Celery needs to be made and pushed before Rodan/Celery because the Rodan image uses the Python2 image as its base."
+echo "[+] Python3-Celery needs to be made and pushed before Rodan/Celery because the Rodan image uses the Python3 image as its base."
 
 if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  echo "[+] New tagged image for Python2-Celery: ${RODAN_TAG}"
-  docker push ddmal/rodan-python2-celery:${RODAN_TAG}
+  echo "[+] New tagged image for Python3-Celery: ${RODAN_TAG}"
+  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
 fi
 
 
@@ -101,16 +101,24 @@ docker push ddmal/rodan-client:test
 # Stage 3
 #   Build the rest
 
-echo "[+] Building Python3-Celery"
+# Stage 1
+#   Build and push Python2-Celery image
 
+echo "[+] Building Python2-Celery"
+
+# Too many times did docker cache mess up a build. No more cache.
 docker build \
   --no-cache \
   --build-arg BRANCHES="develop" \
   --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-python3-celery:test \
-  --tag ddmal/rodan-python3-celery:${RODAN_TAG} \
-  --file ./python3-celery/Dockerfile \
+  --tag ddmal/rodan-python2-celery:test \
+  --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
+  --file ./python2-celery/Dockerfile \
   .
+
+echo "[+] Pushing Python2-Celery"
+docker push ddmal/rodan-python2-celery:test
+
 
 echo "[+] Building GPU-Celery"
 
