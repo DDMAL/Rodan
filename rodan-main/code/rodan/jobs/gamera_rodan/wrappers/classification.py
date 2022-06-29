@@ -23,13 +23,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
+from ast import Import
 import os
 from shutil import copyfile
-import gamera.core
-import gamera.gamera_xml
-import gamera.classify
-import gamera.knn
-from gamera.gamera_xml import glyphs_from_xml
+try:
+    import gamera.core
+    import gamera.gamera_xml
+    import gamera.classify
+    import gamera.knn
+    from gamera.gamera_xml import glyphs_from_xml
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
 
 

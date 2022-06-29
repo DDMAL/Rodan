@@ -1,11 +1,14 @@
 import json
 import os
-from gamera.core import load_image
-from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
 from rodan.jobs.base import RodanTask
-from rodan.jobs.gamera_rodan.helpers.ensure_pixel_type import ensure_pixel_type
+try:
+	from gamera.core import load_image
+	from gamera.plugins.pil_io import from_pil
+	from rodan.jobs.gamera_rodan.helpers.ensure_pixel_type import ensure_pixel_type
+except ImportError:
+	pass
 from rodan.settings import MEDIA_URL, MEDIA_ROOT
 
 def media_file_path_to_public_url(media_file_path):
