@@ -30,6 +30,7 @@ mkdir -p /code/jobs
 
 
 # Install Pixel_wrapper
+rm ./pixel_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
 cd ./pixel_wrapper/
 $PIP install -r requirements.txt >/dev/null
@@ -40,6 +41,7 @@ npm install
 cd /code/Rodan/rodan/jobs
 
 # Install Neon
+rm ./neon_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
 cd ./neon_wrapper
 git submodule update --init
