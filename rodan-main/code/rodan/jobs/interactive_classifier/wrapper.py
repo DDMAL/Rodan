@@ -1,6 +1,9 @@
 from rodan.jobs.base import RodanTask
-from rodan.jobs.interactive_classifier.interactive_classifier import *
-
+try:
+    from rodan.jobs.interactive_classifier.interactive_classifier import *
+    import segmentation
+except ImportError:
+    pass
 class InteractiveClassifier(RodanTask):
     #############
     # Description
@@ -320,7 +323,6 @@ class InteractiveClassifier(RodanTask):
         return g
 
     def manual_split(self, glyph_to_split, split_type, settings):
-        import segmentation
         # Finding the glyphs that match the incoming ids
         glyph={}
         for g in settings['glyphs']:
