@@ -83,7 +83,8 @@ class gamera_dilate(RodanTask):
     author = 'Gabriel Vigliensoni'
     description = morphology.dilate.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings = {'title': 'Despeckle settings',
-                'type': 'object'
+                'type': 'object',
+                'job_queue': 'Python3'
                 }
 
     enabled = True
