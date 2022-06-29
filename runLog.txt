@@ -1,0 +1,3 @@
+# Run build_arm first if you don't have the NGINX container.
+# Launch ARM instance 
+nightly: Pulling from ddmal/rodan-python2-celery
