@@ -9,7 +9,7 @@ cd /code/Rodan/rodan/jobs
 pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
 
 # Install Pixel_wrapper
-git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
+git clone --recurse-submodules -b v1.0.0  https://github.com/DDMAL/pixel_wrapper.git
 cd ./pixel_wrapper/
 pip install -r requirements.txt >/dev/null
 python activate_wrapper.py
