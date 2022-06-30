@@ -41,7 +41,7 @@ RUN rm -rf /var/lib/apt/lists/*
 COPY ./scripts/install_python3_rodan_jobs /run/
 COPY ./scripts/install_rodan /run/
 COPY ./scripts/start-celery /run/
-COPY ,/scripts/entrypoint /opt/
+COPY ./scripts/entrypoint /opt/
 COPY ./scripts/wait-for-app /run/
 
 # Copying rodan core from build context into container
