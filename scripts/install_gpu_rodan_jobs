@@ -28,11 +28,9 @@ $PIP install -r ./text_alignment/requirements.txt
 
 # Install Background Removal
 cd /
-git clone https://github.com/DDMAL/background_removal.git
+git clone -b v1.0.0 https://github.com/DDMAL/background_removal.git
 mv background_removal .background_removal
 cd .background_removal
-git fetch origin release
-git reset --hard origin/release
 which pip3 && $PIP install .
 
 # Install SAE_binarization
