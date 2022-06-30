@@ -21,9 +21,15 @@ class BgRemoval(RodanTask):
         'maximum': 1
     }]
     output_port_types = [{
-        'name': 'RGB PNG image',
+        'name': 'RGBA PNG image',
         'resource_types': ['image/rgba+png'],
         'minimum': 1,
+        'maximum': 1
+    },
+    {
+        'name': 'Empty Layer',
+        'resource_types': ['image/rgba+png'],
+        'minimum': 0,
         'maximum': 1
     }]
 
@@ -65,7 +71,7 @@ class BgRemoval(RodanTask):
         from background_removal.binarize.binarize import run_binarize
 
         load_image_path = inputs['Image'][0]['resource_path']
-        save_image_path = "{}.png".format(outputs['RGB PNG image'][0]['resource_path'])
+        save_image_path = "{}.png".format(outputs['RGBA PNG image'][0]['resource_path'])
         if settings['Background Removal Method'] == 0:
             image_bgr = LoaderWriter.load_image(load_image_path)
             # Remove background here.
@@ -74,7 +80,12 @@ class BgRemoval(RodanTask):
         else:
             image_processed = run_binarize(load_image_path, save_image_path)
 
-        os.rename(save_image_path,outputs['RGB PNG image'][0]['resource_path'])
+        os.rename(save_image_path,outputs['RGBA PNG image'][0]['resource_path'])
+        if 'Empty Layer' in outputs:
+            empty_layer = Engine.empty_layer(image_bgr)
+            empty_image_path = "{}.png".format(outputs['Empty Layer'][0]['resource_path'])
+            LoaderWriter.write_image(empty_image_path, empty_layer)
+            os.rename(empty_image_path, outputs['Empty Layer'][0]['resource_path'])
         return True
 
     def my_error_information(self, exc, traceback):
