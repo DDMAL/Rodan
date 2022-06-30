@@ -109,15 +109,13 @@ RUN set -x \
   && /run/install_rodan \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
   && chmod +x /run/wait-for-app \
-  && chown www-data /run/wait-for-app \
-  # Runs on both Rodan service, and Rodan-Celery
-  && sed -i 's/\r//' /opt/entrypoint \
-  && chmod +x /opt/entrypoint \
-  && chown www-data /opt/entrypoint \
-  # This script starts Rodan-Celery
-  && sed -i 's/\r//' /run/start-celery \
-  && chmod +x /run/start-celery \
-  && chown www-data /run/start-celery \
-  && chown -R www-data /code/Rodan /code/jobs
-
-ENTRYPOINT ["/opt/entrypoint"]
+  && chown www-data /run/wait-for-app 
+  # # Runs on both Rodan service, and Rodan-Celery
+  # && sed -i 's/\r//' /opt/entrypoint \
+  # && chmod +x /opt/entrypoint \
+  # && chown www-data /opt/entrypoint \
+  # # This script starts Rodan-Celery
+  # && sed -i 's/\r//' /run/start-celery \
+  # && chmod +x /run/start-celery \
+  # && chown www-data /run/start-celery \
+  # && chown -R www-data /code/Rodan /code/jobs
