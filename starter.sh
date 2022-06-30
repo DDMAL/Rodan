@@ -1,10 +1,10 @@
 # runs the commands in new terminal tabs you have to open a new separate window of iterm to start with 
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "t" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && make run_arm
 "' 
-# sleep 30 
+sleep 30 
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec rodan-main /run/start
 "' 
-# sleep 30 
+sleep 30 
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec celery /run/start-celery
 "' 
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec py3-celery /run/start-celery
