@@ -10,7 +10,7 @@ osascript -e 'tell application "iTerm" to activate' -e 'tell application "System
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec py3-celery /run/start-celery
 "' 
 echo "######### DEPLOYED #########"
-sleep 10
+sleep 20
 osascript -e 'tell application "Google Chrome" to open location "http://localhost"'
 
 # wait for the key q and terminate and close all the tabs if q is entered 
