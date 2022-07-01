@@ -775,8 +775,11 @@ class RodanTask(Task):
 
             if isinstance(retval, self.WAITING_FOR_INPUT):
                 logger.info(("the settings_update field is: {0}").format(retval.settings_update))
-                if type(retval.settings_update["@settings"]) == bytes:
-                    retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
+                try:
+                    if type(retval.settings_update["@settings"]) == bytes:
+                        retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
+                except KeyError:
+                    pass
                 settings.update(retval.settings_update)
                 logger.info(("After being updated the settings_update field is: {0}").format(retval.settings_update))
 
