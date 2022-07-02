@@ -5,7 +5,7 @@ import numpy as np
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.backend import image_data_format
-
+import tensorflow.keras as keras
 
 def process_image(image, model_path, vspan, hspan):
     """
@@ -87,6 +87,8 @@ def process_image_msae(image, model_paths, w_height, w_width, mode='masks'):
 
                 output_image[row:row+w_height,col:col+w_width] = np.argmax( predictions, axis = 0 )
 
+    print ("Finish testing, clear session.")
+    keras.backend.clear_session()
     if mode == 'masks':
         return output_images
     elif mode == 'logical':
