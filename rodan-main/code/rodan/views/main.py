@@ -98,6 +98,7 @@ class APIRoot(APIView):
                 "job_packages": package_versions,
             },
             "version": rodan.__version__,
+            "build_hash": rodan.__build_hash__,
         }
         return Response(response)
 

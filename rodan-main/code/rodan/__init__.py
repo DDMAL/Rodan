@@ -17,5 +17,7 @@ from .celery import app as celery_app
 # Get version: import rodan; rodan.__version__
 # Version numbers also appear in the API.
 __title__ = "Rodan"
-__version__ = "1.5.1"
-__copyright__ = "Copyright 2011-2021 Distributed Digital Music Archives & Libraries Lab"
+__version__ = "2.0.0"
+__copyright__ = "Copyright 2011-2022 Distributed Digital Music Archives & Libraries Lab"
+# If changing this line, also change rodan-main/Dockerfile
+__build_hash__ = "local"

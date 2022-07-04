@@ -143,22 +143,25 @@ RODAN_PYTHON2_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.heuristic_pitch_finding",
     "rodan.jobs.interactive_classifier",
-    "rodan.jobs.MEI_encoding",
     "rodan.jobs.neon_wrapper",
     "rodan.jobs.pixel_wrapper",
     "rodan.jobs.biollante_rodan",
-    "rodan.jobs.MEI_resizing",
     "rodan.jobs.test_rodan"
 ]
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.hpc_fast_trainer",
+    "rodan.jobs.MEI_encoding",
     "rodan.jobs.pil_rodan",
+    "rodan.jobs.MEI_resizing",
     "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [
     "rodan.jobs.Calvo_classifier",
     "rodan.jobs.text_alignment",
+    "rodan.jobs.Paco_classifier",
+    "rodan.jobs.background_removal",
+    "rodan.jobs.SAE_binarization"
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
