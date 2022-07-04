@@ -244,7 +244,7 @@ pull:
 
 $(JOBS_PATH)/neon_wrapper/Neon/package.json:
 	@cd $(JOBS_PATH); \
-		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git
+		git clone --recurse-submodules -b neon_v5 https://github.com/DDMAL/neon_wrapper.git
 
 $(JOBS_PATH)/neon_wrapper/static/editor.html: $(JOBS_PATH)/neon_wrapper/Neon/package.json
 	@cd $(JOBS_PATH)/neon_wrapper; \
