@@ -12,6 +12,7 @@ pip install -r /code/Rodan/requirements.txt
 git clone https://github.com/deepio/pybagit.git
 cd pybagit 
 python3.7 setup.py install
+cd ..
 rm -rf pybagit
 
 
