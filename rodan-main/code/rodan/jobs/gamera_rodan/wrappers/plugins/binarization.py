@@ -23,10 +23,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-# temporarily moved to run my task while rodan is in python 2 
-# import gamera
-# from gamera.core import load_image
-# from gamera.plugins import binarization
+try:
+	import gamera
+	from gamera.core import load_image
+	from gamera.plugins import binarization
+except ImportError:
+	pass
+
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -36,7 +39,21 @@ class gamera_gatos_background(RodanTask):
 
 	name = 'Gatos Background'
 	author = 'Ryan Bannon'
-	description = binarization.gatos_background.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+	description = """
+    Estimates the background of an image according to Gatos et al.'s
+    method. See:
+
+    Gatos, Basilios, Ioannis Pratikakis, and Stavros
+    J. Perantonis. 2004. An adaptive binarization technique for low
+    quality historical documents. *Lecture Notes in Computer
+    Science* 3163: 102--113.
+
+    *region_size* 
+      Region size for interpolation.
+
+    *binarization*
+      A preliminary binarization of the image.
+    """
 	settings ={
 		'title': 'Gatos background settings',
 		'type': 'object',
@@ -74,9 +91,6 @@ class gamera_gatos_background(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-		import gamera
-		from gamera.core import load_image
-		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
 		image_prelim = load_image(inputs['Onebit PNG - preliminary binarization of the image'][0]['resource_path'])
@@ -89,7 +103,23 @@ class gamera_gatos_threshold(RodanTask):
 
 	name = 'Gatos Threshold'
 	author = 'Ryan Bannon'
-	description = gamera.plugins.binarization.gatos_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+	description = """
+    Thresholds an image according to Gatos et al.'s method. See:
+
+    Gatos, Basilios, Ioannis Pratikakis, and Stavros
+    J. Perantonis. 2004. An adaptive binarization technique for low
+    quality historical documents. *Lecture Notes in Computer
+    Science* 3163: 102-113.
+
+    *background*
+      Estimated background of the image.
+
+    *binarization*
+      A preliminary binarization of the image.
+
+    Use the default settings for the other parameters unless you know
+    what you are doing.
+    """
 	settings = {
 		'title': 'Gatos threshold settings',
 		'type': 'object',
@@ -143,10 +173,6 @@ class gamera_gatos_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-		import gamera
-		from gamera.core import load_image
-		from gamera.plugins import binarization
-
 
 		image_source = load_image(inputs['Greyscale PNG - source image to binarize'][0]['resource_path'])
 		image_background = load_image(inputs['Greyscale PNG - estimated background of the image'][0]['resource_path'])
@@ -160,7 +186,16 @@ class gamera_brink_threshold(RodanTask):
 
 	name = 'Brink Threshold'
 	author = 'Ryan Bannon'
-	description = gamera.plugins.binarization.brink_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+	description = """
+    Calculates threshold for image with Brink and Pendock's minimum-cross    
+    entropy method and returns corrected image. It is best used for binarising
+    images with dark, near-black foreground and significant bleed-through.
+    To that end, it generally predicts lower thresholds than other
+    thresholding algorithms.
+
+    Reference: A.D. Brink, N.E. Pendock: Minimum cross-entropy threshold selection.
+    Pattern Recognition 29 (1), 1996. 179-188.
+    """
 	settings = {'job_queue': 'Python3'}
 
 	enabled = True
@@ -181,10 +216,6 @@ class gamera_brink_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-		import gamera
-		from gamera.core import load_image
-		from gamera.plugins import binarization
-
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.brink_threshold() 
@@ -196,7 +227,30 @@ class gamera_sauvola_threshold(RodanTask):
 
 	name = 'Sauvola Threshold'
 	author = 'Ryan Bannon'
-	description = gamera.plugins.binarization.sauvola_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+	description = """
+    Creates a binary image using Sauvola's adaptive algorithm.
+
+    Sauvola, J. and M. Pietikainen. 2000. Adaptive document image
+    binarization.  *Pattern Recognition* 33: 225--236.
+
+    Like the QGAR library, there are two extra global thresholds for
+    the lightest and darkest regions.
+
+    *region_size*
+      The size of the region in which to calculate a threshold.
+
+    *sensitivity*
+      The sensitivity weight on the adjusted variance.
+
+    *dynamic_range*
+      The dynamic range of the variance.
+
+    *lower bound*
+      A global threshold beneath which all pixels are considered black.
+
+    *upper bound*
+      A global threshold above which all pixels are considered white.
+    """
 	settings = {
 		'title': 'Sauvola threshold settings',
 		'type': 'object',
@@ -254,9 +308,6 @@ class gamera_sauvola_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-		import gamera
-		from gamera.core import load_image
-		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.sauvola_threshold(settings['Region size'], settings['Sensitivity'], settings['Dynamic range'], settings['Lower bound'], settings['Upper bound']) 
@@ -268,7 +319,27 @@ class gamera_niblack_threshold(RodanTask):
 
 	name = 'Niblack Threshold'
 	author = 'Ryan Bannon'
-	description = gamera.plugins.binarization.niblack_threshold.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+	description = """
+    Creates a binary image using Niblack's adaptive algorithm.
+
+    Niblack, W. 1986. *An Introduction to Digital Image Processing.* Englewood
+    Cliffs, NJ: Prentice Hall.
+
+    Like the QGAR library, there are two extra global thresholds for
+    the lightest and darkest regions.
+
+    *region_size*
+      The size of the region in which to calculate a threshold.
+
+    *sensitivity*
+      The sensitivity weight on the variance.
+
+    *lower bound*
+      A global threshold beneath which all pixels are considered black.
+
+    *upper bound*
+      A global threshold above which all pixels are considered white.
+    """
 	settings = {
 		'title': 'Niblack threshold settings',
 		'type': 'object',
@@ -319,9 +390,6 @@ class gamera_niblack_threshold(RodanTask):
 	}]
 
 	def run_my_task(self, inputs, settings, outputs):
-		import gamera
-		from gamera.core import load_image
-		from gamera.plugins import binarization
 
 		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
 		image_result = image_source.niblack_threshold(settings['Region size'], settings['Sensitivity'], settings['Lower bound'], settings['Upper bound']) 

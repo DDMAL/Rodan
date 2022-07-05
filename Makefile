@@ -254,7 +254,7 @@ $(JOBS_PATH)/neon_wrapper/static/editor.html: $(JOBS_PATH)/neon_wrapper/Neon/pac
 $(JOBS_PATH)/pixel_wrapper/package.json:
 	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
 
-remote_jobs: $(JOBS_PATH)/neon_wrapper/static/editor.html $(JOBS_PATH)/pixel_wrapper/package.json
+remote_jobs: $(JOBS_PATH)/pixel_wrapper/package.json $(JOBS_PATH)/neon_wrapper/static/editor.html 
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py2 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py

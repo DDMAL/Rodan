@@ -23,14 +23,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
+from ast import Import
 import os
 from shutil import copyfile
-# Temporarily moved to run my task while gamera is in python 2 
-# import gamera.core
-# import gamera.gamera_xml
-# import gamera.classify
-# import gamera.knn
-# from gamera.gamera_xml import glyphs_from_xml
+import logging
+logger = logging.getLogger("rodan")
+try:
+    import gamera.core
+    import gamera.gamera_xml
+    import gamera.classify
+    import gamera.knn
+    from gamera.gamera_xml import glyphs_from_xml
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
 
 
@@ -78,12 +84,6 @@ class ClassificationTask(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-        import gamera.core
-        import gamera.gamera_xml
-        import gamera.classify
-        import gamera.knn
-        from gamera.gamera_xml import glyphs_from_xml
-        
         classifier_path = inputs['GameraXML - Training Data'][0]['resource_path']
         with self.tempdir() as tdir:
             tempPath = os.path.join(tdir, classifier_path + '.xml')
@@ -94,9 +94,12 @@ class ClassificationTask(RodanTask):
         func = gamera.classify.BoundingBoxGroupingFunction(
             settings['Bounding box size'])
         # Load the connected components
+        logger.info("going to load the connected components")
         ccs = glyphs_from_xml(
             inputs['GameraXML - Connected Components'][0]['resource_path'])
         # Do grouping
+        logger.info(("grouping funciton has type: {0}").format(type(func)))
+        logger.info(("the ccs variable is: {0} and has type {1}").format(ccs, type(ccs)))
         cs_image = cknn.group_and_update_list_automatic(ccs,
                                                         grouping_function=func,
                                                         max_parts_per_group=4,

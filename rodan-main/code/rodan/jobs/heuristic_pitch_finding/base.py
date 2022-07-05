@@ -1,16 +1,18 @@
 from rodan.jobs.base import RodanTask
-
-from gamera.core import load_image, init_gamera
-from gamera import gamera_xml
-
-from .StaffFinding import StaffFinder
-from .PitchFinding import PitchFinder
+try:
+    from gamera.core import load_image, init_gamera
+    from gamera import gamera_xml
+    from .StaffFinding import StaffFinder
+    from .PitchFinding import PitchFinder
+    init_gamera()
+except ImportError:
+    pass
 
 import sys
 import json
 import json.encoder
 
-init_gamera()
+
 
 
 class MiyaoStaffinding(RodanTask):
