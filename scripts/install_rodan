@@ -10,6 +10,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 # Install Django(Rodan) python packages.
 pip install -r /code/Rodan/requirements.txt
 git clone https://github.com/deepio/pybagit.git
+cd pybagit 
 python3.7 setup.py install
 rm -rf pybagit
 
