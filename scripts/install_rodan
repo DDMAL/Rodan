@@ -9,9 +9,15 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 # Install Django(Rodan) python packages.
 pip install -r /code/Rodan/requirements.txt
+git clone https://github.com/deepio/pybagit.git
+python3.7 setup.py install
+rm -rf pybagit
+
 
 # pybagit/bagit.py needs to be executable.
-chmod -R 755 /usr/local/lib/python2.7/dist-packages/pybagit || chmod -R 755 /src/pybagit/pybagit
+# After successfully installing the package you can uncomment the following line to make it work 
+# chmod -R 755 /usr/local/lib/python2.7/dist-packages/pybagit || chmod -R 755 /src/pybagit/pybagit
+
 
 # Register all the job types added by install_jobs.sh.
 cd /code/Rodan/rodan

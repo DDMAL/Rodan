@@ -27,8 +27,6 @@ pathlib2==2.3.6
 Pillow==6.2.2; python_version < "3.4"
 protobuf==3.17.3
 psycopg2==2.8.4
-pybagit==1.5.0; python_version < '3.0'
--e git+https://github.com/deepio/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.6'
 pyparsing==2.0.3
 pypng==0.0.18
 python-dateutil==2.5
