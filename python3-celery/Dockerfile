@@ -60,7 +60,7 @@ RUN set -x \
   && pip3 install setuptools==57.0.0 \
   && sed -i "s/pip /pip3 /g" /run/install_rodan \
   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
-  && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
+  # && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && /run/install_rodan \
