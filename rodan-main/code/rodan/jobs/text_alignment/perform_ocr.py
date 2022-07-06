@@ -65,6 +65,8 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
     
     # Importing calamari needs to be here because otherwise it will try to create a unique thread for
     # every text strip (since we're processing them in sequence and not in parallel).
+    import tensorflow as tf
+    tf.config.set_visible_devices([], 'GPU')
     from calamari_ocr.ocr.predict.predictor import MultiPredictor, PredictorParams
 
     dir = os.path.dirname(__file__)
@@ -72,6 +74,7 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
 
     params = PredictorParams()
     params.pipeline.num_processes = 1
+    params.device.gpus = []
 
     # predictor = Predictor(checkpoint=ocr_model_path, processes=1)
     predictor = MultiPredictor.from_paths(
@@ -187,4 +190,4 @@ if __name__ == '__main__':
     all_chars = recognize_text_strips(img_bin, line_strips, ocr_model_name, True)
     all_chars = handle_abbreviations(all_chars, max_iters=10e4)
 
-    print(all_chars)
+    # print(all_chars)
