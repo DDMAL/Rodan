@@ -59,6 +59,15 @@ def register_py2():
         import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register MEI Encoding
+    try:
+        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
+
+        app.register_task(MEI_encoding())
+    except Exception as exception:
+        import_name = "MEI Encoding"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
     # Register Pixel.js
     try:
         from rodan.jobs.pixel_wrapper.wrapper import PixelInteractive
@@ -66,6 +75,15 @@ def register_py2():
         app.register_task(PixelInteractive())
     except Exception as exception:
         import_name = "Pixel"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register MEI resizing
+    try:
+        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
+
+        app.register_task(MEI_Resize())
+    except Exception as exception:
+        import_name = "MEI Resizing"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Gamera
@@ -404,24 +422,6 @@ def register_py3():
         import_name = "Hello World Python3"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register MEI Encoding
-    try:
-        from rodan.jobs.MEI_encoding.MEI_encoding import MEI_encoding
-
-        app.register_task(MEI_encoding())
-    except Exception as exception:
-        import_name = "MEI Encoding"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register MEI resizing
-    try:
-        from rodan.jobs.MEI_resizing.mei_resize import MEI_Resize
-
-        app.register_task(MEI_Resize())
-    except Exception as exception:
-        import_name = "MEI Resizing"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-        
     # Register HPC Fast Trainer
     try:
         from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
@@ -475,7 +475,6 @@ def register_py3():
 # GPU Jobs
 def register_gpu():
 
-
     # Register Calvo
     try:
         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
@@ -519,41 +518,6 @@ def register_gpu():
     except Exception as exception:
         import_name = "Text Alignment"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register Paco's Trainer
-    try:
-        from rodan.jobs.Paco_classifier.fast_paco_trainer import FastPacoTrainer
-
-        app.register_task(FastPacoTrainer())
-    except Exception as exception:
-        import_name = "Paco Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register Paco's Classifier
-    try:
-        from rodan.jobs.Paco_classifier.fast_paco_classifier import FastPacoClassifier
-
-        app.register_task(FastPacoClassifier())
-    except Exception as exception:
-        import_name = "Paco Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register background_removal
-    try:
-        from rodan.jobs.background_removal.BgRemovalRodan import BgRemoval
-        app.register_task(BgRemoval())
-    except Exception as exception:
-        import_name = "Background Removal"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    # Register SAE binarization
-    try:
-        from rodan.jobs.SAE_binarization.SAE_binarization import SAE_binarization
-        app.register_task(SAE_binarization())
-    except Exception as exception:
-        import_name = "SAE binarization"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
 
 
 if __name__ == "__main__":

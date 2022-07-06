@@ -116,6 +116,13 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   redis:
     image: "redis:alpine"
