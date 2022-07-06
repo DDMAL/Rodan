@@ -105,7 +105,7 @@ RUN set -x \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
-  && sed -i "s/-e git+https:\/\/github.com\/deepio\/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.6'//" /code/Rodan/requirements.txt \
+  && sed -i "s/-e git+https://github.com/deepio/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.0'//" /code/Rodan/requirements.txt \
   && /run/install_rodan \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
   && chmod +x /run/wait-for-app \
