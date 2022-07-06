@@ -53,4 +53,4 @@ You may also force Docker Cloud to rebuild new images when new commits are pushe
 
 ## Additional Information
 
-For more information about volumes in Docker, see [Use volumes](https://docs.docker.com/engine/admin/volumes/volumes/) in the Docker documentation. See also the docs for the [`volumes` section](https://docs.docker.com/compose/compose-file/#volumes) of the `docker compose.yml` file.
+For more information about volumes in Docker, see [Use volumes](https://docs.docker.com/engine/admin/volumes/volumes/) in the Docker documentation. See also the docs for the [`volumes` section](https://docs.docker.com/compose/compose-file/#volumes) of the `docker-compose.yml` file.
