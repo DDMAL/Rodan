@@ -4,7 +4,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 ## View remove older backups.
 ##
 ## Usage:
-##     $ docker-compose exec postgres clean
+##     $ docker compose exec postgres clean
 
 working_dir="$(dirname ${0})"
 source "${working_dir}/_functions/constants.sh"

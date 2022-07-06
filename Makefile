@@ -18,16 +18,16 @@ PROD_TAG := v2.0.1
 build:
 	@echo "[-] Rebuilding Docker Images for Rodan..."
 	# Build py2-celery, because it's needed for Rodan and Celery images
-	# @docker-compose -f build.yml build --no-cache py2-celery # Sometimes it's better to use the
+	# @docker compose -f build.yml build --no-cache py2-celery # Sometimes it's better to use the
 	# 	no-cache option if something unexplicably broke with the py2-celery image (a cached build step perhaps)
-	@docker-compose -f build.yml build --no-cache py2-celery
+	@docker compose -f build.yml build --no-cache py2-celery
 	# Build rodan and rodan-client because they are needed for nginx
-	@docker-compose -f build.yml build --no-cache --parallel rodan rodan-client
+	@docker compose -f build.yml build --no-cache --parallel rodan rodan-client
 	# DockerHub is not intuitive. You won't be able to build from the source root folder in both build contextes.
 	# When you build locally, the COPY command is relative to the dockerfile. When you build on DockerHub, its relative to the source root.
 	# For this reason we replace the name to build locally because we build more often on DockerHub than on local.
 	@$(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
-	@docker-compose -f build.yml build --no-cache --parallel nginx py3-celery gpu-celery postgres hpc-rabbitmq
+	@docker compose -f build.yml build --no-cache --parallel nginx py3-celery gpu-celery postgres hpc-rabbitmq
 	# Revert back the change to the COPY command so it will work on Docker Hub.
 	@$(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
 	@echo "[+] Done."
@@ -43,13 +43,13 @@ restore_db:
 run: remote_jobs
 	# Run local version for dev
 	# Hello, 2022 hires!
-	@docker-compose up
+	@docker compose up
 
 test_prod: pull_prod 
 	# Test production Rodan images with specified tag
 	# May want to change test-prod-compose.yml if you want a 
 	# different tag.
-	docker-compose -f test-prod-compose.yml up
+	docker compose -f test-prod-compose.yml up
 
 build_arm:
 	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
@@ -57,7 +57,7 @@ build_arm:
 run_arm:
 	# Run build_arm first if you don't have the NGINX container.
 	# Launch ARM instance 
-	@docker-compose -f arm-compose.yml up
+	@docker compose -f arm-compose.yml up
 
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
@@ -112,7 +112,7 @@ update:
 	# tag1=v1.5.0rc0 tag2=v1.3.1 make update
 	# This will update the nightly images forcefully
 	@echo "[-] Updating Docker Swarm images..."
-	# @docker-compose pull
+	# @docker compose pull
 
 	# DB First
 	@docker service update \
@@ -200,7 +200,7 @@ renew_certbot:
 	@docker exec `docker ps -f name=rodan_nginx -q` nginx -s reload
 
 stop:
-	# This is the same command to stop docker swarm or docker-compose
+	# This is the same command to stop docker swarm or docker compose
 	@echo "[-] Stopping all running docker containers and services..."
 	@docker service rm `docker service ls -q` >>/dev/null 2>&1 || echo "[+] No Services Running"
 	@docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
@@ -234,12 +234,12 @@ debug_swarm:
 
 push:
 	@echo "[-] Pushing images to Docker Hub..."
-	@docker-compose push
+	@docker compose push
 	@echo "[+] Done."
 
 pull:
 	@echo "[-] Pulling docker images from Docker Hub..."
-	@docker-compose pull
+	@docker compose pull
 	@echo "[+] Done."
 
 $(JOBS_PATH)/neon_wrapper/Neon/package.json:

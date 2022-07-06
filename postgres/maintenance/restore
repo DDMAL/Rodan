@@ -9,8 +9,8 @@ set -o xtrace # Print commands and their arguments as they are executed.
 ##     <1> filename of an existing backup. (Optional)
 ##
 ## Usage:
-##     $ docker-compose exec postgres restore
-##     $ docker-compose exec postgres restore <1>
+##     $ docker compose exec postgres restore
+##     $ docker compose exec postgres restore <1>
 
 
 working_dir="$(dirname ${0})"

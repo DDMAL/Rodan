@@ -6,7 +6,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 ## View backups.
 ##
 ## Usage:
-##     $ docker-compose exec postgres backups
+##     $ docker compose exec postgres backups
 
 
 working_dir="$(dirname ${0})"

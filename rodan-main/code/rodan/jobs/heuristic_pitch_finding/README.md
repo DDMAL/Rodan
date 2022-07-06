@@ -7,7 +7,7 @@ Heuristic Pitch Finding is deployed as a Rodan [Job Package](https://github.com/
 
 ## Installing into rodan-docker
 1. Clone this directory into `/path/to/rodan_docker/jobs/heuristic-pitch-finding`
-2. In `/path/to/rodan_docker/docker-compose.job-dev.yml`, add the reference to volumes like so:
+2. In `/path/to/rodan_docker/docker compose.job-dev.yml`, add the reference to volumes like so:
 ``` python
     volumes:
      - ./jobs/settings.py:/code/rodan/rodan/settings.py
@@ -27,7 +27,7 @@ RODAN_JOB_PACKAGES = (
 
 ## Running Rodan
 - Follow the [rodan-docker guide](https://github.com/DDMAL/rodan-docker/blob/master/README.md) to have docker set up.
-- Once the above installation steps are complete, run ```docker-compose -f docker-compose.yml -f docker-compose.rodan-dev.yml up``` 
+- Once the above installation steps are complete, run ```docker compose -f docker compose.yml -f docker compose.rodan-dev.yml up``` 
 
 ## Job Usage
 - To properly setup the pitch finding workflow, connect the *JSOMR* output from a `Miyao Staff Finding` job to the *JSOMR* input of a `Heuristic Pitch Finding` job. 

@@ -33,11 +33,11 @@ The following commands may seem familiar to you if you have worked with Posix sy
 - To copy files between the container and the host, it is the same way you would use scp between different computers, execute: `docker cp`,
 - Other commands like `docker top` are also available to monitor resources outside of the containers.
 
-A similar concept to using `exec` is using SSH to connect to another computer. We use `exec` to connect to a specific container. It is much simpler to use `docker-compose exec`, instead of the `docker exec`. Docker-compose will search the configuration inside `docker-compose.yml` to know which service is being referenced. The format of the command works this way:
+A similar concept to using `exec` is using SSH to connect to another computer. We use `exec` to connect to a specific container. It is much simpler to use `docker compose exec`, instead of the `docker exec`. Docker compose will search the configuration inside `docker compose.yml` to know which service is being referenced. The format of the command works this way:
 
-- `docker-compose exec <service_name> <command>`
+- `docker compose exec <service_name> <command>`
 - The command could be anything eg: `/opt/some_directory/my_shell_script.sh`
-- A command you will use frequently is: `docker-compose exec rodan bash` or `docker-compose exec celery bash` for investigating problems. **You should not be using this command to edit files, use `docker volumes` and your IDE outside of the container.**
+- A command you will use frequently is: `docker compose exec rodan bash` or `docker compose exec celery bash` for investigating problems. **You should not be using this command to edit files, use `docker volumes` and your IDE outside of the container.**
 
 Consult the documentation of the [Docker command line](https://docs.docker.com/engine/reference/commandline/cli/) for additional information.
 
@@ -53,4 +53,4 @@ You may also force Docker Cloud to rebuild new images when new commits are pushe
 
 ## Additional Information
 
-For more information about volumes in Docker, see [Use volumes](https://docs.docker.com/engine/admin/volumes/volumes/) in the Docker documentation. See also the docs for the [`volumes` section](https://docs.docker.com/compose/compose-file/#volumes) of the `docker-compose.yml` file.
+For more information about volumes in Docker, see [Use volumes](https://docs.docker.com/engine/admin/volumes/volumes/) in the Docker documentation. See also the docs for the [`volumes` section](https://docs.docker.com/compose/compose-file/#volumes) of the `docker compose.yml` file.
