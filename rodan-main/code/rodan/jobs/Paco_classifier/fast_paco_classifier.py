@@ -20,7 +20,6 @@ import numpy as np
 from rodan.celery import app
 from rodan.jobs.base import RodanTask
 from rodan.models import Input
-from . import recognition_engine as recognition
 
 """Wrap Paco classifier in Rodan."""
 
@@ -96,6 +95,8 @@ class FastPacoClassifier(RodanTask):
     Entry point
     """
     def run_my_task(self, inputs, settings, outputs):
+        from Paco_classifier import recognition_engine as recognition
+
         oldouts = sys.stdout, sys.stderr
         if 'Log File' in outputs and len(outputs['Log File']) > 0:
             handler = logging.FileHandler(outputs['Log File'][0]['resource_path'])
