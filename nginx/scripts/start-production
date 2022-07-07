@@ -6,7 +6,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 /run/setup
 sed -i "s/localhost/${SERVER_HOST}/g" /var/www/default/dist/configuration.json
 sed -i 's/"SERVER_HTTPS": false,/"SERVER_HTTPS": true,/g' /var/www/default/dist/configuration.json
-sed -i 's/"SERVER_PORT": "80/"SERVER_PORT": "443/g' /var/www/default/dist/configuration.json
+sed -i 's/"SERVER_PORT": "80/"SERVER_PORT": "/g' /var/www/default/dist/configuration.json
 
 if [ $TLS -eq 1 ]; then
     sed -i "s/SERVER_HOST/${SERVER_HOST}/g" /etc/nginx/conf.d/ssl.conf
