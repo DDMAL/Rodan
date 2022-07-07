@@ -7,7 +7,7 @@ import math
 import numpy as np
 import json
 from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan 
-#import parse_classifier_table as pct ---> for testing locally 
+#import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
 
 try:
@@ -573,9 +573,9 @@ def build_mei(pairs, classifier, width_container, staves, page):
                                 layer.append(cur_syllable)
                                 syl_dict["added"] = True
 
-                    #in all cases a system break must be added to the layer 
-                    layer.append(sb)
-                    syl_dict["latest"] = sb
+                #in all cases a system break must be added to the layer 
+                layer.append(sb)
+                syl_dict["latest"] = sb
 
 
     return meiDoc
@@ -704,8 +704,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/070rPF.json'
-        in_syls = './tests/resources/070r.json'
+        inJSOMR = './tests/resources/112rPF.json'
+        in_syls = './tests/resources/112r.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -737,4 +737,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("070r.xml", encoding="utf-8")
+    tree.write("112r-new.mei", encoding="utf-8")
