@@ -13,7 +13,7 @@ chown www-data /code/Rodan/database.log /code/Rodan/rodan.log
 # not present. The credentials for this user are defined in the environment
 # variables file in the Rodan-Docker project. This version of django requires the white
 # spaces you see here. https://github.com/DDMAL/rodan-docker/issues/2
-cat << EOF | runuser -u www-data -- python manage.py shell
+cat << EOF | runuser -u www-data -- python3.7 manage.py shell
 
 import os
 from django.contrib.auth.models import User
