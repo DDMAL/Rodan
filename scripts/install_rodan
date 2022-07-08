@@ -8,13 +8,13 @@ set -o xtrace # Print commands and their arguments as they are executed.
 # chown -R www-data:www-data /rodan/data/
 
 # Install Django(Rodan) python packages.
-pip install -r /code/Rodan/requirements.txt
-rm -rf pybagit
-git clone https://github.com/deepio/pybagit.git
-cd pybagit 
-python3.7 setup.py install
-cd ..
-rm -rf pybagit
+# pip install -r /code/Rodan/requirements.txt
+# rm -rf pybagit
+# git clone https://github.com/deepio/pybagit.git
+# cd pybagit 
+# python3.7 setup.py install
+# cd ..
+# rm -rf pybagit
 
 
 # pybagit/bagit.py needs to be executable.
