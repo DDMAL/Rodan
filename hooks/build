@@ -104,20 +104,20 @@ docker push ddmal/rodan-client:test
 # Stage 1
 #   Build and push Python2-Celery image
 
-echo "[+] Building Python2-Celery"
+# echo "[+] Building Python2-Celery"
 
-# Too many times did docker cache mess up a build. No more cache.
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-python2-celery:test \
-  --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
-  --file ./python2-celery/Dockerfile \
-  .
+# # Too many times did docker cache mess up a build. No more cache.
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${RODAN_TAG} \
+#   --tag ddmal/rodan-python2-celery:test \
+#   --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
+#   --file ./python2-celery/Dockerfile \
+#   .
 
-echo "[+] Pushing Python2-Celery"
-docker push ddmal/rodan-python2-celery:test
+# echo "[+] Pushing Python2-Celery"
+# docker push ddmal/rodan-python2-celery:test
 
 
 echo "[+] Building GPU-Celery"
