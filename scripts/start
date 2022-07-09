@@ -3,7 +3,7 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 # set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
-#chmod -R 777 /code/Rodan/
+chmod -R a+rwx /rodan
 cd /code/Rodan
 runuser -u www-data -- yes | MIGRATE="True" python3.7 manage.py migrate --noinput
 
@@ -27,7 +27,7 @@ EOF
 mkdir /code/Rodan/rodan/static || echo "Static directory already exists!"
 
 
-runuser -u www-data -- python manage.py collectstatic --noinput
+runuser -u www-data -- python3.7 manage.py collectstatic --noinput
 # Stop the token expiry, because the entire token authentication is very broken and this is a fix until
 # we can decouple djoser and reconstruct the token auth the right way.
 sed -i "s/15/999999/g" /code/Rodan/rodan/settings.py

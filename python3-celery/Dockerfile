@@ -49,10 +49,6 @@ COPY ./scripts/wait-for-app /run/
 COPY ./rodan-main/code /code/Rodan
 
 RUN set -x \
-  # Install Python3 Rodan Jobs
-  && chmod +x /run/install_python3_rodan_jobs \
-  && chown www-data /run/install_python3_rodan_jobs \
-  && /run/install_python3_rodan_jobs \ 
     # Install Rodan
   # Django-Guardian suddenly failed to build.
   # https://github.com/DDMAL/rodan-docker/issues/60
@@ -63,10 +59,10 @@ RUN set -x \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && /run/install_rodan \
-  # && git clone https://github.com/deepio/pybagit.git \ 
-  # && cd pybagit \ 
-  # && python3.7 setup.py install \ 
-  # && rm -rf pybagit \
+  # Install Python3 Rodan Jobs
+  && chmod +x /run/install_python3_rodan_jobs \
+  && chown www-data /run/install_python3_rodan_jobs \
+  && /run/install_python3_rodan_jobs \ 
   # Change the concurency for python3 jobs (Calvo)
   && sed -i "s/=10/=1/g" /run/start-celery \
   # Script to wait for postgres and redis to be running before attempting to connect to them.

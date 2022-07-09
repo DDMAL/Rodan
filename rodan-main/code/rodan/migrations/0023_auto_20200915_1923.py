@@ -45,13 +45,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='workflowjob',
             name='appearance',
-            field=jsonfield.fields.JSONField(default={b'x': 0.5, b'y': 0.5}),
+            field=jsonfield.fields.JSONField(default={'x': 0.5, 'y': 0.5}),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='workflowjobgroup',
             name='appearance',
-            field=jsonfield.fields.JSONField(default={b'x': 0.5, b'y': 0.5}),
+            field=jsonfield.fields.JSONField(default={'x': 0.5, 'y': 0.5}),
             preserve_default=True,
         ),
         migrations.DeleteModel(
