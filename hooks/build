@@ -16,7 +16,8 @@ RODAN_CLIENT_TAG='test'
 #`cd rodan-client/code && git describe --tags --always`
 RODAN_DOCKER_TAG='test'
 #`git describe --tags --always`
-BUILD_HASH=`git rev-parse --verify HEAD`
+BUILD_HASH='test'
+#`git rev-parse --verify HEAD`
 
 ###############################################################################
 # Stage 1
@@ -116,8 +117,8 @@ docker build \
   --file ./python2-celery/Dockerfile \
   .
 
-# echo "[+] Pushing Python2-Celery"
-# docker push ddmal/rodan-python2-celery:test
+echo "[+] Pushing Python2-Celery"
+docker push ddmal/rodan-python2-celery:test
 
 
 echo "[+] Building GPU-Celery"
