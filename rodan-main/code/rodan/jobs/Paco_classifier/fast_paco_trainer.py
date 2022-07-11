@@ -71,20 +71,28 @@ class FastPacoTrainer(RodanTask):
     }
 
     input_port_types = (
-        {'name': 'Image', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Selected regions', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         # We did not go this route because it would be more difficult for the user to track layers
         # {'name': 'rgba PNG - Layers', 'minimum': 1, 'maximum': 10, 'resource_types': ['image/rgba+png']},
-        {'name': 'rgba PNG - Layer 0 (Background)', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'rgba PNG - Layer 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 10', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 11', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 12', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 13', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 14', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 15', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 16', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 17', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 18', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 19', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Sample 20', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
     )
 
     output_port_types = (
@@ -131,15 +139,24 @@ class FastPacoTrainer(RodanTask):
                 rmtree('unzipping_folder')
             os.mkdir('unzipping_folder')
             new_input = {}
+            create_folder = True
+            folder_num = 1
             for ipt in inputs:
-                dir_path = 'unzipping_folder/{}'.format(ipt)
+                dir_path = 'unzipping_folder/{}'.format(folder_num)
+                folder_num += 1
                 with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
                     zip_ref.extractall(dir_path)
                 full_path = os.path.join(os.getcwd(), dir_path)
-                onlyfiles = [{'resource_path': os.path.join(full_path, f)} for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
-                new_input[ipt] = onlyfiles
+                for f in os.listdir(dir_path):
+                    if os.path.isfile(os.path.join(dir_path, f)):
+                        layer_name = f.split(".")[0]
+                        if create_folder:
+                            new_input[layer_name] = []
+                        new_input[layer_name].append({'resource_path': os.path.join(full_path, f)})
+                create_folder = False
 
             # SANITY CHECK
+            # logger.info(new_input)
             input_settings_test.pre_training_check(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
 
             rlevel = app.conf.CELERY_REDIRECT_STDOUTS_LEVEL

@@ -513,6 +513,22 @@ def register_gpu():
         import_name = "Paco Classifier"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    # Register background_removal
+    try:
+        from rodan.jobs.background_removal.BgRemovalRodan import BgRemoval
+        app.register_task(BgRemoval())
+    except Exception as exception:
+        import_name = "Background Removal"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register SAE binarization
+    try:
+        from rodan.jobs.SAE_binarization.SAE_binarization import SAE_binarization
+        app.register_task(SAE_binarization())
+    except Exception as exception:
+        import_name = "SAE binarization"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
 
 if __name__ == "__main__":
     register_all()

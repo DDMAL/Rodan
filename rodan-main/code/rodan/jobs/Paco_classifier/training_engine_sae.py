@@ -511,7 +511,7 @@ def train_msae(
             verbose=2,
             steps_per_epoch=steps_per_epoch,
             validation_data=generators_validation[label],
-            validation_steps=1,
+            validation_steps=100,
             callbacks=callbacks_list,
             epochs=epochs
         )
