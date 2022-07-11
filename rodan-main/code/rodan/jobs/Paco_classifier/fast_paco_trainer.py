@@ -67,7 +67,7 @@ class FastPacoTrainer(RodanTask):
     }
 
     input_port_types = (
-        {'name': 'Samples Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Multi-Sample Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Model 0', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
@@ -102,7 +102,7 @@ class FastPacoTrainer(RodanTask):
     output_port_types = (
         # We did not go this route because it would be more difficult for the user to track layers
         # {'name': 'Adjustable models', 'minimum': 1, 'maximum': 10, 'resource_types': ['keras/model+hdf5']},
-        {'name': 'Samples Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Multi-Sample Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Log File', 'minimum': 1, 'maximum': 1, 'resource_types': ['text/plain']},
         {'name': 'Model 0', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
@@ -152,9 +152,9 @@ class FastPacoTrainer(RodanTask):
             create_folder = True
             folder_num = 1
 
-            # Unzip Samples Zip to unzipping_folder
-            if 'Samples Zip' in inputs:
-                with zipfile.ZipFile(inputs['Samples Zip'][0]['resource_path'], 'r') as zip_ref:
+            # Unzip Multi-Sample Zip to unzipping_folder
+            if 'Multi-Sample Zip' in inputs:
+                with zipfile.ZipFile(inputs['Multi-Sample Zip'][0]['resource_path'], 'r') as zip_ref:
                     zip_ref.extractall('unzipping_folder')
                 
             # Count number of directories inside unzipping_folder
@@ -164,7 +164,7 @@ class FastPacoTrainer(RodanTask):
                 if 'Model' in ipt:
                     models[ipt] = inputs[ipt]
                 # Unzip other samples into unzipping_folder
-                elif ipt != 'Samples Zip':
+                elif ipt != 'Multi-Sample Zip':
                     dir_num += 1
                     with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
                         zip_ref.extractall('unzipping_folder/zip{}'.format(dir_num))
@@ -209,9 +209,9 @@ class FastPacoTrainer(RodanTask):
             )
             trainer.runTrainer()
 
-            # Create output port Samples Zip
-            if 'Samples Zip' in outputs:
-                with zipfile.ZipFile(outputs['Samples Zip'][0]['resource_path'], 'w') as zipObj:
+            # Create output port Multi-Sample Zip
+            if 'Multi-Sample Zip' in outputs:
+                with zipfile.ZipFile(outputs['Multi-Sample Zip'][0]['resource_path'], 'w') as zipObj:
                     # Iterate over all the files in directory
                     for folder in os.listdir('unzipping_folder'):
                         for f in os.listdir(os.path.join('unzipping_folder', folder)):
