@@ -67,7 +67,13 @@ class FastPacoTrainer(RodanTask):
     }
 
     input_port_types = (
-        {'name': 'Sample 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Samples Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        {'name': 'Model 0', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Sample 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Sample 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         # We did not go this route because it would be more difficult for the user to track layers
         # {'name': 'rgba PNG - Layers', 'minimum': 1, 'maximum': 10, 'resource_types': ['image/rgba+png']},
@@ -89,11 +95,14 @@ class FastPacoTrainer(RodanTask):
         {'name': 'Sample 18', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Sample 19', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Sample 20', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
+        # We did not go this route because it would be more difficult for the user to track layers
+        # {'name': 'rgba PNG - Layers', 'minimum': 1, 'maximum': 10, 'resource_types': ['image/rgba+png']},
     )
 
     output_port_types = (
         # We did not go this route because it would be more difficult for the user to track layers
         # {'name': 'Adjustable models', 'minimum': 1, 'maximum': 10, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Samples Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Log File', 'minimum': 1, 'maximum': 1, 'resource_types': ['text/plain']},
         {'name': 'Model 0', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
@@ -134,29 +143,50 @@ class FastPacoTrainer(RodanTask):
             sample_extraction_mode = training.SampleExtractionMode.RANDOM
             #------------------------------------------------------------
 
-            # Unzip zip files into dictionary of images
+            # Initialize
             if os.path.exists('unzipping_folder'):
                 rmtree('unzipping_folder')
             os.mkdir('unzipping_folder')
             new_input = {}
+            models = {}
             create_folder = True
             folder_num = 1
+
+            # Unzip Samples Zip to unzipping_folder
+            if 'Samples Zip' in inputs:
+                with zipfile.ZipFile(inputs['Samples Zip'][0]['resource_path'], 'r') as zip_ref:
+                    zip_ref.extractall('unzipping_folder')
+                
+            # Count number of directories inside unzipping_folder
+            dir_num = len(next(os.walk('unzipping_folder'))[1])
             for ipt in inputs:
-                dir_path = 'unzipping_folder/{}'.format(folder_num)
-                folder_num += 1
-                with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
-                    zip_ref.extractall(dir_path)
+                # Add models to model dictionary
+                if 'Model' in ipt:
+                    models[ipt] = inputs[ipt]
+                # Unzip other samples into unzipping_folder
+                elif ipt != 'Samples Zip':
+                    dir_num += 1
+                    with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
+                        zip_ref.extractall('unzipping_folder/zip{}'.format(dir_num))
+
+            # Add unzipped samples from above to dictionary of layers
+            for folder in os.listdir('unzipping_folder'):
+                dir_path = os.path.join('unzipping_folder', folder)
                 full_path = os.path.join(os.getcwd(), dir_path)
-                for f in os.listdir(dir_path):
-                    if os.path.isfile(os.path.join(dir_path, f)):
-                        layer_name = f.split(".")[0]
-                        if create_folder:
-                            new_input[layer_name] = []
-                        new_input[layer_name].append({'resource_path': os.path.join(full_path, f)})
-                create_folder = False
+                if os.path.isdir(dir_path):
+                    # Check if user inputs more models than layers
+                    num_layers = (len([name for name in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, name))]) - 2)
+                    if num_layers < len(models):
+                        raise Exception('Number of models ({}) exceeds number of layers ({})'.format(len(models), num_layers))
+                    for f in os.listdir(dir_path):
+                        if os.path.isfile(os.path.join(dir_path, f)):
+                            layer_name = f.split(".")[0]
+                            if create_folder:
+                                new_input[layer_name] = []
+                            new_input[layer_name].append({'resource_path': os.path.join(full_path, f)})
+                    create_folder = False
 
             # SANITY CHECK
-            # logger.info(new_input)
             input_settings_test.pre_training_check(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
 
             rlevel = app.conf.CELERY_REDIRECT_STDOUTS_LEVEL
@@ -171,11 +201,23 @@ class FastPacoTrainer(RodanTask):
                 number_samples_per_class,
                 file_selection_mode,
                 sample_extraction_mode,
-                # CHANGED HERE FOR UNZIP
+                # Changed input to new_input for unzip
                 new_input,
                 outputs,
+                # Add models input to Trainer
+                models
             )
             trainer.runTrainer()
+
+            # Create output port Samples Zip
+            if 'Samples Zip' in outputs:
+                with zipfile.ZipFile(outputs['Samples Zip'][0]['resource_path'], 'w') as zipObj:
+                    # Iterate over all the files in directory
+                    for folder in os.listdir('unzipping_folder'):
+                        for f in os.listdir(os.path.join('unzipping_folder', folder)):
+                            sub_path = os.path.join(folder, f)
+                            full_path = os.path.join('unzipping_folder', sub_path)
+                            zipObj.write(full_path, sub_path)
 
             # REMOVE UNZIP FOLDER
             if os.path.exists('unzipping_folder'):
