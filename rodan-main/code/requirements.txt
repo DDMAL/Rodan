@@ -46,6 +46,7 @@ Pillow==8.2.0; python_version > "3.4"
 # pixel_wrapper
 numpy==1.16.6; python_version < "3.4"
 opencv-python==4.2.0.32; python_version < "3.4"
+opencv-python==4.5.5.64 ; python_version >= "3.4"
 
 # text_alignment
 #numpy==1.17.3; python_version > "3.4"
