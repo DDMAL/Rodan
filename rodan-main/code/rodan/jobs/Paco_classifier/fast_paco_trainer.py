@@ -208,6 +208,14 @@ class FastPacoTrainer(RodanTask):
                 models
             )
             trainer.runTrainer()
+            if 'Mega Zip' in outputs:
+                with zipfile.ZipFile(outputs['Mega Zip'][0]['resource_path'], 'w') as zipObj:
+                    # Iterate over all the files in directory
+                    for folder in os.listdir('unzipping_folder'):
+                        for f in os.listdir(os.path.join('unzipping_folder', folder)):
+                            sub_path = os.path.join(folder, f)
+                            full_path = os.path.join('unzipping_folder', sub_path)
+                            zipObj.write(full_path, sub_path)
 
             # Create output port Samples Zip
             if 'Samples Zip' in outputs:
