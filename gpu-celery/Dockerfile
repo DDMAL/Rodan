@@ -39,9 +39,10 @@ ARG VERSION
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
-RUN apt update 
+#RUN apt-get update 
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN rm /etc/apt/sources.list.d/cuda.list \
+        apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cuda-command-line-tools-${CUDA/./-} \
         libcublas-${CUDA/./-} \
