@@ -1,3 +1,3 @@
 #!/bin/bash
 #### ONLY FOR DEVELOPMENT USE!!!
-python manage.py sqlflush | python manage.py dbshell
+python3.7 manage.py sqlflush | python3.7 manage.py dbshell
