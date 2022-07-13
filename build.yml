@@ -7,18 +7,11 @@ services:
       dockerfile: Dockerfile
     image: "ddmal/nginx:nightly"
 
-  # iipsrv:
-  #   build:
-  #     context: ./iipsrv
-  #     dockerfile: Dockerfile
-  #   image: "ddmal/iipsrv:nightly"
-
-  rodan:
+  iipsrv:
     build:
-      context: .
+      context: ./iipsrv
       dockerfile: Dockerfile
-      args:
-        BRANCHES: develop
+    image: "ddmal/iipsrv:nightly"
 
   rodan:
     build:
