@@ -52,6 +52,11 @@ class FastPacoTrainer(RodanTask):
                 'minimum': 1,
                 'default': 1000
             },            
+            'Patience': {
+                'type': 'integer',
+                'minimum': 0,
+                'default': 15
+            },
             'Patch height': {
                 'type': 'integer',
                 'minimum': 32,
@@ -136,6 +141,7 @@ class FastPacoTrainer(RodanTask):
             patch_width = settings['Patch width']
             max_number_of_epochs = settings['Maximum number of training epochs']
             number_samples_per_class = settings['Maximum number of samples per label']
+            patience = settings["Patience"]
 
             #------------------------------------------------------------
             #TODO Include the training options in the configuration data
@@ -205,7 +211,8 @@ class FastPacoTrainer(RodanTask):
                 new_input,
                 outputs,
                 # Add models input to Trainer
-                models
+                models,
+                patience=patience
             )
             trainer.runTrainer()
             if 'Mega Zip' in outputs:
