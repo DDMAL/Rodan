@@ -29,7 +29,7 @@ PROJECT_PATH = ROOT_DIR.path("rodan")
 ADMIN_URL = os.getenv("DJANGO_ADMIN_URL")
 # Environ.get returns a string, even if it is a bool. You must convert the
 # string from environ into a 0 or 1. This can finally be translated into a boolean.
-# Python 2.7
+# Python 3
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = bool(strtobool(os.environ.get("DJANGO_DEBUG_MODE", "False")))
 # TEMPLATE_DEBUG = DEBUG

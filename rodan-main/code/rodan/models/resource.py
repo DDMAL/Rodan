@@ -93,8 +93,8 @@ class Resource(models.Model):
             self.project.project_path, "resources", self.uuid.hex
         )  # backward compability (not using hyphenated UUID)
 
-    def __unicode__(self):
-        return u"<Resource {0}>".format(self.uuid)
+    def __str__(self):
+        return "<Resource {0}>".format(self.uuid)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
