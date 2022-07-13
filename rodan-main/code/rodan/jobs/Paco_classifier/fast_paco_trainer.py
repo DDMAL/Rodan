@@ -18,10 +18,6 @@ from shutil import rmtree
 # Project
 from rodan.celery import app
 from rodan.jobs.base import RodanTask
-from . import training_engine_sae as training
-from rodan.jobs.Paco_classifier.fast_trainer_lib import PacoTrainer
-from . import input_settings_test
-
 
 """Wrap Patchwise (Fast) Calvo classifier training in Rodan."""
 
@@ -113,6 +109,10 @@ class FastPacoTrainer(RodanTask):
 
 
     def run_my_task(self, inputs, settings, outputs):
+        from Paco_classifier import training_engine_sae as training
+        from Paco_classifier.fast_trainer_lib import PacoTrainer
+        from Paco_classifier import input_settings_test
+
         oldouts = sys.stdout, sys.stderr
         if 'Log File' in outputs:
             handler = logging.FileHandler(outputs['Log File'][0]['resource_path'])
