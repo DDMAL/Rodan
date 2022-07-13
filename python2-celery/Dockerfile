@@ -23,22 +23,6 @@ RUN set -e \
     g++ \
     apt-utils \
     unzip \
-    # Gamera Dependencies
-    autoconf \
-    graphicsmagick \
-    libtiff5-dev \
-    libpng-dev \
-    python-pygments \
-    python-wxgtk3.0 \
-    python-wxversion \
-    lib32ncurses5-dev \
-    # Libmei
-    libboost-python-dev \
-    libboost-thread-dev \
-    libjpeg-dev \
-    uuid-dev \
-    libpq-dev \
-    openjdk-11-jdk \
     # Silent the output
     >/dev/null \
   # Needed for Ocropy (Text-Alignment)
@@ -85,7 +69,6 @@ RUN set -e \
 COPY ./scripts/install_python2_rodan_jobs /run/
 COPY ./scripts/install_rodan /run/
 COPY ./scripts/wait-for-app /run/
-COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
 
 # Copying rodan core from build context into container
