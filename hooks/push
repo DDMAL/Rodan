@@ -9,15 +9,15 @@ RODAN_CLIENT_TAG='test'
 RODAN_DOCKER_TAG='test'
 #`git describe --tags --always`
 
-echo "[+] Pushing Python3-Celery"
+# echo "[+] Pushing Python3-Celery"
 
-if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
-fi
+# if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+#   docker push ddmal/rodan-python3-celery:${RODAN_TAG}
+# fi
 
-docker push ddmal/rodan-python3-celery:test
+# docker push ddmal/rodan-python3-celery:test
 
-echo "[+] Pushing GPU-Celery"
+# echo "[+] Pushing GPU-Celery"
 
 if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
