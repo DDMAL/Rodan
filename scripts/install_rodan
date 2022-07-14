@@ -8,7 +8,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 # chown -R www-data:www-data /rodan/data/
 
 # Install Django(Rodan) python packages.
-pip install -r /code/Rodan/requirements.txt
+pip3 install -r /code/Rodan/requirements.txt
 
 # pybagit/bagit.py needs to be executable.
 # After successfully installing the package you can uncomment the following line to make it work 
