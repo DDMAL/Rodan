@@ -14,7 +14,7 @@ RUN apt-get update \
 RUN rm /usr/share/postgresql/${PG_MAJOR}/postgresql.conf.sample \
   && ln -sv /usr/share/postgresql/postgresql.conf.sample /usr/share/postgresql/$PG_MAJOR/
 
-RUN pip install redis
+RUN pip3 install redis
 
 COPY ./postgres/maintenance /usr/local/bin/maintenance
 RUN chmod +x /usr/local/bin/maintenance/*
