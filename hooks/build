@@ -50,18 +50,18 @@ BUILD_HASH='test'
 # Stage 2
 #   Build and push Rodan and Rodan-Client
 
-echo "[+] Building Rodan & Celery Core"
+# echo "[+] Building Rodan & Celery Core"
 
-# Don't remove --no-cache
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${RODAN_TAG} \
-  --build-arg build_hash=${BUILD_HASH} \
-  --tag ddmal/rodan-main:test \
-  --tag ddmal/rodan-main:${RODAN_TAG} \
-  --file ./rodan-main/Dockerfile \
-  .
+# # Don't remove --no-cache
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${RODAN_TAG} \
+#   --build-arg build_hash=${BUILD_HASH} \
+#   --tag ddmal/rodan-main:test \
+#   --tag ddmal/rodan-main:${RODAN_TAG} \
+#   --file ./rodan-main/Dockerfile \
+#   .
 
 # echo "[+] Building iipsrv"
 
@@ -82,12 +82,12 @@ docker build \
 
 # echo "[+] Pushing Rodan & Celery Core"
 
-if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  echo "[+] New tagged image for Rodan/Celery: ${RODAN_TAG}"
-  docker push ddmal/rodan-main:${RODAN_TAG}
-fi
+# if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+#   echo "[+] New tagged image for Rodan/Celery: ${RODAN_TAG}"
+#   docker push ddmal/rodan-main:${RODAN_TAG}
+# fi
 
-docker push ddmal/rodan-main:test
+# docker push ddmal/rodan-main:test
 
 # echo "[+] Pushing Rodan-Client"
 
@@ -132,15 +132,15 @@ docker push ddmal/rodan-main:test
 #   --file ./gpu-celery/Dockerfile \
 #   .
 
-# echo "[+] Building Postgres"
+echo "[+] Building Postgres"
 
-# docker build \
-#   --no-cache \
-#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
-#   --tag ddmal/postgres-plpython:test \
-#   --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
-#   --file ./postgres/Dockerfile \
-#   .
+docker build \
+  --no-cache \
+  --build-arg VERSION=${RODAN_DOCKER_TAG} \
+  --tag ddmal/postgres-plpython:test \
+  --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
+  --file ./postgres/Dockerfile \
+  .
 
 # echo "[+] Building Nginx"
 
