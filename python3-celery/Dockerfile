@@ -10,6 +10,9 @@ RUN set -e \
     git \
     python3 \
     python3-pip \
+    python3-dev \
+    cmake\
+    g++ \
     apt-utils \
     curl \
     #gamera-4 dependencies 
