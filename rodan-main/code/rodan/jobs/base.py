@@ -531,8 +531,8 @@ class RodanTaskType(TaskType):
         return ResourceType.objects.filter(mimetype__in=mimelist)
 
 
-class RodanTask(Task):
-    __metaclass__ = RodanTaskType
+class RodanTask(Task,metaclass=RodanTaskType):
+    # __metaclass__ = RodanTaskType
     abstract = True
 
     ################################
