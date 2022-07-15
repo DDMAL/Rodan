@@ -1,6 +1,6 @@
 {
     "SERVER_HOST": "localhost",
-    "SERVER_PORT": "/api",
+    "SERVER_PORT": "80/api",
     "SERVER_HTTPS": false,
     "SERVER_SOCKET_AVAILABLE": false,
     "SERVER_AUTHENTICATION_TYPE": "token",
