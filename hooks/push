@@ -31,7 +31,7 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
 fi
 
-docker push ddmal/postgres-plpython:test
+docker push ddmal/postgres-plpython:postgres_test
 
 # echo "[+] Pushing Nginx"
 

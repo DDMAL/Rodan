@@ -137,7 +137,7 @@ echo "[+] Building Postgres"
 docker build \
   --no-cache \
   --build-arg VERSION=${RODAN_DOCKER_TAG} \
-  --tag ddmal/postgres-plpython:test \
+  --tag ddmal/postgres-plpython:postgres_test \
   --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
   --file ./postgres/Dockerfile \
   .
