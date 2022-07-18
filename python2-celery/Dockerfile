@@ -23,22 +23,6 @@ RUN set -e \
     g++ \
     apt-utils \
     unzip \
-    # Gamera Dependencies
-    autoconf \
-    graphicsmagick \
-    libtiff5-dev \
-    libpng-dev \
-    python-pygments \
-    python-wxgtk3.0 \
-    python-wxversion \
-    lib32ncurses5-dev \
-    # Libmei
-    libboost-python-dev \
-    libboost-thread-dev \
-    libjpeg-dev \
-    uuid-dev \
-    libpq-dev \
-    openjdk-11-jdk \
     # Silent the output
     >/dev/null \
   # Needed for Ocropy (Text-Alignment)

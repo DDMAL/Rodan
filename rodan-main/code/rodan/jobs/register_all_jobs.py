@@ -482,23 +482,23 @@ def register_gpu():
         import_name = "Calvo Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
-    #         FastCalvoClassifier,
-    #     )
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+            FastCalvoClassifier,
+        )
 
-    #     app.register_task(FastCalvoClassifier())
-    # except Exception as exception:
-    #     import_name = "Fast Calvo Classifier"
-    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        app.register_task(FastCalvoClassifier())
+    except Exception as exception:
+        import_name = "Fast Calvo Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # try:
-    #     from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+    try:
+        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
-    #     app.register_task(FastCalvoTrainer())
-    # except Exception as exception:
-    #     import_name = "Fast Calvo Trainer"
-    #     print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+        app.register_task(FastCalvoTrainer())
+    except Exception as exception:
+        import_name = "Fast Calvo Trainer"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Text Alignment
     try:
@@ -525,6 +525,22 @@ def register_gpu():
         app.register_task(FastPacoClassifier())
     except Exception as exception:
         import_name = "Paco Classifier"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register background_removal
+    try:
+        from rodan.jobs.background_removal.BgRemovalRodan import BgRemoval
+        app.register_task(BgRemoval())
+    except Exception as exception:
+        import_name = "Background Removal"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    # Register SAE binarization
+    try:
+        from rodan.jobs.SAE_binarization.SAE_binarization import SAE_binarization
+        app.register_task(SAE_binarization())
+    except Exception as exception:
+        import_name = "SAE binarization"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
