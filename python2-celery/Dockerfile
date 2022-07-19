@@ -16,6 +16,8 @@ RUN set -e \
     git \
     python \
     python-pip \
+    python3 \
+    python3-pip \
     python-dev \
     python-docutils \
     libpython-dev \
