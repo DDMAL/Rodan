@@ -14,6 +14,8 @@ RUN set -e \
   && apt-get update \
   && apt-get -qq install -y \
     git \
+    python3 \
+    python3-pip \
     python \
     python-pip \
     python-dev \
