@@ -16,8 +16,6 @@ RUN set -e \
     git \
     python \
     python-pip \
-    python3 \
-    python3-pip \
     python-dev \
     python-docutils \
     libpython-dev \
@@ -104,6 +102,7 @@ RUN set -x \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
   && sed -i "s/pip3/pip/g" /run/install_rodan \
+  && sed -i "s/requirements.txt/py2requirements.txt/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
