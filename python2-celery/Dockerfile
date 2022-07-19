@@ -103,7 +103,7 @@ RUN set -x \
   && chown www-data /run/install_python2_rodan_jobs \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
-  && sed -i "s/pip/pip3/g" /run/install_rodan \
+  && sed -i "s/pip /pip3/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
