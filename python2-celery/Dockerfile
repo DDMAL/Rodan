@@ -25,6 +25,21 @@ RUN set -e \
     unzip \
     # Silent the output
     >/dev/null \
+    autoconf \
+    graphicsmagick \
+    libtiff5-dev \
+    libpng-dev \
+    python-pygments \
+    python-wxgtk3.0 \
+    python-wxversion \
+    lib32ncurses5-dev \
+    # Libmei
+    libboost-python-dev \
+    libboost-thread-dev \
+    libjpeg-dev \
+    uuid-dev \
+    libpq-dev \
+    openjdk-11-jdk \
   # Needed for Ocropy (Text-Alignment)
   && apt -qq install -y \
     wget \
