@@ -14,8 +14,6 @@ RUN set -e \
   && apt-get update \
   && apt-get -qq install -y \
     git \
-    python3 \
-    python3-pip \
     python \
     python-pip \
     python-dev \
@@ -103,7 +101,7 @@ RUN set -x \
   && chown www-data /run/install_python2_rodan_jobs \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
-  && sed -i "s/pip/pip3/g" /run/install_rodan \
+  && sed -i "s/pip3/pip/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
