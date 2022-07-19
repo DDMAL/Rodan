@@ -39,7 +39,7 @@ RUN set -e \
   && chown www-data /run/start
 
 RUN \
-  && /opt/install_gpu_rodan_jobs \
+  /opt/install_gpu_rodan_jobs \
   && /run/install_rodan
 
 # Substitute the build hash for our actual build hash
