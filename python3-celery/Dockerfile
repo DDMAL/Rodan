@@ -57,7 +57,6 @@ RUN set -x \
   # https://github.com/DDMAL/rodan-docker/issues/60
   && pip3 install -U pip \
   && pip3 install setuptools==57.0.0 \
-  && sed -i "s/pip /pip3 /g" /run/install_rodan \
   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
