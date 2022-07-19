@@ -23,6 +23,22 @@ RUN set -e \
     g++ \
     apt-utils \
     unzip \
+    # Gamera Dependencies
+    autoconf \
+    graphicsmagick \
+    libtiff5-dev \
+    libpng-dev \
+    python-pygments \
+    python-wxgtk3.0 \
+    python-wxversion \
+    lib32ncurses5-dev \
+    # Libmei
+    libboost-python-dev \
+    libboost-thread-dev \
+    libjpeg-dev \
+    uuid-dev \
+    libpq-dev \
+    openjdk-11-jdk \
     # Silent the output
     >/dev/null \
   # Needed for Ocropy (Text-Alignment)
@@ -85,7 +101,7 @@ RUN set -x \
   && chown www-data /run/install_python2_rodan_jobs \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
-  && sed -i "s/pip /pip3 /g" /run/install_rodan \
+  && sed -i "s/pip/pip3/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
