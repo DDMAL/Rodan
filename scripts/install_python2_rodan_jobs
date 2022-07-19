@@ -5,28 +5,6 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 cd /code/Rodan/rodan/jobs
 
-# Install Calvo-Trainer-HPC
-pip install -r ./hpc_fast_trainer/requirements.txt >/dev/null
-
-# Install Pixel_wrapper
-git clone --recurse-submodules -b v1.0.0  https://github.com/DDMAL/pixel_wrapper.git
-cd ./pixel_wrapper/
-pip install -r requirements.txt >/dev/null
-python activate_wrapper.py
-# [TODO] Test with yarn.
-npm install
-./node_modules/.bin/gulp develop:rodan
-cd /code/Rodan/rodan/jobs
-
-# Install Neon
-git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
-cd ./neon_wrapper
-git submodule update --init
-git submodule update --remote
-yarn install
-yarn build
-cd /code/Rodan/rodan/jobs
-
 cd /code/Rodan/rodan
 # At the end, add all the jobs together.
 sed -i 's/#py2 //g' /code/Rodan/rodan/settings.py

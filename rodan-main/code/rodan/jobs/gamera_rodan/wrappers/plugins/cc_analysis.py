@@ -23,22 +23,46 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
-import gamera.core
-import gamera.gamera_xml
-import gamera.classify
-import gamera.knn
-from gamera.plugins import segmentation
+try:
+    import gamera.core
+    import gamera.gamera_xml
+    import gamera.classify
+    import gamera.knn
+    from gamera.plugins import segmentation
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
 
 
 class CCAnalysis(RodanTask):
     name = 'CC Analysis'
     author = "Andrew Fogarty"
-    description = segmentation.cc_analysis.escape_docstring().replace("\\n", "\n").replace( '\\"', '"')
+    description = """
+    Performs connected component analysis on the image.
+
+    This algorithm assumes 8-connected components, meaning any two
+    pixels are considered "connected" if they are adjacent in any
+    direction, including diagonally.
+
+    The original image will have all of its pixels "labeled" with a
+    number representing each connected component.  This is so the
+    connected components can share data with their source image and
+    makes things much more efficient.
+
+    Returns a list of ccs found in the image.  Since all the CC's
+    share the same data with the original image, changing the CC's
+    will affect the original.  If you do not want this behavior, use
+    the image_copy_ function on each of the CCs::
+
+      ccs = [x.image_copy() for x in ccs]
+
+    .. _image_copy: utility.html#image-copy
+    """
     enabled = True
     category = "Gamera - Classification"
     interactive = False
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     input_port_types = [{
         'name': '1-Bit PNG Image',
         'resource_types': ['image/onebit+png'],

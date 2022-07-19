@@ -2,7 +2,7 @@
 from hashlib import new
 from uuid import uuid4
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more concise?
+from xml.etree.ElementTree import Element
 import math
 import numpy as np
 import json

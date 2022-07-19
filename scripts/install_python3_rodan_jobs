@@ -1,4 +1,9 @@
 #!/bin/sh
+echo
+echo "############################"
+echo "started installing python3 jobs"
+echo "############################"
+echo
 set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
@@ -10,13 +15,47 @@ PIP=$(which pip3) || PIP=:
 # update pip
 $PIP install -U pip
 
+#Neon and pixel dependencies --> not placed on dockerfile due to dockerhub build fails
+apt-get -qq install -y apt-transport-https curl gnupg >/dev/null 
+curl -sL https://deb.nodesource.com/setup_10.x | bash - 
+apt-get -qq update 
+apt-get -qq install -y nodejs >/dev/null 
+npm install -g npm@6.14.12 
+# Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
+apt-get -qq remove cmdtest 
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - 
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list 
+apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
+mkdir -p /code/jobs 
+
+
+# Install Pixel_wrapper
+rm -rf ./pixel_wrapper
+git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
+cd ./pixel_wrapper/
+$PIP install -r requirements.txt >/dev/null
+python3 activate_wrapper.py
+# [TODO] Test with yarn.
+npm install 
+./node_modules/.bin/gulp develop:rodan
+cd /code/Rodan/rodan/jobs
+
+# Install Neon
+rm -rf ./neon_wrapper
+git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
+cd ./neon_wrapper
+git submodule update --init
+git submodule update --remote
+yarn install
+yarn build
+cd /code/Rodan/rodan/jobs
+
 # Install pil_rodan
 # pil_rodan is required for Calvo-Classifier because of the jpeg2000 resource type.
 $PIP install -r ./pil_rodan/requirements.txt
 
 # Install HPC Fast Trainer
 $PIP install -r ./hpc_fast_trainer/requirements.txt
-
 # Install MEI_encoding
 $PIP install -r ./MEI_encoding/requirements.txt >/dev/null
 
@@ -25,31 +64,38 @@ cd /code/Rodan/rodan
 
 sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
 
+#!/bin/bash
 ###############################
-# GAMERA 4 INSTALLATION
-#echo
-#echo "############################"
-#echo "started installing gamera 4"
-#echo "############################"
-#echo
+# INSTALLATION SCRIPT FOR RODAN CONTAINER
 # In the root directory
-#cd /
-#rm -rf gamera-4
- 
-# clone the gamera-4 repository 
-#git clone https://github.com/hsnr-gamera/gamera-4.git
-#cd gamera-4
-#git checkout 1b62614d9f3500f61b9bdae13f8f0788d7ccf48b
+cd /
+
+# clone the repository 
+echo "###### cloning git repo ######"
+git clone https://github.com/DDMAL/gamera4-rodan.git
+cd gamera4-rodan
+git checkout c7e2f84 #specifies commit
+
 # install gamera-4 on the container
-#python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
+echo "###### build and install gamera ######"
+cd gamera-4
+python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
+
+# install musicstaves toolkits
+echo "###### build and install musicstaves ######"
+cd ../musicstaves
+python3.7 setup.py build && python3.7 setup.py install
+
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 
 # THEN RERUN THE SCRIPT.
 
-# remove the gamera-4 directory from the container 
-#cd / && rm -rf gamera-4
+# remove the gamera-4 directory from the container. 
+echo "###### removing gamera4-rodan ######"
+cd / && rm -rf gamera4-rodan
 
 # for more information refer to:
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md
-############################### 
+###############################
+
 

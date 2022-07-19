@@ -23,9 +23,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import image_utilities
+try:
+    import gamera
+    from gamera.core import load_image
+    from gamera.plugins import image_utilities
+except ImportError:
+    pass
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -35,8 +38,8 @@ class gamera_invert(RodanTask):
 
     name = 'Invert'
     author = 'Ryan Bannon'
-    description = image_utilities.invert.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    description = "Invert the image"
+    settings ={'job_queue': 'Python3'}
 
     enabled = True
     category = 'Gamera - Image Utilities'

@@ -1,6 +1,9 @@
 from rodan.jobs.base import RodanTask
-from interactive_classifier import *
-
+try:
+    from rodan.jobs.interactive_classifier.interactive_classifier import *
+    import segmentation
+except ImportError:
+    pass
 class InteractiveClassifier(RodanTask):
     #############
     # Description
@@ -9,7 +12,7 @@ class InteractiveClassifier(RodanTask):
     name = 'Interactive Classifier'
     author = 'Andrew Fogarty'
     description = 'A GUI for Gamera interactive kNN classification.'
-    settings = {}
+    settings = {'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Classification'
     interactive = True
@@ -320,7 +323,6 @@ class InteractiveClassifier(RodanTask):
         return g
 
     def manual_split(self, glyph_to_split, split_type, settings):
-        import segmentation
         # Finding the glyphs that match the incoming ids
         glyph={}
         for g in settings['glyphs']:

@@ -3,16 +3,18 @@ ARG BRANCHES
 ARG VERSION
 
 RUN set -e \ 
-  && apt-get -qq update \
+  && apt update \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
     python3 \
     python3-pip \
-    #gamera-4 dependencies
+    apt-utils \
+    curl \
+    #gamera-4 dependencies 
     libpng-dev \
     libtiff5-dev \
-    # Opencv Dependency
+    # Opencv Dependency  
     python3-opencv \
     # Python lxml dependencies
     python3-dev \
@@ -25,19 +27,10 @@ RUN set -e \
     # >/dev/null
     # Remove when done
     vim 
-    # \
-  # # Needed for pixel_wrapper (node_js)
-  # && apt-get -qq install -y apt-transport-https curl gnupg >/dev/null \
-  # && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-  # && apt-get -qq update \
-  # && apt-get -qq install -y nodejs >/dev/null \
-  # && npm install -g npm@6.14.12 \
-  # # Needed for Neon2-wrapper (yarn) - [TODO] - Test pixel with yarn also.
-  # && apt-get -qq remove cmdtest \
-  # && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-  # && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-  # && apt-get -qq update && apt-get -qq install yarn -y >/dev/null 
-
+    # Needed for Ocropy (Text-Alignment)
+    # wget \
+    # python-scipy \
+    # python-matplotlib \
 
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -51,12 +44,11 @@ COPY ./scripts/wait-for-app /run/
 COPY ./rodan-main/code /code/Rodan
 
 RUN set -x \
-  && mkdir -p /code/jobs \
   # Install Python3 Rodan Jobs
   && chmod +x /run/install_python3_rodan_jobs \
   && chown www-data /run/install_python3_rodan_jobs \
-  && /run/install_python3_rodan_jobs \
-  # Install Rodan
+  && /run/install_python3_rodan_jobs \ 
+    # Install Rodan
   # Django-Guardian suddenly failed to build.
   # https://github.com/DDMAL/rodan-docker/issues/60
   && pip3 install -U pip \

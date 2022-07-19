@@ -138,14 +138,7 @@ BASE_JOB_PACKAGES = [
     "rodan.jobs.labeler",
 ]
 RODAN_PYTHON2_JOBS = [
-    "rodan.jobs.diagonal_neume_slicing",
-    "rodan.jobs.gamera_rodan",
     "rodan.jobs.helloworld",
-    "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.neon_wrapper",
-    "rodan.jobs.pixel_wrapper",
-    "rodan.jobs.biollante_rodan",
     "rodan.jobs.test_rodan"
 ]
 RODAN_PYTHON3_JOBS = [
@@ -153,7 +146,15 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.hpc_fast_trainer",
     "rodan.jobs.MEI_encoding",
     "rodan.jobs.pil_rodan",
+    "rodan.jobs.mei2vol_wrapper",
+    "rodan.jobs.gamera_rodan",
+    "rodan.jobs.heuristic_pitch_finding",
+    "rodan.jobs.biollante_rodan",
+    "rodan.jobs.interactive_classifier",
+    "rodan.jobs.diagonal_neume_slicing",
     "rodan.jobs.MEI_resizing",
+    "rodan.jobs.neon_wrapper",
+    "rodan.jobs.pixel_wrapper",
     "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [

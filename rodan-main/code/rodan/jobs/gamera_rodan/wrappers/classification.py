@@ -23,13 +23,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
+from ast import Import
 import os
 from shutil import copyfile
-import gamera.core
-import gamera.gamera_xml
-import gamera.classify
-import gamera.knn
-from gamera.gamera_xml import glyphs_from_xml
+import logging
+logger = logging.getLogger("rodan")
+try:
+    import gamera.core
+    import gamera.gamera_xml
+    import gamera.classify
+    import gamera.knn
+    from gamera.gamera_xml import glyphs_from_xml
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
 
 
@@ -42,6 +49,7 @@ class ClassificationTask(RodanTask):
     settings = {
         'title': 'Bounding box size',
         'type': 'object',
+        'job_queue': 'Python3',
         'properties': {
             'Bounding box size': {
                 'type': 'integer',
@@ -86,9 +94,12 @@ class ClassificationTask(RodanTask):
         func = gamera.classify.BoundingBoxGroupingFunction(
             settings['Bounding box size'])
         # Load the connected components
+        logger.info("going to load the connected components")
         ccs = glyphs_from_xml(
             inputs['GameraXML - Connected Components'][0]['resource_path'])
         # Do grouping
+        logger.info(("grouping funciton has type: {0}").format(type(func)))
+        logger.info(("the ccs variable is: {0} and has type {1}").format(ccs, type(ccs)))
         cs_image = cknn.group_and_update_list_automatic(ccs,
                                                         grouping_function=func,
                                                         max_parts_per_group=4,
