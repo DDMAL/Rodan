@@ -23,9 +23,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------------------------
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import morphology
+try:
+    import gamera
+    from gamera.core import load_image
+    from gamera.plugins import morphology
+except ImportError:
+    pass
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -36,7 +39,22 @@ class gamera_despeckle(RodanTask):
 
     name = 'Despeckle'
     author = 'Ryan Bannon'
-    description = morphology.despeckle.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description = """
+  Removes connected components that are smaller than the given size.
+
+  *size*
+    The maximum number of pixels in each connected component that
+    will be removed.
+
+  This approach to finding connected components uses a pseudo-recursive
+  descent, which gets around the hard limit of ~64k connected components
+  per page in ``cc_analysis``.  Unfortunately, this approach is much
+  slower as the connected components get large, so *size* should be
+  kept relatively small.
+
+  *size* == 1 is a special case and runs much faster, since it does not
+  require recursion.
+  """
     settings = {
         'title': 'Despeckle settings',
         'type': 'object',
@@ -81,9 +99,19 @@ class gamera_dilate(RodanTask):
 
     name = 'Dilate'
     author = 'Gabriel Vigliensoni'
-    description = morphology.dilate.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description =   """
+  Morpholgically dilates the image with a 3x3 square structuring element.
+
+  The returned image is of the same size as the input image, which means
+  that border pixels are not dilated beyond the image dimensions. If you
+  also want the border pixels to be dilated, apply pad_image_ to the input
+  image beforehand.
+
+.. _pad_image: utility.html#pad-image
+  """
     settings = {'title': 'Despeckle settings',
-                'type': 'object'
+                'type': 'object',
+                'job_queue': 'Python3'
                 }
 
     enabled = True

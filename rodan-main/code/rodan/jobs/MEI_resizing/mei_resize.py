@@ -105,10 +105,10 @@ class MEI_Resize(RodanTask):
         recurse_scale(factor, facsHead[0])  #to input the surface
 
         tree = ET.ElementTree(meiDoc.getroot())
-        result = ET.tostring(tree.getroot(),encoding='utf8').decode('utf8')
         
         self.logger.info('writing to file...')
-        with open(output_path, 'w+', encoding="utf-8") as file:
-            file.write(result+'\n')
+        tree.write(output_path, xml_declaration=True, encoding='UTF-8')
+
+
 
 

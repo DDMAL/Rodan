@@ -22,9 +22,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #--------------------------------------------------------------------------------------------------
+try:
+    import gamera
+    from gamera.core import Image, load_image
+except ImportError:
+    pass
 
-import gamera
-from gamera.core import Image, load_image
 from rodan.jobs.base import RodanTask
 
 import logging
@@ -34,8 +37,19 @@ class GameraMaskLogicalAnd(RodanTask):
 
     name = 'Mask (logical \'and\')'
     author = 'Ryan Bannon'
-    description = Image.and_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
-    settings ={}
+    description =   """
+  Perform the AND operation on two images.
+
+  Since it would be difficult to determine what exactly to do if the images
+  are a different size, the two images must be the same size.
+
+  *in_place*
+    If true, the operation will be performed in-place, changing the
+    contents of the current image.
+
+  See or_image_ for some usage examples.
+  """
+    settings ={'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Masking'
     interactive = False
@@ -72,7 +86,18 @@ class GameraMaskLogicalXor(RodanTask):
 
     name = 'Mask (logical \'xor\')'
     author = 'Ryan Bannon'
-    description = Image.xor_image.__doc__.replace("\\n", "\n").replace('\\"', '"')
+    description =   """
+  Perform the XOR operation on two images.
+
+  Since it would be difficult to determine what exactly to do if the images
+  are a different size, the two images must be the same size.
+
+  *in_place*
+    If true, the operation will be performed in-place, changing the
+    contents of the current image.
+
+  See or_image_ for some usage examples.
+  """
     settings ={'job_queue': 'Python3'}
     enabled = True
     category = 'Gamera - Masking'

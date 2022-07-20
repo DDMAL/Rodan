@@ -26,5 +26,26 @@ cd /code/Rodan/rodan/jobs
 # Install Text Alignment
 $PIP install -r ./text_alignment/requirements.txt
 
+# Install Background Removal
+cd /
+git clone -b v1.0.1 https://github.com/DDMAL/background_removal.git
+mv background_removal .background_removal
+cd .background_removal
+which pip3 && $PIP install .
+ 
+# Install SAE_binarization
+cd /
+git clone -b v1.0.0 https://github.com/DDMAL/SAE_binarization.git
+mv SAE_binarization .SAE_binarization
+cd .SAE_binarization
+which pip3 && $PIP install .
+
+# Install Paco classifier
+cd /
+git clone -b v1.0.0 --depth 1 https://github.com/DDMAL/Paco_classifier.git
+mv Paco_classifier .Paco_classifier
+cd .Paco_classifier
+which pip3 && $PIP install .
+
 cd /code/Rodan/rodan
 sed -i 's/#gpu //g' /code/Rodan/rodan/settings.py

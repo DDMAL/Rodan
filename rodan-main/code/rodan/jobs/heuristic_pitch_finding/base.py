@@ -1,16 +1,18 @@
 from rodan.jobs.base import RodanTask
-
-from gamera.core import load_image, init_gamera
-from gamera import gamera_xml
-
-from .StaffFinding import StaffFinder
-from .PitchFinding import PitchFinder
+try:
+    from gamera.core import load_image, init_gamera
+    from gamera import gamera_xml
+    from .StaffFinding import StaffFinder
+    from .PitchFinding import PitchFinder
+    init_gamera()
+except ImportError:
+    pass
 
 import sys
 import json
 import json.encoder
 
-init_gamera()
+
 
 
 class MiyaoStaffinding(RodanTask):
@@ -162,25 +164,32 @@ class HeuristicPitchFinding(RodanTask):
 
 
         def rec_serialize(byte2str):
-
+ 
             """
             A recursive function that iterates over a JSON object and changes all the bytes values to string
             """
-            for key in byte2str.keys():
-                value = byte2str[key]
-                tp = type(value)
-                if tp != dict:
-                    if tp == bytes:
-                        value = value.decode("UTF-8")
-                        byte2str[key] = value
-                else:
-                    rec_serialize(value)
+            # dealing with dictionaries and lists and other stuff as three categories
+            if type(byte2str) == list:
+                # recursively for all elements 
+                for index in range(len(byte2str)):
+                    element = byte2str[index]
+                    byte2str[index] = rec_serialize(element)
+
+            elif type(byte2str) == dict:
+                for key in byte2str:
+                    value = byte2str[key]
+                    byte2str[key] = rec_serialize(value)
+            elif type(byte2str) == bytes:
+                # the element must be decoded
+                return byte2str.decode("UTF-8")
+
             return byte2str
 
         outfile_path = outputs['JSOMR of glyphs, staves, and page properties'][0]['resource_path']
         
         with open(outfile_path, "w") as outfile:
-            r = json.dumps(rec_serialize(jsomr))
+            serialized = rec_serialize(jsomr)
+            r = json.dumps(serialized)
             outfile.write(r)
 
         return True

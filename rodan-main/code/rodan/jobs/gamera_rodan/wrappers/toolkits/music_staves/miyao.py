@@ -1,12 +1,17 @@
 import json, jsonschema
-from gamera.core import load_image
-from gamera.plugins.pil_io import from_pil
 from PIL import Image
 from PIL import ImageDraw
-from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
-from rodan.jobs.gamera_rodan.helpers.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
+
+try:
+    from gamera.core import load_image
+    from gamera.plugins.pil_io import from_pil
+    from gamera.toolkits.musicstaves.stafffinder_miyao import StaffFinder_miyao
+    from rodan.jobs.gamera_rodan.helpers.poly_lists import fix_poly_point_list, create_polygon_outer_points_json_dict
+    from rodan.jobs.gamera_rodan.helpers.ensure_pixel_type import ensure_pixel_type
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
-from rodan.jobs.gamera_rodan.helpers.ensure_pixel_type import ensure_pixel_type
 
 class MiyaoStaffFinder(RodanTask):
     name = 'Miyao Staff Finder'

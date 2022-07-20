@@ -23,7 +23,8 @@ RUN set -e \
     g++ \
     apt-utils \
     unzip \
-    # Gamera Dependencies
+    # Silent the output
+    >/dev/null \
     autoconf \
     graphicsmagick \
     libtiff5-dev \
@@ -39,9 +40,6 @@ RUN set -e \
     uuid-dev \
     libpq-dev \
     openjdk-11-jdk \
-    # Silent the output
-    >/dev/null \
-
   # Needed for Ocropy (Text-Alignment)
   && apt -qq install -y \
     wget \
@@ -72,17 +70,17 @@ RUN rm -rf /var/lib/apt/lists/*
 # Let's not rely on pip to install this again.
 
 RUN set -e \
-  && mkdir -p /rodan/data /code/jobs \
-  && chown -R www-data /rodan \
-  && git clone https://github.com/hsnr-gamera/gamera.git /code/gamera \
-  # Without this gamera's setup can't find the version file.
-  && cd /code/gamera \
-  # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
-  && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
-  && python setup.py install --nowx >/dev/null 2>&1
+  && mkdir -p /rodan/data /code/jobs 
+  # && chown -R www-data /rodan \
+  # && git clone https://github.com/hsnr-gamera/gamera.git /code/gamera \
+  # # Without this gamera's setup can't find the version file.
+  # && cd /code/gamera \
+  # # && git reset --hard c77194d5e839204efc617971233967ba5a6c53bc \
+  # && git reset --hard  d8e4255a5e2d6d6e64528c8758d75f0afacf4d72 \
+  # && python setup.py install --nowx >/dev/null 2>&1
 
 # Install framework dependencies for Rodan Jobs.
-COPY ./scripts/install_rodan_job_dependencies /run/
+#COPY ./scripts/install_rodan_job_dependencies /run/
 COPY ./scripts/install_python2_rodan_jobs /run/
 COPY ./scripts/install_rodan /run/
 COPY ./scripts/wait-for-app /run/
@@ -95,9 +93,9 @@ COPY ./rodan-main/code /code/Rodan
 
 
 RUN set -x \
-  && chmod +x /run/install_rodan_job_dependencies \
-  && chown www-data /run/install_rodan_job_dependencies \
-  && /run/install_rodan_job_dependencies \
+  # && chmod +x /run/install_rodan_job_dependencies \
+  # && chown www-data /run/install_rodan_job_dependencies \
+  # && /run/install_rodan_job_dependencies \
   # Install Rodan Jobs
   && chmod +x /run/install_python2_rodan_jobs \
   && chown www-data /run/install_python2_rodan_jobs \
