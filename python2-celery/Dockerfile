@@ -25,6 +25,22 @@ RUN set -e \
     unzip \
     # Silent the output
     >/dev/null \
+    # Gamera Dependencies
+    autoconf \
+    graphicsmagick \
+    libtiff5-dev \
+    libpng-dev \
+    python-pygments \
+    python-wxgtk3.0 \
+    python-wxversion \
+    lib32ncurses5-dev \
+    # Libmei
+    libboost-python-dev \
+    libboost-thread-dev \
+    libjpeg-dev \
+    uuid-dev \
+    libpq-dev \
+    openjdk-11-jdk \
   # Needed for Ocropy (Text-Alignment)
   && apt -qq install -y \
     wget \
@@ -85,10 +101,10 @@ RUN set -x \
   && chown www-data /run/install_python2_rodan_jobs \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
+  && sed -i "s/pip3/pip/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
-  #&& sed -i "s/-e git+https:\/\/github.com\/deepio\/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.0'//" /code/Rodan/requirements.txt \
   && /run/install_rodan \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
   && chmod +x /run/wait-for-app \
