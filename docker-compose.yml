@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   nginx:
-    image: "ddmal/nginx:nightly"
+    image: "ddmal/nginx:req"
     command: /run/start
     depends_on:
       - celery
@@ -17,7 +17,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "ddmal/rodan-main:nightly"
+    image: "ddmal/rodan-main:req"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -44,7 +44,7 @@ services:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:nightly"
+    image: "ddmal/rodan-main:req"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: celery
@@ -66,7 +66,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   py2-celery:
-    image: "ddmal/rodan-python2-celery:nightly"
+    image: "ddmal/rodan-python2-celery:req"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python2
@@ -83,7 +83,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:nightly"
+    image: "ddmal/rodan-python3-celery:req"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python3
@@ -101,7 +101,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:nightly"
+    image: "ddmal/rodan-gpu-celery:req"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: GPU
@@ -128,7 +128,7 @@ services:
       - postgres
 
   postgres:
-    image: "ddmal/postgres-plpython:nightly"
+    image: "ddmal/postgres-plpython:req"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
       interval: 10s
@@ -150,7 +150,7 @@ services:
       - ./scripts/local.env
 
   hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:nightly"
+    image: "ddmal/hpc-rabbitmq:req"
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: "30s"

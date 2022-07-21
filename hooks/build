@@ -10,9 +10,9 @@ docker build \
   --tag ddmal/rodan:placeholder \
   .
 
-RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
-RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
-RODAN_DOCKER_TAG=`git describe --tags --always`
+RODAN_TAG=`req`
+RODAN_CLIENT_TAG=`req`
+RODAN_DOCKER_TAG=`req`
 BUILD_HASH=`git rev-parse --verify HEAD`
 
 ###############################################################################
