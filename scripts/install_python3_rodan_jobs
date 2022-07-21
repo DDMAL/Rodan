@@ -33,6 +33,7 @@ mkdir -p /code/jobs
 rm -rf ./pixel_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
 cd ./pixel_wrapper/
+git checkout cdecb7841def76ad230da07ec1541f8d17d66b32
 $PIP install -r requirements.txt >/dev/null
 python3 activate_wrapper.py
 # [TODO] Test with yarn.
@@ -44,6 +45,7 @@ cd /code/Rodan/rodan/jobs
 rm -rf ./neon_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
 cd ./neon_wrapper
+git checkout d56837b79586cad19a65eb6a4eee5d6ab6931d88
 git submodule update --init
 git submodule update --remote
 yarn install
