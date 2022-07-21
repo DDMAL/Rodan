@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# parallel silence if you want
+# parallel --citation 
+
+parallel --jobs 4 < starter.txt >> runLog.txt

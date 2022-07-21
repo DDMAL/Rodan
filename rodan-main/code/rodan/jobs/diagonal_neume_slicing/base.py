@@ -1,12 +1,16 @@
+from ast import Import
 from rodan.jobs.base import RodanTask
+try:
+    from gamera.core import init_gamera, Image, load_image
+    from gamera import gamera_xml
 
-from gamera.core import init_gamera, Image, load_image
-from gamera import gamera_xml
+    from .ProjectionSplitting import ProjectionSplitter
+    from .DirtyLayerRepair import DirtyLayerRepairman
 
-from ProjectionSplitting import ProjectionSplitter
-from DirtyLayerRepair import DirtyLayerRepairman
+    init_gamera()
+except ImportError:
+    pass
 
-init_gamera()
 
 
 class DiagonalNeumeSlicing(RodanTask):
@@ -20,6 +24,7 @@ class DiagonalNeumeSlicing(RodanTask):
     settings = {
         'title': 'Settings',
         'type': 'object',
+        "job_queue": "Python3",
         'required': ['Smoothing', 'Minimum Glyph Size', 'Maximum Recursive Cuts', 'Angle', 'Minimum Slice Spread', 'Low Valley Threshold', 'Minimum Segment Length', 'Slice Prioritization'],
         'properties': {
             'Smoothing': {
@@ -99,7 +104,7 @@ class DiagonalNeumeSlicing(RodanTask):
 
         glyphs = gamera_xml.glyphs_from_xml(inputs['GameraXML - Connected Components'][0]['resource_path'])
 
-        print settings
+        print (settings)
 
         kwargs = {
             'smoothing': settings['Smoothing'],
@@ -153,6 +158,7 @@ class DirtyLayerRepair(RodanTask):
     settings = {
         'title': 'Settings',
         'type': 'object',
+        "job_queue": "Python3",
         'required': ['Minimum Density', 'Despeckle Size'],
         'properties': {
             'Minimum Density': {

@@ -1,15 +1,18 @@
 from rodan.jobs.base import RodanTask
-
-from gamera.core import load_image, init_gamera
-from gamera import gamera_xml
-
-from StaffFinding import StaffFinder
-from PitchFinding import PitchFinder
+try:
+    from gamera.core import load_image, init_gamera
+    from gamera import gamera_xml
+    from .StaffFinding import StaffFinder
+    from .PitchFinding import PitchFinder
+    init_gamera()
+except ImportError:
+    pass
 
 import sys
 import json
+import json.encoder
 
-init_gamera()
+
 
 
 class MiyaoStaffinding(RodanTask):
@@ -23,7 +26,7 @@ class MiyaoStaffinding(RodanTask):
     settings = {
         'title': 'Settings',
         'type': 'object',
-        'job_queue': 'Python2',
+        'job_queue': 'Python3',
         'required': ['Number of lines', 'Interpolation'],
         'properties': {
             'Number of lines': {
@@ -93,6 +96,8 @@ class HeuristicPitchFinding(RodanTask):
     settings = {
         'title': 'aOMR settings',
         'type': 'object',
+        'job_queue': 'Python3',
+
         'required': ['Discard Size'],
         'properties': {
             'Discard Size': {
@@ -155,9 +160,36 @@ class HeuristicPitchFinding(RodanTask):
             'staves': staves,
             'glyphs': pitches,
         }
+        #jsomr = json.decoder(jsomr)
+
+
+        def rec_serialize(byte2str):
+ 
+            """
+            A recursive function that iterates over a JSON object and changes all the bytes values to string
+            """
+            # dealing with dictionaries and lists and other stuff as three categories
+            if type(byte2str) == list:
+                # recursively for all elements 
+                for index in range(len(byte2str)):
+                    element = byte2str[index]
+                    byte2str[index] = rec_serialize(element)
+
+            elif type(byte2str) == dict:
+                for key in byte2str:
+                    value = byte2str[key]
+                    byte2str[key] = rec_serialize(value)
+            elif type(byte2str) == bytes:
+                # the element must be decoded
+                return byte2str.decode("UTF-8")
+
+            return byte2str
 
         outfile_path = outputs['JSOMR of glyphs, staves, and page properties'][0]['resource_path']
-        with open(outfile_path, 'w') as outfile:
-            outfile.write(json.dumps(jsomr))
+        
+        with open(outfile_path, "w") as outfile:
+            serialized = rec_serialize(jsomr)
+            r = json.dumps(serialized)
+            outfile.write(r)
 
         return True
