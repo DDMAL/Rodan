@@ -4,7 +4,6 @@ ARG VERSION
 
 RUN set -e \ 
   && apt update \
-  #&& apt upgrade \
   && apt-get install ffmpeg libsm6 libxext6 -y \
   && apt-get -qq install -y \
     git \
@@ -38,7 +37,6 @@ RUN set -e \
     # Remove when done
     vim 
 
-
 RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./scripts/install_python3_rodan_jobs /run/
@@ -52,7 +50,7 @@ COPY ./scripts/wait-for-app /run/
 COPY ./rodan-main/code /code/Rodan
 
 RUN set -x \
-    # Install Rodan
+  # Install Rodan
   # Django-Guardian suddenly failed to build.
   # https://github.com/DDMAL/rodan-docker/issues/60
   && pip3 install -U pip \

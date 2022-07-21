@@ -1,12 +1,16 @@
+from ast import Import
 from rodan.jobs.base import RodanTask
+try:
+    from gamera.core import init_gamera, Image, load_image
+    from gamera import gamera_xml
 
-from gamera.core import init_gamera, Image, load_image
-from gamera import gamera_xml
+    from .ProjectionSplitting import ProjectionSplitter
+    from .DirtyLayerRepair import DirtyLayerRepairman
 
-from .ProjectionSplitting import ProjectionSplitter
-from .DirtyLayerRepair import DirtyLayerRepairman
+    init_gamera()
+except ImportError:
+    pass
 
-init_gamera()
 
 
 class DiagonalNeumeSlicing(RodanTask):

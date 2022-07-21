@@ -24,20 +24,31 @@
 #--------------------------------------------------------------------------------------------------
 
 # gamera4 works in python3 so we can use the same functions as used in the former gamera versions 
+try:
+    import gamera
+    from gamera.core import load_image
+    from gamera.plugins import image_conversion
+except ImportError:
+    pass
 
-import gamera
-from gamera.core import load_image
-from gamera.plugins import image_conversion
 from rodan.jobs.base import RodanTask
 
-import logging
+import logging  
 logger = logging.getLogger('rodan')
 
 class gamera_to_rgb(RodanTask):
 
     name = 'Convert to RGB PNG'
     author = 'Ryan Bannon'
-    description = image_conversion.to_rgb.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description = """
+    Converts the given image to an RGB image according to the following rules:
+
+    - for ONEBIT images, 0 is mapped to (255,255,255) and everything else to (0,0,0)
+    - for GREYSCALE and GREY16 images, R=G=B
+    - for FLOAT images, the range [min,max] is linearly mapped to the 256 grey values
+
+    Note, converting an image to one of the same type performs a copy operation.
+    """
     settings ={'job_queue': 'Python3'}
 
     enabled = True
@@ -58,7 +69,6 @@ class gamera_to_rgb(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-
         image_source = load_image(inputs['PNG image'][0]['resource_path'])
         image_result = image_source.to_rgb()
         image_result.save_PNG(outputs['RGB PNG image'][0]['resource_path'])
@@ -70,7 +80,16 @@ class gamera_to_greyscale(RodanTask):
 
     name = 'Convert to greyscale PNG'
     author = 'Ryan Bannon'
-    description = image_conversion.to_greyscale.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description = """
+    Converts the given image to a GREYSCALE image according to the following rules:
+
+    - for ONEBIT images, 0 is mapped to 255 and everything else to 0.
+    - for FLOAT images, the range [min,max] is linearly scaled to [0,255]
+    - for GREY16 images, the range [0,max] is linearly scaled to [0,255]
+    - for RGB images, the luminance is used, which is defined in VIGRA as 0.3*R + 0.59*G + 0.11*B
+
+    Converting an image to one of the same type performs a copy operation.
+    """
     settings ={'job_queue': 'Python3'}
 
     enabled = True
@@ -102,8 +121,16 @@ class gamera_to_grey16(RodanTask):
 
     name = 'Convert to greyscale 16 PNG'
     author = 'Ryan Bannon'
-    description = image_conversion.to_grey16.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
     settings ={'job_queue': 'Python3'}
+    description = """
+    Converts the given image to a GREY16 image according to the following rules:
+    - for ONEBIT images, 0 is mapped to 65535 and everything else to 0.
+    - for FLOAT images, the range [min,max] is linearly scaled to [0,65535]
+    - for GREYSCALE images, pixel values are copied unchanged
+    - for RGB images, the luminance is used, which is defined in VIGRA as 0.3*R + 0.59*G + 0.11*B. This results only in a value range [0,255]
+
+    Converting an image to one of the same type performs a copy operation.
+    """
 
     enabled = True
     category = 'Gamera - Image Conversion'
@@ -134,7 +161,16 @@ class gamera_to_onebit(RodanTask):
 
     name = 'Convert to one-bit (black and white) PNG'
     author = 'Ryan Bannon'
-    description = image_conversion.to_onebit.escape_docstring().replace("\\n", "\n").replace('\\"', '"')
+    description = """
+    Converts the given image to a ONEBIT image. First the image is converted
+    and then the otsu_threshold_ algorithm is applied.
+    For other ways to convert to ONEBIT images, see the Binarization_ category.
+
+    Converting an image to one of the same type performs a copy operation.
+
+    .. _otsu_threshold: binarization.html#otsu-threshold
+    .. _Binarization: binarization.html
+    """
     settings ={'job_queue': 'Python3'}
 
     enabled = True
