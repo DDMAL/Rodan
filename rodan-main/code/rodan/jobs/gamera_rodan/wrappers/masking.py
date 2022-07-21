@@ -56,7 +56,7 @@ class GameraMaskLogicalAnd(RodanTask):
 
     input_port_types = [{
         'name': 'Source image',
-        'resource_types': ['image/rgb+png', 'image/onebit+png', 'image/greyscale+png', 'image/grey16+png'],
+        'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     },
@@ -105,7 +105,7 @@ class GameraMaskLogicalXor(RodanTask):
 
     input_port_types = [{
         'name': 'Source image',
-        'resource_types': ['image/rgb+png', 'image/onebit+png', 'image/greyscale+png', 'image/grey16+png'],
+        'resource_types': ['image/onebit+png'],
         'minimum': 1,
         'maximum': 1
     },
