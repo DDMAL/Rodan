@@ -76,7 +76,7 @@ cd /
 echo "###### cloning git repo ######"
 git clone https://github.com/DDMAL/gamera4-rodan.git
 cd gamera4-rodan
-git checkout c7e2f84 #specifies commit
+git checkout 76608f6 #this commit fixes miyao staff finder
 
 # install gamera-4 on the container
 echo "###### build and install gamera ######"
