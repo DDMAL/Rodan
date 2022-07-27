@@ -6,8 +6,10 @@ from uuid import uuid4
 import base64
 import json
 import os
-import pika
-
+try:
+    import pika
+except ImportError:
+    pass
 
 class HPCFastTrainer(RodanTask):
     name = "Training model for Patchwise Analysis of Music Document - HPC"

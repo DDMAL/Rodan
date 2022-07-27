@@ -344,7 +344,21 @@ def register_py3():
         import_name = "XML Distributor"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalAnd
 
+        app.register_task(GameraMaskLogicalAnd())
+    except Exception as exception:
+        import_name = "Logical And"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+
+    try:
+        from rodan.jobs.gamera_rodan.wrappers.masking import GameraMaskLogicalXor
+
+        app.register_task(GameraMaskLogicalXor())
+    except Exception as exception:
+        import_name = "Logical Xor"
+        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
     # Register Neume Slicing
     try:
         from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing

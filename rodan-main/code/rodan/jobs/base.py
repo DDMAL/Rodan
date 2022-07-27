@@ -37,7 +37,7 @@ from rodan.models import (
     WorkflowRun,
 )
 from rodan.jobs.deep_eq import deep_eq
-from rodan.jobs.convert_to_unicode import convert_to_unicode
+from rodan.jobs.convert_to_str import convert_to_str
 
 import logging
 
@@ -204,8 +204,8 @@ class RodanTaskType(TaskType):
                                 ).format(
                                     field_name,
                                     j.name,
-                                    convert_to_unicode(original_value),
-                                    convert_to_unicode(new_value),
+                                    convert_to_str(original_value),
+                                    convert_to_str(new_value),
                                 )
                             )  # noqa
                         else:
@@ -216,8 +216,8 @@ class RodanTaskType(TaskType):
                                 ).format(
                                     field_name,
                                     j.name,
-                                    convert_to_unicode(original_value),
-                                    convert_to_unicode(new_value),
+                                    convert_to_str(original_value),
+                                    convert_to_str(new_value),
                                 )
                             )  # noqa
                             if confirm_update:
@@ -775,8 +775,11 @@ class RodanTask(Task,metaclass=RodanTaskType):
 
             if isinstance(retval, self.WAITING_FOR_INPUT):
                 logger.info(("the settings_update field is: {0}").format(retval.settings_update))
-                if type(retval.settings_update["@settings"]) == bytes:
-                    retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
+                try:
+                    if type(retval.settings_update["@settings"]) == bytes:
+                        retval.settings_update["@settings"] = retval.settings_update["@settings"].decode("UTF-8")
+                except KeyError:
+                    pass
                 settings.update(retval.settings_update)
                 logger.info(("After being updated the settings_update field is: {0}").format(retval.settings_update))
 
