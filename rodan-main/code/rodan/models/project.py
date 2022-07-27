@@ -62,8 +62,8 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
-    def __unicode__(self):
-        return u"<Project {0}>".format(self.name)
+    def __str__(self):
+        return "<Project {0}>".format(self.name)
 
     def ensure_groups(self, save=True):
         try:

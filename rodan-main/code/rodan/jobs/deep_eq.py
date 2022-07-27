@@ -145,11 +145,11 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
     # guard against strings because they are iterable and their
     # elements yield iterables infinitely.
     # I N C E P T I O N
-    for t in types.StringTypes:
+    for t in (str,):
         if isinstance(_v1, t):
             break
     else:
-        if isinstance(_v1, types.DictType):
+        if isinstance(_v1, dict):
             op = _deep_dict_eq  # noqa
         else:
             try:

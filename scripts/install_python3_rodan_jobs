@@ -67,7 +67,6 @@ cd /code/Rodan/rodan
 sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
 
 #!/bin/bash
-###############################
 # INSTALLATION SCRIPT FOR RODAN CONTAINER
 # In the root directory
 cd /
@@ -88,6 +87,8 @@ python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
 echo "###### build and install musicstaves ######"
 cd ../musicstaves
 python3.7 setup.py build && python3.7 setup.py install
+
+
 
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 

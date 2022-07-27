@@ -25,6 +25,7 @@ RUN set -e \
     unzip \
     # Silent the output
     >/dev/null \
+    # Gamera Dependencies
     autoconf \
     graphicsmagick \
     libtiff5-dev \
@@ -84,7 +85,6 @@ RUN set -e \
 COPY ./scripts/install_python2_rodan_jobs /run/
 COPY ./scripts/install_rodan /run/
 COPY ./scripts/wait-for-app /run/
-COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
 
 # Copying rodan core from build context into container
@@ -101,22 +101,20 @@ RUN set -x \
   && chown www-data /run/install_python2_rodan_jobs \
   && /run/install_python2_rodan_jobs \
   # Install Rodan
+  && sed -i "s/pip3/pip/g" /run/install_rodan \
   && chmod +x /run/install_rodan \
   && chown www-data /run/install_rodan \
   && pip install -U setuptools==44.0.0 \
-  && sed -i "s/-e git+https:\/\/github.com\/deepio\/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.6'//" /code/Rodan/requirements.txt \
   && /run/install_rodan \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
   && chmod +x /run/wait-for-app \
-  && chown www-data /run/wait-for-app \
-  # Runs on both Rodan service, and Rodan-Celery
-  && sed -i 's/\r//' /opt/entrypoint \
-  && chmod +x /opt/entrypoint \
-  && chown www-data /opt/entrypoint \
-  # This script starts Rodan-Celery
-  && sed -i 's/\r//' /run/start-celery \
-  && chmod +x /run/start-celery \
-  && chown www-data /run/start-celery \
-  && chown -R www-data /code/Rodan /code/jobs
-
-ENTRYPOINT ["/opt/entrypoint"]
+  && chown www-data /run/wait-for-app 
+  # # Runs on both Rodan service, and Rodan-Celery
+  # && sed -i 's/\r//' /opt/entrypoint \
+  # && chmod +x /opt/entrypoint \
+  # && chown www-data /opt/entrypoint \
+  # # This script starts Rodan-Celery
+  # && sed -i 's/\r//' /run/start-celery \
+  # && chmod +x /run/start-celery \
+  # && chown www-data /run/start-celery \
+  # && chown -R www-data /code/Rodan /code/jobs

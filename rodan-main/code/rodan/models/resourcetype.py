@@ -31,8 +31,8 @@ class ResourceType(models.Model):
     description = models.CharField(max_length=255, blank=True, db_index=True)
     extension = models.CharField(max_length=50, blank=True, db_index=True)
 
-    def __unicode__(self):
-        return u"<ResourceType {0}>".format(self.mimetype)
+    def __str__(self):
+        return "<ResourceType {0}>".format(self.mimetype)
 
     def delete(self, *args, **kwargs):
         # find all Resource Distributor workflowjobs that have this resourcetype as

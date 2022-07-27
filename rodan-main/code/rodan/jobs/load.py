@@ -352,7 +352,7 @@ for mimetype, definitions in resourcetypes.items():
             if len(possible_descriptions.keys()) == 0:
                 description = ""
             elif len(possible_descriptions.keys()) == 1:
-                description = possible_descriptions.keys()[0]
+                description = list(possible_descriptions.keys())[0]
             else:
                 print("\n  Multiple descriptions found for {0}:".format(mimetype))
                 choices = []
@@ -378,7 +378,7 @@ for mimetype, definitions in resourcetypes.items():
             if len(possible_extensions.keys()) == 0:
                 extension = ""
             elif len(possible_extensions.keys()) == 1:
-                extension = possible_extensions.keys()[0]
+                extension = list(possible_extensions.keys())[0]
             else:
                 print("\n  Multiple extensions found for {0}:".format(mimetype))
                 choices = []

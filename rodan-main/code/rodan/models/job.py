@@ -49,5 +49,5 @@ class Job(models.Model):
     enabled = models.BooleanField(default=False, db_index=True)
     interactive = models.BooleanField(default=False, db_index=True)
 
-    def __unicode__(self):
-        return u"<Job {0}>".format(self.name)
+    def __str__(self):
+        return "<Job {0}>".format(self.name)

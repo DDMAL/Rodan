@@ -54,5 +54,5 @@ class WorkflowJobGroup(models.Model):
         default={"x": 0.5, "y": 0.5},
     )
 
-    def __unicode__(self):
-        return u"<WorkflowJobGroup {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<WorkflowJobGroup {0}>".format(str(self.uuid))
