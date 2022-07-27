@@ -493,9 +493,6 @@ import rodan.jobs.register_all_jobs as job_register # noqa
 if os.environ["CELERY_JOB_QUEUE"] == "None" or os.environ["CELERY_JOB_QUEUE"] == "celery": 
     job_register.register_all()
 
-if os.environ["CELERY_JOB_QUEUE"] == "Python2":
-    job_register.register_py2()
-
 if os.environ["CELERY_JOB_QUEUE"] == "Python3":
     job_register.register_py3()
 

@@ -13,7 +13,7 @@ services:
       - "resources:/rodan/data"
   
   rodan-main:
-    image: "ddmal/rodan-main:test"
+    image: "ddmal/rodan-main:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -41,7 +41,7 @@ services:
 
       
   celery:
-    image: "ddmal/rodan-main:test"
+    image: "ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: celery
@@ -61,25 +61,9 @@ services:
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
-  py2-celery:
-    image: "ddmal/rodan-python2-celery:test"
-    command: bash -c "tail -f /dev/null"
-    environment:
-      CELERY_JOB_QUEUE: Python2
-    depends_on:
-      - postgres
-      - rodan-main
-      - rabbitmq
-      - redis
-      - celery
-    env_file:
-      - ./scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:test"
+    image: "ddmal/rodan-python3-celery:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python3
@@ -108,7 +92,7 @@ services:
       - postgres
 
   postgres:
-    image: "ddmal/postgres-plpython:test"
+    image: "ddmal/postgres-plpython:nightly"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
       interval: 10s

@@ -137,10 +137,6 @@ BASE_JOB_PACKAGES = [
     "rodan.jobs.resource_distributor",
     "rodan.jobs.labeler",
 ]
-RODAN_PYTHON2_JOBS = [
-    "rodan.jobs.helloworld",
-    "rodan.jobs.test_rodan"
-]
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
     "rodan.jobs.hpc_fast_trainer",
@@ -168,12 +164,8 @@ RODAN_GPU_JOBS = [
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
     # All the jobs must be registered in the database, so all jobs must be here.
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
-    RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
     RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS
     RODAN_JOB_PACKAGES += RODAN_GPU_JOBS
-elif RODAN_JOB_QUEUE == "Python2":
-    RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
-    RODAN_JOB_PACKAGES += RODAN_PYTHON2_JOBS
 elif RODAN_JOB_QUEUE == "Python3":
     RODAN_JOB_PACKAGES += BASE_JOB_PACKAGES
     RODAN_JOB_PACKAGES += RODAN_PYTHON3_JOBS

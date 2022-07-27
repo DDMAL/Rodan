@@ -17,17 +17,17 @@ PROD_TAG := v2.0.2
 
 build:
 	@echo "[-] Rebuilding Docker Images for Rodan..."
-	# Build py2-celery, because it's needed for Rodan and Celery images
-	# @docker-compose -f build.yml build --no-cache py2-celery # Sometimes it's better to use the
-	# 	no-cache option if something unexplicably broke with the py2-celery image (a cached build step perhaps)
-	@docker-compose -f build.yml build --no-cache py2-celery
+	# Build py3-celery, because it's needed for Rodan and Celery images
+	# @docker-compose -f build.yml build --no-cache py3-celery # Sometimes it's better to use the
+	# 	no-cache option if something unexplicably broke with the py3-celery image (a cached build step perhaps)
+	@docker-compose -f build.yml build --no-cache py3-celery
 	# Build rodan and rodan-client because they are needed for nginx
 	@docker-compose -f build.yml build --no-cache --parallel rodan rodan-client
 	# DockerHub is not intuitive. You won't be able to build from the source root folder in both build contextes.
 	# When you build locally, the COPY command is relative to the dockerfile. When you build on DockerHub, its relative to the source root.
 	# For this reason we replace the name to build locally because we build more often on DockerHub than on local.
 	@$(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/postgres\/maintenance/COPY .\/maintenance/g" ./postgres/Dockerfile
-	@docker-compose -f build.yml build --no-cache --parallel nginx py3-celery gpu-celery postgres hpc-rabbitmq
+	@docker-compose -f build.yml build --no-cache --parallel nginx gpu-celery postgres hpc-rabbitmq
 	# Revert back the change to the COPY command so it will work on Docker Hub.
 	@$(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile || $(REPLACE) "s/COPY .\/maintenance/COPY .\/postgres\/maintenance/g" ./postgres/Dockerfile
 	@echo "[+] Done."
@@ -78,7 +78,6 @@ deploy_production:
 copy_docker_tag:
 	# tag=v1.5.0rc0 make copy_docker_tag
 	@docker image tag $(docker images ddmal/rodan:nightly -q) ddmal/rodan:$(tag)
-	@docker image tag $(docker images ddmal/rodan-python2-celery:nightly -q) ddmal/rodan-python2-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-python3-celery:nightly -q) ddmal/rodan-python3-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-gpu-celery:nightly -q) ddmal/rodan-gpu-celery:$(tag)
 
@@ -89,7 +88,6 @@ pull_prod:
 	docker pull ddmal/postgres-plpython:$(PROD_TAG)
 	docker pull ddmal/rodan-gpu-celery:$(PROD_TAG)
 	docker pull ddmal/rodan-main:$(PROD_TAG)
-	docker pull ddmal/rodan-python2-celery:$(PROD_TAG)
 	docker pull ddmal/rodan-python3-celery:$(PROD_TAG)
 	docker pull rabbitmq:alpine
 	docker pull redis:alpine
@@ -97,14 +95,12 @@ pull_prod:
 pull_docker_tag:
 	# tag=v1.5.0rc0 make pull_docker_tag
 	@docker pull ddmal/rodan:$(tag)
-	@docker pull ddmal/rodan-python2-celery:$(tag)
 	@docker pull ddmal/rodan-python3-celery:$(tag)
 	@docker pull ddmal/rodan-gpu-celery:$(tag)
 
 push_docker_tag:
 	# tag=v1.5.0rc0 make push_docker_tag
 	@docker push ddmal/rodan:$(tag)
-	@docker push ddmal/rodan-python2-celery:$(tag)
 	@docker push ddmal/rodan-python3-celery:$(tag)
 	@docker push ddmal/rodan-gpu-celery:$(tag)
 
@@ -146,13 +142,6 @@ update:
 		--update-order start-first \
 		--stop-grace-period 9h \
 		--update-delay 30s \
-		--image ddmal/rodan-python2-celery:$(tag1) \
-		rodan_py2-celery
-	@docker service update \
-		--force \
-		--update-order start-first \
-		--stop-grace-period 9h \
-		--update-delay 30s \
 		--image ddmal/rodan-python3-celery:$(tag1) \
 		rodan_py3-celery
 	@docker service update \
@@ -184,7 +173,6 @@ scale:
 	@docker service scale rodan_nginx=$(num)
 	@docker service scale rodan_rodan=$(num)
 	@docker service scale rodan_celery=$(num)
-	@docker service scale rodan_py2-celery=$(num)
 	@docker service scale rodan_py3-celery=$(num)
 	# @docker service scale rodan_gpu-celery=$(num)
 	@docker service scale rodan_redis=$(num)
@@ -255,7 +243,6 @@ $(JOBS_PATH)/pixel_wrapper/package.json:
 	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
 
 remote_jobs: $(JOBS_PATH)/pixel_wrapper/package.json $(JOBS_PATH)/neon_wrapper/static/editor.html 
-	@cd $(RODAN_PATH); $(REPLACE) "s/#py2 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py
 

@@ -98,21 +98,6 @@ docker push ddmal/rodan-client:nightly
 # Stage 3
 #   Build the rest
 
-echo "[+] Building Python2-Celery"
-
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-python2-celery:nightly \
-  --tag ddmal/rodan-python2-celery:${RODAN_TAG} \
-  --file ./python2-celery/Dockerfile \
-  .
-
-echo "[+] Pushing Python2-Celery"
-docker push ddmal/rodan-python2-celery:nightly
-
-
 echo "[+] Building GPU-Celery"
 
 docker build \

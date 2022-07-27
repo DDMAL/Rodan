@@ -28,24 +28,18 @@ RUN \
   && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON ..  \
   && make -j3
 
-# This script gets the python2 jobs into celery
-COPY ./scripts/install_python2_rodan_jobs /opt/install_python2_rodan_jobs
+# This script gets the gpu jobs into celery
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
 COPY ./scripts/start /run/
 RUN set -e \
-  && chmod +x \
-    /opt/install_python2_rodan_jobs \
-    /opt/install_gpu_rodan_jobs \
-  && chown www-data \
-    /opt/install_python2_rodan_jobs \
-    /opt/install_gpu_rodan_jobs \
+  && chmod +x opt/install_gpu_rodan_jobs \
+  && chown www-data /opt/install_gpu_rodan_jobs \
   # This script starts Rodan
   && chmod +x /run/start \
   && chown www-data /run/start
 
 RUN \
-  /opt/install_python2_rodan_jobs \
-  && /opt/install_gpu_rodan_jobs \
+  /opt/install_gpu_rodan_jobs \
   && /run/install_rodan
 
 # Substitute the build hash for our actual build hash
