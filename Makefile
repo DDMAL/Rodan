@@ -191,7 +191,8 @@ stop:
 	# This is the same command to stop docker swarm or docker-compose
 	@echo "[-] Stopping all running docker containers and services..."
 	@docker service rm `docker service ls -q` >>/dev/null 2>&1 || echo "[+] No Services Running"
-	@docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
+	# @docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
+	@docker stop `docker ps -aq | grep -v $$(docker ps -aq --filter "name=gpu_dont_kill_me")` >>/dev/null 2>&1 || echo "[+] No Containers Running"
 	@echo "[+] Done."
 
 clean:
