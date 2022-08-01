@@ -1,87 +1,82 @@
-FROM debian:buster
-ARG BRANCHES
-ARG VERSION
-
-RUN set -e \ 
-  && apt update \
-  #&& apt upgrade \
-  && apt-get install ffmpeg libsm6 libxext6 -y \
-  && apt-get -qq install -y \
-    git \
-    python3 \
-    python3-pip \
-    python3-dev \
-    cmake\
-    g++ \
-    apt-utils \
-    curl \
-    #gamera-4 dependencies 
-    libpng-dev \
-    libtiff5-dev \
-    # Opencv Dependency  
-    python3-opencv \
-    # Python lxml dependencies
-    python3-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    zlib1g-dev \
-    lib32ncurses5-dev \
-    # Psycopg2 dependencies
-    libpq-dev \
-    # >/dev/null
-    #needed for text alignment
-    wget \
-    python-scipy \
-    python-matplotlib \
-    python-lxml \
-    >/dev/null \
-    # Remove when done
-    vim 
+FROM alpine:3 AS pixel
+RUN apk update
+RUN apk add \
+  git \
+  npm \
+  py3-opencv \
+  py3-pip \
+  python3
+RUN git clone --recurse-submodules -b "${BRANCHES:-master}" https://github.com/DDMAL/pixel_wrapper.git
+WORKDIR ./pixel_wrapper/
+RUN pip3 install -r requirements.txt
+RUN python3 activate_wrapper.py
+RUN npm install
+RUN ./node_modules/.bin/gulp develop:rodan
 
 
-RUN rm -rf /var/lib/apt/lists/*
 
-COPY ./scripts/install_python3_rodan_jobs /run/
-COPY ./scripts/install_rodan /run/
-COPY ./scripts/start-celery /run/
-COPY ./scripts/entrypoint /opt/
-COPY ./scripts/wait-for-app /run/
+# FROM alpine:3
+# ARG BRANCHES
+# ARG VERSION
 
-# Copying rodan core from build context into container
-# Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY ./rodan-main/code /code/Rodan
+# RUN apk update
+# RUN apk add \
+#   bash \
+#   cmake\
+#   curl \
+#   ffmpeg \
+#   g++ \
+#   git \
+#   libpng-dev \
+#   libpq-dev \
+#   libxml2-dev \
+#   libxslt-dev \
+#   nodejs \
+#   npm \
+#   py3-gevent \
+#   py3-lxml \
+#   py3-markdown \
+#   py3-matplotlib \
+#   py3-opencv=4.6.0-r1 \
+#   py3-pillow \
+#   py3-pip \
+#   py3-scipy \
+#   py3-yaml \
+#   python3 \
+#   python3-dev \
+#   readline \
+#   tiff-dev \
+#   uwsgi-python3 \
+#   vim \
+#   wget \
+#   yarn \
 
-RUN set -x \
-    # Install Rodan
-  # Django-Guardian suddenly failed to build.
-  # https://github.com/DDMAL/rodan-docker/issues/60
-  && pip3 install -U pip \
-  && pip3 install setuptools==57.0.0 \
-  && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
-  && chmod +x /run/install_rodan \
-  && chown www-data /run/install_rodan \
-  && /run/install_rodan \
-  # Install Python3 Rodan Jobs
-  && chmod +x /run/install_python3_rodan_jobs \
-  && chown www-data /run/install_python3_rodan_jobs \
-  && /run/install_python3_rodan_jobs \ 
-  # Change the concurency for python3 jobs (Calvo)
-  && sed -i "s/=10/=1/g" /run/start-celery \
-  # Script to wait for postgres and redis to be running before attempting to connect to them.
-  && chmod +x /run/wait-for-app \
-  && chown www-data /run/wait-for-app \
-  && chown -R www-data /code/Rodan /code/jobs \
-  && pip3 install opencv-python==4.5.5.64 \
-  #why is cv installed here?
-  # # Runs on both Rodan service, and Rodan-Celery
-  && sed -i 's/\r//' /opt/entrypoint \
-  && chmod +x /opt/entrypoint \
-  && chown www-data /opt/entrypoint \
-  # This script starts Rodan-Celery
-  && sed -i 's/\r//' /run/start-celery \
-  && chmod +x /run/start-celery \
-  && chown www-data /run/start-celery \
-  && chown -R www-data /code/Rodan /code/jobs
+# COPY ./scripts/install_python3_rodan_jobs /run/
+# COPY ./scripts/start-celery /run/
+# COPY ./scripts/entrypoint /opt/
+# COPY ./scripts/wait-for-app /run/
 
-ENTRYPOINT ["/opt/entrypoint"]
+# # Copying rodan core from build context into container
+# # Rodan folder MUST be uppercase, otherwise many unittests fail.
+# COPY ./rodan-main/code /code/Rodan
 
+# # https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
+# # Installing wheel makes the rest of the installation faster.
+# RUN pip3 install setuptools==58 wheel
+# RUN pip3 install -r /code/Rodan/requirements.txt
+
+# RUN chmod +x /run/install_python3_rodan_jobs && /run/install_python3_rodan_jobs
+
+#   # Change the concurency for python3 jobs (Calvo)
+# RUN sed -i "s/=10/=1/g" /run/start-celery
+
+# # Script to wait for postgres and redis to be running before attempting to connect to them.
+# RUN chmod +x /run/wait-for-app
+
+# RUN sed -i 's/\r//' /opt/entrypoint
+# RUN chmod +x /opt/entrypoint
+
+# RUN sed -i 's/\r//' /run/start-celery
+# RUN chmod +x /run/start-celery
+
+# ENTRYPOINT ["/opt/entrypoint"]
