@@ -45,7 +45,7 @@ cd /code/Rodan/rodan/jobs
 rm -rf ./neon_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
 cd ./neon_wrapper
-git checkout d56837b79586cad19a65eb6a4eee5d6ab6931d88
+git checkout 1f6f58b5b7503da0667e59c5ab5a75ee3fe0cc1f
 git submodule update --init
 git submodule update --remote
 yarn install
