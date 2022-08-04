@@ -1,3 +1,6 @@
+ARG BRANCHES
+ARG VERSION
+
 FROM alpine:3 AS pixel
 RUN apk update
 RUN apk add \
@@ -14,9 +17,9 @@ RUN ./node_modules/.bin/gulp develop:rodan
 FROM alpine:3 AS neon
 RUN apk update
 RUN apk add \
+  bash \
   git \
   yarn
-# Install Neon
 RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
 WORKDIR ./neon_wrapper
 RUN git submodule update --init
@@ -24,74 +27,70 @@ RUN git submodule update --remote
 RUN yarn install
 RUN yarn build
 
-FROM alpine:3
-ARG BRANCHES
-ARG VERSION
-
+FROM alpine:3 AS rodan
 RUN apk update
 RUN apk add \
-  bash \
-  cmake\
-  curl \
-  ffmpeg \
-  g++ \
-  git \
-  libpng-dev \
-  libpq-dev \
-  libxml2-dev \
-  libxslt-dev \
-  nodejs \
-  npm \
-  py3-gevent \
-  py3-lxml \
-  py3-markdown \
-  py3-matplotlib \
-  py3-opencv=4.6.0-r1 \
-  py3-pillow \
-  py3-pip \
-  py3-scipy \
-  py3-yaml \
-  python3 \
-  python3-dev \
-  readline \
-  tiff-dev \
-  uwsgi-python3 \
-  vim \
-  wget
+  git
+RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/ddmal/Rodan
 
-COPY ./scripts/install_python3_rodan_jobs /run/
+# Make Gamera files accessible to the main container.
+FROM ddmal/gamera4 AS gamera
+
+# Ubuntu 20.04 is an LTS release, supported until April 2025.
+FROM ubuntu:20.04
+
+# Copy various scripts and make them executable.
 COPY ./scripts/start-celery /run/
 COPY ./scripts/entrypoint /opt/
 COPY ./scripts/wait-for-app /run/
-
-# Copying rodan core from build context into container
-# Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY ./rodan-main/code /code/Rodan
-
-# Install Pixel
-COPY --from=pixel /pixel_wrapper /code/Rodan/rodan/jobs
-
-# Install Neon
-COPY --from=neon /neon_wrapper /code/Rodan/rodan/jobs
-
-# https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
-# Installing wheel makes the rest of the installation faster.
-RUN pip3 install setuptools==58 wheel
-RUN pip3 install -r /code/Rodan/requirements.txt
-
-RUN chmod +x /run/install_python3_rodan_jobs
-RUN /run/install_python3_rodan_jobs
-
-  # Change the concurency for python3 jobs (Calvo)
-RUN sed -i "s/=10/=1/g" /run/start-celery
-
-# Script to wait for postgres and redis to be running before attempting to connect to them.
+RUN chmod +x /run/start-celery
+RUN chmod +x /opt/entrypoint
 RUN chmod +x /run/wait-for-app
 
-RUN sed -i 's/\r//' /opt/entrypoint
-RUN chmod +x /opt/entrypoint
+# Copy external dependencies into main container.
+# Rodan folder MUST be uppercase, otherwise many unittests fail.
+COPY --from=rodan /Rodan/rodan-main/code /code/Rodan
+COPY --from=pixel /pixel_wrapper /code/Rodan/rodan/jobs/
+COPY --from=neon /neon_wrapper /code/Rodan/rodan/jobs/
+# Gamera and Musicstaves will be installed later in this script.
+COPY --from=gamera /gamera4-rodan /gamera4-rodan
 
-RUN sed -i 's/\r//' /run/start-celery
-RUN chmod +x /run/start-celery
+# Install tools and dependencies.
+RUN apt-get update
+# Skip setting the timezone. https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+RUN apt-get install -y \
+  bash \
+  curl \
+  git \
+  python3.8 \
+  python3-lxml \
+  python3-numpy \
+  python3-opencv \
+  python3-pika \
+  python3-pil \
+  python3-pip \
+  vim \
+  # Psycopg2 dependency
+  libpq-dev
+
+# Installing wheel makes the rest of the installation faster.
+# https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
+RUN pip3 install setuptools==58 wheel
+# TODO: Remove this line when committing.
+RUN sed -i '/readline/d' /code/Rodan/requirements.txt
+RUN sed -i '/numpy/d' /code/Rodan/requirements.txt
+RUN sed -i '/opencv/d' /code/Rodan/requirements.txt
+RUN sed -i '/Pillow/d' /code/Rodan/requirements.txt
+RUN pip3 install -r /code/Rodan/requirements.txt
+
+# Install Gamera and Musicstaves.
+WORKDIR /gamera4-rodan/gamera-4
+RUN python3 setup.py --nowx install
+WORKDIR /gamera4-rodan/musicstaves
+RUN python3 setup.py install
+
+# Change the concurency for python3 jobs (Calvo)
+RUN sed -i "s/=10/=1/g" /run/start-celery
 
 ENTRYPOINT ["/opt/entrypoint"]
