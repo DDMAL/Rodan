@@ -1,36 +1,32 @@
 ARG BRANCHES
-ARG VERSION
 
-FROM alpine:3 AS pixel
-RUN apk update
-RUN apk add \
-  git \
-  npm \
-  python3
-RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
-WORKDIR ./pixel_wrapper/
-RUN python3 activate_wrapper.py
-RUN npm install
-RUN ./node_modules/.bin/gulp develop:rodan
-
-
-FROM alpine:3 AS neon
+FROM alpine:3 AS builder
 RUN apk update
 RUN apk add \
   bash \
   git \
+  npm \
+  python3 \
   yarn
+
+# Build Pixel
+RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
+WORKDIR /pixel_wrapper/
+RUN python3 activate_wrapper.py
+RUN npm install
+RUN ./node_modules/.bin/gulp develop:rodan
+
+# Build Neon
+WORKDIR /
 RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
-WORKDIR ./neon_wrapper
+WORKDIR /neon_wrapper
 RUN git submodule update --init
 RUN git submodule update --remote
 RUN yarn install
 RUN yarn build
 
-FROM alpine:3 AS rodan
-RUN apk update
-RUN apk add \
-  git
+# Build Rodan
+WORKDIR /
 RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/ddmal/Rodan
 
 # Make Gamera files accessible to the main container.
@@ -49,9 +45,9 @@ RUN chmod +x /run/wait-for-app
 
 # Copy external dependencies into main container.
 # Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY --from=rodan /Rodan/rodan-main/code /code/Rodan
-COPY --from=pixel /pixel_wrapper /code/Rodan/rodan/jobs/
-COPY --from=neon /neon_wrapper /code/Rodan/rodan/jobs/
+COPY --from=builder /Rodan/rodan-main/code /code/Rodan
+COPY --from=builder /pixel_wrapper /code/Rodan/rodan/jobs/
+COPY --from=builder /neon_wrapper /code/Rodan/rodan/jobs/
 # Gamera and Musicstaves will be installed later in this script.
 COPY --from=gamera /gamera4-rodan /gamera4-rodan
 
