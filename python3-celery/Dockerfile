@@ -73,11 +73,6 @@ RUN apt-get install -y \
 # Installing wheel makes the rest of the installation faster.
 # https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
 RUN pip3 install setuptools==58 wheel
-# TODO: Remove this line when committing.
-RUN sed -i '/readline/d' /code/Rodan/requirements.txt
-RUN sed -i '/numpy/d' /code/Rodan/requirements.txt
-RUN sed -i '/opencv/d' /code/Rodan/requirements.txt
-RUN sed -i '/Pillow/d' /code/Rodan/requirements.txt
 RUN pip3 install -r /code/Rodan/requirements.txt
 
 # Install Gamera and Musicstaves.
