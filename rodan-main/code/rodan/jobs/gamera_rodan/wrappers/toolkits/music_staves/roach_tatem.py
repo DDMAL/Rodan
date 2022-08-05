@@ -1,5 +1,9 @@
-from gamera.core import load_image
-from gamera.toolkits.musicstaves import MusicStaves_rl_roach_tatem
+try:
+    from gamera.core import load_image
+    from gamera.toolkits.musicstaves import MusicStaves_rl_roach_tatem
+except ImportError:
+    pass
+
 from rodan.jobs.base import RodanTask
 
 class RoachTatemRemoveStaffLines(RodanTask):

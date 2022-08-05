@@ -44,10 +44,10 @@ services:
       resources:
         reservations:
           cpus: "1"
-          memory: 2G
+          memory: 8G
         limits:
           cpus: "1"
-          memory: 2G
+          memory: 8G
       restart_policy:
         condition: any
         delay: 5s
@@ -105,36 +105,6 @@ services:
       TZ: America/Toronto
       SERVER_HOST: rodan-staging.simssa.ca
       CELERY_JOB_QUEUE: celery
-    env_file:
-      - ./scripts/staging.env
-    volumes:
-      - "resources:/rodan/data"
-
-  py2-celery:
-    image: "ddmal/rodan-python2-celery:nightly"
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          cpus: "1"
-          memory: 2G
-        limits:
-          cpus: "1"
-          memory: 2G
-      restart_policy:
-        condition: any
-        delay: 5s
-        window: 30s
-    healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python2"]
-      interval: "30s"
-      timeout: "10s"
-      retries: 3
-    command: /run/start-celery
-    environment:
-      TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
-      CELERY_JOB_QUEUE: Python2
     env_file:
       - ./scripts/staging.env
     volumes:

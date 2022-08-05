@@ -11,7 +11,7 @@ REPLACE := perl -i -pe
 RODAN_PATH := ./rodan-main/code/rodan
 JOBS_PATH := $(RODAN_PATH)/jobs
 
-PROD_TAG := v2.0.1
+PROD_TAG := v2.0.2
 
 # Individual Commands
 
@@ -78,7 +78,6 @@ deploy_production:
 copy_docker_tag:
 	# tag=v1.5.0rc0 make copy_docker_tag
 	@docker image tag $(docker images ddmal/rodan:nightly -q) ddmal/rodan:$(tag)
-	@docker image tag $(docker images ddmal/rodan-python2-celery:nightly -q) ddmal/rodan-python2-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-python3-celery:nightly -q) ddmal/rodan-python3-celery:$(tag)
 	@docker image tag $(docker images ddmal/rodan-gpu-celery:nightly -q) ddmal/rodan-gpu-celery:$(tag)
 
@@ -89,7 +88,6 @@ pull_prod:
 	docker pull ddmal/postgres-plpython:$(PROD_TAG)
 	docker pull ddmal/rodan-gpu-celery:$(PROD_TAG)
 	docker pull ddmal/rodan-main:$(PROD_TAG)
-	docker pull ddmal/rodan-python2-celery:$(PROD_TAG)
 	docker pull ddmal/rodan-python3-celery:$(PROD_TAG)
 	docker pull rabbitmq:alpine
 	docker pull redis:alpine
@@ -97,14 +95,12 @@ pull_prod:
 pull_docker_tag:
 	# tag=v1.5.0rc0 make pull_docker_tag
 	@docker pull ddmal/rodan:$(tag)
-	@docker pull ddmal/rodan-python2-celery:$(tag)
 	@docker pull ddmal/rodan-python3-celery:$(tag)
 	@docker pull ddmal/rodan-gpu-celery:$(tag)
 
 push_docker_tag:
 	# tag=v1.5.0rc0 make push_docker_tag
 	@docker push ddmal/rodan:$(tag)
-	@docker push ddmal/rodan-python2-celery:$(tag)
 	@docker push ddmal/rodan-python3-celery:$(tag)
 	@docker push ddmal/rodan-gpu-celery:$(tag)
 
@@ -195,7 +191,8 @@ stop:
 	# This is the same command to stop docker swarm or docker-compose
 	@echo "[-] Stopping all running docker containers and services..."
 	@docker service rm `docker service ls -q` >>/dev/null 2>&1 || echo "[+] No Services Running"
-	@docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
+	# @docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
+	@docker stop `docker ps -aq | grep -v $$(docker ps -aq --filter "name=gpu_dont_kill_me")` >>/dev/null 2>&1 || echo "[+] No Containers Running"
 	@echo "[+] Done."
 
 clean:

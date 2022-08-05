@@ -4,15 +4,17 @@
 from __future__ import unicode_literals
 
 from celery.utils.log import get_task_logger
-from gamera import knn, knnga
 from rodan.jobs.base import RodanTask
 from tempfile import NamedTemporaryFile as NTF
 from time import sleep
-
 import json
-from rodan.jobs.biollante_rodan import knnga_util as util
 import shutil
 
+try:
+    from gamera import knn, knnga
+    from rodan.jobs.biollante_rodan import knnga_util as util
+except ImportError:
+    pass
 
 STATE_INIT = 0
 STATE_NOT_OPTIMIZING = 1
