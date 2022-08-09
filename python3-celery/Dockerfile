@@ -1,6 +1,7 @@
-ARG BRANCHES
+ARG BRANCH
 
 FROM alpine:3 AS builder
+ENV BRANCH="${BRANCH:-develop}"
 RUN apk update
 RUN apk add \
   bash \
@@ -10,7 +11,7 @@ RUN apk add \
   yarn
 
 # Build Pixel
-RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/pixel_wrapper.git
+RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/DDMAL/pixel_wrapper.git
 WORKDIR /pixel_wrapper/
 RUN python3 activate_wrapper.py
 RUN npm install
@@ -18,7 +19,7 @@ RUN ./node_modules/.bin/gulp develop:rodan
 
 # Build Neon
 WORKDIR /
-RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
+RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/DDMAL/neon_wrapper
 WORKDIR /neon_wrapper
 RUN git submodule update --init
 RUN git submodule update --remote
@@ -27,7 +28,7 @@ RUN yarn build
 
 # Build Rodan
 WORKDIR /
-RUN git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/ddmal/Rodan
+RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/ddmal/Rodan
 
 # Make Gamera files accessible to the main container.
 FROM ddmal/gamera4 AS gamera
@@ -37,10 +38,8 @@ FROM ubuntu:20.04
 
 # Copy various scripts and make them executable.
 COPY ./scripts/start-celery /run/
-COPY ./scripts/entrypoint /opt/
 COPY ./scripts/wait-for-app /run/
 RUN chmod +x /run/start-celery
-RUN chmod +x /opt/entrypoint
 RUN chmod +x /run/wait-for-app
 
 # Copy external dependencies into main container.
@@ -84,4 +83,4 @@ RUN python3 setup.py install
 # Change the concurency for python3 jobs (Calvo)
 RUN sed -i "s/=10/=1/g" /run/start-celery
 
-ENTRYPOINT ["/opt/entrypoint"]
+ENTRYPOINT ["/run/start-celery"]
