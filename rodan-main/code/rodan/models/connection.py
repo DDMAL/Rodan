@@ -84,5 +84,5 @@ class Connection(models.Model):
         super(Connection, self).delete(*args, **kwargs)
         Workflow.objects.filter(pk=wf_id).update(valid=False)
 
-    def __unicode__(self):
-        return u"<Connection {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<Connection {0}>".format(str(self.uuid))

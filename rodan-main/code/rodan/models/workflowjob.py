@@ -101,8 +101,8 @@ class WorkflowJob(models.Model):
         super(WorkflowJob, self).delete(*args, **kwargs)
         Workflow.objects.filter(pk=wf_id).update(valid=False)
 
-    def __unicode__(self):
-        return u"<WorkflowJob {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<WorkflowJob {0}>".format(str(self.uuid))
 
     @property
     def job_name(self):

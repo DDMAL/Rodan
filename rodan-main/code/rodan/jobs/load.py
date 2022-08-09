@@ -352,7 +352,7 @@ for mimetype, definitions in resourcetypes.items():
             if len(possible_descriptions.keys()) == 0:
                 description = ""
             elif len(possible_descriptions.keys()) == 1:
-                description = possible_descriptions.keys()[0]
+                description = list(possible_descriptions.keys())[0]
             else:
                 print("\n  Multiple descriptions found for {0}:".format(mimetype))
                 choices = []
@@ -378,7 +378,7 @@ for mimetype, definitions in resourcetypes.items():
             if len(possible_extensions.keys()) == 0:
                 extension = ""
             elif len(possible_extensions.keys()) == 1:
-                extension = possible_extensions.keys()[0]
+                extension = list(possible_extensions.keys())[0]
             else:
                 print("\n  Multiple extensions found for {0}:".format(mimetype))
                 choices = []
@@ -492,9 +492,6 @@ import rodan.jobs.register_all_jobs as job_register # noqa
 # Register jobs based on their respective queue
 if os.environ["CELERY_JOB_QUEUE"] == "None" or os.environ["CELERY_JOB_QUEUE"] == "celery": 
     job_register.register_all()
-
-if os.environ["CELERY_JOB_QUEUE"] == "Python2":
-    job_register.register_py2()
 
 if os.environ["CELERY_JOB_QUEUE"] == "Python3":
     job_register.register_py3()

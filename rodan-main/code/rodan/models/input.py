@@ -59,8 +59,8 @@ class Input(models.Model):
         "rodan.RunJob", related_name="inputs", on_delete=models.CASCADE, db_index=True
     )
 
-    def __unicode__(self):
-        return u"<Input {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<Input {0}>".format(str(self.uuid))
 
     @property
     def input_port_type(self):

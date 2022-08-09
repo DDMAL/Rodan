@@ -7,10 +7,8 @@ Script for registering Rodan jobs with Celery, split into their respective queue
 
 # Register all jobs
 def register_all():
-
     # Register all jobs
     register_base()
-    register_py2()
     register_py3()
     register_gpu()
 
@@ -35,35 +33,6 @@ def register_base():
     except Exception as exception:
         import_name = "Labeler"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-
-# Python2 Jobs
-def register_py2():
-      # Register Hello World
-    try:
-        from rodan.jobs.helloworld.helloworld import HelloWorld
-
-        app.register_task(HelloWorld())
-    except Exception as exception:
-        import_name = "Hello World"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort
-
-        app.register_task(HelloWorldMultiPort())
-    except Exception as exception:
-        import_name = "Hello World Multi Port"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.helloworld.helloworld import HelloWorld3
-
-        app.register_task(HelloWorld3())
-    except Exception as exception:
-        import_name = "Hello World Python3"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
 
 # Python3 Jobs
 def register_py3():

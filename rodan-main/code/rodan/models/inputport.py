@@ -73,5 +73,5 @@ class InputPort(models.Model):
         super(InputPort, self).delete(*args, **kwargs)
         Workflow.objects.filter(pk=wf_id).update(valid=False)
 
-    def __unicode__(self):
-        return u"<InputPort {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<InputPort {0}>".format(str(self.uuid))

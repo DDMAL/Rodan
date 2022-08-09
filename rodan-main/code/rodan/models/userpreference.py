@@ -24,5 +24,5 @@ class UserPreference(models.Model):
     )
     send_email = models.BooleanField(default=True, db_index=True)
 
-    def __unicode__(self):
-        return u"<UserPreference {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<UserPreference {0}>".format(str(self.uuid))

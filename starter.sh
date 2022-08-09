@@ -30,4 +30,3 @@ then
 fi
 # for the other features regarding the demands of your own environment you can modify the code above
 # Author: Shahrad Mohammadzadeh
-
