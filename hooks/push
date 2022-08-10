@@ -9,39 +9,39 @@ RODAN_DOCKER_TAG=`git describe --tags --always`
 echo "[+] Pushing Python3-Celery"
 
 if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-python3-celery:req
+  docker push ddmal/rodan-python3-celery:nightly
 fi
 
-docker push ddmal/rodan-python3-celery:req
+docker push ddmal/rodan-python3-celery:nightly
 
 echo "[+] Pushing GPU-Celery"
 
 if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-gpu-celery:req
+  docker push ddmal/rodan-gpu-celery:nightly
 fi
 
-docker push ddmal/rodan-gpu-celery:req
+docker push ddmal/rodan-gpu-celery:nightly
 
 echo "[+] Pushing Postgres"
 
 if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/postgres-plpython:req
+  docker push ddmal/postgres-plpython:nightly
 fi
 
-docker push ddmal/postgres-plpython:req
+docker push ddmal/postgres-plpython:nightly
 
 echo "[+] Pushing Nginx"
 
 if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/nginx:req
+  docker push ddmal/nginx:nightly
 fi
 
-docker push ddmal/nginx:req
+docker push ddmal/nginx:nightly
 
 echo "[+] Pushing HPC-RabbitMQ"
 
 if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/hpc-rabbitmq:req
+  docker push ddmal/hpc-rabbitmq:nightly
 fi
 
-docker push ddmal/hpc-rabbitmq:req
+docker push ddmal/hpc-rabbitmq:nightly
