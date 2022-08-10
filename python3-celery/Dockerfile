@@ -1,7 +1,6 @@
-ARG BRANCH=develop
-
 FROM alpine:3 AS builder
-ENV BRANCH="${BRANCH}"
+ARG BRANCH
+ENV BRANCH="${BRANCH:-develop}"
 RUN apk update
 RUN apk add \
   bash \
