@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   nginx:
-    image: "nginx-local:req"
+    image: "nginx-local:latest"
     command: /run/start
     depends_on:
       - rodan-main
