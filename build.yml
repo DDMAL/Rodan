@@ -21,7 +21,6 @@ services:
         BRANCHES: develop
     image: "ddmal/rodan:nightly"
 
-
   py3-celery:
     build:
       context: .

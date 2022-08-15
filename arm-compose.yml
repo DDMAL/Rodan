@@ -62,7 +62,6 @@ services:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
 
-
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
     command: bash -c "tail -f /dev/null"

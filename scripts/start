@@ -4,7 +4,7 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o xtrace # Print commands and their arguments as they are executed.
 
 chmod -R a+rwx /rodan
-chmod -R a+rwx /var
+chmod a+rwx /var
 
 cd /code/Rodan
 runuser -u www-data -- yes | MIGRATE="True" python3 manage.py migrate --noinput
