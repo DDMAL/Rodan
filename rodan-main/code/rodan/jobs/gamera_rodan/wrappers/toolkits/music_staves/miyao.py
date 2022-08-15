@@ -20,6 +20,7 @@ class MiyaoStaffFinder(RodanTask):
     settings = {
         'title': 'Miyao settings',
         'type': 'object',
+        'job_queue': 'Python3', 
         'required': ['Number of lines', 'Scan lines', 'Blackness', 'Tolerance'],
         'properties': {
             'Number of lines': {

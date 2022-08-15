@@ -98,8 +98,8 @@ class WorkflowRun(models.Model):
     def origin_resources(self):
         return list(set(self.run_jobs.values_list("resource_uuid", flat=True)))
 
-    def __unicode__(self):
-        return u"<WorkflowRun {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<WorkflowRun {0}>".format(str(self.uuid))
 
     def delete(self, *args, **kwargs):
         # remove protected links from runjobs to workflowrun by deleting the jobruns

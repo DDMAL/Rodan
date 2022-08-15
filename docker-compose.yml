@@ -65,23 +65,6 @@ services:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
 
-  py2-celery:
-    image: "ddmal/rodan-python2-celery:req"
-    command: bash -c "tail -f /dev/null"
-    environment:
-      CELERY_JOB_QUEUE: Python2
-    depends_on:
-      - postgres
-      - rodan-main
-      - rabbitmq
-      - redis
-      - celery
-    env_file:
-      - ./scripts/local.env
-    volumes:
-      - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
-
   py3-celery:
     image: "ddmal/rodan-python3-celery:req"
     command: bash -c "tail -f /dev/null"

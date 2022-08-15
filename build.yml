@@ -21,14 +21,6 @@ services:
         BRANCHES: develop
     image: "ddmal/rodan:req"
 
-  py2-celery:
-    build:
-      context: .
-      dockerfile: ./python2-celery/Dockerfile
-      args:
-        BRANCHES: develop
-    image: "ddmal/rodan-python2-celery:req"
-
   py3-celery:
     build:
       context: .

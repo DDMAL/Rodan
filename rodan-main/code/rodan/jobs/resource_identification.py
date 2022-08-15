@@ -1,6 +1,7 @@
 import re
-
+import base64
 import magic
+import io 
 
 
 def define_midi(*args, **kwargs):
@@ -27,11 +28,13 @@ def define_png(filename, mime=None):
     except KeyError:
         pass
 
-    with open(filename) as f:
+    with io.open(filename, 'rb') as f:
         data = f.read()
 
-    if data[25].encode("hex") == "06":
-        return "image/rgba+png"
+    #convert string to hex
+    hex_val = hex(data[25])
+    if hex_val == "0x6":
+         return "image/rgba+png"
 
     return "image/rgb+png"
 
@@ -45,7 +48,7 @@ def define_jp2(*args, **kwargs):
 
 
 def define_xml(filename, mime=None):
-    with open(filename) as f:
+    with io.open(filename) as f:
         data = f.readlines()
 
     xml_mimetypes = {
@@ -68,7 +71,7 @@ def define_xml(filename, mime=None):
 
 
 def define_text(filename, mime=None):
-    with open(filename) as f:
+    with io.open(filename) as f:
         data = f.readline().strip()
 
     text_mimetypes = {
@@ -99,7 +102,7 @@ def define_text(filename, mime=None):
 
         # For detecting regular CSV's, we need more than the first line
         # Fallback, also if the newline character messed the json identification in libmagic.
-        with open(filename) as f:
+        with io.open(filename) as f:
             data = f.readlines()
 
         try:
@@ -118,7 +121,7 @@ def define_text(filename, mime=None):
 
 
 def define_stream(filename, mime=None):
-    with open(filename, "rb") as f:
+    with io.open(filename, "rb") as f:
         data = f.read()
 
     if data[0:2] == b"\x80\x02":
@@ -159,7 +162,7 @@ def fileparse(filename):
         # If all else fails then give a tuple, crash rodan, and tell me what mimetype you found.
         pass
 
-    with open(filename) as f:
+    with io.open(filename) as f:
         data = f.readline()
     return "application/octet-stream", magic_mime, data
 
@@ -175,32 +178,113 @@ if __name__ == "__main__":
     """
 
     if True:
-        assert fileparse("../test/files/LLIA") == "application/ace+xml"
-        assert fileparse("../test/files/AWKQ") == "application/arff"
-        assert fileparse("../test/files/XSNA") == "application/arff+csv"
-        assert fileparse("../test/files/ZHAH") == "application/gamera-polygons+txt"
-        assert fileparse("../test/files/DXUA") == "application/gamera+xml"
-        assert fileparse("../test/files/PKAF") == "application/jsc+txt"
-        assert fileparse("../test/files/AHSK") == "application/mei+xml"
-        assert fileparse("../test/files/PAOS") == "application/midi"
-        assert fileparse("../test/files/TQOA") == "image/grey16+png"
-        assert fileparse("../test/files/WYAG") == "image/jp2"
-        assert fileparse("../test/files/EQRQ") == "image/onebit+png"
-        assert fileparse("../test/files/YASH") == "image/rgb+jpg"
-        assert fileparse("../test/files/GWJA") == "application/x-muscxml+xml"
-        assert fileparse("../test/files/AOGO") == "application/x-vis_figuredbass_pandas_series+csv"
-        assert fileparse("../test/files/DUKU") == "application/x-vis_horizontal_pandas_series+csv"
-        assert fileparse("../test/files/BYKA") == "application/x-vis_vertical_pandas_series+csv"
-        assert fileparse("../test/files/7W4A") == "application/x-vis_ngram_pandas_dataframe+csv"
-        assert fileparse("../test/files/KGRA") == "application/x-vis_noterest_pandas_series+csv"
-        assert fileparse("../test/files/KASD") == "application/zip"
-        assert fileparse("../test/files/UZFA") == "application/json"
-        assert fileparse("../test/files/ZTAS") == "application/ocropus+pyrnn"
-        assert fileparse("../test/files/GAZG") == "application/json"
-        assert fileparse("../test/files/QIWR") == "application/json"
-        assert fileparse("../test/files/PXCV") == "image/rgba+png"
-        assert fileparse("../test/files/OASD") == "image/rgb+png"
-        assert fileparse("../test/files/APFX") == "keras/model+hdf5"
-        assert fileparse("../test/files/2FKA") == "text/csv"
 
-        print("[+] Success - Current Filetypes work")
+        print("[+] Failed - Current Filetypes don't work")
+        try:
+            assert fileparse("../test/files/LLIA") == "application/ace+xml"
+        except: 
+            print("application/ace+xml")
+        try: 
+            assert fileparse("../test/files/AWKQ") == "application/arff"
+        except: 
+            print("application/arff")
+        try: 
+            assert fileparse("../test/files/XSNA") == "application/arff+csv"
+        except: 
+            print("application/arff+csv")
+        try: 
+            assert fileparse("../test/files/ZHAH") == "application/gamera-polygons+txt"
+        except: 
+            print("application/gamera-polygons+txt")
+        try: 
+            assert fileparse("../test/files/DXUA") == "application/gamera+xml"
+        except: 
+            print("application/gamera+xml")
+        try: 
+            assert fileparse("../test/files/PKAF") == "application/jsc+txt"
+        except: 
+            print("application/jsc+txt")
+        try:
+            assert fileparse("../test/files/AHSK") == "application/mei+xml"
+        except: 
+            print("application/mei+xml")
+        try: 
+            assert fileparse("../test/files/PAOS") == "application/midi"        
+        except: 
+            print("application/midi")
+        try: 
+            assert fileparse("../test/files/TQOA") == "image/grey16+png"
+        except: 
+            print("image/grey16+png")
+        try: 
+            assert fileparse("../test/files/WYAG") == "image/jp2"
+        except: 
+            print("image/jp2")
+        try: 
+            assert fileparse("../test/files/EQRQ") == "image/onebit+png"
+        except: 
+            print("image/onebit+png")
+        try: 
+            assert fileparse("../test/files/YASH") == "image/rgb+jpg"
+        except: 
+            print("image/rgb+jpg")
+        try: 
+            assert fileparse("../test/files/GWJA") == "application/x-muscxml+xml"
+        except: 
+            print("application/x-muscxml+xml")
+        try: 
+            assert fileparse("../test/files/AOGO") == "application/x-vis_figuredbass_pandas_series+csv"
+        except: 
+            print("application/x-vis_figuredbass_pandas_series+csv")
+        try: 
+            assert fileparse("../test/files/DUKU") == "application/x-vis_horizontal_pandas_series+csv"
+        except: 
+            print("application/x-vis_figuredbass_pandas_series+csv")
+        try: 
+            assert fileparse("../test/files/BYKA") == "application/x-vis_vertical_pandas_series+csv"
+        except: 
+            print("application/x-vis_vertical_pandas_series+csv")
+        try: 
+            assert fileparse("../test/files/7W4A") == "application/x-vis_ngram_pandas_dataframe+csv"
+        except: 
+            print("application/x-vis_ngram_pandas_dataframe+csv")
+        try: 
+            assert fileparse("../test/files/KGRA") == "application/x-vis_noterest_pandas_series+csv"
+        except: 
+            print("application/x-vis_noterest_pandas_series+csv")
+        try: 
+            assert fileparse("../test/files/KASD") == "application/zip"
+        except: 
+            print("application/zip")
+        try: 
+            assert fileparse("../test/files/UZFA") == "application/json"
+        except: 
+            print("application/json")
+        try: 
+            assert fileparse("../test/files/ZTAS") == "application/ocropus+pyrnn"
+        except: 
+            print("application/ocropus+pyrnn")
+        try:
+            assert fileparse("../test/files/GAZG") == "application/json"
+        except: 
+            print("application/json2")
+        try: 
+            assert fileparse("../test/files/QIWR") == "application/json"
+        except: 
+            print("application/json3")
+        try: 
+            assert fileparse("../test/files/PXCV") == "image/rgba+png"
+        except: 
+            print("image/rgba+png")
+        try: 
+            assert fileparse("../test/files/OASD") == "image/rgb+png"
+        except: 
+            print("image/rgb+png")
+        try: 
+            assert fileparse("../test/files/APFX") == "keras/model+hdf5"
+        except: 
+            print("keras/model+hdf5")
+        try: 
+            assert fileparse("../test/files/2FKA") == "text/csv"
+        except: 
+            print("text/csv")
