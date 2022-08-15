@@ -4,20 +4,16 @@
 set -o errexit
 
 # This "useless" image is build to prevent dockerhub from overwriting
-# the req image with it's obligatory minimum of a build rule. If we want a build
+# the nightly image with it's obligatory minimum of a build rule. If we want a build
 # trigger with a HTTPS POST request, we must have at least 1 build rule.
 docker build \
   --tag ddmal/rodan:placeholder \
   .
 
-RODAN_TAG='nightly'
-#`cd rodan-main/code && git describe --tags --always`
-RODAN_CLIENT_TAG='nightly'
-#`cd rodan-client/code && git describe --tags --always`
-RODAN_DOCKER_TAG='nightly'
-#`git describe --tags --always`
-BUILD_HASH='nightly'
-#`git rev-parse --verify HEAD`
+RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
+RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
+RODAN_DOCKER_TAG=`git describe --tags --always`
+BUILD_HASH=`git rev-parse --verify HEAD`
 
 ###############################################################################
 # Stage 1
