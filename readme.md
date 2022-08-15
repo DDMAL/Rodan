@@ -17,7 +17,6 @@ If you are working on **Rodan** or **Rodan Jobs**
 
 - Make sure you have Rodan submodule cloned in `${repository_root}/rodan/code` and **it is up to date** with the branch you wish to work with. The branches should be either `develop`, or the **name of the feature** you would like to include into develop. The `master` branch is only for version releases and is supposed to be a guaranteed working version.
 - Follow the instructions here: https://github.com/DDMAL/rodan-docker/wiki/Working-on-Rodan
-  - If working on jobs, you will need to install the jobs individually on your machine inside the docker environment. All dependencies for each job should already be installed. You can follow the same shell script used to install the jobs individually in the container here: `${repository_root}/scripts/install_rodan_jobs` and `${repository_root}/scripts/install_python3_rodan_jobs`.
   - Note the `BRANCHES` environment variable in the installation scripts, you can set the environment variable locally by running the following command: `export BRANCHES="develop"`.
 
 If you are working on **Rodan-Client**
