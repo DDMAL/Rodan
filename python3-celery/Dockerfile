@@ -64,6 +64,7 @@ RUN apt-get install -y \
   python3-pika \
   python3-pil \
   python3-pip \
+  wget \
   vim \
   # Psycopg2 dependency
   libpq-dev
