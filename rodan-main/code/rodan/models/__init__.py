@@ -110,7 +110,7 @@ def update_database_trigger(sender, **kwargs):
 
     # Python function to add message to redis
     publish_message = '''
-        CREATE OR REPLACE LANGUAGE plpythonu;
+        CREATE OR REPLACE LANGUAGE plpython3u;
         CREATE OR REPLACE FUNCTION publish_message(notify text) RETURNS void AS $$
             import json
             import redis
@@ -137,7 +137,7 @@ def update_database_trigger(sender, **kwargs):
                 }}
             r = redis.StrictRedis("{0}", {1}, db={2})
             r.publish('rodan:broadcast:rodan', json.dumps(data))
-        $$ LANGUAGE plpythonu;
+        $$ LANGUAGE plpython3u;
         GRANT EXECUTE ON FUNCTION publish_message(notify text) TO {3};
     '''.format(
         settings.WS4REDIS_CONNECTION['host'],

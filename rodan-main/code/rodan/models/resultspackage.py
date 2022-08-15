@@ -98,8 +98,8 @@ class ResultsPackage(models.Model):
             os.remove(path)
         super(ResultsPackage, self).delete(*a, **k)
 
-    def __unicode__(self):
-        return u"<ResultsPackage {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<ResultsPackage {0}>".format(str(self.uuid))
 
     @property
     def package_path(self):

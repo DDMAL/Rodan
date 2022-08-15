@@ -20,7 +20,7 @@ RUN export DJANGO_SECRET_KEY=localdev \
   && mkdir /code/Rodan/rodan/static \
   # If it does, erase everything.
   || rm -rf /code/Rodan/rodan/static/* \
-  && python /code/Rodan/manage.py collectstatic --noinput
+  && python3 /code/Rodan/manage.py collectstatic --noinput
 
 
 ###########################################################

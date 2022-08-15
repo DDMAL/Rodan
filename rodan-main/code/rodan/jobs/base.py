@@ -37,7 +37,7 @@ from rodan.models import (
     WorkflowRun,
 )
 from rodan.jobs.deep_eq import deep_eq
-from rodan.jobs.convert_to_unicode import convert_to_unicode
+from rodan.jobs.convert_to_str import convert_to_str
 
 import logging
 
@@ -135,6 +135,7 @@ class RodanTaskType(TaskType):
                     job_queue=schema.get("job_queue", "celery"),
                 )
                 j.save()
+                print(attrs["name"])
 
                 try:
                     for ipt in attrs["input_port_types"]:
@@ -157,7 +158,6 @@ class RodanTaskType(TaskType):
                                 ).format(ipt["resource_types"])
                             )
                         i.resource_types.add(*resource_types)
-
                     for opt in attrs["output_port_types"]:
                         o = OutputPortType(
                             job=j,
@@ -204,8 +204,8 @@ class RodanTaskType(TaskType):
                                 ).format(
                                     field_name,
                                     j.name,
-                                    convert_to_unicode(original_value),
-                                    convert_to_unicode(new_value),
+                                    convert_to_str(original_value),
+                                    convert_to_str(new_value),
                                 )
                             )  # noqa
                         else:
@@ -216,8 +216,8 @@ class RodanTaskType(TaskType):
                                 ).format(
                                     field_name,
                                     j.name,
-                                    convert_to_unicode(original_value),
-                                    convert_to_unicode(new_value),
+                                    convert_to_str(original_value),
+                                    convert_to_str(new_value),
                                 )
                             )  # noqa
                             if confirm_update:
@@ -387,9 +387,9 @@ class RodanTaskType(TaskType):
                             resource_types = RodanTaskType._resolve_resource_types(
                                 attrs_pt["resource_types"]
                             )
-                            rt_code = set(map(lambda rt: rt.mimetype, resource_types))
+                            rt_code = set(list(map(lambda rt: rt.mimetype, resource_types))) #map works differently in py2->3, need to add list 
                             rt_db = set(
-                                map(lambda rt: rt.mimetype, pt.resource_types.all())
+                                list((map(lambda rt: rt.mimetype, pt.resource_types.all())))
                             )
                             if rt_code != rt_db:
                                 if not UPDATE_JOBS:
@@ -523,16 +523,16 @@ class RodanTaskType(TaskType):
         Returns a list of ResourceType objects.
         """
         try:
-            mimelist = filter(
+            mimelist = list(filter(
                 value, ResourceType.objects.all().values_list("mimetype", flat=True)
-            )
+            ))
         except TypeError:
             mimelist = value
         return ResourceType.objects.filter(mimetype__in=mimelist)
 
 
-class RodanTask(Task):
-    __metaclass__ = RodanTaskType
+class RodanTask(Task,metaclass=RodanTaskType):
+    # __metaclass__ = RodanTaskType
     abstract = True
 
     ################################
@@ -575,12 +575,12 @@ class RodanTask(Task):
                 inputs[ipt_name].append(_extract_resource(input.resource))
             elif input.resource_list is not None:  # If resource_list
                 inputs[ipt_name].append(
-                    map(
+                    list(map(
                         lambda x: _extract_resource(
                             x, input.resource_list.get_resource_type().mimetype
                         ),
                         input.resource_list.resources.all(),
-                    )
+                    ))
                 )
             else:
                 raise RuntimeError(

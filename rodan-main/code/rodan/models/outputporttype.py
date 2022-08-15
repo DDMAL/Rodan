@@ -40,5 +40,5 @@ class OutputPortType(models.Model):
     maximum = models.IntegerField(db_index=True)
     is_list = models.BooleanField(db_index=True)
 
-    def __unicode__(self):
-        return u"<OutputPortType {0}>".format(str(self.uuid))
+    def __str__(self):
+        return "<OutputPortType {0}>".format(str(self.uuid))

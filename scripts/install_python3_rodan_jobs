@@ -45,7 +45,7 @@ cd /code/Rodan/rodan/jobs
 rm -rf ./neon_wrapper
 git clone --recurse-submodules -b "${BRANCHES:-develop}" https://github.com/DDMAL/neon_wrapper
 cd ./neon_wrapper
-git checkout d56837b79586cad19a65eb6a4eee5d6ab6931d88
+git checkout 1f6f58b5b7503da0667e59c5ab5a75ee3fe0cc1f
 git submodule update --init
 git submodule update --remote
 yarn install
@@ -67,7 +67,6 @@ cd /code/Rodan/rodan
 sed -i 's/#py3 //g' /code/Rodan/rodan/settings.py
 
 #!/bin/bash
-###############################
 # INSTALLATION SCRIPT FOR RODAN CONTAINER
 # In the root directory
 cd /
@@ -76,7 +75,8 @@ cd /
 echo "###### cloning git repo ######"
 git clone https://github.com/DDMAL/gamera4-rodan.git
 cd gamera4-rodan
-git checkout c7e2f84 #specifies commit
+git checkout 76608f6 #this commit fixes miyao staff finder
+
 
 # install gamera-4 on the container
 echo "###### build and install gamera ######"
@@ -87,6 +87,8 @@ python3.7 setup.py --nowx build && python3.7 setup.py --nowx install
 echo "###### build and install musicstaves ######"
 cd ../musicstaves
 python3.7 setup.py build && python3.7 setup.py install
+
+
 
 # IF THE PROCESS IS TERMINATED BY AN ERROR, REFER TO THE 
 # Rodan/rodan-main/code/rodan/jobs/gamera_rodan/gamera-rodan-doc.md FILE AND FIX IT. 

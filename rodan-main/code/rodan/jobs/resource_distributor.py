@@ -14,7 +14,7 @@ class ResourceDistributor(RodanTask):
         'type': 'object',
         'properties': {
             'Resource type': {
-                'enum': map(lambda rt: str(rt.mimetype), ResourceType.objects.all()),
+                'enum': list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all())),
                 'type': 'string',
                 'default': 'application/octet-stream',
                 'description': 'Specifies the eligible resource types for input'
