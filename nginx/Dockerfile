@@ -27,8 +27,10 @@ RUN export DJANGO_SECRET_KEY=localdev \
 FROM nginx:1.19
 
 # Install OS dependencies
-RUN apt-get -qq update \
-  && apt-get -qq install openssl certbot unzip -y \
+RUN apt-get update && apt-get install -y \
+    openssl \
+    certbot \
+    unzip \
   && rm -rf /var/lib/apt/lists/*
 
 # Add configuration files.

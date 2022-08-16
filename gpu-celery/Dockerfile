@@ -61,15 +61,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         software-properties-common \
         unzip \
 		wget
-# added wget		
-
-# Install TensorRT if not building for PowerPC
-# NOTE: libnvinfer uses cuda11.1 versions
-# RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-#         apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-#         libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-#         && apt-get clean \
-#         && rm -rf /var/lib/apt/lists/*; }
+# added wget
 
 # For CUDA profiling, TensorFlow requires CUPTI.
 ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:/usr/local/cuda-11.1/lib64:$LD_LIBRARY_PATH

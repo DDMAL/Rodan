@@ -18,9 +18,8 @@ RUN apt-get -qq update \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && apt -qq update \
   && apt -qq install -y \
-    yarn
-
-RUN rm -rf /var/lib/apt/lists/*
+    yarn \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install node project.
 COPY code/ /code/

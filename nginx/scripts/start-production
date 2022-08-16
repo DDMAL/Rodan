@@ -19,8 +19,8 @@ if [ $TLS -eq 1 ]; then
         /etc/nginx/sites-available/rodan.stream
 else
     sed -i "s/#no_tls //g" /etc/nginx/nginx.conf \
-	/etc/nginx/sites-available/rodan.conf \
-	/etc/nginx/sites-available/rodan.stream
+	    /etc/nginx/sites-available/rodan.conf \
+	    /etc/nginx/sites-available/rodan.stream
 fi
 
 nginx
