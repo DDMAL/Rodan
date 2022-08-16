@@ -32,7 +32,7 @@ RUN \
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
 COPY ./scripts/start /run/
 RUN set -e \
-  && chmod +x opt/install_gpu_rodan_jobs \
+  && chmod +x /opt/install_gpu_rodan_jobs \
   && chown www-data /opt/install_gpu_rodan_jobs \
   # This script starts Rodan
   && chmod +x /run/start \
