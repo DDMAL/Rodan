@@ -57,7 +57,7 @@ RUN apt-get install -y \
   bash \
   curl \
   git \
-  python3.8 \
+  python3.7 \
   python3-lxml \
   python3-numpy \
   python3-opencv \
