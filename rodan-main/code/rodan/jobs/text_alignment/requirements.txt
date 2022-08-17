@@ -1,4 +1,5 @@
 #numpy==1.17.3; python_version > "3.4"
+opencv-python==3.4.2.17
 git+https://github.com/timothydereuse/calamari@v2.1.4#egg=calamari_ocr; python_version > "3.4"
 git+https://github.com/p42ul/tfaip@3738106#egg=tfaip; python_version > "3.4"
 paiargparse==1.1.2; python_version > "3.4"
