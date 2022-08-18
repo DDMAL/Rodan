@@ -6,42 +6,42 @@ RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
 RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
 RODAN_DOCKER_TAG=`git describe --tags --always`
 
-echo "[+] Pushing Python3-Celery"
+echo "[+] Skipping Python3-Celery"
 
-if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
-fi
+#if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+#  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
+#fi
 
-docker push ddmal/rodan-python3-celery:nightly
+#docker push ddmal/rodan-python3-celery:olderVersion
 
 echo "[+] Pushing GPU-Celery"
 
-if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
-fi
+#if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+#  docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
+#fi
 
-docker push ddmal/rodan-gpu-celery:nightly
+docker push ddmal/rodan-gpu-celery:olderVersion
 
 echo "[+] Pushing Postgres"
 
-if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
-fi
+#if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+#  docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
+#fi
 
-docker push ddmal/postgres-plpython:nightly
+docker push ddmal/postgres-plpython:olderVersion
 
 echo "[+] Pushing Nginx"
 
-if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/nginx:${RODAN_DOCKER_TAG}
-fi
+#if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+#  docker push ddmal/nginx:${RODAN_DOCKER_TAG}
+#fi
 
-docker push ddmal/nginx:nightly
+docker push ddmal/nginx:olderVersion
 
 echo "[+] Pushing HPC-RabbitMQ"
 
-if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG}
-fi
+#if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
+#  docker push ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG}
+#fi
 
-docker push ddmal/hpc-rabbitmq:nightly
+docker push ddmal/hpc-rabbitmq:olderVersion
