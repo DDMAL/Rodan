@@ -32,8 +32,8 @@ RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/ddmal/Rodan
 # Make Gamera files accessible to the main container.
 FROM ddmal/gamera4 AS gamera
 
-# Ubuntu 20.04 is an LTS release, supported until April 2025.
-FROM ubuntu:20.04
+# This release is based on Debian 11 "Bullseye"
+FROM python:3.7-slim
 
 # Copy various scripts and make them executable.
 COPY ./scripts/start-celery /run/
@@ -49,28 +49,25 @@ COPY --from=builder /neon_wrapper /code/Rodan/rodan/jobs/
 # Gamera and Musicstaves will be installed later in this script.
 COPY --from=gamera /gamera4-rodan /gamera4-rodan
 
-# Install tools and dependencies.
+# Install dependencies.
 RUN apt-get update
-# Skip setting the timezone. https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
 RUN apt-get install -y \
   bash \
   curl \
+  g++ \
   git \
-  python3.8 \
   python3-lxml \
   python3-numpy \
   python3-opencv \
   python3-pika \
   python3-pil \
-  python3-pip \
+  wget \
   vim \
   # Psycopg2 dependency
   libpq-dev
 
-# Installing wheel makes the rest of the installation faster.
 # https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
-RUN pip3 install setuptools==58 wheel
+RUN pip3 install setuptools==58
 RUN pip3 install -r /code/Rodan/requirements.txt
 
 # Install Gamera and Musicstaves.

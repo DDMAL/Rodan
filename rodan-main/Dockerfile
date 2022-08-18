@@ -3,7 +3,7 @@ ARG BRANCHES
 ARG VERSION
 ARG BUILD_HASH
 
-# Install OpenJPEG
+# Install OpenJPEG dependencies.
 RUN \
   # flip this to trigger a new layer because the scripts are cached.
   set -x \
@@ -13,6 +13,9 @@ RUN \
     libopenjp2-7 \
     libopenjp2-7-dev \
     libopenjp2-tools
+
+# We need make to compile Grok.
+RUN apt-get install -y make
 
 # Install Grok
 RUN \
@@ -32,15 +35,13 @@ RUN \
 COPY ./scripts/install_gpu_rodan_jobs /opt/install_gpu_rodan_jobs
 COPY ./scripts/start /run/
 RUN set -e \
-  && chmod +x opt/install_gpu_rodan_jobs \
+  && chmod +x /opt/install_gpu_rodan_jobs \
   && chown www-data /opt/install_gpu_rodan_jobs \
   # This script starts Rodan
   && chmod +x /run/start \
   && chown www-data /run/start
 
-RUN \
-  /opt/install_gpu_rodan_jobs \
-  && /run/install_rodan
+RUN /opt/install_gpu_rodan_jobs
 
 # Substitute the build hash for our actual build hash
 RUN sed -i "s/__build_hash__ = \"local\"/__build_hash__ = \"${BUILD_HASH}\"/" /code/Rodan/rodan/__init__.py

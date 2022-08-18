@@ -23,8 +23,6 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
 
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
-# Install Rodan
-COPY ./scripts/install_rodan /run/
 # Runs on both Rodan service, and Rodan-Celery
 COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
