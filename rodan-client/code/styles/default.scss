@@ -87,7 +87,7 @@ div#region-main
 div#canvas-wrap
 {
     height: 100%;
-    overflow-y: hidden;
+    overflow: scroll;
     padding: 0px;
 }
 

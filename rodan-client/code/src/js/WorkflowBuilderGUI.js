@@ -42,6 +42,7 @@ class WorkflowBuilderGUI
         this._initializeInterface();
         this._initializeGlobalTool();
         this._initializeGui();
+        this._initializeLocalStorage();
 
         // We have to clear the updater.
         Radio.channel('rodan').request(Rodan.RODAN_EVENTS.REQUEST__UPDATER_CLEAR);
@@ -92,7 +93,8 @@ class WorkflowBuilderGUI
             "STROKE_COLOR_SELECTED": "#0000ff",
             "STROKE_WIDTH_SELECTED": 2,
             "CONNECTION_CIRCLE_RADIUS": 4,
-            "HOVER_TIME": 1000
+            "HOVER_TIME": 1000,
+            "LOCAL_STORAGE_ITEMS": ['scroll', 'zoom']
         }
 
         // Check if our entry exists.
@@ -131,6 +133,16 @@ class WorkflowBuilderGUI
         this._zoomRate = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
         this._itemController = new ItemController();
         paper.handleMouseEvent = event => this._itemController.handleMouseEvent(event);
+    }
+
+    /**
+     * Apply settings currently set in localStorage
+     * and initialize event listeners for setting items.
+     */
+    _initializeLocalStorage()
+    {
+        this._applyLocalStorageSettings();
+        this._initializeLocalStorageEvents();
     }
 
     /**
@@ -195,6 +207,7 @@ class WorkflowBuilderGUI
         paper.install(window);
         paper.setup(canvasElementId);
         paper.view.onFrame = (event) => this._handleFrame(event);
+        paper.view.viewSize = [screen.width + 300, screen.height + 300];
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
         this._handleRequestZoomReset();
@@ -444,8 +457,10 @@ class WorkflowBuilderGUI
      */
     _handleRequestZoomIn()
     {
-        var zoom = paper.view.zoom + Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        paper.view.zoom = zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
+        const zoom = paper.view.zoom + Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
+        const zoomToApply = zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
+        paper.view.zoom = zoomToApply;
+        this._setLocalStorageItem('zoom', zoomToApply);
     }
 
     /**
@@ -454,7 +469,9 @@ class WorkflowBuilderGUI
     _handleRequestZoomOut()
     {
         var zoom = paper.view.zoom - Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        paper.view.zoom = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
+        const zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
+        paper.view.zoom = zoomToApply;
+        this._setLocalStorageItem('zoom', zoomToApply);
         this._limitViewInThresholds(); // make sure we stay in bounds!
     }
 
@@ -464,6 +481,7 @@ class WorkflowBuilderGUI
     _handleRequestZoomReset()
     {
         paper.view.zoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_INITIAL;
+        this._setLocalStorageItem('zoom', paper.view.zoom);
         this._limitViewInThresholds(); // make sure we stay in bounds!
     }
 
@@ -511,6 +529,94 @@ class WorkflowBuilderGUI
             newPoint.y = thresholds.yBottom;
         }
         // paper.view.setCenter(newPoint);
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////
+// PRIVATE METHODS - Local Storage
+///////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Initialize localStorage event listeners
+     */
+    _initializeLocalStorageEvents()
+    {
+        const canvasWrapper = document.querySelector('#canvas-wrap');
+
+        // scrolling event listeners
+        canvasWrapper.addEventListener('scroll', () => {
+            this._handleScroll();
+        });
+    }
+
+    /**
+     * Handle user scrolling action.
+     * Saves user's scroll position in localStorage.
+     */
+    _handleScroll() {
+        const canvasWrapper = document.querySelector('#canvas-wrap');
+
+        this._setLocalStorageItem({
+            itemName: 'scroll',
+            itemValue: [canvasWrapper.scrollLeft, canvasWrapper.scrollTop]
+        })
+    }
+
+    /**
+     * Retrieves desired workflow UI settings from localStorage and applies them.
+     */
+    _applyLocalStorageSettings() 
+    {
+        const localStorageObject = JSON.parse(window.localStorage.getItem('rodan-data'));
+
+        if (localStorageObject && localStorageObject['workflow-builder-data']) {
+
+            Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].LOCAL_STORAGE_ITEMS.forEach((item) => {
+                if (localStorageObject['workflow-builder-data'][item]) {
+                    this._applyLocalStorageItem(item);
+                }
+            });
+        }
+    }
+
+
+    /**
+     * Applies a particular item saved in localStorage to the workflow builder.
+     */
+    _applyLocalStorageItem(item) 
+    {
+        const localStorageObject = JSON.parse(window.localStorage.getItem('rodan-data'));
+        const canvasWrapper = document.querySelector('#canvas-wrap');
+
+        switch(item) {
+            case 'scroll':
+                const xPosition = localStorageObject['workflow-builder-data']['scroll'][0];
+                const yPosition = localStorageObject['workflow-builder-data']['scroll'][1];
+                canvasWrapper.scrollTo(xPosition, yPosition);
+                break;
+            
+            case 'zoom':
+                const zoom = localStorageObject['workflow-builder-data']['zoom'];
+                let zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
+                zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
+                this._limitViewInThresholds(); // make sure we stay in bounds!
+
+                paper.view.zoom = zoomToApply;
+                break;
+        }
+    }
+
+
+    /**
+     * Sets a workflfow-builder-related localStorage item
+     */
+    _setLocalStorageItem(name, value) 
+    {
+        let localStorageObject = JSON.parse(window.localStorage.getItem('rodan-data'));
+        if (!localStorageObject) localStorageObject = {};
+        if (!localStorageObject['workflow-builder-data']) localStorageObject['workflow-builder-data'] = {};
+
+        localStorageObject['workflow-builder-data'][name] = value;
+        window.localStorage.setItem('rodan-data', JSON.stringify(localStorageObject));
     }
 }
 
