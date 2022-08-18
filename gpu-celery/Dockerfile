@@ -146,7 +146,6 @@ RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
 # Install Rodan
-COPY ./scripts/install_rodan /run/
 # Runs on both Rodan service, and Rodan-Celery
 COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
@@ -169,17 +168,12 @@ RUN set -x \
   && chown www-data /opt/install_gpu_rodan_jobs \
   && /opt/install_gpu_rodan_jobs \
   # Install Rodan
-  && sed -i "s/pip /pip3 /g" /run/install_rodan \
   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
   # && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
   # Add Entrypoints
   && sed -i 's/\r//' /opt/entrypoint \
   && chmod +x /opt/entrypoint \
   && chown www-data /opt/entrypoint \
-  # Install Rodan
-  && chmod +x /run/install_rodan \
-  && chown www-data /run/install_rodan \
-  && /run/install_rodan \
   # Add Celery script
   && chmod +x /run/start-celery \
   && chown www-data /run/start-celery \
