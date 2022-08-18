@@ -125,7 +125,7 @@ class FastPacoTrainer(RodanTask):
     def run_my_task(self, inputs, settings, outputs):
         from Paco_classifier import training_engine_sae as training
         from Paco_classifier.fast_trainer_lib import PacoTrainer
-        from Paco_classifier import input_settings_test
+        from Paco_classifier import preprocess
 
         oldouts = sys.stdout, sys.stderr
         if 'Log File' in outputs:
@@ -193,7 +193,7 @@ class FastPacoTrainer(RodanTask):
                     create_folder = False
 
             # SANITY CHECK
-            input_settings_test.pre_training_check(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
+            layer_dict = preprocess.preprocess(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
 
             rlevel = app.conf.CELERY_REDIRECT_STDOUTS_LEVEL
             app.log.redirect_stdouts_to_logger(logger, rlevel)
@@ -207,12 +207,10 @@ class FastPacoTrainer(RodanTask):
                 number_samples_per_class,
                 file_selection_mode,
                 sample_extraction_mode,
-                # Changed input to new_input for unzip
-                new_input,
+                layer_dict,
                 outputs,
-                # Add models input to Trainer
                 models,
-                patience=patience
+                patience
             )
             trainer.runTrainer()
 
