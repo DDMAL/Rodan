@@ -101,15 +101,13 @@ div#canvas-tooltip
     border-style: solid;
     border-width: 2px;
     width: auto;
-    visiblity: visible;
+    visibility: visible;
     display: inline-block;
 }
 
 canvas#canvas-workspace
 {
     background-color: $background-color-workflowbuilder-workspace;
-    height: 100%;
-    width: 100%;
     padding: 0px;
 }
 

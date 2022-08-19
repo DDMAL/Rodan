@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $, { event } from 'jquery';
 import { drawGrid } from './Utilities/PaperUtilities';
 import BaseItem from './Items/BaseItem';
 import GUI_EVENTS from './Shared/Events';
@@ -133,6 +133,21 @@ class WorkflowBuilderGUI
         this._zoomRate = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
         this._itemController = new ItemController();
         paper.handleMouseEvent = event => this._itemController.handleMouseEvent(event);
+
+        // 
+        window.addEventListener('keydown', (e) => {
+
+            if(e.ctrlKey && e.key === '='){
+                this._handleRequestZoomIn();
+            }
+
+            else if(e.ctrlKey && e.key === '-'){
+                this._handleRequestZoomOut();
+            }
+            else if (e.ctrlKey && e.key == '0'){
+                this._handleRequestZoomReset()
+            }
+        });
     }
 
     /**
@@ -207,10 +222,15 @@ class WorkflowBuilderGUI
         paper.install(window);
         paper.setup(canvasElementId);
         paper.view.onFrame = (event) => this._handleFrame(event);
+<<<<<<< Updated upstream
         paper.view.viewSize = [screen.width + 300, screen.height + 300];
+=======
+        paper.view.viewSize = [screen.width, screen.height];
+>>>>>>> Stashed changes
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
         this._handleRequestZoomReset();
+        
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
