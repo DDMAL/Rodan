@@ -148,10 +148,10 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 4G
+          memory: 8G
         reservations:
           cpus: '2'
-          memory: 4G
+          memory: 8G
       restart_policy:
         condition: any
         delay: 5s
