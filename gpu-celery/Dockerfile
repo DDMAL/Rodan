@@ -29,6 +29,7 @@ COPY ./scripts/wait-for-app /run/
 
 # Copying rodan core from build context into container
 # Rodan folder MUST be uppercase, otherwise many unittests fail.
+#TODO(buser): Swap this line out once pushed to develop.
 COPY ./rodan-main/code /code/Rodan
 # COPY --from=builder /Rodan/rodan-main/code /code/Rodan
 
