@@ -24,7 +24,6 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
 # Runs on both Rodan service, and Rodan-Celery
-COPY ./scripts/entrypoint /opt/
 COPY ./scripts/start-celery /run/
 COPY ./scripts/wait-for-app /run/
 
@@ -45,10 +44,6 @@ RUN sed -i "s/pip /pip3 /g" /run/install_rodan
 RUN sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt
 RUN sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt
 
-# Add Entrypoints
-RUN sed -i 's/\r//' /opt/entrypoint
-RUN chmod +x /opt/entrypoint
-RUN chown www-data /opt/entrypoint
 
 # Install Rodan
 RUN chmod +x /run/install_rodan
@@ -67,4 +62,4 @@ RUN chmod +x /run/wait-for-app
 RUN chown www-data /run/wait-for-app
 RUN chown -R www-data /code/Rodan /code/jobs
 
-ENTRYPOINT ["/opt/entrypoint"]
+ENTRYPOINT ["/run/start-celery"]
