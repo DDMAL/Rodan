@@ -44,8 +44,8 @@ RUN chmod +x /run/wait-for-app
 # Copy external dependencies into main container.
 # Rodan folder MUST be uppercase, otherwise many unittests fail.
 COPY --from=builder /Rodan/rodan-main/code /code/Rodan
-COPY --from=builder /pixel_wrapper /code/Rodan/rodan/jobs/
-COPY --from=builder /neon_wrapper /code/Rodan/rodan/jobs/
+COPY --from=builder /pixel_wrapper /code/Rodan/rodan/jobs/pixel_wrapper
+COPY --from=builder /neon_wrapper /code/Rodan/rodan/jobs/neon_wrapper
 # Gamera and Musicstaves will be installed later in this script.
 COPY --from=gamera /gamera4-rodan /gamera4-rodan
 
