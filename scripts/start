@@ -3,6 +3,9 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 # set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
+/run/wait-for-app postgres:5432
+/run/wait-for-app redis:6379
+
 mkdir -p /var/www
 chown www-data /var/www
 

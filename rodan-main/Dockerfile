@@ -46,4 +46,4 @@ RUN /opt/install_gpu_rodan_jobs
 # Substitute the build hash for our actual build hash
 RUN sed -i "s/__build_hash__ = \"local\"/__build_hash__ = \"${BUILD_HASH}\"/" /code/Rodan/rodan/__init__.py
 
-ENTRYPOINT ["/opt/entrypoint"]
+ENTRYPOINT ["/run/start"]
