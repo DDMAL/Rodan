@@ -48,3 +48,6 @@ which pip3 && $PIP install .
 
 cd /code/Rodan/rodan
 sed -i 's/#gpu //g' /code/Rodan/rodan/settings.py
+
+# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
+pip install opencv-python==4.6.0.66
