@@ -58,6 +58,7 @@ RUN apt-get install -y \
   libpq-dev \
   # OpenCV dependencies
   libsm6 libxext6 libxrender-dev libglib2.0-data \
+  python3-opencv \
   wget \
   vim
 
@@ -76,6 +77,5 @@ RUN pip install opencv-python==4.6.0.66
 
 # Change the concurency for python3 jobs (Calvo)
 RUN sed -i "s/=10/=1/g" /run/start-celery
-
 
 ENTRYPOINT ["/run/start-celery"]

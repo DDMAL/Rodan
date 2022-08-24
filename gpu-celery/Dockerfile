@@ -184,4 +184,7 @@ RUN set -x \
   && chown www-data /run/wait-for-app \
   && chown -R www-data /code/Rodan /code/jobs
 
+# Install Rodan.
+RUN pip3 install -r /code/Rodan/requirements.txt
+
 ENTRYPOINT ["/opt/entrypoint"]

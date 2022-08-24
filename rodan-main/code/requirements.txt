@@ -29,7 +29,7 @@ pillow==8.2.0
 protobuf==3.17.3
 psycopg2==2.8.4
 -e git+https://github.com/deepio/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.0'
-opencv-python==4.5.5.64
+opencv-python==4.6.0.66
 pyparsing==2.0.3
 pypng==0.0.18
 python-dateutil==2.5
