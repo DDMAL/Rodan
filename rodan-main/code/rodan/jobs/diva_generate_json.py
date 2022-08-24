@@ -160,20 +160,20 @@ class GenerateJson(object):
         # just tooooo sloooowww.
         f = open(fn, 'rb')
         d = f.read(100)
-        startHeader = d.find('ihdr')
+        startHeader = d.find(b'ihdr')
         hs = startHeader + 4
         ws = startHeader + 8
         height = (
-            ord(d[hs]) * 256 ** 3
-            + ord(d[hs + 1]) * 256 ** 2
-            + ord(d[hs + 2]) * 256
-            + ord(d[hs + 3])
+            d[hs] * 256 ** 3
+            + d[hs + 1] * 256 ** 2
+            + d[hs + 2] * 256
+            + d[hs + 3]
         )
         width = (
-            ord(d[ws]) * 256 ** 3
-            + ord(d[ws + 1]) * 256 ** 2
-            + ord(d[ws + 2]) * 256
-            + ord(d[ws + 3])
+            d[ws] * 256 ** 3
+            + d[ws + 1] * 256 ** 2
+            + d[ws + 2] * 256
+            + d[ws + 3]
         )
         f.close()
         return (width, height)
