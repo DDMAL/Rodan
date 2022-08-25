@@ -8,6 +8,8 @@ set -o xtrace # Print commands and their arguments as they are executed.
 
 mkdir -p /var/www
 chown www-data /var/www
+chmod -R a+rwx /rodan
+chmod a+rwx /var
 
 cd /code/Rodan
 runuser -u www-data -- yes | MIGRATE="True" python3 manage.py migrate --noinput
