@@ -10,6 +10,7 @@ mkdir -p /var/www
 chown www-data /var/www
 chmod -R a+rwx /rodan
 chmod a+rwx /var
+chmod a+rwx /code/Rodan/staticfiles
 
 cd /code/Rodan
 runuser -u www-data -- yes | MIGRATE="True" python3 manage.py migrate --noinput
