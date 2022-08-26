@@ -6,22 +6,21 @@ set -o xtrace # Print commands and their arguments as they are executed.
 /run/wait-for-app postgres:5432
 /run/wait-for-app redis:6379
 
-mkdir -p /var/www
-chown www-data /var/www
+mkdir -p /var/www || echo '/var/www already exists, skipping'
+mkdir -p /code/Rodan/staticfiles || echo '/code/Rodan/staticfiles already exists, skipping'
 chmod -R a+rwx /rodan
 chmod a+rwx /var
+chmod a+rwx /code/Rodan/*.log
 chmod a+rwx /code/Rodan/staticfiles
 
 cd /code/Rodan
-runuser -u www-data -- yes | MIGRATE="True" python3 manage.py migrate --noinput
-
-chown www-data /code/Rodan/database.log /code/Rodan/rodan.log
+runuser -u root -- yes | MIGRATE="True" python3 manage.py migrate --noinput
 
 # This is just a fancy way to create a superuser account automatically if one is
 # not present. The credentials for this user are defined in the environment
 # variables file in the Rodan-Docker project. This version of django requires the white
 # spaces you see here. https://github.com/DDMAL/rodan-docker/issues/2
-cat << EOF | runuser -u www-data -- python3 manage.py shell
+cat << EOF | runuser -u root -- python3 manage.py shell
 
 import os
 from django.contrib.auth.models import User
@@ -35,7 +34,7 @@ EOF
 mkdir /code/Rodan/rodan/static || echo "Static directory already exists!"
 
 
-runuser -u www-data -- python3 manage.py collectstatic --noinput
+runuser -u root -- python3 manage.py collectstatic --noinput
 # Stop the token expiry, because the entire token authentication is very broken and this is a fix until
 # we can decouple djoser and reconstruct the token auth the right way.
 sed -i "s/15/999999/g" /code/Rodan/rodan/settings.py
@@ -44,4 +43,4 @@ sed -i "s/15/999999/g" /code/Rodan/rodan/settings.py
 # Usually, unix sockets would be faster but between docker containers, I am not certain because of the
 # complexity from volumes. Do not merge other services into the rodan service. We are keeping them isolated
 # for scaling in the future. --graceful-timeout 0 --preload True --workers=3
-runuser -u www-data -- /usr/local/bin/gunicorn --name=rodan -b 0.0.0.0:8000 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application
+runuser -u root -- /usr/local/bin/gunicorn --name=rodan -b 0.0.0.0:8000 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application
