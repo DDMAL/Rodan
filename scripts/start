@@ -10,7 +10,7 @@ mkdir -p /var/www || echo '/var/www already exists, skipping'
 mkdir -p /code/Rodan/staticfiles || echo '/code/Rodan/staticfiles already exists, skipping'
 chmod -R a+rwx /rodan
 chmod a+rwx /var
-chmod a+rwx /code/Rodan/*.log
+chmod a+rwx /code/Rodan/*
 chmod a+rwx /code/Rodan/staticfiles
 
 cd /code/Rodan
