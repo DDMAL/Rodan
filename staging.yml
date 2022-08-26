@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   nginx:
-    image: "ddmal/nginx:fix_dev"
+    image: "ddmal/nginx:nightly"
     deploy:
       replicas: 1
       resources:
@@ -38,7 +38,7 @@ services:
       - "certbot:/etc/letsencrypt"
 
   rodan-main:
-    image: "ddmal/rodan-main:fix_dev"
+    image: "ddmal/rodan-main:nightly"
     deploy:
       replicas: 1
       resources:
@@ -76,7 +76,7 @@ services:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:fix_dev"
+    image: "ddmal/rodan-main:nightly"
     deploy:
       replicas: 1
       resources:
@@ -111,7 +111,7 @@ services:
       - "resources:/rodan/data"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:fix_dev"
+    image: "ddmal/rodan-python3-celery:nightly"
     deploy:
       replicas: 1
       resources:
@@ -142,7 +142,7 @@ services:
       - "resources:/rodan/data"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:fix_dev"
+    image: "ddmal/rodan-gpu-celery:nightly"
     deploy:
       replicas: 1
       resources:
@@ -201,7 +201,7 @@ services:
       TZ: America/Toronto
 
   postgres:
-    image: "ddmal/postgres-plpython:fix_dev"
+    image: "ddmal/postgres-plpython:nightly"
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
@@ -255,7 +255,7 @@ services:
       - ./scripts/staging.env
 
   hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:fix_dev"
+    image: "ddmal/hpc-rabbitmq:nightly"
     deploy:
       replicas: 1
       resources:
