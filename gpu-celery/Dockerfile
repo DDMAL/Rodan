@@ -165,7 +165,6 @@ RUN set -x \
   && mkdir -p /code/jobs \
   # Install GPU Jobs
   && chmod +x /opt/install_gpu_rodan_jobs \
-  && chown www-data /opt/install_gpu_rodan_jobs \
   && /opt/install_gpu_rodan_jobs \
   # Install Rodan
   && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
@@ -173,16 +172,12 @@ RUN set -x \
   # Add Entrypoints
   && sed -i 's/\r//' /opt/entrypoint \
   && chmod +x /opt/entrypoint \
-  && chown www-data /opt/entrypoint \
   # Add Celery script
   && chmod +x /run/start-celery \
-  && chown www-data /run/start-celery \
   # Change the concurency for gpu jobs because Calvo is very expensive
   && sed -i "s/=10/=1/g" /run/start-celery \
   # Script to wait for postgres and redis to be running before attempting to connect to them.
-  && chmod +x /run/wait-for-app \
-  && chown www-data /run/wait-for-app \
-  && chown -R www-data /code/Rodan /code/jobs
+  && chmod +x /run/wait-for-app
 
 # Install Rodan.
 RUN pip3 install -r /code/Rodan/requirements.txt
