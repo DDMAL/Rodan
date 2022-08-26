@@ -1,4 +1,4 @@
-FROM ddmal/rodan-client:fix_dev as webapp
+FROM ddmal/rodan-client:nightly as webapp
 
 # Add local configuration and build.
 RUN rm -rf /code/configuration.json
@@ -7,7 +7,7 @@ RUN /code/node_modules/.bin/gulp dist
 
 
 ###########################################################
-FROM ddmal/rodan-main:fix_dev as rodan-static
+FROM ddmal/rodan-main:nightly as rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
 
