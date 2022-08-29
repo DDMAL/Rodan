@@ -247,6 +247,18 @@ remote_jobs: $(JOBS_PATH)/pixel_wrapper/package.json $(JOBS_PATH)/neon_wrapper/s
 	@cd $(RODAN_PATH); $(REPLACE) "s/#py3 //g" ./settings.py
 	@cd $(RODAN_PATH); $(REPLACE) "s/#gpu //g" ./settings.py
 
+gpu-celery_log:
+	@docker exec $$(docker ps -f name=rodan_gpu-celery --format "{{.ID}}") tail -f /code/Rodan/rodan-celery-GPU.log
+
+py3-celery_log:
+	@docker exec $$(docker ps -f name=rodan_py3-celery --format "{{.ID}}") tail -f /code/Rodan/rodan-celery-Python3.log
+
+celery_log:
+	@docker exec $$(docker ps -f name=rodan_celery --format "{{.ID}}") tail -f /code/Rodan/rodan-celery-celery.log
+
+rodan-main_log:
+	@docker exec $$(docker ps -f name=rodan_rodan-main --format "{{.ID}}") tail -f /code/Rodan/rodan.log
+
 # Command Groups
 reset: stop clean pull run
 clean_reset: stop clean build run
