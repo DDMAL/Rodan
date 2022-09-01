@@ -222,11 +222,7 @@ class WorkflowBuilderGUI
         paper.install(window);
         paper.setup(canvasElementId);
         paper.view.onFrame = (event) => this._handleFrame(event);
-<<<<<<< Updated upstream
-        paper.view.viewSize = [screen.width + 300, screen.height + 300];
-=======
         paper.view.viewSize = [screen.width, screen.height];
->>>>>>> Stashed changes
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
         this._handleRequestZoomReset();
