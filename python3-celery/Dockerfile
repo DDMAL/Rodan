@@ -26,7 +26,7 @@ RUN yarn install
 RUN yarn build
 
 # Make Gamera files accessible to the main container.
-FROM ddmal/gamera4 AS gamera
+FROM ddmal/gamera4:v1.0.1 AS gamera
 
 # This release is based on Debian 11 "Bullseye"
 FROM python:3.7-slim
