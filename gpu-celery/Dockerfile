@@ -11,10 +11,12 @@ FROM tensorflow/tensorflow:2.10.0rc1-gpu
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
     git \
-    python3-opencv \
     python3-lxml \
     # Psycopg2 dependencies
     libpq-dev \
+    # OpenCV dependencies
+    libsm6 libxext6 libxrender-dev libglib2.0-data \
+    python3-opencv \
     # For resource identification
     libmagic-dev \
     unzip \
