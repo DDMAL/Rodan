@@ -10,7 +10,7 @@ RUN apk add \
   yarn
 
 # Build Pixel
-RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/DDMAL/pixel_wrapper.git
+RUN git clone --recurse-submodules -b v2.0.0 https://github.com/DDMAL/pixel_wrapper.git
 WORKDIR /pixel_wrapper/
 RUN python3 activate_wrapper.py
 RUN npm install
@@ -25,10 +25,6 @@ RUN git submodule update --remote
 RUN yarn install
 RUN yarn build
 
-# Build Rodan
-WORKDIR /
-RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/ddmal/Rodan
-
 # Make Gamera files accessible to the main container.
 FROM ddmal/gamera4 AS gamera
 
@@ -42,8 +38,8 @@ RUN chmod +x /run/start-celery
 RUN chmod +x /run/wait-for-app
 
 # Copy external dependencies into main container.
-# Rodan folder MUST be uppercase, otherwise many unittests fail.
-COPY --from=builder /Rodan/rodan-main/code /code/Rodan
+# rodan-main is not pulled from builder (to ease local development)
+COPY ./rodan-main/code /code/Rodan
 COPY --from=builder /pixel_wrapper /code/Rodan/rodan/jobs/pixel_wrapper
 COPY --from=builder /neon_wrapper /code/Rodan/rodan/jobs/neon_wrapper
 # Gamera and Musicstaves will be installed later in this script.
@@ -56,15 +52,15 @@ RUN apt-get install -y \
   curl \
   g++ \
   git \
-  python3-lxml \
-  python3-numpy \
-  python3-opencv \
-  python3-pika \
-  python3-pil \
-  wget \
-  vim \
+  # python-magic dependency
+  libmagic1 \
   # Psycopg2 dependency
-  libpq-dev
+  libpq-dev \
+  # OpenCV dependencies
+  libsm6 libxext6 libxrender-dev libglib2.0-data \
+  python3-opencv \
+  wget \
+  vim
 
 # https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
 RUN pip3 install setuptools==58
@@ -75,6 +71,9 @@ WORKDIR /gamera4-rodan/gamera-4
 RUN python3 setup.py --nowx install
 WORKDIR /gamera4-rodan/musicstaves
 RUN python3 setup.py install
+
+# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
+RUN pip install opencv-python==4.6.0.66
 
 # Change the concurency for python3 jobs (Calvo)
 RUN sed -i "s/=10/=1/g" /run/start-celery

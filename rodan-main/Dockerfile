@@ -43,7 +43,12 @@ RUN set -e \
 
 RUN /opt/install_gpu_rodan_jobs
 
+# Add entrypoint
+COPY ./scripts/entrypoint /opt
+RUN chmod +x /opt/entrypoint \
+  && chown www-data /opt/entrypoint
+
 # Substitute the build hash for our actual build hash
 RUN sed -i "s/__build_hash__ = \"local\"/__build_hash__ = \"${BUILD_HASH}\"/" /code/Rodan/rodan/__init__.py
 
-ENTRYPOINT ["/run/start"]
+ENTRYPOINT ["/opt/entrypoint"]

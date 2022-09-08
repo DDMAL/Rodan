@@ -23,6 +23,11 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
     # Remove when done
     vim
 
+RUN rm -rf /var/lib/apt/lists/*
+
+# Bandaid fix for the cannot import name '_registerMatType' from 'cv2.cv2' issue
+RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.1.2.30
+
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
 # Runs on both Rodan service, and Rodan-Celery
@@ -47,6 +52,12 @@ RUN sed -i "s/pip /pip3 /g" /run/install_rodan
 RUN sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt
 RUN sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt
 
+# necessary for scikit-image > 0.17, or else it will try to make a cache directory
+# in a place where the www-data user does not have permissions to do so
+ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
+
+# Change the concurency for gpu jobs because Calvo is very expensive
+RUN sed -i "s/=10/=1/g" /run/start-celery
 
 # Install Rodan
 RUN chmod +x /run/install_rodan
