@@ -2,9 +2,7 @@
 
 # Because it doesn't seem to want to run in the dockerfile.
 # WHY NOT?! I've rebuilt the layers prior multiple times!!!!
-# /opt/install_python3_rodan_jobs  || echo "Python3 jobs not installed in the entrypoint"
 # /opt/install_gpu_rodan_jobs || echo "GPU jobs not install in the entrypoint"
-# /run/install_rodan
 
 /run/wait-for-app postgres:5432
 /run/wait-for-app redis:6379

@@ -3,7 +3,11 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
+mkdir -p /var/www || echo '/var/www already exists, skipping'
+mkdir -p /code/Rodan/staticfiles || echo '/code/Rodan/staticfiles already exists, skipping'
+chmod -R a+rwx /rodan
 chmod a+rwx /var
+chmod a+rwx /code/Rodan/*
 
 _term() { 
   echo "Caught SIGTERM signal!" 
@@ -19,6 +23,6 @@ cd /code/Rodan
 /run/wait-for-app redis:6379
 /run/wait-for-app rodan-main:8000 --timeout=900
 
-runuser -u www-data -- celery worker -A rodan --workdir /code/Rodan -Q ${CELERY_JOB_QUEUE} --concurrency=10 -n "${CELERY_JOB_QUEUE}" -l INFO --logfile /code/Rodan/rodan-celery-${CELERY_JOB_QUEUE}.log &
+runuser -u root -- celery worker -A rodan --workdir /code/Rodan -Q ${CELERY_JOB_QUEUE} --concurrency=10 -n "${CELERY_JOB_QUEUE}" -l INFO --logfile /code/Rodan/rodan-celery-${CELERY_JOB_QUEUE}.log &
 child_2=$!
 wait "$child_2"
