@@ -12,7 +12,7 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/rodan-python3-celery:${RODAN_TAG}
 fi
 
-docker push ddmal/rodan-python3-celery:nightly
+docker push ddmal/rodan-python3-celery:smaller
 
 echo "[+] Pushing GPU-Celery"
 
@@ -20,7 +20,7 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/rodan-gpu-celery:${RODAN_TAG}
 fi
 
-docker push ddmal/rodan-gpu-celery:nightly
+docker push ddmal/rodan-gpu-celery:smaller
 
 echo "[+] Pushing Postgres"
 
@@ -28,7 +28,7 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/postgres-plpython:${RODAN_DOCKER_TAG}
 fi
 
-docker push ddmal/postgres-plpython:nightly
+docker push ddmal/postgres-plpython:smaller
 
 echo "[+] Pushing Nginx"
 
@@ -36,7 +36,7 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/nginx:${RODAN_DOCKER_TAG}
 fi
 
-docker push ddmal/nginx:nightly
+docker push ddmal/nginx:smaller
 
 echo "[+] Pushing HPC-RabbitMQ"
 
@@ -44,4 +44,4 @@ if [ -z `echo ${RODAN_DOCKER_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG}
 fi
 
-docker push ddmal/hpc-rabbitmq:nightly
+docker push ddmal/hpc-rabbitmq:smaller
