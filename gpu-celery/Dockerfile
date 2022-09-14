@@ -2,7 +2,9 @@ FROM alpine:3 AS builder
 ARG BRANCH
 ENV BRANCH="${BRANCH:-develop}"
 RUN apk update
-RUN apk add git
+
+RUN apk add python3
+
 # Download Rodan
 WORKDIR /
 RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/ddmal/Rodan
@@ -22,14 +24,10 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
     # Remove when done
     vim
 
-RUN apt-get install -yqq \
-    python3.7 \ 
-    python3-pip 
-
 RUN rm -rf /var/lib/apt/lists/*
 
 # Bandaid fix for the cannot import name '_registerMatType' from 'cv2.cv2' issue
-RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.1.2.30
+RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.6.0.66
 
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
@@ -62,10 +60,11 @@ ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
 # Change the concurency for gpu jobs because Calvo is very expensive
 RUN sed -i "s/=10/=1/g" /run/start-celery
 
-# Install Rodan
-RUN chmod +x /run/install_rodan
-RUN chown www-data /run/install_rodan
-RUN /run/install_rodan
+# Install Rodan --> if this is needed much better to do 
+#  FROM ddmal/gamera4 AS gamera
+RUN pip3 install -r /code/Rodan/requirements.txt  
+
+
 
 # Add Celery script
 RUN chmod +x /run/start-celery
