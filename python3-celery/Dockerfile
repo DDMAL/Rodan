@@ -75,7 +75,7 @@ RUN python3 setup.py install
 # Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
 RUN pip install opencv-python==4.6.0.66
 
-# Change the concurency for python3 jobs (Calvo)
-RUN sed -i "s/=10/=1/g" /run/start-celery
+# Change the concurency for python3 jobs (Calvo) => Calvo is in gpu-celery not here.
+#RUN sed -i "s/=10/=1/g" /run/start-celery
 
 ENTRYPOINT ["/run/start-celery"]

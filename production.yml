@@ -110,11 +110,11 @@ services:
       replicas: 1
       resources:
         reservations:
-          cpus: "1"
-          memory: 2G
+          cpus: "2"
+          memory: 8G
         limits:
-          cpus: "1"
-          memory: 2G
+          cpus: "2"
+          memory: 8G
       restart_policy:
         condition: any
         delay: 5s
