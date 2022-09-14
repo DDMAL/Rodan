@@ -10,7 +10,6 @@ RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/ddmal/Rodan
 FROM tensorflow/tensorflow:2.10.0rc1-gpu
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
-    git \
     python3-lxml \
     # Psycopg2 dependencies
     libpq-dev \
@@ -22,6 +21,10 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
     unzip \
     # Remove when done
     vim
+
+RUN apt-get install -yqq \
+    python3.7 \ 
+    python3-pip 
 
 RUN rm -rf /var/lib/apt/lists/*
 
