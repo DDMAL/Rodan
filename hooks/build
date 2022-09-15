@@ -10,10 +10,10 @@ set -o errexit
 #   --tag ddmal/rodan:placeholder \
 #   .
 
-# RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
-# RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
-# RODAN_DOCKER_TAG=`git describe --tags --always`
-# BUILD_HASH=`git rev-parse --verify HEAD`
+RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
+RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
+RODAN_DOCKER_TAG=`git describe --tags --always`
+BUILD_HASH=`git rev-parse --verify HEAD`
 
 # ###############################################################################
 # # Stage 1
