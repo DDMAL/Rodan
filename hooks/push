@@ -8,11 +8,11 @@ RODAN_DOCKER_TAG=`git describe --tags --always`
 
 # echo "[+] Pushing Python3-Celery"
 
-if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
-  docker push ddmal/rodan-python3-celery:${RODAN_TAG}
-fi
+# if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
+#   docker push ddmal/rodan-python3-celery:${RODAN_TAG}
+# fi
 
-docker push ddmal/rodan-python3-celery:smaller
+# docker push ddmal/rodan-python3-celery:smaller
 
 echo "[+] Pushing GPU-Celery"
 
