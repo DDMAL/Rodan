@@ -3,7 +3,9 @@ ARG BRANCH
 ENV BRANCH="${BRANCH:-develop}"
 RUN apk update
 
-RUN apk add python3
+RUN apk add \
+  python3 \
+  git 
 
 # Download Rodan
 WORKDIR /
