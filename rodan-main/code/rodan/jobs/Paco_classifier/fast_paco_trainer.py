@@ -192,6 +192,16 @@ class FastPacoTrainer(RodanTask):
                             new_input[layer_name].append({'resource_path': os.path.join(full_path, f)})
                     create_folder = False
 
+            # Create output port Multi-Sample Zip
+            if 'Multi-Sample Zip' in outputs:
+                with zipfile.ZipFile(outputs['Multi-Sample Zip'][0]['resource_path'], 'w') as zipObj:
+                    # Iterate over all the files in directory
+                    for folder in os.listdir('unzipping_folder'):
+                        for f in os.listdir(os.path.join('unzipping_folder', folder)):
+                            sub_path = os.path.join(folder, f)
+                            full_path = os.path.join('unzipping_folder', sub_path)
+                            zipObj.write(full_path, sub_path)
+
             # SANITY CHECK
             layer_dict = preprocess.preprocess(new_input, batch_size, patch_height, patch_width, number_samples_per_class)
 
@@ -213,16 +223,6 @@ class FastPacoTrainer(RodanTask):
                 patience
             )
             trainer.runTrainer()
-
-            # Create output port Multi-Sample Zip
-            if 'Multi-Sample Zip' in outputs:
-                with zipfile.ZipFile(outputs['Multi-Sample Zip'][0]['resource_path'], 'w') as zipObj:
-                    # Iterate over all the files in directory
-                    for folder in os.listdir('unzipping_folder'):
-                        for f in os.listdir(os.path.join('unzipping_folder', folder)):
-                            sub_path = os.path.join(folder, f)
-                            full_path = os.path.join('unzipping_folder', sub_path)
-                            zipObj.write(full_path, sub_path)
 
             # REMOVE UNZIP FOLDER
             if os.path.exists('unzipping_folder'):
