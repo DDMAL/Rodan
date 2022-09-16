@@ -165,6 +165,9 @@ class FastPacoTrainer(RodanTask):
                 
             # Count number of directories inside unzipping_folder
             dir_num = len(next(os.walk('unzipping_folder'))[1])
+            # Check and throw error if user inputs a normal sample into Multi-Sample Zip input
+            if dir_num == 0 and 'Multi-Sample Zip' in inputs:
+                raise Exception('Cannot input a normal sample into Multi-Sample Zip input')
             for ipt in inputs:
                 # Add models to model dictionary
                 if 'Model' in ipt:
@@ -175,6 +178,9 @@ class FastPacoTrainer(RodanTask):
                     with zipfile.ZipFile(inputs[ipt][0]['resource_path'], 'r') as zip_ref:
                         zip_ref.extractall('unzipping_folder/zip{}'.format(dir_num))
 
+            # Count number of Model output ports
+            num_model_outport = len([k for k in outputs if "Model" in k])
+
             # Add unzipped samples from above to dictionary of layers
             for folder in os.listdir('unzipping_folder'):
                 dir_path = os.path.join('unzipping_folder', folder)
@@ -184,6 +190,8 @@ class FastPacoTrainer(RodanTask):
                     num_layers = (len([name for name in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, name))]) - 2)
                     if num_layers < len(models):
                         raise Exception('Number of models ({}) exceeds number of layers ({})'.format(len(models), num_layers))
+                    if num_layers != num_model_outport:
+                        raise Exception('Number of Model output ports ({}) differs to number of layers ({})'.format(num_model_outport, num_layers))
                     for f in os.listdir(dir_path):
                         if os.path.isfile(os.path.join(dir_path, f)):
                             layer_name = f.split(".")[0]
