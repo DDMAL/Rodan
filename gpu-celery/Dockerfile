@@ -45,7 +45,7 @@ COPY ./rodan-main/code /code/Rodan
 
 RUN mkdir -p /code/jobs
 
-# Install GPU Jobs
+# Install GPU Jobs --breaks here
 RUN chmod +x /opt/install_gpu_rodan_jobs
 RUN chown www-data /opt/install_gpu_rodan_jobs
 RUN /opt/install_gpu_rodan_jobs
@@ -65,8 +65,6 @@ RUN sed -i "s/=10/=1/g" /run/start-celery
 # Install Rodan --> if this is needed much better to do 
 #  FROM ddmal/gamera4 AS gamera
 RUN pip3 install -r /code/Rodan/requirements.txt  
-
-
 
 # Add Celery script
 RUN chmod +x /run/start-celery
