@@ -11,5 +11,5 @@
   description: Trained network from Keras framework
   extension: hdf5
 - mimetype: application/zip
-  description: Zip file
+  description: Package
   extension: zip
