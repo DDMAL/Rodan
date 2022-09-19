@@ -10,7 +10,7 @@ RUN apk add \
   yarn
 
 # Build Pixel
-RUN git clone --recurse-submodules -b v2.0.0 https://github.com/DDMAL/pixel_wrapper.git
+RUN git clone --recurse-submodules -b v2.0.1 https://github.com/DDMAL/pixel_wrapper.git
 WORKDIR /pixel_wrapper/
 RUN python3 activate_wrapper.py
 RUN npm install
