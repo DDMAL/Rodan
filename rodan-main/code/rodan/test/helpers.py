@@ -8,6 +8,8 @@ from rodan.models import Job, ResourceType
 from django.core.files.base import ContentFile
 from django.conf import settings
 
+from importlib import reload
+
 
 class RodanTestSetUpMixin(object):
     def url(self, obj):
