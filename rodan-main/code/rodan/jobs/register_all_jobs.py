@@ -361,7 +361,7 @@ def register_py3():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
     # Register Neume Slicing
     try:
-        from rodan.jobs.diagonal_neume_slicing import DiagonalNeumeSlicing
+        from rodan.jobs.diagonal_neume_slicing.base import DiagonalNeumeSlicing
 
         app.register_task(DiagonalNeumeSlicing())
     except Exception as exception:
@@ -369,7 +369,7 @@ def register_py3():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
-        from rodan.jobs.diagonal_neume_slicing import DirtyLayerRepair
+        from rodan.jobs.diagonal_neume_slicing.base import DirtyLayerRepair
 
         app.register_task(DirtyLayerRepair())
     except Exception as exception:
@@ -379,7 +379,7 @@ def register_py3():
     
     # Register HPF
     try:
-        from rodan.jobs.heuristic_pitch_finding import MiyaoStaffinding
+        from rodan.jobs.heuristic_pitch_finding.base import MiyaoStaffinding
 
         app.register_task(MiyaoStaffinding())
     except Exception as exception:
@@ -387,7 +387,7 @@ def register_py3():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
-        from rodan.jobs.heuristic_pitch_finding import HeuristicPitchFinding
+        from rodan.jobs.heuristic_pitch_finding.base import HeuristicPitchFinding
 
         app.register_task(HeuristicPitchFinding())
     except Exception as exception:
