@@ -440,7 +440,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
             }
 
             for ip in wfj.input_ports.all():
-                ip_map[ip.uuid.hex] = ids.next()
+                ip_map[ip.uuid.hex] = next(ids)
                 rep_ip = {
                     "label": ip.label,
                     "type": ip.input_port_type.name,
@@ -449,7 +449,7 @@ class RodanWorkflowSerializationFormat_v_0_1(RodanWorkflowSerializationFormatBas
                 rep_wfj["input_ports"].append(rep_ip)
 
             for op in wfj.output_ports.all():
-                op_map[op.uuid.hex] = ids.next()
+                op_map[op.uuid.hex] = next(ids)
                 rep_op = {
                     "label": op.label,
                     "type": op.output_port_type.name,
@@ -648,7 +648,7 @@ class RodanWorkflowSerializationFormat_v_0_2(RodanWorkflowSerializationFormat_v_
             }
 
             for ip in wfj.input_ports.all():
-                ip_map[ip.uuid.hex] = ids.next()
+                ip_map[ip.uuid.hex] = next(ids)
                 rep_ip = {
                     "label": ip.label,
                     "type": ip.input_port_type.name,
@@ -657,7 +657,7 @@ class RodanWorkflowSerializationFormat_v_0_2(RodanWorkflowSerializationFormat_v_
                 rep_wfj["input_ports"].append(rep_ip)
 
             for op in wfj.output_ports.all():
-                op_map[op.uuid.hex] = ids.next()
+                op_map[op.uuid.hex] = next(ids)
                 rep_op = {
                     "label": op.label,
                     "type": op.output_port_type.name,
