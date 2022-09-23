@@ -60,11 +60,10 @@ class FastPacoClassifier(RodanTask):
 
     input_port_types = (
         {'name': 'Image', 'minimum': 1, 'maximum': 100, 'resource_types': lambda mime: mime.startswith('image/')},
-        {'name': 'Background model', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Background Model', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         # We did not go this route because it would be more difficult for the user to track layers.
         # {'name': 'Adjustable models', 'minimum': 1, 'maximum': 10, 'resource_types': ['keras/model+hdf5']},
-        {'name': 'Model 0', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
-        {'name': 'Model 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
@@ -73,14 +72,14 @@ class FastPacoClassifier(RodanTask):
         {'name': 'Model 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Model 10', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
     )
     output_port_types = (
         {'name': 'Log File', 'minimum': 0, 'maximum': 1, 'resource_types': ['text/plain']},
-        {'name': 'Background', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'Background Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         # We did not go this route because it would be more difficult for the user to track layers
         # {'name': 'Layers', 'minimum': 1, 'maximum': 10, 'resource_types': ['image/rgba+png']},
-        {'name': 'Layer 0', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
-        {'name': 'Layer 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'Layer 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
@@ -89,6 +88,7 @@ class FastPacoClassifier(RodanTask):
         {'name': 'Layer 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'Layer 10', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
     )
 
     """
@@ -125,39 +125,27 @@ class FastPacoClassifier(RodanTask):
                 )
 
             # Ports
-            background_model = inputs['Background model'][0]['resource_path']
+            background_model = inputs['Background Model'][0]['resource_path']
             model_paths = [background_model]
 
             # Populate optional ports
-            for i in range(input_ports):
+            for i in range(1, input_ports + 1):
                 model_paths += [inputs['Model %d' % i][0]['resource_path']]
 
             # Simulate a switch statement, instead of a series of ifs
             switch = {
-                0: 'Background',
-                1: 'Layer 0',
-                2: 'Layer 1',
-                3: 'Layer 2',
-                4: 'Layer 3',
-                5: 'Layer 4',
-                6: 'Layer 5',
-                7: 'Layer 6',
-                8: 'Layer 7',
-                9: 'Layer 8',
-                10: 'Layer 9',
+                0: 'Background Layer',
+                1: 'Layer 1',
+                2: 'Layer 2',
+                3: 'Layer 3',
+                4: 'Layer 4',
+                5: 'Layer 5',
+                6: 'Layer 6',
+                7: 'Layer 7',
+                8: 'Layer 8',
+                9: 'Layer 9',
+                10: 'Layer 10',
             }
-
-            # status = {
-            #     "inputs": inputs,
-            #     "outputs": outputs,
-            #     "input_ports": input_ports,
-            #     "output_ports": output_ports,
-            #     "input_": [x for x in inputs if x[:5] == "Model"],
-            #     "output_": [x for x in outputs if x[:5] == "Layer"],
-            #     "len_model_paths": len(model_paths),
-            #     "model_paths": model_paths,
-            #     "ports": []
-            # }
 
             # Image input is a list of images, you can classify a list of images and this iterates on each image.
             for idx, _ in enumerate(inputs['Image']):
@@ -183,17 +171,10 @@ class FastPacoClassifier(RodanTask):
                     b_channel, g_channel, r_channel = cv2.split(original_masked)
                     original_masked_alpha = cv2.merge((b_channel, g_channel, r_channel, alpha_channel))
 
-                    # status["ports"].append(
-                    #     {
-                    #         "switch": switch[id_label],
-                    #         "path": outputs[switch[id_label]][idx]['resource_path'],
-                    #     }
-                    # )
                     if switch[id_label] in outputs:
                         cv2.imwrite(outputs[switch[id_label]][idx]['resource_path']+'.png', original_masked_alpha)
                         os.rename(outputs[switch[id_label]][idx]['resource_path']+'.png', outputs[switch[id_label]][idx]['resource_path'])
 
-            # raise Exception(json.dumps(status, indent=2))
             return True
         finally:
             sys.stdout, sys.stderr = oldouts

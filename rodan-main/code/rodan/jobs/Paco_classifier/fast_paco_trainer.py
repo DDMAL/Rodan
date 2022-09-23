@@ -73,7 +73,7 @@ class FastPacoTrainer(RodanTask):
 
     input_port_types = (
         {'name': 'Multi-Sample Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
-        {'name': 'Model 0', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Background Model', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 1', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
@@ -109,7 +109,7 @@ class FastPacoTrainer(RodanTask):
         # {'name': 'Adjustable models', 'minimum': 1, 'maximum': 10, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Multi-Sample Zip', 'minimum': 0, 'maximum': 1, 'resource_types': ['application/zip']},
         {'name': 'Log File', 'minimum': 1, 'maximum': 1, 'resource_types': ['text/plain']},
-        {'name': 'Model 0', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
+        {'name': 'Background Model', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 1', 'minimum': 1, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 2', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
         {'name': 'Model 3', 'minimum': 0, 'maximum': 1, 'resource_types': ['keras/model+hdf5']},
