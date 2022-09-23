@@ -8,7 +8,6 @@ import numpy as np
 import os
 
 from rodan.jobs.base import RodanTask
-from . import recognition_engine as recognition
 
 
 """Wrap Calvo classifier in Rodan."""
@@ -54,6 +53,7 @@ class CalvoClassifier(RodanTask):
     Entry point
     """
     def run_my_task(self, inputs, settings, outputs):
+        from . import recognition_engine as recognition
         # Ports
         image_filepath = inputs['Image'][0]['resource_path']
         model_filepath = inputs['Model'][0]['resource_path']        
