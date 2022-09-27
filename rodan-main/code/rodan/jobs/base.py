@@ -135,7 +135,7 @@ class RodanTaskType(TaskType):
                     job_queue=schema.get("job_queue", "celery"),
                 )
                 j.save()
-                print(attrs["name"])
+                #print(attrs["name"])
 
                 try:
                     for ipt in attrs["input_port_types"]:

@@ -293,7 +293,7 @@ class InteractiveWorkingTestCase(
             )
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.content, "dummy hahaha")
+        self.assertEqual(response.content.decode(), "dummy hahaha")
 
     def test_post__fail(self):
         response = self.client.post(
