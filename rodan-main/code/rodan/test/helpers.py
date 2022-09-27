@@ -9,7 +9,7 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 
 from importlib import reload
-
+from rodan.celery import app
 
 class RodanTestSetUpMixin(object):
     def url(self, obj):
@@ -34,6 +34,22 @@ class RodanTestSetUpMixin(object):
         # initialized by Celery thread.
         import rodan.jobs.load
         import rodan.test.dummy_jobs
+
+        try:
+            from rodan.test.dummy_jobs import dummy_automatic_job
+            app.register_task(dummy_automatic_job())
+        except Exception as exception:
+            import_name = "dummy_automatic_job"
+            print(import_name + " failed to import with the following error:", exception)
+
+        try:
+            from rodan.test.dummy_jobs import dummy_manual_job
+            app.register_task(dummy_manual_job())
+        except Exception as exception:
+            import_name = "dummy_manual_job"
+            print(import_name + " failed to import with the following error:", exception)
+        
+        print (">>> Register dummy_automatic_job and dummy_manual_job.")
 
         reload(rodan.test.dummy_jobs)  # noqa
 
