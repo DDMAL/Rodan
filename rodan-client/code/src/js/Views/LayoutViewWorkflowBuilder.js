@@ -148,6 +148,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _updateView(event, model)
     {
+        this.ui.workflowName.text(this.model.get('name'));
         if (this.model.get('valid'))
         {
             this._lastErrorCode = '';
@@ -170,6 +171,8 @@ class LayoutViewWorkflowBuilder extends Marionette.View
 ///////////////////////////////////////////////////////////////////////////////////////
 LayoutViewWorkflowBuilder.prototype.template = _.template($('#template-main_workflowbuilder').text());
 LayoutViewWorkflowBuilder.prototype.ui = {
+    workflowName: '#navbar-workflow-name',
+    canvasWorkspace: '#canvas-wrap',
     buttonZoomIn: '#button-zoom_in',
     buttonZoomOut: '#button-zoom_out',
     buttonZoomReset: '#button-zoom_reset',

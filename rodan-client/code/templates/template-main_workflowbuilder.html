@@ -1,10 +1,22 @@
 <div class="row gui">
     <nav class="navbar navbar-inverse navbar-fixed-top" style="margin: 0; position: absolute">
         <div class="container-fluid">
-            <div class="collapse navbar-collapse">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <!-- This must eventually become the workflow name -->
+                <a class="navbar-brand" href="#" >Workflow</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Workflow <span class="caret"></span></a>
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Workflow <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a id="button-edit">Edit Name/Description</a></li>
                             <li><a id="button-add_job">Add Job</a></li>
@@ -13,7 +25,8 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">View <span class="caret"></span></a>
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">View <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a id="button-zoom_in">Zoom in</a></li>
                             <li><a id="button-zoom_out">Zoom out</a></li>
@@ -21,9 +34,11 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Settings <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a>Automatically add ports to job  <input type="checkbox" checked="checked" id="checkbox-add_ports"/></a></li>
+                            <li><a>Automatically add ports to job <input type="checkbox" checked="checked"
+                                        id="checkbox-add_ports" /></a></li>
                         </ul>
                     </li>
                 </ul>
