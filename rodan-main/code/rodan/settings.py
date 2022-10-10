@@ -359,6 +359,7 @@ MIDDLEWARE_CLASSES = [
     "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
 ]
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
+FILE_UPLOAD_PERMISSIONS =  0o644
 DATA_UPLOAD_MAX_MEMORY_SIZE = 262144000
 FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
 # REST framework
