@@ -9,6 +9,7 @@ from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
 import six
+import io
 
 from rodan.constants import task_status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -39,8 +40,8 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
     def test_post_no_project(self):
         resource_obj = {
             "files": [
-                SimpleUploadedFile("page1.txt", "n/t"),
-                SimpleUploadedFile("page2.txt", "n/t"),
+                SimpleUploadedFile("page1.txt", b"n/t"),
+                SimpleUploadedFile("page2.txt", b"n/t"),
             ]
         }
         response = self.client.post("/api/resources/", resource_obj, format="multipart")
@@ -55,8 +56,8 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
                 self.test_project.uuid
             ),
             "files": [
-                SimpleUploadedFile("page1.txt", "n/t"),
-                SimpleUploadedFile("page2.txt", "n/t"),
+                SimpleUploadedFile("page1.txt", b"n/t"),
+                SimpleUploadedFile("page2.txt", b"n/t"),
             ],
             "type": "http://localhost:8000/api/resourcetype/{0}/".format(
                 ResourceType.objects.get(mimetype="application/octet-stream").uuid
@@ -206,7 +207,7 @@ class ResourceProcessingTestCase(
         # that subprocess.check_call needs for converting it to a JPEG2000
 
         if os.environ.get("TRAVIS", "False") != "true":
-            file_obj = six.StringIO()
+            file_obj = io.BytesIO()
             image = Image.new("RGB", size=(50, 50), color=(256, 0, 0))
             image.save(file_obj, "png")
             file_obj.name = "page1.png"
@@ -228,7 +229,7 @@ class ResourceProcessingTestCase(
             self.assertEqual(self.test_resource1.resource_type.mimetype, "image/rgb+png")
 
     def test_post_image_claiming_txt(self):
-        file_obj = six.StringIO()
+        file_obj = io.BytesIO()
         image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
         image.save(file_obj, "png")
         file_obj.name = "page1.png"
@@ -255,7 +256,7 @@ class ResourceProcessingTestCase(
                 "project": "http://localhost:8000/api/project/{0}/".format(
                     self.test_project.uuid
                 ),
-                "files": [SimpleUploadedFile("test_page1.png", "n/t")],
+                "files": [SimpleUploadedFile("test_page1.png", b"n/t")],
             }
             try:
                 response = self.client.post(
