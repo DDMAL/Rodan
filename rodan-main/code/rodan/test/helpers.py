@@ -376,8 +376,8 @@ class RodanTestSetUpMixin(object):
         # print("self.test_Eip2", self.url(self.test_Eip2))
         # print("self.test_Dip3", self.url(self.test_Dip3))
         return {
-            self.url(self.test_Dip1): map(self.url, self.test_resourcecollection),
-            self.url(self.test_Fip1): map(self.url, self.test_resourcecollection),
+            self.url(self.test_Dip1): list(map(self.url, self.test_resourcecollection)),
+            self.url(self.test_Fip1): list(map(self.url, self.test_resourcecollection)),
             self.url(self.test_Aip): [self.url(self.test_resource)],
             self.url(self.test_Eip2): [self.url(self.test_resource)],
             self.url(self.test_Dip3): [self.url(self.test_resourcelist)],
