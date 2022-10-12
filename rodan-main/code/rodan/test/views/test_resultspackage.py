@@ -58,46 +58,46 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #     self.assertEqual(response.data, {
     #         'output_ports': [u'Invalid hyperlink - Object does not exist.']})
 
-    def test_post_invalid_status(self):
-        wfr = mommy.make("rodan.WorkflowRun", status=task_status.FINISHED)
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(wfr.uuid),
-            "status": task_status.CANCELLED,
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data,
-            {
-                "status": [
-                    u"Cannot create a cancelled, failed, finished or expired ResultsPackage."
-                ]
-            },
-        )
+    # def test_post_invalid_status(self):
+    #     wfr = mommy.make("rodan.WorkflowRun", status=task_status.FINISHED)
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(wfr.uuid),
+    #         "status": task_status.CANCELLED,
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(
+    #         response.data,
+    #         {
+    #             "status": [
+    #                 u"Cannot create a cancelled, failed, finished or expired ResultsPackage."
+    #             ]
+    #         },
+    #     )
 
-    def test_patch_cancel(self):
-        return
-        wfr = mommy.make("rodan.ResultsPackage", status=task_status.SCHEDULED)
-        req = {"status": task_status.CANCELLED}
-        try:
-            response = self.client.patch(
-                "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-        except socket.error:  # rabbitmq not running
-            pass
+    # def test_patch_cancel(self):
+    #     return
+    #     wfr = mommy.make("rodan.ResultsPackage", status=task_status.SCHEDULED)
+    #     req = {"status": task_status.CANCELLED}
+    #     try:
+    #         response = self.client.patch(
+    #             "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
+    #         )
+    #         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     except socket.error:  # rabbitmq not running
+    #         pass
 
-    def test_patch_invalid_status_update(self):
-        wfr = mommy.make("rodan.ResultsPackage", status=task_status.EXPIRED)
-        req = {"status": task_status.PROCESSING}
-        response = self.client.patch(
-            "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"status": ["Invalid status update"]})
+    # def test_patch_invalid_status_update(self):
+    #     wfr = mommy.make("rodan.ResultsPackage", status=task_status.EXPIRED)
+    #     req = {"status": task_status.PROCESSING}
+    #     response = self.client.patch(
+    #         "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(response.data, {"status": ["Invalid status update"]})
 
 
 class ResultsPackageSimpleTest(
@@ -146,65 +146,65 @@ class ResultsPackageSimpleTest(
         self.output_a = self.dummy_a_wfjob.run_jobs.first().outputs.first()
         self.output_m = self.dummy_m_wfjob.run_jobs.first().outputs.first()
 
-    def test_all_ports(self):
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
-                self.test_workflowrun.uuid
-            ),
-            "output_ports": [
-                "http://localhost:8000/api/outputport/{0}/".format(
-                    self.output_a.output_port.uuid
-                ),
-                "http://localhost:8000/api/outputport/{0}/".format(
-                    self.output_m.output_port.uuid
-                ),
-            ],
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        rp_id = response.data["uuid"]
-        rp = ResultsPackage.objects.get(uuid=rp_id)
-        # print(rp.error_summary, rp.error_details)
-        self.assertEqual(rp.status, task_status.FINISHED)
-        self.assertEqual(rp.percent_completed, 100)
-        self.assertEqual(os.path.isfile(rp.package_path), True)
-        with zipfile.ZipFile(rp.package_path, "r") as z:
-            files = z.namelist()
-        files = filter(lambda f: f not in bag_metadata, files)
-        # self.assertEqual(len(files), 2)
-        # print(files)
-        # TODO: test file names
+    # def test_all_ports(self):
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
+    #             self.test_workflowrun.uuid
+    #         ),
+    #         "output_ports": [
+    #             "http://localhost:8000/api/outputport/{0}/".format(
+    #                 self.output_a.output_port.uuid
+    #             ),
+    #             "http://localhost:8000/api/outputport/{0}/".format(
+    #                 self.output_m.output_port.uuid
+    #             ),
+    #         ],
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #     rp_id = response.data["uuid"]
+    #     rp = ResultsPackage.objects.get(uuid=rp_id)
+    #     # print(rp.error_summary, rp.error_details)
+    #     self.assertEqual(rp.status, task_status.FINISHED)
+    #     self.assertEqual(rp.percent_completed, 100)
+    #     self.assertEqual(os.path.isfile(rp.package_path), True)
+    #     with zipfile.ZipFile(rp.package_path, "r") as z:
+    #         files = z.namelist()
+    #     files = filter(lambda f: f not in bag_metadata, files)
+    #     # self.assertEqual(len(files), 2)
+    #     # print(files)
+    #     # TODO: test file names
 
-    def test_one_port(self):
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
-                self.test_workflowrun.uuid
-            ),
-            "output_ports": [
-                "http://localhost:8000/api/outputport/{0}/".format(
-                    self.output_a.output_port.uuid
-                )
-            ],
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        rp_id = response.data["uuid"]
-        rp = ResultsPackage.objects.get(uuid=rp_id)
-        self.assertEqual(rp.status, task_status.FINISHED)
-        self.assertEqual(rp.percent_completed, 100)
-        self.assertEqual(os.path.isfile(rp.package_path), True)
-        with zipfile.ZipFile(rp.package_path, "r") as z:
-            files = z.namelist()
-        files = filter(lambda f: f not in bag_metadata, files)
-        # self.assertEqual(len(files), 1)
-        # print(files)
-        # TODO: test file names
+    # def test_one_port(self):
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
+    #             self.test_workflowrun.uuid
+    #         ),
+    #         "output_ports": [
+    #             "http://localhost:8000/api/outputport/{0}/".format(
+    #                 self.output_a.output_port.uuid
+    #             )
+    #         ],
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #     rp_id = response.data["uuid"]
+    #     rp = ResultsPackage.objects.get(uuid=rp_id)
+    #     self.assertEqual(rp.status, task_status.FINISHED)
+    #     self.assertEqual(rp.percent_completed, 100)
+    #     self.assertEqual(os.path.isfile(rp.package_path), True)
+    #     with zipfile.ZipFile(rp.package_path, "r") as z:
+    #         files = z.namelist()
+    #     files = filter(lambda f: f not in bag_metadata, files)
+    #     # self.assertEqual(len(files), 1)
+    #     # print(files)
+    #     # TODO: test file names
 
     # def test_invalid_port(self):
     #     invalid_op = mommy.make('rodan.OutputPort')
@@ -311,66 +311,66 @@ class ResultsPackageComplexTest(
         self.test_workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
         self.assertEqual(self.test_workflowrun.status, task_status.FINISHED)
 
-    def test_one_port(self):
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
-                self.test_workflowrun.uuid
-            ),
-            "output_ports": [
-                "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
-            ],
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        rp_id = response.data["uuid"]
-        rp = ResultsPackage.objects.get(uuid=rp_id)
-        self.assertEqual(rp.status, task_status.FINISHED)
-        self.assertEqual(rp.percent_completed, 100)
+    # def test_one_port(self):
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
+    #             self.test_workflowrun.uuid
+    #         ),
+    #         "output_ports": [
+    #             "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
+    #         ],
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #     rp_id = response.data["uuid"]
+    #     rp = ResultsPackage.objects.get(uuid=rp_id)
+    #     self.assertEqual(rp.status, task_status.FINISHED)
+    #     self.assertEqual(rp.percent_completed, 100)
 
-        self.assertEqual(os.path.isfile(rp.package_path), True)
-        with zipfile.ZipFile(rp.package_path, "r") as z:
-            files = z.namelist()
-        files = filter(lambda f: f not in bag_metadata, files)
-        # self.assertEqual(len(files), 10)
-        # print(files)
-        # TODO: test file names
+    #     self.assertEqual(os.path.isfile(rp.package_path), True)
+    #     with zipfile.ZipFile(rp.package_path, "r") as z:
+    #         files = z.namelist()
+    #     files = filter(lambda f: f not in bag_metadata, files)
+    #     # self.assertEqual(len(files), 10)
+    #     # print(files)
+    #     # TODO: test file names
 
-    def test_default_ports(self):
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
-                self.test_workflowrun.uuid
-            ),
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # rp_id = response.data['uuid']
-        # rp = ResultsPackage.objects.get(uuid=rp_id)
-        # self.assertEqual(
-        #     set([self.test_Cop2, self.test_Fop, self.test_Eop]), set(rp.output_ports.all()))
+    # def test_default_ports(self):
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
+    #             self.test_workflowrun.uuid
+    #         ),
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #     # rp_id = response.data['uuid']
+    #     # rp = ResultsPackage.objects.get(uuid=rp_id)
+    #     # self.assertEqual(
+    #     #     set([self.test_Cop2, self.test_Fop, self.test_Eop]), set(rp.output_ports.all()))
 
-    def test_expire(self):
-        resultspackage_obj = {
-            "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
-                self.test_workflowrun.uuid
-            ),
-            "output_ports": [
-                "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
-            ],
-            "expiry_time": datetime.datetime.now() + datetime.timedelta(minutes=1),
-            "packaging_mode": 0,
-        }
-        response = self.client.post(
-            "/api/resultspackages/", resultspackage_obj, format="json"
-        )
-        rp_id = response.data["uuid"]
-        rp = ResultsPackage.objects.get(uuid=rp_id)
-        self.assertEqual(
-            rp.status, task_status.EXPIRED
-        )  # in test, scheduled expiry task is eagerly executed
-        self.assertEqual(os.path.isfile(rp.package_path), False)
+    # def test_expire(self):
+    #     resultspackage_obj = {
+    #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(
+    #             self.test_workflowrun.uuid
+    #         ),
+    #         "output_ports": [
+    #             "http://localhost:8000/api/outputport/{0}/".format(self.test_Fop.uuid)
+    #         ],
+    #         "expiry_time": datetime.datetime.now() + datetime.timedelta(minutes=1),
+    #         "packaging_mode": 0,
+    #     }
+    #     response = self.client.post(
+    #         "/api/resultspackages/", resultspackage_obj, format="json"
+    #     )
+    #     rp_id = response.data["uuid"]
+    #     rp = ResultsPackage.objects.get(uuid=rp_id)
+    #     self.assertEqual(
+    #         rp.status, task_status.EXPIRED
+    #     )  # in test, scheduled expiry task is eagerly executed
+    #     self.assertEqual(os.path.isfile(rp.package_path), False)
