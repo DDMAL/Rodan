@@ -891,7 +891,7 @@ class RodanTask(Task,metaclass=RodanTaskType):
                             ff
                             for ff in os.listdir(output["resource_temp_folder"])
                             if os.path.isfile(
-                                os.path.join(output["resource_temp_folder"], f)
+                                os.path.join(output["resource_temp_folder"], ff)
                             )
                         ]
                         files.sort()  # alphabetical order
