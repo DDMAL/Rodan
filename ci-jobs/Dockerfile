@@ -1,3 +1,6 @@
+# ================================
+# From ./python3-celery/Dockerfile
+# ================================
 FROM alpine:3 AS builder
 ARG BRANCH
 ENV BRANCH="${BRANCH:-develop}"
@@ -75,9 +78,9 @@ RUN python3 setup.py install
 # Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
 RUN pip install opencv-python==4.6.0.66
 
-# ====================
-# Rodan-main container
-# ====================
+# ============================
+# from ./rodan-main/Dockerfile
+# ============================
 #FROM python:3.7-slim
 
 #COPY ./rodan-main/code /code/Rodan
@@ -103,9 +106,7 @@ RUN apt-get install -y \
   libsm6 libxext6 libxrender-dev libglib2.0-data \
   python3-opencv \
   wget \
-  vim \
-  sudo \
-  postgresql
+  vim
 
 # https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
 RUN pip3 install setuptools==58
@@ -138,6 +139,14 @@ RUN cd /vendor \
   && cd build \
   && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON ..  \
   && make -j3
+
+# ============================
+# To run testcases
+# ============================
+# To start postgres server to run testcases
+RUN apt-get install -y \
+  sudo \
+  postgresql
 
 # Copy script to start postgres
 COPY ./ci-jobs/prepare-ci.bash /run/
