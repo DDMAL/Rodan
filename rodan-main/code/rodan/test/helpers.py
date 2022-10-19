@@ -49,8 +49,6 @@ class RodanTestSetUpMixin(object):
             import_name = "dummy_manual_job"
             print(import_name + " failed to import with the following error:", exception)
         
-        print (">>> Register dummy_automatic_job and dummy_manual_job.")
-
         reload(rodan.test.dummy_jobs)  # noqa
 
     def setUp_user(self):
