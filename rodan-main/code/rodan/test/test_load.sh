@@ -34,3 +34,5 @@ echo "Number of messages sent per connection: $number" >>  ./test_log/$dt.txt
 thor --amount $amount --messages $number ws://$server/ws/ >> ./test_log/$dt.txt
 echo "Test successfully executed"
 exit 0
+
+# Meow :3
