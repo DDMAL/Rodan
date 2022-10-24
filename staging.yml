@@ -82,10 +82,10 @@ services:
       resources:
         reservations:
           cpus: "1"
-          memory: 4G
+          memory: 12G
         limits:
           cpus: "1"
-          memory: 4G
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
@@ -117,10 +117,10 @@ services:
       resources:
         reservations:
           cpus: "2"
-          memory: 8G
+          memory: 12G
         limits:
           cpus: "2"
-          memory: 8G
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
