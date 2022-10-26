@@ -11,7 +11,7 @@ REPLACE := perl -i -pe
 RODAN_PATH := ./rodan-main/code/rodan
 JOBS_PATH := $(RODAN_PATH)/jobs
 
-PROD_TAG := v2.0.9
+PROD_TAG := v2.0.10
 
 # Individual Commands
 
