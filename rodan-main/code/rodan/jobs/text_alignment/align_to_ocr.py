@@ -77,11 +77,15 @@ def process(raw_image,
     image, eroded, angle = preproc.preprocess_images(raw_image)
     cc_strips, lines_peak_locs, _ = preproc.identify_text_lines(eroded)
 
+    assert len(cc_strips) > 0, "Fatal error: No text strips were found on the given page."
+
     # -- PERFORM OCR WITH CALAMARI --
     all_chars = existing_ocr
     if not all_chars:
         all_chars = perform_ocr.recognize_text_strips(image, cc_strips, ocr_model_name, verbose)
     all_chars = perform_ocr.handle_abbreviations(all_chars)
+
+    assert len(all_chars) > 0, "Fatal error: No characters were found in the OCR of the given page."
 
     # -- PERFORM AND PARSE ALIGNMENT --
     # get full ocr transcript as CharBoxes
@@ -220,21 +224,6 @@ if __name__ == '__main__':
     manuscript = 'salzinnes'
     f_inds = ['040r', '142v', '087r', '132v']
     ocr_model = 'gothic_salzinnes_2021'
-
-    # text_func = pcc.filename_to_text_func('./csv/einsiedeln_123606.csv')
-    # manuscript = 'einsiedeln'
-    # f_inds = range(0, 11)
-    # ocr_model = './salzinnes_model-00054500.pyrnn.gz'
-
-    # text_func = pcc.filename_to_text_func('./csv/stgall390_123717.csv')
-    # manuscript = 'stgall390'
-    # f_inds = ['022', '023', '024', '025', '007']
-    # ocr_model = 'stgall2-00017000.pyrnn.gz'
-
-    # text_func = pcc.filename_to_text_func('./csv/stgall388_123750.csv')
-    # manuscript = 'stgall388'
-    # f_inds = ['028', '029', '030', '031', '032']
-    # ocr_model = 'stgall3-00017000.pyrnn.gz'
 
     for ind in f_inds:
 

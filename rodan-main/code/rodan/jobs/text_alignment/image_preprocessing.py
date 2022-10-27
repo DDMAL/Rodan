@@ -168,7 +168,7 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
 
     # get the otsu threshold after running a flood fill on the corners, so that those huge clumps of
     # dark pixels don't mess up the statistics too much (we only care about text!)
-    thresh = threshold_otsu(fill_corners(gray_img, fill_value=255, thresh=25, tol=25, fill_below_thresh=True))
+    thresh = threshold_otsu(fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True))
 
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)

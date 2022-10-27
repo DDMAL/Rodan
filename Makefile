@@ -11,7 +11,7 @@ REPLACE := perl -i -pe
 RODAN_PATH := ./rodan-main/code/rodan
 JOBS_PATH := $(RODAN_PATH)/jobs
 
-PROD_TAG := v2.0.9
+PROD_TAG := v2.0.10
 
 # Individual Commands
 
@@ -258,6 +258,11 @@ celery_log:
 
 rodan-main_log:
 	@docker exec $$(docker ps -f name=rodan_rodan-main --format "{{.ID}}") tail -f /code/Rodan/rodan.log
+
+update_prod_version_tag:
+	# old_tag=v2.x.x make update_prod_version_name
+	@$(REPLACE) "s/$(old_tag)/$(PROD_TAG)/g" ./production.yml
+	@$(REPLACE) "s/$(old_tag)/$(PROD_TAG)/g" ./rodan-main/code/rodan/__init__.py
 
 # Command Groups
 reset: stop clean pull run

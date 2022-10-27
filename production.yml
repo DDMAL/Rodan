@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   nginx:
-    image: "ddmal/nginx:v2.0.9"
+    image: "ddmal/nginx:v2.0.10"
     deploy:
       replicas: 1
       resources:
@@ -38,7 +38,7 @@ services:
       - "certbot:/etc/letsencrypt"
 
   rodan-main:
-    image: "ddmal/rodan-main:v2.0.9"
+    image: "ddmal/rodan-main:v2.0.10"
     deploy:
       replicas: 1
       resources:
@@ -74,16 +74,16 @@ services:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:v2.0.9"
+    image: "ddmal/rodan-main:v2.0.10"
     deploy:
       replicas: 1
       resources:
         reservations:
           cpus: "1"
-          memory: 4G
+          memory: 12G
         limits:
           cpus: "1"
-          memory: 4G
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
@@ -105,16 +105,16 @@ services:
       - "resources:/rodan/data"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:v2.0.9"
+    image: "ddmal/rodan-python3-celery:v2.0.10"
     deploy:
       replicas: 1
       resources:
         reservations:
           cpus: "2"
-          memory: 8G
+          memory: 12G
         limits:
           cpus: "2"
-          memory: 8G
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
@@ -136,7 +136,7 @@ services:
       - "resources:/rodan/data"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:v2.0.9"
+    image: "ddmal/rodan-gpu-celery:v2.0.10"
     deploy:
       replicas: 1
       resources:
@@ -192,7 +192,7 @@ services:
       TZ: America/Toronto
 
   postgres:
-    image: "ddmal/postgres-plpython:v2.0.9"
+    image: "ddmal/postgres-plpython:v2.0.10"
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
@@ -246,7 +246,7 @@ services:
       - ./scripts/production.env
 
   hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:v2.0.9"
+    image: "ddmal/hpc-rabbitmq:v2.0.10"
     deploy:
       replicas: 1
       resources:

@@ -103,10 +103,19 @@ def recognize_text_strips(img, line_strips, ocr_model_name, verbose=False):
 
         r = results[i]
         chars = list(r.outputs[1].sentence)
+
+        # skip this text strip if no characters were found in it
+        if len(chars) == 0:
+            continue
+
         global_starts = [x.global_start for x in r.outputs[1].positions]
 
-        # to find width of final character, append median char width to end of line
-        med_char_width = int(np.median(np.diff(global_starts)))
+        # to find width of final character, append median char width to end of line.
+        # double-check to make sure there is more than one character found in the line.
+        if len(global_starts) <= 1:
+            med_char_width = 1
+        else:
+            med_char_width = int(np.median(np.diff(global_starts)))
         global_starts = global_starts + [med_char_width + global_starts[-1]]
 
         res_line = []

@@ -56,9 +56,9 @@ services:
     # https://github.com/DDMAL/rodan-docker/issues/61
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
-      interval: "10s"
-      timeout: "5s"
-      retries: 2
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
       start_period: "2m"
     command: /run/start
     environment:
@@ -81,25 +81,25 @@ services:
       replicas: 1
       resources:
         reservations:
-          cpus: "1"
-          memory: 2G
+          cpus: "2"
+          memory: 12G
         limits:
-          cpus: "1"
-          memory: 2G
+          cpus: "2"
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
         window: 30s
     healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
       # first run interval seconds after the container is started, and then again interval seconds after each previous
       interval: "30s"
       # How long to wait for the healthcheck to succeed
-      timeout: "10s"
+      timeout: "30s"
       # Ignore failures during the start_period
       start_period: "1m"
       # accept 3 consecutive failures before 
-      retries: 3
+      retries: 5
     command: /run/start-celery
     environment:
       TZ: America/Toronto
@@ -117,19 +117,19 @@ services:
       resources:
         reservations:
           cpus: "2"
-          memory: 8G
+          memory: 12G
         limits:
           cpus: "2"
-          memory: 8G
+          memory: 12G
       restart_policy:
         condition: any
         delay: 5s
         window: 30s
     healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3"]
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
       interval: "30s"
-      timeout: "10s"
-      retries: 3
+      timeout: "30s"
+      retries: 5
     command: /run/start-celery
     environment:
       TZ: America/Toronto
@@ -147,20 +147,20 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: '2'
+          cpus: '1'
           memory: 8G
         reservations:
-          cpus: '2'
+          cpus: '1'
           memory: 8G
       restart_policy:
         condition: any
         delay: 5s
         window: 30s
     healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU"]
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
       interval: "30s"
-      timeout: "10s"
-      retries: 3
+      timeout: "30s"
+      retries: 5
     command: /run/start-celery
     environment:
       TZ: America/Toronto
