@@ -29,7 +29,7 @@ class RedFilter(RodanTask):
     }]
 
     def run_my_task(self, inputs, settings, outputs):
-        sal = Image.open(inputs['input'][0]['resource_path'])
+        sal = Image.open(inputs['input'][0]['resource_path']).convert("RGB")
         ImageOps.autocontrast(sal, 0)
          
         red_layer = sal.split()[0]
