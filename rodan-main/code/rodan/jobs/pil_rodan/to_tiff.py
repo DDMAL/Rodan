@@ -32,15 +32,15 @@ class to_tiff(RodanTask):
     def test_my_task(self, testcase):
         # [TODO] test more formats
         inputs = {
-            'in': [
+            'Image': [
                 {'resource_type': 'image/jpeg',
                  'resource_path': testcase.new_available_path()
                 }
             ]
         }
-        PIL.Image.new("RGB", size=(50, 50), color=(256, 0, 0)).save(inputs['in'][0]['resource_path'], 'JPEG')
+        PIL.Image.new("RGB", size=(50, 50), color=(256, 0, 0)).save(inputs['Image'][0]['resource_path'], 'JPEG')
         outputs = {
-            'out': [
+            'TIFF Image': [
                 {'resource_type': 'image/tiff',
                  'resource_path': testcase.new_available_path()
                 }
@@ -48,5 +48,5 @@ class to_tiff(RodanTask):
         }
 
         self.run_my_task(inputs, {}, outputs)
-        result = PIL.Image.open(outputs['out'][0]['resource_path'])
+        result = PIL.Image.open(outputs['TIFF Image'][0]['resource_path'])
         testcase.assertEqual(result.format, 'TIFF')
