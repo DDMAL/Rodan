@@ -99,6 +99,34 @@ class gamera_gatos_background(RodanTask):
 			image_result.save_PNG(outputs['Greyscale PNG - background estimation image'][i]['resource_path'])
 		return True
 
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/CF-005_one-bit-png_output.png"
+		input_greyscale_png_path = "/code/Rodan/rodan/test/files/CF-005_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/CF-005_gatos-background_output.png"
+
+		inputs = {
+			"Onebit PNG - preliminary binarization of the image": [{"resource_path":input_onebit_png_path}],
+			"Greyscale PNG - source image to binarize": [{"resource_path":input_greyscale_png_path}]
+		}
+		outputs = {
+			"Greyscale PNG - background estimation image": [{"resource_path":output_path}]
+		}
+		settings = {
+			"Region size":15
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job (gatos background) on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
+
 class gamera_gatos_threshold(RodanTask):
 
 	name = 'Gatos Threshold'
@@ -182,6 +210,37 @@ class gamera_gatos_threshold(RodanTask):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
 
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/CF-005_one-bit-png_output.png"
+		input_background_png_path =  "/code/Rodan/rodan/test/files/CF-005_gatos-background_output.png"
+		input_greyscale_png_path = "/code/Rodan/rodan/test/files/CF-005_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/CF-005_gatos-threshold_output.png"
+		inputs = {
+			"Onebit PNG - preliminary binarization of the image": [{"resource_path":input_onebit_png_path}],
+			"Greyscale PNG - estimated background of the image": [{"resource_path":input_background_png_path}],
+			"Greyscale PNG - source image to binarize": [{"resource_path":input_greyscale_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			"q":0.6,
+			"p1": 0.5,
+			"p2": 0.8
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job (gatos threshold) on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
+
 class gamera_brink_threshold(RodanTask):
 
 	name = 'Brink Threshold'
@@ -222,6 +281,30 @@ class gamera_brink_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_greyscale_png_path = "/code/Rodan/rodan/test/files/CF-005_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/CF-005_brink-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_greyscale_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job (blink threshold) on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
 
 class gamera_sauvola_threshold(RodanTask):
 
@@ -315,6 +398,35 @@ class gamera_sauvola_threshold(RodanTask):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
 
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_greyscale_png_path = "/code/Rodan/rodan/test/files/CF-005_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/CF-005_sauvola-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_greyscale_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Region size': 15,
+			'Sensitivity': 0.5,
+			'Dynamic range': 128,
+			'Lower bound': 20,
+			'Upper bound': 150
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job (sauvola threshold) on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
+
 class gamera_niblack_threshold(RodanTask):
 
 	name = 'Niblack Threshold'
@@ -396,3 +508,31 @@ class gamera_niblack_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_greyscale_png_path = "/code/Rodan/rodan/test/files/CF-005_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/CF-005_niblack-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_greyscale_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Region size': 15,
+			'Sensitivity': -0.2,
+			'Lower bound': 20,
+			'Upper bound': 150
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job (niblack threshold) on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
