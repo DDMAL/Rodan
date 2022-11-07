@@ -92,6 +92,31 @@ class gamera_otsu_threshold(RodanTask):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
 
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/lenna_otsu-threshold_outpuit.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_onebit_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Storage format': 0
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
+
 class gamera_tsai_moment_preserving_threshold(RodanTask):
 
 	name = 'Tsai Moment Preserving Threshold'
@@ -142,6 +167,31 @@ class gamera_tsai_moment_preserving_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/lenna_tsai-moment-preserving-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_onebit_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Storage format': 0
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
 
 class gamera_abutaleb_threshold(RodanTask):
 
@@ -197,6 +247,31 @@ class gamera_abutaleb_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/lenna_abutaleb-locally-adaptive-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_onebit_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Storage format': 0
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
 
 class gamera_bernsen_threshold(RodanTask):
 
@@ -288,6 +363,42 @@ class gamera_bernsen_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def run_my_task(self, inputs, settings, outputs):
+
+		image_source = load_image(inputs['Greyscale PNG image'][0]['resource_path'])
+		image_result = image_source.abutaleb_threshold(settings['Storage format']) 
+		for i in range(len(outputs['Onebit PNG image'])):
+			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
+		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-png_output.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/lenna_bernsen-threshold_output.png"
+		inputs = {
+			"Greyscale PNG image": [{"resource_path":input_onebit_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {
+			'Storage format': 0,
+			'Region size': 11,
+			'Contrast limit': 80,
+			'Doubt to black': False
+		}
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
 
 class gamera_djvu_threshold(RodanTask):
 
@@ -385,3 +496,26 @@ class gamera_djvu_threshold(RodanTask):
 		for i in range(len(outputs['Onebit PNG image'])):
 			image_result.save_PNG(outputs['Onebit PNG image'][i]['resource_path'])
 		return True
+
+	def test_my_task(self, testcase):
+		import cv2
+		import numpy as np
+		input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna.png"
+		output_path = testcase.new_available_path()
+		gt_output_path = "/code/Rodan/rodan/test/files/lenna_djvu-threshold_output.png"
+		inputs = {
+			"RGB PNG image": [{"resource_path":input_onebit_png_path}]
+		}
+		outputs = {
+			"Onebit PNG image": [{"resource_path":output_path}]
+		}
+		settings = {'Minimum block size': 64, 'Block factor': 2, 'Smoothness': 0.2, 'Maximum block size': 512} 
+
+		self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+		# The predicted result and gt result should be identical to each other
+		# The gt result is from running this job on production
+		gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+		pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+		np.testing.assert_array_equal(gt_output, pred_output)
