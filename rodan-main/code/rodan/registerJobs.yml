@@ -1,0 +1,176 @@
+---
+
+"BASE" : [
+  "rodan.jobs.resource_distributor" : ["ResourceDistributor"],
+  "rodan.jobs.labeler" : [ "labeler" ]
+
+]
+
+"RODAN_PYTHON3_JOBS": [
+    
+    "rodan.jobs.helloworld": [
+        "from rodan.jobs.helloworld.helloworld import HelloWorld",
+        "from rodan.jobs.helloworld.helloworld import HelloWorldMultiPort", 
+        "from rodan.jobs.helloworld.helloworld import HelloWorld3"],
+    
+
+    "rodan.jobs.pil_rodan": [
+        "from rodan.jobs.pil_rodan.red_filtering import RedFilter"
+        "from rodan.jobs.pil_rodan.resize import resize"
+        "from rodan.jobs.pil_rodan.to_png import to_png"
+        "from rodan.jobs.pil_rodan.to_tiff import to_tiff"
+    ]
+
+    "rodan.jobs.mei2vol_wrapper": [
+        "from rodan.jobs.mei2vol_wrapper.m2v_wrapper import MEI2Vol"
+    ],
+    
+    "rodan.jobs.gamera_rodan": [
+        "rodan.jobs.gamera_rodan.wrappers.classification": [
+          "ClassificationTask"
+        ] 
+        "rodan.jobs.gamera_rodan.wrappers.plugins.binarization": [
+          "gamera_batos_background",
+          "gamera_gatos_threshold",
+          "gamera_brink_threshold",
+          "gamera_sauvola_threshold",
+          "gamera_niblack_threshold"
+        ] 
+        "rodan.jobs.gamera_rodan.wrappers.plugins.cc_analysis": [
+          "CCAnalysis"
+        ]
+        "rodan.jobs.gamera_rodan.wrappers.plugins.image_conversion": [
+          "gamera_to_rgb",
+          "gamera_to_greyscale",
+          "gamera_to_grey16",
+          "gamera_to_onebit"
+        ]
+
+        "rodan.jobs.gamera_rodan.wrappers.plugins.image_utilities": [
+          "gamera_invert"
+        ]
+
+        "rodan.jobs.gamera_rodan.wrappers.plugins.morphology": [ 
+          "gamera_despeckle",
+          "gamera_dilate"
+        ]
+
+        "rodan.jobs.gamera_rodan.wrappers.plugins.threshold": [
+          "gamera_otsu_threshold",
+          "gamera_tsai_moment_preserving_threshold",
+          "gamera_abutaleb_threshold",
+          "gamera_bernsen_threshold",
+          "gamera_djvu_threshold"
+        ]
+
+        "rodan.jobs.gamera_rodan.wrappers.toolkits.music_staves.miyao": [
+          "MiyaoStaffFinder"
+        ]
+    ],
+
+
+    "rodan.jobs.biollante_rodan": [
+      "rodan.jobs.biollante_rodan": [
+        "BiollanteRodan"
+      ]
+    ],
+
+
+    "rodan.jobs.interactive_classifier": [
+      "rodan.jobs.interactive_classifier.wrapper": [
+        "InteractiveClassifier"
+      ]
+
+      "rodan.jobs.interactive_classifier.gamera_xml_distributor": [
+        "GameraXMLDistributor"
+      ]
+
+      "rodan.jobs.gamera_rodan.wrappers.masking": [
+        "GameraMaskLogicalAnd",
+        "GameraMaskLogicalXor"
+      ]
+
+      "rodan.jobs.diagonal_neume_slicing.base": [
+        "diagonalNeumeSlicing",
+        "DirtyLayerRepair"
+      ]
+
+    ],
+
+    "rodan.jobs.heuristic_pitch_finding": [
+        "rodan.jobs.heuristic_pitch_finding.base": [
+          "MiyaoStaffinding",
+          "HeuristicPitchFinding"
+        ]
+
+    ],
+    
+    "rodan.jobs.MEI_encoding": [
+        "rodan.jobs.MEI_encoding.MEI_encoding": [
+          "import MEI_encoding"
+        ] 
+    ],
+
+    "rodan.jobs.hpc_fast_trainer": [
+        "rodan.jobs.hpc_fast_trainer.hpc_fast_trainer": [
+            "HPCFastTrainer" 
+        ]
+    ],
+
+
+    "rodan.jobs.diagonal_neume_slicing": [ 
+        "rodan.jobs.diagonal_neume_slicing.base" : [
+          "DiagonalNeumeSlicing"
+        ]
+    ],
+
+    "rodan.jobs.MEI_resizing",
+    "rodan.jobs.neon_wrapper": [ 
+        "rodan.jobs.neon_wrapper.wrapper" : [ 
+          "Neon"
+        ]
+    ],
+
+    "rodan.jobs.pixel_wrapper": [ 
+        "rodan.jobs.pixel_wrapper.wrapper": [ 
+          "PixelInteractive"
+          ]
+    ],
+
+    "rodan.jobs.mei2vol_wrapper": [ 
+        "rodan.jobs.mei2vol_wrapper.m2v_wrapper": [ 
+          "MEI2Vol"
+        ]
+      
+    ]
+]
+
+"RODAN_GPU_JOBS": [
+    "rodan.jobs.Calvo_classifier": [
+        "rodan.jobs.Calvo_classifier.calvo_classifier" : [ "CalvoClassifier" ],
+
+        "rodan.jobs.Calvo_classifier.calvo_trainer" : [ "CalvoTrainer" ],
+
+        "rodan.jobs.Calvo_classifier.fast_calvo_classifier" : [ "FastCalvoClassifier" ],
+
+        "rodan.jobs.Calvo_classifier.fast_calvo_trainer" : [ "FastCalvoTrainer" ]
+    ]
+
+    "rodan.jobs.text_alignment" : [
+        "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
+    ],
+
+    "rodan.jobs.Paco_classifier" : [
+        "rodan.jobs.Paco_classifier.fast_paco_trainer" : [ "FastPacoTrainer "],
+        "rodan.jobs.Paco_classifier.fast_paco_classifier" : [ "FastPacoClassifier" ]
+    ],
+
+
+    "rodan.jobs.background_removal": [
+        "rodan.jobs.background_removal.BgRemovalRodan" : [ "BgRemoval" ]
+    ],
+    "rodan.jobs.SAE_binarization": [
+        "rodan.jobs.SAE_binarization.SAE_binarization" ; [ "SAE_binarization" ]
+    ]
+
+]
