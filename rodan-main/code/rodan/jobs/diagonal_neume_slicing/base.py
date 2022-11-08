@@ -146,6 +146,34 @@ class DiagonalNeumeSlicing(RodanTask):
 
         return True
 
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_cc_png_path = "/code/Rodan/rodan/test/files/240r_CC-analysis_output.xml"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/240r_diagonal-neume-slicing_output.xml"
+        inputs = {
+            "GameraXML - Connected Components": [{"resource_path":input_cc_png_path}]
+        }
+        outputs = {
+            "GameraXML - Connected Components": [{"resource_path":output_path}]
+        }
+        settings = {'Slice Prioritization': 2, 'Minimum Segment Length': 5, 'Angle': 45, 'Minimum Glyph Size': 0, 'Maximum Recursive Cuts': 10, 'Minimum Slice Spread': 0.3, 'Low Valley Threshold': 1, 'Smoothing': 1} 
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read the gt and predicted result
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+        with open(gt_output_path, "r") as fp:
+            gt = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertEqual(len(gt), len(predicted))
+        # also each line should be identical to its counterpart
+        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
+            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
+
 
 class DirtyLayerRepair(RodanTask):
     name = 'Dirty Layer Repair'
@@ -218,3 +246,28 @@ class DirtyLayerRepair(RodanTask):
         image.save_PNG(outfile_path)
 
         return True
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_base_path = "/code/Rodan/rodan/test/files/ms73-068_neume.png"
+        input_dirty_path = "/code/Rodan/rodan/test/files/ms73-068_text.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/ms73-068_dirty-layer-repair.png"
+        inputs = {
+            "Base Layer": [{"resource_path":input_base_path}],
+            "Dirty Layer": [{"resource_path":input_dirty_path}]
+        }
+        outputs = {
+            "Repaired Base Layer": [{"resource_path":output_path}]
+        }
+        settings = {'Minimum Density': 0.3, 'Despeckle Size': 500} 
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job on production
+        gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)
