@@ -82,6 +82,31 @@ class GameraMaskLogicalAnd(RodanTask):
             image_result.save_PNG(outputs['Source image with mask applied'][i]['resource_path'])
         return True
 
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_one-bit-png_output.png"
+        input_mask_path = "/code/Rodan/rodan/test/files/lenna_mask.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/lenna_maskAnd_one-bit.png"
+        inputs = {
+            "Source image": [{"resource_path":input_onebit_png_path}],
+            "Mask image": [{"resource_path":input_mask_path}]
+        }
+        outputs = {
+            "Source image with mask applied": [{"resource_path":output_path}]
+        }
+        settings = {}
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job on production
+        gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)
+
 class GameraMaskLogicalXor(RodanTask):
 
     name = 'Mask (logical \'xor\')'
@@ -130,3 +155,28 @@ class GameraMaskLogicalXor(RodanTask):
         for i in range(len(outputs['Source image with mask applied'])):
             image_result.save_PNG(outputs['Source image with mask applied'][i]['resource_path'])
         return True
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_one-bit-png_output.png"
+        input_mask_path = "/code/Rodan/rodan/test/files/lenna_mask.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/lenna_maskXor_one-bit.png"
+        inputs = {
+            "Source image": [{"resource_path":input_onebit_png_path}],
+            "Mask image": [{"resource_path":input_mask_path}]
+        }
+        outputs = {
+            "Source image with mask applied": [{"resource_path":output_path}]
+        }
+        settings = {}
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job on production
+        gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)
