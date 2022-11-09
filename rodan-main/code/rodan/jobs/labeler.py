@@ -96,3 +96,21 @@ class Labeler(RodanTask):
         label, _ = ResourceLabel.objects.get_or_create(name=label_text)
         for input in inputs["Resource"]:
             input["resource"].labels.add(label)
+
+    def test_my_task(self, testcase):
+        from model_mommy import mommy
+        from rodan.models import Resource
+        rc = mommy.make("Resource")
+        inputs = {
+            "Resource": [
+                {"resource":rc}
+            ]
+        }
+        outputs = {}
+        settings = {"Label":"testcase1"}
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+        settings = {"Label":"testcase2"}
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+        testcase.assertEqual(2, len(rc.labels.all()))
+        testcase.assertEqual("testcase1", rc.labels.all()[0].name)
+        testcase.assertEqual("testcase2", rc.labels.all()[1].name)

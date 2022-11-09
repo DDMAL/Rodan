@@ -55,3 +55,33 @@ class MEI2Vol(RodanTask):
         outfile.close()
         
         return True
+
+    def test_my_task(self, testcase):
+        f1 = "/code/Rodan/rodan/test/files/016r_reviewed.mei"
+        f2 = "/code/Rodan/rodan/test/files/CDN-Hsmu_M2149.L4_003r.mei"
+        f3 = "/code/Rodan/rodan/test/files/CDN-Hsmu_M2149.L4_003v.mei"
+
+        files = [f1, f2, f3]
+        answers = [l.replace(".mei", ".volpiano") for l in files]
+
+        lib = mei2volpiano.MEItoVolpiano()
+        for i, element in enumerate(files):
+            inputs = {
+                "MEI": [{"resource_path":element}]
+            }
+            outputs = {
+                "Volpiano": [{"resource_path":testcase.new_available_path()}]
+            }
+            settings = {}
+
+            self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+            
+            # The output and gt (both are strings) should be identical. 
+            # Three testcases are copied from MEI2Volpiano.tests.test_mei2volpiano
+            with open(answers[i], "r") as fp:
+                gt = [l.strip() for l in fp.readlines()]
+            with open(outputs["Volpiano"][0]["resource_path"], "r") as fp:
+                predict = [l.strip() for l in fp.readlines()]
+
+            testcase.assertEqual(gt, predict, "Failed to run {}".format(element))
+            

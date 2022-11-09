@@ -94,6 +94,31 @@ class gamera_despeckle(RodanTask):
             image_result.save_PNG(outputs['Onebit PNG despeckled image'][i]['resource_path'])
         return True
 
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_onebit_png_path = "/code/Rodan/rodan/test/files/240r_onebit-png_output.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/240r_despeckle_output.png"
+        inputs = {
+            "Onebit PNG image": [{"resource_path":input_onebit_png_path}]
+        }
+        outputs = {
+            "Onebit PNG despeckled image": [{"resource_path":output_path}]
+        }
+        settings = {
+            'Connected component size': 1
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job (niblack threshold) on production
+        gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)
+
 
 class gamera_dilate(RodanTask):
 
@@ -139,3 +164,28 @@ class gamera_dilate(RodanTask):
         for i in range(len(outputs['Onebit PNG dilated image'])):
             processed_image.save_PNG(outputs['Onebit PNG dilated image'][i]['resource_path'])
         return True
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_one-bit-png_output.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/lenna_dilate_output.png"
+        inputs = {
+            "Onebit PNG image": [{"resource_path":input_onebit_png_path}]
+        }
+        outputs = {
+            "Onebit PNG dilated image": [{"resource_path":output_path}]
+        }
+        settings = {
+            'Connected component size': 1
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job (niblack threshold) on production
+        gt_output = cv2.imread(gt_output_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)

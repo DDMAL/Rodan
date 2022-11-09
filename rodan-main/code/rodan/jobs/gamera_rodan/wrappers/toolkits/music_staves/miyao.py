@@ -114,3 +114,38 @@ class MiyaoStaffFinder(RodanTask):
             result_image = ensure_pixel_type(result_image_rgb, outputs['PNG image (Miyao results used as mask)'][0]['resource_type'])
             for i in range(len(outputs['PNG image (Miyao results used as mask)'])):
                 result_image.save_PNG(outputs['PNG image (Miyao results used as mask)'][i]['resource_path'])
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_onebit_png_path = "/code/Rodan/rodan/test/files/ms73-068_dilate_output.png"
+        output_png_path = testcase.new_available_path()
+        output_txt_path = testcase.new_available_path()
+        gt_png_path = "/code/Rodan/rodan/test/files/ms73-068_miyao-staff-finder_png.png"
+        gt_txt_path = "/code/Rodan/rodan/test/files/ms73-068_miyao-staff-finder_polygons.txt"
+        inputs = {
+            "Greyscale or one-bit PNG image": [{"resource_path":input_onebit_png_path}],
+        }
+        outputs = {
+            "PNG image (Miyao results used as mask)": [{"resource_path":output_png_path, "resource_type":"image/greyscale+png"}],
+            "Polygons (Miyao results)": [{"resource_path":output_txt_path}]
+        }
+        settings = {'Number of lines': 0, 'Scan lines': 20, 'Blackness': 0.8, 'Tolerance': -1} 
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # The predicted result and gt result should be identical to each other
+        # The gt result is from running this job on production
+        gt_output = cv2.imread(gt_png_path, cv2.IMREAD_UNCHANGED)
+        pred_output = cv2.imread(output_png_path, cv2.IMREAD_UNCHANGED)
+
+        np.testing.assert_array_equal(gt_output, pred_output)
+
+        # Test if txt files are the same
+        with open(gt_txt_path, "r") as fp:
+            gt_lines = [l.strip() for l in fp.readlines()]
+        with open(output_txt_path, "r") as fp:
+            pred_lines = [l.strip() for l in fp.readlines()]
+        
+        testcase.assertEqual(len(gt_lines), len(pred_lines))
+        testcase.assertEqual(gt_lines[0], pred_lines[0])

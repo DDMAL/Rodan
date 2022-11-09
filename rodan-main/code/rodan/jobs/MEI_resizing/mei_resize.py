@@ -109,6 +109,54 @@ class MEI_Resize(RodanTask):
         self.logger.info('writing to file...')
         tree.write(output_path, xml_declaration=True, encoding='UTF-8')
 
+    def test_my_task(self, testcase):
+        def parse_recursive(factor, element, ret_list) -> list:
+            """Scale down coordinated atts of element and its descendants"""
+            for key in ["ulx", "uly", "lrx", "lry"]:
+                if (element.get(key) is not None):
+                    position = element.get(key)
+                    ret_list.append(int(position))
+
+            children = list(element)
+            for child in children:
+                parse_recursive(factor, child, ret_list)
+
+            return ret_list
+
+        import os
+        input_path = "/code/Rodan/rodan/test/files/CF-005.mei"
+        scale = 0.7
+        inputs = {
+            "MEI": [
+                {"resource_path":input_path}
+            ]
+        }
+        outputs = {
+            "MEI": [
+                {"resource_path":testcase.new_available_path()}
+            ]
+        }
+        settings = {
+            "Scale Factor":scale
+        }
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read and parse the input MEI
+        input_mei = ET.parse(input_path)
+        input_head = input_mei.getroot()[1][0][0]
+        input_positions = parse_recursive (0.5, input_head, [])
+        # Read and parse the output MEI
+        output_mei = ET.parse(outputs["MEI"][0]["resource_path"])
+        output_head = output_mei.getroot()[1][0][0]
+        output_positions = parse_recursive (0.5, output_head, [])
+
+        # MEI_scale does not change the number of elements. Two files should have the same length.
+        testcase.assertEqual(len(input_positions), len(output_positions))
+
+        # Go through each element. The position of the output element should be equal to 
+        # the factor * the position of the input element.
+        for input_pos, output_pos in zip(input_positions, output_positions):
+            testcase.assertEqual(int(input_pos*scale), output_pos)
 
 
 

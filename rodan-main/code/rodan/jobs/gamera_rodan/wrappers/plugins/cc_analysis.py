@@ -84,3 +84,32 @@ class CCAnalysis(RodanTask):
                                                     with_features=True)
         output_xml.write_filename(
             outputs['GameraXML - Connected Components'][0]['resource_path'])
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_despeckle_png_path = "/code/Rodan/rodan/test/files/240r_despeckle_output.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/240r_CC-analysis_output.xml"
+        inputs = {
+            "1-Bit PNG Image": [{"resource_path":input_despeckle_png_path}]
+        }
+        outputs = {
+            "GameraXML - Connected Components": [{"resource_path":output_path}]
+        }
+        settings = {
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read the gt and predicted result
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+        with open(gt_output_path, "r") as fp:
+            gt = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertEqual(len(gt), len(predicted))
+        # also each line should be identical to its counterpart
+        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
+            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
