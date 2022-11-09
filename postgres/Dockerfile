@@ -1,5 +1,5 @@
 # FROM postgres:latest
-FROM postgres:9.6
+FROM postgres:9.6-bullseye
 EXPOSE 5432
 
 RUN apt-get update \
