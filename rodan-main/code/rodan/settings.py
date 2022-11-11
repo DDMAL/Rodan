@@ -3,11 +3,18 @@ Rodan settings. Remember to set your environment variables.
 """
 import os
 import sys
+import yaml
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
 from distutils.util import strtobool  # noqa
+from yaml.loader import SafeLoader
 
+registerYaml = './tests/resources/112rPF.json'
+
+# Open the file and load the file
+with open('./registerJobs.yaml', 'r') as file:
+    data = yaml.load(file, Loader=SafeLoader)
 
 ###############################################################################
 # 1.a  General Django Configuration
