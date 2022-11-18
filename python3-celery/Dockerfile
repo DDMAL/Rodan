@@ -76,6 +76,6 @@ RUN python3 setup.py install
 RUN pip install opencv-python==4.6.0.66
 
 # Change the concurency for python3 jobs
-RUN sed -i "s/=10/=6/g" /run/start-celery
+RUN sed -i "s/concurrency=10/concurrency=3/g" /run/start-celery
 
 ENTRYPOINT ["/run/start-celery"]
