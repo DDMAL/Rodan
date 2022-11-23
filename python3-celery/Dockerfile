@@ -1,4 +1,4 @@
-FROM alpine:3 AS builder
+FROM alpine:3.16 AS builder
 ARG BRANCH
 ENV BRANCH="${BRANCH:-develop}"
 RUN apk update
