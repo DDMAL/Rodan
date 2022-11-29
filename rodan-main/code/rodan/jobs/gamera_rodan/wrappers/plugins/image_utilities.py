@@ -65,3 +65,39 @@ class gamera_invert(RodanTask):
         for i in range(len(outputs['PNG image'])):
             image_source.save_PNG(outputs['PNG image'][i]['resource_path'])
         return True
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_rgb_png_path = "/code/Rodan/rodan/test/files/lenna.png"
+        input_onebit_png_path =  "/code/Rodan/rodan/test/files/lenna_one-bit-png_output.png"
+        input_greyscale_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-png_output.png"
+        input_grey16_png_path = "/code/Rodan/rodan/test/files/lenna_greyscale-16-png_output.png"
+
+        output_rgb_png_path = testcase.new_available_path()
+        output_onebit_png_path = testcase.new_available_path()
+        output_greyscale_png_path = testcase.new_available_path()
+        output_grey16_png_path = testcase.new_available_path()
+
+        gt_rgb_png_path = "/code/Rodan/rodan/test/files/lenna_invert_lenna_output.png"
+        gt_onebit_png_path = "/code/Rodan/rodan/test/files/lenna_invert_one-bit-png_output.png"
+        gt_greyscale_png_path = "/code/Rodan/rodan/test/files/lenna_invert_greyscale-png_output.png"
+        gt_grey16_png_path = "/code/Rodan/rodan/test/files/lenna_invert_greyscale-16-png_output.png"
+
+        for input_path, out_path, gt_path in zip([input_rgb_png_path, input_onebit_png_path, input_greyscale_png_path, input_grey16_png_path],
+                                                    [output_rgb_png_path, output_onebit_png_path, output_greyscale_png_path, output_grey16_png_path],
+                                                    [gt_rgb_png_path, gt_onebit_png_path, gt_greyscale_png_path, gt_grey16_png_path]):
+            inputs = {
+                "PNG image": [{"resource_path":input_path}]
+            }
+            outputs = {
+                "PNG image": [{"resource_path":out_path}]
+            }
+            self.run_my_task(inputs=inputs, outputs=outputs, settings={})
+
+            # The predicted result and gt result should be identical to each other
+            # The gt result is from running this job (niblack threshold) on production
+            gt_output = cv2.imread(gt_path, cv2.IMREAD_UNCHANGED)
+            pred_output = cv2.imread(out_path, cv2.IMREAD_UNCHANGED)
+
+            np.testing.assert_array_equal(gt_output, pred_output, "Failed: {}".format(input_path))

@@ -109,6 +109,9 @@ class dummy_automatic_job(RodanTask):
     def my_error_information(self, exc, traceback):
         return {"error_summary": "dummy automatic job error", "error_details": ""}
 
+    def test_my_task(self, testcase):
+        return
+
 
 class dummy_manual_job(RodanTask):
     name = "rodan.jobs.devel.dummy_manual_job"
@@ -199,3 +202,6 @@ class dummy_manual_job(RodanTask):
             raise self.ManualPhaseException("dummy manual job error")
         else:
             return {"@finish": user_input}
+
+    def test_my_task(self, testcase):
+        return

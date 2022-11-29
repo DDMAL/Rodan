@@ -1,0 +1,74 @@
+name: CI test
+run-name: CI test to test rodan functionalities and jobs
+on: 
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  rodan-CI-test:
+    runs-on: ubuntu-20.04
+    container:
+        image: softcat477/ci-jobs:latest
+        env: 
+          CELERY_JOB_QUEUE: None
+          ADMIN_USER: rodan
+          ADMIN_PASS: rodan
+          DJANGO_DEBUG_MODE: True
+          DJANGO_SECRET_KEY: localdev
+          DJANGO_MEDIA_ROOT: /rodan/data/
+          # You can specify multiple hosts with a comma
+          DJANGO_ALLOWED_HOSTS: "*"
+          DJANGO_ADMIN_URL: admin/
+          IIPSRV_URL: http://localhost/fcgi-bin/iipsrv.fcgi/
+          DJANGO_ACCESS_LOG: /code/Rodan/rodan.log
+          DJANGO_DEBUG_LOG: /code/Rodan/database.log
+          SERVER_HOST: :""
+          # Celery Configuration
+          C_FORCE_ROOT: true
+          # Database Configuration
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: rodan
+          POSTGRES_USER: rodan
+          POSTGRES_PASSWORD: rodan
+          POSTGRES_DATABASE_LOGFILE: /code/Rodan/database.log
+          # RabbitMQ Configuration
+          RABBITMQ_URL: amqp://guest_user:guest_pass@rabbitmq:5672//
+          RABBITMQ_DEFAULT_USER: guest_user
+          RABBITMQ_DEFAULT_PASS: guest_pass
+          # Redis Configuration
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
+          REDIS_DB: 0
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+      - name: Copy this repo to /code/Rodan
+        run: cp -r ./rodan-main/code/* /code/Rodan
+      - name: Start preprocess script
+        run: bash /run/prepare-ci.bash
+      - name: Check postgres status
+        run: service postgresql status
+      - name: Test test suite, this should test most of the rodan funcionalities (e.g. post job, run workflow, download workflow...)
+        run: |
+          cd /code/Rodan
+          python manage.py test --no-input --pattern="test_*" rodan/test/
+      - name: Test test_interactive
+        run: |
+          cd /code/Rodan
+          python manage.py test --no-input rodan.test.views.testIndividual_interactive
+      - name: Test test_workflowrun
+        run: |
+          cd /code/Rodan
+          python manage.py test --no-input rodan.test.views.testIndividual_workflowrun
+      - name: Test rodan jobs
+        run: |
+          cd /code/Rodan
+          python manage.py test --no-input rodan.test.test_all_jobs
+      - name: Test mimetype_identification
+        run: |
+          cd /code/Rodan
+          python manage.py test --no-input rodan.test.testIndividual_mimetype_identification

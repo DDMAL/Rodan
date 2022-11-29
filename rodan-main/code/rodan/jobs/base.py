@@ -135,7 +135,7 @@ class RodanTaskType(TaskType):
                     job_queue=schema.get("job_queue", "celery"),
                 )
                 j.save()
-                print(attrs["name"])
+                #print(attrs["name"])
 
                 try:
                     for ipt in attrs["input_port_types"]:
@@ -891,7 +891,7 @@ class RodanTask(Task,metaclass=RodanTaskType):
                             ff
                             for ff in os.listdir(output["resource_temp_folder"])
                             if os.path.isfile(
-                                os.path.join(output["resource_temp_folder"], f)
+                                os.path.join(output["resource_temp_folder"], ff)
                             )
                         ]
                         files.sort()  # alphabetical order

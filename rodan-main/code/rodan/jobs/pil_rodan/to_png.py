@@ -30,15 +30,15 @@ class to_png(RodanTask):
     def test_my_task(self, testcase):
         # [TODO] test more formats
         inputs = {
-            'in': [
+            'Image': [
                 {'resource_type': 'image/jpeg',
                  'resource_path': testcase.new_available_path()
                 }
             ]
         }
-        PIL.Image.new("RGB", size=(50, 50), color=(256, 0, 0)).save(inputs['in'][0]['resource_path'], 'JPEG')
+        PIL.Image.new("RGB", size=(50, 50), color=(256, 0, 0)).save(inputs['Image'][0]['resource_path'], 'JPEG')
         outputs = {
-            'out': [
+            'RGB PNG Image': [
                 {'resource_type': 'image/rgb+png',
                  'resource_path': testcase.new_available_path()
                 }
@@ -46,5 +46,13 @@ class to_png(RodanTask):
         }
 
         self.run_my_task(inputs, {}, outputs)
-        result = PIL.Image.open(outputs['out'][0]['resource_path'])
+        result = PIL.Image.open(outputs['RGB PNG Image'][0]['resource_path'])
+
+        # The format should be png
         testcase.assertEqual(result.format, 'PNG')
+
+        # The input and output should be identical to each other
+        import numpy as np
+        in_array = np.asarray(PIL.Image.open(inputs['Image'][0]['resource_path']))
+        out_array = np.asarray(result)
+        np.testing.assert_array_equal(in_array, out_array)

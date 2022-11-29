@@ -255,16 +255,16 @@ class BiollanteRodan(RodanTask):
     def test_my_task(self, testcase):
         with NTF() as outfile:
             inputs = {
-                "kNN Training Data": [
+                "Classifier Data": [
                     {
                         "resource_path":
-                            "rodan/jobs/biollante-rodan/test_resources/" +
+                            "/code/Rodan/rodan/jobs/biollante_rodan/test_resources/" +
                             "Dalhousie_TD_421_422_NC-based_classifier.xml"
                     }
                 ]
             }
             outputs = {
-                "GA Optimized Classifier": [
+                "Feature Weights/Selection": [
                     {"resource_path": outfile.name}
                 ]
             }
@@ -297,7 +297,7 @@ class BiollanteRodan(RodanTask):
             testcase.assertTrue(self.run_my_task(inputs, settings, outputs))
             outfile.seek(0)
             contents = outfile.read()
-            testcase.assertEqual(contents, "Hello, Test!", contents)
+            testcase.assertEqual(contents, b"Hello, Test!", contents)
             return True
 
     def knnga_dict(self):

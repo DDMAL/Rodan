@@ -51,4 +51,8 @@ RUN chmod +x /opt/entrypoint \
 # Substitute the build hash for our actual build hash
 RUN sed -i "s/__build_hash__ = \"local\"/__build_hash__ = \"${BUILD_HASH}\"/" /code/Rodan/rodan/__init__.py
 
+# Change the concurrency
+RUN sed -i "s/concurrency=10/concurrency=6/g" /run/start-celery
+RUN sed -i "s/max-tasks-per-child=1/max-tasks-per-child=5/g" /run/start-celery
+
 ENTRYPOINT ["/opt/entrypoint"]

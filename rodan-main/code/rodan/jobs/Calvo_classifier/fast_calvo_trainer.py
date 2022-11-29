@@ -13,7 +13,6 @@ from celery.utils.log import get_task_logger
 # Project
 from rodan.celery import app
 from rodan.jobs.base import RodanTask
-from rodan.jobs.Calvo_classifier.fast_trainer_lib import CalvoTrainer
 
 """Wrap Patchwise (Fast) Calvo classifier training in Rodan."""
 
@@ -203,6 +202,7 @@ class FastCalvoTrainer(RodanTask):
     )
 
     def run_my_task(self, inputs, settings, outputs):
+        from rodan.jobs.Calvo_classifier.fast_trainer_lib import CalvoTrainer
         oldouts = sys.stdout, sys.stderr
         if "Log File" in outputs:
             handler = logging.FileHandler(outputs["Log File"][0]["resource_path"])

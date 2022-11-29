@@ -88,6 +88,34 @@ class MiyaoStaffinding(RodanTask):
 
         return True
 
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_dilate_png_path = "/code/Rodan/rodan/test/files/ms73-068_dilate_output.png"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/ms73-068-miyao-staff-finding.json"
+        inputs = {
+            "Image containing staves (RGB, greyscale, or onebit)": [{"resource_path":input_dilate_png_path}]
+        }
+        outputs = {
+            "JSOMR": [{"resource_path":output_path}]
+        }
+        settings = {'Number of lines': 4, 'Interpolation': True}
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read the gt and predicted result
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+        with open(gt_output_path, "r") as fp:
+            gt = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertEqual(len(gt), len(predicted))
+        # also each line should be identical to its counterpart
+        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
+            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
+
 
 class HeuristicPitchFinding(RodanTask):
     name = 'Heuristic Pitch Finding'

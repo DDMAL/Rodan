@@ -8,7 +8,6 @@ import numpy as np
 import os
 
 from rodan.jobs.base import RodanTask
-from . import training_engine as training
 
 """Wrap Calvo classifier training in Rodan."""
 
@@ -75,6 +74,7 @@ class CalvoTrainer(RodanTask):
         - Because of how Rodan works, the path is renamed to the exact output port (-'.hdf5')
     """
     def run_my_task(self, inputs, settings, outputs):
+        from . import training_engine as training
         # Ports
         input_image = cv2.imread(inputs['Image'][0]['resource_path'], True) # 3-channel
         background = cv2.imread(inputs['rgba PNG - Background layer'][0]['resource_path'], cv2.IMREAD_UNCHANGED) # 4-channel
