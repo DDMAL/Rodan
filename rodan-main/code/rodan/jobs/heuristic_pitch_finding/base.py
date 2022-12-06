@@ -221,3 +221,34 @@ class HeuristicPitchFinding(RodanTask):
             outfile.write(r)
 
         return True
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_nic_path = "/code/Rodan/rodan/test/files/238r-nic.xml"
+        input_staff_finding_path = "/code/Rodan/rodan/test/files/238r-miyao-staff-finding.json"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/238r-heuristic_pitch_finding.json"
+
+        inputs = {
+            "JSOMR of staves and page properties": [{"resource_path":input_staff_finding_path}],
+            "GameraXML - Classified Connected Components": [{"resource_path":input_nic_path}]
+        }
+        outputs = {
+            "JSOMR of glyphs, staves, and page properties": [{"resource_path":output_path}]
+        }
+        settings = {'Discard Size': 12}
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read the gt and predicted result
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+        with open(gt_output_path, "r") as fp:
+            gt = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertEqual(len(gt), len(predicted))
+        # also each line should be identical to its counterpart
+        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
+            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
