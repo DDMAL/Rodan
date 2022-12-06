@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamera-knn-settings version="1.0" num-k="1" distance-type="CITY-BLOCK">
+  <selections>
+    <selection name="area">
+      1
+    </selection>
+    <selection name="aspect_ratio">
+      1
+    </selection>
+    <selection name="black_area">
+      1
+    </selection>
+    <selection name="compactness">
+      1
+    </selection>
+    <selection name="diagonal_projection">
+      1
+    </selection>
+    <selection name="moments">
+      1 1 1 1 1 1 1 1 1
+    </selection>
+    <selection name="ncols_feature">
+      1
+    </selection>
+    <selection name="nholes">
+      1 1
+    </selection>
+    <selection name="nholes_extended">
+      1 1 1 1 1 1 1 1
+    </selection>
+    <selection name="nrows_feature">
+      1
+    </selection>
+    <selection name="skeleton_features">
+      1 1 1 1 1 1
+    </selection>
+    <selection name="top_bottom">
+      1 1
+    </selection>
+    <selection name="volume">
+      1
+    </selection>
+    <selection name="volume16regions">
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    </selection>
+    <selection name="volume64regions">
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    </selection>
+    <selection name="zernike_moments">
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    </selection>
+  </selections>
+  <weights>
+    <weight name="area">
+      0.00241260680159
+    </weight>
+    <weight name="aspect_ratio">
+      0.611936980027
+    </weight>
+    <weight name="black_area">
+      0.0184646914689
+    </weight>
+    <weight name="compactness">
+      0.605565227886
+    </weight>
+    <weight name="diagonal_projection">
+      0.608799184946
+    </weight>
+    <weight name="moments">
+      0.741369033096 0.471902386614 0.42001145221 0.00530513430155
+      0.262381152828 0.201153123001 0.900396313087 0.601285273242
+      0.985156870677
+    </weight>
+    <weight name="ncols_feature">
+      0.395230396062
+    </weight>
+    <weight name="nholes">
+      0.969596353303 0.687237047635
+    </weight>
+    <weight name="nholes_extended">
+      0.858115985953 0.85507909533 0.444142307027 0.50479868843
+      0.775458461319 0.6765458876 0.118139677736 0.0172127939747
+    </weight>
+    <weight name="nrows_feature">
+      0.215323739616
+    </weight>
+    <weight name="skeleton_features">
+      0.5787585317 0.559549741509 0.657290844935 0.82274371134 0.923111102541
+      0.589423001167
+    </weight>
+    <weight name="top_bottom">
+      0.401868049025 0.492645684639
+    </weight>
+    <weight name="volume">
+      0.223799884822
+    </weight>
+    <weight name="volume16regions">
+      0.673094753763 0.808370057576 0.553510615589 0.419378191018
+      0.714188771657 0.685040922416 0.433221005499 0.902121406905
+      0.514285050978 0.475090437083 0.353478272779 0.750433866706
+      0.229516625722 0.00451386606682 0.0466153179161 0.147105600236
+    </weight>
+    <weight name="volume64regions">
+      0.750290322988 0.71623163338 0.893298656678 0.246351805887
+      0.26566555363 0.835833679371 0.770810943146 0.231959339928
+      0.206368606114 0.812997349753 0.118393618535 0.431653298703
+      0.634889202612 0.907500841002 0.620053338926 0.0571990245298
+      0.158007103549 0.38477994357 0.920217159891 0.55159834799
+      0.227028841738 0.312678007415 0.809587816431 0.817772012444
+      0.922255474866 0.567140356731 0.730309652542 0.280610351641
+      0.731530999511 0.934641110028 0.455845736166 0.655978177005
+      0.804211236568 0.680927390217 0.697144349987 0.8139886367
+      0.0227077916505 0.162523475109 0.18841142332 0.359323332041
+      0.634980079411 0.687091624542 0.0480390601665 0.803055227267
+      0.829152703623 0.724123691804 0.252058229874 0.530013358785
+      0.009409885437 0.50132826197 0.240025855643 0.338977693816
+      0.282691168905 0.605989758059 0.720276494552 0.898251147172
+      0.493613146111 0.529345316669 0.586831272566 0.659554718121
+      0.256466245644 0.316791398195 0.938587676222 0.214035389722
+    </weight>
+    <weight name="zernike_moments">
+      0.473451033277 0.852917476715 0.304982128072 0.564549737432
+      0.715783713099 0.750068214178 0.911052558883 0.226210525064
+      0.659583714826 0.93991869928 0.97136603211 0.316280258579 0.66233464414
+      0.00386142522273
+    </weight>
+  </weights>
+</gamera-knn-settings>

@@ -112,3 +112,37 @@ class ClassificationTask(RodanTask):
         for i in range(len(outputs['GameraXML - Classified Glyphs'])):
             output_xml.write_filename(
                 outputs['GameraXML - Classified Glyphs'][i]['resource_path'])
+
+    def test_my_task(self, testcase):
+        import cv2
+        import numpy as np
+        input_ccAnalysis = "/code/Rodan/rodan/test/files/238r-CCAnalysis.xml"
+        input_feature_selection = "/code/Rodan/rodan/test/files/238r-GameraXML_feature_selection.xml"
+        input_training_data = "/code/Rodan/rodan/test/files/238r-GameraXML_training_data.xml"
+
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/238r-nic.xml"
+
+
+        inputs = {
+            "GameraXML - Connected Components": [{"resource_path":input_ccAnalysis}],
+            "GameraXML - Training Data": [{"resource_path":input_training_data}],
+            "GameraXML - Feature Selection": [{"resource_path":input_feature_selection}]
+        }
+        outputs = {
+            "GameraXML - Classified Glyphs": [{"resource_path":output_path}]
+        }
+        settings = {
+            "Bounding box size":4
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # NIC includes randomness, so each time, the prediction will be slightly different
+        # As a result we only make sure that the output file exists and is not empty
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertNotEqual(0, len(predicted))
+        del predicted
