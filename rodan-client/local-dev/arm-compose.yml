@@ -1,0 +1,127 @@
+version: "3.4"
+services:
+  nginx:
+    image: "nginx-local:latest"
+    command: /run/start
+    depends_on:
+      - rodan-main
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9002:9002"
+    volumes:
+      - "resources:/rodan/data"
+  
+  rodan-main:
+    image: "ddmal/rodan-main:nightly"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 2
+      start_period: "2m"
+    command: bash -c "tail -f /dev/null"
+    environment:
+      CELERY_JOB_QUEUE: None
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    env_file:
+      - ./scripts/local.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
+
+
+  iipsrv:
+    image: "ddmal/iipsrv:nightly"
+    volumes:
+      - "resources:/rodan/data"
+
+      
+  celery:
+    image: "ddmal/rodan-main:nightly"
+    command: bash -c "tail -f /dev/null"
+    environment:
+      CELERY_JOB_QUEUE: celery
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
+      interval: "30s"
+      timeout: "3s"
+      start_period: "1m"
+      retries: 3
+    depends_on:
+      - postgres
+      - rodan-main
+      - rabbitmq
+      - redis
+    env_file:
+      - ./scripts/local.env
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
+
+  py3-celery:
+    image: "ddmal/rodan-python3-celery:nightly"
+    command: bash -c "tail -f /dev/null"
+    environment:
+      CELERY_JOB_QUEUE: Python3
+    depends_on:
+      - postgres
+      - rodan-main
+      - rabbitmq
+      - redis
+      - celery
+    env_file:
+      - ./scripts/local.env
+      - ./hpc-rabbitmq/scripts/local.env
+    volumes:
+      - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
+  
+  
+  redis:
+    image: "redis:alpine"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - postgres
+
+  postgres:
+    image: "ddmal/postgres-plpython:nightly"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - ./scripts/local.env
+  
+  rabbitmq:
+    image: "rabbitmq:alpine"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    depends_on:
+      - redis
+    env_file:
+      - ./scripts/local.env
+
+  rodan-client:
+    image: "ddmal/rodan-client:nightly"
+    command: bash -c "tail -f /dev/null"
+    ports:
+      - "8080:9002"
+    volumes:
+      - "./rodan-client/code:/code"
+
+volumes:
+  resources:
