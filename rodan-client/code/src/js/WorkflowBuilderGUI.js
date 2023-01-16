@@ -23,6 +23,7 @@ class WorkflowBuilderGUI
     constructor(options)
     {
         this._oldMouseEvent = window.MouseEvent; // FIX: paper.js stupidly redefines
+        this._event = window.Event; // paper.js stupidly redefines Event and crashes the SAVE button in resources
         this._workflow = null;
         Radio.channel('rodan').on(Rodan.RODAN_EVENTS.EVENT__WORKFLOWBUILDER_SELECTED, (options) => this.initialize(options));
     }
@@ -453,6 +454,7 @@ class WorkflowBuilderGUI
     {
         BaseItem.clearMap();
         window.MouseEvent = this._oldMouseEvent;
+        window.Event = this._event;
     }
 
     /**
