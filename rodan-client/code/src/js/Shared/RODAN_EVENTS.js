@@ -240,6 +240,7 @@ class RODAN_EVENTS
         this.REQUEST__RESOURCE_VIEWER_ACQUIRE = 'REQUEST__RESOURCE_VIEWER_ACQUIRE';
         /** Request a ResourceCollection to be loaded. Takes {data: Object (query parameters)}. Returns ResourceCollection. */
         this.REQUEST__RESOURCES_LOAD = 'REQUEST__RESOURCES_LOAD';
+        this.REQUEST__RESOURCES_LOAD_NO_PAGE = 'REQUEST__RESOURCES_LOAD_NO_PAGE';
         /** Request resource labels to be updated. */
         this.REQUEST__RESOURCES_UPDATE_LABELS = 'REQUEST__RESOURCES_UPDATE_LABELS';
         /** Request ResourceCollection without reloading if possible. */

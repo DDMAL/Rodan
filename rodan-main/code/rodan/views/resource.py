@@ -148,6 +148,12 @@ class ResourceList(generics.ListCreateAPIView):
         queryset = Resource.objects.filter(condition)
         return queryset
 
+    def paginate_queryset(self, queryset, view=None):
+        if 'no_page' in self.request.query_params:
+            return None
+        else:
+            return self.paginator.paginate_queryset(queryset, self.request, view=self)
+
     def post(self, request, *args, **kwargs):
         if not request.data.get('files', None):
             raise ValidationError({'files': ["You must supply at least one file to upload."]})
