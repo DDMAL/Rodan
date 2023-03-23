@@ -176,12 +176,15 @@ export default class Resource extends BaseModel
             });
             this.set('resource_label_full', jsonStrings);
         };
-        resourceLabelCollection.fetch({
-            data: {
-                disable_pagination: true
-            },
-            success: success.bind(this)
-        });
+        if (this.get('labels').length !== 0)
+        {
+            resourceLabelCollection.fetch({
+                data: {
+                    disable_pagination: true
+                },
+                success: success.bind(this)
+            });
+        }
     }
 
     /**
