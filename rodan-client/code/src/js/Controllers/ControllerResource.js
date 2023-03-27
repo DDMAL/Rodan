@@ -201,6 +201,7 @@ export default class ControllerResource extends BaseController
     _handleRequestResourcesNoPagination(options)
     {
         options.data.no_page = true;
+        options.async = false;
         this._collection_no_page = new ResourceCollection();
         this._collection_no_page.fetch(options);
         return this._collection_no_page;
