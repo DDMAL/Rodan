@@ -14,7 +14,7 @@ registerYaml = './tests/resources/112rPF.json'
 
 # Open the file and load the file
 with open('./registerJobs.yaml', 'r') as file:
-    data = yaml.load(file, Loader=SafeLoader)
+    allJobs = yaml.load(file, Loader=SafeLoader)
 
 ###############################################################################
 # 1.a  General Django Configuration
@@ -141,31 +141,13 @@ RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
 BASE_JOB_PACKAGES = [
-    "rodan.jobs.resource_distributor",
-    "rodan.jobs.labeler",
+    allJobs['BASE_JOB_PACKAGES']
 ]
 RODAN_PYTHON3_JOBS = [
-    "rodan.jobs.helloworld",
-    "rodan.jobs.hpc_fast_trainer",
-    "rodan.jobs.MEI_encoding",
-    "rodan.jobs.pil_rodan",
-    "rodan.jobs.mei2vol_wrapper",
-    "rodan.jobs.gamera_rodan",
-    "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.biollante_rodan",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.diagonal_neume_slicing",
-    "rodan.jobs.MEI_resizing",
-    "rodan.jobs.neon_wrapper",
-    "rodan.jobs.pixel_wrapper",
-    "rodan.jobs.mei2vol_wrapper"
+    allJobs['RODAN_PYTHON3_JOBS']
 ]
 RODAN_GPU_JOBS = [
-    "rodan.jobs.Calvo_classifier",
-    "rodan.jobs.text_alignment",
-    "rodan.jobs.Paco_classifier",
-    "rodan.jobs.background_removal",
-    "rodan.jobs.SAE_binarization"
+    allJobs['RODAN_GPU_JOBS']
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
