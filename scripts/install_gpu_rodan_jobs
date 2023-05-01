@@ -41,7 +41,7 @@ which pip3 && $PIP install .
 
 # Install Paco classifier
 cd /
-git clone -b v2.0.1 --depth 1 https://github.com/DDMAL/Paco_classifier.git
+git clone -b v2.0.2 --depth 1 https://github.com/DDMAL/Paco_classifier.git
 mv Paco_classifier .Paco_classifier
 cd .Paco_classifier
 which pip3 && $PIP install .

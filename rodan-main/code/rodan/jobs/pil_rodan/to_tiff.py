@@ -49,4 +49,12 @@ class to_tiff(RodanTask):
 
         self.run_my_task(inputs, {}, outputs)
         result = PIL.Image.open(outputs['TIFF Image'][0]['resource_path'])
+
+        # The format should be TIFF
         testcase.assertEqual(result.format, 'TIFF')
+
+        # The input and output should be identical to each other
+        import numpy as np
+        in_array = np.asarray(PIL.Image.open(inputs['Image'][0]['resource_path']))
+        out_array = np.asarray(result)
+        np.testing.assert_array_equal(in_array, out_array)

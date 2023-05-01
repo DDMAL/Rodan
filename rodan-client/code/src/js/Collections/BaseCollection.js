@@ -136,6 +136,9 @@ export default class BaseCollection extends Backbone.Collection
         {
             finalOptions.success = options.success;
         }
+        if (options.hasOwnProperty("async")) {
+            finalOptions.async = options.async;
+        }
         finalOptions.reset = options.reset ? options.reset : false;
         finalOptions.traditional = true;
         finalOptions.data = {};

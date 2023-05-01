@@ -91,4 +91,32 @@ class resize(RodanTask):
                 f.write(str(inverse))
 
     def test_my_task(self, testcase):
-        pass
+        import cv2
+        input_path = "/code/Rodan/rodan/test/files/CF-005.png"
+        ratio = 0.3
+        inputs = {
+            "Image": [
+                {"resource_path":input_path}
+            ]
+        }
+        outputs = {
+            "Resized PNG Image": [
+                { "resource_path": testcase.new_available_path()}
+            ]
+        }
+        settings = {
+            "Action": 1, # Ratio
+            "Scale Value": ratio
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        in_image = cv2.imread(input_path, cv2.IMREAD_UNCHANGED)
+        out_image = cv2.imread(outputs["Resized PNG Image"][0]["resource_path"], cv2.IMREAD_UNCHANGED)
+
+        in_w, in_h, *_ = in_image.shape
+        out_w, out_h, *_ = out_image.shape
+
+        # Check if the output is resized with the given ratio
+        testcase.assertEqual(int(in_w*ratio), out_w)
+        testcase.assertEqual(int(in_h*ratio), out_h)

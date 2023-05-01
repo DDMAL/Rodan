@@ -30,6 +30,7 @@ class UserList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     serializer_class = UserListSerializer
+    pagination_class = None
 
     class filter_class(django_filters.FilterSet):
         # username__in = django_filters.MethodFilter()

@@ -65,3 +65,43 @@ class ResourceDistributor(RodanTask):
     def my_error_information(self, exc, traceback):
         self.error_summary = "Resource type not valid"
         self.error_details = traceback
+
+    def test_my_task(self, testcase):
+        import PIL.Image
+        import numpy as np
+        resource_types_list = list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all()))
+
+        # Not so sure what this job is for, but I'll use image/png as the testcase.
+        inputs = {
+            "Resource input": [
+                {
+                    'resource_type': 'image/rgb+png',
+                    'resource_path': testcase.new_available_path()
+                }
+            ]
+        }
+        outputs = {
+            "Resource output": [
+                {
+                    "resource_type": "image/rgb+png",
+                    "resource_path": testcase.new_available_path()
+                }
+            ]
+        }
+        settings = {
+            "Resource type": resource_types_list.index("image/rgb+png")
+        }
+        PIL.Image.new("RGB", size=(50, 50), color=(255, 0, 0)).save(inputs['Resource input'][0]['resource_path'], 'PNG')
+        array_gt = np.zeros((50, 50, 3)).astype(np.uint8)
+        array_gt[:, :, 0] = 255
+
+        self.run_my_task(inputs, settings, outputs)
+
+        result = PIL.Image.open(outputs['Resource output'][0]['resource_path'])
+        array_result = np.asarray(result)
+
+        # This jobs only moves an input resource to a new path, so the datatype (png) and data (array) should be identical.
+        # The type (png) should stays the same
+        testcase.assertEqual(result.format, 'PNG')
+        # and the data should be identical
+        np.testing.assert_equal(array_gt, array_result)

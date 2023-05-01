@@ -30,6 +30,24 @@ class HelloWorld(RodanTask):
         outfile.close()
         return True
 
+    def test_my_task(self, testcase):
+        inputs = {}
+        outputs = {
+            "Text output": [{"resource_types":"text/plain", "resource_path":testcase.new_available_path()}]
+        }
+        settings = {}
+
+        self.run_my_task(inputs, settings, outputs)
+
+        # The "Hello World" string should be written inside the output
+        with open(outputs["Text output"][0]['resource_path'], "r") as fp:
+            written_string = [l.strip() for l in fp.readlines()]
+
+        # There's only one line
+        testcase.assertEqual(len(written_string), 1)
+        # and it should be "Hello World"
+        testcase.assertEqual(written_string[0], "Hello World")
+
 
 class HelloWorldMultiPort(RodanTask):
     name = 'Hello World Multiple Ports'
@@ -70,6 +88,28 @@ class HelloWorldMultiPort(RodanTask):
                     outfile.write(concatenated)
                     outfile.write("Hello World MultiPort")
 
+    def test_my_task(self, testcase):
+        inputs = {}
+        outputs = {
+            "Text output": [
+                {"resource_types":"text/plain", "resource_path":testcase.new_available_path()},
+                {"resource_types":"text/plain", "resource_path":testcase.new_available_path()},
+                {"resource_types":"text/plain", "resource_path":testcase.new_available_path()}
+            ]
+        }
+        settings = {}
+        self.run_my_task(inputs, settings, outputs)
+
+        paths = [p["resource_path"] for p in outputs["Text output"]]
+        for path in paths:
+            # The "Hello World MultiPort" string should be written inside the output
+            with open(path, "r") as fp:
+                written_string = [l.strip() for l in fp.readlines()]
+
+            # There's only one line
+            testcase.assertEqual(len(written_string), 1)
+            # and it should be "Hello World MultiPort"
+            testcase.assertEqual(written_string[0], "Hello World MultiPort")
 
 class HelloWorld3(RodanTask):
     name = 'Hello World - Python3'
@@ -101,6 +141,24 @@ class HelloWorld3(RodanTask):
             outfile.write("Hello World")
         outfile.close()
         return True
+
+    def test_my_task(self, testcase):
+        inputs = {}
+        outputs = {
+            "Text output": [{"resource_types":"text/plain", "resource_path":testcase.new_available_path()}]
+        }
+        settings = {}
+
+        self.run_my_task(inputs, settings, outputs)
+
+        # The "Hello World" string should be written inside the output
+        with open(outputs["Text output"][0]['resource_path'], "r") as fp:
+            written_string = [l.strip() for l in fp.readlines()]
+
+        # There's only one line
+        testcase.assertEqual(len(written_string), 1)
+        # and it should be "Hello World"
+        testcase.assertEqual(written_string[0], "Hello World")
 
 # class HelloWorldInteractive(RodanTask):
 #     name = 'Hello World Interactive'

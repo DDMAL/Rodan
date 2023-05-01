@@ -90,3 +90,45 @@ class MEI_encoding(RodanTask):
             file.write(mei_string)
 
         return True
+
+    def test_my_task(self, testcase):
+        import re
+        input_jsomr = "/code/Rodan/rodan/test/files/238r-heuristic_pitch_finding.json"
+        input_text = "/code/Rodan/rodan/test/files/238r-text-alignment.json"
+        input_mei_mapping = "/code/Rodan/rodan/test/files/238r-mei-mapping.csv"
+        output_path = testcase.new_available_path()
+        gt_output_path = "/code/Rodan/rodan/test/files/238r-mei.mei"
+        inputs = {
+            "JSOMR": [{"resource_path":input_jsomr}],
+            "Text Alignment JSON": [{"resource_path":input_text}],
+            "MEI Mapping CSV": [{"resource_path":input_mei_mapping}]
+        }
+        outputs = {
+            "MEI": [{"resource_path":output_path}]
+        }
+        settings = {
+            "Neume Component Spacing":0.5
+        }
+
+        self.run_my_task(inputs=inputs, outputs=outputs, settings=settings)
+
+        # Read the gt and predicted result
+        with open(output_path, "r") as fp:
+            predicted = [l.strip() for l in fp.readlines()]
+        with open(gt_output_path, "r") as fp:
+            gt = [l.strip() for l in fp.readlines()]
+
+        # The number lines should be identical
+        testcase.assertEqual(len(gt), len(predicted))
+
+        # also each line should be identical to its counterpart
+        # Since mei encoding creates unique ids, we use regex to replace each id with an underscore
+        pattern = re.compile(r"m-\w{8}-\w{4}-\w{4}-\w{4}-\w{12}")
+        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
+            # Replace ids
+            gt_line = pattern.sub("_", gt_line)
+            pred_line = pattern.sub("_", pred_line)
+            # and compare if two meis are identical to each other
+            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
+
+        del predicted, gt
