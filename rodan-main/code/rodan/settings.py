@@ -13,7 +13,7 @@ from yaml.loader import SafeLoader
 registerYaml = './tests/resources/112rPF.json'
 
 # Open the file and load the file
-with open('./registerJobs.yaml', 'r') as file:
+with open(os.path.join(os.path.dirname(rodan.settings.__file__), 'registerJobs.yaml')) as file:
     allJobs = yaml.load(file, Loader=SafeLoader)
 
 ###############################################################################
