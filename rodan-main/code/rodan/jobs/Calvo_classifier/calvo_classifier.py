@@ -13,7 +13,7 @@ from rodan.jobs.base import RodanTask
 """Wrap Calvo classifier in Rodan."""
     
 class CalvoClassifier(RodanTask):
-    name = "Pixelwise Analysis of Music Document"
+    name = "Pixelwise Analysis of Music Document [OLD]"
     author = "Jorge Calvo-Zaragoza, Gabriel Vigliensoni, and Ichiro Fujinaga"
     description = "Given a pre-trained Convolutional neural network, the job performs a pixelwise analysis of music document images." 
     enabled = True

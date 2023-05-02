@@ -13,7 +13,7 @@ from rodan.jobs.base import RodanTask
 
 
 class CalvoTrainer(RodanTask):
-    name = "Training model for Pixelwise Analysis of Music Document"
+    name = "Training model for Pixelwise Analysis of Music Document [OLD]"
     author = "Jorge Calvo-Zaragoza, Gabriel Vigliensoni, and Ichiro Fujinaga"
     description = "The job performs the training of a neural network model for the pixelwise analysis of music document images."
     enabled = True

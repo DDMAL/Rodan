@@ -4,8 +4,8 @@ Repository of the Rodan wrapper for Calvo classifier
 
 # Rodan Jobs definition
 This repository includes the following Rodan Jobs:
-- `Pixelwise Analysis of Music Document` in **calvo_classifier.py**
-- `Training model for Pixelwise Analysis of Music Document` in **calvo_trainer.py**
+- `Pixelwise Analysis of Music Document [OLD]` in **calvo_classifier.py**
+- `Training model for Pixelwise Analysis of Music Document [OLD]` in **calvo_trainer.py**
 - `Fast Pixelwise Analysis of Music Document` in **fast_calvo_classifier.py**
   - Available in the **python3** Rodan queue.
 - `Training model for Patchwise Analysis of Music Document` in **fast_calvo_trainer.py**
