@@ -65,20 +65,20 @@ docker build \
 
 # echo "[+] Building iipsrv"
 
-# docker build \
-#   --no-cache \
-#   --tag ddmal/iipsrv:nightly \
-#   ./iipsrv
+docker build \
+  --no-cache \
+  --tag ddmal/iipsrv:nightly \
+  ./iipsrv
 
-# echo "[+] Building Rodan-Client"
+echo "[+] Building Rodan-Client"
 
-# docker build \
-#   --no-cache \
-#   --build-arg BRANCHES="develop" \
-#   --build-arg VERSION=${RODAN_CLIENT_TAG} \
-#   --tag ddmal/rodan-client:register_jobs \
-#   --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
-#   ./rodan-client
+docker build \
+  --no-cache \
+  --build-arg BRANCHES="develop" \
+  --build-arg VERSION=${RODAN_CLIENT_TAG} \
+  --tag ddmal/rodan-client:register_jobs \
+  --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
+  ./rodan-client
 
 echo "[+] Pushing Rodan & Celery Core"
 
@@ -113,32 +113,32 @@ docker build \
   --file ./gpu-celery/Dockerfile \
   .
 
-# echo "[+] Building Postgres"
+echo "[+] Building Postgres"
 
-# docker build \
-#   --no-cache \
-#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
-#   --tag ddmal/postgres-plpython:register_jobs \
-#   --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
-#   --file ./postgres/Dockerfile \
-#   .
+docker build \
+  --no-cache \
+  --build-arg VERSION=${RODAN_DOCKER_TAG} \
+  --tag ddmal/postgres-plpython:register_jobs \
+  --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
+  --file ./postgres/Dockerfile \
+  .
 
-# echo "[+] Building Nginx"
+echo "[+] Building Nginx"
 
-# docker build \
-#   --no-cache \
-#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
-#   --tag ddmal/nginx:register_jobs \
-#   --tag ddmal/nginx:${RODAN_DOCKER_TAG} \
-#   ./nginx
+docker build \
+  --no-cache \
+  --build-arg VERSION=${RODAN_DOCKER_TAG} \
+  --tag ddmal/nginx:register_jobs \
+  --tag ddmal/nginx:${RODAN_DOCKER_TAG} \
+  ./nginx
 
-# echo "[+] Building HPC-RabbitMQ"
+echo "[+] Building HPC-RabbitMQ"
 
-# docker build \
-#   --no-cache \
-#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
-#   --tag ddmal/hpc-rabbitmq:register_jobs \
-#   --tag ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG} \
-#   ./hpc-rabbitmq
+docker build \
+  --no-cache \
+  --build-arg VERSION=${RODAN_DOCKER_TAG} \
+  --tag ddmal/hpc-rabbitmq:register_jobs \
+  --tag ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG} \
+  ./hpc-rabbitmq
 
-# echo "[+] Finished"
+echo "[+] Finished"
