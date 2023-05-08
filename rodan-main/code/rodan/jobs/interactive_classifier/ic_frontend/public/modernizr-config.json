@@ -1,0 +1,10 @@
+{
+    "classPrefix": "supports-",
+
+    "options": [
+        "setClasses"
+    ],
+    "feature-detects": [
+        "css/flexbox"
+    ]
+}
