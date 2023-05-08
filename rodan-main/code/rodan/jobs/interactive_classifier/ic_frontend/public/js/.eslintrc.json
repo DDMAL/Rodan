@@ -1,0 +1,15 @@
+{
+    "root": true,
+    "extends": "../../.eslintrc.base.json",
+
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jest": true
+    }
+}
