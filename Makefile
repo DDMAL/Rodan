@@ -43,7 +43,7 @@ restore_db:
 run: remote_jobs
 	# Run local version for dev
 	# Hello, 2022 hires!
-	@docker-compose up
+	@docker compose up
 
 test_prod: pull_prod 
 	# Test production Rodan images with specified tag

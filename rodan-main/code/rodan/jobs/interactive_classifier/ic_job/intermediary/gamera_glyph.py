@@ -1,5 +1,5 @@
 import uuid
-from rodan.jobs.interactive_classifier.intermediary.run_length_image import \
+from rodan.jobs.interactive_classifier.ic_job.intermediary.run_length_image import \
     RunLengthImage
 
 

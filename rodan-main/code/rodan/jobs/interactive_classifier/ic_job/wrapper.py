@@ -1,5 +1,5 @@
 from rodan.jobs.base import RodanTask
-from rodan.jobs.interactive_classifier.interactive_classifier import *
+from rodan.jobs.interactive_classifier.ic_job.interactive_classifier import *
 
 class InteractiveClassifier(RodanTask):
     #############
