@@ -4,16 +4,20 @@
 set -o errexit
 
 # This "useless" image is build to prevent dockerhub from overwriting
-# the nightly image with it's obligatory minimum of a build rule. If we want a build
+# the ic_frontend image with it's obligatory minimum of a build rule. If we want a build
 # trigger with a HTTPS POST request, we must have at least 1 build rule.
 docker build \
   --tag ddmal/rodan:placeholder \
   .
 
-RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
-RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
-RODAN_DOCKER_TAG=`git describe --tags --always`
-BUILD_HASH=`git rev-parse --verify HEAD`
+RODAN_TAG=ic_frontend
+#`cd rodan-main/code && git describe --tags --always`
+RODAN_CLIENT_TAG=ic_frontend
+#`cd rodan-client/code && git describe --tags --always`
+RODAN_DOCKER_TAG=ic_frontend
+#`git describe --tags --always`
+BUILD_HASH=ic_frontend
+#`git rev-parse --verify HEAD`
 
 ###############################################################################
 # Stage 1
@@ -26,13 +30,13 @@ docker build \
   --no-cache \
   --build-arg BRANCHES="develop" \
   --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-python3-celery:nightly \
+  --tag ddmal/rodan-python3-celery:ic_frontend \
   --tag ddmal/rodan-python3-celery:${RODAN_TAG} \
   --file ./python3-celery/Dockerfile \
   .
 
 echo "[+] Pushing Python3-Celery"
-docker push ddmal/rodan-python3-celery:nightly
+docker push ddmal/rodan-python3-celery:ic_frontend
 
 echo "[+] Python3-Celery needs to be made and pushed before Rodan/Celery because the Rodan image uses the Python3 image as its base."
 
@@ -54,27 +58,27 @@ docker build \
   --build-arg BRANCHES="develop" \
   --build-arg VERSION=${RODAN_TAG} \
   --build-arg build_hash=${BUILD_HASH} \
-  --tag ddmal/rodan-main:nightly \
+  --tag ddmal/rodan-main:ic_frontend \
   --tag ddmal/rodan-main:${RODAN_TAG} \
   --file ./rodan-main/Dockerfile \
   .
 
-echo "[+] Building iipsrv"
+# echo "[+] Building iipsrv"
 
-docker build \
-  --no-cache \
-  --tag ddmal/iipsrv:nightly \
-  ./iipsrv
+# docker build \
+#   --no-cache \
+#   --tag ddmal/iipsrv:ic_frontend \
+#   ./iipsrv
 
-echo "[+] Building Rodan-Client"
+# echo "[+] Building Rodan-Client"
 
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${RODAN_CLIENT_TAG} \
-  --tag ddmal/rodan-client:nightly \
-  --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
-  ./rodan-client
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${RODAN_CLIENT_TAG} \
+#   --tag ddmal/rodan-client:ic_frontend \
+#   --tag ddmal/rodan-client:${RODAN_CLIENT_TAG} \
+#   ./rodan-client
 
 echo "[+] Pushing Rodan & Celery Core"
 
@@ -83,58 +87,58 @@ if [ -z `echo ${RODAN_TAG} | awk -F'-' '{print $3}'` ]; then
   docker push ddmal/rodan-main:${RODAN_TAG}
 fi
 
-docker push ddmal/rodan-main:nightly
+docker push ddmal/rodan-main:ic_frontend
 
-echo "[+] Pushing Rodan-Client"
+# echo "[+] Pushing Rodan-Client"
 
-if [ -z `echo ${RODAN_CLIENT_TAG} | awk -F'-' '{print $3}'` ]; then
-  echo "[+] New tagged image for rodan-client: ${RODAN_CLIENT_TAG}"
-  docker push ddmal/rodan-client:${RODAN_CLIENT_TAG}
-fi
+# if [ -z `echo ${RODAN_CLIENT_TAG} | awk -F'-' '{print $3}'` ]; then
+#   echo "[+] New tagged image for rodan-client: ${RODAN_CLIENT_TAG}"
+#   docker push ddmal/rodan-client:${RODAN_CLIENT_TAG}
+# fi
 
-docker push ddmal/rodan-client:nightly
+# docker push ddmal/rodan-client:ic_frontend
 
 ###############################################################################
 # Stage 3
 #   Build the rest
 
-echo "[+] Building GPU-Celery"
+# echo "[+] Building GPU-Celery"
 
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${RODAN_TAG} \
-  --tag ddmal/rodan-gpu-celery:nightly \
-  --tag ddmal/rodan-gpu-celery:${RODAN_TAG} \
-  --file ./gpu-celery/Dockerfile \
-  .
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${RODAN_TAG} \
+#   --tag ddmal/rodan-gpu-celery:ic_frontend \
+#   --tag ddmal/rodan-gpu-celery:${RODAN_TAG} \
+#   --file ./gpu-celery/Dockerfile \
+#   .
 
-echo "[+] Building Postgres"
+# echo "[+] Building Postgres"
 
-docker build \
-  --no-cache \
-  --build-arg VERSION=${RODAN_DOCKER_TAG} \
-  --tag ddmal/postgres-plpython:nightly \
-  --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
-  --file ./postgres/Dockerfile \
-  .
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+#   --tag ddmal/postgres-plpython:ic_frontend \
+#   --tag ddmal/postgres-plpython:${RODAN_DOCKER_TAG} \
+#   --file ./postgres/Dockerfile \
+#   .
 
-echo "[+] Building Nginx"
+# echo "[+] Building Nginx"
 
-docker build \
-  --no-cache \
-  --build-arg VERSION=${RODAN_DOCKER_TAG} \
-  --tag ddmal/nginx:nightly \
-  --tag ddmal/nginx:${RODAN_DOCKER_TAG} \
-  ./nginx
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+#   --tag ddmal/nginx:ic_frontend \
+#   --tag ddmal/nginx:${RODAN_DOCKER_TAG} \
+#   ./nginx
 
-echo "[+] Building HPC-RabbitMQ"
+# echo "[+] Building HPC-RabbitMQ"
 
-docker build \
-  --no-cache \
-  --build-arg VERSION=${RODAN_DOCKER_TAG} \
-  --tag ddmal/hpc-rabbitmq:nightly \
-  --tag ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG} \
-  ./hpc-rabbitmq
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${RODAN_DOCKER_TAG} \
+#   --tag ddmal/hpc-rabbitmq:ic_frontend \
+#   --tag ddmal/hpc-rabbitmq:${RODAN_DOCKER_TAG} \
+#   ./hpc-rabbitmq
 
-echo "[+] Finished"
+# echo "[+] Finished"
