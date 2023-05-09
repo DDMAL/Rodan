@@ -327,7 +327,7 @@ def register_py3():
     
     # Register IC
     try:
-        from rodan.jobs.interactive_classifier.ic_job.wrapper import InteractiveClassifier
+        from rodan.jobs.interactive_classifier.wrapper import InteractiveClassifier
 
         app.register_task(InteractiveClassifier())
     except Exception as exception:
@@ -335,7 +335,7 @@ def register_py3():
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     try:
-        from rodan.jobs.interactive_classifier.ic_job.gamera_xml_distributor import (
+        from rodan.jobs.interactive_classifier.gamera_xml_distributor import (
             GameraXMLDistributor,
         )
 

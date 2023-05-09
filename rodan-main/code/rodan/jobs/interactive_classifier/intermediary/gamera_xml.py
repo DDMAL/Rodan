@@ -2,7 +2,7 @@ import uuid
 
 from gamera.gameracore import MANUAL
 from gamera.gamera_xml import glyphs_from_xml
-from rodan.jobs.interactive_classifier.ic_job.intermediary.run_length_image import \
+from rodan.jobs.interactive_classifier.intermediary.run_length_image import \
     RunLengthImage
 
 
