@@ -49,7 +49,7 @@ module.exports = configureBuildMode({
     output: {
         filename: '[name].min.js',
         chunkFilename: 'classifier.chunk.[id].min.js',
-        path: path.resolve(__dirname, '../rodan_job/static/js/compiled/'),
+        path: path.resolve(__dirname, '../static/js/compiled/'),
         publicPath: '/static/js/app/'
     },
 
