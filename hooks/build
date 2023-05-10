@@ -95,8 +95,8 @@ fi
 docker push ddmal/rodan-client:nightly
 
 ##############################################################################
-Stage 3
-  Build the rest
+# Stage 3
+#   Build the rest
 
 echo "[+] Building GPU-Celery"
 
