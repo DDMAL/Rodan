@@ -11,9 +11,9 @@ from gamera.plugins.image_utilities import union_images
 import gamera.plugins.segmentation
 from gamera.gamera_xml import glyphs_from_xml
 from gamera.gamera_xml import LoadXML
-from rodan.jobs.interactive_classifier.ic_job.intermediary.gamera_glyph import GameraGlyph
-from rodan.jobs.interactive_classifier.ic_job.intermediary.gamera_xml import GameraXML
-from rodan.jobs.interactive_classifier.ic_job.intermediary.run_length_image import \
+from rodan.jobs.interactive_classifier.intermediary.gamera_glyph import GameraGlyph
+from rodan.jobs.interactive_classifier.intermediary.gamera_xml import GameraXML
+from rodan.jobs.interactive_classifier.intermediary.run_length_image import \
     RunLengthImage
 from rodan.settings import MEDIA_URL, MEDIA_ROOT
 from django.http import HttpResponse

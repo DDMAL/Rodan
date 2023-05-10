@@ -145,7 +145,7 @@ RODAN_PYTHON3_JOBS = [
     "rodan.jobs.gamera_rodan",
     "rodan.jobs.heuristic_pitch_finding",
     "rodan.jobs.biollante_rodan",
-    "rodan.jobs.interactive_classifier.ic_job",
+    "rodan.jobs.interactive_classifier",
     "rodan.jobs.diagonal_neume_slicing",
     "rodan.jobs.MEI_resizing",
     "rodan.jobs.neon_wrapper",
