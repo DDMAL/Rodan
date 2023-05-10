@@ -1,0 +1,872 @@
+// Hardcode some Bootstrap style variables here since our Bootstrap stuff
+// isn't pre-processed
+
+// Responsive breakpoints
+$screen-sm-min: 768px;
+$screen-md-min: 992px;
+$screen-lg-min: 1200px;
+$grid-float-breakpoint: $screen-sm-min;
+
+// Colors
+$gray-darker: lighten(#000, 13.5%); // #222
+$gray-dark: lighten(#000, 20%); // #333
+$gray: #6f6f6f; // #555
+$gray-light: lighten(#000, 60%); // #999
+$gray-lighter: lighten(#000, 93.5%); // #eee
+
+$brand-primary: #c2342e;
+$brand-success: #43ac6a;
+$brand-info: #5bc0de;
+$brand-warning: #e9df50;
+$brand-danger: #F04124;
+
+$brand-selection: #4b9fff;
+
+//** Global textual link color.
+$link-color: $brand-selection;
+$link-hover-color: darken($link-color, 15%);
+
+// Color used for a lot of borders in the Bootstrap things
+$border-color: #ddd;
+
+$zindex-navbar: 1000;
+$zindex-dropdown: 1000;
+$zindex-popover: 1010;
+$zindex-tooltip: 1030;
+$zindex-navbar-fixed: 1030;
+$zindex-modal-background: 1040;
+$zindex-modal: 1050;
+
+$zindex-diva-fullscreen: $zindex-modal;
+$zindex-diva-canvas: $zindex-diva-fullscreen + 5;
+
+@import "sidenav";
+
+@mixin ua-support($modernizr-feature) {
+    @at-root html.supports-#{$modernizr-feature} #{&} {
+        @content;
+    }
+}
+
+// This is textual information, so we want to make it resemble normal text as much as possible
+pre.preformatted-text {
+    border: inherit;
+    background: none;
+
+    padding: 0;
+
+    white-space: pre-wrap;
+    word-break: normal;
+
+    // Inherit font properties to match wherever we drop it
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+}
+
+.no-js-message .container, .no-js-message .logos {
+    padding-top: 25px;
+}
+
+.no-js-message .logos {
+    max-width: 60%;
+}
+
+#manuscript-info-target {
+    float: right;
+
+    // FIXME: This should actually be the padding for all .btn-sm elements; the Bootstrap button padding was
+    // inconsistently tweaked
+    .btn-sm {
+        padding: 5px 10px;
+    }
+}
+
+.manuscript-info-sidenav-container .sidenav {
+    @include sidenav-size($width: 350px, $position: right);
+}
+
+.manuscript-info {
+    padding: 0 15px;
+
+    dl {
+        margin-bottom: 0;
+    }
+}
+
+#manuscript-nav-container {
+    // Subtract 1px from margins so that the borders are flush with the container's
+    margin-top: -1px;
+    margin-left: -1px;
+}
+
+.cantus-container {
+    width: 100%;
+    padding: 0 30px 0 30px;
+    overflow: hidden;
+}
+
+.result-list {
+    > thead > tr > th {
+        white-space: nowrap;
+        overflow: hidden;
+
+        // Make table headers black in the search result list, even though they're links
+        a {
+            color: inherit;
+        }
+    }
+
+    > tbody > tr > td {
+        // Hide the top border since the <tbody> acts as a delimiter
+        border-top: 0;
+    }
+}
+
+.full-result-record {
+    .content-enter,
+    .content-exit {
+        overflow: hidden;
+        min-height: 0;
+    }
+
+    .content-enter {
+        transition: max-height 600ms cubic-bezier(0.77, 0, 0.175, 1), padding 200ms;
+    }
+
+    .content-exit {
+        transition: max-height 600ms cubic-bezier(0.77, 0, 0.175, 1), padding 200ms 400ms;
+    }
+
+    .content-enter,
+    .content-exit.content-exit-active {
+        max-height: 0;
+    }
+
+    .content-enter.content-enter-active,
+    .content-exit {
+        max-height: 900px;
+    }
+
+    .content-enter:not(.content-enter-active),
+    .content-exit.content-exit-active {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.full-result-record-content.well {
+    padding-bottom: 0;
+}
+
+.result-table-wrapper {
+    overflow: auto;
+    min-height: 200px;
+
+    // Quick and dirty compat value for when flexbox isn't supported.
+    // This is really not very good (it's hard to make this one-size-
+    // fits all), but it probably isn't worth spending too much time on.
+    @include ua-support(no-flexbox) {
+        max-height: 500px;
+    }
+}
+
+// Support reversible (i.e. upwards-pointing) carets without setting classes on ancestors
+.caret.caret-reversed {
+    content: "";
+    border-top: 0;
+    border-bottom: 4px solid;
+}
+
+// When applied to ancestors of a nested element, this class uses flexbox to set the height
+// of the element to the remaining height of the viewport.
+.propagate-height {
+    @include ua-support(flexbox) {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    // Workaround for Bootstrap tabs
+    .tab-content > &.tab-pane {
+        @include ua-support(flexbox) {
+            display: none;
+
+            &.active {
+                display: flex;
+            }
+        }
+    }
+}
+
+body {
+    overflow: hidden;
+}
+
+body.propagate-height {
+    height: 100vh;
+}
+
+.manuscript-columns {
+    @include ua-support(flexbox) {
+        &.propagate-height {
+            flex-direction: row;
+        }
+    }
+
+    @include ua-support(no-flexbox) {
+        > * {
+            float: left;
+        }
+    }
+
+    // Distribute width to the columns equally by default,
+    // allocating more for the Diva column on large screens
+    > * {
+        width: 50%;
+    }
+
+    @media (min-width: $screen-lg-min) {
+        > :first-child {
+            width: 60%;
+        }
+
+        > :last-child {
+            width: 40%;
+        }
+    }
+}
+
+#manuscript-data-container {
+    // Relative-position the container so that percentage-based dimensions are calculated relative to it
+    position: relative;
+
+    // Fallback height for when we don't have flexbox
+    @include ua-support(no-flexbox) {
+        // Magic number to approximate Diva's value
+        height: 650px;
+    }
+
+    .resizer {
+        position: absolute;
+        cursor: col-resize;
+        height: 100%;
+        width: 10px;
+        background-color: transparent;
+
+        // Kind of arbitrarily slot this into the Bootstrap hierarchy
+        z-index: $zindex-dropdown;
+
+        .prong {
+            position: relative;
+            top: 45%;
+            float: left;
+            margin-left: 3px;
+
+            height: 25px;
+            width: 2px;
+
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            background-color: #bbb;
+
+            + .prong {
+                margin-left: 1px;
+            }
+        }
+    }
+}
+
+.dragging-overlay {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    z-index: $zindex-modal-background;
+
+    &.col-resize-cursor {
+        cursor: col-resize;
+    }
+}
+
+.diva-page-nav {
+    padding-right: 15px;
+}
+
+.diva-tools {
+    margin-top: 0;
+    padding: 20px 15px;
+    min-height: 70px;
+    border-right: 1px solid $border-color;
+    border-bottom: 1px solid $border-color;
+
+    .button {
+        border-color: #DADADA;
+        background-color: #E7E7E7;
+        height: 30px;
+
+        &:hover {
+            border-color: #BBB;
+            background-color: #D3D3D3;
+        }
+    }
+
+    .diva-buttons-label, .diva-page-label {
+        padding: 5px 10px !important;
+        line-height: 1.5 !important;
+    }
+
+    // Stopgap to stop the "Zoom level" control from falling below the row
+    // FIXME(wabain): Find something more reliable for this after updating if necessary
+    .diva-tools-left .diva-buttons-label {
+        clear: initial;
+    }
+    &.diva-fullscreen-tools .diva-tools-left .diva-buttons-label {
+        clear: both;
+    }
+}
+
+.diva-tools.diva-fullscreen-tools {
+    width: auto;
+    min-width: 260px;
+    height: 120px;
+    padding: 10px;
+
+    .diva-buttons-label, .diva-page-label, .diva-page-nav {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    // Hide the extra button that was stuck into the Diva toolbar
+    #manuscript-info-target {
+        display: none;
+    }
+}
+
+#toolbar-row .diva-page-nav {
+    // Restore Bootstrap styling
+    // FIXME: edit the Diva CSS so this isn't necessary
+    line-height: 1.5;
+
+    .diva-input {
+        width: 100%;
+        padding-top: 5px;
+        line-height: 1.5;
+    }
+
+    .input-group {
+        width: 90px;
+    }
+}
+
+.diva-outer {
+    border: none;
+    border-right: 1px solid $border-color;
+
+    @include ua-support(flexbox) {
+        height: 100%;
+    }
+}
+
+// Integrate Diva z-index values with the Bootstrap z-index hierarchy
+.diva-outer.diva-fullscreen {
+    z-index: $zindex-diva-fullscreen;
+}
+
+.diva-popup, .diva-tools.diva-fullscreen-tools {
+    z-index: $zindex-diva-fullscreen + 1;
+}
+
+#diva-canvas-backdrop {
+    z-index: $zindex-diva-canvas;
+}
+
+#diva-canvas-wrapper {
+    z-index: $zindex-diva-canvas + 1;
+}
+
+#diva-canvas {
+    z-index: $zindex-diva-canvas + 2;
+}
+
+#diva-canvas-tools {
+    z-index: $zindex-diva-canvas + 3;
+}
+
+#diva-canvas-toolbar div {
+    z-index: $zindex-diva-canvas + 4;
+}
+
+.canvas-throbber {
+    z-index: $zindex-diva-canvas + 5;
+}
+
+.search-input {
+    padding-left: 15px;
+}
+
+@include ua-support(flexbox) {
+    .search-input-group {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .search-input {
+        flex-grow: 1;
+    }
+}
+
+@include ua-support(no-flexbox) {
+    .search-input-group > * {
+        float: left;
+    }
+
+    .search-input {
+        min-width: 100px;
+        max-width: 300px;
+    }
+}
+
+#menu-sidenav {
+    .sidenav a {
+        padding-left: 40px;
+    }
+
+    .nav li > a {
+        color: #333;
+    }
+}
+
+.sidenav-brand {
+    display: block;
+    margin-bottom: 22px;
+    color: #333;
+
+    &:hover, &:active, &.active {
+        text-decoration: none;
+        color: #333;
+        background-color: #eee;
+    }
+}
+
+// Navbar styling
+// Select ancestors of .navbar-default to match the specificity of the Bootstrap styling
+// TODO(wabain): See if this can be done using Bootstrap variables. nav-link-padding?
+
+.navbar-default .navbar-brand, .sidenav-brand {
+    height: 50px;
+    padding: 15px 40px 15px 15px;
+    font-size: 20px;
+    line-height: 20px;
+
+    // Get anchor elements within a brand to be styled like the brand
+    a, a:hover, a:focus {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+.drop-menu {
+    font-size: 22px;
+}
+
+.navbar-menu .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    min-width: 150px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+
+    a {
+        float: none;
+        color: white;
+        font-size: 14px;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+    }
+    a:hover {
+        background-color: #555;
+    }
+}
+
+.navbar-menu:hover .dropdown-content {
+    top: 51px;
+    display: block;
+}
+
+@media only screen and (max-width: $grid-float-breakpoint) {
+    .navbar-collapse {
+        display: none;
+    }
+    .navbar-menu {
+        position: absolute;
+        margin: auto;
+        display: inline;
+    }
+    .navbar-header {
+        position: fixed;
+        left: 51px;
+        display: inline;
+    }
+    .navbar-menu .dropdown-content {
+        min-width: 150px;
+    }
+    .navbar-fixed-top {
+        height: 51px;
+    }
+    .counter {
+        display: none;
+    }
+}
+
+// A subhead is an extension of a navbar brand that works like a breadcrumb to title a specific page
+.secondary-brand-component::before {
+    content: "›";
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+// If there's a subhead then hide the primary component on smaller screens
+@media (max-width: $screen-sm-min - 1) {
+    .primary-brand-component {
+        display: none;
+
+        // .no-subhead will only be set if there's JS, so we also check for html.no-js
+        .no-subhead &, html.no-js & {
+            display: block;
+        }
+    }
+
+    .secondary-brand-component {
+        display: block;
+
+        // Some quick and dirty overflow protection
+        max-width: 70vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        // Hide the breadcrumb-style continuation
+        &::before {
+            display: none;
+        }
+    }
+}
+
+.navbar-default .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+// Alter the toggle so that it is permanently pinned to the left of the brand
+// TODO(wabain): use Bootstrap variables here
+.navbar-toggle {
+    display: block;
+    float: left;
+
+    // Margin equal to $navbar-padding-horizontal
+    margin-right: 0;
+    margin-left: 15px; //FIXME: use variable
+
+    padding-top: 11px;
+    padding-bottom: 11px;
+
+    @media (min-width: $grid-float-breakpoint) {
+        margin-right: 15px;
+        margin-left: 0;
+    }
+
+    // Hide the toggle if JS is disabled, since we won't be able to use it anyway
+    html.no-js & {
+        display: none;
+    }
+}
+
+// When JS is enabled, don't display the nav links on smaller screens
+html.js {
+    .navbar-nav {
+        display: none;
+    }
+
+    @media (min-width: $screen-md-min) {
+        .navbar-nav {
+            display: block;
+        }
+
+        .navbar-toggle {
+            display: none;
+        }
+    }
+}
+
+// Always display the collapse on smaller screens with no JS, rather than having it
+// toggle. Inelegant, but it should work.
+@media (max-width: $grid-float-breakpoint - 1) {
+    html.no-js .navbar-collapse {
+        display: block;
+    }
+}
+
+.neume-images img {
+    background: #ccc;
+}
+
+.neume-gallery-entry {
+    transition: border-color 0.2s;
+    float: left;
+    max-width: 100px;
+    min-width: 90px;
+    margin: 5px;
+    border: 1px solid $border-color;
+    padding: 5px;
+    color: $gray-darker;
+
+    &:hover, &:focus {
+        text-decoration: none;
+        border-color: $link-color;
+        color: $gray-darker;
+    }
+
+    .exemplar {
+        height: 75px;
+        margin: 4px;
+
+        img {
+            display: block;
+            margin: auto;
+            max-height: 75px;
+            max-width: 75px;
+        }
+    }
+
+    .caption {
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-wrap: break-word;
+    }
+}
+
+// Interactive Classifier Custom Classes
+
+.bg-success {
+    background: lighten($brand-success, 10%);
+}
+
+.bg-warning {
+    background: desaturate(lighten($brand-warning, 10%), 10%);
+}
+
+.close {
+    color: #000000;
+
+    :hover {
+        color: $brand-primary;
+    }
+}
+
+.glyph-image-container {
+    float: left;
+}
+
+.glyph-image-outline {
+    padding: 5px;
+    border: 1px solid #aaaaaa;
+}
+
+.glyph-image {
+    width: 100%;
+    min-height: 50px;
+}
+
+#content {
+    padding-top: 70px;
+}
+
+#upper {
+    width: 75%;
+    height: 30px;
+    top: 50px;
+    right: 0;
+    background-color: #cbcbcb;
+    position: absolute;
+    text-align: center;
+}
+
+.column {
+    width: 20%;
+    display: inline-block;
+    text-align: center;
+    padding-top: 7px;
+    font-size: 12px;
+}
+
+#left {
+    float: left;
+    width: 25%;
+    height: 100%;
+    overflow-y: scroll;
+    background-color: #efefef;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    padding-top: 50px;
+}
+
+.edit-button {
+    width: 35%;
+    height: 100%;
+    background-color: #cbcbcb;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+    &:hover{
+        background-color: #ababab;
+    }
+}
+
+#left1 {
+    float: left;
+    width: 25%;
+    height: 50%;
+    overflow-y: scroll;
+    background-color: #efefef;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-top: 45px;
+    resize: both;
+}
+
+#left2 {
+    float: left;
+    width: 25%;
+    height: 50%;
+    overflow-y: scroll;
+    background-color: #efefef;
+    position: absolute;
+    border-top: 1px solid #444444;
+    bottom: 0;
+    left: 0;
+}
+
+#right {
+    float: left;
+    overflow-y: scroll;
+    height: 100%;
+    width: 75%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 50px;
+    border-left: 1px solid #444444;
+}
+
+#collapse-pane {
+    display: inline-block;
+    height: 4%;
+    width: 75%;
+    position: absolute;
+    top: 81px;
+    left: 25%;
+}
+
+.coll-btn {
+    float: left;
+    background-color: white;
+    height: 95%;
+    width: 17%;
+    border-top: 1px solid #444444;
+    border-left: 1px solid #444444;
+    &:hover{
+        background-color: #cbcbcb;
+    }
+}
+
+.glyph-zoom {
+    float: right;
+    z-index: 1;
+    height: 32px;
+    width: 32px;
+    font-size: 1.1em;
+    text-align: center;
+    line-height: 30px;
+    position: relative;
+    display: inline-block;
+    top: 13px;
+    right: 10px;
+    &:hover{
+        background-color: #efefef;
+    }
+}
+
+.image-zoom {
+    float: right;
+    z-index: 1;
+    height: 32px;
+    width: 32px;
+    font-size: 1.1em;
+    text-align: center;
+    line-height: 30px;
+    position: fixed;
+    display: inline-block;
+    &:hover{
+        background-color: #efefef;
+    }
+}
+
+#right0 {
+    float: left;
+    overflow-y: scroll;
+    height: 28%;
+    width: 75%;
+    position: absolute;
+    top: 125px;
+    right: 0;
+    resize: vertical;
+    border-left: 1px solid #474747;
+}
+
+#right1 {
+    float: left;
+    overflow-y: scroll;
+    height: 31%;
+    width: 75%;
+    position: absolute;
+    top: 350px;
+    right: 0;
+    border-top: 1px solid #444444;
+    border-left: 1px solid #444444;
+    resize: vertical;
+}
+
+#right2 {
+    float: left;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    height: 31%;
+    width: 75%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-top: 1px solid #444444;
+    border-left: 1px solid #444444;
+}
+
+.preview-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.preview-highlight {
+    background: #ff0000;
+    opacity: 0.5;
+    position: absolute;
+}
