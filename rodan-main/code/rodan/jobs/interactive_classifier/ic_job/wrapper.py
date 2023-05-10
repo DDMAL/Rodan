@@ -1,6 +1,6 @@
 from rodan.jobs.base import RodanTask
 try:
-    from rodan.jobs.interactive_classifier.interactive_classifier import *
+    from rodan.jobs.interactive_classifier.ic_job.interactive_classifier import *
     import segmentation
 except ImportError:
     pass
@@ -102,7 +102,7 @@ class InteractiveClassifier(RodanTask):
             'training_glyphs': settings['training_json']
         }
 
-        return '/interfaces/interactive_classifier.html', data
+        return 'interfaces/interactive_classifier.html', data
 
     def run_my_task(self, inputs, settings, outputs):
         # Initialize a gamera classifier
