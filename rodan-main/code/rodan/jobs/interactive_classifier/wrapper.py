@@ -1,6 +1,6 @@
 from rodan.jobs.base import RodanTask
 import logging 
-logger = logging.getLoger("rodan")
+logger = logging.getLogger("rodan")
 try:
     from rodan.jobs.interactive_classifier.interactive_classifier import *
     import segmentation
@@ -118,14 +118,14 @@ class InteractiveClassifier(RodanTask):
 
         # Set the initial state
         if '@state' not in settings:
-            logger.getInfo("if statement line 121")
+            logger.info("if statement line 121")
             settings['@state'] = ClassifierStateEnum.IMPORT_XML
             settings['glyphs'] = []
 
         # Execute import state, classifying state, or output state
         if settings['@state'] == ClassifierStateEnum.IMPORT_XML:
             # IMPORT_XML Stage
-            logger.getInfo("if statement line 128")
+            logger.info("if statement line 128")
 
             # Handle importing the optional training classifier
             if 'GameraXML - Training Data' in inputs:
@@ -166,9 +166,12 @@ class InteractiveClassifier(RodanTask):
             return self.WAITING_FOR_INPUT()
 
         if settings['@state'] == ClassifierStateEnum.CLASSIFYING:
-            logger.getInfo("classifying")
+            logger.info("classifying")
             # CLASSIFYING STAGE
-
+            logger.info(f"settings, glyphs: {settings['glyphs']}")
+            #logger.info(f"settings, user: {settings['@user_options']}")
+            logger.info(f"settings, training: {settings['training_glyphs']}")
+            logger.info(f"features {features}")
             # Update any changed glyphs
             add_grouped_glyphs(settings)
             update_changed_glyphs(settings)
@@ -177,10 +180,17 @@ class InteractiveClassifier(RodanTask):
             # Update any changed class names
             remove_deleted_classes(settings)
             update_renamed_classes(settings)
-
+            logger.info(f"settings, glyphs: {settings['glyphs']}")
+            #logger.info(f"settings, user: {settings['@user_options']}")
+            logger.info(f"settings, training: {settings['training_glyphs']}")
+            logger.info(f"features {features}")
             # Takes out _group._parts glyphs and split glyphs TODO: save split glyphs for automatic splitting
             filter_parts(settings)
-            logger.getInfo("about to break")
+            logger.info(f"settings, glyphs: {settings['glyphs']}")
+            #logger.info(f"settings, user: {settings['@user_options']}")
+            logger.info(f"settings, training: {settings['training_glyphs']}")
+            logger.info(f"features {features}")
+            logger.info("about to break")
             # Automatically classify the glyphs
             run_correction_stage(settings['glyphs'],
                                  settings['training_glyphs'],
@@ -195,7 +205,10 @@ class InteractiveClassifier(RodanTask):
         # Automatic grouping and reclassifying
         elif settings['@state'] == ClassifierStateEnum.GROUP_AND_CLASSIFY:
             # GROUP AND CLASSIFY STAGE
-
+            logger.info(f"settings, glyphs: {settings['glyphs']}")
+            logger.info(f"settings, user: {settings['@user_options']}")
+            logger.info(f"settings, training: {settings['training_glyphs']}")
+            logger.info(f"features {features}")
             # Update any changed glyphs
             add_grouped_glyphs(settings)
             update_changed_glyphs(settings)
@@ -207,10 +220,10 @@ class InteractiveClassifier(RodanTask):
 
             # Takes out _group._parts glyphs
             filter_parts(settings)
-            logger.getInfo(f"settings, glyphs: {settings['glyphs']}")
-            logger.getInfo(f"settings, user: {settings['@user_options']}")
-            logger.getInfo(f"settings, training: {settings['training_glyphs']}")
-            logger.getInfo(f"features {features}")
+            logger.info(f"settings, glyphs: {settings['glyphs']}")
+            logger.info(f"settings, user: {settings['@user_options']}")
+            logger.info(f"settings, training: {settings['training_glyphs']}")
+            logger.info(f"features {features}")
 
             # grouping and reclassifying
             group_and_correct(settings['glyphs'],
