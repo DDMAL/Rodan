@@ -102,7 +102,7 @@ class InteractiveClassifier(RodanTask):
             'training_glyphs': settings['training_json']
         }
 
-        return '/interfaces/interactive_classifier.html', data
+        return 'interfaces/interactive_classifier.html', data
 
     def run_my_task(self, inputs, settings, outputs):
         # Initialize a gamera classifier
