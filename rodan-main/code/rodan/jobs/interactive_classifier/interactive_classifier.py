@@ -301,9 +301,14 @@ def serialize_class_names_to_json(settings):
 
     for name in imported_class_names:
         name_set.add(name)
-
-    settings['class_names'] = list(name_set)
-
+    l=[]
+    for x in name_set:
+        a=x
+        if type(x)==bytes:
+            a=x.decode()
+        l.append(a)
+    settings['class_names'] = l #list(name_set)
+    
     return json.dumps(sorted(list(name_set)))
 
 
