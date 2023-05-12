@@ -395,22 +395,25 @@ def precedes_follows(syl_dict, layer, new_element):
     new_syllable.append(new_element)  #add new element to new syllable
     return new_syllable
 
-def add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable): 
+def add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable):
+    # These are the elements that can be contained in a syllable
+    contained_in_syllable = {"neume", "divLine", "clef", "accid"}
+
     #To ensure that divLines are not leftmost element 
     #clefs and custos should be outside of the syllable 
-    if ((tag != "neume") and ((syl_dict["neume_added"] == False) | (tag != "divLine"))): 
-        layer.append(new_element)                    
+    if tag not in contained_in_syllable or (tag != "neume" and not syl_dict["neume_added"]):
+        layer.append(new_element)
 
     else: #divline or neume 
         #continue as normal (append to current syllable) 
-        if ((syl_dict["latest"].tag == "divLine") | (syl_dict["latest"].tag == "neume")): 
+        if syl_dict["latest"].tag in contained_in_syllable: 
             cur_syllable.append(new_element)                            
             add_to_layer(syl_dict, tag, layer, cur_syllable)
                                 
         #if the last element was added outside of the current syllable 
         else: 
             #need to create a new syllable and add according precedes and follows attributes 
-            if (syl_dict["added"] is True):  #syl, neume now precedes follows 
+            if (syl_dict["added"]):  #syl, neume now precedes follows 
                 
                 cur_syllable = precedes_follows(syl_dict, layer, new_element) #update current syllable
             #if the syllable hasn't been added yet (no neume so far) then add new element to current syllable
