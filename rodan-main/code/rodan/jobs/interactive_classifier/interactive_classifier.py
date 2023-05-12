@@ -204,8 +204,8 @@ def group_and_correct(glyphs, user_options, training_database, features_file_pat
 
     # Reassigning values after classification
     for i in range(len(gamera_glyphs)):
-        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id().decode()
-        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence().decode()
+        glyphs[i]['class_name'] = gamera_glyphs[i].get_main_id() #.decode()
+        glyphs[i]['confidence'] = gamera_glyphs[i].get_confidence() #.decode()
 
     # Adding new glyphs
     for elem in add:
