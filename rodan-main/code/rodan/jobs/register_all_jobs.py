@@ -404,15 +404,6 @@ def register_py3():
         import_name = "MEI Encoding"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register HPC Fast Trainer
-    try:
-        from rodan.jobs.hpc_fast_trainer.hpc_fast_trainer import HPCFastTrainer
-
-        app.register_task(HPCFastTrainer())
-    except Exception as exception:
-        import_name = "HPC Fast Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
      # Register Neon
     try:
         from rodan.jobs.neon_wrapper.wrapper import Neon
@@ -459,14 +450,6 @@ def register_gpu():
         app.register_task(FastCalvoClassifier())
     except Exception as exception:
         import_name = "Fast Calvo Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
-
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
-
-        app.register_task(FastCalvoTrainer())
-    except Exception as exception:
-        import_name = "Fast Calvo Trainer"
         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
     # Register Text Alignment

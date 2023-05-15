@@ -139,7 +139,6 @@ BASE_JOB_PACKAGES = [
 ]
 RODAN_PYTHON3_JOBS = [
     "rodan.jobs.helloworld",
-    "rodan.jobs.hpc_fast_trainer",
     "rodan.jobs.MEI_encoding",
     "rodan.jobs.pil_rodan",
     "rodan.jobs.mei2vol_wrapper",
