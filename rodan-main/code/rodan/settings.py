@@ -3,18 +3,14 @@ Rodan settings. Remember to set your environment variables.
 """
 import os
 import sys
-import yaml
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
 from distutils.util import strtobool  # noqa
-from yaml.loader import SafeLoader
 
 registerYaml = './tests/resources/112rPF.json'
 
-# Open the file and load the file
-with open(os.path.join(os.path.dirname(settings.PROJECT_PATH), 'registerJobs.yaml')) as file:
-    allJobs = yaml.load(file, Loader=SafeLoader)
+
 
 ###############################################################################
 # 1.a  General Django Configuration
@@ -119,6 +115,10 @@ MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 # trailing slash.
 MEDIA_URL = "/uploads/"
 
+# Open the file and load the file
+with open(os.path.join(os.path.dirname(PROJECT_PATH), 'registerJobs.yaml')) as file:
+    allJobs = yaml.load(file, Loader=SafeLoader)
+
 ###############################################################################
 # 1.b  General Rodan Configuration
 ###############################################################################
@@ -141,13 +141,31 @@ RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
 BASE_JOB_PACKAGES = [
-    allJobs['BASE_JOB_PACKAGES']
+    "rodan.jobs.resource_distributor",
+    "rodan.jobs.labeler",
 ]
 RODAN_PYTHON3_JOBS = [
-    allJobs['RODAN_PYTHON3_JOBS']
+    "rodan.jobs.helloworld",
+    "rodan.jobs.hpc_fast_trainer",
+    "rodan.jobs.MEI_encoding",
+    "rodan.jobs.pil_rodan",
+    "rodan.jobs.mei2vol_wrapper",
+    "rodan.jobs.gamera_rodan",
+    "rodan.jobs.heuristic_pitch_finding",
+    "rodan.jobs.biollante_rodan",
+    "rodan.jobs.interactive_classifier",
+    "rodan.jobs.diagonal_neume_slicing",
+    "rodan.jobs.MEI_resizing",
+    "rodan.jobs.neon_wrapper",
+    "rodan.jobs.pixel_wrapper",
+    "rodan.jobs.mei2vol_wrapper"
 ]
 RODAN_GPU_JOBS = [
-    allJobs['RODAN_GPU_JOBS']
+    "rodan.jobs.Calvo_classifier",
+    "rodan.jobs.text_alignment",
+    "rodan.jobs.Paco_classifier",
+    "rodan.jobs.background_removal",
+    "rodan.jobs.SAE_binarization"
 ]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
