@@ -1,22 +1,22 @@
 backports.ssl-match-hostname==3.4.0.2
 celery==4.4.7
 certifi==14.05.14
-django-cors-headers==3.0.2
-django-decorator-include==1.3
-django-environ==0.4.5
-django-extensions==1.6.7
-django-filter==1.1.0
-django-guardian==1.4.5
-django-health-check==2.4.0
-django-sortedm2m==1.1.1
+django-cors-headers==3.4.0 #up to django 3.0
+django-decorator-include==3.0 #only supports up to 3.0 django (bottleneck?)
+django-environ==0.5.0 #added support for django 2.1 and 2.2
+django-extensions==1.9.9 #updated
+django-filter==2.1.0 #supports up to django 2.2 
+django-guardian==1.5.1 #updated
+django-health-check==2.2.0 #supports up to django 2.2
+django-sortedm2m==2.0 #django 1.11 to 2.2
 django-websocket-redis==0.5.2
-Django==1.11.29
+Django==2.0.13
 djoser==1.5.1
-djangorestframework==3.6.4
+djangorestframework==3.11
 flower==0.9.3
 gevent==1.3.6
 gunicorn==19.10.0
-jsonfield==1.0.0
+jsonfield==2.1.0
 jsonschema==2.5.1
 lxml==4.6.3
 Markdown==3.0.1
