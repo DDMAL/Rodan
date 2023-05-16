@@ -18,9 +18,6 @@ from rodan.jobs.interactive_classifier.intermediary.run_length_image import \
 from rodan.settings import MEDIA_URL, MEDIA_ROOT
 from django.http import HttpResponse
 
-import logging 
-logger = logging.getLoger("rodan")
-
 class ClassifierStateEnum:
     IMPORT_XML = 0
     CLASSIFYING = 1
