@@ -19,7 +19,7 @@ from rodan.settings import MEDIA_URL, MEDIA_ROOT
 from django.http import HttpResponse
 
 import logging 
-logger = logging.getLogger("rodan")
+logger = logging.getLoger("rodan")
 
 class ClassifierStateEnum:
     IMPORT_XML = 0
@@ -126,7 +126,6 @@ def prepare_classifier(training_database, glyphs, features_file_path):
     """
     # Prepare the training glyphs
     database = get_manual_glyphs(glyphs)
-    logger.info(f'database = {database}')
 
     # The database is a mixture of the original database plus all
     # our manual corrections that we've done in the GUI.
@@ -138,8 +137,7 @@ def prepare_classifier(training_database, glyphs, features_file_path):
         else:
             glyph.classify_automatic(g['class_name'])
         database.append(glyph)
-    logger.info(f'database now = {database}')
-    logger.info(f'type of database, needs to be list/iterable = {type(database)}')
+
     # Train the classifier
     classifier = gamera.knn.kNNInteractive(database=database,
                                            perform_splits=True,
@@ -232,14 +230,10 @@ def run_correction_stage(glyphs, training_database, features_file_path):
     Run the automatic correction stage of the Rodan job.
     """
     # Train a classifier
-    logger.info("about to break")
-
     cknn = prepare_classifier(training_database,
                               glyphs,
                               features_file_path)
-    logger.info(f'cknn = {cknn}')
     # The automatic classifications
-    logger.info('stopped properly logging here')
     for glyph in glyphs:
         if not glyph['id_state_manual']:
             # It's a glyph to be classified
@@ -251,7 +245,6 @@ def run_correction_stage(glyphs, training_database, features_file_path):
                 glyph['image']
             ).get_gamera_image()
             # Classify it!
-            logger.info("actually about to break")
 
             cknn.classify_glyph_automatic(gamera_glyph)
             # Save the classification back into memory
