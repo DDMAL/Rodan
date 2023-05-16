@@ -12,10 +12,6 @@ from yaml.loader import SafeLoader
 
 registerYaml = './tests/resources/112rPF.json'
 
-# Open the file and load the file
-with open(os.path.join(os.path.dirname(settings.PROJECT_PATH), 'registerJobs.yaml')) as file:
-    allJobs = yaml.load(file, Loader=SafeLoader)
-
 ###############################################################################
 # 1.a  General Django Configuration
 ###############################################################################
@@ -137,7 +133,13 @@ RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 ###############################################################################
 # 1.c  Rodan Job Package Registration
 ###############################################################################
+
+# Open the file and load the file
+with open(os.path.join(os.path.dirname(PROJECT_PATH), 'rodan/registerJobs.yaml')) as file:
+    allJobs = yaml.load(file, Loader=SafeLoader)
+
 # Job Packages
+
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
 BASE_JOB_PACKAGES = [
