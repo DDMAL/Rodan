@@ -189,6 +189,7 @@ def draw_results_on_page(image, syl_boxes, lines_peak_locs, out_fname):
     '''
     draws a list of char_boxes on a given image and saves the image to file (local dev use only).
     '''
+    from PIL import Image, ImageDraw, ImageFont
     im = Image.fromarray(image)
     text_size = im.size[1] // 70
     fnt = ImageFont.truetype('FreeMono.ttf', text_size)
