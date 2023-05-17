@@ -1,4 +1,4 @@
-FROM ddmal/rodan-python3-celery:nightly
+FROM ddmal/rodan-python3-celery:client
 ARG BRANCHES
 ARG VERSION
 ARG BUILD_HASH

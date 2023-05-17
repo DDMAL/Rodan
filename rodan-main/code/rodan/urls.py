@@ -61,10 +61,10 @@ if os.environ.get("TRAVIS", "False") != "true" and os.environ.get("GITHUB_ACTION
 # as an environment variable.
 urlpatterns = [
     url(
-        settings.ADMIN_URL,
-        decorator_include(
-            logged_in_or_basicauth("Rodan admin"), include(admin.site.urls)
-        ),
+        settings.ADMIN_URL, admin.site.urls
+        # decorator_include(
+        #     logged_in_or_basicauth("Rodan admin"), include(admin.site.urls)
+        # ),
     )
 ]
 
