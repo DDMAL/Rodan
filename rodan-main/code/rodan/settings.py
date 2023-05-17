@@ -10,8 +10,6 @@ import environ
 from distutils.util import strtobool  # noqa
 from yaml.loader import SafeLoader
 
-registerYaml = './tests/resources/112rPF.json'
-
 ###############################################################################
 # 1.a  General Django Configuration
 ###############################################################################
@@ -139,18 +137,12 @@ with open(os.path.join(os.path.dirname(PROJECT_PATH), 'rodan/registerJobs.yaml')
     allJobs = yaml.load(file, Loader=SafeLoader)
 
 # Job Packages
-
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
-BASE_JOB_PACKAGES = [
-    allJobs['BASE_JOB_PACKAGES']
-]
-RODAN_PYTHON3_JOBS = [
-    allJobs['RODAN_PYTHON3_JOBS']
-]
-RODAN_GPU_JOBS = [
-    allJobs['RODAN_GPU_JOBS']
-]
+
+BASE_JOB_PACKAGES = [base_jobs for base_jobs in allJobs['BASE_JOB_PACKAGES']]
+RODAN_PYTHON3_JOBS = [py3_jobs for py3_jobs in allJobs['RODAN_PYTHON3_JOBS']]
+RODAN_GPU_JOBS = [gpu_jobs for gpu_jobs in allJobs['RODAN_GPU_JOBS']]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
     # All the jobs must be registered in the database, so all jobs must be here.
