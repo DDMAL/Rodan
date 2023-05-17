@@ -8,7 +8,7 @@ from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import Resolver404, resolve
+from django.urls import reverse, Resolver404
 
 from rest_framework import generics
 from rest_framework import permissions
