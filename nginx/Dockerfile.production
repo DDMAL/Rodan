@@ -1,4 +1,4 @@
-FROM ddmal/nginx:client
+FROM ddmal/nginx:nightly
 ARG SERVER_HOST
 
 # [TODO] Run basic config test. It will check to make sure hosts upstream are online.
