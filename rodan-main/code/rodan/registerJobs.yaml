@@ -2,7 +2,7 @@
 
 "BASE_JOB_PACKAGES" : {
   "rodan.jobs.resource_distributor" : ["ResourceDistributor"],
-  "rodan.jobs.labeler" : [ "labeler" ] }
+  "rodan.jobs.labeler" : [ "Labeler" ] }
 
 "RODAN_PYTHON3_JOBS": {
     "rodan.jobs.helloworld": {
@@ -28,7 +28,7 @@
           "ClassificationTask"
         ],
         "rodan.jobs.gamera_rodan.wrappers.plugins.binarization": [
-          "gamera_batos_background",
+          "gamera_gatos_background",
           "gamera_gatos_threshold",
           "gamera_brink_threshold",
           "gamera_sauvola_threshold",
@@ -86,11 +86,6 @@
       "rodan.jobs.gamera_rodan.wrappers.masking": [
         "GameraMaskLogicalAnd",
         "GameraMaskLogicalXor"
-      ],
-
-      "rodan.jobs.diagonal_neume_slicing.base": [
-        "diagonalNeumeSlicing",
-        "DirtyLayerRepair"
       ]
 
     },
@@ -105,7 +100,7 @@
     
     "rodan.jobs.MEI_encoding": {
         "rodan.jobs.MEI_encoding.MEI_encoding": [
-          "import MEI_encoding"
+          "MEI_encoding"
         ] 
     },
 
@@ -118,11 +113,16 @@
 
     "rodan.jobs.diagonal_neume_slicing": {
         "rodan.jobs.diagonal_neume_slicing.base" : [
-          "DiagonalNeumeSlicing"
+          "DiagonalNeumeSlicing",
+          "DirtyLayerRepair"
         ]
     },
 
-    "rodan.jobs.MEI_resizing",
+    "rodan.jobs.MEI_resizing":{
+        "rodan.jobs.MEI_resizing.mei_resize" : [ 
+          "MEI_Resize"
+        ]
+    },
     "rodan.jobs.neon_wrapper": {
         "rodan.jobs.neon_wrapper.wrapper" : [ 
           "Neon"
@@ -133,15 +133,9 @@
         "rodan.jobs.pixel_wrapper.wrapper": [ 
           "PixelInteractive"
           ]
-    },
-
-    "rodan.jobs.mei2vol_wrapper": {
-        "rodan.jobs.mei2vol_wrapper.m2v_wrapper": [ 
-          "MEI2Vol"
-        ]
+    }
       
     }
-}
 
 "RODAN_GPU_JOBS": {
     "rodan.jobs.Calvo_classifier": {
