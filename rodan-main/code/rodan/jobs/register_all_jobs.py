@@ -4,7 +4,7 @@ from yaml.loader import SafeLoader
 
 import os
 import environ
-
+import importlib
 """
 Script for registering Rodan jobs with Celery, split into their respective queues
 """
@@ -33,24 +33,25 @@ def register_base():
     for path in allJobs['BASE_JOB_PACKAGES']:
         for base_job in allJobs['BASE_JOB_PACKAGES'][path]:
             try: 
-                from path import base_job as job_name
-                
-                app.register_task(job_name())
+                # from path import base_job as job_name
+                j = getattr(importlib.import_module(path), base_job)                
+                app.register_task(j)
 
             except Exception as exception:
                 print(base_job + " failed to import with the following error:",  exception.__class__.__name__)
 
 # Python3 Jobs
 def register_py3():
-    for path in allJobs['RODAN_PYTHON3_JOBS']:
-        for py3_job in allJobs['RODAN_PYTHON3_JOBS'][path]:
-            try: 
-                from path import py3_job as job_name
-                
-                app.register_task(job_name())
+    for pack in allJobs['RODAN_PYTHON3_JOBS']:
+        for path in allJobs['RODAN_PYTHON3_JOBS'][pack]:
+            for py3_job in allJobs['RODAN_PYTHON3_JOBS'][pack][path]:
+                try: 
+                    #from path import py3_job as job_name
+                    j = getattr(importlib.import_module(path), py3_job)  
+                    app.register_task(j)
 
-            except Exception as exception:
-                print(py3_job + " failed to import with the following error:",  exception.__class__.__name__)
+                except Exception as exception:
+                    print(py3_job + " failed to import with the following error:",  exception.__class__.__name__)
 
 
     # Register Hello World
