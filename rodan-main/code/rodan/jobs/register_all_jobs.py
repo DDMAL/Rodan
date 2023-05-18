@@ -1,12 +1,23 @@
 from rodan.celery import app
+import yaml
+from yaml.loader import SafeLoader
+
+import os
+import environ
 
 """
 Script for registering Rodan jobs with Celery, split into their respective queues
 """
+ROOT_DIR = environ.Path(__file__) - 2
+PROJECT_PATH = ROOT_DIR.path("rodan")
 
 # Open the file and load the file
-with open(os.path.join(os.path.dirname(PROJECT_PATH), 'rodan/registerJobs.yaml')) as file:
+with open(os.path.join(os.path.dirname(PROJECT_PATH), 'registerJobs.yaml')) as file:
     allJobs = yaml.load(file, Loader=SafeLoader)
+
+BASE_JOB_PACKAGES = [base_jobs for base_jobs in allJobs['BASE_JOB_PACKAGES']]
+RODAN_PYTHON3_JOBS = [py3_jobs for py3_jobs in allJobs['RODAN_PYTHON3_JOBS']]
+RODAN_GPU_JOBS = [gpu_jobs for gpu_jobs in allJobs['RODAN_GPU_JOBS']]
 
 # Register all jobs
 def register_all():
@@ -20,7 +31,7 @@ def register_all():
 def register_base():
 
     for path in allJobs['BASE_JOB_PACKAGES']:
-        for base_job in allJobs['BASE_JOB_PACKAGES]'][path]
+        for base_job in allJobs['BASE_JOB_PACKAGES'][path]:
             try: 
                 from path import base_job as job_name
                 
@@ -32,7 +43,7 @@ def register_base():
 # Python3 Jobs
 def register_py3():
     for path in allJobs['RODAN_PYTHON3_JOBS']:
-        for py3_job in allJobs['RODAN_PYTHON3_JOBS]'][path]
+        for py3_job in allJobs['RODAN_PYTHON3_JOBS'][path]:
             try: 
                 from path import py3_job as job_name
                 
