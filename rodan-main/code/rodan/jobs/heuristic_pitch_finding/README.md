@@ -27,7 +27,7 @@ RODAN_JOB_PACKAGES = (
 
 ## Running Rodan
 - Follow the [rodan-docker guide](https://github.com/DDMAL/rodan-docker/blob/master/README.md) to have docker set up.
-- Once the above installation steps are complete, run ```docker-compose -f docker-compose.yml -f docker-compose.rodan-dev.yml up``` 
+- Once the above installation steps are complete, run ```docker compose -f docker-compose.yml -f docker-compose.rodan-dev.yml up``` 
 
 ## Job Usage
 - To properly setup the pitch finding workflow, connect the *JSOMR* output from a `Miyao Staff Finding` job to the *JSOMR* input of a `Heuristic Pitch Finding` job. 
