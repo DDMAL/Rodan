@@ -429,15 +429,15 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
         if tag == "neume":
             syl_dict["neume_added"] = True
 
-def find_next_glyph_of_type(all_glyphs, glyph, glyph_type):
+def index_of_next_glyph_of_type(all_glyphs, glyph_type, starting_index = 0):
     '''
-    Given a glyph, finds the next glyph of glyph_type. If there is no next neume, returns None.
+    Given a glyph and a list of glyphs, returns the index and glyph of the next glyph of glyph_type as a tuple (index, glyph). 
+    Returns None is there are no glyphs after starting_index with type glyph_type.
         @all_glyphs: A list of all glyphs in the document in sequence.
-        @glyph: The glyph relative to which we find the next glyph.
         @glyph_type: The type of the glyph we are looking for.
+        @starting_index: The index in all_glyphs to start looking from.
     '''
-    index = all_glyphs.index(glyph)
-    return next((g for g in all_glyphs[index:] if glyph_type in g['name']), None)
+    return next((index for index, glyph in enumerate(all_glyphs) if index >= starting_index and glyph_type in glyph['name']), None)
 
 def flatten_list(list):
     '''
@@ -445,6 +445,31 @@ def flatten_list(list):
         @list: The list to be flattened.
     '''
     return [item for sublist in list for item in sublist]
+
+def get_custos_pitch_heuristic(all_glyphs, custos_glyph, max_distance_to_next_clef = 5):
+    '''
+    Given a custos glyph, tries to determine what it's pitch should be based on subsequent glyphs. Returns the pitch as a tuple (note, octave).
+    This is a very naive implementation: We look for a clef glyph within max_distance_to_next_clef glyphs, then look for the next neume glyph after that. 
+    If we find both, it returns the pitch of the neume glyph. Otherwise, it returns the original pitch.
+        @all_glyphs: A list of all glyphs in the document in sequence.
+        @custos_glyph: The custos glyph.
+        @max_distance_to_next_clef: The maximum distance to look for a clef glyph after the custos glyph.
+    '''
+
+    current_pitch = (custos_glyph["note"], custos_glyph["octave"])
+    custos_index = all_glyphs.index(custos_glyph)
+
+    next_clef_index = index_of_next_glyph_of_type(all_glyphs, "clef", custos_index + 1)
+    if (next_clef_index is None or next_clef_index - custos_index > max_distance_to_next_clef):
+        return current_pitch
+
+    next_neume_index = index_of_next_glyph_of_type(all_glyphs, "neume", next_clef_index + 1)
+    
+    if (next_neume_index is None):
+        return current_pitch
+    
+    next_neume_glyph = all_glyphs[next_neume_index]
+    return (next_neume_glyph["note"], next_neume_glyph["octave"])
 
 def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
@@ -516,10 +541,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         for i, glyph in enumerate(gs):
             # if the glyph is a custos, we override its pitch information using the next neume
             if glyph["name"] == "custos":
-                next_neume_glyph = find_next_glyph_of_type(all_glyphs, glyph, "neume")
-                if next_neume_glyph is not None:
-                    glyph["note"] = next_neume_glyph["note"]
-                    glyph["octave"] = next_neume_glyph["octave"]
+                note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
+                glyph["note"] = note
+                glyph["octave"] = octave
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
