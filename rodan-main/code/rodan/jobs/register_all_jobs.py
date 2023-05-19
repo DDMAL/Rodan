@@ -34,8 +34,8 @@ def register_base():
         for base_job in allJobs['BASE_JOB_PACKAGES'][path]:
             try: 
                 # from path import base_job as job_name
-                j = getattr(importlib.import_module(path), base_job)                
-                app.register_task(j)
+                job_class = getattr(importlib.import_module(path), base_job)                
+                app.register_task(job_class)
 
             except Exception as exception:
                 print(base_job + " failed to import with the following error:",  exception.__class__.__name__)
@@ -47,13 +47,24 @@ def register_py3():
             for py3_job in allJobs['RODAN_PYTHON3_JOBS'][pack][path]:
                 try: 
                     #from path import py3_job as job_name
-                    j = getattr(importlib.import_module(path), py3_job)  
-                    app.register_task(j)
+                    job_class = getattr(importlib.import_module(path), py3_job)  
+                    app.register_task(job_class)
 
                 except Exception as exception:
                     print(py3_job + " failed to import with the following error:",  exception.__class__.__name__)
 
 
+def register_gpu():
+    for pack in allJobs["RODAN_GPU_JOBS"]:
+        for path in allJobs["RODAN_GPU_JOBS"][pack]:
+            for gpu_job in allJobs["RODAN_GPU_JOBS"][pack][path]:
+                try: 
+                    #from path import py3_job as job_name
+                    job_class = getattr(importlib.import_module(path), gpu_job)  
+                    app.register_task(job_class)
+
+                except Exception as exception:
+                    print(gpu_job + " failed to import with the following error:",  exception.__class__.__name__)
     # Register Hello World
 #     try:
 #         from rodan.jobs.helloworld.helloworld import HelloWorld
@@ -449,85 +460,85 @@ def register_py3():
 #         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 # GPU Jobs
-def register_gpu():
+# def register_gpu():
 
-    # Register Calvo
-    try:
-        from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
+#     # Register Calvo
+#     try:
+#         from rodan.jobs.Calvo_classifier.calvo_classifier import CalvoClassifier
 
-        app.register_task(CalvoClassifier())
-    except Exception as exception:
-        import_name = "Calvo Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(CalvoClassifier())
+#     except Exception as exception:
+#         import_name = "Calvo Classifier"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    try:
-        from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
+#     try:
+#         from rodan.jobs.Calvo_classifier.calvo_trainer import CalvoTrainer
 
-        app.register_task(CalvoTrainer())
-    except Exception as exception:
-        import_name = "Calvo Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(CalvoTrainer())
+#     except Exception as exception:
+#         import_name = "Calvo Trainer"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
-            FastCalvoClassifier,
-        )
+#     try:
+#         from rodan.jobs.Calvo_classifier.fast_calvo_classifier import (
+#             FastCalvoClassifier,
+#         )
 
-        app.register_task(FastCalvoClassifier())
-    except Exception as exception:
-        import_name = "Fast Calvo Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(FastCalvoClassifier())
+#     except Exception as exception:
+#         import_name = "Fast Calvo Classifier"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    try:
-        from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
+#     try:
+#         from rodan.jobs.Calvo_classifier.fast_calvo_trainer import FastCalvoTrainer
 
-        app.register_task(FastCalvoTrainer())
-    except Exception as exception:
-        import_name = "Fast Calvo Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(FastCalvoTrainer())
+#     except Exception as exception:
+#         import_name = "Fast Calvo Trainer"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Text Alignment
-    try:
-        from rodan.jobs.text_alignment.text_alignment import text_alignment
+#     # Register Text Alignment
+#     try:
+#         from rodan.jobs.text_alignment.text_alignment import text_alignment
 
-        app.register_task(text_alignment())
-    except Exception as exception:
-        import_name = "Text Alignment"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(text_alignment())
+#     except Exception as exception:
+#         import_name = "Text Alignment"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Paco's Trainer
-    try:
-        from rodan.jobs.Paco_classifier.fast_paco_trainer import FastPacoTrainer
+#     # Register Paco's Trainer
+#     try:
+#         from rodan.jobs.Paco_classifier.fast_paco_trainer import FastPacoTrainer
 
-        app.register_task(FastPacoTrainer())
-    except Exception as exception:
-        import_name = "Paco Trainer"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(FastPacoTrainer())
+#     except Exception as exception:
+#         import_name = "Paco Trainer"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register Paco's Classifier
-    try:
-        from rodan.jobs.Paco_classifier.fast_paco_classifier import FastPacoClassifier
+#     # Register Paco's Classifier
+#     try:
+#         from rodan.jobs.Paco_classifier.fast_paco_classifier import FastPacoClassifier
 
-        app.register_task(FastPacoClassifier())
-    except Exception as exception:
-        import_name = "Paco Classifier"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#         app.register_task(FastPacoClassifier())
+#     except Exception as exception:
+#         import_name = "Paco Classifier"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register background_removal
-    try:
-        from rodan.jobs.background_removal.BgRemovalRodan import BgRemoval
-        app.register_task(BgRemoval())
-    except Exception as exception:
-        import_name = "Background Removal"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#     # Register background_removal
+#     try:
+#         from rodan.jobs.background_removal.BgRemovalRodan import BgRemoval
+#         app.register_task(BgRemoval())
+#     except Exception as exception:
+#         import_name = "Background Removal"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
-    # Register SAE binarization
-    try:
-        from rodan.jobs.SAE_binarization.SAE_binarization import SAE_binarization
-        app.register_task(SAE_binarization())
-    except Exception as exception:
-        import_name = "SAE binarization"
-        print(import_name + " failed to import with the following error:", exception.__class__.__name__)
+#     # Register SAE binarization
+#     try:
+#         from rodan.jobs.SAE_binarization.SAE_binarization import SAE_binarization
+#         app.register_task(SAE_binarization())
+#     except Exception as exception:
+#         import_name = "SAE binarization"
+#         print(import_name + " failed to import with the following error:", exception.__class__.__name__)
 
 
 if __name__ == "__main__":

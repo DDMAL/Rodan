@@ -153,7 +153,7 @@
     },
 
     "rodan.jobs.Paco_classifier" : {
-        "rodan.jobs.Paco_classifier.fast_paco_trainer" : [ "FastPacoTrainer "],
+        "rodan.jobs.Paco_classifier.fast_paco_trainer" : [ "FastPacoTrainer"],
         "rodan.jobs.Paco_classifier.fast_paco_classifier" : [ "FastPacoClassifier" ]
     },
 
