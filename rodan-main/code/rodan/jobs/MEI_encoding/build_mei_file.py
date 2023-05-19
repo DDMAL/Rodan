@@ -429,6 +429,23 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
         if tag == "neume":
             syl_dict["neume_added"] = True
 
+def find_next_glyph_of_type(all_glyphs, glyph, glyph_type):
+    '''
+    Given a glyph, finds the next glyph of glyph_type. If there is no next neume, returns None.
+        @all_glyphs: A list of all glyphs in the document in sequence.
+        @glyph: The glyph relative to which we find the next glyph.
+        @glyph_type: The type of the glyph we are looking for.
+    '''
+    index = all_glyphs.index(glyph)
+    return next((g for g in all_glyphs[index:] if glyph_type in g['name']), None)
+
+def flatten_list(list):
+    '''
+    Flattens a list of lists.
+        @list: The list to be flattened.
+    '''
+    return [item for sublist in list for item in sublist]
+
 def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
     Encodes the final MEI document using:
@@ -469,6 +486,12 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     sb.set('facs', '#' + zoneId)
     layer.append(sb)
 
+    # The flattened list of glyphs is used to search for the next neume after a custos.
+    # we look forwards instead of storing the last custos because we simply updating an 
+    # element that has already been added to the layer doesn't work. We would have to find 
+    # it by id in the layer's children.
+    all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
+
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
         # print (gs)
@@ -491,7 +514,12 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
-            
+            # if the glyph is a custos, we override its pitch information using the next neume
+            if glyph["name"] == "custos":
+                next_neume_glyph = find_next_glyph_of_type(all_glyphs, glyph, "neume")
+                if next_neume_glyph is not None:
+                    glyph["note"] = next_neume_glyph["note"]
+                    glyph["octave"] = next_neume_glyph["octave"]
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
@@ -512,9 +540,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             # 3. a line break and done with this syllable (everything gets added to layer)
             # 4. a line break and not done with this syllable 
                 # Same cases a to e (with added line break) 
-            
-            tag = new_element.tag 
-        
+
+            tag = new_element.tag
+
             if not glyph['system_begin']:
 
                 # case 1
