@@ -1,0 +1,1 @@
+calamari-train --train.images consolidated_salzinnes/*.png --trainer.output_dir new_model --trainer.write_checkpoints True --n_augmentations=10 --trainer.gen SplitTrain --trainer.preload_data True --network=conv=40:3x3,pool=2x2,conv=60:3x3,pool=2x2,conv=120,lstm=200,lstm=200,lstm=200,dropout=0.5
