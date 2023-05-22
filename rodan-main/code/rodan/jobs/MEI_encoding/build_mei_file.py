@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from hashlib import new
-from typing import Optional, cast
+from typing import List, Optional, Tuple, cast
 from uuid import uuid4
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more concise?
@@ -31,7 +31,7 @@ def new_el(name: str, p: Optional[Element] = None):
         element.set("xml:id", 'm-'+str(uuid4()))
         return element
 
-def add_flags_to_glyphs(glyphs: list[dict]):
+def add_flags_to_glyphs(glyphs: List[dict]):
     '''
     Given the raw list of glyphs from pitch-finding containing position and classification
     information, add some information to the data structure. This lets us tell more easily where
@@ -74,7 +74,7 @@ def add_flags_to_glyphs(glyphs: list[dict]):
 
     return glyphs
 
-def neume_to_lyric_alignment(glyphs: list[dict], syl_boxes: list[dict], median_line_spacing: float):
+def neume_to_lyric_alignment(glyphs: List[dict], syl_boxes: List[dict], median_line_spacing: float):
     '''
     Given the processed glyphs from add_flags_to_glyphs and the information from the text alignment
     job (syl_boxes, median_line_spacing), finds out which syllables of text correspond to which
@@ -426,7 +426,7 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
                 cur_syllable.append(new_element)
                 add_to_layer(syl_dict, tag, layer, cur_syllable)
 
-def build_mei(pairs: list[tuple[list[dict], dict]], classifier: dict, width_container: dict, staves: list[dict], page: dict):
+def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
     Encodes the final MEI document using:
         @pairs: Pairs from the neume_to_lyric_alignment.
@@ -599,13 +599,13 @@ def merge_nearby_neume_components(meiDoc: ET.ElementTree, width_mult: float):
         children = list(syllable) # need to only get all the direct children! 
         
         # holds children of the current syllable that will be added to target
-        accumulator: list[Element] = []
+        accumulator: List[Element] = []
 
         # holds the first neume in a sequence of neumes that will be merged
         target: Optional[Element] = None
 
         # holds children once in the accumulator that must be removed after iteration is done
-        children_to_remove: list[Element] = []
+        children_to_remove: List[Element] = []
 
         # iterate over all children. for each neume decide whether or not it should be merged
         # with the next one using compare_neumes. if yes, add the next one to the accumulator.
