@@ -1,4 +1,7 @@
-from rest_framework import generics, filters
+from rest_framework import generics
+import django_filters.rest_framework as filters
+from rest_framework.filters import OrderingFilter
+
 from rest_framework import permissions
 from rodan.models import ResourceType
 from rodan.serializers.resourcetype import ResourceTypeSerializer
@@ -15,13 +18,14 @@ class ResourceTypeList(generics.ListAPIView):
     queryset = ResourceType.objects.all()
     serializer_class = ResourceTypeSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
     filter_fields = {
         "mimetype": ["exact", "icontains"],
         "uuid": ["exact"],
         "extension": ["exact"],
         "description": ["icontains"],
     }
+
 
 
 class ResourceTypeDetail(generics.RetrieveAPIView):

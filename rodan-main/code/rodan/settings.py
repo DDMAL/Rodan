@@ -363,14 +363,14 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": (
         # "django_filters.rest_framework.DjangoObjectPermissionsFilter", DEPRECATED
         "django_filters.rest_framework.DjangoFilterBackend",
-        "django_filters.rest_framework.OrderingFilter"
+        "rest_framework.filters.OrderingFilter"
     ),
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 
 # used by django-guardian
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",  # default
+    "django.contrib.auth.backends.ModelBackend",  # defaults
     "guardian.backends.ObjectPermissionBackend",
 ]
 # [TODO] This is completely depricated.
