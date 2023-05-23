@@ -86,9 +86,6 @@ def process(
     image, eroded, angle = preproc.preprocess_images(raw_image)
     cc_strips, lines_peak_locs, _ = preproc.identify_text_lines(eroded)
 
-    io.imsave("./debug_images/image_from_preproc.png", image)
-    io.imsave("./debug_images/eroded_from_preproc.png", eroded)
-
     assert (
         len(cc_strips) > 0
     ), "Fatal error: No text strips were found on the given page."
