@@ -35,7 +35,8 @@ def read_file(fname):
 
 
 def rotate_bbox(cbox, angle, pivot, radians=False):
-    px, py = pivot
+    #print("\n\nthepivot: ",pivot,"\n\n")
+    py, px = pivot  
 
     if not radians:
         angle = angle * np.pi / 180
@@ -43,16 +44,24 @@ def rotate_bbox(cbox, angle, pivot, radians=False):
     s = np.sin(angle)
     c = np.cos(angle)
 
-    old_ulx = cbox.ulx
-    old_uly = cbox.uly
-    old_lrx = cbox.lrx
-    old_lry = cbox.lry
+    #swap x and y because array coordinates are in the form [y,x]
+    old_ulx = cbox.ulx - px
+    old_uly = -cbox.uly + py
+    old_lrx = cbox.lrx - px
+    old_lry = -cbox.lry + py
 
     # rotate using a 2d rotation matrix
     new_ulx = (old_ulx * c) - (old_uly * s)
     new_uly = (old_ulx * s) + (old_uly * c)
+
     new_lrx = (old_lrx * c) - (old_lry * s)
     new_lry = (old_lrx * s) + (old_lry * c)
+
+    new_ulx += px
+    new_uly = -(new_uly - py)
+    new_lrx += px
+    new_lry = -(new_lry - py)
+
 
     new_ul = np.round([new_ulx, new_uly]).astype('int16')
     new_lr = np.round([new_lrx, new_lry]).astype('int16')
@@ -77,6 +86,9 @@ def process(raw_image,
     image, eroded, angle = preproc.preprocess_images(raw_image)
     cc_strips, lines_peak_locs, _ = preproc.identify_text_lines(eroded)
 
+    io.imsave("./debug_images/image_from_preproc.png",image)
+    io.imsave("./debug_images/eroded_from_preproc.png",eroded)
+
     assert len(cc_strips) > 0, "Fatal error: No text strips were found on the given page."
 
     # -- PERFORM OCR WITH CALAMARI --
@@ -91,7 +103,7 @@ def process(raw_image,
     # get full ocr transcript as CharBoxes
     ocr = ''.join(x.char for x in all_chars)
     all_chars_copy = list(all_chars)
-
+    #print(ocr)
     # remove special characters, but maintain case
     transcript = latsyl.clean_transcript(transcript)
 
@@ -104,6 +116,10 @@ def process(raw_image,
         )
     tra_align = ''.join(tra_align)
     ocr_align = ''.join(ocr_align)
+
+    print(tra_align)
+    print("---------------------------------------------------------------------------------------------")
+    print(ocr_align)
 
     # -- SPLIT INTO SYLLABLES --
     print('syllabifying...')
@@ -140,6 +156,11 @@ def process(raw_image,
         end = syl_match.end() + current_offset
         current_offset = end
         align_boxes = [x for x in all_chars[start:end] if x.lr is not None]
+        # align_boxes = []
+        # for x in all_chars[start:end]:
+        #     align_boxes.append(x)
+        #     if x.lr is None:
+        #         print("empty lr!!!")
 
         # if align_boxes is empty then this syllable got aligned to nothing in the ocr. ignore it.
         if not align_boxes:
@@ -159,7 +180,7 @@ def process(raw_image,
     # finally, rotate syl_boxes back by the angle that the page was rotated by
     pivot = (image.shape[0] // 2, image.shape[1] // 2)
     for i in range(len(syl_boxes)):
-        syl_boxes[i] = rotate_bbox(syl_boxes[i], angle, pivot)
+        syl_boxes[i] = rotate_bbox(syl_boxes[i], -angle, pivot)
 
     return syl_boxes, image, lines_peak_locs, all_chars_copy
 
@@ -203,8 +224,8 @@ def draw_results_on_page(image, syl_boxes, lines_peak_locs, out_fname):
         lr = cbox.lr
         draw.rectangle([ul[0], ul[1] - text_size, ul[0] + text_size * len(cbox.char) * 0.6, ul[1]], fill='white')
         draw.text((ul[0], ul[1] - text_size), cbox.char, font=fnt, fill='black')
-        draw.rectangle([ul, lr], outline='black')
-        draw.line([ul[0], ul[1], ul[0], lr[1]], fill='black', width=5)
+        draw.rectangle([ul, lr], outline='white')
+        draw.line([ul[0], ul[1], ul[0], lr[1]], fill='white', width=5)
 
     # for i, peak_loc in enumerate(lines_peak_locs):
     #     draw.text((1, peak_loc - text_size), 'line {}'.format(i), font=fnt, fill='gray')
