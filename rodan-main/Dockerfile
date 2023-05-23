@@ -10,9 +10,9 @@ RUN \
   && mkdir /vendor || echo "Already exists" \
   && apt update \
   && apt -q install -y \
-    libopenjp2-7 \
-    libopenjp2-7-dev \
-    libopenjp2-tools
+  libopenjp2-7 \
+  libopenjp2-7-dev \
+  libopenjp2-tools
 
 # We need make to compile Grok.
 RUN apt-get install -y make

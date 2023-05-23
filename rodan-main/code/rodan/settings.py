@@ -3,11 +3,12 @@ Rodan settings. Remember to set your environment variables.
 """
 import os
 import sys
+import yaml
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
 from distutils.util import strtobool  # noqa
-
+from yaml.loader import SafeLoader
 
 ###############################################################################
 # 1.a  General Django Configuration
@@ -130,35 +131,18 @@ RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 ###############################################################################
 # 1.c  Rodan Job Package Registration
 ###############################################################################
+
+# Open the file and load the file
+with open(os.path.join(os.path.dirname(PROJECT_PATH), 'rodan/registerJobs.yaml')) as file:
+    allJobs = yaml.load(file, Loader=SafeLoader)
+
 # Job Packages
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
-BASE_JOB_PACKAGES = [
-    "rodan.jobs.resource_distributor",
-    "rodan.jobs.labeler",
-]
-RODAN_PYTHON3_JOBS = [
-    "rodan.jobs.helloworld",
-    "rodan.jobs.MEI_encoding",
-    "rodan.jobs.pil_rodan",
-    "rodan.jobs.mei2vol_wrapper",
-    "rodan.jobs.gamera_rodan",
-    "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.biollante_rodan",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.diagonal_neume_slicing",
-    "rodan.jobs.MEI_resizing",
-    "rodan.jobs.neon_wrapper",
-    "rodan.jobs.pixel_wrapper",
-    "rodan.jobs.mei2vol_wrapper"
-]
-RODAN_GPU_JOBS = [
-    "rodan.jobs.Calvo_classifier",
-    "rodan.jobs.text_alignment",
-    "rodan.jobs.Paco_classifier",
-    "rodan.jobs.background_removal",
-    "rodan.jobs.SAE_binarization"
-]
+
+BASE_JOB_PACKAGES = [base_jobs for base_jobs in allJobs['BASE_JOB_PACKAGES']]
+RODAN_PYTHON3_JOBS = [py3_jobs for py3_jobs in allJobs['RODAN_PYTHON3_JOBS']]
+RODAN_GPU_JOBS = [gpu_jobs for gpu_jobs in allJobs['RODAN_GPU_JOBS']]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
     # All the jobs must be registered in the database, so all jobs must be here.
