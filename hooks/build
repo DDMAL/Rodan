@@ -59,7 +59,7 @@ docker build \
   --file ./rodan-main/Dockerfile \
   .
 
-# echo "[+] Building iipsrv"
+echo "[+] Building iipsrv"
 
 docker build \
   --no-cache \
