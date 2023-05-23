@@ -2,4 +2,6 @@
 <td><%= current %></td>
 <td><%= minimum %></td>
 <td><%= maximum %></td>
-<td><button class="btn btn-xs btn-warning" id="button-new_outputport" <% if (current >= maximum) {%> disabled <%} %>>Add</button></td>
+<td>
+    <button class="btn btn-xs btn-warning" id="button-new_outputport" <% if (current >= maximum && maximum !== 0) {%> disabled <%} %>>Add</button>
+</td>

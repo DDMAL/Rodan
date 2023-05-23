@@ -3,5 +3,5 @@
 <td><%= minimum %></td>
 <td><%= maximum %></td>
 <td>
-    <button class="btn btn-xs btn-warning" id="button-new_inputport" <% if (current >= maximum) {%> disabled <%} %>>Add</button>
+    <button class="btn btn-xs btn-warning" id="button-new_inputport" <% if (current >= maximum && maximum !== 0) {%> disabled <%} %>>Add</button>
 </td>
