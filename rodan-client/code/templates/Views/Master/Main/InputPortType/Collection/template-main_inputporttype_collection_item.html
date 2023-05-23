@@ -1,4 +1,7 @@
 <td><%= name %></td>
+<td><%= current %></td>
 <td><%= minimum %></td>
 <td><%= maximum %></td>
-<td><button class="btn btn-xs btn-warning" id="button-new_inputport">Add</button></td>
+<td>
+    <button class="btn btn-xs btn-warning" id="button-new_inputport" <% if (current >= maximum) {%> disabled <%} %>>Add</button>
+</td>

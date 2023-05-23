@@ -21,6 +21,15 @@ export default class ViewInputPortTypeCollectionItem extends BaseViewCollectionI
     {
         this._workflowJob = options.workflowjob;
         this._workflow = options.workflow;
+        this._inputPorts = this._workflowJob.get("input_ports");
+        this._inputPorts.on("change add remove reset", () => this._handleInputPortsChange());
+    }
+
+    templateContext() 
+    {
+        return {
+            current: this._getCurrentInputPortCount()
+        };
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +41,16 @@ export default class ViewInputPortTypeCollectionItem extends BaseViewCollectionI
     _handleButtonNewInputPort()
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_ADD_INPUTPORT, {inputporttype: this.model, workflowjob: this._workflowJob, workflow: this._workflow});
+    }
+
+    _handleInputPortsChange()
+    {
+        this.render(); // We need to re-render if the the job's input port changes to update the current count.
+    }
+
+    _getCurrentInputPortCount()
+    {
+        return this._inputPorts.where({ input_port_type: this.model.get("url") }).length;
     }
 }
 ViewInputPortTypeCollectionItem.prototype.tagName = 'tr';
