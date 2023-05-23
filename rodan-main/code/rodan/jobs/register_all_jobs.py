@@ -66,7 +66,5 @@ def register_gpu():
                 except Exception as exception:
                     print(gpu_job + " failed to import with the following error:",  exception.__class__.__name__)
 
-
-
 if __name__ == "__main__":
     register_all()

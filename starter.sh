@@ -2,12 +2,12 @@
 osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "t" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && make run_arm
 "' 
 sleep 30 
-osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec rodan-main /run/start
+osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker compose exec rodan-main /run/start
 "' 
 sleep 30 
-osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec celery /run/start-celery
+osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker compose exec celery /run/start-celery
 "' 
-osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker-compose exec py3-celery /run/start-celery
+osascript -e 'tell application "iTerm" to activate' -e 'tell application "System Events" to tell process "iTerm" to keystroke "d" using command down' -e 'tell application "System Events" to tell process "iTerm" to keystroke "cd ~/Desktop/Rodan && docker compose exec py3-celery /run/start-celery
 "' 
 echo "######### DEPLOYED #########"
 sleep 20
