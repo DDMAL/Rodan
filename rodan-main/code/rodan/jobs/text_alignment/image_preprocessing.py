@@ -11,8 +11,8 @@ from skimage.segmentation import flood_fill
 
 
 # PARAMETERS FOR PREPROCESSING
-soften_amt = 5          # size of gaussian blur to apply before taking threshold
-fill_holes = 5          # size of kernel used for morphological operations when despeckling
+soften_amt_deafult = 5          # size of gaussian blur to apply before taking threshold
+fill_holes_deafult = 5          # size of kernel used for morphological operations when despeckling
 
 # PARAMETERS FOR TEXT LINE SEGMENTATION
 filter_size = 30                # size of moving-average filter used to smooth projection
@@ -151,13 +151,35 @@ def fill_corners(input_image, fill_value=0, thresh=1, tol=None, fill_below_thres
 
     return input_image
 
+def get_scaling_ratio(img):
+    '''
+    Experimentally is has been determined that good values for soften_amt_deafult and fill_holes_deafult
+    are both 5 for an image with dimensions 4872x6496. To make preprocessing immune to scaling,
+    it is necessary to resize these values by the ratio of the known healthy case to the input image
+    size.
+    '''
 
-def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
+    healthy_img_area = 4872*6496
+    input_img_area = img.shape[0] * img.shape[1]
+    ratio = input_img_area / healthy_img_area
+    return ratio
+
+def preprocess_images(input_image, soften=None, fill_holes=None):
     '''
     Perform some softening / erosion / binarization on the text layer. Additionally, finds the
     optimal angle for rotation and returns a "cleaned" rotated version along with a raw, binarized
     rotated version.
     '''
+    ratio = get_scaling_ratio(input_image)
+    if(soften==None):   
+        soften = soften_amt_deafult * ratio
+        if(soften < 1):
+            soften = 1
+    if(fill_holes==None):
+        fill_holes = round(fill_holes_deafult * ratio)
+        if(fill_holes < 1):
+            fill_holes = 1
+    print(soften,fill_holes)
 
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
@@ -175,18 +197,33 @@ def preprocess_images(input_image, soften=soften_amt, fill_holes=fill_holes):
     img_bin = img_as_ubyte(gray_img < thresh)
     img_blur_bin = img_as_ubyte(img_as_ubyte(gaussian(gray_img, soften)) < thresh)
 
+    #debug save 1
+    # io.imsave("debug_images/image1.png",img_bin)
+    # io.imsave("debug_images/eroded1.png",img_blur_bin)
+
     # now, fill corners of binarized images with black (value 0)
     img_bin = fill_corners(img_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
     img_blur_bin = fill_corners(img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
+
+    #debug save 2
+    # io.imsave("debug_images/image2.png",img_bin)
+    # io.imsave("debug_images/eroded2.png",img_blur_bin)
 
     # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
 
+    #debug save 3
+    # io.imsave("debug_images/eroded3.png",img_cleaned)
+
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
     img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode='edge') > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode='edge') > 0
+
+    #debug save 4
+    # io.imsave("debug_images/image4.png",img_bin_rot)
+    # io.imsave("debug_images/eroded4.png",img_cleaned_rot)
 
     return img_bin_rot, img_cleaned_rot, angle
 
@@ -361,7 +398,7 @@ if __name__ == '__main__':
         print('processing {}...'.format(fname))
         input_image = io.imread(os.path.join(in_folder, fname))
 
-        img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt, fill_holes=3)
+        img_bin, img_eroded, angle = preprocess_images(input_image, soften=soften_amt_deafult, fill_holes_deafult=3)
 
         line_strips, lines_peak_locs, proj = identify_text_lines(img_eroded, widen_strips_factor=widen_strips, filter_size=letter_height//2)
         out_fname = os.path.join(out_folder, f'preproc_{fname}')
