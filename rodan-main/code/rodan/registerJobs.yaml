@@ -104,12 +104,6 @@
         ] 
     },
 
-    "rodan.jobs.hpc_fast_trainer": {
-        "rodan.jobs.hpc_fast_trainer.hpc_fast_trainer": [
-            "HPCFastTrainer" 
-        ]
-    },
-
 
     "rodan.jobs.diagonal_neume_slicing": {
         "rodan.jobs.diagonal_neume_slicing.base" : [
@@ -143,9 +137,7 @@
 
         "rodan.jobs.Calvo_classifier.calvo_trainer" : [ "CalvoTrainer" ],
 
-        "rodan.jobs.Calvo_classifier.fast_calvo_classifier" : [ "FastCalvoClassifier" ],
-
-        "rodan.jobs.Calvo_classifier.fast_calvo_trainer" : [ "FastCalvoTrainer" ]
+        "rodan.jobs.Calvo_classifier.fast_calvo_classifier" : [ "FastCalvoClassifier" ]
     }, 
 
     "rodan.jobs.text_alignment" : {
