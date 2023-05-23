@@ -172,14 +172,10 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     '''
     ratio = get_scaling_ratio(input_image)
     if(soften==None):   
-        soften = soften_amt_deafult * ratio
-        if(soften < 1):
-            soften = 1
+        soften = max(soften_amt_deafult * ratio,1)
     if(fill_holes==None):
         fill_holes = round(fill_holes_deafult * ratio)
-        if(fill_holes < 1):
-            fill_holes = 1
-    print(soften,fill_holes)
+        fill_holes = max(fill_holes,1)
 
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
@@ -195,7 +191,10 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)
     img_bin = img_as_ubyte(gray_img < thresh)
-    img_blur_bin = img_as_ubyte(img_as_ubyte(gaussian(gray_img, soften)) < thresh)
+    #need to add clipping because of a weird case where the range of the
+    # blurred imagewill be from -1 to 1.0000000004
+    blurred = np.clip(gaussian(gray_img, soften),-1,1)
+    img_blur_bin = img_as_ubyte(img_as_ubyte(blurred) < thresh)
 
     #debug save 1
     # io.imsave("debug_images/image1.png",img_bin)
