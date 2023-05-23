@@ -15,10 +15,6 @@ PROJECT_PATH = ROOT_DIR.path("rodan")
 with open(os.path.join(os.path.dirname(PROJECT_PATH), 'registerJobs.yaml')) as file:
     allJobs = yaml.load(file, Loader=SafeLoader)
 
-BASE_JOB_PACKAGES = [base_jobs for base_jobs in allJobs['BASE_JOB_PACKAGES']]
-RODAN_PYTHON3_JOBS = [py3_jobs for py3_jobs in allJobs['RODAN_PYTHON3_JOBS']]
-RODAN_GPU_JOBS = [gpu_jobs for gpu_jobs in allJobs['RODAN_GPU_JOBS']]
-
 # Register all jobs
 def register_all():
     # Register all jobs
