@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from hashlib import new
+from typing import List, Optional, Tuple, cast
 from uuid import uuid4
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more concise?
@@ -16,7 +17,7 @@ except ImportError:
     __version__ = "[Not encoded using Rodan]"
 
 
-def new_el(name, p=None): 
+def new_el(name: str, p: Optional[Element] = None): 
     '''
     Create a new ElementTree Element with the given name and generate uuid4, with prefix 'm-'
     to conform with previous version
@@ -30,7 +31,7 @@ def new_el(name, p=None):
         element.set("xml:id", 'm-'+str(uuid4()))
         return element
 
-def add_flags_to_glyphs(glyphs):
+def add_flags_to_glyphs(glyphs: List[dict]):
     '''
     Given the raw list of glyphs from pitch-finding containing position and classification
     information, add some information to the data structure. This lets us tell more easily where
@@ -50,8 +51,6 @@ def add_flags_to_glyphs(glyphs):
     # sort glyphs in lexicographical order by staff #, left to right
     glyphs.sort(key=lambda x: (int(x['staff']), int(x['offset'])))
 
-    temp1 = 0
-    temp2 = 0
     for i in range(len(glyphs)-1):
         temp1 = glyphs[i]
         temp2 = glyphs[i+1]
@@ -75,7 +74,7 @@ def add_flags_to_glyphs(glyphs):
 
     return glyphs
 
-def neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing):
+def neume_to_lyric_alignment(glyphs: List[dict], syl_boxes: List[dict], median_line_spacing: float):
     '''
     Given the processed glyphs from add_flags_to_glyphs and the information from the text alignment
     job (syl_boxes, median_line_spacing), finds out which syllables of text correspond to which
@@ -203,7 +202,7 @@ def generate_base_document():
     return meiDoc, surface, layer
 
 
-def add_attributes_to_element(el, add):
+def add_attributes_to_element(el: Element, add: dict):
     '''
     A helper function that takes in a dictionary linking attributes --> values, and adds all these
     attributes to the libMEI object @add.
@@ -215,7 +214,7 @@ def add_attributes_to_element(el, add):
     return el
 
 
-def create_primitive_element(xml, glyph, idx, surface):
+def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Element):
     '''
     Creates a "lowest-level" element out of the xml retrieved from the MEI mapping tool (passed as
     an ElementTree object in @xml) and registers its bounding box in the given surface.
@@ -242,7 +241,7 @@ def create_primitive_element(xml, glyph, idx, surface):
 
 
 
-def glyph_to_element(classifier, width_container, glyph, surface):
+def glyph_to_element(classifier: dict, width_container: dict, glyph: dict, surface: Element):
     '''
     Translates a glyph as output by the pitchfinder into an MEI element, registering bounding boxes
     in the given surface.
@@ -320,7 +319,7 @@ def glyph_to_element(classifier, width_container, glyph, surface):
     return parent
 
 
-def resolve_interval(prev_nc, cur_nc):
+def resolve_interval(prev_nc: Element, cur_nc: Element):
     '''
     When given a ligature or something like that which specifies only the starting pitch and an
     interval, we need to calculate what the pitch of the rest of the notes are going to be. Given
@@ -332,17 +331,23 @@ def resolve_interval(prev_nc, cur_nc):
 
     scale = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 
-    interval = cur_nc.get('intm')
-    try:
-        interval = interval.lower().replace('s', '')
-        interval = int(interval)
-    except ValueError:
-        interval = 0
-    except AttributeError:
-        interval = 0
+    interval_attribute = cur_nc.get('intm')
+    interval = 0
+    if (interval_attribute is not None):
+        parsed = interval_attribute.lower().replace('s', '')
+        try:
+            interval = int(parsed)
+        except ValueError:
+            pass
 
     starting_pitch = prev_nc.get('pname')
-    starting_octave = int(prev_nc.get('oct'))
+    if (starting_pitch is None):
+        raise ValueError('pname attribute is None')
+    
+    octave_attribute = prev_nc.get('oct')
+    if (octave_attribute is None):
+        raise ValueError('octave attribute is None')
+    starting_octave = int(octave_attribute)
     end_octave = starting_octave
 
     try:
@@ -363,7 +368,7 @@ def resolve_interval(prev_nc, cur_nc):
     return str(end_pname), str(end_octave)
 
 
-def generate_zone(surface, bb):
+def generate_zone(surface: Element, bb: dict):
     '''
     Given a bounding box, generates a zone element, adds it to the given @surface,
     and returns its ID.
@@ -378,14 +383,14 @@ def generate_zone(surface, bb):
     }
 
     el = add_attributes_to_element(el, attribs)
-    return el.get('xml:id')
+    return cast(str, el.get('xml:id')) # cast to str from Optional[str] as we know that xml:id will be present
 
-def add_to_layer(syllable_dict, tag, layer, cur_syllable): 
+def add_to_layer(syllable_dict: dict, tag: str, layer: Element, cur_syllable: Element): 
     if ((syllable_dict["added"] is False) and (tag == "neume")):
         layer.append(cur_syllable)
         syllable_dict["added"] = True
 
-def precedes_follows(syl_dict, layer, new_element):
+def precedes_follows(syl_dict: dict, layer: Element, new_element: Element):
     prev_syllable = syl_dict['opening_syl']
     new_syllable = new_el("syllable", layer)
     prev_syllable.set("xml:precedes", new_syllable.get('xml:id'))
@@ -395,7 +400,7 @@ def precedes_follows(syl_dict, layer, new_element):
     new_syllable.append(new_element)  #add new element to new syllable
     return new_syllable
 
-def add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable):
+def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Element, cur_syllable: Element):
     # These are the elements that can be contained in a syllable
     contained_in_syllable = {"neume", "divLine", "clef", "accid"}
 
@@ -421,7 +426,7 @@ def add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable):
                 cur_syllable.append(new_element)
                 add_to_layer(syl_dict, tag, layer, cur_syllable)
 
-def build_mei(pairs, classifier, width_container, staves, page):
+def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
     Encodes the final MEI document using:
         @pairs: Pairs from the neume_to_lyric_alignment.
@@ -556,7 +561,7 @@ def build_mei(pairs, classifier, width_container, staves, page):
 
     return meiDoc
 
-def merge_nearby_neume_components(meiDoc, width_mult):
+def merge_nearby_neume_components(meiDoc: ET.ElementTree, width_mult: float):
     '''
     A heuristic to merge together neume components that are 1) consecutive 2) within the same
     syllable 3) within a certain distance from each other. This distance is by default set to the
@@ -567,8 +572,8 @@ def merge_nearby_neume_components(meiDoc, width_mult):
     allSurfaces = list((meiDoc.getroot()).iter('surface')) 
     surface = allSurfaces[0]  #only one surface so this gets it's corresponding element 
     
-    surf_dict = {}
-    neume_widths = []
+    surf_dict: dict = {}
+    neume_widths: list = []
     
     sc = list(surface) #gets all immediate children 
     for c in sc:
@@ -581,11 +586,11 @@ def merge_nearby_neume_components(meiDoc, width_mult):
     neume_widths = [x['lrx'] - x['ulx'] for x in surf_dict.values()]
     med_neume_width = np.median(neume_widths) * width_mult
     # returns True if both inputs are of type 'neume' and they are close enough to be merged
-    def compare_neumes(nl, nr):
+    def compare_neumes(nl: Element, nr: Element):
         if not (nl.tag == 'neume' and nr.tag == 'neume'):
             return False
-        nl_right_bound = max([surf_dict[n.get('facs')[1:]]['lrx'] for n in list(nl)])
-        nr_left_bound = min([surf_dict[n.get('facs')[1:]]['ulx'] for n in list(nr)])
+        nl_right_bound = max([surf_dict[n.get('facs', '')[1:]]['lrx'] for n in list(nl)])
+        nr_left_bound = min([surf_dict[n.get('facs', '')[1:]]['ulx'] for n in list(nr)])
 
         distance = nr_left_bound - nl_right_bound  #ask tim about getting negative distances
         return (distance <= med_neume_width)
@@ -594,13 +599,13 @@ def merge_nearby_neume_components(meiDoc, width_mult):
         children = list(syllable) # need to only get all the direct children! 
         
         # holds children of the current syllable that will be added to target
-        accumulator = []
+        accumulator: List[Element] = []
 
         # holds the first neume in a sequence of neumes that will be merged
-        target = None
+        target: Optional[Element] = None
 
         # holds children once in the accumulator that must be removed after iteration is done
-        children_to_remove = []
+        children_to_remove: List[Element] = []
 
         # iterate over all children. for each neume decide whether or not it should be merged
         # with the next one using compare_neumes. if yes, add the next one to the accumulator.
@@ -616,7 +621,8 @@ def merge_nearby_neume_components(meiDoc, width_mult):
                 for neume in accumulator:           # empty contents of accumulator into ncs_to_merge
                     ncs_to_merge += list(neume)
                 for nc in ncs_to_merge:             # merge all neume components 
-                    target.append(nc)
+                    if (target is not None): 
+                        target.append(nc)
                 children_to_remove += accumulator
                 target = None
                 accumulator = []
@@ -626,7 +632,7 @@ def merge_nearby_neume_components(meiDoc, width_mult):
 
     return meiDoc
 
-def removeEmptySyl(meiDoc): 
+def removeEmptySyl(meiDoc: ET.ElementTree): 
     '''
     Removes all empty syllables from the layer 
     '''
@@ -643,7 +649,7 @@ def removeEmptySyl(meiDoc):
 
     return meiDoc
 
-def process(jsomr, syls, classifier, width_mult, width_container,verbose=True):
+def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_container: dict, verbose: bool = True):
     '''
     Runs the entire MEI encoding process given the three inputs to the rodan job and the
     width_multiplier parameter for merging neume components.
