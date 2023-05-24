@@ -155,6 +155,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                         var glyph = glyphs[i];
                         that.tableRowCollection.deleteGlyph(glyph);
                         that.trainingRowCollection.deleteGlyph(glyph);
+                        that.selectedGlyphs.remove(glyph);
                         if (glyph.get("is_training"))
                         {
                             that.classifierCount--;
