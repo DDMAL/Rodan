@@ -425,6 +425,9 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
             else : 
                 cur_syllable.append(new_element)
                 add_to_layer(syl_dict, tag, layer, cur_syllable)
+        
+        if tag == "neume":
+            syl_dict["neume_added"] = True
 
 def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
@@ -686,8 +689,8 @@ if __name__ == '__main__':
 
     for f_ind in f_inds:
         fname = 'salzinnes_{:0>3}'.format(f_ind)
-        inJSOMR = './tests/resources/112rPF.json'
-        in_syls = './tests/resources/112r.json'
+        inJSOMR = './tests/resources/070rPF.json'
+        in_syls = './tests/resources/070r.json'
         #in_png = '/Users/tim/Desktop/PNG_compressed/CF-{:0>3}.png'.format(f_ind)
         #out_fname = './out_mei/output_split_{}.mei'.format(fname)
         #out_fname_png = './out_png/{}_alignment.png'.format(fname)
@@ -719,4 +722,4 @@ if __name__ == '__main__':
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = meiDoc
-    tree.write("112r2-new.mei", encoding="utf-8")
+    tree.write("070r2-new.mei", encoding="utf-8")
