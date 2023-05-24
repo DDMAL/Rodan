@@ -429,6 +429,48 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
         if tag == "neume":
             syl_dict["neume_added"] = True
 
+def index_of_next_glyph_of_type(all_glyphs, glyph_type, starting_index = 0):
+    '''
+    Given a glyph and a list of glyphs, returns the index and glyph of the next glyph of glyph_type as a tuple (index, glyph). 
+    Returns None is there are no glyphs after starting_index with type glyph_type.
+        @all_glyphs: A list of all glyphs in the document in sequence.
+        @glyph_type: The type of the glyph we are looking for.
+        @starting_index: The index in all_glyphs to start looking from.
+    '''
+    return next((index for index, glyph in enumerate(all_glyphs) if index >= starting_index and glyph_type in glyph['name']), None)
+
+def flatten_list(list):
+    '''
+    Flattens a list of lists.
+        @list: The list to be flattened.
+    '''
+    return [item for sublist in list for item in sublist]
+
+def get_custos_pitch_heuristic(all_glyphs, custos_glyph, max_distance_to_next_clef = 5):
+    '''
+    Given a custos glyph, tries to determine what it's pitch should be based on subsequent glyphs. Returns the pitch as a tuple (note, octave).
+    This is a very naive implementation: We look for a clef glyph within max_distance_to_next_clef glyphs, then look for the next neume glyph after that. 
+    If we find both, it returns the pitch of the neume glyph. Otherwise, it returns the original pitch.
+        @all_glyphs: A list of all glyphs in the document in sequence.
+        @custos_glyph: The custos glyph.
+        @max_distance_to_next_clef: The maximum distance to look for a clef glyph after the custos glyph.
+    '''
+
+    current_pitch = (custos_glyph["note"], custos_glyph["octave"])
+    custos_index = all_glyphs.index(custos_glyph)
+
+    next_clef_index = index_of_next_glyph_of_type(all_glyphs, "clef", custos_index + 1)
+    if (next_clef_index is None or next_clef_index - custos_index > max_distance_to_next_clef):
+        return current_pitch
+
+    next_neume_index = index_of_next_glyph_of_type(all_glyphs, "neume", next_clef_index + 1)
+    
+    if (next_neume_index is None):
+        return current_pitch
+    
+    next_neume_glyph = all_glyphs[next_neume_index]
+    return (next_neume_glyph["note"], next_neume_glyph["octave"])
+
 def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
     '''
     Encodes the final MEI document using:
@@ -469,6 +511,12 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     sb.set('facs', '#' + zoneId)
     layer.append(sb)
 
+    # The flattened list of glyphs is used to search for the next neume after a custos.
+    # we look forwards instead of storing the last custos because we simply updating an 
+    # element that has already been added to the layer doesn't work. We would have to find 
+    # it by id in the layer's children.
+    all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
+
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
         # print (gs)
@@ -491,7 +539,11 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
-            
+            # if the glyph is a custos, we override its pitch information using the next neume
+            if glyph["name"] == "custos":
+                note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
+                glyph["note"] = note
+                glyph["octave"] = octave
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
@@ -512,9 +564,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             # 3. a line break and done with this syllable (everything gets added to layer)
             # 4. a line break and not done with this syllable 
                 # Same cases a to e (with added line break) 
-            
-            tag = new_element.tag 
-        
+
+            tag = new_element.tag
+
             if not glyph['system_begin']:
 
                 # case 1
