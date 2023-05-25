@@ -289,14 +289,12 @@ def serialize_class_names_to_json(settings):
     for image in database:
         cln=image['class_name']
         if type(cln)==bytes:
-            logger.logging(f'image in database has class name bytes:{cln}')
             cln=cln.decode()
         name_set.add(cln)
 
     for name in imported_class_names:
         if type(name)==bytes:
             name=name.decode()
-            logger.logging(f'image in imported has class name bytes:{cln}')
         name_set.add(name)
     settings['class_names'] = list(name_set)
     
