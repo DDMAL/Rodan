@@ -6,7 +6,7 @@
     <textarea type="text" class="form-control input-sm" id="text-resource_description" name="text-resource_description"><%= _.unescape(description) %></textarea>
     <label for="input-resource_labels">Label(s):</label><br>
     <input type="tags" class="form-control input-sm" id="input-resource_labels"
-        value="<%= _.map(resource_label_full, (label) => { return label.name; }) %>"
+        value="<%= _.map(labels, (label) => { return label.name; }) %>"
         name="input-resource_labels"><br>
     Creator: <%= creator %><br>
     Created: <%= _.formatFromUTC(created) %><br>

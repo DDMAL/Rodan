@@ -257,7 +257,7 @@ export default class BehaviorTable extends Marionette.Behavior
         var project_resources = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_CURRENT, {data: {project: project.id}});
         var labels = new Set();
         project_resources.each(function (resource) {
-            resource.attributes.labels.forEach(function (url) {
+            resource.attributes.labels.forEach(function ({ url }) {
                 labels.add(url);
             });
         });
