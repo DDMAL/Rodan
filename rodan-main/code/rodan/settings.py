@@ -361,16 +361,16 @@ REST_FRAMEWORK = {
     "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
-        "rest_framework.filters.DjangoObjectPermissionsFilter",
-        "rest_framework.filters.DjangoFilterBackend",
-        "rest_framework.filters.OrderingFilter",
+        # "django_filters.rest_framework.DjangoObjectPermissionsFilter", DEPRECATED
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter"
     ),
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 
 # used by django-guardian
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",  # default
+    "django.contrib.auth.backends.ModelBackend",  # defaults
     "guardian.backends.ObjectPermissionBackend",
 ]
 # [TODO] This is completely depricated.
