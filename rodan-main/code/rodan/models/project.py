@@ -56,8 +56,8 @@ class Project(models.Model):
         User, related_name="projects", on_delete=models.PROTECT, db_index=True
     )
 
-    admin_group = models.ForeignKey(Group, related_name="project_as_admin")
-    worker_group = models.ForeignKey(Group, related_name="project_as_worker")
+    admin_group = models.ForeignKey(Group, related_name="project_as_admin", on_delete=models.CASCADE)
+    worker_group = models.ForeignKey(Group, related_name="project_as_worker", on_delete=models.CASCADE)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
