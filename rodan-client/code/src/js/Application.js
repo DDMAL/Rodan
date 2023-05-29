@@ -213,4 +213,4 @@ export default class Application extends Marionette.Application
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
     }
 }
-Application.prototype.region = '#region-master';
+Application.prototype.region = '#app';
