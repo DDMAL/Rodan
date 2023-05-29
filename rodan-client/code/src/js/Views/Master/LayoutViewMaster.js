@@ -18,13 +18,17 @@ export default class LayoutViewMaster extends Marionette.View
      */
     initialize()
     {
+        // Replace default Marionette wrapping div with our own div that has an ID.
+        this.setElement('<div id="content-wrapper"></div>');
+
+        // Add regions.
         this.addRegions({
             regionMain: '#region-main',
             regionNavigation: '#region-navigation',
             regionStatus: '#region-status'
         });
-        this._initializeViews();
 
+        this._initializeViews();
     }
 
     /**
