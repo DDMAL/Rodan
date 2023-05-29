@@ -839,7 +839,7 @@ export default class ControllerWorkflowBuilder extends BaseController
         {
             var project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
             var resourceTypeURLs = this._getCompatibleResourceTypeURLs([inputPort]);
-            var data = {project: project.id, resource_type__in: ''};
+            var data = {project: project.id, resource_type__in: '', file_exists: 'True'};
             var globalResourceTypes = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_RESOURCETYPE_COLLECTION);
             var first = true;
             for (var index in resourceTypeURLs)
