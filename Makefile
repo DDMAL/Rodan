@@ -13,6 +13,8 @@ JOBS_PATH := $(RODAN_PATH)/jobs
 
 PROD_TAG := v2.0.14
 
+DOCKER_TAG := nightly
+
 # Individual Commands
 
 build:
@@ -43,7 +45,7 @@ restore_db:
 run: remote_jobs
 	# Run local version for dev
 	# Hello, 2022 hires!
-	@docker compose up
+	@DOCKER_TAG=$(DOCKER_TAG) docker compose up
 
 test_prod: pull_prod 
 	# Test production Rodan images with specified tag
@@ -52,12 +54,12 @@ test_prod: pull_prod
 	docker compose -f test-prod-compose.yml up
 
 build_arm:
-	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local nginx
+	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local --build-arg VERSION=${DOCKER_TAG} nginx
 
 run_arm:
 	# Run build_arm first if you don't have the NGINX container.
 	# Launch ARM instance 
-	@docker compose -f arm-compose.yml up
+	@DOCKER_TAG=$(DOCKER_TAG) docker compose up -f arm-compose.yml up
 
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
