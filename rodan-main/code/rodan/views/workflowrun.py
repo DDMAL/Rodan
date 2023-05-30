@@ -8,7 +8,6 @@ from celery import (
     # chain
 )
 # from celery.task.control import revoke
-# from django.core.urlresolvers import resolve
 # from django.db.models import Q
 from rest_framework import generics
 from rest_framework import permissions

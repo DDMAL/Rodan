@@ -82,3 +82,8 @@ In addition, the script `/training_new_models/save_text_strips.py` has three par
 Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train). With `calamari-ocr==1.0.5`, following the instrunctions [here](https://github.com/Calamari-OCR/calamari/tree/calamari/1.0#training-of-a-model).
 
  You don't need to do _too_ many for text alignment to work correctly; 99% accuracy is overkill! For the Salzinnes manuscript, I transcribed about 40 pages, which took ~3 hours, and let it train for about 12 hours, and this was perfectly sufficient.
+
+ The command to train a new model with the deep3 architecture as specificed [here](https://github.com/Calamari-OCR/calamari/blob/master/calamari_ocr/resources/networks/deep3.json) is 
+
+    calamari-train --train.images [DATASET_FOLDER]/*.png --trainer.output_dir new_model --trainer.write_checkpoints True --n_augmentations=10 --trainer.gen SplitTrain --network=conv=40:3x3,pool=2x2,conv=60:3x3,pool=2x2,conv=120,lstm=200,lstm=200,lstm=200,dropout=0.5
+

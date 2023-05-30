@@ -20,10 +20,10 @@ class ConnectionList(generics.ListCreateAPIView):
     serializer_class = ConnectionSerializer
 
     class filter_class(django_filters.FilterSet):
-        workflow = django_filters.CharFilter(name="output_port__workflow_job__workflow")
-        input_workflow_job = django_filters.CharFilter(name="input_port__workflow_job")
+        workflow = django_filters.CharFilter(field_name="output_port__workflow_job__workflow")
+        input_workflow_job = django_filters.CharFilter(field_name="input_port__workflow_job")
         output_workflow_job = django_filters.CharFilter(
-            name="output_port__workflow_job"
+            field_name="output_port__workflow_job"
         )
 
         class Meta:

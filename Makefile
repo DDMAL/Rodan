@@ -188,7 +188,7 @@ renew_certbot:
 	@docker exec `docker ps -f name=rodan_nginx -q` nginx -s reload
 
 stop:
-	# This is the same command to stop docker swarm or docker-compose
+	# This is the same command to stop docker swarm or docker compose
 	@echo "[-] Stopping all running docker containers and services..."
 	@docker service rm `docker service ls -q` >>/dev/null 2>&1 || echo "[+] No Services Running"
 	# @docker stop `docker ps -aq` >>/dev/null 2>&1 || echo "[+] No Containers Running"
