@@ -96,7 +96,7 @@ export default class BaseCollection extends Backbone.Collection
      * @return {string} string representing UUID of Collection
      * @todo this should be moved to a utility class
      */
-    parseIdFromUrl(url)
+    static parseIdFromUrl(url)
     {
         var lastSlash = url.lastIndexOf('/');
         var subString = url.substring(0, lastSlash);

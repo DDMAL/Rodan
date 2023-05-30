@@ -94,7 +94,7 @@ export default class BaseModel extends Backbone.Model
      * @return {string} UUID
      * @todo this should be in a utility file
      */
-    parseIdFromUrl(url)
+    static parseIdFromUrl(url)
     {
         var lastSlash = url.lastIndexOf('/');
         var subString = url.substring(0, lastSlash);
