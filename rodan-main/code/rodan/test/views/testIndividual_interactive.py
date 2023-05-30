@@ -3,7 +3,7 @@ import json
 import uuid
 
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase

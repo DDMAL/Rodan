@@ -36,7 +36,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
     serializer_class = ResultsPackageListSerializer
 
     class filter_class(django_filters.FilterSet):
-        project = django_filters.CharFilter(name="workflow_run__project")
+        project = django_filters.CharFilter(field_name="workflow_run__project")
 
         class Meta:
             model = ResultsPackage

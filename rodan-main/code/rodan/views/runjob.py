@@ -20,7 +20,7 @@ class RunJobList(generics.ListAPIView):
     serializer_class = RunJobSerializer
 
     class filter_class(django_filters.FilterSet):
-        project = django_filters.CharFilter(name="workflow_run__project")
+        project = django_filters.CharFilter(field_name="workflow_run__project")
         resource_uuid__isnull = django_filters.BooleanFilter(
             # action=lambda q, v: q.filter(resource_uuid__isnull=v)
             method=lambda q, v: q.filter(resource_uuid__isnull=v)

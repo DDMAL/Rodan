@@ -7,7 +7,7 @@ import six.moves.urllib.parse
 
 from celery import registry
 from django.conf import settings
-from django.core.urlresolvers import (
+from django.urls import (
     reverse,
     resolve,
     Resolver404,

@@ -27,16 +27,15 @@ from rodan.models.resourcelist import ResourceList
 class JobAdmin(admin.ModelAdmin):
     list_display = ('name', 'enabled', 'category')
 
-
+# @admin.register(Project)
 class ProjectAdmin(GuardedModelAdmin):
     list_display = ('name', 'uuid', 'creator', 'created', 'updated')
     readonly_fields = ('uuid',)
 
-
+# @admin.register(Workflow)
 class WorkflowJobAdmin(admin.ModelAdmin):
     list_display = ('job_name', 'created', 'updated')
     list_filter = ('workflow__name',)
-
 
 class RunJobAdmin(admin.ModelAdmin):
     list_display = ('job', 'created', 'updated')
