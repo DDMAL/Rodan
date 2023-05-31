@@ -8,7 +8,7 @@ from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
-
+from scipy.signal import savgol_filter, find_peaks
 
 # PARAMETERS FOR PREPROCESSING
 soften_amt_deafult = 5  # size of gaussian blur to apply before taking threshold
@@ -241,7 +241,6 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
 
     return img_bin_rot, img_cleaned_rot, angle
 
-
 def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     """
     finds text lines on preprocessed image. step-by-step:
@@ -253,13 +252,17 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     4. take a tight bounding box around all content found between two derivative-peaks.
     """
 
+
     # compute y-axis projection of input image and filter with sliding window average
     project = np.clip(img, 0, 1).sum(1)
     smoothed_projection = moving_avg_filter(project, filter_size)
 
     # calculate normalized log prominence of all peaks in projection
     peak_locations = find_peak_locations(smoothed_projection)
-    diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
+    # diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
+    filtered_diff = savgol_filter(project,61,3,deriv=1)
+    diff_proj_peaks = find_peak_locations(np.abs(filtered_diff),tol=0.7)
+
 
     line_margins = []
     for p in peak_locations:
@@ -340,10 +343,27 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     # boxes at [0, 0, 0, 0]. as a failsafe, use the median height of other bounding boxes
     # in place of failed bounding boxes.
 
+    import matplotlib.pyplot as plt
+    plt.clf()
+    plt.plot(smoothed_projection)
+    plt.plot(np.abs(filtered_diff))
+    for x in peak_locations:
+        plt.axvline(x=x, linestyle=':',color="r")
+    for x in diff_proj_peaks:
+        plt.axvline(x=x, linestyle=':',color="g")
+    plt.savefig("debug/projection.png")
+    
+    # plt.clf()
+    
+    # for x in diff_proj_peaks:
+    #     plt.axvline(x=x, linestyle=':',color="g")
+    # plt.savefig("debug/diff.png")
+
     return line_strips, peak_locations, smoothed_projection
 
 
 def save_preproc_image(image, line_strips, lines_peak_locs, out_fname):
+    from PIL import Image, ImageDraw, ImageFont
     im = Image.fromarray((1 - image.astype("uint8")) * 255)
 
     text_size = 70
@@ -426,12 +446,15 @@ if __name__ == "__main__":
         out_fname = os.path.join(out_folder, f"preproc_{fname}")
         save_preproc_image(img_bin, line_strips, lines_peak_locs, out_fname)
 
+
+
+    # diff_proj_peaks = find_peak_locations(np.abs(np.diff(proj)))
     # plt.clf()
-    # plt.plot(proj)
-    # for x in lines_peak_locs:
+    # plt.plot(np.diff(proj))
+    # for x in diff_proj_peaks:
     #     plt.axvline(x=x, linestyle=':')
     # plt.show()
-
+   
     # diff_proj_peaks = find_peak_locations(np.abs(np.diff(proj)))
     # plt.clf()
     # plt.plot(np.diff(proj))
