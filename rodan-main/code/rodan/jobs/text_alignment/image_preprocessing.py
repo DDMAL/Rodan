@@ -8,7 +8,7 @@ from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
-from scipy.signal import savgol_filter, find_peaks
+from scipy.signal import savgol_filter, medfilt
 
 # PARAMETERS FOR PREPROCESSING
 soften_amt_deafult = 5  # size of gaussian blur to apply before taking threshold
@@ -241,7 +241,8 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
 
     return img_bin_rot, img_cleaned_rot, angle
 
-def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
+
+def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, bound_tolerance=0.5):
     """
     finds text lines on preprocessed image. step-by-step:
     1. find peak locations of vertical projection
@@ -260,31 +261,39 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     # calculate normalized log prominence of all peaks in projection
     peak_locations = find_peak_locations(smoothed_projection)
     # diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
-    filtered_diff = savgol_filter(project,61,3,deriv=1)
-    diff_proj_peaks = find_peak_locations(np.abs(filtered_diff),tol=0.7)
+    # filtered_diff = moving_avg_filter(np.diff(project),10)
+    # diff_proj_peaks = find_peak_locations(np.abs(filtered_diff),tol=0.7)
 
 
     line_margins = []
-    for p in peak_locations:
-        # get the largest diff-peak smaller than this peak, and the smallest diff-peak that's larger
-        lower_peaks = [x for x in diff_proj_peaks if x < p]
-        lower_bound = max(lower_peaks) if len(lower_peaks) > 0 else 0
 
-        higher_peaks = [x for x in diff_proj_peaks if x > p]
-        higher_bound = min(higher_peaks) if len(higher_peaks) > 0 else 0
+    median = np.median(project)
+    std = np.std(project)
+    # used for finding the bounds. Sometimes Paco's draws small perfectly horizontal white lines
+    # across the text layer so using a lightly filtered projection will help with that problems
+    lightly_filtered = np.abs(moving_avg_filter(project,10))
 
-        if higher_bound and not lower_bound:
-            lower_bound = p + (p - higher_bound)
-        elif lower_bound and not higher_bound:
-            higher_bound = p + (p - lower_bound)
+    # find the upper and lower bound for the peaks (the vertical bounds of the text strips)
+    # assuming the peaks are found correctly, initialize the bounds to being at the peak
+    # then moving them outward while the value at the projection is greater than the median
+    # plus some factor times the standard deviation
+    # after, dilate the bounds to be safe
+    for peak in peak_locations:
+        lower_bound = peak
+        upper_bound = peak
 
-        # extend bounds of strip slightly away from peak location, for safety (diacritics, etc)
-        lower_bound -= int((p - lower_bound) * widen_strips_factor)
-        lower_bound = max(0, lower_bound)
-        higher_bound += int((higher_bound - p) * widen_strips_factor)
-        higher_bound = min(img.shape[0], higher_bound)
+        while lower_bound >= 0 and (lightly_filtered[lower_bound] > median + bound_tolerance*std):
+            lower_bound -= 1
 
-        line_margins.append([lower_bound, higher_bound])
+        while upper_bound < len(lightly_filtered) and (lightly_filtered[upper_bound] > median + bound_tolerance*std):
+            upper_bound += 1
+
+        lower_bound -= (peak - lower_bound) * widen_strips_factor
+        lower_bound = max(0,lower_bound)
+        upper_bound += (upper_bound - peak) * widen_strips_factor
+        upper_bound = min(len(lightly_filtered)-1,upper_bound)
+
+        line_margins.append([int(lower_bound),int(upper_bound)])
 
     # iterate through every pair of peak locations to make sure consecutive strips are not overlapping
     for i in range(len(peak_locations) - 1):
@@ -343,15 +352,15 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     # boxes at [0, 0, 0, 0]. as a failsafe, use the median height of other bounding boxes
     # in place of failed bounding boxes.
 
-    import matplotlib.pyplot as plt
-    plt.clf()
-    plt.plot(smoothed_projection)
-    plt.plot(np.abs(filtered_diff))
-    for x in peak_locations:
-        plt.axvline(x=x, linestyle=':',color="r")
-    for x in diff_proj_peaks:
-        plt.axvline(x=x, linestyle=':',color="g")
-    plt.savefig("debug/projection.png")
+    # import matplotlib.pyplot as plt
+    # plt.clf()
+    # plt.plot(smoothed_projection)
+    # plt.plot(np.abs(filtered_diff)*100)
+    # for x in peak_locations:
+    #     plt.axvline(x=x, linestyle=':',color="r")
+    # for x in diff_proj_peaks:
+    #     plt.axvline(x=x, linestyle=':',color="g")
+    # plt.savefig("debug/projection.png")
     
     # plt.clf()
     
