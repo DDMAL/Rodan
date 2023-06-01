@@ -204,13 +204,8 @@ class BaseItem extends paper.Path
      */
     loadCoordinates()
     {
-        // Create callback.
-        var callback = (coordinates) => this._handleCoordinateLoadSuccess(coordinates);
 
-        // Fetch.
-        var query = {};
-        query[this.coordinateSetInfo['url']] = this._modelId;
-        this._model.fetch({data: query, success: callback, error: callback});
+        this._handleCoordinateLoadSuccess(this._model);
     }
 
     /**
