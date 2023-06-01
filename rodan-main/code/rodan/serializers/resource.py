@@ -1,10 +1,11 @@
+from rodan.serializers.resourcelabel import ResourceLabelSerializer
 from rodan.models.resource import Resource
 from rest_framework import serializers
 # from rodan.serializers.user import UserListSerializer
 from rodan.serializers import AbsoluteURLField
 
 
-class ResourceSerializer(serializers.HyperlinkedModelSerializer):
+class HyperlinkedResourceSerializer(serializers.HyperlinkedModelSerializer):
     uuid = serializers.CharField(read_only=True)
     creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
     resource_file = AbsoluteURLField(source="resource_url", read_only=True)
@@ -28,3 +29,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             "has_thumb",
         )  # The only updatable fields are: name, resource_type
         fields = "__all__"
+
+class NestedLabelsResourceSerializer(HyperlinkedResourceSerializer):
+    labels = ResourceLabelSerializer(many=True, read_only=True)

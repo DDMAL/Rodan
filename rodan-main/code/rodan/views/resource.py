@@ -40,7 +40,7 @@ from rodan.models import (
     Tempauthtoken,
 )
 from rodan.serializers.resourcetype import ResourceTypeSerializer
-from rodan.serializers.resource import ResourceSerializer
+from rodan.serializers.resource import HyperlinkedResourceSerializer, NestedLabelsResourceSerializer
 from rodan.serializers.resourcelabel import ResourceLabelSerializer
 from rodan.permissions import CustomObjectPermissions
 from rodan.exceptions import CustomAPIException
@@ -65,7 +65,7 @@ class ResourceList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
+    serializer_class = NestedLabelsResourceSerializer
 
     class filter_class(django_filters.FilterSet):
         # https://github.com/alex/django-filter/issues/273
@@ -203,7 +203,7 @@ class ResourceList(generics.ListCreateAPIView):
 
         new_resources = []
         for fileobj in request.data.getlist('files'):
-            serializer = ResourceSerializer(data=initial_data, context={'request': request})
+            serializer = HyperlinkedResourceSerializer(data=initial_data, context={'request': request})
             serializer.is_valid(raise_exception=True)
 
             filename_without_ext = os.path.splitext(fileobj.name)[0]
@@ -216,7 +216,7 @@ class ResourceList(generics.ListCreateAPIView):
             mimetype = claimed_mimetype or "application/octet-stream"
             registry.tasks['rodan.core.create_resource'].si(resource_id, mimetype).apply_async()
 
-            d = ResourceSerializer(resource_obj, context={'request': request}).data
+            d = NestedLabelsResourceSerializer(resource_obj, context={'request': request}).data
             new_resources.append(d)
         return Response(new_resources, status=status.HTTP_201_CREATED)
 
@@ -228,7 +228,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
+    serializer_class = NestedLabelsResourceSerializer
 
     def patch(self, request, *args, **kwargs):
         resource_type = request.data.get('resource_type', None)
@@ -275,7 +275,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
 
         resource = self.get_object()
-        old_data = ResourceSerializer(resource, context={'request': request}).data
+        old_data = NestedLabelsResourceSerializer(resource, context={'request': request}).data
 
         try:
             resource.delete()
@@ -306,7 +306,7 @@ class ResourceViewer(APIView):
     # permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
     queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
+    serializer_class = NestedLabelsResourceSerializer
 
     # authentication_classes = ()
     permission_classes = (permissions.AllowAny, )
@@ -399,7 +399,7 @@ class ResourceArchive(generics.GenericAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
+    serializer_class = NestedLabelsResourceSerializer
 
     def get(self, request, format=None):
         resource_uuids = request.query_params.getlist('resource_uuid', None)

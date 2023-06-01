@@ -28,7 +28,6 @@ export default class ViewResourceLabel extends Marionette.View
         this.model.save({name: newName}, {
             patch: true,
             success: () => {
-                Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_UPDATE_LABELS);
                 Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
             },
             error: () => {

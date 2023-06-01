@@ -20,11 +20,8 @@ export default class Resource extends BaseModel
     {
         this._updateResourceTypeFull();
         this.set('download', this._getDownloadUrl());
-        this.on('change:resource_type', () => { this._updateResourceTypeFull(); this._updateResourceLabelsFull() });
+        this.on('change:resource_type', () => { this._updateResourceTypeFull() });
         this.on('change:resource_file', () => this.set('download', this._getDownloadUrl()));
-
-        this._updateResourceLabelsFull();
-        this.on('change:labels', () => this._updateResourceLabelsFull());
 
         // If the creator is null (i.e. was not uploaded by a person), inject a dummy.
         if (this.get('creator') === null)
@@ -59,8 +56,7 @@ export default class Resource extends BaseModel
             creator: {first_name: null, last_name: null, username: null},
             created: null,
             updated: null,
-            labels: [],
-            resource_label_full: ''
+            labels: []
         };
     }
 
@@ -152,39 +148,6 @@ export default class Resource extends BaseModel
             jsonString = resourceTypeCollection.get(resourceTypeId).toJSON();
         }
         this.set('resource_type_full', jsonString);
-    }
-
-    /**
-     * Updates label names.
-     */
-    _updateResourceLabelsFull()
-    {
-        var resourceLabelCollection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_RESOURCELABEL_COLLECTION);
-        let success = () => {
-            let jsonStrings = [];
-            let resourceLabelIds = this.get('labels').map(url => this.getResourceLabelUuid(url));
-            resourceLabelIds.forEach(id => {
-              let val = resourceLabelCollection.get(id);
-              if (val)
-              {
-                  jsonStrings.push(val.toJSON());
-              }
-              else
-              {
-                  console.warn("skipping label with id " + id);
-              }
-            });
-            this.set('resource_label_full', jsonStrings);
-        };
-        if (this.get('labels').length !== 0)
-        {
-            resourceLabelCollection.fetch({
-                data: {
-                    disable_pagination: true
-                },
-                success: success.bind(this)
-            });
-        }
     }
 
     /**

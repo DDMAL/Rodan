@@ -26,15 +26,14 @@ export default class ViewResourceMulti extends Marionette.CollectionView
             let modelLabels = model.get('labels');
             if (rtUrl === undefined) {
                 rtUrl = modelResourceTypeURL;
-            }
-            else if (rtUrl !== modelResourceTypeURL) {
+            } else if (rtUrl !== modelResourceTypeURL) {
                 this.isSameType = false;
             }
+            
             if (labels === undefined) {
                 labels = modelLabels;
-                this.labelNames = model.get('resource_label_full');
-            }
-            else if (!_.isEqual(labels, modelLabels)) {
+                this.labelNames = model.get('labels');
+            } else if (!_.isEqual(labels, modelLabels)) {
                 this.isSameLabel = false;
             }
         }
