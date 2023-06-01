@@ -478,6 +478,7 @@ export default class BehaviorTable extends Marionette.Behavior
             }
             else
             {
+                $(event.currentTarget).addClass('active clickable-row');
                 this._lastTarget = event.currentTarget;
             }
         }

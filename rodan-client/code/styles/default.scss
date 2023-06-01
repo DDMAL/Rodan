@@ -222,7 +222,12 @@ table
 ///////////////////////////////////////////////////////////////////////////////////////
 // Table controls
 ///////////////////////////////////////////////////////////////////////////////////////
-.table-hover tbody tr:hover td, .table-hover tbody tr:hover th
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th, .table tr.clickable-row.active:hover td
+{
+    background-color: #7eb0dd;
+}
+
+.table tr.clickable-row.active td
 {
     background-color: #93DB70;
 }
