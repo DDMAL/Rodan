@@ -1,7 +1,8 @@
-FROM ddmal/rodan-python3-celery:nightly
 ARG BRANCHES
 ARG VERSION
 ARG BUILD_HASH
+
+FROM ddmal/rodan-python3-celery:${VERSION}
 
 # Install OpenJPEG dependencies.
 RUN \
