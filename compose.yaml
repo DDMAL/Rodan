@@ -1,0 +1,140 @@
+services:
+  nginx:
+    image: "ddmal/nginx:smaller"
+    healthcheck:
+      test: ["CMD", "/usr/sbin/service", "nginx", "status"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
+      start_period: "5m"
+    command: /run/start
+    environment:
+            - TLS=0
+    env_file:
+      - ./.env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "5671:5671"
+      - "9002:9002"
+    volumes:
+      - "resources:/rodan/data"
+
+  rodan-main:
+    image: "ddmal/rodan-main:nightly"
+    # TODO: Make the healthcheck a service status call instead of adding to the logfile.
+    # https://github.com/DDMAL/rodan-docker/issues/61
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
+      start_period: "2m"
+    command: /run/start
+    environment:
+      CELERY_JOB_QUEUE: None
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  rodan-client:
+    image: "ddmal/rodan-client:smaller"
+
+  iipsrv:
+    image: "ddmal/iipsrv:smaller"
+    volumes:
+      - "resources:/rodan/data"
+
+  celery:
+    image: "ddmal/rodan-main:nightly"
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+      # first run interval seconds after the container is started, and then again interval seconds after each previous
+      interval: "30s"
+      # How long to wait for the healthcheck to succeed
+      timeout: "30s"
+      # Ignore failures during the start_period
+      start_period: "1m"
+      # accept 3 consecutive failures before 
+      retries: 5
+    command: /run/start-celery
+    environment:
+      CELERY_JOB_QUEUE: celery
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  py3-celery:
+    image: "ddmal/rodan-python3-celery:nightly"
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
+    command: /run/start-celery
+    environment:
+      CELERY_JOB_QUEUE: Python3
+    env_file:
+      - ./scripts/staging.env
+      - ./hpc-rabbitmq/scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  gpu-celery:
+    image: "ddmal/rodan-gpu-celery:nightly"
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
+    command: /run/start-celery
+    environment:
+      CELERY_JOB_QUEUE: GPU
+    depends_on:
+      - postgres
+      - rodan-main
+      - rabbitmq
+      - redis
+      - celery
+    env_file:
+      - ./scripts/staging.env
+    volumes:
+      - "resources:/rodan/data"
+
+  redis:
+    image: "redis:alpine"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: "ddmal/postgres-plpython:nightly"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+      - "pg_backup:/backups"
+    env_file:
+      - ./scripts/staging.env
+
+  rabbitmq:
+    image: "rabbitmq:alpine"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      #interval: "30s" # default
+      timeout: 3s
+      #retries: 3 # default
+    env_file:
+      - ./scripts/staging.env
+
+volumes:
+  resources:
+  pg_backup:
+  pg_data:
