@@ -9,7 +9,6 @@ from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
 from skimage.measure import label
-from scipy.signal import savgol_filter, medfilt
 
 # PARAMETERS FOR PREPROCESSING
 soften_amt_deafult = 5  # size of gaussian blur to apply before taking threshold
