@@ -59,7 +59,7 @@ build_arm:
 run_arm:
 	# Run build_arm first if you don't have the NGINX container.
 	# Launch ARM instance 
-	@DOCKER_TAG=$(DOCKER_TAG) docker compose up -f arm-compose.yml up
+	@DOCKER_TAG=$(DOCKER_TAG) docker compose -f arm-compose.yml up
 
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
