@@ -88,6 +88,246 @@
         exports
         </h2>
         
+            <div class="class-description"><p>ModifySettingsView</p>
+<p>A view which displays a message, a list of settings for the users to edit, and a confirm button for the user to click.  When they click the button, an arbitrary
+callback function is called.</p></div>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: exports</h1>
+<section>
+
+<header>
+    
+        <h2>
+        exports
+        </h2>
+        
+            <div class="class-description"><p>ConfirmView</p>
+<p>A view which displays a message and a button for the user to click.  When they click the button, an arbitrary
+callback function is called.</p></div>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: exports</h1>
+<section>
+
+<header>
+    
+        <h2>
+        exports
+        </h2>
+        
             <div class="class-description"><p>A Timer class for use in application performance profiling.</p></div>
         
     
@@ -261,9 +501,8 @@ was called.</p>
         exports
         </h2>
         
-            <div class="class-description"><p>ModifySettingsViewModel</p>
-<p>The ViewModel for the ModifySettingsView.  When the user clicks on the button in the ModifySettingsView, the callback property
-is called.</p></div>
+            <div class="class-description"><p>LoadingScreenView</p>
+<p>A view which displays some text and an infinite loading bar.</p></div>
         
     
 </header>
@@ -381,9 +620,131 @@ is called.</p></div>
         exports
         </h2>
         
-            <div class="class-description"><p>ModifySettingsView</p>
-<p>A view which displays a message, a list of settings for the users to edit, and a confirm button for the user to click.  When they click the button, an arbitrary
-callback function is called.</p></div>
+            <div class="class-description"><p>ModalViewModel</p>
+<p>This ViewModel controls the state of a modal.</p>
+<p>The innerView property points to an arbitrary view that is rendered
+in the body of the modal.</p>
+<p>The isClosable property determines whether or not the user has the power to manually close the view.</p></div>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: exports</h1>
+<section>
+
+<header>
+    
+        <h2>
+        exports
+        </h2>
+        
+            <div class="class-description"><p>ModifySettingsViewModel</p>
+<p>The ViewModel for the ModifySettingsView.  When the user clicks on the button in the ModifySettingsView, the callback property
+is called.</p></div>
         
     
 </header>
@@ -625,11 +986,9 @@ to 5000 miliseconds.</p>
         exports
         </h2>
         
-            <div class="class-description"><p>ModalViewModel</p>
-<p>This ViewModel controls the state of a modal.</p>
-<p>The innerView property points to an arbitrary view that is rendered
-in the body of the modal.</p>
-<p>The isClosable property determines whether or not the user has the power to manually close the view.</p></div>
+            <div class="class-description"><p>ConfirmViewModel</p>
+<p>The ViewModel for the ConfirmView.  When the user clicks on the button in the ConfirmView, the callback property
+is called.</p></div>
         
     
 </header>
@@ -857,365 +1216,6 @@ in the body of the modal.</p>
 
 
 
-	<h1 class="page-title">Class: exports</h1>
-<section>
-
-<header>
-    
-        <h2>
-        exports
-        </h2>
-        
-            <div class="class-description"><p>LoadingScreenView</p>
-<p>A view which displays some text and an infinite loading bar.</p></div>
-        
-    
-</header>
-
-
-<article>
-    <div class="container-overview">
-    
-        
-<hr>
-<dt>
-    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-	<h1 class="page-title">Class: exports</h1>
-<section>
-
-<header>
-    
-        <h2>
-        exports
-        </h2>
-        
-            <div class="class-description"><p>ConfirmView</p>
-<p>A view which displays a message and a button for the user to click.  When they click the button, an arbitrary
-callback function is called.</p></div>
-        
-    
-</header>
-
-
-<article>
-    <div class="container-overview">
-    
-        
-<hr>
-<dt>
-    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-	<h1 class="page-title">Class: exports</h1>
-<section>
-
-<header>
-    
-        <h2>
-        exports
-        </h2>
-        
-            <div class="class-description"><p>ConfirmViewModel</p>
-<p>The ViewModel for the ConfirmView.  When the user clicks on the button in the ConfirmView, the callback property
-is called.</p></div>
-        
-    
-</header>
-
-
-<article>
-    <div class="container-overview">
-    
-        
-<hr>
-<dt>
-    <h4 class="name" id=".exports"><span class="type-signature"></span>new exports()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
 		</div>
 	</div>
 
@@ -1253,7 +1253,7 @@ is called.</p></div>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
 	
-		on 2023-05-10T12:12:57-04:00
+		on 2023-08-07T13:35:05-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
