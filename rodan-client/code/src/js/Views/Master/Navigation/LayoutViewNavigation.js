@@ -23,6 +23,9 @@ export default class LayoutViewNavigation extends Marionette.View
      */
     initialize()
     {
+        // Replace default Marionette wrapping div with our own div that has an ID.
+        this.setElement('<div id="app-navbar-wrapper"></div>');
+
         this._initializeRadio();
         this.addRegions({
             regionNavigationTree: '#region-navigation_tree'
@@ -237,6 +240,7 @@ export default class LayoutViewNavigation extends Marionette.View
         this.$el.find('#button-navigation_last').prop('disabled', false);
     }
 }
+console.log($('#template-navigation').text());
 LayoutViewNavigation.prototype.template = _.template($('#template-navigation').text());
 LayoutViewNavigation.prototype.ui = {
     buttonLogout: '#button-navigation_logout',

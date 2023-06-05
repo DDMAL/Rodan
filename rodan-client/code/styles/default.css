@@ -6,7 +6,14 @@
  * General parameters
  *************************************************************************************/
 
+
+
 :root {
+    --primary-app-color: #49c5b6;
+    --secondary-app-color: #398fe6;
+    --text-color-navigation: white;
+    --app-font: 'Montserrat', sans-serif;
+
     /* Navigation area */
     --background-color-navigation: #000000;
     --text-color-navigation: #cccccc;
@@ -47,15 +54,40 @@
 }
 body {
     width: 100vw;
-    height: 100vh;    
+    height: 100vh;
+    font-family: var(--app-font);
+    margin: 0px;
+    overflow: hidden;
+    font-size: var(--size-font);
 }
 #app {
     width: 100%;
     height: 100%;
 }
-#content-wrapper {
+.content-wrapper {
+    display: flex;
+}
+.content-wrapper.page-content {
     width: 100%;
     height: 100%;
+}
+li::marker {
+    content: '';
+}
+
+.btn-group {
+    display: flex;
+}
+
+.btn {
+    outline: none;
+    border: none;
+    cursor: pointer;
+}
+
+hr {
+    border: 1px solid #dddddd;
+    width: 100%;
 }
 
 /*
@@ -70,62 +102,130 @@ body {
 }
 
 
-/* Navigation region */
+/* ///////////////////////////////////////////////////////////////////////////////////////
+// Navigation region
+/////////////////////////////////////////////////////////////////////////////////////// */
 
-div#region-navigation
-{
-    background: var(--background-color-navigation);
+div#region-navigation {
+    background: #0000000f;
     height: 100%;
-    color: var(--text-color-navigation);
-    width: 20%;
-    padding: 0% 1%;
+    width: 17%;
+    color: #49c5b6;
     overflow-y: auto;
     overflow-x: hidden;
-    cursor: default;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
-div#region-navigation ul
-{
+div#region-navigation div.node_text {
+    cursor: pointer;
+}
+#app-navbar-wrapper {
+    height: 98%;
+    width: 90%;
+}
+#app-navbar {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+/* Logo and reqquests status styles */
+.content-wrapper.left-navbar-content-wrapper {
+    flex-direction: column;
+    width: 100%;
+    height: 10%;
+}
+#rodan-logo {
+    font-size: 30px;
+    flex-grow: 0.25;
+    display: flex;
+    align-items: flex-start;
+}
+#region-status {
+    flex-grow: 0.5;
+}
+/* Navigation tree styles */
+#region-navigation_tree {
     list-style-type: disc;
     margin: 0;
     padding-left: 10px;
+    flex-grow: 9;
+}
+.btn-group.left-navbar-btn-group {
+    display: flex;
+    flex-grow: 0.1;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 3px;
+}
+.btn.left-navbar-btn {
+    background-color: white;
+    outline: none;
+    border: 1px solid #dedede;
+    color: #3ebba7;
+    border-radius: 3px;
+}
+.btn.left-navbar-btn:hover {
+    background-color: #3ebba7;
+    color: white;
+}
+.btn.left-navbar-btn#button-navigation_logout {
+    color: #E76B6B;
+}
+.btn.left-navbar-btn#button-navigation_logout:hover {
+    background-color: #E76B6B;
+    color: white;
 }
 
-div#region-navigation div.node_text
-{
-    cursor: pointer;
-}
 
-.workflow-name, .workflow-status {
-    color: #9d9d9d;
-    line-height: 20px;
-    padding: 15px;
-    margin: 0;
-    display: block;
-}
-
-.workflow-name {
-    float: left;
-    height: 50px;
-    font-size: 18px;
-    margin-left: -15px;
-}
-
-/* Main region */
+/* ///////////////////////////////////////////////////////////////////////////////////////
+// Main region
+/////////////////////////////////////////////////////////////////////////////////////// */
 div#region-main
 {
     /*background-image: url("resources/rodan.jpg"); */
     background-repeat: no-repeat;
     background-position: center center;
-    height: 100%;
+    height: 98%;
     width: 80%;
-    padding: 0% 1%;
+    padding: 1%;
     overflow-y: auto;
     overflow-x: hidden;
     cursor: default;
 }
-
-/* Canvas */
+.region-main-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.region-main-content-title {
+    font-size: 15px;
+    font-weight: 100;
+}
+.region-main-default-btn {
+    border: none;
+    background-color: var(--secondary-app-color);
+    border: 1px solid var(--secondary-app-color);
+    color: white;
+    border-radius: 3px;
+    padding: 5px;
+    font-family: Montserrat, sans-serif;
+    cursor: pointer;
+}
+.region-main-default-btn:hover {
+    background-color: white;
+    color: var(--secondary-app-color);
+}
+/* ///////////////////////////////////////////////////////////////////////////////////////
+// Canvas
+/////////////////////////////////////////////////////////////////////////////////////// */
 div#canvas-wrap
 {
     height: 100%;
