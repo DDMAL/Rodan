@@ -27,6 +27,7 @@ export default class BehaviorTable extends Marionette.Behavior
         this._lastTarget = null;
         this._multipleSelectionKey = Environment.getMultipleSelectionKey();
         this._rangeSelectionKey = Environment.getRangeSelectionKey();
+        this._submitSearch = _.debounce((filters) => this.view.collection.fetchFilter(filters), Configuration.SEARCH_DEBOUNCE_DELAY);
     }
 
     /**
@@ -314,7 +315,7 @@ export default class BehaviorTable extends Marionette.Behavior
                 filters[name].push(value);
             }
         }
-        this.view.collection.fetchFilter(filters);
+        this._submitSearch(filters);
     }
 
     /**
