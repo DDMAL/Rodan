@@ -109,8 +109,8 @@ var Configuration = {
  */
 Configuration.getServerURL = function()
 {
-    var url = this.SERVER_HOST + ':' + this.SERVER_PORT;
-    return this.SERVER_HTTPS ? 'https://' + url : 'http://' + url;
+    var url = (this.SERVER_HTTPS ? 'https://' : 'http://') + this.SERVER_HOST + '/api/';
+    return url;
 };
 
 /**
