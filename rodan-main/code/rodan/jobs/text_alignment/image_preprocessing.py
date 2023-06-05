@@ -8,6 +8,7 @@ from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
+from skimage.measure import label
 from scipy.signal import savgol_filter, medfilt
 
 # PARAMETERS FOR PREPROCESSING
@@ -198,14 +199,18 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     thresh = threshold_otsu(
         fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True)
     )
+    #io.imsave("debug/corners.png",fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True))
 
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)
     img_bin = img_as_ubyte(gray_img < thresh)
+    
     # need to add clipping because of a weird case where the range of the
     # blurred imagewill be from -1 to 1.0000000004
     blurred = np.clip(gaussian(gray_img, soften), -1, 1)
     img_blur_bin = img_as_ubyte(img_as_ubyte(blurred) < thresh)
+    # io.imsave("debug/bin.png",img_bin)
+    # io.imsave("debug/blurred.png",img_blur_bin)
 
     # debug save 1
     # io.imsave("debug_images/image1.png",img_bin)
@@ -241,6 +246,30 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
 
     return img_bin_rot, img_cleaned_rot, angle
 
+def get_component_dimesions(img,index):
+    """
+    returns heights and width of a connect component
+    """
+    rows  = np.where(np.any(img == index,axis=1))
+    cols = np.where(np.any(img == index,axis=0))
+    return (np.max(rows) - np.min(rows),np.max(cols)-np.min(cols))
+
+def get_average_component_height(img):
+    """
+    find the average height of characters.
+    finds characters by using skimage's connect component finder.
+    since random blobs/speckles will be found as well, a weighted
+    average is used where the weights are the widths of the components
+    """
+
+    components, index_max = label(img,connectivity=1,return_num=True)
+    numerator = 0
+    denominator = 0
+    for index in range(1,index_max):
+        dimensions = get_component_dimesions(components,index)
+        numerator += dimensions[0] * dimensions[1]
+        denominator += dimensions[1]
+    return numerator/denominator
 
 def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, bound_tolerance=0.5):
     """
@@ -252,8 +281,7 @@ def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, b
     from above and below.
     4. take a tight bounding box around all content found between two derivative-peaks.
     """
-
-
+    average_char_height = get_average_component_height(img)
     # compute y-axis projection of input image and filter with sliding window average
     project = np.clip(img, 0, 1).sum(1)
     smoothed_projection = moving_avg_filter(project, filter_size)
@@ -279,14 +307,14 @@ def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, b
     # plus some factor times the standard deviation
     # after, dilate the bounds to be safe
     for peak in peak_locations:
-        lower_bound = peak
-        upper_bound = peak
+        lower_bound = peak - average_char_height/2
+        upper_bound = peak + average_char_height/2
 
-        while lower_bound >= 0 and (lightly_filtered[lower_bound] > median + bound_tolerance*std):
-            lower_bound -= 1
+        # while lower_bound >= 0 and (lightly_filtered[lower_bound] > median + bound_tolerance*std):
+        #     lower_bound -= 1
 
-        while upper_bound < len(lightly_filtered) and (lightly_filtered[upper_bound] > median + bound_tolerance*std):
-            upper_bound += 1
+        # while upper_bound < len(lightly_filtered) and (lightly_filtered[upper_bound] > median + bound_tolerance*std):
+        #     upper_bound += 1
 
         lower_bound -= (peak - lower_bound) * widen_strips_factor
         lower_bound = max(0,lower_bound)
