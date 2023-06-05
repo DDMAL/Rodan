@@ -1,3 +1,4 @@
+ARG VERSION
 FROM ddmal/rodan-main:${VERSION} as rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
