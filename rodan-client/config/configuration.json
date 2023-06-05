@@ -1,6 +1,6 @@
 {
-    "SERVER_HOST": "localhost",
-    "SERVER_PORT": 443,
+    "SERVER_HOST": "rodan.dev.simssa.ca",
+    "SERVER_PORT": "443",
     "SERVER_HTTPS": true,
     "SERVER_SOCKET_AVAILABLE": false,
     "SERVER_AUTHENTICATION_TYPE": "token",
