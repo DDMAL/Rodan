@@ -66,15 +66,14 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @constructs
          */
-        initialize: function ()
-        {
+        initialize: function () {
             // Create the preview window
             this.previewView = new ImagePreviewView({
                 model: new ImagePreviewViewModel({
                     backgroundImage: this.model.get("previewImage")
                 })
             });
-            this.isMouseDown = true,
+            this.isMouseDown = true;
             // Construct the glyph table data structure
             this.trainingRowCollection = new GlyphTableRowCollection();
             this.trainingRowCollection.setClassifier(true);
@@ -82,23 +81,20 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             this.tableRowCollection.setClassifier(false);
 
             this.listenTo(RadioChannels.edit, PageEvents.changeBackground,
-                function()
-                {
+                function () {
                     // This makes it so the classes switch color
                     // so it's obvious to which class each glyph belongs
                     // TODO: This should be improved so only one loop
                     var els = document.getElementsByClassName("table table-hover")[0].childNodes;
                     // White and grey
-                    var colors = ["white","gainsboro"];
-                    for (var i = 0; i < els.length; i++)
-                    {
+                    var colors = ["white", "gainsboro"];
+                    for (var i = 0; i < els.length; i++) {
                         // Alternating
                         var index = i % 2;
                         els[i].style.backgroundColor = colors[index];
                     }
                     els = document.getElementsByClassName("table table-hover")[1].childNodes;
-                    for (var j = 0; j < els.length; j++)
-                    {
+                    for (var j = 0; j < els.length; j++) {
                         // Alternating
                         index = j % 2;
                         els[j].style.backgroundColor = colors[index];
@@ -110,37 +106,36 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             this.selectedGlyphs = new Backbone.Collection();
             var that = this;
             this.listenTo(RadioChannels.edit, GlyphEvents.selectGlyph,
-                function (glyph)
-                {
+                function (glyph) {
                     that.selectedGlyphs.add(glyph);
                     that.selectedCount = that.selectedGlyphs.length;
                     document.getElementById("count-selected").innerHTML = that.selectedCount;
                 }
             );
             this.listenTo(RadioChannels.edit, GlyphEvents.deselectGlyph,
-                function (glyph)
-                {
+                function (glyph) {
                     that.selectedGlyphs.remove(glyph);
                     that.selectedCount = that.selectedGlyphs.length;
                     document.getElementById("count-selected").innerHTML = that.selectedCount;
+                    if (that.selectedCount === 0) {
+                        this.clearEditRegion();
+                    }
                 }
             );
             this.listenTo(RadioChannels.edit, GlyphEvents.deselectAllGlyphs,
-                function ()
-                {
+                function () {
                     that.selectedGlyphs.reset();
                     that.selectedCount = 0;
                     document.getElementById("count-selected").innerHTML = that.selectedCount;
+                    this.clearEditRegion();
                 }
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.addGlyph,
-                function (glyph, className)
-                {
+                function (glyph, className) {
                     that.tableRowCollection.addGlyph(glyph, className);
                     // jscs:disable
-                    if (className.toLowerCase() !== "unclassified" && !className.startsWith("_group._part") && !className.startsWith("_split"))
-                    {
+                    if (className.toLowerCase() !== "unclassified" && !className.startsWith("_group._part") && !className.startsWith("_split")) {
                         that.trainingRowCollection.addGlyph(glyph, className);
                     }
                     // jscs:enable
@@ -148,10 +143,8 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.deleteGlyphs,
-                function (glyphs)
-                {
-                    for (var i = 0; i < glyphs.length; i++)
-                    {
+                function (glyphs) {
+                    for (var i = 0; i < glyphs.length; i++) {
                         var glyph = glyphs[i];
                         that.tableRowCollection.deleteGlyph(glyph);
                         that.trainingRowCollection.deleteGlyph(glyph);
@@ -160,13 +153,11 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                         {
                             that.classifierCount--;
                         }
-                        else if (glyph.get("id_state_manual"))
-                        {
+                        else if (glyph.get("id_state_manual")) {
                             that.classifierCount--;
                             that.pageCount--;
                         }
-                        else
-                        {
+                        else {
                             that.pageCount--;
                         }
                     }
@@ -182,43 +173,35 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.setGlyphName,
-              function(className)
-              {
-                  //Don't add the new class if it's already in the list or if it's a part of a group or a split
-                  if (!className.startsWith("_group._part") && !className.startsWith("_split"))
-                  {
-                      var index = that.model.get('classNames').findIndex(name => name === className);
-                      if (index === -1)
-                      {
-                          var classNameList = that.model.get('classNames').push(className);
-                          classNameList = that.model.get('classNames').sort();
-                          that.model.set('classNames', classNameList);
-                      }
-                  }
-              }
+                function (className) {
+                    //Don't add the new class if it's already in the list or if it's a part of a group or a split
+                    if (!className.startsWith("_group._part") && !className.startsWith("_split")) {
+                        var index = that.model.get('classNames').findIndex(name => name === className);
+                        if (index === -1) {
+                            var classNameList = that.model.get('classNames').push(className);
+                            classNameList = that.model.get('classNames').sort();
+                            that.model.set('classNames', classNameList);
+                        }
+                    }
+                }
             );
             // Class editing events
             this.listenTo(RadioChannels.edit, ClassEvents.openClassEdit,
-                function (className)
-                {
+                function (className) {
                     that.openClassEdit(className);
                 });
 
             this.listenTo(RadioChannels.edit, ClassEvents.deleteClass,
-                function(className)
-                {
+                function (className) {
                     var classes = this.model.get('classNames');
-                    for (var i = 0; i < classes.length; i++)
-                    {
+                    for (var i = 0; i < classes.length; i++) {
                         var name = classes[i];
-                        if (name === className || name.startsWith(className + "."))
-                        {
+                        if (name === className || name.startsWith(className + ".")) {
                             that.tableRowCollection.deleteClass(name);
                             that.trainingRowCollection.deleteClass(name);
                         }
                     }
-                    var newClasses = this.model.get('classNames').filter(function (name)
-                    {
+                    var newClasses = this.model.get('classNames').filter(function (name) {
                         return !name.startsWith(className + ".") && name !== className;
                     });
                     this.model.set('classNames', newClasses);
@@ -227,28 +210,22 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                 });
 
             this.listenTo(RadioChannels.edit, ClassEvents.renameClass,
-                function(oldName, newName)
-                {
+                function (oldName, newName) {
                     var classes = this.model.get('classNames');
-                    for (var i = 0; i < classes.length; i++)
-                    {
+                    for (var i = 0; i < classes.length; i++) {
                         var name = classes[i];
-                        if (name === oldName || name.startsWith(oldName + "."))
-                        {
+                        if (name === oldName || name.startsWith(oldName + ".")) {
                             that.tableRowCollection.renameClass(name, oldName, newName);
                             that.trainingRowCollection.renameClass(name, oldName, newName);
                         }
                     }
-                    for (var j = 0; j < classes.length; j++)
-                    {
-                        if (classes[j] === oldName || classes[j].startsWith(oldName + "."))
-                        {
+                    for (var j = 0; j < classes.length; j++) {
+                        if (classes[j] === oldName || classes[j].startsWith(oldName + ".")) {
                             classes[j] = classes[j].replace(oldName, newName);
                         }
                     }
                     //remove duplicates
-                    var renamedClasses = classes.filter(function(item, pos)
-                    {
+                    var renamedClasses = classes.filter(function (item, pos) {
                         return classes.indexOf(item) === pos;
                     });
                     this.model.set('classNames', renamedClasses);
@@ -258,41 +235,33 @@ var RodanDashboardView = Marionette.LayoutView.extend(
 
             // Glyph Editing Events
             this.listenTo(RadioChannels.edit, GlyphEvents.openGlyphEdit,
-                function (model)
-                {
+                function (model) {
                     // If it's a training glyph, open the training edit view
-                    if (model.attributes.is_training)
-                    {
+                    if (model.attributes.is_training) {
                         that.selectedGlyphs.add(model);
                         that.openTrainingEdit(that.selectedGlyphs);
                     }
-                    else
-                    {
+                    else {
                         that.previewView.highlightGlyph([model]);
                         that.openGlyphEdit(model);
                     }
                 });
             this.listenTo(RadioChannels.edit, GlyphEvents.moveGlyph,
-                function (glyph, oldClassName, newClassName)
-                {
-                    if (glyph.attributes.is_training)
-                    {
+                function (glyph, oldClassName, newClassName) {
+                    if (glyph.attributes.is_training) {
                         that.trainingRowCollection.moveGlyph(glyph, oldClassName, newClassName);
                     }
-                    else
-                    {
+                    else {
                         that.tableRowCollection.moveGlyph(glyph, oldClassName, newClassName);
                         that.trainingRowCollection.moveGlyph(glyph, oldClassName, newClassName);
                     }
                     that.pageCount = 0;
                     that.classifierCount = 0;
-                    that.tableRowCollection.each(function (row)
-                    {
+                    that.tableRowCollection.each(function (row) {
                         var glyphs = row.get("glyphs");
                         that.pageCount += glyphs.length;
                     });
-                    that.trainingRowCollection.each(function (row)
-                    {
+                    that.trainingRowCollection.each(function (row) {
                         var glyphs = row.get("glyphs");
                         that.classifierCount += glyphs.length;
                     });
@@ -302,8 +271,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.groupGlyphs,
-                function ()
-                {
+                function () {
                     that.classifierCount++;
                     that.pageCount++;
                     document.getElementById("count-selected").innerHTML = 1;
@@ -313,12 +281,10 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.splitGlyph,
-                function ()
-                {
+                function () {
                     // After splitting, wait for the DOM to update, then update the count variables
                     var waitTime = 1000;
-                    setTimeout(function ()
-                    {
+                    setTimeout(function () {
                         var newPageCount = parseInt($("#count-page").text());
                         var newClassifierCount = parseInt($("#count-classifier").text());
                         that.pageCount = newPageCount;
@@ -327,17 +293,14 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                 }
             );
             this.listenTo(RadioChannels.edit, PageEvents.zoom,
-                function (zoomLevel, isZoomIn)
-                {
+                function (zoomLevel, isZoomIn) {
                     var pic = document.getElementsByClassName("preview-background")[0];
                     var oldHeight = pic.height;
                     var newHeight;
-                    if (isZoomIn)
-                    {
+                    if (isZoomIn) {
                         newHeight = oldHeight * zoomLevel;
                     }
-                    else
-                    {
+                    else {
                         newHeight = oldHeight / zoomLevel;
                     }
                     pic.style.height = newHeight + "px";
@@ -347,11 +310,9 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.highlightGlyphs,
-                function(highlightedGlyphs)
-                {
+                function (highlightedGlyphs) {
                     var glyphs = [];
-                    for (var i = 0; i < highlightedGlyphs.length; i++)
-                    {
+                    for (var i = 0; i < highlightedGlyphs.length; i++) {
                         var glyph = highlightedGlyphs.at(i);
                         glyphs.push(glyph);
                     }
@@ -360,60 +321,54 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.openMultiEdit,
-                function ()
-                {
-                    // if some of the glyphs selected are training glyphs
+                function () {
+                    // If there are no glyphs selected, then close the multi edit view
+                    if (that.selectedGlyphs.length === 0) {
+                        that.clearEditRegion();
+                        return;
+                    }
+                    // If some of the glyphs selected are training glyphs
                     var training_glyphs = new Backbone.Collection();
                     var glyphs = new Backbone.Collection();
                     // Separating training glyphs from page glyphs
-                    for (var i = 0; i < that.selectedGlyphs.length; i++)
-                    {
+                    for (var i = 0; i < that.selectedGlyphs.length; i++) {
                         var glyph = that.selectedGlyphs.at(i);
                         var name = glyph.attributes.class_name;
-                        if (name.startsWith("_group") || name.startsWith("_split"))
-                        {
+                        if (name.startsWith("_group") || name.startsWith("_split")) {
                             // don't add to either window
                         }
-                        else if (glyph.attributes.is_training)
-                        {
+                        else if (glyph.attributes.is_training) {
                             training_glyphs.add(glyph);
                         }
-                        else
-                        {
+                        else {
                             glyphs.add(glyph);
                         }
                     }
                     // Only page glyphs are selected
-                    if (training_glyphs.length === 0)
-                    {
-                        if (glyphs.length === 1)
-                        {
+                    if (training_glyphs.length === 0) {
+                        if (glyphs.length === 1) {
                             that.openGlyphEdit(glyphs.at(0));
                         }
-                        else
-                        {
+                        else {
                             that.openMultiGlyphEdit(glyphs);
                         }
                         RadioChannels.edit.trigger(GlyphEvents.highlightGlyphs, glyphs);
                     }
                     // At least one training glyph is selected
-                    else
-                    {
+                    else {
                         that.openTrainingEdit(that.selectedGlyphs);
                     }
                 }
             );
 
             this.listenTo(RadioChannels.edit, GlyphEvents.openTrainingEdit,
-                function ()
-                {
+                function () {
                     that.openTrainingEdit(that.selectedGlyphs);
                 }
             );
         },
 
-        onShow: function ()
-        {
+        onShow: function () {
             var timer = new Timer("RodanDashboardView onShow");
 
             // Create the preview
@@ -438,18 +393,14 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             var trainingGlyphsCollection = {};
 
             // Separate the glyphs by their class
-            for (var i = 0; i < classNames.length; i++)
-            {
+            for (var i = 0; i < classNames.length; i++) {
                 var glyphs = new GlyphCollection(glyphDictionary[classNames[i]]);
-                if (glyphs.length > 0)
-                {
+                if (glyphs.length > 0) {
                     glyphCollections[classNames[i]] = glyphs;
                 }
-                if (trainingGlyphs)
-                {
+                if (trainingGlyphs) {
                     glyphs = new GlyphCollection(trainingGlyphs[classNames[i]]);
-                    if (glyphs.length > 0)
-                    {
+                    if (glyphs.length > 0) {
                         trainingGlyphsCollection[classNames[i]] = glyphs;
                     }
                 }
@@ -458,10 +409,8 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             timer.tick("pre-final render");
 
             var that = this;
-            _.each(classNames, function (className)
-            {
-                if (glyphCollections[className])
-                {
+            _.each(classNames, function (className) {
+                if (glyphCollections[className]) {
                     var row = new GlyphTableRowViewModel({
                         class_name: className,
                         glyphs: glyphCollections[className]
@@ -469,8 +418,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                     that.pageCount += glyphCollections[className].length;
                     that.tableRowCollection.add(row);
                 }
-                if (trainingGlyphsCollection[className])
-                {
+                if (trainingGlyphsCollection[className]) {
                     row = new GlyphTableRowViewModel({
                         class_name: className,
                         glyphs: trainingGlyphsCollection[className]
@@ -517,7 +465,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             $("#collapse-image").on("click", togglePreviewImage);
 
             this.collapseHeight = document.getElementById("collapse-button").getClientRects()[0].height;
-            this.collapseWidth  = document.getElementById("collapse-button").getClientRects()[0].width;
+            this.collapseWidth = document.getElementById("collapse-button").getClientRects()[0].width;
             this.winWidth = window.innerWidth;
             this.winHeight = window.innerHeight;
             this.navHeight = 125;
@@ -529,8 +477,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             that.widthRatio = document.getElementById("left1").getClientRects()[0].width / window.innerWidth;
 
             var elms = document.getElementsByClassName("glyph-image-container");
-            for (i = 0; i < elms.length; i++)
-            {
+            for (i = 0; i < elms.length; i++) {
                 var child = elms[i].childNodes[0].childNodes[1].childNodes[1];
                 child.dataset.originalWidth = child.getAttribute("width");
                 child.dataset.originalHeight = child.getAttribute("height");
@@ -561,10 +508,8 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             $(document).mousemove(function (event)
             {
                 var resizeClass = false;
-                if (that.isMouseDown)
-                {
-                    if (event.buttons === 0)
-                    {
+                if (that.isMouseDown) {
+                    if (event.buttons === 0) {
                         that.isMouseDown = false;
                     }
 
@@ -576,15 +521,13 @@ var RodanDashboardView = Marionette.LayoutView.extend(
 
                     // resizeClass is set to true only if the resize button is clicked and dragged
                     if (event.clientX < classEditRight && event.clientX > (classEditRight - 20) &&
-                          event.clientY < classEditBottom && event.clientY > (classEditBottom - 20))
-                    {
+                        event.clientY < classEditBottom && event.clientY > (classEditBottom - 20)) {
                         resizeClass = true;
                     }
 
                     // Update the widths and heights of the panes
                     // according to where the class names region was dragged
-                    if (resizeClass)
-                    {
+                    if (resizeClass) {
                         classEdit.style.width = event.clientX + "px";
                         glyphEdit.style.width = classEdit.getClientRects()[0].width + "px";
                         classEdit.style.height = event.clientY + "px";
@@ -605,40 +548,30 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                         that.widthRatio = classEdit.getClientRects()[0].width / window.innerWidth;
                     }
                     // Make sure the panels fill the browser window
-                    if (image.getClientRects()[0])
-                    {
+                    if (image.getClientRects()[0]) {
                         that.imageRatio = image.getClientRects()[0].height / panesHeight;
                     }
-                    if (classifier.getClientRects()[0])
-                    {
+                    if (classifier.getClientRects()[0]) {
                         that.classifierRatio = classifier.getClientRects()[0].height / panesHeight;
-                        if (page.getClientRects()[0])
-                        {
+                        if (page.getClientRects()[0]) {
                             that.pageRatio = page.getClientRects()[0].height / panesHeight;
-                            if (image.getClientRects()[0])
-                            {
+                            if (image.getClientRects()[0]) {
                                 image.style.height = window.innerHeight - page.getClientRects()[0].bottom + "px";
                             }
-                            else
-                            {
+                            else {
                                 page.style.height = window.innerHeight - classifier.getClientRects()[0].bottom + "px";
                             }
                         }
-                        else
-                        {
-                            if (image.getClientRects()[0])
-                            {
+                        else {
+                            if (image.getClientRects()[0]) {
                                 image.style.height = window.innerHeight - classifier.getClientRects()[0].bottom + "px";
                             }
                         }
                     }
-                    else
-                    {
-                        if (page.getClientRects()[0])
-                        {
+                    else {
+                        if (page.getClientRects()[0]) {
                             that.pageRatio = page.getClientRects()[0].height / panesHeight;
-                            if (image.getClientRects()[0])
-                            {
+                            if (image.getClientRects()[0]) {
                                 image.style.height = window.innerHeight - page.getClientRects()[0].bottom + "px";
                             }
                         }
@@ -648,8 +581,42 @@ var RodanDashboardView = Marionette.LayoutView.extend(
 
             });
 
-            $(window).resize(function ()
-            {
+            $(window).on("keydown", (event) => {
+                // Handle navigation using the arrow keys
+                if ((event.key === "ArrowRight" || event.key === "ArrowLeft")) {
+                    let nextGlyph = null;
+                    // If a glyph is selected, switch to the next glyph
+                    if (this.selectedGlyphs.length > 0) {
+                        // Find the current glyph index
+                        const glyph = this.selectedGlyphs.at(0);
+                        const index = glyph.collection.indexOf(glyph);
+
+                        // Find the next glyph to switch to
+                        if (event.key === "ArrowRight" && index < glyph.collection.length - 1) {
+                            nextGlyph = glyph.collection.at(index + 1);
+                        } else if (event.key === "ArrowLeft" && index > 0) {
+                            nextGlyph = glyph.collection.at(index - 1);
+                        }
+                    }
+                    // Otherwise if there is at least one glyph in the page, switch to the first glyph
+                    else if (this.tableRowCollection.length > 0 && this.tableRowCollection.at(0).attributes.glyphs.length > 0) {
+                        nextGlyph = this.tableRowCollection.at(0).attributes.glyphs.at(0);
+                    }
+
+                    if (nextGlyph) {
+                        // Switch to the prev/next glyph and open glyph edit
+                        RadioChannels.edit.trigger(GlyphEvents.switchGlyphActivation, nextGlyph.attributes.id, true);
+                        RadioChannels.edit.trigger(GlyphEvents.deselectAllGlyphs);
+                        RadioChannels.edit.trigger(GlyphEvents.selectGlyph, nextGlyph);
+                        RadioChannels.edit.trigger(GlyphEvents.openGlyphEdit, nextGlyph);
+
+                        // Scroll the glyph into view
+                        document.getElementById(nextGlyph.attributes.id).scrollIntoView();
+                    }
+                }
+            });
+
+            $(window).resize(function () {
                 var currentWinHeight = window.innerHeight;
                 var currentWinWidth = window.innerWidth;
                 var panesHeight = window.innerHeight - that.navHeight;
@@ -657,45 +624,33 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                 document.getElementById("collapse-pane").style.height = that.collapseHeight + "px";
 
                 // If the height of the browser changed, update the heights of the panes
-                if (that.winHeight !== currentWinHeight)
-                {
-                    if (classifier.getClientRects()[0])
-                    {
+                if (that.winHeight !== currentWinHeight) {
+                    if (classifier.getClientRects()[0]) {
                         classifier.style.height = that.classifierRatio * panesHeight + "px";
-                        if (page.getClientRects()[0])
-                        {
-                            if (image.getClientRects()[0])
-                            {
+                        if (page.getClientRects()[0]) {
+                            if (image.getClientRects()[0]) {
                                 page.style.height = that.pageRatio * panesHeight + "px";
                                 image.style.height = currentWinHeight - page.getClientRects()[0].bottom + "px";
                             }
-                            else
-                            {
+                            else {
                                 page.style.height = currentWinHeight - classifier.getClientRects()[0].bottom + "px";
                             }
                         }
-                        else
-                        {
-                            if (image.getClientRects)
-                            {
+                        else {
+                            if (image.getClientRects) {
                                 image.style.height = currentWinHeight - classifier.getClientRects()[0].bottom + "px";
                             }
                         }
                     }
-                    else
-                    {
-                        if (page.getClientRects()[0])
-                        {
+                    else {
+                        if (page.getClientRects()[0]) {
                             page.style.height = that.pageRatio * panesHeight + "px";
-                            if (image.getClientRects()[0])
-                            {
+                            if (image.getClientRects()[0]) {
                                 image.style.height = currentWinHeight - page.getClientRects()[0].bottom + "px";
                             }
                         }
-                        else
-                        {
-                            if (image.getClientRects()[0])
-                            {
+                        else {
+                            if (image.getClientRects()[0]) {
                                 image.style.height = that.imageRatio * panesHeight + "px";
                             }
                         }
@@ -704,8 +659,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
                 }
                 that.rePosition();
                 // If the width of the browser window changed, update the widths of the panes
-                if (that.winWidth !== currentWinWidth)
-                {
+                if (that.winWidth !== currentWinWidth) {
                     classEdit.style.width = that.widthRatio * currentWinWidth + "px";
                     glyphEdit.style.width = that.widthRatio * currentWinWidth + "px";
 
@@ -728,8 +682,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             timer.tick("final");
         },
 
-        collapsePanes: function ()
-        {
+        collapsePanes: function () {
             this.isMouseDown = false;
             var classifier = document.getElementById("right0");
             var page = document.getElementById("right1");
@@ -741,88 +694,69 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             var collPage = document.getElementById("collapse-page");
             var collImage = document.getElementById("collapse-image");
 
-            if (classifier.getClientRects()[0])
-            {
+            if (classifier.getClientRects()[0]) {
                 classifier.style.height = panesHeight / 3 + "px";
-                if (page.getClientRects()[0])
-                {
+                if (page.getClientRects()[0]) {
                     page.style.top = classifier.getClientRects()[0].bottom + "px";
-                    if (image.getClientRects()[0])
-                    {
+                    if (image.getClientRects()[0]) {
                         page.style.height = panesHeight / 3 + "px";
                         image.style.height = height - page.getClientRects()[0].bottom + "px";
                     }
-                    else
-                    {
+                    else {
                         page.style.height = height - classifier.getClientRects()[0].bottom + "px";
                     }
                 }
-                else
-                {
-                    if (image.getClientRects()[0])
-                    {
+                else {
+                    if (image.getClientRects()[0]) {
                         classifier.style.height = panesHeight / 3 + "px";
                         image.style.height = height - classifier.getClientRects()[0].bottom + "px";
                     }
-                    else
-                    {
+                    else {
                         classifier.style.height = panesHeight + "px";
                     }
                 }
             }
-            else
-            {
-                if (page.getClientRects()[0])
-                {
+            else {
+                if (page.getClientRects()[0]) {
                     page.style.top = collClassifier.getClientRects()[0].bottom + "px";
-                    if (image.getClientRects()[0])
-                    {
+                    if (image.getClientRects()[0]) {
                         page.style.height = panesHeight / 3 + "px";
                         image.style.height = height - page.getClientRects()[0].bottom + "px";
                     }
-                    else
-                    {
+                    else {
                         page.style.height = panesHeight + "px";
                     }
                 }
-                else
-                {
-                    if (image.getClientRects()[0])
-                    {
+                else {
+                    if (image.getClientRects()[0]) {
                         image.style.height = panesHeight + "px";
                     }
                 }
             }
 
-            if (classifier.getClientRects()[0])
-            {
+            if (classifier.getClientRects()[0]) {
                 collClassifier.style.background = "white";
                 this.classifierRatio = classifier.getClientRects()[0].height / panesHeight;
             }
-            else
-            {
+            else {
                 collClassifier.style.background = "#8c8c8c";
                 this.classifierRatio = 0;
             }
 
-            if (page.getClientRects()[0])
-            {
+            if (page.getClientRects()[0]) {
                 collPage.style.background = "white";
                 this.pageRatio = page.getClientRects()[0].height / panesHeight;
             }
-            else
-            {
+            else {
                 collPage.style.background = "#8c8c8c";
                 this.pageRatio = 0;
             }
 
-            if (image.getClientRects()[0])
-            {
+            if (image.getClientRects()[0]) {
                 collImage.style.background = "white";
                 this.imageRatio = image.getClientRects()[0].height / panesHeight;
             }
-            else
-            {
+            else {
                 collImage.style.background = "#8c8c8c";
                 this.imageRatio = 0;
             }
@@ -830,8 +764,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             this.rePosition();
         },
 
-        rePosition: function ()
-        {
+        rePosition: function () {
             var classifier = document.getElementById("right0");
             var page = document.getElementById("right1");
             var image = document.getElementById("right2");
@@ -843,107 +776,83 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             var imageZoomIn = document.getElementById("image-in");
             var space = 1; // this keeps the zoom buttons slightly below the image's top border
 
-            if (classifier.getClientRects()[0])
-            {
+            if (classifier.getClientRects()[0]) {
                 classifier.style.top = collapsePane.bottom + "px";
-                if (page.getClientRects()[0])
-                {
+                if (page.getClientRects()[0]) {
                     page.style.top = classifier.getClientRects()[0].bottom + "px";
-                    if (image.getClientRects()[0])
-                    {
+                    if (image.getClientRects()[0]) {
                         image.style.top = page.getClientRects()[0].bottom + "px";
                     }
                 }
-                else
-                {
-                    if (image.getClientRects()[0])
-                    {
+                else {
+                    if (image.getClientRects()[0]) {
                         image.style.top = classifier.getClientRects()[0].bottom + "px";
                     }
                 }
             }
-            else
-            {
-                if (page.getClientRects()[0])
-                {
+            else {
+                if (page.getClientRects()[0]) {
                     page.style.top = collapsePane.bottom + "px";
-                    if (image.getClientRects()[0])
-                    {
+                    if (image.getClientRects()[0]) {
                         image.style.top = page.getClientRects()[0].bottom + "px";
                     }
                 }
-                else
-                {
-                    if (image.getClientRects()[0])
-                    {
+                else {
+                    if (image.getClientRects()[0]) {
                         image.style.top = collapsePane.bottom + "px";
                     }
                 }
             }
 
-            if (image.getClientRects()[0])
-            {
+            if (image.getClientRects()[0]) {
                 imageZoomOut.style.top = imageZoomIn.style.top = image.getClientRects()[0].top + space + "px";
             }
             glyphEdit.style.height = window.innerHeight - classEdit.getClientRects()[0].bottom + "px";
             glyphEdit.style.top = classEdit.getClientRects()[0].bottom + "px";
         },
 
-        onMouseDown: function ()
-        {
+        onMouseDown: function () {
             this.isMouseDown = true;
         },
 
-        saveChanges: function (event)
-        {
-            if (event)
-            {
+        saveChanges: function (event) {
+            if (event) {
                 event.preventDefault();
             }
             RadioChannels.menu.trigger(MainMenuEvents.clickSaveChanges);
         },
 
-        revertChanges: function (event)
-        {
-            if (event)
-            {
+        revertChanges: function (event) {
+            if (event) {
                 event.preventDefault();
             }
             RadioChannels.menu.trigger(MainMenuEvents.clickUndoAll);
         },
 
-        zoomIn: function (event)
-        {
-            if (event)
-            {
+        zoomIn: function (event) {
+            if (event) {
                 event.preventDefault();
             }
             this.isZoomIn = true;
             this.zoomCount++;
-            if (this.zoomCount < this.maxZoomCount)
-            {
+            if (this.zoomCount < this.maxZoomCount) {
                 RadioChannels.edit.trigger(GlyphEvents.zoomGlyphs, this.zoomLevel, this.isZoomIn);
             }
-            else
-            {
+            else {
                 this.zoomCount--;
             }
         },
 
-        zoomOut: function (event)
-        {
-            if (event)
-            {
+        zoomOut: function (event) {
+            if (event) {
                 event.preventDefault();
             }
             this.isZoomIn = false;
             this.zoomCount--;
-            if (this.zoomCount > -this.maxZoomCount)
-            {
+            if (this.zoomCount > -this.maxZoomCount) {
                 RadioChannels.edit.trigger(GlyphEvents.zoomGlyphs, this.zoomLevel, this.isZoomIn);
             }
-            else
-            {
+            else {
                 this.zoomCount++;
             }
         },
@@ -953,8 +862,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @param {Glyph} model - A Glyph model.
          */
-        openGlyphEdit: function (model)
-        {
+        openGlyphEdit: function (model) {
             this.glyphEditRegion.show(new GlyphEditView({
                 model: model
             }));
@@ -966,8 +874,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @param {GlyphCollection} collection - Collection of glyphs to edit.
          */
-        openMultiGlyphEdit: function (collection)
-        {
+        openMultiGlyphEdit: function (collection) {
             this.glyphEditRegion.show(new GlyphMultiEditView({
                 collection: collection
             }));
@@ -979,8 +886,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @param {GlyphCollection} collection - Collection of training glyphs to edit.
          */
-        openTrainingEdit: function (collection)
-        {
+        openTrainingEdit: function (collection) {
             this.glyphEditRegion.show(new TrainingEditView({
                 collection: collection
             }));
@@ -991,8 +897,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @param {String} className - a class name as a String
          */
-        openClassEdit: function (className)
-        {
+        openClassEdit: function (className) {
             var model = new Class({
                 name: className
             });
@@ -1002,13 +907,12 @@ var RodanDashboardView = Marionette.LayoutView.extend(
 
         },
 
-        clearEditRegion: function()
-        {
+        clearEditRegion: function () {
             this.glyphEditRegion.empty();
             var glyphRegion = document.getElementsByClassName("glyph-edit-region")[0];
             var editParagraph = document.createElement('p');
             editParagraph.innerHTML = Strings.editGlyphDescription;
-            glyphRegion.appendChild(editParagraph);
+            glyphRegion.replaceChildren(editParagraph);
         },
 
         /**
@@ -1016,8 +920,7 @@ var RodanDashboardView = Marionette.LayoutView.extend(
          *
          * @returns {{classesHeader: *, editGlyphLabel: (*|string), editGlyphDescription: (*|string)}}
          */
-        serializeData: function ()
-        {
+        serializeData: function () {
             return {
                 classesHeader: Strings.classes,
                 editGlyphLabel: Strings.editGlyphLabel,
