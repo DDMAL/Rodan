@@ -15,7 +15,7 @@ class ProjectList(generics.ListCreateAPIView):
     """
 
     permission_classes = (permissions.IsAuthenticated,)
-    queryset = Project.objects.all()
+    #queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
     filter_fields = {
         "updated": ["lt", "gt"],
@@ -25,6 +25,20 @@ class ProjectList(generics.ListCreateAPIView):
         "name": ["exact", "icontains"],
         "description": ["exact", "icontains"],
     }
+
+    def get_queryset(self):
+        # Retrieve the base queryset
+        queryset = Project.objects.all()
+
+        # Apply additional filtering based on user permissions
+        user = self.request.user
+        if not user.is_superuser:
+            # Filter projects based on the creator or user's permissions logic
+            queryset = queryset.filter(
+                creator=self.request.user #| Q(<your_permissions_logic_here>)
+            )
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
