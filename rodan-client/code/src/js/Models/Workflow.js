@@ -45,34 +45,35 @@ export default class Workflow extends BaseModel
      */
     parse(response)
     {
-        for (var i in response.workflow_runs)
-        {
-            var modelClass = this.get('workflow_runs').model;
-            var model = new modelClass(response.workflow_runs[i]);
-            this.get('workflow_runs').add(model, {merge: true});
+        const workflow_runs = new WorkflowRunCollection();
+        for (const workflow_run of response.workflow_runs) {
+            workflow_runs.add(workflow_run);
         }
-        response.workflow_runs = this.get('workflow_runs');
 
-        for (var i in response.workflow_jobs)
-        {
-            var modelClass = this.get('workflow_jobs').model;
-            var model = new modelClass(response.workflow_jobs[i]);
-            this.get('workflow_jobs').add(model, {merge: true});
+        const workflow_jobs = new WorkflowJobCollection();
+        for (const workflow_job of response.workflow_jobs) {
+            workflow_jobs.add(workflow_job);
         }
-        response.workflow_jobs = this.get('workflow_jobs');
 
-        this.get('workflow_input_ports').set(response.workflow_input_ports, {merge: true, remove: true});
-        response.workflow_input_ports = this.get('workflow_input_ports');
-
-        for (var i in response.workflow_output_ports)
-        {
-            var modelClass = this.get('workflow_output_ports').model;
-            var model = new modelClass(response.workflow_output_ports[i]);
-            this.get('workflow_output_ports').add(model, {merge: true});
+        const workflow_input_ports = new InputPortCollection();
+        for (const workflow_input_port of response.workflow_input_ports) {
+            workflow_input_ports.add(workflow_input_port);
         }
-        response.workflow_output_ports = this.get('workflow_output_ports');
 
-        return response;
+        const workflow_output_ports = new OutputPortCollection();
+        for (const workflow_output_port of response.workflow_output_ports) {
+            workflow_output_ports.add(workflow_output_port);
+        }
+        
+        const parsed = {
+            ...response,
+            workflow_runs,
+            workflow_jobs,
+            workflow_input_ports,
+            workflow_output_ports
+        }
+
+        return parsed;
     }
 }
 Workflow.prototype.routeName = 'workflows';
