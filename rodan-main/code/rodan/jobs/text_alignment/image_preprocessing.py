@@ -8,7 +8,7 @@ from skimage.filters import gaussian, threshold_otsu
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
-
+from skimage.measure import label
 
 # PARAMETERS FOR PREPROCESSING
 soften_amt_deafult = 5  # size of gaussian blur to apply before taking threshold
@@ -202,14 +202,11 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)
     img_bin = img_as_ubyte(gray_img < thresh)
+    
     # need to add clipping because of a weird case where the range of the
     # blurred imagewill be from -1 to 1.0000000004
     blurred = np.clip(gaussian(gray_img, soften), -1, 1)
     img_blur_bin = img_as_ubyte(img_as_ubyte(blurred) < thresh)
-
-    # debug save 1
-    # io.imsave("debug_images/image1.png",img_bin)
-    # io.imsave("debug_images/eroded1.png",img_blur_bin)
 
     # now, fill corners of binarized images with black (value 0)
     img_bin = fill_corners(
@@ -219,30 +216,43 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
         img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False
     )
 
-    # debug save 2
-    # io.imsave("debug_images/image2.png",img_bin)
-    # io.imsave("debug_images/eroded2.png",img_blur_bin)
-
     # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
-
-    # debug save 3
-    # io.imsave("debug_images/eroded3.png",img_cleaned)
 
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
     img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode="edge") > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode="edge") > 0
 
-    # debug save 4
-    # io.imsave("debug_images/image4.png",img_bin_rot)
-    # io.imsave("debug_images/eroded4.png",img_cleaned_rot)
-
     return img_bin_rot, img_cleaned_rot, angle
 
+def get_component_dimesions(img,index):
+    """
+    returns heights and width of a connect component
+    """
+    rows  = np.where(np.any(img == index,axis=1))
+    cols = np.where(np.any(img == index,axis=0))
+    return (np.max(rows) - np.min(rows),np.max(cols)-np.min(cols))
 
-def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
+def get_average_component_height(img):
+    """
+    find the average height of characters.
+    finds characters by using skimage's connect component finder.
+    since random blobs/speckles will be found as well, a weighted
+    average is used where the weights are the widths of the components
+    """
+
+    components, index_max = label(img,connectivity=1,return_num=True)
+    numerator = 0
+    denominator = 0
+    for index in range(1,index_max):
+        dimensions = get_component_dimesions(components,index)
+        numerator += dimensions[0] * dimensions[1]
+        denominator += dimensions[1]
+    return numerator/denominator
+
+def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, bound_tolerance=0.5):
     """
     finds text lines on preprocessed image. step-by-step:
     1. find peak locations of vertical projection
@@ -252,36 +262,32 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
     from above and below.
     4. take a tight bounding box around all content found between two derivative-peaks.
     """
-
+    average_char_height = get_average_component_height(img)
     # compute y-axis projection of input image and filter with sliding window average
     project = np.clip(img, 0, 1).sum(1)
     smoothed_projection = moving_avg_filter(project, filter_size)
 
     # calculate normalized log prominence of all peaks in projection
     peak_locations = find_peak_locations(smoothed_projection)
-    diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
+
 
     line_margins = []
-    for p in peak_locations:
-        # get the largest diff-peak smaller than this peak, and the smallest diff-peak that's larger
-        lower_peaks = [x for x in diff_proj_peaks if x < p]
-        lower_bound = max(lower_peaks) if len(lower_peaks) > 0 else 0
 
-        higher_peaks = [x for x in diff_proj_peaks if x > p]
-        higher_bound = min(higher_peaks) if len(higher_peaks) > 0 else 0
+    # find the upper and lower bound for the peaks (the vertical bounds of the text strips)
+    # assuming the peaks are found correctly, initialize the bounds to being at the peak
+    # then moving them outward while the value at the projection is greater than the median
+    # plus some factor times the standard deviation
+    # after, dilate the bounds to be safe
+    for peak in peak_locations:
+        lower_bound = peak - average_char_height/2
+        upper_bound = peak + average_char_height/2
 
-        if higher_bound and not lower_bound:
-            lower_bound = p + (p - higher_bound)
-        elif lower_bound and not higher_bound:
-            higher_bound = p + (p - lower_bound)
+        lower_bound -= (peak - lower_bound) * widen_strips_factor
+        lower_bound = max(0,lower_bound)
+        upper_bound += (upper_bound - peak) * widen_strips_factor
+        upper_bound = min(len(project)-1,upper_bound)
 
-        # extend bounds of strip slightly away from peak location, for safety (diacritics, etc)
-        lower_bound -= int((p - lower_bound) * widen_strips_factor)
-        lower_bound = max(0, lower_bound)
-        higher_bound += int((higher_bound - p) * widen_strips_factor)
-        higher_bound = min(img.shape[0], higher_bound)
-
-        line_margins.append([lower_bound, higher_bound])
+        line_margins.append([int(lower_bound),int(upper_bound)])
 
     # iterate through every pair of peak locations to make sure consecutive strips are not overlapping
     for i in range(len(peak_locations) - 1):
@@ -344,6 +350,7 @@ def identify_text_lines(img, widen_strips_factor=1, filter_size=filter_size):
 
 
 def save_preproc_image(image, line_strips, lines_peak_locs, out_fname):
+    from PIL import Image, ImageDraw, ImageFont
     im = Image.fromarray((1 - image.astype("uint8")) * 255)
 
     text_size = 70
@@ -426,12 +433,15 @@ if __name__ == "__main__":
         out_fname = os.path.join(out_folder, f"preproc_{fname}")
         save_preproc_image(img_bin, line_strips, lines_peak_locs, out_fname)
 
+
+
+    # diff_proj_peaks = find_peak_locations(np.abs(np.diff(proj)))
     # plt.clf()
-    # plt.plot(proj)
-    # for x in lines_peak_locs:
+    # plt.plot(np.diff(proj))
+    # for x in diff_proj_peaks:
     #     plt.axvline(x=x, linestyle=':')
     # plt.show()
-
+   
     # diff_proj_peaks = find_peak_locations(np.abs(np.diff(proj)))
     # plt.clf()
     # plt.plot(np.diff(proj))
