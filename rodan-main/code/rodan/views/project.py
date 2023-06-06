@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
+from django.db.models import Q
+
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -35,7 +37,7 @@ class ProjectList(generics.ListCreateAPIView):
         if not user.is_superuser:
             # Filter projects based on the creator or user's permissions logic
             queryset = queryset.filter(
-                creator=self.request.user #| Q(<your_permissions_logic_here>)
+                Q(creator=user) | Q(admin_group__user=user) | Q(worker_group__user=user)
             )
 
         return queryset
