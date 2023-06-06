@@ -85,6 +85,7 @@ def process(
     print("identifying text lines...")
     image, eroded, angle = preproc.preprocess_images(raw_image)
     cc_strips, lines_peak_locs, _ = preproc.identify_text_lines(eroded)
+    
 
     assert (
         len(cc_strips) > 0
@@ -236,7 +237,7 @@ def draw_results_on_page(image, syl_boxes, lines_peak_locs, out_fname):
             fill="white",
         )
         draw.text((ul[0], ul[1] - text_size), cbox.char, font=fnt, fill="black")
-        draw.rectangle([ul, lr], outline="white")
+        draw.rectangle([ul, lr], outline="black")
         draw.line([ul[0], ul[1], ul[0], lr[1]], fill="white", width=5)
 
     # for i, peak_loc in enumerate(lines_peak_locs):

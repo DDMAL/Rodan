@@ -198,7 +198,6 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     thresh = threshold_otsu(
         fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True)
     )
-    #io.imsave("debug/corners.png",fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True))
 
     # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
     # what you would get from a normal binarization, because the math gets easier this way)
@@ -208,12 +207,6 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
     # blurred imagewill be from -1 to 1.0000000004
     blurred = np.clip(gaussian(gray_img, soften), -1, 1)
     img_blur_bin = img_as_ubyte(img_as_ubyte(blurred) < thresh)
-    # io.imsave("debug/bin.png",img_bin)
-    # io.imsave("debug/blurred.png",img_blur_bin)
-
-    # debug save 1
-    # io.imsave("debug_images/image1.png",img_bin)
-    # io.imsave("debug_images/eroded1.png",img_blur_bin)
 
     # now, fill corners of binarized images with black (value 0)
     img_bin = fill_corners(
@@ -223,25 +216,14 @@ def preprocess_images(input_image, soften=None, fill_holes=None):
         img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False
     )
 
-    # debug save 2
-    # io.imsave("debug_images/image2.png",img_bin)
-    # io.imsave("debug_images/eroded2.png",img_blur_bin)
-
     # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
-
-    # debug save 3
-    # io.imsave("debug_images/eroded3.png",img_cleaned)
 
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
     img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode="edge") > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode="edge") > 0
-
-    # debug save 4
-    # io.imsave("debug_images/image4.png",img_bin_rot)
-    # io.imsave("debug_images/eroded4.png",img_cleaned_rot)
 
     return img_bin_rot, img_cleaned_rot, angle
 
@@ -287,18 +269,9 @@ def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, b
 
     # calculate normalized log prominence of all peaks in projection
     peak_locations = find_peak_locations(smoothed_projection)
-    # diff_proj_peaks = find_peak_locations(np.abs(np.diff(smoothed_projection)))
-    # filtered_diff = moving_avg_filter(np.diff(project),10)
-    # diff_proj_peaks = find_peak_locations(np.abs(filtered_diff),tol=0.7)
 
 
     line_margins = []
-
-    median = np.median(project)
-    std = np.std(project)
-    # used for finding the bounds. Sometimes Paco's draws small perfectly horizontal white lines
-    # across the text layer so using a lightly filtered projection will help with that problems
-    lightly_filtered = np.abs(moving_avg_filter(project,10))
 
     # find the upper and lower bound for the peaks (the vertical bounds of the text strips)
     # assuming the peaks are found correctly, initialize the bounds to being at the peak
@@ -309,16 +282,10 @@ def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, b
         lower_bound = peak - average_char_height/2
         upper_bound = peak + average_char_height/2
 
-        # while lower_bound >= 0 and (lightly_filtered[lower_bound] > median + bound_tolerance*std):
-        #     lower_bound -= 1
-
-        # while upper_bound < len(lightly_filtered) and (lightly_filtered[upper_bound] > median + bound_tolerance*std):
-        #     upper_bound += 1
-
         lower_bound -= (peak - lower_bound) * widen_strips_factor
         lower_bound = max(0,lower_bound)
         upper_bound += (upper_bound - peak) * widen_strips_factor
-        upper_bound = min(len(lightly_filtered)-1,upper_bound)
+        upper_bound = min(len(project)-1,upper_bound)
 
         line_margins.append([int(lower_bound),int(upper_bound)])
 
@@ -378,22 +345,6 @@ def identify_text_lines(img, widen_strips_factor=1.5, filter_size=filter_size, b
     # go back and check to make sure this process didn't fail. if it did, we'll have bounding
     # boxes at [0, 0, 0, 0]. as a failsafe, use the median height of other bounding boxes
     # in place of failed bounding boxes.
-
-    # import matplotlib.pyplot as plt
-    # plt.clf()
-    # plt.plot(smoothed_projection)
-    # plt.plot(np.abs(filtered_diff)*100)
-    # for x in peak_locations:
-    #     plt.axvline(x=x, linestyle=':',color="r")
-    # for x in diff_proj_peaks:
-    #     plt.axvline(x=x, linestyle=':',color="g")
-    # plt.savefig("debug/projection.png")
-    
-    # plt.clf()
-    
-    # for x in diff_proj_peaks:
-    #     plt.axvline(x=x, linestyle=':',color="g")
-    # plt.savefig("debug/diff.png")
 
     return line_strips, peak_locations, smoothed_projection
 
