@@ -27,6 +27,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "projects",
             "workflows",
             "workflow_runs",
+            "user_preference",
         )
 
 
