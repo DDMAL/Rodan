@@ -323,7 +323,7 @@ TEMPLATES = [
 ]
 
 # Middleware classes
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.gzip.GZipMiddleware",
@@ -339,7 +339,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
+    # "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
 ]
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
 FILE_UPLOAD_PERMISSIONS =  0o644
