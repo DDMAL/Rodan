@@ -173,7 +173,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                         ),
                         [wfjob, opt],
                     )
-                elif opt.maximum > 0: #since in the Wiki, 0 is described as there is no maximum requirement. More info here: https://github.com/DDMAL/Rodan/wiki/Write-a-Rodan-job-package#1-describe-a-rodan-job
+                elif opt.maximum != 0: #since in the Wiki, 0 is described as there is no maximum requirement. More info here: https://github.com/DDMAL/Rodan/wiki/Write-a-Rodan-job-package#1-describe-a-rodan-job
                     if number_of_output_ports > opt.maximum:
                         raise WorkflowValidationError(
                             "WFJ_TOO_MANY_OP",
