@@ -74,10 +74,15 @@ class WorkflowBuilderGUI
                 "LINE_COLOR": "#606060",
                 "LINE_WIDTH": 0.5
             },
+            "BOUNDARIES": {
+                "WIDTH": 1920,
+                "HEIGHT": 1920
+            },
             "ZOOM_MAX": 3.0,
             "ZOOM_MIN": 1.0,
             "ZOOM_RATE": 0.05,
             "ZOOM_INITIAL": 1.7,
+            "WHEEL_FACTOR": 0.01,
             "WORKFLOWJOB_WIDTH": 20,
             "WORKFLOWJOB_HEIGHT": 22,
             "PORT_WIDTH": 8,
@@ -223,7 +228,6 @@ class WorkflowBuilderGUI
         paper.install(window);
         paper.setup(canvasElementId);
         paper.view.onFrame = (event) => this._handleFrame(event);
-        paper.view.viewSize = [screen.width, screen.height];
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
         this._handleRequestZoomReset();
@@ -238,6 +242,7 @@ class WorkflowBuilderGUI
      */
     _handleFrame(event)
     {
+        this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
         BaseItem.updateItems();
     }
 
@@ -342,7 +347,7 @@ class WorkflowBuilderGUI
                 var deltaX = (event.event.screenX - this._lastToolEvent.event.screenX) / paper.view.zoom;
                 var deltaY = (event.event.screenY - this._lastToolEvent.event.screenY) / paper.view.zoom;
                 var delta = new Point(deltaX, deltaY);
-                // paper.view.translate(delta);
+                paper.view.translate(delta);
                 this._limitViewInThresholds(); // make sure we stay in bounds!
             }
         }
@@ -473,9 +478,9 @@ class WorkflowBuilderGUI
     /**
      * Handle zoom in.
      */
-    _handleRequestZoomIn()
+    _handleRequestZoomIn(multiplier = 1)
     {
-        const zoom = paper.view.zoom + Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
+        const zoom = paper.view.zoom + multiplier * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
         const zoomToApply = zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
         paper.view.zoom = zoomToApply;
         this._setLocalStorageItem('zoom', zoomToApply);
@@ -484,9 +489,9 @@ class WorkflowBuilderGUI
     /**
      * Handle zoom out.
      */
-    _handleRequestZoomOut()
+    _handleRequestZoomOut(multiplier = 1)
     {
-        var zoom = paper.view.zoom - Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
+        var zoom = paper.view.zoom - multiplier * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
         const zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
         paper.view.zoom = zoomToApply;
         this._setLocalStorageItem('zoom', zoomToApply);
@@ -513,10 +518,13 @@ class WorkflowBuilderGUI
     {
         var halfWidth = paper.view.size.width / 2;
         var halfHeight = paper.view.size.height / 2;
-        return {xLeft: halfWidth,
-                xRight: halfWidth + paper.view.viewSize.width - paper.view.size.width,
-                yTop: halfHeight,
-                yBottom: halfHeight + paper.view.viewSize.height - paper.view.size.height};
+        
+        return {
+            xLeft: halfWidth,
+            xRight: Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].BOUNDARIES.WIDTH - halfWidth,
+            yTop: halfHeight,
+            yBottom: Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].BOUNDARIES.HEIGHT - halfHeight
+        };
     }
 
     /**
@@ -546,7 +554,7 @@ class WorkflowBuilderGUI
         {
             newPoint.y = thresholds.yBottom;
         }
-        // paper.view.setCenter(newPoint);
+        paper.view.setCenter(newPoint);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -561,22 +569,19 @@ class WorkflowBuilderGUI
         const canvasWrapper = document.querySelector('#canvas-wrap');
 
         // scrolling event listeners
-        canvasWrapper.addEventListener('scroll', () => {
-            this._handleScroll();
-        });
+        canvasWrapper.addEventListener('wheel', (event) => this._handleScroll(event));
     }
 
     /**
      * Handle user scrolling action.
      * Saves user's scroll position in localStorage.
      */
-    _handleScroll() {
-        const canvasWrapper = document.querySelector('#canvas-wrap');
-
-        this._setLocalStorageItem({
-            itemName: 'scroll',
-            itemValue: [canvasWrapper.scrollLeft, canvasWrapper.scrollTop]
-        })
+    _handleScroll(event) {
+        if (event.deltaY > 0) {
+            this._handleRequestZoomOut(Math.abs(event.deltaY * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WHEEL_FACTOR));
+        } else {
+            this._handleRequestZoomIn(Math.abs(event.deltaY * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WHEEL_FACTOR));
+        }
     }
 
     /**

@@ -62,14 +62,14 @@ export function drawGrid(options, paperScope)
  
     //Removes the children of the gridGroup and discards the gridGroup itself
     this.removeGrid = function() {
-        for (var i = 0; i <= gridGroup.children.length-1; i++) {
+        for (var i = 0; i <= self.gridGroup.children.length-1; i++) {
           self.gridGroup.children[i].remove();
         }
         self.gridGroup.remove();
     }
  
     //Initialization
-    if(typeof gridGroup === 'undefined') {
+    if(typeof self.gridGroup === 'undefined') {
         this.createGrid();
     } else {
         this.removeGrid();

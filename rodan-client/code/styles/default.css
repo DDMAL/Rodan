@@ -101,7 +101,7 @@ div#region-main
 div#canvas-wrap
 {
     height: 100%;
-    overflow: scroll;
+    overflow: hidden;
     padding: 0px;
 }
 
@@ -125,6 +125,10 @@ canvas#canvas-workspace
     padding: 0px;
 }
 
+canvas[resize] {
+    width: 100%;
+    height: 100%;
+}
 
 /* Input fields */
 textarea[type=text]
