@@ -67,6 +67,21 @@ div#region-navigation div.node_text
     cursor: pointer;
 }
 
+.workflow-name, .workflow-status {
+    color: #9d9d9d;
+    line-height: 20px;
+    padding: 15px;
+    margin: 0;
+    display: block;
+}
+
+.workflow-name {
+    float: left;
+    height: 50px;
+    font-size: 18px;
+    margin-left: -15px;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // Main region
 ///////////////////////////////////////////////////////////////////////////////////////
