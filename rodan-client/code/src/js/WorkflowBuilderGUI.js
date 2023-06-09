@@ -74,10 +74,6 @@ class WorkflowBuilderGUI
                 "LINE_COLOR": "#606060",
                 "LINE_WIDTH": 0.5
             },
-            "BOUNDARIES": {
-                "WIDTH": 1920,
-                "HEIGHT": 1920
-            },
             "ZOOM_MAX": 3.0,
             "ZOOM_MIN": 1.0,
             "ZOOM_RATE": 0.05,
@@ -176,6 +172,7 @@ class WorkflowBuilderGUI
 
         this.guiChannel = Radio.channel('rodan-client_gui');
         this.guiChannel.on(GUI_EVENTS.EVENT__WORKFLOWBUILDER_GUI_DESTROY, () => this._handleGuiDestroy());
+        this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_VIEW_CENTER, () => this._handleGetViewCenter());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_GET_WORKFLOW, () => this.getWorkflow());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_IN, () => this._handleRequestZoomIn());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_OUT, () => this._handleRequestZoomOut());
@@ -348,7 +345,7 @@ class WorkflowBuilderGUI
                 var deltaY = (event.event.screenY - this._lastToolEvent.event.screenY) / paper.view.zoom;
                 var delta = new Point(deltaX, deltaY);
                 paper.view.translate(delta);
-                this._limitViewInThresholds(); // make sure we stay in bounds!
+                // this._limitViewInThresholds(); // make sure we stay in bounds!
             }
         }
         else if (event.type === 'mouseup')
@@ -495,7 +492,7 @@ class WorkflowBuilderGUI
         const zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
         paper.view.zoom = zoomToApply;
         this._setLocalStorageItem('zoom', zoomToApply);
-        this._limitViewInThresholds(); // make sure we stay in bounds!
+        // this._limitViewInThresholds(); // make sure we stay in bounds!
     }
 
     /**
@@ -505,7 +502,18 @@ class WorkflowBuilderGUI
     {
         paper.view.zoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_INITIAL;
         this._setLocalStorageItem('zoom', paper.view.zoom);
-        this._limitViewInThresholds(); // make sure we stay in bounds!
+        // this._limitViewInThresholds(); // make sure we stay in bounds!
+    }
+
+    /**
+     * Return absolute coordinates of the viewport center.
+     */
+    _handleGetViewCenter()
+    {
+        const x = paper.view.center.x / (paper.view.size.width * paper.view.zoom);
+        const y = paper.view.center.y / (paper.view.size.height * paper.view.zoom);
+
+        return { x, y };
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -518,12 +526,12 @@ class WorkflowBuilderGUI
     {
         var halfWidth = paper.view.size.width / 2;
         var halfHeight = paper.view.size.height / 2;
-        
+
         return {
             xLeft: halfWidth,
-            xRight: Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].BOUNDARIES.WIDTH - halfWidth,
+            xRight: (screen.width / devicePixelRatio) - halfWidth,
             yTop: halfHeight,
-            yBottom: Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].BOUNDARIES.HEIGHT - halfHeight
+            yBottom: (screen.height / devicePixelRatio) - halfHeight
         };
     }
 
@@ -621,7 +629,7 @@ class WorkflowBuilderGUI
                 const zoom = localStorageObject['workflow-builder-data']['zoom'];
                 let zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
                 zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
-                this._limitViewInThresholds(); // make sure we stay in bounds!
+                // this._limitViewInThresholds(); // make sure we stay in bounds!
 
                 paper.view.zoom = zoomToApply;
                 break;

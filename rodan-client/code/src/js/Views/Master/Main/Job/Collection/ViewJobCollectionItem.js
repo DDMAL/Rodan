@@ -3,6 +3,7 @@ import _ from 'underscore';
 import BaseViewCollectionItem from 'js/Views/Master/Main/BaseViewCollectionItem';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Radio from 'backbone.radio';
+import GUI_EVENTS from '../../../../../Shared/Events';
 
 /**
  * View for Job item in Job Collection.
@@ -30,7 +31,8 @@ export default class ViewJobCollectionItem extends BaseViewCollectionItem
      */
     _handleClickButtonAdd()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_ADD_WORKFLOWJOB, {job: this.model, workflow: this._workflow});
+        const center = Radio.channel('rodan-client_gui').request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_VIEW_CENTER);
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_ADD_WORKFLOWJOB, { job: this.model, workflow: this._workflow, appearance: { x: center.x, y: center.y } });
     }
 }
 ViewJobCollectionItem.prototype.template = _.template($('#template-main_job_collection_item').text());
