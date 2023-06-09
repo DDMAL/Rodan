@@ -31,7 +31,7 @@ export default class ViewJobCollectionItem extends BaseViewCollectionItem
      */
     _handleClickButtonAdd()
     {
-        const center = Radio.channel('rodan-client_gui').request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_VIEW_CENTER);
+        const center = Radio.channel('rodan-client_gui').request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_NEW_JOB_POSITION);
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_ADD_WORKFLOWJOB, { job: this.model, workflow: this._workflow, appearance: { x: center.x, y: center.y } });
     }
 }

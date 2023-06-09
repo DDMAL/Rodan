@@ -25,6 +25,7 @@ class WorkflowBuilderGUI
         this._oldMouseEvent = window.MouseEvent; // FIX: paper.js stupidly redefines
         this._event = window.Event; // paper.js stupidly redefines Event and crashes the SAVE button in resources
         this._workflow = null;
+        this._rightClickPosition = null;
         Radio.channel('rodan').on(Rodan.RODAN_EVENTS.EVENT__WORKFLOWBUILDER_SELECTED, (options) => this.initialize(options));
     }
 
@@ -172,7 +173,7 @@ class WorkflowBuilderGUI
 
         this.guiChannel = Radio.channel('rodan-client_gui');
         this.guiChannel.on(GUI_EVENTS.EVENT__WORKFLOWBUILDER_GUI_DESTROY, () => this._handleGuiDestroy());
-        this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_VIEW_CENTER, () => this._handleGetViewCenter());
+        this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GET_NEW_JOB_POSITION, () => this._handleGetNewJobPosition());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_GET_WORKFLOW, () => this.getWorkflow());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_IN, () => this._handleRequestZoomIn());
         this.guiChannel.reply(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_OUT, () => this._handleRequestZoomOut());
@@ -323,8 +324,10 @@ class WorkflowBuilderGUI
                 // If right-click, open context menu.
                 if (event.event.button === 2)
                 {
-                    Radio.channel('rodan').request(Rodan.RODAN_EVENTS.REQUEST__CONTEXTMENU_SHOW,
-                                              {items: this._menuItems, top: event.event.pageY, left: event.event.pageX});
+                    this._rightClickPosition = event.point;
+                    Radio.channel('rodan').request(Rodan.RODAN_EVENTS.REQUEST__CONTEXTMENU_SHOW, {items: this._menuItems, top: event.event.pageY, left: event.event.pageX});
+                } else {
+                    this._rightClickPosition = null;
                 }
             }
         }
@@ -512,6 +515,20 @@ class WorkflowBuilderGUI
     {
         const x = paper.view.center.x / (paper.view.size.width * paper.view.zoom);
         const y = paper.view.center.y / (paper.view.size.height * paper.view.zoom);
+
+        return { x, y };
+    }
+
+    /**
+     * Returns the position to create a new job. 
+     * If the user right-clicked, use that position. Otherwise, use the center of the view.
+     */
+    _handleGetNewJobPosition()
+    {
+        const left = this._rightClickPosition === null ? paper.view.center.x : this._rightClickPosition.x;
+        const top = this._rightClickPosition === null ? paper.view.center.y : this._rightClickPosition.y;
+        const x = left / (paper.view.size.width * paper.view.zoom);
+        const y = top / (paper.view.size.height * paper.view.zoom);
 
         return { x, y };
     }
