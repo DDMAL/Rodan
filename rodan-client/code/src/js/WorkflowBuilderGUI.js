@@ -77,9 +77,8 @@ class WorkflowBuilderGUI
             },
             "ZOOM_MAX": 3.0,
             "ZOOM_MIN": 1.0,
-            "ZOOM_RATE": 0.05,
+            "ZOOM_RATE": 0.1,
             "ZOOM_INITIAL": 1.7,
-            "WHEEL_FACTOR": 0.01,
             "WORKFLOWJOB_WIDTH": 20,
             "WORKFLOWJOB_HEIGHT": 22,
             "PORT_WIDTH": 8,
@@ -509,17 +508,6 @@ class WorkflowBuilderGUI
     }
 
     /**
-     * Return absolute coordinates of the viewport center.
-     */
-    _handleGetViewCenter()
-    {
-        const x = paper.view.center.x / (paper.view.size.width * paper.view.zoom);
-        const y = paper.view.center.y / (paper.view.size.height * paper.view.zoom);
-
-        return { x, y };
-    }
-
-    /**
      * Returns the position to create a new job. 
      * If the user right-clicked, use that position. Otherwise, use the center of the view.
      */
@@ -602,11 +590,20 @@ class WorkflowBuilderGUI
      * Saves user's scroll position in localStorage.
      */
     _handleScroll(event) {
-        if (event.deltaY > 0) {
-            this._handleRequestZoomOut(Math.abs(event.deltaY * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WHEEL_FACTOR));
-        } else {
-            this._handleRequestZoomIn(Math.abs(event.deltaY * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WHEEL_FACTOR));
-        }
+        const oldZoom = paper.view.zoom;
+        const oldCenter = paper.view.center;
+        
+        const mousePosition = paper.view.viewToProject(new Point(event.offsetX, event.offsetY));
+
+        const zoom = oldZoom * (1 + (event.deltaY < 0 ? 1 : -1) * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE);
+        const minZoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
+        const maxZoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
+        const newZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
+
+        const offset = mousePosition.subtract(mousePosition.subtract(oldCenter).multiply(oldZoom / newZoom)).subtract(oldCenter);
+
+        paper.view.zoom = newZoom;
+        paper.view.center = paper.view.center.add(offset);
     }
 
     /**
