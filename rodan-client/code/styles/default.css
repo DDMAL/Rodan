@@ -8,7 +8,18 @@
 
 
 
+
+
 :root {
+    /* Navigation tree area */
+    --navigation-node-color: #939393;
+
+    /* Status area */
+    --background-color-status: #000000;
+    --text-color-status-user: #cccccc;
+    --text-color-status-user: #cccccc;
+    --text-color-status-server: #cccccc;
+
     --primary-app-color: #49c5b6;
     --secondary-app-color: #398fe6;
     --text-color-navigation: white;
@@ -110,7 +121,7 @@ div#region-navigation {
     background: #0000000f;
     height: 100%;
     width: 17%;
-    color: #49c5b6;
+    color: $navigation-node-color;
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 999;
@@ -118,68 +129,159 @@ div#region-navigation {
     justify-content: center;
     align-items: center;
 }
-div#region-navigation div.node_text {
+div#region-navigation div.node-text {
     cursor: pointer;
 }
 #app-navbar-wrapper {
-    height: 98%;
-    width: 90%;
-}
-#app-navbar {
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+}
+#app-navbar {
+    height: 99%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar-sections-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
+    align-items: center;
+}
+.navbar-sections-wrapper.navbar-sections-wrapper-top {
+    justify-content: flex-start;
+    height: 90%;
+}
+.navbar-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
 }
-/* Logo and reqquests status styles */
+.navbar-section.navbar-section-top {
+    justify-content: flex-start;
+
+}
+.navbar-section.navbar-section-bottom {
+
+}
+.navbar-section.main-navbar-section {
+    width: 90%;
+}
+/* Logo and requests status styles */
 .content-wrapper.left-navbar-content-wrapper {
     flex-direction: column;
     width: 100%;
     height: 10%;
 }
 #rodan-logo {
-    font-size: 30px;
-    flex-grow: 0.25;
+    font-size: 35px;
     display: flex;
     align-items: flex-start;
+    color: #49c5b6;
+    height: 5%;
 }
 #region-status {
-    flex-grow: 0.5;
+    color: $primary-app-color;
+    height: 10%;
 }
+
 /* Navigation tree styles */
+.navigation-tree-node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+}
+.navigation-tree-node {
+    cursor: pointer;
+}
+.navigation-tree-node:hover {
+    background-color: $primary-app-color;
+    color: white;
+}
+#my-projects-btn {
+    font-size: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+#my-projects-btn:hover {
+    background-color: $primary-app-color;
+    color: white;
+}
 #region-navigation_tree {
     list-style-type: disc;
-    margin: 0;
-    padding-left: 10px;
-    flex-grow: 9;
 }
-.btn-group.left-navbar-btn-group {
+.navigation-tree-child-view-container {
     display: flex;
-    flex-grow: 0.1;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 90%;
+    padding-left: 5px;
+    border-left: 2px solid #3ebba76b;
+}
+.navigation-tree-child-view-container.no-indent {
     width: 100%;
+    border: none;
+    padding: 0;
+}
+.btn-group.main-navbar-btn-group {
+    display: flex;
     flex-wrap: wrap;
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
     gap: 3px;
 }
-.btn.left-navbar-btn {
+.node-text {
+    font-size: 15px;
+    width: 100%;
+    padding: 3px 0px;
+}
+.node-text:hover {
+    background-color: $primary-app-color;
+    color: white;
+}
+.node-text.highlighted {
+    background-color: $primary-app-color;
+    color: white;
+}
+.node-text.project {
+    margin-top: 7px;
+    margin-bottom: 4px;
+}
+.node-text.project-child {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+/* main navbar buttons */
+.btn.main-navbar-btn {
     background-color: white;
     outline: none;
     border: 1px solid #dedede;
-    color: #3ebba7;
+    color: $primary-app-color;
     border-radius: 3px;
+    flex-grow: 1;
+    min-height: 25px;
 }
-.btn.left-navbar-btn:hover {
-    background-color: #3ebba7;
+.btn.main-navbar-btn:hover {
+    background-color: $primary-app-color;
     color: white;
 }
-.btn.left-navbar-btn#button-navigation_logout {
+.btn.main-navbar-btn#button-navigation_logout {
     color: #E76B6B;
 }
-.btn.left-navbar-btn#button-navigation_logout:hover {
+.btn.main-navbar-btn#button-navigation_logout:hover {
     background-color: #E76B6B;
     color: white;
 }

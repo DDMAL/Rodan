@@ -1,21 +1,30 @@
 <nav id="app-navbar" class="content-wrapper left-navbar-content-wrapper">
+
+	<!-- Top section contains logo,  status bar, and project nav tree -->
+	<div class="navbar-sections-wrapper navbar-sections-wrapper-top">
+
 		<!-- Rodan logo -->
-		<div id="rodan-logo">Rodan</div>
-
+		<div id="rodan-logo" class="navbar-section main-navbar-section">Rodan</div>
 		<!-- Request status monitor -->
-		<div id="region-status"></div>
-
+		<div id="region-status" class="navbar-section main-navbar-section"></div>
 		<!-- Rodan project navigation tree -->
-		<ul id="region-navigation_tree"></ul>
+		<div id="region-navigation_tree" class="navbar-section main-navbar-section"></div>
 
-		<hr>		
+	</div>
 
-		<!-- Rodan main navbar buttons -->
-		<div class="btn-group left-navbar-btn-group">
-			<button class="btn left-navbar-btn" id="button-navigation_about">About</button>
-			<button class="btn left-navbar-btn" id="button-navigation_dev">Dev</button>
-			<button class="btn left-navbar-btn" id="button-navigation_help">Help</button>
-			<button class="btn left-navbar-btn" id="button-navigation_preferences" disabled>Preferences</button>
-			<button class="btn left-navbar-btn" id="button-navigation_logout" disabled>Logout</button>
+	<!-- Bottom section contains btn menu -->
+	<div class="navbar-sections-wrapper navbar-sections-wrapper-bottom">
+
+		<hr class="navbar-section main-navbar-section">
+		<!-- Rodan navbar buttons -->
+		<div class="navbar-section main-navbar-section btn-group main-navbar-btn-group">
+			<button class="btn main-navbar-btn" id="button-navigation_about">About</button>
+			<button class="btn main-navbar-btn" id="button-navigation_dev">Dev</button>
+			<button class="btn main-navbar-btn" id="button-navigation_help">Help</button>
+			<button class="btn main-navbar-btn" id="button-navigation_preferences" disabled>Preferences</button>
+			<button class="btn main-navbar-btn" id="button-navigation_logout" disabled>Logout</button>
 		</div>
+
+	</div>
+
 </nav>
