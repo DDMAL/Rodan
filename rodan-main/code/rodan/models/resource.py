@@ -4,7 +4,7 @@ import shutil
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 from rodan.constants import task_status
 from rodan.models.resourcelabel import ResourceLabel
 

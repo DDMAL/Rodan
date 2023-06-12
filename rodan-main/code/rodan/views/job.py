@@ -1,6 +1,4 @@
-from rest_framework import generics, permissions
-import django_filters.rest_framework as filters
-from rest_framework.filters import OrderingFilter
+from rest_framework import generics, permissions, filters
 
 from rodan.models.job import Job
 from rodan.serializers.job import JobSerializer
@@ -17,7 +15,7 @@ class JobList(generics.ListAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
-    filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = {
         # "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
         "category": ["exact"],

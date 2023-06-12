@@ -27,8 +27,8 @@ class InputPortList(generics.ListCreateAPIView):
     serializer_class = InputPortSerializer
 
     class filter_class(django_filters.FilterSet):
-        workflow = django_filters.CharFilter(field_name="workflow_job__workflow")
-        type = django_filters.CharFilter(field_name="input_port_type__name")
+        workflow = django_filters.CharFilter(name="workflow_job__workflow")
+        type = django_filters.CharFilter(name="input_port_type__name")
 
         class Meta:
             model = InputPort

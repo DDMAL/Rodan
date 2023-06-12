@@ -1,7 +1,7 @@
 # ================================
 # From ./python3-celery/Dockerfile
 # ================================
-FROM alpine:3.16 AS builder
+FROM alpine:3 AS builder
 ARG BRANCH
 ENV BRANCH="${BRANCH:-develop}"
 RUN apk update

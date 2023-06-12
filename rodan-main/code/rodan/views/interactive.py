@@ -20,7 +20,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 from django.utils import timezone
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 
 from rodan.constants import task_status
 from rodan.exceptions import CustomAPIException

@@ -20,8 +20,8 @@ class OutputPortList(generics.ListCreateAPIView):
     serializer_class = OutputPortSerializer
 
     class filter_class(django_filters.FilterSet):
-        workflow = django_filters.CharFilter(field_name="workflow_job__workflow")
-        type = django_filters.CharFilter(field_name="output_port_type__name")
+        workflow = django_filters.CharFilter(name="workflow_job__workflow")
+        type = django_filters.CharFilter(name="output_port_type__name")
 
         class Meta:
             model = OutputPort
