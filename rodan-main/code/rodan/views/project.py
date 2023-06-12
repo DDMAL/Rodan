@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from rodan.models.project import Project
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
-from django.db.models import Q
-
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -17,7 +15,7 @@ class ProjectList(generics.ListCreateAPIView):
     """
 
     permission_classes = (permissions.IsAuthenticated,)
-    #queryset = Project.objects.all()
+    queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
     filter_fields = {
         "updated": ["lt", "gt"],
@@ -27,20 +25,6 @@ class ProjectList(generics.ListCreateAPIView):
         "name": ["exact", "icontains"],
         "description": ["exact", "icontains"],
     }
-
-    def get_queryset(self):
-        # Retrieve the base queryset
-        queryset = Project.objects.all()
-
-        # Apply additional filtering based on user permissions
-        user = self.request.user
-        if not user.is_superuser:
-            # Filter projects based on the creator or user's permissions logic
-            queryset = queryset.filter(
-                Q(creator=user) | Q(admin_group__user=user) | Q(worker_group__user=user)
-            )
-
-        return queryset
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
