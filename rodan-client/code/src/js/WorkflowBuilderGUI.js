@@ -76,6 +76,7 @@ class WorkflowBuilderGUI
                 "LINE_COLOR": "#606060",
                 "LINE_WIDTH": 0.5
             },
+            "DATABASE_COORDINATES_MULTIPLIER": 1500, // Legacy workflows stored coordinates in the database differently. This is to maintain backwards compatibility.
             "ZOOM_MAX": 3.0,
             "ZOOM_MIN": 1.0,
             "ZOOM_RATE": 0.1,
@@ -518,73 +519,22 @@ class WorkflowBuilderGUI
                 maxY = maxY === undefined || y > maxY ? y : maxY;
             });
             const center = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-            const scaled = { x: center.x * paper.view.zoom * paper.view.size.width, y: center.y * paper.view.zoom * paper.view.size.height };
-            return scaled;
+            return BaseItem.appearanceToProject(center);
         }
         return null;
     }
 
     /**
-     * Returns the position to create a new job. 
+     * Returns the database coordinates to create a new job. 
      * If the user right-clicked, use that position. Otherwise, use the center of the view.
+     * @returns {{x: number, y: number}} The database coordinates to create a new job.
      */
     _handleGetNewJobPosition()
     {
-        const left = this._rightClickPosition === null ? paper.view.center.x : this._rightClickPosition.x;
-        const top = this._rightClickPosition === null ? paper.view.center.y : this._rightClickPosition.y;
-        const x = left / (paper.view.size.width * paper.view.zoom);
-        const y = top / (paper.view.size.height * paper.view.zoom);
-
-        return { x, y };
-    }
-
-///////////////////////////////////////////////////////////////////////////////////////
-// PRIVATE METHODS
-///////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Returns thresholds for given view zoom (xLeft, xRight, yTop, yBottom).
-     */
-    _getThresholds()
-    {
-        var halfWidth = paper.view.size.width / 2;
-        var halfHeight = paper.view.size.height / 2;
-
-        return {
-            xLeft: halfWidth,
-            xRight: (screen.width / devicePixelRatio) - halfWidth,
-            yTop: halfHeight,
-            yBottom: (screen.height / devicePixelRatio) - halfHeight
-        };
-    }
-
-    /**
-     * Limits view to the thresholds.
-     */
-    _limitViewInThresholds()
-    {
-        var thresholds = this._getThresholds();
-        var newPoint = new Point(paper.view.center.x, paper.view.center.y);
-
-        // x
-        if (paper.view.center.x < thresholds.xLeft)
-        {
-            newPoint.x = thresholds.xLeft;
-        }
-        else if (paper.view.center.x > thresholds.xRight)
-        {
-            newPoint.x = thresholds.xRight;
-        }
-
-        // y
-        if (paper.view.center.y < thresholds.yTop)
-        {
-            newPoint.y = thresholds.yTop;
-        }
-        else if (paper.view.center.y > thresholds.yBottom)
-        {
-            newPoint.y = thresholds.yBottom;
-        }
-        paper.view.setCenter(newPoint);
+        const x = this._rightClickPosition === null ? paper.view.center.x : this._rightClickPosition.x;
+        const y = this._rightClickPosition === null ? paper.view.center.y : this._rightClickPosition.y;
+        const position = { x, y};
+        return BaseItem.projectToAppearance(position);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
