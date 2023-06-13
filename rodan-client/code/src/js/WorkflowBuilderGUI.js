@@ -507,6 +507,10 @@ class WorkflowBuilderGUI
         }
     }
 
+    /**
+     * Calculates the paper.js project coordinates of the center of the workflow.
+     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if there are no jobs.
+    */
     _getWorkflowCenter()
     {
         let minX, maxX, minY, maxY;
