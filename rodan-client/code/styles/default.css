@@ -325,7 +325,39 @@ div#region-main
     background-color: white;
     color: var(--secondary-app-color);
 }
-/* ///////////////////////////////////////////////////////////////////////////////////////
+
+/* Main region content */
+.table-responsive {
+    display: flex;
+    border: 1px solid #cdcdcd;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px 2px #eeeeee;
+    background-color: #f0f0f047;
+    height: 100%;
+
+    table {
+        user-select: none;
+        text-align: left;
+        width: 100%;
+        border-collapse: collapse;
+        height: fit-content;
+    }
+    thead {
+        border-bottom: 1px solid #c2c2c2;
+    }
+    th, td {
+        cursor: pointer;
+        padding: 10px 0px;
+    }
+    tr {
+        cursor: default;
+    }
+
+}
+
+
+/*//////////////////////////////////////////////////////////////////////////////////////
 // Canvas
 /////////////////////////////////////////////////////////////////////////////////////// */
 div#canvas-wrap
