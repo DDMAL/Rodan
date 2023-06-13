@@ -475,11 +475,6 @@ class WorkflowBuilderGUI
         window.Event = this._event;
     }
 
-    _saveToLocalStorage()
-    {
-        this._setLocalStorageData({ zoom: paper.view.zoom, center: { x: paper.view.center.x, y: paper.view.center.y }});
-    }
-
     /**
      * Handle event model sync.
      *
@@ -592,13 +587,24 @@ class WorkflowBuilderGUI
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS - Local Storage
 ///////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Saves the current zoom and position to `localStorage`.
+    */
+    _saveToLocalStorage()
+    {
+        this._setLocalStorageData({ zoom: paper.view.zoom, center: { x: paper.view.center.x, y: paper.view.center.y }});
+    }
 
+    /**
+     * Serializes and sets the workflow builder data in `localStorage`.
+     * @param {object} data - The data to store.
+    */
     _setLocalStorageData(data) {
         localStorage.setItem('workflow-builder-data', JSON.stringify(data));
     }
 
     /**
-     * Retrieves desired workflow UI settings from localStorage and applies them.
+     * Retrieves desired workflow UI settings from `localStorage` and applies them.
      */
     _applyLocalStorageSettings() 
     {
