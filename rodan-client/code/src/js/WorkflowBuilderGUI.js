@@ -1,4 +1,4 @@
-import $, { event } from 'jquery';
+import $ from 'jquery';
 import { drawGrid } from './Utilities/PaperUtilities';
 import BaseItem from './Items/BaseItem';
 import GUI_EVENTS from './Shared/Events';
@@ -77,6 +77,7 @@ class WorkflowBuilderGUI
                 "LINE_WIDTH": 0.5
             },
             "DATABASE_COORDINATES_MULTIPLIER": 1500, // Legacy workflows stored coordinates in the database differently. This is to maintain backwards compatibility.
+            "WORKFLOW_PADDING": 50,
             "ZOOM_MAX": 3.0,
             "ZOOM_MIN": 1.0,
             "ZOOM_RATE": 0.1,
@@ -151,8 +152,6 @@ class WorkflowBuilderGUI
                 this._handleRequestZoomReset()
             }
         });
-
-        window.addEventListener('beforeunload', this._saveToLocalStorage);
 
         const canvasWrapper = document.querySelector('#canvas-wrap');
         canvasWrapper.addEventListener('wheel', (event) => this._handleScroll(event));
@@ -360,6 +359,7 @@ class WorkflowBuilderGUI
         {
             this._firstEntry = false;
             this._itemController.saveSelectedItemPositions();
+            this._saveToLocalStorage(); // Save the current zoom and position when the user stops dragging
         }
         this._setState(this._STATES.IDLE);
     }
@@ -442,6 +442,26 @@ class WorkflowBuilderGUI
         }
     }
 
+    /**
+     * Handle zooming in and out with the scroll-wheel.
+     */
+    _handleScroll(event)
+    {
+        const oldZoom = paper.view.zoom;
+        const oldCenter = paper.view.center;
+        
+        const mousePosition = paper.view.viewToProject(new Point(event.offsetX, event.offsetY));
+
+        const zoom = oldZoom * (1 + (event.deltaY < 0 ? 1 : -1) * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE);
+        const newZoom = this._clampZoom(zoom);
+
+        const offset = mousePosition.subtract(mousePosition.subtract(oldCenter).multiply(oldZoom / newZoom)).subtract(oldCenter);
+
+        paper.view.zoom = newZoom;
+        paper.view.center = paper.view.center.add(offset);
+        this._saveToLocalStorage();
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS - Radio handlers
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -453,13 +473,11 @@ class WorkflowBuilderGUI
         BaseItem.clearMap();
         window.MouseEvent = this._oldMouseEvent;
         window.Event = this._event;
-        this._saveToLocalStorage();
     }
 
     _saveToLocalStorage()
     {
-        localStorage.setItem('zoom', JSON.stringify(paper.view.zoom));
-        localStorage.setItem('center', JSON.stringify({ x: paper.view.center.x, y: paper.view.center.y }));
+        this._setLocalStorageData({ zoom: paper.view.zoom, center: { x: paper.view.center.x, y: paper.view.center.y }});
     }
 
     /**
@@ -481,8 +499,8 @@ class WorkflowBuilderGUI
     _handleRequestZoomIn()
     {
         const zoom = paper.view.zoom + Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        const zoomToApply = zoom < Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
-        paper.view.zoom = zoomToApply;
+        paper.view.zoom = this._clampZoom(zoom);
+        this._saveToLocalStorage();
     }
 
     /**
@@ -491,8 +509,8 @@ class WorkflowBuilderGUI
     _handleRequestZoomOut()
     {
         var zoom = paper.view.zoom - Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        const zoomToApply = zoom > Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN ? zoom : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
-        paper.view.zoom = zoomToApply;
+        paper.view.zoom = this._clampZoom(zoom);
+        this._saveToLocalStorage();
     }
 
     /**
@@ -500,18 +518,37 @@ class WorkflowBuilderGUI
      */
     _handleRequestZoomReset()
     {
-        paper.view.zoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_INITIAL;
-        const workflowCenter = this._getWorkflowCenter();
-        if (workflowCenter) {
+        const boundingBox = this._getWorkflowBoundingBox();
+        if (boundingBox) {
+            const workflowCenter = this._getWorkflowCenter(boundingBox);
             paper.view.center = workflowCenter;
+            const width = boundingBox.bottomRight.x - boundingBox.topLeft.x + 2 * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WORKFLOW_PADDING;
+            const height = boundingBox.bottomRight.y - boundingBox.topLeft.y + 2 * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WORKFLOW_PADDING;
+            const viewWidth = paper.view.viewSize.width;
+            const viewHeight = paper.view.viewSize.height;
+            const zoom = Math.min(viewWidth / width, viewHeight / height);
+            paper.view.zoom = this._clampZoom(zoom);
+        } else {
+            paper.view.zoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_INITIAL;
         }
+        this._saveToLocalStorage();
+    }
+    
+    /**
+     * Clamps the zoom to the min and max zoom values.
+     * @param {number} zoom - The zoom value to clamp.
+     * @returns {number} The clamped zoom value.
+    */
+    _clampZoom(zoom)
+    {
+        return Math.min(Math.max(zoom, Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN), Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX);
     }
 
     /**
-     * Calculates the paper.js project coordinates of the center of the workflow.
-     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if there are no jobs.
-    */
-    _getWorkflowCenter()
+     * Calculate the bounding box of the workflow in paper.js project coordinates.
+     * @returns {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} The bounds of the workflow in paper.js project coordinates or null if there are no jobs.
+     */
+    _getWorkflowBoundingBox()
     {
         let minX, maxX, minY, maxY;
         if (this._workflow && this._workflow.get('workflow_jobs').length > 0) {
@@ -522,10 +559,21 @@ class WorkflowBuilderGUI
                 minY = minY === undefined || y < minY ? y : minY;
                 maxY = maxY === undefined || y > maxY ? y : maxY;
             });
-            const center = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-            return BaseItem.appearanceToProject(center);
+            const topLeft = BaseItem.appearanceToProject({ x: minX, y: minY });
+            const bottomRight = BaseItem.appearanceToProject({ x: maxX, y: maxY });
+            return { topLeft, bottomRight };
         }
         return null;
+    }
+
+    /**
+     * Calculates the paper.js project coordinates of the center of the workflow.
+     * @param {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} boundingBox The bounding box of the workflow in paper.js project coordinates.
+     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if there are no jobs.
+    */
+    _getWorkflowCenter(boundingBox)
+    {
+        return boundingBox ? { x: (boundingBox.topLeft.x + boundingBox.bottomRight.x) / 2, y: (boundingBox.topLeft.y + boundingBox.bottomRight.y) / 2 } : null;
     }
 
     /**
@@ -545,25 +593,8 @@ class WorkflowBuilderGUI
 // PRIVATE METHODS - Local Storage
 ///////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Handle user scrolling action.
-     * Saves user's scroll position in localStorage.
-     */
-    _handleScroll(event) {
-        const oldZoom = paper.view.zoom;
-        const oldCenter = paper.view.center;
-        
-        const mousePosition = paper.view.viewToProject(new Point(event.offsetX, event.offsetY));
-
-        const zoom = oldZoom * (1 + (event.deltaY < 0 ? 1 : -1) * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE);
-        const minZoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MIN;
-        const maxZoom = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_MAX;
-        const newZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
-
-        const offset = mousePosition.subtract(mousePosition.subtract(oldCenter).multiply(oldZoom / newZoom)).subtract(oldCenter);
-
-        paper.view.zoom = newZoom;
-        paper.view.center = paper.view.center.add(offset);
+    _setLocalStorageData(data) {
+        localStorage.setItem('workflow-builder-data', JSON.stringify(data));
     }
 
     /**
@@ -571,14 +602,17 @@ class WorkflowBuilderGUI
      */
     _applyLocalStorageSettings() 
     {
-        const zoom = localStorage.getItem('zoom');
-        const center = localStorage.getItem('center');
+        const data = localStorage.getItem('workflow-builder-data');
+        if (!data) {
+            return;
+        }
+
+        const { zoom, center } = JSON.parse(data);
         if (zoom) {
-            paper.view.zoom = JSON.parse(zoom);
+            paper.view.zoom = this._clampZoom(zoom);
         }
         if (center) {
-            const parsedCenter = JSON.parse(center);
-            paper.view.center = new Point(parsedCenter.x, parsedCenter.y);
+            paper.view.center = new Point(center.x, center.y);
         }
     }
 }

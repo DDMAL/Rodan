@@ -171,6 +171,8 @@ div.top {
 div.gui {
     height: calc(var(--height-gui) * 1%); /*fallback*/
     height: calc(var(--height-gui) * 1vh);
+    display: flex;
+    flex-direction: column;
 }
 
 div#main_workflowbuilder
