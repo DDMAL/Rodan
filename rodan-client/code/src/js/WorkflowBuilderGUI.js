@@ -599,16 +599,17 @@ class WorkflowBuilderGUI
      * Serializes and sets the workflow builder data in `localStorage`.
      * @param {object} data - The data to store.
     */
-    _setLocalStorageData(data) {
-        localStorage.setItem('workflow-builder-data', JSON.stringify(data));
+    _setLocalStorageData(data)
+    {
+        localStorage.setItem(`workflow-builder-data#${this._workflow.id}`, JSON.stringify(data));
     }
 
     /**
      * Retrieves desired workflow UI settings from `localStorage` and applies them.
      */
-    _applyLocalStorageSettings() 
+    _applyLocalStorageSettings()
     {
-        const data = localStorage.getItem('workflow-builder-data');
+        const data = localStorage.getItem(`workflow-builder-data#${this._workflow.id}`);
         if (!data) {
             return;
         }
