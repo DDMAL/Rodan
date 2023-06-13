@@ -564,7 +564,7 @@ class WorkflowBuilderGUI
     /**
      * Calculates the paper.js project coordinates of the center of the workflow.
      * @param {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} boundingBox The bounding box of the workflow in paper.js project coordinates.
-     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if there are no jobs.
+     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if no bounding box is provided.
     */
     _getWorkflowCenter(boundingBox)
     {
