@@ -5,51 +5,54 @@
 /**************************************************************************************
  * General parameters
  *************************************************************************************/
-/* Navigation area */
-$background-color-navigation: #000000;
-$text-color-navigation: #cccccc;
 
-/* Status area */
-$background-color-status: #000000;
-$text-color-status-user: #cccccc;
-$text-color-status-user: #cccccc;
-$text-color-status-server: #cccccc;
+:root {
+    /* Navigation area */
+    --background-color-navigation: #000000;
+    --text-color-navigation: #cccccc;
 
-/* Main area */
-$background-color-main: #ffffff;
+    /* Status area */
+    --background-color-status: #000000;
+    --text-color-status-user: #cccccc;
+    --text-color-status-user: #cccccc;
+    --text-color-status-server: #cccccc;
 
-/* WorkflowBuilder area */
-$background-color-workflowbuilder-workspace: #dddddd;
-$background-color-workflowbuilder-menu: #000000;
-$text-color-workflowbuilder-menu: #ffffff;
+    /* Main area */
+    --background-color-main: #ffffff;
 
-/* WorkflowBuilder control area */
-$background-color-workflowbuilder-control: #ffffff;
+    /* WorkflowBuilder area */
+    --background-color-workflowbuilder-workspace: #dddddd;
+    --background-color-workflowbuilder-menu: #000000;
+    --text-color-workflowbuilder-menu: #ffffff;
 
-/**************************************************************************************
- * DO NOT TOUCH unless you know what you're doing.
- *************************************************************************************/
-$height-top: 100; // % of vertical space in viewport
-$height-gui: 100; // % of vertical space in GUI viewport
-$height-gui_menu: 4; // % of vertical space in GUI viewport for menu
-$size-font: 11px; // pixels
+    /* WorkflowBuilder control area */
+    --background-color-workflowbuilder-control: #ffffff;
 
-///////////////////////////////////////////////////////////////////////////////////////
-// General classes
-///////////////////////////////////////////////////////////////////////////////////////
+    /**************************************************************************************
+    * DO NOT TOUCH unless you know what you're doing.
+    *************************************************************************************/
+    --height-top: 100; /* % of vertical space in viewport */
+    --height-gui: 100; /* % of vertical space in GUI viewport */
+    --height-gui_menu: 4; /* % of vertical space in GUI viewport for menu */
+    --size-font: 11px; /* pixels */
+}
+
+
+
+/* General classes */
+
 .text-small
 {
     font-size: x-small;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Navigation region
-///////////////////////////////////////////////////////////////////////////////////////
+/* Navigation region */
+
 div#region-navigation
 {
-    background: $background-color-navigation;
+    background: var(--background-color-navigation);
     height: 100%;
-    color: $text-color-navigation;
+    color: var(--text-color-navigation);
     overflow-y: auto;
     overflow-x: hidden;
     cursor: default;
@@ -82,12 +85,10 @@ div#region-navigation div.node_text
     margin-left: -15px;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Main region
-///////////////////////////////////////////////////////////////////////////////////////
+/* Main region */
 div#region-main
 {
-//    background-image: url("resources/rodan.jpg");
+    /*background-image: url("resources/rodan.jpg"); */
     background-repeat: no-repeat;
     background-position: center center;
     height: 100%;
@@ -96,9 +97,7 @@ div#region-main
     cursor: default;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Canvas
-///////////////////////////////////////////////////////////////////////////////////////
+/* Canvas */
 div#canvas-wrap
 {
     height: 100%;
@@ -122,14 +121,12 @@ div#canvas-tooltip
 
 canvas#canvas-workspace
 {
-    background-color: $background-color-workflowbuilder-workspace;
+    background-color: var(--background-color-workflowbuilder-workspace);
     padding: 0px;
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Input fields
-///////////////////////////////////////////////////////////////////////////////////////
+/* Input fields */
 textarea[type=text]
 {
     height: 200px;
@@ -138,8 +135,8 @@ textarea[type=text]
 }
 
 .vertical-center {
-    height: $height-top * 1%; //fallback
-    height: $height-top * 1vh;
+    height: calc(var(--height-top) * 1%); /*fallback */
+    height: calc(var(--height-top) * 1vh);
     display: flex;
     align-items: center;
 }
@@ -154,22 +151,22 @@ body
 {
     overflow: hidden;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: $size-font;
+    font-size: var(--size-font);
 }
 
 div.fixed_individual {
-    //position: fixed;
+    /*position: fixed;*/
     width: 100%;
 }
 
 div.top {
-    height: $height-top * 1%; //fallback
-    height: $height-top * 1vh;
+    height: calc(var(--height-top) * 1%); /*fallback */
+    height: calc(var(--height-top) * 1vh);
 }
 
 div.gui {
-    height: $height-gui * 1%; //fallback
-    height: $height-gui * 1vh;
+    height: calc(var(--height-gui) * 1%); /*fallback*/
+    height: calc(var(--height-gui) * 1vh);
 }
 
 div#main_workflowbuilder
@@ -189,9 +186,7 @@ div#main_workflowbuilder
     background: #dddddd;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Modals
-///////////////////////////////////////////////////////////////////////////////////////
+/* Modals */
 .modal-body
 {
     max-height: 600px;
@@ -218,9 +213,7 @@ div#main_workflowbuilder
     color: #aa0000;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Table overrides
-///////////////////////////////////////////////////////////////////////////////////////
+/* Table overrides */
 /**
  * Make text in table unselectable. This helps make multiple selection look better.
  */
@@ -234,9 +227,7 @@ table
     width: 100%;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Table controls
-///////////////////////////////////////////////////////////////////////////////////////
+/* Table controls */
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th, .table tr.clickable-row.active:hover td
 {
     background-color: #7eb0dd;
@@ -257,7 +248,7 @@ div.table-control
 div.table-control span
 {
     display:inline-block;
-    font-size: $size-font;
+    font-size: var(--size-font);
     font-weight: bold;
 }
 
@@ -277,17 +268,13 @@ div.table-control p
     font-size:0; /* Fixes inline block spacing */
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Sortable tables
-///////////////////////////////////////////////////////////////////////////////////////
+/* Sortable tables */
 th.sort-ascending .glyphicon .glyphicon-arrow-up
 {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Scrollable tables
-///////////////////////////////////////////////////////////////////////////////////////
+/* Scrollable tables */
 table.scroll
 {
     display: block;
