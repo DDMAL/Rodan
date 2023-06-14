@@ -243,15 +243,15 @@ LOGGING = {
 # See https://docs.djangoproject.com/en/1.10/topics/email/ for
 # more details on how to customize your email configuration.
 
-# [TODO] - Setup proper email configuration.
+EMAIL_USE = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
 
-EMAIL_USE = False
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASS')
-# EMAIL_PORT = 587
-
+DEFAULT_FROM_EMAIL = "noreply@rodan2.simssa.ca"
 
 ###############################################################################
 # 2.a  Rodan Server Configuration

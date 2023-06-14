@@ -934,7 +934,7 @@ def redo_runjob_tree(rj_id):
 
 @task(name="rodan.core.send_email")
 def send_email(subject, body, to):
-    email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, to)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, to)
     email.send()
 
 
