@@ -5,7 +5,7 @@ from rodan.models.project import Project, User
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
 from django.db.models import Q
-
+from celery import registry
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -91,14 +91,30 @@ class ProjectDetailAdmins(generics.GenericAPIView):
                     detail={"detail": "User {0} does not exist.".format(u_info)}
                 )
             users.append(user)
+
+        new_users = [user for user in users if user not in p.admin_group.user_set.all()]
+
         p.admin_group.user_set.clear()
         p.admin_group.user_set.add(*users)
         if p.creator:
             p.admin_group.user_set.add(p.creator)
+        
+        self.send_email(new_users)
+
         return Response(p.admin_group.user_set.values_list("username", flat=True))
 
     def patch(self, request, *args, **kwargs):
         return self.put(request, *args, **kwargs)
+    
+    def send_email(self, new_users):
+        project = self.get_object()
+        user = self.request.user
+
+        subject = f"Added to project '{project.name}'"
+        body = f"You have been added to project '{project.name}' as an admin by '{user.username}'."
+        to = [user.email for user in new_users]
+        
+        registry.tasks["rodan.core.send_email"].apply_async((subject, body, to))
 
 
 class ProjectDetailWorkers(generics.GenericAPIView):
@@ -140,9 +156,25 @@ class ProjectDetailWorkers(generics.GenericAPIView):
                     detail={"detail": "User {0} does not exist.".format(u_info)}
                 )
             users.append(user)
+
+        new_users = [user for user in users if user not in p.admin_group.user_set.all()]
+
         p.worker_group.user_set.clear()
         p.worker_group.user_set.add(*users)
+
+        self.send_email(new_users)
+
         return Response(p.worker_group.user_set.values_list("username", flat=True))
 
     def patch(self, request, *args, **kwargs):
         return self.put(request, *args, **kwargs)
+    
+    def send_email(self, new_users):
+        project = self.get_object()
+        user = self.request.user
+
+        subject = f"Added to project '{project.name}'"
+        body = f"You have been added to project '{project.name}' as a worker by '{user.username}'."
+        to = [user.email for user in new_users]
+        
+        registry.tasks["rodan.core.send_email"].apply_async((subject, body, to))
