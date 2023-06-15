@@ -36,7 +36,6 @@ class PitchFinder(object):
 
         self._parse_inputs(glyphs, staves)
         self._find_pitches(self.glyphs)
-
         pitch_feature_names = ['staff', 'offset', 'strt_pos', 'note', 'octave', 'clef_pos', 'clef']
 
         output = []
@@ -74,7 +73,7 @@ class PitchFinder(object):
 
     def _parse_inputs(self, glyphs, staves):
         # filter out skips
-        self.glyphs = list(filter(lambda g: g.get_main_id() != 'skip', glyphs))
+        self.glyphs = list(filter(lambda g: g.get_main_id().decode() != 'skip', glyphs))
         self.staves = staves
 
         self.avg_punctum = self._average_punctum(self.glyphs)
@@ -393,9 +392,9 @@ class PitchFinder(object):
                 y_mid = y_above + y_dif / 2
 
                 if ref_y < y_mid:
-                    return 0, i
+                    return 0, i -1
                 elif ref_y >= y_mid:
-                    return 0, i + 1
+                    return 0, i
 
             elif y_below >= ref_y:
                 y_dif = y_below - y_above
@@ -411,17 +410,17 @@ class PitchFinder(object):
                 # upper line
                 if ref_y < min(space):
                     # print 'line', i
-                    return 0, i
+                    return 0, i -1
 
                 # within space
                 elif ref_y >= min(space) and ref_y <= max(space):
                     # print 'space', i
-                    return 1, i
+                    return 1, i - 1
 
                 # lower line
                 elif ref_y > max(space):
                     # print 'line', i + 1
-                    return 0, i + 1
+                    return 0, i
 
                 else:
                     'this is impossible'
@@ -500,7 +499,7 @@ class PitchFinder(object):
         width_sum = 0
         num_punctums = 0
         for g in glyphs:
-            if g.get_main_id() == 'neume.punctum':
+            if g.get_main_id().decode() == 'neume.punctum':
                 width_sum += g.ncols
                 num_punctums += 1
 
