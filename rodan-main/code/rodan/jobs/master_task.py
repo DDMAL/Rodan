@@ -80,7 +80,7 @@ def master_task(workflow_run_id):
             )
 
             # Send an email to owner of WorkflowRun
-            workflowrun = WorkflowRun.objects.get(uuid=workflow_run_id)
+            workflow_run = WorkflowRun.objects.get(uuid=workflow_run_id)
             user = WorkflowRun.objects.get(uuid=workflow_run_id).creator
             if not settings.TEST:
                 if (
@@ -88,14 +88,11 @@ def master_task(workflow_run_id):
                     and getattr(settings, 'EMAIL_USE', False)
                     and user.user_preference.send_email
                 ):
-                    subject = "Workflow Run '{0}' FINISHED".format(workflowrun.name)
-                    body = "A workflow run you started has finished.\n\n"
-                    body = body + "Name: {0}\n".format(workflowrun.name)
-                    body = body + "Description: {0}".format(workflowrun.description)
                     to = [user.email]
-                    registry.tasks["rodan.core.send_email"].apply_async(
-                        (subject, body, to)
-                    )
+                    email_template = "emails/workflow_run_finished.html"
+                    context = {"name": workflow_run.name, "description": workflow_run.description}
+
+                    registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
 
             # return value is ignored, and provided as information in Celery stdout.
             return "wfRun {0} FINISHED".format(workflow_run_id)

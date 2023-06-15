@@ -21,6 +21,7 @@ from rodan.jobs.core import (  # noqa
     redo_runjob_tree,
     retry_workflowrun,
     send_email,
+    send_templated_email,
 )
 from rodan.jobs.master_task import master_task  # noqa
 
@@ -33,4 +34,5 @@ app.tasks.register(create_diva)
 app.tasks.register(redo_runjob_tree)
 app.tasks.register(retry_workflowrun)
 app.tasks.register(send_email)
+app.tasks.register(send_templated_email)
 app.tasks.register(master_task)

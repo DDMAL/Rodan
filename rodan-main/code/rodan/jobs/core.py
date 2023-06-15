@@ -40,6 +40,7 @@ from rodan.constants import task_status
 from rodan.jobs.base import TemporaryDirectory
 from rodan.jobs.diva_generate_json import GenerateJson
 from rodan.jobs.resource_identification import fileparse
+from templated_mail.mail import BaseEmailMessage
 
 # from rodan.celery import app
 
@@ -936,6 +937,10 @@ def redo_runjob_tree(rj_id):
 def send_email(subject, body, to):
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, to)
     email.send()
+
+@task(name="rodan.core.send_templated_email")
+def send_templated_email(to, email_template, context):
+    BaseEmailMessage(context=context, template_name=email_template).send(to)
 
 
 @task(name="rodan.core.create_archive")

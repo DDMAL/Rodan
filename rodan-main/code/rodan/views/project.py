@@ -110,11 +110,11 @@ class ProjectDetailAdmins(generics.GenericAPIView):
         project = self.get_object()
         user = self.request.user
 
-        subject = f"Added to project '{project.name}'"
-        body = f"You have been added to project '{project.name}' as an admin by '{user.username}'."
         to = [user.email for user in new_users]
+        email_template = "emails/added_to_project.html"
+        context = {"project_name": project.name, "role": "admin", "adder": user.username}
         
-        registry.tasks["rodan.core.send_email"].apply_async((subject, body, to))
+        registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
 
 
 class ProjectDetailWorkers(generics.GenericAPIView):
@@ -173,8 +173,8 @@ class ProjectDetailWorkers(generics.GenericAPIView):
         project = self.get_object()
         user = self.request.user
 
-        subject = f"Added to project '{project.name}'"
-        body = f"You have been added to project '{project.name}' as a worker by '{user.username}'."
         to = [user.email for user in new_users]
+        email_template = "emails/added_to_project.html"
+        context = {"project_name": project.name, "role": "worker", "adder": user.username}
         
-        registry.tasks["rodan.core.send_email"].apply_async((subject, body, to))
+        registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
