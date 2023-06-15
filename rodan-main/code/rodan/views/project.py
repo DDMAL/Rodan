@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rodan.models.project import Project, User
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
+from django.conf import settings
 from django.db.models import Q
 from celery import registry
 
@@ -99,7 +100,8 @@ class ProjectDetailAdmins(generics.GenericAPIView):
         if p.creator:
             p.admin_group.user_set.add(p.creator)
         
-        self.send_email(new_users)
+        if (getattr(settings, "EMAIL_USE", False)):
+            self.send_email(new_users)
 
         return Response(p.admin_group.user_set.values_list("username", flat=True))
 
@@ -110,7 +112,7 @@ class ProjectDetailAdmins(generics.GenericAPIView):
         project = self.get_object()
         user = self.request.user
 
-        to = [user.email for user in new_users]
+        to = [user.email for user in new_users if user.email and user.user_preference.send_email]
         email_template = "emails/added_to_project.html"
         context = {"project_name": project.name, "role": "admin", "adder": user.username}
         
@@ -173,7 +175,7 @@ class ProjectDetailWorkers(generics.GenericAPIView):
         project = self.get_object()
         user = self.request.user
 
-        to = [user.email for user in new_users]
+        to = [user.email for user in new_users if user.email and user.user_preference.send_email]
         email_template = "emails/added_to_project.html"
         context = {"project_name": project.name, "role": "worker", "adder": user.username}
         
