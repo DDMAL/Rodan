@@ -251,7 +251,17 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 
-DEFAULT_FROM_EMAIL = "noreply@rodan2.simssa.ca"
+DEFAULT_FROM_EMAIL = "Rodan <noreply@rodan2.simssa.ca>"
+
+SITE_NAME = "Rodan"
+
+DJOSER = {
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "EMAIL": {
+        "password_changed_confirmation": "rodan.email.PasswordChangedConfirmationEmail",
+    }
+    
+}
 
 ###############################################################################
 # 2.a  Rodan Server Configuration
