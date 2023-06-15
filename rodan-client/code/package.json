@@ -67,7 +67,7 @@
     "underscore": "^1.10.2"
   },
   "engines": {
-    "node": ">=4.2.6"
+    "node": "12.22.x"
   },
   "jspm": {
     "directories": {
