@@ -808,7 +808,7 @@ class RodanTask(Task,metaclass=RodanTaskType):
                 wfrun_id = RunJob.objects.filter(pk=runjob_id).values_list(
                     "workflow_run__uuid", flat=True
                 )[0]
-                workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
+                workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
                 user = WorkflowRun.objects.get(uuid=wfrun_id).creator
                 if not rodan_settings.TEST:
                     if (
@@ -816,18 +816,10 @@ class RodanTask(Task,metaclass=RodanTaskType):
                         and rodan_settings.EMAIL_USE
                         and user.user_preference.send_email
                     ):
-                        subject = "Workflow Run '{0}' is waiting for user input".format(
-                            workflowrun.name
-                        )
-                        body = (
-                            "A workflow run you started is waiting for user input.\n\n"
-                        )
-                        body = body + "Name: {0}\n".format(workflowrun.name)
-                        body = body + "Description: {0}".format(workflowrun.description)
                         to = [user.email]
-                        registry.tasks["rodan.core.send_email"].apply_async(
-                            (subject, body, to)
-                        )
+                        email_template = "emails/workflow_run_waiting_for_user_input.html"
+                        context = {"name": workflow_run.name, "description": workflow_run.description}
+                        registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
 
                     return "WAITING FOR INPUT"
             else:
@@ -1014,7 +1006,7 @@ class RodanTask(Task,metaclass=RodanTaskType):
         WorkflowRun.objects.filter(uuid=wfrun_id).update(status=task_status.FAILED)
 
         # Send an email to owner of WorkflowRun
-        workflowrun = WorkflowRun.objects.get(uuid=wfrun_id)
+        workflow_run = WorkflowRun.objects.get(uuid=wfrun_id)
         user = WorkflowRun.objects.get(uuid=wfrun_id).creator
         if not rodan_settings.TEST:
             if (
@@ -1022,12 +1014,10 @@ class RodanTask(Task,metaclass=RodanTaskType):
                 and rodan_settings.EMAIL_USE
                 and user.user_preference.sned_email
             ):
-                subject = "Workflow Run '{0}' failed".format(workflowrun.name)
-                body = "A workflow run you started has failed.\n\n"
-                body = body + "Name: {0}\n".format(workflowrun.name)
-                body = body + "Description: {0}".format(workflowrun.description)
                 to = [user.email]
-                registry.tasks["rodan.core.send_email"].apply_async((subject, body, to))
+                email_template = "rodan/email/workflow_run_failed.html"
+                context = { "name": workflow_run.name, "description": workflow_run.description}
+                registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
 
     def _add_error_information_to_runjob(self, exc, einfo):
         # Any job using the default_on_failure method can define an error_information
