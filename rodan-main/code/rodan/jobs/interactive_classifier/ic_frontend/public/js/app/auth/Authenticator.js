@@ -39,7 +39,7 @@ export default class Authenticator {
     {
         var that = this;
         $.ajax({
-            url: this._authUrl,
+            url: that._authUrl,
             type: 'POST',
             headers: {
                 Accept: "application/json; charset=utf-8",
@@ -49,7 +49,6 @@ export default class Authenticator {
             },
             complete: function (response)
             {
-
                 /**
                 * Get the working user token, and update it in the url,
                 */
