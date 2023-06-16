@@ -324,8 +324,8 @@ class PitchFinder(object):
             Returns the line or space number where the glyph is located for a specific stave an miyao line.
 
             Remember kids :)
-            0 = space
-            1 = line
+            1 = space
+            0 = line
 
             0   0   1            ---------                     ledger 2
             1       2
@@ -392,9 +392,9 @@ class PitchFinder(object):
                 y_mid = y_above + y_dif / 2
 
                 if ref_y < y_mid:
-                    return 0, i -1
-                elif ref_y >= y_mid:
                     return 0, i
+                elif ref_y >= y_mid:
+                    return 0, i + 1
 
             elif y_below >= ref_y:
                 y_dif = y_below - y_above
@@ -410,17 +410,17 @@ class PitchFinder(object):
                 # upper line
                 if ref_y < min(space):
                     # print 'line', i
-                    return 0, i -1
+                    return 0, i
 
                 # within space
                 elif ref_y >= min(space) and ref_y <= max(space):
                     # print 'space', i
-                    return 1, i - 1
+                    return 1, i
 
                 # lower line
                 elif ref_y > max(space):
                     # print 'line', i + 1
-                    return 0, i
+                    return 0, i + 1
 
                 else:
                     'this is impossible'
@@ -445,7 +445,7 @@ class PitchFinder(object):
 
     def _strt_pos_find(self, line_or_space, line_num):
         # sets 0 as the 2nd ledger line above a staff
-        return (line_num + 1) * 2 + line_or_space - 1 - self.transpose
+        return (line_num) * 2 + line_or_space - self.transpose
 
     def _sort_glyphs(self, proc_glyphs):
 
