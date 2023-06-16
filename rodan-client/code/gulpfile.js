@@ -10,7 +10,7 @@ const gulp = require('gulp');
 const ip = require('ip');
 const path = require('path');
 const recread = require('recursive-readdir');
-const sass = require('gulp-sass');
+//const sass = require('gulp-sass');
 const vfs = require('vinyl-fs');
 const webpack = require('webpack');
 const WebpackDevServer = require("webpack-dev-server");
@@ -166,8 +166,8 @@ const developTemplates = function(callback) {
  * Compile SCSS to CSS.
  */
 const developStyles = function() {
-    return gulp.src('styles/default.scss')
-        .pipe(sass())
+    return gulp.src('styles/default.css')
+        // .pipe(sass())
         .pipe(gulp.dest(DEVELOP_WEBROOT));
 };
 
@@ -304,8 +304,8 @@ const develop = gulp.series(
  * Compile SCSS to CSS.
  */
 const distStyles = function() {
-    return gulp.src('styles/default.scss')
-        .pipe(sass())
+    return gulp.src('styles/default.css')
+        //.pipe(sass())
         .pipe(gulp.dest(DIST_WEBROOT));
 };
 

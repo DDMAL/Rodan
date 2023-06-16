@@ -8,13 +8,13 @@ RUN apt-get -qq update \
     gnupg2 \
     libgif-dev \
     curl \
-    build-essential \
-  # Add npm
-  # && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
-  # && apt-get install -yq \
-  #   nodejs
-  # Add yarn
-  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    build-essential
+# Add node
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+  && apt-get install -yq \
+    nodejs=12.22.*
+# Add yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && apt -qq update \
   && apt -qq install -y \
