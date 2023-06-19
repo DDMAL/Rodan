@@ -192,6 +192,11 @@ class RodanConnection:
         workflow_dropdown = self.find_visible(
             By.XPATH, '//*[@id="region-main"]//*[contains(text(), "Workflow")]'
         )
+        workflow_dropdown = self.find_visible(
+            By.ID, "bs-example-navbar-collapse-1"
+        )
+        workflow_dropdown = workflow_dropdown.find_element(By.TAG_NAME, "ul")
+        workflow_dropdown = workflow_dropdown.find_element(By.TAG_NAME, "li")
         workflow_dropdown.click()
         # Click "Add Job".
         add_job_button = self.find_visible(By.ID, "button-add_job")
