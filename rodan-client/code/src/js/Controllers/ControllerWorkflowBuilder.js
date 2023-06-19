@@ -218,7 +218,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleRequestAddWorkflowJob(options)
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOB_CREATE, {job: options.job, workflow: options.workflow, addports: this._addPorts});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOB_CREATE, {job: options.job, workflow: options.workflow, addports: this._addPorts, appearance: options.appearance});
         Radio.channel('rodan').once(RODAN_EVENTS.EVENT__WORKFLOWJOB_CREATED,
                                () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: options.workflow}));
     }

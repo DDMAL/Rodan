@@ -34,7 +34,7 @@ export default class ControllerWorkflowJob extends BaseController
      */
     _handleRequestCreateWorkflowJob(options)
     {
-        var workflowJob = new WorkflowJob({job: options.job.get('url'), workflow: options.workflow.get('url')});
+        var workflowJob = new WorkflowJob({job: options.job.get('url'), workflow: options.workflow.get('url'), appearance: options.appearance});
         var addPorts = options.addports ? options.addports : false;
         var targetInputPorts = options.targetinputports ? options.targetinputports : [];
         workflowJob.save({}, {success: (model) => this._handleWorkflowJobCreationSuccess(model, 
