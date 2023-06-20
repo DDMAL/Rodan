@@ -20,7 +20,7 @@ export default class ViewPassword extends Marionette.CollectionView
         var passwordError = this._checkPassword();
         if (passwordError)
         {
-            this.ui.textmessage.text(passwordError);
+            this.ui.textMessage.text(passwordError);
         }
         else
         {
@@ -54,7 +54,7 @@ ViewPassword.prototype.ui = {
             buttonSave: '#button-save_password',
             textPassword: '#text-password',
             textPasswordConfirm: '#text-password_confirm',
-            textmessage: '#text-message',
+            textMessage: '#text-message',
             textPasswordCurrent: '#text-password_current'
         };
 ViewPassword.prototype.events = {

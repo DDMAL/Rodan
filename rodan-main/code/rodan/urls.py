@@ -277,6 +277,16 @@ api_patterns = [
         djoser_views.UserViewSet.as_view({'post': 'set_password'}),
         name="auth-change-password",
     ),
+    url(
+        r"^api/auth/reset-password/$",
+        djoser_views.UserViewSet.as_view({'post': 'reset_password'}),
+        name="auth-reset-password",
+    ),
+    url(
+        r"^api/auth/reset-password/confirm/$",
+        djoser_views.UserViewSet.as_view({'post': 'reset_password_confirm'}),
+        name="auth-reset-password-confirm",
+    ),
     url(r"^api/ht/", include("health_check.urls")),
 ]
 

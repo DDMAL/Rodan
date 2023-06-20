@@ -33,6 +33,8 @@ import GlobalResourceLabelCollection from './Collections/Global/GlobalResourceLa
 import LayoutViewMaster from './Views/Master/LayoutViewMaster';
 import UpdateManager from './Managers/UpdateManager';
 import TransferManager from './Managers/TransferManager';
+import Router from 'js/Router';
+import Backbone from 'backbone';
 
 /**
  * Main application class.
@@ -195,6 +197,10 @@ export default class Application extends Marionette.Application
 
         // Check authentication.
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_CHECK);
+
+        // Start router.
+        new Router();
+        Backbone.history.start();
     }
 
     /**

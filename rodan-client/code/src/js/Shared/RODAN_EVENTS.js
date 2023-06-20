@@ -351,12 +351,20 @@ class RODAN_EVENTS
         ///////////////////////////////////////////////////////////////////////////////////////
         /** Triggered when User has changed password. */
         this.EVENT__USER_CHANGED_PASSWORD = 'EVENT__USER_CHANGED_PASSWORD';
+        /** Triggered when User has requested a password request email */
+        this.EVENT__USER_PASSWORD_RESET_REQUESTED = 'EVENT__USER_PASSWORD_RESET_REQUESTED';
+        /** Triggered when User has successfully reset password */
+        this.EVENT__USER_PASSWORD_RESET_CONFIRMED = 'EVENT__USER_PASSWORD_RESET_CONFIRMED';
         /** Triggered when UserPreference for current User has been loaded. Sends {user_preference: UserPreference}. */
         this.EVENT__USER_PREFERENCE_LOADED = 'EVENT__USER_PREFERENCE_LOADED';
         /** Triggered when UserPreference saved. Sends {user_preference: UserPreference}. */
         this.EVENT__USER_PREFERENCE_SAVED = 'EVENT__USER_PREFERENCE_SAVED';
         /** Triggered when User has been saved. Sends {user: User}. */
         this.EVENT__USER_SAVED = 'EVENT__USER_SAVED';
+        /** Request a password reset email. Takes in {email: string}. */
+        this.REQUEST__USER_RESET_PASSWORD = 'REQUEST__USER_RESET_PASSWORD';
+        /** Request password reset using token from email. Takes in {cid: string, token: string, new_password: string}. */
+        this.REQUEST__USER_RESET_PASSWORD_CONFIRM = 'REQUEST__USER_RESET_PASSWORD_CONFIRM';
         /** Request current User's password be changed. Takes {currentpassword: string, newpassword: string}. */
         this.REQUEST__USER_CHANGE_PASSWORD = 'REQUEST__USER_CHANGE_PASSWORD';
         /** Request UserPreference for current User. Returns {user_preference: UserPreference (may be null if not yet loaded)}. */

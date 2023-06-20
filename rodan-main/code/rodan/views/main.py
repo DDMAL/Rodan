@@ -92,6 +92,12 @@ class APIRoot(APIView):
                 "auth-change-password": reverse(
                     "auth-change-password", request=request, format=format
                 ),
+                "auth-reset-password": reverse(
+                    "auth-reset-password", request=request, format=format
+                ),
+                "auth-reset-password-confirm": reverse(
+                    "auth-reset-password-confirm", request=request, format=format
+                ),
             },
             "configuration": {
                 "page_length": settings.REST_FRAMEWORK["PAGE_SIZE"],

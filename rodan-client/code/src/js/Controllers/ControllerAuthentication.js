@@ -55,7 +55,11 @@ export default class ControllerAuthentication extends BaseController
                 {
                     oldOnBeforeSend(xhr);
                 }
-                xhr.setRequestHeader('X-CSRFToken', that._token.value);
+                if (that._token.value)
+                {
+                    xhr.setRequestHeader('X-CSRFToken', that._token.value);
+                }
+                
             };
         }
         else if(Configuration.SERVER_AUTHENTICATION_TYPE === 'token')
@@ -66,7 +70,10 @@ export default class ControllerAuthentication extends BaseController
                 {
                     oldOnBeforeSend(xhr);
                 }
-                xhr.setRequestHeader('Authorization', 'Token ' + that._token.value);
+                if (that._token.value)
+                {
+                    xhr.setRequestHeader('Authorization', 'Token ' + that._token.value);
+                }
             };
         }
     }
@@ -81,7 +88,11 @@ export default class ControllerAuthentication extends BaseController
     {
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_SAVED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_CHANGED_PASSWORD, (options) => this._handleEventGeneric(options));
+        Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_REQUESTED, (options) => this._handleEventGeneric(options));
+        Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_CONFIRMED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_CHANGE_PASSWORD, (options) => this._handleRequestChangePassword(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD, (options) => this._handleRequestResetPassword(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD_CONFIRM, (options) => this._handleRequestResetPasswordConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_SAVE, (options) => this._handleRequestSaveUser(options));
 
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__AUTHENTICATION_USER, () => this._handleRequestUser());
@@ -234,11 +245,11 @@ export default class ControllerAuthentication extends BaseController
      */
     _setAuthenticationData(request)
     {
-        if (Configuration.SERVER_AUTHENTICATION_TYPE === 'token')
+        if (Configuration.SERVER_AUTHENTICATION_TYPE === 'token' && this._token.value)
         {
             request.setRequestHeader('Authorization', 'Token ' + this._token.value);
         }
-        else if (Configuration.SERVER_AUTHENTICATION_TYPE === 'session')
+        else if (Configuration.SERVER_AUTHENTICATION_TYPE === 'session' && this._token.value)
         {
             request.withCredentials = true;
             request.setRequestHeader('X-CSRFToken', this._token.value);
@@ -347,6 +358,36 @@ export default class ControllerAuthentication extends BaseController
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Saving password', content: 'Please wait...'});
     }
 
+    _handleRequestResetPassword(options)
+    {
+        const route = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'auth-reset-password');
+        const ajaxSettings = {
+            success: (response) => this._handleRequestPasswordResetSuccess(response),
+            type: 'POST',
+            url: route,
+            data: { email: options.email }
+        };
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Requesting password reset', content: 'Please wait...'});
+    }
+
+    /**
+     * Handles password reset confirmation.
+     */
+    _handleRequestResetPasswordConfirm(options)
+    {
+        const route = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'auth-reset-password-confirm');
+        const ajaxSettings = {
+            success: (response) => this._handleResetPasswordConfirmationSuccess(response),
+            error: (response) => this._handleResetPasswordConfirmationError(response),
+            type: 'POST',
+            url: route,
+            data: { uid: options.uid, token: options.token, new_password: options.new_password }
+        };
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Resetting password', content: 'Please wait...'});
+    }
+
     /**
      * Handle response from saving user.
      */
@@ -372,5 +413,32 @@ export default class ControllerAuthentication extends BaseController
     _handleChangePasswordSuccess(response)
     {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_CHANGED_PASSWORD);
+    }
+
+    /**
+     * Handle reset password request success
+     */
+    _handleRequestPasswordResetSuccess(response)
+    {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_REQUESTED);
+    }
+
+    /**
+     * Handle reset password confirm success.
+     */
+    _handleResetPasswordConfirmationSuccess(response)
+    {
+        Backbone.history.navigate('');
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_CONFIRMED);
+    }
+
+    /**
+     * Handle error response from reset password attempt.
+     */
+    _handleResetPasswordConfirmationError(response)
+    {
+        const errors = Object.values(JSON.parse(response.responseText));
+        const content = errors.flat().join(" ");
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { content });
     }
 }

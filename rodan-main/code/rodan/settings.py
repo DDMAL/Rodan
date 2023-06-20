@@ -252,14 +252,16 @@ EMAIL_USE_TLS = True
 
 DEFAULT_FROM_EMAIL = "Rodan <noreply@rodan2.simssa.ca>"
 
+DOMAIN = os.getenv("SERVER_HOST")
 SITE_NAME = "Rodan"
+
+###############################################################################
+# 1.f  Djoser configuration
+###############################################################################
 
 DJOSER = {
     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
-    "EMAIL": {
-        "password_changed_confirmation": "rodan.email.PasswordChangedConfirmationEmail",
-    }
-    
+    "PASSWORD_RESET_CONFIRM_URL": "#password-reset/{uid}/{token}",    
 }
 
 ###############################################################################
