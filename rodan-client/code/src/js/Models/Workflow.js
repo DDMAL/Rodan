@@ -46,23 +46,31 @@ export default class Workflow extends BaseModel
     parse(response)
     {
         const workflow_runs = new WorkflowRunCollection();
-        for (const workflow_run of response.workflow_runs) {
-            workflow_runs.add(workflow_run);
+        if (response.workflow_runs) {
+            for (const workflow_run of response.workflow_runs) {
+                workflow_runs.add(workflow_run);
+            }
         }
 
         const workflow_jobs = new WorkflowJobCollection();
-        for (const workflow_job of response.workflow_jobs) {
-            workflow_jobs.add(workflow_job);
+        if (response.workflow_jobs) {
+            for (const workflow_job of response.workflow_jobs) {
+                workflow_jobs.add(workflow_job);
+            }
         }
 
         const workflow_input_ports = new InputPortCollection();
-        for (const workflow_input_port of response.workflow_input_ports) {
-            workflow_input_ports.add(workflow_input_port);
+        if (response.workflow_input_ports) {
+            for (const workflow_input_port of response.workflow_input_ports) {
+                workflow_input_ports.add(workflow_input_port);
+            }
         }
 
         const workflow_output_ports = new OutputPortCollection();
-        for (const workflow_output_port of response.workflow_output_ports) {
-            workflow_output_ports.add(workflow_output_port);
+        if (response.workflow_output_ports) {
+            for (const workflow_output_port of response.workflow_output_ports) {
+                workflow_output_ports.add(workflow_output_port);
+            }
         }
         
         const parsed = {
