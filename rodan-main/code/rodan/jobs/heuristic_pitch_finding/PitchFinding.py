@@ -3,12 +3,14 @@ from gamera.plugins.image_utilities import union_images
 from operator import itemgetter, attrgetter
 import logging
 logger = logging.getLogger("__name__")
+from show_com import Debug
 
 class PitchFinder(object):
 
     def __init__(self, **kwargs):
 
         self.discard_size = kwargs['discard_size']
+        self.debug = Debug()
 
         self.SCALE = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
         self.clef = 'c', 7              # default clef
@@ -64,7 +66,7 @@ class PitchFinder(object):
             cur_json['glyph'] = glyph_info
 
             output.append(cur_json)
-
+        self.debug.saveImg('pitches_debug.png')
         return output
 
     ########
@@ -131,19 +133,58 @@ class PitchFinder(object):
 
         if g.ncols > self.discard_size and g.nrows > self.discard_size:
             if g.ncols < self.avg_punctum:
-                this_punctum_size = g.ncols
+                this_punctum_size_cols = g.ncols
             else:
-                this_punctum_size = self.avg_punctum
+                this_punctum_size_cols = self.avg_punctum * 0.8
 
-            temp_glyph = g.subimage((g.offset_x + 0.0 * this_punctum_size, g.offset_y),
-                                    ((g.offset_x + 1.0 * this_punctum_size - 1), (g.offset_y + g.nrows - 1)))
+            if g.nrows < self.avg_punctum:
+                this_punctum_size_rows = g.nrows
+            else:
+                this_punctum_size_rows = self.avg_punctum
+
+            # temp_glyph = g.subimage((g.offset_x + 0.0 * this_punctum_size, g.offset_y),
+            #                         ((g.offset_x + 1.0 * this_punctum_size - 1), (g.offset_y + g.nrows - 1)))
+            temp_glyph,y_add = self.get_subimage(g,this_punctum_size_cols,this_punctum_size_rows)
             projection_vector = temp_glyph.projection_rows()
             center_of_mass = self._center_of_mass(projection_vector)
+            self.debug.addCircle(g.offset_x + 0.5*this_punctum_size_cols,g.offset_y + y_add + center_of_mass, 2)
 
         else:
             center_of_mass = 0
 
         return center_of_mass + y_add
+    
+    def get_subimage(self,glyph,extend_by_cols,extend_by_rows):
+        bottom_lefts = ["neume.podatus2b","neume.podatus3","neume.podatus4","neume.podatus5","neume.scandicus22b"]
+        if(glyph.get_main_id().decode() in bottom_lefts):
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows -1)))
+            y_add = glyph.nrows -1 - extend_by_rows
+            self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows,
+                                glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + glyph.nrows -1)
+            return temp_glyph,y_add
+        # elif(glyph.get_main_id().decode() == "neume.scandicus22b"):
+        #     temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows),
+        #                             ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows -1)))
+        #     y_add = glyph.nrows -1 - extend_by_rows
+        #     self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows,
+        #                         glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + glyph.nrows -1)
+        #     return temp_glyph,y_add
+        elif(glyph.get_main_id().decode() == "neume.virga"):
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 *extend_by_cols, glyph.offset_y),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + 1.0 * extend_by_rows - 1)))
+            y_add = 0
+            self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y,
+                                glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + 1.0 * extend_by_rows - 1)
+            return temp_glyph,y_add
+        else:
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows - 1)))
+            y_add = 0
+            self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y,
+                                glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + glyph.nrows - 1)
+            return temp_glyph,y_add
+        
 
     def _center_of_mass(self, projection_vector):
         com = 0.
@@ -499,7 +540,7 @@ class PitchFinder(object):
         width_sum = 0
         num_punctums = 0
         for g in glyphs:
-            if g.get_main_id().decode() == 'neume.punctum':
+            if g.get_main_id().decode() == 'neume.punctum' or g.get_main_id().decode() == 'neume.virga':
                 width_sum += g.ncols
                 num_punctums += 1
 
