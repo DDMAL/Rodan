@@ -7,9 +7,9 @@ cd /code/Rodan/rodan/jobs
 
 PIP=$(which pip3) || PIP=$(which pip)
 
-# Install Calvo-classifier
-$PIP install -r ./Calvo_classifier/requirements.txt
-mkdir ~/.keras && cd ~/.keras; touch ./keras.json || echo "[+] Could not make a .keras directory. Does it already exist?"
+cd /code/Rodan/rodan/jobs
+# Install Text Alignment
+$PIP install -r ./text_alignment/requirements.txt
 
 cat << EOF | python3
 new_backend = """{
@@ -20,10 +20,6 @@ new_backend = """{
 }"""
 open("keras.json", "w").write(new_backend)
 EOF
-
-cd /code/Rodan/rodan/jobs
-# Install Text Alignment
-$PIP install -r ./text_alignment/requirements.txt
 
 # Install Background Removal
 cd /
