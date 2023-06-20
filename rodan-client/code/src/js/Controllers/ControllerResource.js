@@ -173,10 +173,10 @@ export default class ControllerResource extends BaseController
     _handleCurrentResources(options)
     {
         try {
-            if (this._collection['_lastData']['project'] === options.data.project) {
+            if (this._collection_no_page['_lastData']['project'] === options.data.project) {
                 return this._collection_no_page;
             } else {
-                return this._handleRequestResources(options);
+                return this._handleRequestResourcesNoPagination(options);
             }
         } catch (e) {
             console.debug(e);
