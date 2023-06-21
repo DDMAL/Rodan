@@ -26,6 +26,10 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     filter_fields = ("origin",)
     queryset = WorkflowJobGroup.objects.all()  # [TODO] filter according to the user?
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-created')  # Order the queryset
+
     def get_serializer_class(self, *a, **k):
         if self.request.method == "POST" and "origin" in self.request.data:
             return WorkflowJobGroupImportCreateSerializer

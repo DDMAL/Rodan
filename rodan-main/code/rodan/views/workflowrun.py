@@ -73,6 +73,9 @@ class WorkflowRunList(generics.ListCreateAPIView):
         "creator__username": ["icontains"],
         "name": ["exact", "icontains"],
     }
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-created')  # Order the queryset
 
     def perform_create(self, serializer):
         wfrun_status = serializer.validated_data.get(
