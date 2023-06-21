@@ -64,7 +64,7 @@ class ResourceList(generics.ListCreateAPIView):
     """
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
-    queryset = Resource.objects.all()
+    queryset = Resource.objects.all().order_by("-created")
     serializer_class = NestedLabelsResourceSerializer
 
     class filter_class(django_filters.FilterSet):
@@ -145,7 +145,7 @@ class ResourceList(generics.ListCreateAPIView):
             condition &= resource_list_condition
 
         # then this queryset is filtered on `filter_fields`
-        queryset = Resource.objects.filter(condition)
+        queryset = Resource.objects.filter(condition).order_by("-created")
         return queryset
 
     def paginate_queryset(self, queryset, view=None):
@@ -227,7 +227,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
-    queryset = Resource.objects.all()
+    queryset = Resource.objects.all().order_by("-created")
     serializer_class = NestedLabelsResourceSerializer
 
     def patch(self, request, *args, **kwargs):
@@ -305,7 +305,7 @@ class ResourceViewer(APIView):
     """
     # permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
-    queryset = Resource.objects.all()
+    queryset = Resource.objects.all().order_by("-created")
     serializer_class = NestedLabelsResourceSerializer
 
     # authentication_classes = ()
@@ -350,7 +350,7 @@ class ResourceAcquireView(generics.GenericAPIView):
     lookup_url_kwarg = "resource_uuid"  # for self.get_object()
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions, )
     _ignore_model_permissions = True
-    queryset = Resource.objects.all()
+    queryset = Resource.objects.all().order_by("-created")
 
     def get_serializer_class(self):
 
@@ -398,7 +398,7 @@ class ResourceArchive(generics.GenericAPIView):
     """
 
     permission_classes = (permissions.IsAuthenticated,)
-    queryset = Resource.objects.all()
+    queryset = Resource.objects.all().order_by("-created")
     serializer_class = NestedLabelsResourceSerializer
 
     def get(self, request, format=None):

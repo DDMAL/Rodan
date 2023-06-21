@@ -29,9 +29,10 @@ class UserPreferenceList(generics.ListCreateAPIView):
         # a user only can view its own userpreference unless it is a superuser
         user = self.request.user
         if user.is_superuser:
-            return self.queryset
-        return UserPreference.objects.filter(user=user)
-
+            return self.queryset.order_by("user")
+        queryset = UserPreference.objects.filter(user=user)
+        return queryset.order_by("user")
+    
     def post(self, request, *args, **kwargs):
         user_url = request.data.get("user", None)
         if user_url:
@@ -65,4 +66,4 @@ class UserPreferenceDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
     serializer_class = UserPreferenceSerializer
-    queryset = UserPreference.objects.all()
+    queryset = UserPreference.objects.all().order_by("user")

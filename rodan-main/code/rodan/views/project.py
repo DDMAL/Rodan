@@ -39,8 +39,7 @@ class ProjectList(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 Q(creator=user) | Q(admin_group__user=user) | Q(worker_group__user=user)
             )
-
-        return queryset
+        return queryset.order_by('-created')
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

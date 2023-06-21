@@ -38,6 +38,9 @@ class RunJobList(generics.ListAPIView):
                 "resource_uuid": ["exact"],
                 "job_name": ["exact", "icontains"],
             }
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-created')  # Order the queryset
 
 
 class RunJobDetail(generics.RetrieveAPIView):

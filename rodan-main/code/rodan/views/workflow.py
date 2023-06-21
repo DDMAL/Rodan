@@ -32,7 +32,7 @@ class WorkflowList(generics.ListCreateAPIView):
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
-    queryset = Workflow.objects.all()
+    queryset = Workflow.objects.all().order_by("-created")
     serializer_class = WorkflowListSerializer
     filter_fields = {
         "updated": ["lt", "gt"],
@@ -72,7 +72,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
-    queryset = Workflow.objects.all()
+    queryset = Workflow.objects.all().order_by("-created")
     serializer_class = WorkflowSerializer
 
     def get(self, request, *a, **k):
