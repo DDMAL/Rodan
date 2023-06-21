@@ -36,7 +36,6 @@ class PitchFinder(object):
 
         self._parse_inputs(glyphs, staves)
         self._find_pitches(self.glyphs)
-
         pitch_feature_names = ['staff', 'offset', 'strt_pos', 'note', 'octave', 'clef_pos', 'clef']
 
         output = []
@@ -74,7 +73,7 @@ class PitchFinder(object):
 
     def _parse_inputs(self, glyphs, staves):
         # filter out skips
-        self.glyphs = list(filter(lambda g: g.get_main_id() != 'skip', glyphs))
+        self.glyphs = list(filter(lambda g: g.get_main_id().decode() != 'skip', glyphs))
         self.staves = staves
 
         self.avg_punctum = self._average_punctum(self.glyphs)
@@ -325,8 +324,8 @@ class PitchFinder(object):
             Returns the line or space number where the glyph is located for a specific stave an miyao line.
 
             Remember kids :)
-            0 = space
-            1 = line
+            1 = space
+            0 = line
 
             0   0   1            ---------                     ledger 2
             1       2
@@ -446,7 +445,7 @@ class PitchFinder(object):
 
     def _strt_pos_find(self, line_or_space, line_num):
         # sets 0 as the 2nd ledger line above a staff
-        return (line_num + 1) * 2 + line_or_space - 1 - self.transpose
+        return (line_num) * 2 + line_or_space - self.transpose
 
     def _sort_glyphs(self, proc_glyphs):
 
@@ -500,7 +499,7 @@ class PitchFinder(object):
         width_sum = 0
         num_punctums = 0
         for g in glyphs:
-            if g.get_main_id() == 'neume.punctum':
+            if g.get_main_id().decode() == 'neume.punctum':
                 width_sum += g.ncols
                 num_punctums += 1
 
