@@ -90,10 +90,12 @@ export default class ControllerAuthentication extends BaseController
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_CHANGED_PASSWORD, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_REQUESTED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_CONFIRMED, (options) => this._handleEventGeneric(options));
+        Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_REGISTERED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_CHANGE_PASSWORD, (options) => this._handleRequestChangePassword(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD, (options) => this._handleRequestResetPassword(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD_CONFIRM, (options) => this._handleRequestResetPasswordConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_SAVE, (options) => this._handleRequestSaveUser(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_REGISTER, (options) => this._handleRequestRegister(options));
 
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__AUTHENTICATION_USER, () => this._handleRequestUser());
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__AUTHENTICATION_LOGIN, options => this._login(options));
@@ -437,8 +439,43 @@ export default class ControllerAuthentication extends BaseController
      */
     _handleResetPasswordConfirmationError(response)
     {
-        const errors = Object.values(JSON.parse(response.responseText));
+        const errors = Object.values(response.responseJSON);
         const content = errors.flat().join(" ");
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { content });
+    }
+
+    /**
+     * Handles registration request.
+     */
+    _handleRequestRegister(options)
+    {
+        const route = Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'auth-register');
+        const ajaxSettings = {
+            success: (response) => this._handleRequestRegisterSuccess(response),
+            error: (response) => this._handleRequestRegisterError(response),
+            type: "POST",
+            url: route,
+            data: { first_name: options.firstName, last_name: options.lastName, username: options.username, email: options.email, password: options.password }
+        };
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Registering', content: 'Please wait...'});
+    }
+
+    /**
+     * Handle success response from register attempt.
+     */
+    _handleRequestRegisterSuccess(response)
+    {
+        Radio.channel("rodan").trigger(RODAN_EVENTS.EVENT__USER_REGISTERED);
+    }
+
+    /**
+     * Handle error response from register attempt.
+     */
+    _handleRequestRegisterError(response)
+    {
+        const errors = response.responseJSON;
+        Radio.channel("rodan").trigger(RODAN_EVENTS.EVENT__USER_REGISTER_ERROR, { errors });
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { content: "An error occured during registration." });
     }
 }

@@ -361,6 +361,8 @@ class RODAN_EVENTS
         this.EVENT__USER_PREFERENCE_SAVED = 'EVENT__USER_PREFERENCE_SAVED';
         /** Triggered when User has been saved. Sends {user: User}. */
         this.EVENT__USER_SAVED = 'EVENT__USER_SAVED';
+        /** Triggered when there are errors in registration. Sends {errors: {[string]: string[]}} */
+        this.EVENT__USER_REGISTER_ERROR = 'EVENT__USER_REGISTER_ERROR';
         /** Request a password reset email. Takes in {email: string}. */
         this.REQUEST__USER_RESET_PASSWORD = 'REQUEST__USER_RESET_PASSWORD';
         /** Request password reset using token from email. Takes in {cid: string, token: string, new_password: string}. */
@@ -373,6 +375,8 @@ class RODAN_EVENTS
         this.REQUEST__USER_PREFERENCE_SAVE = 'REQUEST__USER_PREFERENCE_SAVE';
         /** Request a User be saved/updated. Takes {user_preference: UserPreference}. */
         this.REQUEST__USER_SAVE = 'REQUEST__USER_SAVE';
+        /** Request registration of new user */
+        this.REQUEST__USER_REGISTER = 'REQUEST__USER_REGISTER';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Workflow
