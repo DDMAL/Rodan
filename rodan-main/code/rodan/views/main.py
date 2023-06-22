@@ -85,6 +85,7 @@ class APIRoot(APIView):
                 "auth-register": reverse(
                     "auth-register", request=request, format=format
                 ),
+                "auth-activate": reverse("auth-activate", request=request, format=format),
                 "auth-token": reverse("auth-token", request=request, format=format),
                 "auth-reset-token": reverse(
                     "auth-reset-token", request=request, format=format

@@ -10,11 +10,16 @@ const Router = AppRouter.extend({
             const view = new ViewResetPassword(options);
             Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
             Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: "Reset Password", content: view });
-        }
+        },
+        activateAccount(uid, token) {
+            const options = { uid, token };
+            Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__USER_ACTIVATE_ACCOUNT, options);
+        },
     },
 
     appRoutes: {
-        "password-reset/:uid/:token": "resetPassword"
+        "password-reset/:uid/:token": "resetPassword",
+        "activate/:uid/:token": "activateAccount",
     }
 });
 

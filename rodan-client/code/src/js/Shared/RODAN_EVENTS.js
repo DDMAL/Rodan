@@ -363,6 +363,10 @@ class RODAN_EVENTS
         this.EVENT__USER_SAVED = 'EVENT__USER_SAVED';
         /** Triggered when there are errors in registration. Sends {errors: {[string]: string[]}} */
         this.EVENT__USER_REGISTER_ERROR = 'EVENT__USER_REGISTER_ERROR';
+        /** Triggered when User has been registered. Sends {user: User}. */
+        this.EVENT__USER_REGISTERED = 'EVENT__USER_REGISTERED';
+        /** Triggered when an account is activated. */
+        this.EVENT__USER_ACTIVATED = 'EVENT__USER_ACTIVATED';
         /** Request a password reset email. Takes in {email: string}. */
         this.REQUEST__USER_RESET_PASSWORD = 'REQUEST__USER_RESET_PASSWORD';
         /** Request password reset using token from email. Takes in {cid: string, token: string, new_password: string}. */
@@ -377,6 +381,8 @@ class RODAN_EVENTS
         this.REQUEST__USER_SAVE = 'REQUEST__USER_SAVE';
         /** Request registration of new user */
         this.REQUEST__USER_REGISTER = 'REQUEST__USER_REGISTER';
+        /** Request to activate account. Takes in {uid: string, token: string} */
+        this.REQUEST__USER_ACTIVATE_ACCOUNT = 'REQUEST__USER_ACTIVATE_ACCOUNT';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Workflow

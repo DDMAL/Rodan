@@ -91,11 +91,13 @@ export default class ControllerAuthentication extends BaseController
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_REQUESTED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PASSWORD_RESET_CONFIRMED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_REGISTERED, (options) => this._handleEventGeneric(options));
+        Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_ACTIVATED, (options) => this._handleEventGeneric(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_CHANGE_PASSWORD, (options) => this._handleRequestChangePassword(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD, (options) => this._handleRequestResetPassword(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD_CONFIRM, (options) => this._handleRequestResetPasswordConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_SAVE, (options) => this._handleRequestSaveUser(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_REGISTER, (options) => this._handleRequestRegister(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__USER_ACTIVATE_ACCOUNT, (options) => this._handleRequestActivateAccount(options));
 
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__AUTHENTICATION_USER, () => this._handleRequestUser());
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__AUTHENTICATION_LOGIN, options => this._login(options));
@@ -477,5 +479,41 @@ export default class ControllerAuthentication extends BaseController
         const errors = response.responseJSON;
         Radio.channel("rodan").trigger(RODAN_EVENTS.EVENT__USER_REGISTER_ERROR, { errors });
         Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { content: "An error occured during registration." });
+    }
+
+    /**
+     * Handles request to activate account.
+     */
+    _handleRequestActivateAccount(options)
+    {
+        const { uid, token } = options;
+        const route = Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, "auth-activate");
+        const ajaxSettings = {
+            success: (response) => this._handleRequestActivateAccountSuccess(response),
+            error: (response) => this._handleRequestActivateAccountError(response),
+            type: "POST",
+            url: route,
+            data: { uid, token }
+        };
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: "Activate Account", content: "Activating your account..." });
+    }
+
+    /**
+     * Handle success response from activate account.
+     */
+    _handleRequestActivateAccountSuccess(response)
+    {
+        Backbone.history.navigate("");
+        Radio.channel("rodan").trigger(RODAN_EVENTS.EVENT__USER_ACTIVATED);
+    }
+
+    /**
+     * Handles error response from activate account.
+     */
+    _handleRequestActivateAccountError(response)
+    {
+        const error = response.responseJSON.detail;
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { content: error });
     }
 }
