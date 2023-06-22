@@ -154,23 +154,23 @@ class PitchFinder(object):
 
         return center_of_mass + y_add
     
+    # gets a subimage of the glyph. If the glyph is a virga, it will try to only get the note head
+    # if the glyph is two note heads that are stacked, it will try to get the bottom note head
+    # otherwise it will grab the left most part of the glyph with the width of the average punctum size * 0.8
     def get_subimage(self,glyph,extend_by_cols,extend_by_rows):
+        # neumes where the bottom left head needs to be targeted
         bottom_lefts = ["neume.podatus2b","neume.podatus3","neume.podatus4","neume.podatus5","neume.scandicus22b"]
         if(glyph.get_main_id().decode() in bottom_lefts):
+            # gets bottom left head
             temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows),
                                     ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows -1)))
+            #offset from the top of the glyph is the height of the glyph - average punctum size
             y_add = glyph.nrows -1 - extend_by_rows
             self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows,
                                 glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + glyph.nrows -1)
             return temp_glyph,y_add
-        # elif(glyph.get_main_id().decode() == "neume.scandicus22b"):
-        #     temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows),
-        #                             ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows -1)))
-        #     y_add = glyph.nrows -1 - extend_by_rows
-        #     self.debug.addBox(glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows,
-        #                         glyph.offset_x + 1.0 * extend_by_cols - 1, glyph.offset_y + glyph.nrows -1)
-        #     return temp_glyph,y_add
         elif(glyph.get_main_id().decode() == "neume.virga"):
+            # gets the note head
             temp_glyph = glyph.subimage((glyph.offset_x + 0.0 *extend_by_cols, glyph.offset_y),
                                     ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + 1.0 * extend_by_rows - 1)))
             y_add = 0
