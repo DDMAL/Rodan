@@ -271,6 +271,11 @@ api_patterns = [
         djoser_views.UserViewSet.as_view({'post': 'activation'}),
         name="auth-activate",
     ),
+    url(
+        r"^api/auth/resend-activation/$", 
+    djoser_views.UserViewSet.as_view({'post': 'resend_activation'}), 
+        name="auth-resend-activation"
+    ),
     url(r"^api/auth/token/", AuthTokenView.as_view(), name="auth-token"),
     url(
         r"^api/auth/reset-token/",

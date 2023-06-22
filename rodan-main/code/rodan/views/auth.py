@@ -47,12 +47,12 @@ class AuthTokenView(views.APIView):
 
         if not email:
             return Response(
-                {"detail": "You must supply a email"},
+                {"is_logged_in": False, "detail": "You must supply an email."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         if not password:
             return Response(
-                {"detail": "You must supply a password"},
+                {"is_logged_in": False, "detail": "You must supply a password."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -69,11 +69,11 @@ class AuthTokenView(views.APIView):
             else:
                 # user exists, but is not allowed to log in
                 return Response(
-                    {"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN
+                    {"is_logged_in": False, "detail": "Account is not activated."}, status=status.HTTP_403_FORBIDDEN
                 )
         else:
             # user does not exist. Assume a typo in the email or password
             # and allow the user to re-authenticate
             return Response(
-                {"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED
+                {"is_logged_in": False, "detail": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED
             )

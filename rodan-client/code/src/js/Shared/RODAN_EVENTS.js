@@ -52,6 +52,8 @@ class RODAN_EVENTS
         this.EVENT__AUTHENTICATION_LOGIN_SUCCESS = 'EVENT__AUTHENTICATION_LOGIN_SUCCESS';
         /** Triggered after authentication attempt; user must log in. */
         this.EVENT__AUTHENTICATION_LOGINREQUIRED = 'EVENT__AUTHENTICATION_LOGINREQUIRED';
+        /** Triggered if the account has not been activated. */
+        this.EVENT__AUTHENTICATION_ACTIVATION_REQUIRED = 'EVENT__AUTHENTICATION_ACTIVATION_REQUIRED';
         /** Triggered on success of deauthentication. */
         this.EVENT__AUTHENTICATION_LOGOUT_SUCCESS = 'EVENT__AUTHENTICATION_LOGOUT_SUCCESS';
         /** Request check of authentication status. The client will make a request to the Rodan server. Upon response from the server, the client will fire one of the above AUTHENTICATION events. */
@@ -367,7 +369,9 @@ class RODAN_EVENTS
         this.EVENT__USER_REGISTERED = 'EVENT__USER_REGISTERED';
         /** Triggered when an account is activated. */
         this.EVENT__USER_ACTIVATED = 'EVENT__USER_ACTIVATED';
-        /** Request a password reset email. Takes in {email: string}. */
+        /** Triggered when User has requested a new activation email. */
+        this.EVENT__USER_RESENT_ACTIVATION_EMAIL = 'EVENT__USER_RESENT_ACTIVATION_EMAIL';
+        /** Request a password reset email. Takes in {username: string}. */
         this.REQUEST__USER_RESET_PASSWORD = 'REQUEST__USER_RESET_PASSWORD';
         /** Request password reset using token from email. Takes in {cid: string, token: string, new_password: string}. */
         this.REQUEST__USER_RESET_PASSWORD_CONFIRM = 'REQUEST__USER_RESET_PASSWORD_CONFIRM';
@@ -383,6 +387,8 @@ class RODAN_EVENTS
         this.REQUEST__USER_REGISTER = 'REQUEST__USER_REGISTER';
         /** Request to activate account. Takes in {uid: string, token: string} */
         this.REQUEST__USER_ACTIVATE_ACCOUNT = 'REQUEST__USER_ACTIVATE_ACCOUNT';
+        /** Request new activation email. Takes in {username: string} */
+        this.REQUEST__USER_RESEND_ACTIVATION = 'REQUEST__USER_RESEND_ACTIVATION';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Workflow

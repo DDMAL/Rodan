@@ -265,6 +265,12 @@ DJOSER = {
     "SEND_CONFIRMATION_EMAIL": True,
     "SEND_ACTIVATION_EMAIL": True,
     "ACTIVATION_URL": "#activate/{uid}/{token}",
+    "SERIALIZERS": {
+        "password_reset": "rodan.serializers.djoser.SendEmailResetSerializer",
+    },
+    "CONSTANTS": {
+        "messages": "rodan.constants.Messages",
+    },
 }
 
 ###############################################################################
@@ -386,7 +392,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend", # Authenticate with User.USERNAME_FIELD and password
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",  # Allow inactive users to authenticate
     "guardian.backends.ObjectPermissionBackend",
 ]
 
