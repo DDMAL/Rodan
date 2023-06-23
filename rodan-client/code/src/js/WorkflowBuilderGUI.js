@@ -140,7 +140,7 @@ class WorkflowBuilderGUI
         this._multipleSelectionKey = Rodan.Environment.getMultipleSelectionKey();
         this._line = null;
         this._zoomRate = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        this._itemController = new ItemController();
+        this._itemController = new ItemController({ workflow: this._workflow });
         paper.handleMouseEvent = event => this._itemController.handleMouseEvent(event);
 
         window.addEventListener('keydown', (e) => {

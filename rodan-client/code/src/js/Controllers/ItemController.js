@@ -21,8 +21,9 @@ class ItemController
     /**
      * Basic constructor
      */
-    constructor()
+    constructor(options)
     {
+        this._workflow = options.workflow;
         this._selectedItems = {};
         this._selectingMultiple = false;
         this._overItem = null;
@@ -31,6 +32,7 @@ class ItemController
         
         this._initializeRadio();
         this._createSegments();
+        this._initializeItems();
     }
 
     /**
@@ -309,11 +311,47 @@ class ItemController
         };
     }
 
+    /**
+     * This creates all the items initially in the workflow.
+     */
+    _initializeItems()
+    {
+        // Initialize `WorkflowJobItem`s
+        const workflowJobs = this._workflow.get('workflow_jobs');
+        if (workflowJobs) {
+            workflowJobs.each(workflowJob => this._initializeWorkflowJobItem(workflowJob));
+        }
+
+        // Initialize `InputPortItem`s
+        const inputPorts = this._workflow.get('input_ports');
+        if (inputPorts) {
+            inputPorts.each(inputPort => this._initializeInputPortItem(inputPort));
+        }
+
+        // Initialize `OutputPortItem`s
+        const outputPorts = this._workflow.get('output_ports');
+        if (outputPorts) {
+            outputPorts.each(outputPort => this._initializeOutputPortItem(outputPort));
+        }
+
+        // Initialize `ConnectionItem`s
+        const connections = this._workflow.get('connections');
+        if (connections) {
+            connections.each(connection => this._initializeConnectionItem(connection));
+        }
+
+        // Initialize `WorkflowJobGroupItem`s
+        const workflowJobGroups = this._workflow.get('workflow_job_groups');
+        if (workflowJobGroups) {
+            workflowJobGroups.each(workflowJobGroup => this._initializeWorkflowJobGroupItem(workflowJobGroup));
+        }
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS - REST handlers
 ///////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Handle event model sync.
+     * Handle event model sync. This creates new items as the workflow is updated.
      *
      * We check if an item exists for this model. If it does, don't do anything - the
      * model will take care of itself. If it doesn't, we create a new model.
@@ -328,44 +366,24 @@ class ItemController
                 switch (options.model.constructor.name)
                 {
                     case 'WorkflowJob':
-                    {
-                        var item = new WorkflowJobItem({segments: this._segments.workflowJobItem, model: options.model, text: true});
+                        this._initializeWorkflowJobItem(options.model);
                         break;
-                    }
-
                     case 'InputPort':
-                    {
-                        var item = new InputPortItem({segments: this._segments.portItem, model: options.model, workflowjoburl: options.model.get('workflow_job')});
+                        this._initializeInputPortItem(options.model);
                         break;
-                    }
-
                     case 'OutputPort':
-                    {
-                        var item = new OutputPortItem({segments: this._segments.portItem, model: options.model, workflowjoburl: options.model.get('workflow_job')});
+                        this._initializeOutputPortItem(options.model);
                         break;
-                    }
-
                     case 'Connection':
-                    {
-                        paper.project.layers['connections'].activate();
-                        var item = new ConnectionItem({segments: this._segments.connection,
-                                                       model: options.model, 
-                                                       inputporturl: options.model.get('input_port'), 
-                                                       outputporturl: options.model.get('output_port')});
+                        paper.project.layers['connections'].activate();                        
+                        this._initializeConnectionItem(options.model);
                         paper.project.layers['default'].activate();
                         break;
-                    }
-
                     case 'WorkflowJobGroup':
-                    {
-                        var item = new WorkflowJobGroupItem({segments: this._segments.workflowJobItem, model: options.model, text: true});
+                        this._initializeWorkflowJobGroupItem(options.model);
                         break;
-                    }
-
                     default:
-                    {
                         break;
-                    }
                 }
             }
             else if (options.options.task === 'destroy')
@@ -373,6 +391,36 @@ class ItemController
                 this.unselectItem(item);
             }
         }
+    }
+
+    _initializeWorkflowJobItem(workflowJob)
+    {
+        return new WorkflowJobItem({segments: this._segments.workflowJobItem, model: workflowJob, text: true});
+    }
+
+    _initializeInputPortItem(inputPort)
+    {
+        return new InputPortItem({segments: this._segments.portItem, model: inputPort, workflowjoburl: inputPort.get('workflow_job')});
+    }
+
+    _initializeOutputPortItem(outputPort)
+    {
+        return new OutputPortItem({segments: this._segments.portItem, model: outputPort, workflowjoburl: outputPort.get('workflow_job')});
+    }
+
+    _initializeConnectionItem(connection)
+    {
+        return new ConnectionItem({
+            segments: this._segments.connection,
+            model: connection, 
+            inputporturl: connection.get('input_port'), 
+            outputporturl: connection.get('output_port')
+        });
+    }
+
+    _initializeWorkflowJobGroupItem(workflowJobGroup)
+    {
+        return new WorkflowJobGroupItem({segments: this._segments.workflowJobItem, model: workflowJobGroup, text: true});
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
