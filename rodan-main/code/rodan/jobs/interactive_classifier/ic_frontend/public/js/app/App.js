@@ -292,6 +292,11 @@ var App = Marionette.Application.extend(
                 {
                     if (response.status === 200)
                     {
+                        // flush stored grouped glyphs, so they are not rewritten on future saves
+                        that.groupedGlyphs = [];
+                        
+                        // TODO: potentially flush othe stored lists here? (changed glyphs, deleted, etc.)
+
                         that.modals.saveChanges.close();
 
                     }
