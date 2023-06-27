@@ -70,8 +70,10 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('label', models.CharField(blank=True, db_index=True, max_length=255, null=True)),
                 ('extern', models.BooleanField(db_index=True, default=False)),
+                ('created', models.DateTimeField(auto_now_add=True)),
             ],
             options={
+                'ordering': ['created'],
                 'permissions': (('view_inputport', 'View InputPort'),),
             },
         ),
@@ -115,8 +117,10 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('label', models.CharField(blank=True, db_index=True, max_length=255, null=True)),
                 ('extern', models.BooleanField(db_index=True, default=False)),
+                ('created', models.DateTimeField(auto_now_add=True)),
             ],
             options={
+                'ordering': ['created'],
                 'permissions': (('view_outputport', 'View OutputPort'),),
             },
         ),

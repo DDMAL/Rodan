@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth import forms
 from guardian.admin import GuardedModelAdmin
 
 from rodan.models.project import Project
@@ -13,27 +13,14 @@ from rodan.models.resultspackage import ResultsPackage
 from rodan.models.resource import Resource
 from rodan.models.resourcelist import ResourceList
 
-# from rodan.models.rodanuser import RodanUser
-
-
-# class WorkflowJobInline(admin.StackedInline):
-#     model = WorkflowJob
-#     extra = 5
-
-
-# class WorkflowAdmin(admin.ModelAdmin):
-#     inlines = [WorkflowJobInline]
-
 
 class JobAdmin(admin.ModelAdmin):
     list_display = ('name', 'enabled', 'category')
 
-# @admin.register(Project)
 class ProjectAdmin(GuardedModelAdmin):
     list_display = ('name', 'uuid', 'creator', 'created', 'updated')
     readonly_fields = ('uuid',)
 
-# @admin.register(Workflow)
 class WorkflowJobAdmin(admin.ModelAdmin):
     list_display = ('job_name', 'created', 'updated')
     list_filter = ('workflow__name',)
@@ -57,20 +44,20 @@ class ResourceAdmin(admin.ModelAdmin):
 class ResourceListAdmin(admin.ModelAdmin):
     list_display = ('created', 'updated')
 
+class UserChangeForm(forms.UserChangeForm):
+    class Meta(forms.UserChangeForm.Meta):
+        model = User
 
-# class UserProfileInline(admin.StackedInline):
-#     model = RodanUser
-#     can_delete = False
-#     verbose_name_plural = 'profile'
+class UserCreationForm(forms.UserCreationForm):
+    class Meta(forms.UserCreationForm.Meta):
+        model = User
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
+    form = UserChangeForm
+    add_form = UserCreationForm
 
-# class RodanUserAdmin(UserAdmin):
-#     inlines = (UserProfileInline, )
-
-# admin.site.unregister(User)
-# admin.site.register(User, RodanUserAdmin)
-
-# admin.site.register(RodanUser)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(WorkflowRun, WorkflowRunAdmin)
 admin.site.register(RunJob, RunJobAdmin)

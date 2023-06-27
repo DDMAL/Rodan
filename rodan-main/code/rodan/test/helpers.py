@@ -53,10 +53,10 @@ class RodanTestSetUpMixin(object):
 
     def setUp_user(self):
         self.test_user = User.objects.create_user(
-            username="ahankins", password="hahaha"
+            username="ahankins", email="ahankins@rodan2.simssa.ca", password="hahaha"
         )
         self.test_superuser = User.objects.create_superuser(
-            username="super", email="s@s.com", password="hahaha"
+            username="super", email="super@rodan2.simssa.ca", password="hahaha"
         )
 
     def setUp_basic_workflow(self):

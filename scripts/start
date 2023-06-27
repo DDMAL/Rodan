@@ -26,7 +26,7 @@ import os
 from rodan.models.user import User
 print ("Checking if Django super user exists...")
 if not User.objects.filter(username=os.getenv('ADMIN_USER')).exists():
-    User.objects.create_superuser(os.getenv('ADMIN_USER'), '', os.getenv('ADMIN_PASS'))
+    User.objects.create_superuser(os.getenv('ADMIN_USER'), os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASS'))
     print ("Created new user.")
 
 EOF

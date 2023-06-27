@@ -32,16 +32,16 @@ class PermissionStaticTestCase(
         self.setUp_user()
         self.test_creator = self.test_user
         self.test_admin = User.objects.create_user(
-            username="test_admin", password="hahaha"
+            username="test_admin", email="test_admin@rodan2.simssa.ca", password="hahaha"
         )
         self.test_worker = User.objects.create_user(
-            username="test_worker", password="hahaha"
+            username="test_worker", email="test_worker@rodan2.simssa.ca", password="hahaha"
         )
         self.test_worker2 = User.objects.create_user(
-            username="test_worker2", password="hahaha"
+            username="test_worker2", email="test_worker2@rodan2.simssa.ca", password="hahaha"
         )
         self.test_outsider = User.objects.create_user(
-            username="test_outsider", password="hahaha"
+            username="test_outsider", email="test_outsider@rodan2.simssa.ca", password="hahaha"
         )
 
     def test_all(self):
@@ -936,16 +936,16 @@ class PermissionRuntimeTestCase(
         self.setUp_rodan()
         self.setUp_user()
         self.test_admin = User.objects.create_user(
-            username="test_admin", password="hahaha"
+            username="test_admin", email="test_admin@rodan2.simssa.ca", password="hahaha"
         )
         self.test_worker = User.objects.create_user(
-            username="test_worker", password="hahaha"
+            username="test_worker", email="test_worker@rodan2.simssa.ca", password="hahaha"
         )
         self.test_worker2 = User.objects.create_user(
-            username="test_worker2", password="hahaha"
+            username="test_worker2", email="test_worker2@rodan2.simssa.ca", password="hahaha"
         )
         self.test_outsider = User.objects.create_user(
-            username="test_outsider", password="hahaha"
+            username="test_outsider", email="test_outsider@rodan2.simssa.ca", password="hahaha"
         )
 
     def test_construct_workflow(self):

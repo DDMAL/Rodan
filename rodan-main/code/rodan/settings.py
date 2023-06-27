@@ -371,15 +371,14 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 
-# used by django-guardian
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",  # defaults
+    # "django.contrib.auth.backends.ModelBackend", # Username and password authentication
+    "rodan.auth.backends.EmailBackend", # Email and password authentication
     "guardian.backends.ObjectPermissionBackend",
 ]
-# [TODO] This is completely depricated.
-# https://django-guardian.readthedocs.io/en/stable/develop/changes.html?highlight=User%20ID#release-1-4-2-mar-09-2016
-# Fix it per the suggestions above.
-ANONYMOUS_USER_ID = -1
+
+# Disable anonymous user for django-guardian
+ANONYMOUS_USER_NAME = None
 
 ###############################################################################
 # 2.b  CORS Configuration
