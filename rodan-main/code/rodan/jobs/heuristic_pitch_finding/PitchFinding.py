@@ -457,16 +457,19 @@ class PitchFinder(object):
                 # upper line
                 if ref_y < min(space):
                     # print 'line', i
+                    # print(f"a, refy {ref_y} lines{(y_above,y_below)}")
                     return 0, i
 
                 # within space
                 elif ref_y >= min(space) and ref_y <= max(space):
                     # print 'space', i
+                    # print(f"b, refy {ref_y} lines{(y_above,y_below)}")
                     return 1, i
 
                 # lower line
                 elif ref_y > max(space):
                     # print 'line', i + 1
+                    # print(f"c, refy {ref_y} lines{(y_above,y_below)}")
                     return 0, i + 1
 
                 else:
@@ -480,8 +483,8 @@ class PitchFinder(object):
         # func(x) = y
         if point_right != None:
             m = float(point_right[1] - point_left[1]) / float(point_right[0] - point_left[0])
-            b = point_left[1] - (m * point_left[0])
-            return lambda x: (m * x) + b
+            b = point_left[1]
+            return lambda x: (m * (x-point_left[0])) + b
 
         else:   # flat line
             return lambda x: point_left[1]
@@ -492,7 +495,7 @@ class PitchFinder(object):
 
     def _strt_pos_find(self, line_or_space, line_num):
         # sets 0 as the 2nd ledger line above a staff
-        return (line_num) * 2 + line_or_space - self.transpose
+        return (line_num) * 2 + line_or_space + 1 - self.transpose
 
     def _sort_glyphs(self, proc_glyphs):
 
@@ -504,13 +507,12 @@ class PitchFinder(object):
         sorted_glyphs = sorted(proc_glyphs, key=itemgetter(1, 2))
 
         for i, glyph_array in enumerate(sorted_glyphs):
-
             gtype = __glyph_type(glyph_array)
             if gtype == 'clef':
 
                 # overwrite last defined clef
                 self.clef = glyph_array[0].get_main_id().decode().split('.')[1], glyph_array[3]
-                glyph_array[3] = 6 - glyph_array[3] / 2  # get clef line excluding spaces
+                glyph_array[3] = 6 - glyph_array[3] // 2  # get clef line excluding spaces
                 glyph_array.extend([None, None, None, None])
 
             elif gtype == "neume" or gtype == "custos":
@@ -526,16 +528,17 @@ class PitchFinder(object):
 
                 # find octave
                 if my_strt_pos <= clef_line:
-                    octave = 3 + int((clef_line - my_strt_pos + noteShift) / len(SCALE))
+                    octave = 3 + int((clef_line - my_strt_pos + noteShift) // len(SCALE))
                 elif my_strt_pos > clef_line:
-                    octave = 3 - int((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
+                    octave = 3 - int((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) // len(SCALE))
 
                 glyph_array.extend([note, octave, clef_line, 'clef.' + clef])
                 # print clef, note, octave, glyph_array[1:], glyph_array[0].get_main_id()
 
             else:   # no pitch info necessary
                 glyph_array.extend([None, None, None, None])
-
+        # print("sorted glyphs",sorted_glyphs)
+        # print("glyphs array",glyph_array)
         return sorted_glyphs
 
     ########
