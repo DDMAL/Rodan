@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import yaml
+from yaml.loader import SafeLoader
 # from rodan.celery import app
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -295,7 +296,7 @@ for package_name in settings.RODAN_JOB_PACKAGES:
             "searching " + resource_type_path + " for custom MIME resource types"
         )
         with open(resource_type_path, "r") as f:
-            resource_types = yaml.load(f)
+            resource_types = yaml.load(f, Loader=SafeLoader)
             for rt in resource_types:
                 if rt["mimetype"] not in resourcetypes:
                     resourcetypes[rt["mimetype"]] = []
