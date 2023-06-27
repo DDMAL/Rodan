@@ -24,7 +24,8 @@ def moving_avg_filter(data, filter_size):
     return smoothed
 
 def get_split_locations(gray,num_splits):
-    projection = np.sum(gray,axis=0)
+    flipped = gray == False
+    projection = np.sum(flipped,axis=0)
     filtered = moving_avg_filter(projection,filter_size=5)
     copy = filtered.copy()
     bounds = []
@@ -74,7 +75,7 @@ def get_stacked_image(img,ranges):
             max = chunks[-1].shape[1]
     output = []
     for chunk in chunks:
-        output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant',constant_values=255))
+        output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant'))
     return np.vstack(output)
 
     
@@ -83,8 +84,8 @@ def get_stacked_image(img,ranges):
 if __name__ == '__main__':
     img = cv.imread("staffs.png",cv.IMREAD_UNCHANGED)
     gray = convert_to_grayscale(img)
-    splits = get_split_locations(gray==False,3)
+    splits = get_split_locations(gray,3)
     ranges = get_split_ranges(img,splits)
     color = cv.imread("resized.png")
-    stacked = get_stacked_image(color,ranges)
+    stacked = get_stacked_image(img,ranges)
     cv.imwrite('stacked.png',stacked)
