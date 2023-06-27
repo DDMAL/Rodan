@@ -3,13 +3,13 @@ import os
 # import uuid
 # import time
 from model_mommy import mommy
-from django.contrib.auth.models import User
 from rodan.models import Job, ResourceType
 from django.core.files.base import ContentFile
 from django.conf import settings
 
 from importlib import reload
 from rodan.celery import app
+from rodan.models.user import User
 
 class RodanTestSetUpMixin(object):
     def url(self, obj):

@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from guardian.admin import GuardedModelAdmin
 
 from rodan.models.project import Project
-
+from rodan.models.user import User
 from rodan.models.workflow import Workflow
 from rodan.models.workflowjob import WorkflowJob
 from rodan.models.workflowrun import WorkflowRun
@@ -79,3 +80,4 @@ admin.site.register(WorkflowJob, WorkflowJobAdmin)
 admin.site.register(ResultsPackage, ResultsPackageAdmin)
 admin.site.register(Resource)
 admin.site.register(ResourceList, ResourceListAdmin)
+admin.site.register(User, UserAdmin)

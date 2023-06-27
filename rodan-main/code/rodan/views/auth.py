@@ -3,7 +3,6 @@ from django.contrib.auth import (
     # login,
     # logout
 )
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import views
@@ -15,6 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from rodan.serializers.user import UserSerializer
+from rodan.models.user import User
 
 
 class AuthMeView(generics.RetrieveUpdateAPIView):

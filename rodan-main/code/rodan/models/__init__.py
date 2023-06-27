@@ -5,7 +5,7 @@ import getpass
 import subprocess
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission, User, Group
+from django.contrib.auth.models import Permission, Group
 from django.db.models.signals import (
     pre_migrate,
     post_migrate,
@@ -41,6 +41,7 @@ from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.tempauthtoken import Tempauthtoken
+from rodan.models.user import User
 
 
 if sys.version_info.major == 2:

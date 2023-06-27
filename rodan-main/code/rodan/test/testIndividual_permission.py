@@ -3,7 +3,6 @@ Permission test for Rodan.
 """
 import random
 
-from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -15,7 +14,8 @@ from rodan.models import (
     WorkflowRun,
     Input,
     Output,
-    RunJob
+    RunJob,
+    User
 )
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 

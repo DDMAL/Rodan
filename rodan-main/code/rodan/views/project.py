@@ -1,8 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions, exceptions
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rodan.models.project import Project
+from rodan.models.project import Project, User
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
 from django.db.models import Q

@@ -1,6 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
-from rodan.models import WorkflowRun
+from rodan.models import WorkflowRun, User
 from model_mommy import mommy
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 

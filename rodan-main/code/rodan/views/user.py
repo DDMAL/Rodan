@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -11,6 +10,7 @@ from rest_framework.response import Response
 
 from rodan.permissions import CustomObjectPermissions
 from rodan.serializers.user import UserSerializer, UserListSerializer
+from rodan.models.user import User
 
 import django_filters
 

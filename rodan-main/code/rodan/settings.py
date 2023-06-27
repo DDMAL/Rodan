@@ -113,6 +113,9 @@ MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 # trailing slash.
 MEDIA_URL = "/uploads/"
 
+# Custom user model
+AUTH_USER_MODEL = "rodan.User"
+
 ###############################################################################
 # 1.b  General Rodan Configuration
 ###############################################################################
