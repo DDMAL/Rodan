@@ -38,10 +38,14 @@ export default class ViewUser extends Marionette.CollectionView
      */
     _handleButtonSave()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__USER_SAVE,
-                                  {fields: {first_name: _.escape(this.ui.textFirstName.val()),
-                                            last_name: _.escape(this.ui.textLastName.val()),
-                                            email: _.escape(this.ui.textEmail.val())}});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__USER_SAVE, {
+            fields: {
+                username: _.escape(this.ui.textUsername.val()),
+                first_name: _.escape(this.ui.textFirstName.val()),
+                last_name: _.escape(this.ui.textLastName.val()),
+                email: _.escape(this.ui.textEmail.val())
+            }
+        });
         if (this._userPreference)
         {
             this._userPreference.set({'send_email': $(this.ui.checkboxSendEmail).prop('checked')});
@@ -93,6 +97,7 @@ ViewUser.prototype.modelEvents = {
 ViewUser.prototype.ui = {
             buttonSave: '#button-save_user',
             buttonPassword: '#button-change_password',
+            textUsername: '#text-user_username',
             textFirstName: '#text-user_firstname',
             textLastName: '#text-user_lastname',
             textEmail: '#text-user_email',
