@@ -3,6 +3,7 @@ from gamera.plugins.image_utilities import union_images
 from operator import itemgetter, attrgetter
 import logging
 logger = logging.getLogger("__name__")
+from math import floor
 
 class PitchFinder(object):
 
@@ -27,6 +28,12 @@ class PitchFinder(object):
         self.staves = None
 
         self.sorted_glyphs = None
+
+        # when getting the subimage to find the com, this determines how much
+        # times the average punctum size to extend the subimage by
+        # using 1.0 isn't great because for neume components smaller than the average punctum,
+        # it tends to grab the next neume component
+        self.subimage_width_factor = 0.8
 
     ##########
     # Public
@@ -124,7 +131,7 @@ class PitchFinder(object):
             if g.ncols < self.avg_punctum:
                 this_punctum_size_cols = g.ncols
             else:
-                this_punctum_size_cols = self.avg_punctum * 0.8
+                this_punctum_size_cols = self.avg_punctum * self.subimage_width_factor
 
             if g.nrows < self.avg_punctum:
                 this_punctum_size_rows = g.nrows
@@ -475,7 +482,7 @@ class PitchFinder(object):
 
                 # overwrite last defined clef
                 self.clef = glyph_array[0].get_main_id().decode().split('.')[1], glyph_array[3]
-                glyph_array[3] = 6 - glyph_array[3] // 2  # get clef line excluding spaces
+                glyph_array[3] = 6 - floor(glyph_array[3] / 2)  # get clef line excluding spaces
                 glyph_array.extend([None, None, None, None])
 
             elif gtype == "neume" or gtype == "custos":
@@ -491,9 +498,9 @@ class PitchFinder(object):
 
                 # find octave
                 if my_strt_pos <= clef_line:
-                    octave = 3 + int((clef_line - my_strt_pos + noteShift) // len(SCALE))
+                    octave = 3 + floor((clef_line - my_strt_pos + noteShift) / len(SCALE))
                 elif my_strt_pos > clef_line:
-                    octave = 3 - int((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) // len(SCALE))
+                    octave = 3 - floor((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
 
                 glyph_array.extend([note, octave, clef_line, 'clef.' + clef])
 
