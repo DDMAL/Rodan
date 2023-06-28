@@ -20,6 +20,7 @@ export default class ViewUser extends Marionette.CollectionView
     {
         /** @ignore */
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PREFERENCE_LOADED, (options) => this._handleUserPreferenceLoaded(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__MODAL_FORM_VALIDATION_ERROR, (options) => this._handleErrors(options));
     }
 
     /**
@@ -90,6 +91,31 @@ export default class ViewUser extends Marionette.CollectionView
             $(this.ui.divUserPreferenceLoading).show();
         }
     }
+
+    /**
+     * Handle errors.
+     */
+    _handleErrors(options)
+    {
+        for (const [key, errors] of Object.entries(options.errors)) {
+            switch (key) {
+                case 'username':
+                    $(this.ui.errorUsername).text(errors[0]);
+                    break;
+                case 'first_name':
+                    $(this.ui.errorFirstName).text(errors[0]);
+                    break;
+                case 'last_name':
+                    $(this.ui.errorLastName).text(errors[0]);
+                    break;
+                case 'email':
+                    $(this.ui.errorEmail).text(errors[0]);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 ViewUser.prototype.modelEvents = {
             'all': 'render'
@@ -101,6 +127,10 @@ ViewUser.prototype.ui = {
             textFirstName: '#text-user_firstname',
             textLastName: '#text-user_lastname',
             textEmail: '#text-user_email',
+            errorUsername: '#error-user_username',
+            errorFirstName: '#error-user_firstname',
+            errorLastName: '#error-user_lastname',
+            errorEmail: '#error-user_email',
             checkboxSendEmail: '#checkbox-send_email',
             divUserPreference: '#div-user_preference',
             divUserPreferenceLoading: '#div-user_preference_loading'

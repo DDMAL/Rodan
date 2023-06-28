@@ -322,7 +322,7 @@ export default class ControllerAuthentication extends BaseController
     {
         var route = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'auth-me');
         var ajaxSettings = {success: (response) => this._handleSaveUserSuccess(response),
-                            error: (response) => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SYSTEM_HANDLE_ERROR, {response: response}),
+                            error: (response) => this._handleSaveUserError(response),
                             type: 'PATCH',
                             url: route,
                             dataType: 'json',
@@ -354,6 +354,15 @@ export default class ControllerAuthentication extends BaseController
     {
         this._user = new User(response);
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_SAVED, {user: this._user});
+    }
+
+    /**
+     * Handles errors from saving user.
+     */
+    _handleSaveUserError(response)
+    {
+        const errors = response.responseJSON;
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_FORM_VALIDATION_ERROR, { errors });
     }
 
     /**
