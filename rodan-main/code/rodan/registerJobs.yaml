@@ -127,6 +127,12 @@
         "rodan.jobs.pixel_wrapper.wrapper": [ 
           "PixelInteractive"
           ]
+    },
+
+    "rodan.jobs.column_split": {
+        "rodan.jobs.column_split.base": [ 
+          "ColumnSplit"
+          ]
     }
       
     }
