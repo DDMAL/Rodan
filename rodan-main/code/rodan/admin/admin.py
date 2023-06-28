@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import forms
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from guardian.admin import GuardedModelAdmin
 
 from rodan.models.project import Project
@@ -52,11 +53,22 @@ class UserCreationForm(forms.UserCreationForm):
     class Meta(forms.UserCreationForm.Meta):
         model = User
 
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    list_filter = ('is_staff', 'is_superuser', 'is_active')
+class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
+
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2'),
+        }),
+    )
+
+    search_fields = ('username', 'email')
+    ordering = ('username', 'email')
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(WorkflowRun, WorkflowRunAdmin)

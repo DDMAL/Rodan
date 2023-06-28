@@ -4,7 +4,7 @@ import rodan.models.user
 
 class Migration(migrations.Migration):
     """
-    This migration makes the email field unique and non-blank.
+    This migration makes the email field unique and non-blank and adds permissions to custom user model.
     """
 
     dependencies = [
@@ -17,6 +17,10 @@ class Migration(migrations.Migration):
             managers=[
                 ('objects', rodan.models.user.UserManager()),
             ],
+        ),
+        migrations.AlterModelOptions(
+            name='user',
+            options={'permissions': (('view_user', 'View user'),)},
         ),
         # Make sure there are no empty email fields by giving them a default value
         migrations.RunSQL(

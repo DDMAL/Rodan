@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
         username = self.model.normalize_username(username)
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
-        user.save(using=self._db)
+        user.save()
         return user
 
     def create_user(self, username, email, password=None, **extra_fields):
@@ -51,3 +51,6 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "auth_user"
+        permissions = (
+            ("view_user", "View user"),
+        )
