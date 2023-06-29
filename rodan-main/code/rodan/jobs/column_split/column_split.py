@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 
+# converts 4 channel rgba image to grayscale
 def convert_to_grayscale(img):    
     img_gray = 255 - img[:, :, 3]
     # save img to disk for debugging
@@ -23,10 +24,17 @@ def moving_avg_filter(data, filter_size):
     return smoothed
 
 def get_split_locations(gray,num_splits):
+    # invert colors to make math easier
     flipped = gray == False
     projection = np.sum(flipped,axis=0)
+    # apply filter to projection
+    # not sure if this is necessary
     filtered = moving_avg_filter(projection,filter_size=5)
-    copy = filtered.copy()
+
+    # for the number of columns, find a point in the column,
+    # then find the bounds as the first points to the right
+    # and left of that point that are 0
+    # then make the projection at the column 0 and repeat
     bounds = []
     for i in range(num_splits+1):
         max = np.argmax(filtered)
@@ -37,26 +45,29 @@ def get_split_locations(gray,num_splits):
             right_bound += 1
         bounds.append((left_bound,right_bound))
         filtered[left_bound:right_bound + 1] = 0
-        # plt.axvline(x=left_bound,color='r')
-        # plt.axvline(x=right_bound,color='r')
-    
 
+    
+    # sort column bounds in left to right order
     bounds.sort(key=lambda x: x[0])
 
+    # make sure no bounds overlap
+    # I don't have a test case where this happens so this is not tested!!!
+    # if this is step is necessary for a folio, then that folio is probably
+    # not a good candidate for this algorithm
     for i in range(len(bounds)-1):
         if bounds[i][1] > bounds[i+1][0]:
             bounds[i][1], bounds[i+1][0] = bounds[i+1][0], bounds[i][1]
 
+    # get the split points as the midpoint between the bounds
     splits = []
     for i in range(len(bounds) -1):
         mid = (bounds[i][1] + bounds[i+1][0]) // 2
         splits.append(mid)
-    #     plt.axvline(x=mid,color='g')
 
-    # plt.plot(copy)
-    # plt.savefig('projection.png')
     return splits
 
+
+# gets the ranges of the original image that correspond to the columns
 def get_split_ranges(img,splits):
     ranges = [(0,splits[0])]
     for split in splits[1:]:
@@ -64,26 +75,21 @@ def get_split_ranges(img,splits):
     ranges.append((splits[-1],img.shape[1]))
     return ranges
 
+# takes ranges in x, and stacks them vertically
 def get_stacked_image(img,ranges):
     chunks = []
     max = 0
+    # add each column to a list
+    # also find the widest column. All other columns
+    # must be padded to this width
     for r in ranges:
         chunks.append(img[:,r[0]:r[1]])
         if chunks[-1].shape[1] > max:
             max = chunks[-1].shape[1]
+    
+    # pad each column to the widest column
     output = []
     for chunk in chunks:
         output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant',constant_values=255))
+    # stack and return
     return np.vstack(output)
-
-    
-
-
-if __name__ == '__main__':
-    img = cv.imread("staffs.png",cv.IMREAD_UNCHANGED)
-    gray = convert_to_grayscale(img)
-    splits = get_split_locations(gray,3)
-    ranges = get_split_ranges(img,splits)
-    color = cv.imread("resized.png")
-    stacked = get_stacked_image(img,ranges)
-    cv.imwrite('stacked.png',stacked)

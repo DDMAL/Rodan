@@ -1,5 +1,5 @@
 from rodan.jobs.base import RodanTask
-from .column_split import get_split_locations,get_split_ranges,get_stacked_image
+from .column_split import *
 import cv2 as cv
 import os
 import logging
@@ -59,13 +59,14 @@ class ColumnSplit(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
         logger.info("Running Column Splitting")
-        splits = settings['Number of columns']
+        splits = settings['Number of columns'] - 1
         staff_layer = inputs['Staff Layer'][0]['resource_path']
         img = cv.imread(staff_layer,cv.IMREAD_UNCHANGED)
+        gray = convert_to_grayscale(img)
         logger.info("Getting split locations")
-        split_locations = get_split_locations(img,splits)
+        split_locations = get_split_locations(gray,splits)
         logger.info("Getting split ranges")
-        ranges = get_split_ranges(img,split_locations)
+        ranges = get_split_ranges(gray,split_locations)
         logger.info("Getting stacked images")
         staff_stacked = get_stacked_image(img,ranges)
         outfile = outputs['Staff Layer'][0]['resource_path']
