@@ -363,6 +363,7 @@ export default class ControllerAuthentication extends BaseController
     {
         const errors = response.responseJSON;
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_FORM_VALIDATION_ERROR, { errors });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, {content: 'An error occured while saving the user.'});
     }
 
     /**
