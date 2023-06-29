@@ -45,7 +45,7 @@ class User(AbstractUser):
     A custom user model that uses email as the username field.
     """
 
-    email = models.EmailField(verbose_name="email address", unique=True)
+    email = models.EmailField(verbose_name="email address", unique=True, error_messages={"unique": "A user with that email already exists."})
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
