@@ -47,6 +47,9 @@ class User(AbstractUser):
 
     email = models.EmailField(verbose_name="email address", unique=True)
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
     objects = UserManager()
 
     class Meta:

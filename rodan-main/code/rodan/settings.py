@@ -372,8 +372,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    # "django.contrib.auth.backends.ModelBackend", # Username and password authentication
-    "rodan.auth.backends.EmailBackend", # Email and password authentication
+    "django.contrib.auth.backends.ModelBackend", # Authenticate with User.USERNAME_FIELD and password
     "guardian.backends.ObjectPermissionBackend",
 ]
 

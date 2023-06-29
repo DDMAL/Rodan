@@ -115,7 +115,7 @@ export default class ControllerAuthentication extends BaseController
                 break;
             case 401:
                 Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SYSTEM_HANDLE_ERROR, {response: request,
-                                                                           message: 'Incorrect username/password.'});
+                                                                           message: 'Incorrect email/password.'});
                 Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__AUTHENTICATION_LOGINREQUIRED);
                 break;
             case 403:
@@ -209,7 +209,7 @@ export default class ControllerAuthentication extends BaseController
         }
         request.setRequestHeader('Accept', 'application/json');
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.send('username=' + options.username + '&password=' + options.password);
+        request.send('email=' + options.email + '&password=' + options.password);
     }
 
     /**
