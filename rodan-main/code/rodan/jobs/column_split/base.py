@@ -1,6 +1,7 @@
 from rodan.jobs.base import RodanTask
 from .column_split import get_split_locations,get_split_ranges,get_stacked_image
 import cv2 as cv
+import os
 import logging
 logger = logging.getLogger('rodan')
 
@@ -60,20 +61,24 @@ class ColumnSplit(RodanTask):
         logger.info("Running Column Splitting")
         splits = settings['Number of columns']
         staff_layer = inputs['Staff Layer'][0]['resource_path']
+        img = cv.imread(staff_layer,cv.IMREAD_UNCHANGED)
         logger.info("Getting split locations")
-        split_locations = get_split_locations(staff_layer,splits)
+        split_locations = get_split_locations(img,splits)
         logger.info("Getting split ranges")
-        ranges = get_split_ranges(split_locations)
+        ranges = get_split_ranges(img,split_locations)
         logger.info("Getting stacked images")
-        staff_stacked = get_stacked_image(staff_layer,ranges)
+        staff_stacked = get_stacked_image(img,ranges)
         outfile = outputs['Staff Layer'][0]['resource_path']
-        cv.imwrite(outfile,staff_stacked)
+        cv.imwrite(outfile+".png",staff_stacked)
+        os.rename(outfile+".png", outfile)
 
         for key in inputs:
             if key != 'Staff Layer':
-                layer = inputs
+                layer = inputs[key][0]['resource_path']
+                img = cv.imread(layer,cv.IMREAD_UNCHANGED)
                 logger.info("Getting stacked images")
-                layer_stacked = get_stacked_image(layer,ranges)
+                layer_stacked = get_stacked_image(img,ranges)
                 outfile = outputs[key][0]['resource_path']
-                cv.imwrite(outfile,layer_stacked)
+                cv.imwrite(outfile+".png",layer_stacked)
+                os.rename(outfile+".png", outfile)
         return True

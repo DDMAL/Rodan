@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 
 def convert_to_grayscale(img):    
     img_gray = 255 - img[:, :, 3]
@@ -52,10 +51,10 @@ def get_split_locations(gray,num_splits):
     for i in range(len(bounds) -1):
         mid = (bounds[i][1] + bounds[i+1][0]) // 2
         splits.append(mid)
-        plt.axvline(x=mid,color='g')
+    #     plt.axvline(x=mid,color='g')
 
-    plt.plot(copy)
-    plt.savefig('projection.png')
+    # plt.plot(copy)
+    # plt.savefig('projection.png')
     return splits
 
 def get_split_ranges(img,splits):
@@ -66,7 +65,6 @@ def get_split_ranges(img,splits):
     return ranges
 
 def get_stacked_image(img,ranges):
-    print(img.shape)
     chunks = []
     max = 0
     for r in ranges:
