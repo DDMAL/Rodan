@@ -73,7 +73,7 @@ def get_stacked_image(img,ranges):
             max = chunks[-1].shape[1]
     output = []
     for chunk in chunks:
-        output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant'))
+        output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant',constant_values=255))
     return np.vstack(output)
 
     
