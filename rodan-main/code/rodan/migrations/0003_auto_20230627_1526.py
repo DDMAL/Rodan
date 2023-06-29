@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='user',
-            options={'permissions': (('view_user', 'View user'),)},
+            options={'permissions': (('view_user', 'View User'),)},
         ),
         # Make sure there are no empty email fields by giving them a default value
         migrations.RunSQL(

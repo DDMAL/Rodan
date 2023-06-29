@@ -55,5 +55,5 @@ class User(AbstractUser):
     class Meta:
         db_table = "auth_user"
         permissions = (
-            ("view_user", "View user"),
+            ("view_user", "View User"),
         )

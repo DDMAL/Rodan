@@ -58,7 +58,7 @@ def add_view_user_permission(sender, **kwargs):
     """
     # don't set permissions in test database
     if not settings.TEST and sender.name == 'guardian':
-        content_type = ContentType.objects.get(app_label='auth', model='user')
+        content_type = ContentType.objects.get(app_label='rodan', model='user')
         Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
 
         group = Group.objects.get_or_create(name="view_user_permission")
