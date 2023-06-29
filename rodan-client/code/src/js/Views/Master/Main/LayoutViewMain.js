@@ -18,8 +18,12 @@ export default class LayoutViewMain extends Marionette.View
      */
     initialize()
     {
+        this.setElement('<div class="content-wrapper column-content"></div>');
         this.addRegions({
-            region: 'div'
+            region: {
+                el: 'div',
+                replaceElement: true
+            }
         });
         this._initializeRadio();
     }

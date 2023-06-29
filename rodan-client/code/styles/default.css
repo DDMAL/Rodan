@@ -1,15 +1,32 @@
 /**
  * Styles for Rodan client.
+ * 
+ * ------------------------------------
+ * PLEASE READ BEFORE MAKING CHANGES!!!
+ * ------------------------------------
+ *
+ * -----------
+ * Terminology
+ * -----------
+ *
+ * Navigation region:
+ *      The region that displays the Rodan logo, status bar, navigation tree,
+ *      and a button menu at the bottom.
+ *
+ * Main region: 
+ *      The region that displays project information, 
+ *      resource information, allows for resource creation, project-name modification etc.
+ * 
+ *      Whenever a user selects anything in the navigation tree within the nagivation region,
+ *      The main region's content will be dynamically updated.
+ * 
  */
 
 /**************************************************************************************
  * General parameters
  *************************************************************************************/
 
-
-
-
-
+ /* Set values for variables used throughout the stylesheet */
 :root {
     /* Navigation tree area */
     --navigation-node-color: #939393;
@@ -20,10 +37,10 @@
     --text-color-status-user: #cccccc;
     --text-color-status-server: #cccccc;
 
-    --primary-app-color: #49c5b6;
-    --secondary-app-color: #398fe6;
+    --primary-app-color: #7ab2b7;
+    --secondary-app-color: #589ed5;
     --text-color-navigation: white;
-    --app-font: 'Montserrat', sans-serif;
+    --app-font: Montserrat, sans-serif;
 
     /* Navigation area */
     --background-color-navigation: #000000;
@@ -53,6 +70,7 @@
     --height-gui: 100; /* % of vertical space in GUI viewport */
     --height-gui_menu: 4; /* % of vertical space in GUI viewport for menu */
     --size-font: 11px; /* pixels */
+    --font-weight: 100;
 }
 
 
@@ -67,49 +85,53 @@ body {
     width: 100vw;
     height: 100vh;
     font-family: var(--app-font);
+    font-size: var(--size-font);
+    font-weight: var(--font-weight);
     margin: 0px;
     overflow: hidden;
-    font-size: var(--size-font);
 }
 #app {
     width: 100%;
     height: 100%;
 }
+/* Content wrappers are used EVERYWHERE to wrap various html elements.
+If you modify the content-wrapper classes, PLEASE MAKE SURE YOU KNOW WHAT YOU'RE DOING.*/
 .content-wrapper {
     display: flex;
-}
-.content-wrapper.page-content {
+    align-items: center;
     width: 100%;
     height: 100%;
+}
+.content-wrapper.column-content {
+    flex-direction: column;
+}
+.content-wrapper.row-content {
+    flex-direction: row;
 }
 li::marker {
     content: '';
 }
-
 .btn-group {
     display: flex;
 }
-
 .btn {
     outline: none;
     border: none;
     cursor: pointer;
 }
-
+th {
+    text-align: left;
+}
 hr {
-    border: 1px solid #dddddd;
+    border: 1px solid #e5e5e5;
     width: 100%;
 }
-
-/*
- Container of all regions
-*/
-
-#content-main {
+.dropdown-menu {
     display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+}
+.dropdown-menu.hidden {
+    display: none;
 }
 
 
@@ -117,91 +139,42 @@ hr {
 // Navigation region
 /////////////////////////////////////////////////////////////////////////////////////// */
 
-div#region-navigation {
+#region-navigation {
     background: #0000000f;
-    height: 100%;
     width: 17%;
     color: var(--navigation-node-color);
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 999;
-    display: flex;
     justify-content: center;
-    align-items: center;
 }
-div#region-navigation div.node-text {
+#region-navigation .node-text {
     cursor: pointer;
 }
-#app-navbar-wrapper {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+#navigation-panel-content-wrapper {
     justify-content: center;
+    width: 92%;
 }
 #app-navbar {
     height: 99%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
 }
-.navbar-sections-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-}
-.navbar-sections-wrapper.navbar-sections-wrapper-top {
-    justify-content: flex-start;
-    height: 90%;
-}
-.navbar-section {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-.navbar-section.navbar-section-top {
-    justify-content: flex-start;
 
-}
-.navbar-section.navbar-section-bottom {
-
-}
-.navbar-section.main-navbar-section {
-    width: 90%;
-}
 /* Logo and requests status styles */
-.content-wrapper.left-navbar-content-wrapper {
-    flex-direction: column;
-    width: 100%;
-    height: 10%;
-}
 #rodan-logo {
     font-size: 35px;
     display: flex;
     align-items: flex-start;
-    color: #49c5b6;
+    color: var(--primary-app-color);
     height: 5%;
 }
-#region-status {
+#requests-status {
     color: var(--primary-app-color);
     height: 10%;
+    align-items: flex-start;
 }
 
-/* Navigation tree styles */
-.navigation-tree-node-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    width: 100%;
-}
+/* Project navigation tree styles */
 .navigation-tree-node {
     cursor: pointer;
 }
@@ -218,7 +191,7 @@ div#region-navigation div.node-text {
     background-color: var(--primary-app-color);
     color: white;
 }
-#region-navigation_tree {
+#project-navigation-tree {
     list-style-type: disc;
 }
 .navigation-tree-child-view-container {
@@ -227,7 +200,7 @@ div#region-navigation div.node-text {
     align-items: flex-end;
     width: 90%;
     padding-left: 5px;
-    border-left: 2px solid #3ebba76b;
+    border-left: 2px solid #69a3a870;
 }
 .navigation-tree-child-view-container.no-indent {
     width: 100%;
@@ -235,9 +208,7 @@ div#region-navigation div.node-text {
     padding: 0;
 }
 .btn-group.main-navbar-btn-group {
-    display: flex;
     flex-wrap: wrap;
-    flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
     gap: 3px;
@@ -265,6 +236,9 @@ div#region-navigation div.node-text {
 }
 
 /* main navbar buttons */
+#navigation-panel-btns {
+    height: auto;
+}
 .btn.main-navbar-btn {
     background-color: white;
     outline: none;
@@ -289,23 +263,35 @@ div#region-navigation div.node-text {
 
 /* ///////////////////////////////////////////////////////////////////////////////////////
 // Main region
-/////////////////////////////////////////////////////////////////////////////////////// */
-div#region-main
+/////////////////////////////////////////////////////////////////////////////////////////*/
+
+
+#region-main
 {
-    /*background-image: url("resources/rodan.jpg"); */
-    background-repeat: no-repeat;
+    Background-repeat: no-repeat;
     background-position: center center;
-    height: 98%;
-    width: 80%;
-    padding: 1%;
+    width: 83%;
     overflow-y: auto;
     overflow-x: hidden;
-    cursor: default;
+    flex-grow: 1;
+    justify-content: center;
 }
-.region-main-content-header {
-    display: flex;
+#region-main-content-wrapper {
+    gap: 15px;
+}
+.region-main-section {
+    width: 98%;
+}
+/* Main region header */
+.region-main-section.region-main-header {
+    width: 100%;
+    height: 4%;
+    justify-content: space-between;    
+    border-bottom: 2px solid #e5e5e5;
+}
+#region-main-header {
+    width: 98%;
     justify-content: space-between;
-    align-items: center;
 }
 .region-main-content-title {
     font-size: 15px;
@@ -326,20 +312,24 @@ div#region-main
     color: var(--secondary-app-color);
 }
 
+.region-main-section.table-control
+{
+    height: 5%;
+}
+
 /* Main region content */
-.table-responsive {
-    display: flex;
-    border: 1px solid #cdcdcd;
-    padding: 10px;
+.region-main-section.table-responsive {
+    border: 1px solid #dfdfdf;
     border-radius: 5px;
-    box-shadow: 0px 0px 5px 2px #eeeeee;
+    /* box-shadow: 0px 0px 5px 2px #eeeeee; */
     background-color: #f0f0f047;
-    height: 100%;
+    height: fit-content;
+    width: 98%;
 
     table {
         user-select: none;
         text-align: left;
-        width: 100%;
+        width: 98%;
         border-collapse: collapse;
         height: fit-content;
     }
@@ -366,7 +356,6 @@ div#canvas-wrap
     overflow: hidden;
     padding: 0px;
 }
-
 div#canvas-tooltip
 {
     position: fixed;
@@ -380,18 +369,15 @@ div#canvas-tooltip
     visibility: visible;
     display: inline-block;
 }
-
 canvas#canvas-workspace
 {
     background-color: var(--background-color-workflowbuilder-workspace);
     padding: 0px;
 }
-
 canvas[resize] {
     width: 100%;
     height: 100%;
 }
-
 /* Input fields */
 textarea[type=text]
 {
@@ -399,57 +385,41 @@ textarea[type=text]
     width: 100%;
     resize: vertical;
 }
-
 .vertical-center {
     height: calc(var(--height-top) * 1%); /*fallback */
     height: calc(var(--height-top) * 1vh);
     display: flex;
     align-items: center;
 }
-
 .horizontal-center
 {
     width: 100%;
     text-align: center;
 }
-
-body
-{
-    margin: 0px;
-    overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: var(--size-font);
-}
-
 div.fixed_individual {
     /*position: fixed;*/
     width: 100%;
 }
-
 div.top {
     height: calc(var(--height-top) * 1%); /*fallback */
     height: calc(var(--height-top) * 1vh);
 }
-
 div.gui {
     height: calc(var(--height-gui) * 1%); /*fallback*/
     height: calc(var(--height-gui) * 1vh);
     display: flex;
     flex-direction: column;
 }
-
 div#main_workflowbuilder
 {
     background-color: white;
     height: 100%;
     overflow: auto;
 }
-
 .instruction
 {
     font-style: italic;
 }
-
 :disabled
 {
     background: #dddddd;
@@ -461,7 +431,6 @@ div#main_workflowbuilder
     max-height: 600px;
     overflow-y: auto;
 }
-
 .modal-content
 {
     opacity: 1 !important;
@@ -471,12 +440,10 @@ div#main_workflowbuilder
 {
     opacity: 0.3 !important;
 }
-
 .modal-footer
 {
     text-align: left !important;
 }
-
 .modal-footer-error
 {
     color: #aa0000;
@@ -504,17 +471,9 @@ table
 
 .table tr.clickable-row.active td
 {
-    background-color: #93DB70;
+    background-color: var(--secondary-app-color);
 }
-
-div.table-control
-{
-   width: 100%;
-   padding-left: 10px;
-   padding-right: 10px;
-}
-
-div.table-control span
+.table-control span
 {
     display:inline-block;
     font-size: var(--size-font);
@@ -551,6 +510,37 @@ table.scroll
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Styles for smaller devices */
+@media screen and (max-width: 768px) {
+    .rodan-region {
+        width: 100%;
+    }
+    #region-navigation {
+        height: 7%;
+        width: 100%;
+        overflow: hidden;
+    }
+    #app-navbar {
+        height: 100%;
+        width: 100%;
+        flex-direction: column;
+    }
+    .navbar-section.main-navbar-section {
+        width: 98%;
+    }
+    #rodan-logo {
+        height: 100%;
+        justify-content: center;
+    }
+    .navbar-sections-wrapper {
+        display: none;
+    }
+    #region-main {
+        height: 93%;
+        width: 100%;
+    }
 }
 
 .tags-input{display:inline-block;padding:0 2px;background:#FFF;border:1px solid #CCC;width:16em;border-radius:2px;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}.tags-input .tag{display:inline-block;background:#EEE;color:#444;padding:0 4px;margin:2px;border:1px solid #CCC;border-radius:2px;font:inherit;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition:all .1s ease}.tags-input .tag.selected{background-color:#777;border-color:#777;color:#EEE}.tags-input .tag.dupe{-webkit-transform:scale3d(1.2,1.2,1.2);transform:scale3d(1.2,1.2,1.2);background-color:#FCC;border-color:#700}.tags-input input{-webkit-appearance:none!important;-moz-appearance:none!important;appearance:none!important;display:inline-block!important;padding:3px;margin:0!important;background:0 0!important;border:none!important;box-shadow:none!important;font:inherit!important;font-size:100%!important;outline:0!important}.tags-input .selected~input{opacity:.3}

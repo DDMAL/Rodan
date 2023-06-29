@@ -24,11 +24,11 @@ export default class LayoutViewNavigation extends Marionette.View
     initialize()
     {
         // Replace default Marionette wrapping div with our own div that has an ID.
-        this.setElement('<div id="app-navbar-wrapper"></div>');
+        this.setElement('<div id="navigation-panel-content-wrapper" class="content-wrapper column-content"></div>');
 
         this._initializeRadio();
         this.addRegions({
-            regionNavigationTree: '#region-navigation_tree'
+            regionNavigationTree: '#project-navigation-tree'
         });
     }
 

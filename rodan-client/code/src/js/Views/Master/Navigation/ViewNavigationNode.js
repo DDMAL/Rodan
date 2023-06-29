@@ -16,7 +16,7 @@ export default class ViewNavigationNode extends Marionette.CollectionView
      * Initialize.
      */
     initialize() {
-        this.setElement('<div class="navigation-tree-node-wrapper"></div>');
+        this.setElement('<div class="content-wrapper column-content"></div>');
         Radio.channel('rodan-navigation').on(NAV_EVENTS.EVENT__NAVIGATION_SELECTED_NODE, event => this._handleEventNodeSelected(event));
     }
 
