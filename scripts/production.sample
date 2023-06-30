@@ -3,6 +3,7 @@
 ###############################################################################
 
 ADMIN_USER=someadmin
+ADMIN_EMAIL=admin@rodan2.simssa.ca
 ADMIN_PASS=123456Seven
 DJANGO_DEBUG_MODE=False
 DJANGO_SECRET_KEY=AVeryLongSecretKeyThatWasGeneratedByOurSpecialScript_DoNotForgetToChangeThis

@@ -3,7 +3,6 @@ from django.contrib.auth import (
     # login,
     # logout
 )
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import views
@@ -15,6 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from rodan.serializers.user import UserSerializer
+from rodan.models.user import User
 
 
 class AuthMeView(generics.RetrieveUpdateAPIView):
@@ -42,12 +42,12 @@ class AuthTokenView(views.APIView):
     model = Token
 
     def post(self, request):
-        username = request.data.get("username", None)
+        email = request.data.get("email", None)
         password = request.data.get("password", None)
 
-        if not username:
+        if not email:
             return Response(
-                {"detail": "You must supply a username"},
+                {"detail": "You must supply a email"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         if not password:
@@ -56,7 +56,7 @@ class AuthTokenView(views.APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(email=email, password=password)
 
         if user is not None:
             if user.is_active:
@@ -72,7 +72,7 @@ class AuthTokenView(views.APIView):
                     {"is_logged_in": False}, status=status.HTTP_403_FORBIDDEN
                 )
         else:
-            # user does not exist. Assume a typo in the username or password
+            # user does not exist. Assume a typo in the email or password
             # and allow the user to re-authenticate
             return Response(
                 {"is_logged_in": False}, status=status.HTTP_401_UNAUTHORIZED

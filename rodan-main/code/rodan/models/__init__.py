@@ -5,7 +5,7 @@ import getpass
 import subprocess
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission, User, Group
+from django.contrib.auth.models import Permission, Group
 from django.db.models.signals import (
     pre_migrate,
     post_migrate,
@@ -41,6 +41,7 @@ from rodan.models.resourcelist import ResourceList
 from rodan.models.resourcetype import ResourceType
 from rodan.models.connection import Connection
 from rodan.models.tempauthtoken import Tempauthtoken
+from rodan.models.user import User
 
 
 if sys.version_info.major == 2:
@@ -57,7 +58,7 @@ def add_view_user_permission(sender, **kwargs):
     """
     # don't set permissions in test database
     if not settings.TEST and sender.name == 'guardian':
-        content_type = ContentType.objects.get(app_label='auth', model='user')
+        content_type = ContentType.objects.get(app_label='rodan', model='user')
         Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
 
         group = Group.objects.get_or_create(name="view_user_permission")

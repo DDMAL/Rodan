@@ -3,7 +3,7 @@ from django.db import models
 from jsonfield import JSONField
 from rodan.models.job import Job
 from rodan.constants import task_status
-from django.contrib.auth.models import User
+from rodan.models.user import User
 
 
 class RunJob(models.Model):

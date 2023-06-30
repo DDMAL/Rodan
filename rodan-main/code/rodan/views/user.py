@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -11,6 +10,7 @@ from rest_framework.response import Response
 
 from rodan.permissions import CustomObjectPermissions
 from rodan.serializers.user import UserSerializer, UserListSerializer
+from rodan.models.user import User
 
 import django_filters
 
@@ -54,8 +54,9 @@ class UserList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         userName = request.data.get("username", None)
+        email = request.data.get("email", None)
         userPass = request.data.get("password", None)
-        user = User.objects.create_user(username=userName, password=userPass)
+        user = User.objects.create_user(username=userName, email=email, password=userPass)
         if not user:
             return Response(
                 {"message": "error creating user"}, status=status.HTTP_200_OK
