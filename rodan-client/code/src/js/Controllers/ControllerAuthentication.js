@@ -112,7 +112,7 @@ export default class ControllerAuthentication extends BaseController
     /**
      * Handle authentication response.
      */
-    _handleAuthenticationResponse(event, username)
+    _handleAuthenticationResponse(event, email)
     {
         var request = event.currentTarget;
         if (request.responseText === null)
@@ -138,7 +138,7 @@ export default class ControllerAuthentication extends BaseController
                 Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__AUTHENTICATION_LOGINREQUIRED);
                 break;
             case 403:
-                Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__AUTHENTICATION_ACTIVATION_REQUIRED, {username});
+                Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__AUTHENTICATION_ACTIVATION_REQUIRED, {email});
                 break;
             default:
                 Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SYSTEM_HANDLE_ERROR, {response: request});
@@ -218,7 +218,7 @@ export default class ControllerAuthentication extends BaseController
         var authRoute = this._getAuthenticationRoute();
         var authType = Configuration.SERVER_AUTHENTICATION_TYPE;
         var request = new XMLHttpRequest();
-        request.onload = (event) => this._handleAuthenticationResponse(event, options.username);
+        request.onload = (event) => this._handleAuthenticationResponse(event, options.email);
         request.ontimeout = (event) => this._handleTimeout(event);
         request.open('POST', authRoute, true);
         if (authType === 'session')
@@ -372,7 +372,7 @@ export default class ControllerAuthentication extends BaseController
             success: (response) => this._handleRequestPasswordResetSuccess(response),
             type: 'POST',
             url: route,
-            data: { username: options.username }
+            data: { email: options.email }
         };
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Requesting password reset', content: 'Please wait...'});
@@ -540,7 +540,7 @@ export default class ControllerAuthentication extends BaseController
             error: (response) => this._handleResendActivationEmailError(response),
             type: "POST",
             url: route,
-            data: { username: options.username }
+            data: { email: options.email }
         };
         Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
         Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: "Resending Activation Email", content: "Please wait..." });

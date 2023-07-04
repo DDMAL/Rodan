@@ -1,7 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-from djoser.constants import Messages as DjoserMessages
-
-
 class task_status:
     """
     Descriptive backend task processing codes, for readability.
@@ -21,9 +17,3 @@ class task_status:
     REQUEST_RETRYING = 31  # only for WorkflowRun
 
     NOT_APPLICABLE = None
-
-class Messages(DjoserMessages):
-    """
-    Custom messages for Djoser.
-    """
-    USERNAME_NOT_FOUND = _("User with given username does not exist.")

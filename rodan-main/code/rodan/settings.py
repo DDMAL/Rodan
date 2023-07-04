@@ -265,12 +265,6 @@ DJOSER = {
     "SEND_CONFIRMATION_EMAIL": True,
     "SEND_ACTIVATION_EMAIL": True,
     "ACTIVATION_URL": "#activate/{uid}/{token}",
-    "SERIALIZERS": {
-        "password_reset": "rodan.serializers.djoser.SendEmailResetSerializer",
-    },
-    "CONSTANTS": {
-        "messages": "rodan.constants.Messages",
-    },
 }
 
 ###############################################################################

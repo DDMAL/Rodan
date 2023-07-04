@@ -10,7 +10,7 @@ import _ from "underscore";
 export default class ViewActivationRequired extends Marionette.View {
     
     initialize(options) {
-        this._username = options.username;
+        this._email = options.email;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ export default class ViewActivationRequired extends Marionette.View {
      * Handle resend activation email.
      */
     _handleButtonSubmit() {
-        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__USER_RESEND_ACTIVATION, { username: this._username });
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__USER_RESEND_ACTIVATION, { email: this._email });
     }
 }
 

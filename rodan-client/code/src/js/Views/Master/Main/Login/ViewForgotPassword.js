@@ -15,7 +15,7 @@ export default class ViewForgotPassword extends Marionette.View {
      * Handle save button.
      */
     _handleButtonSubmit() {
-        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD, { username: this.ui.textUsername.val() });
+        Radio.channel("rodan").request(RODAN_EVENTS.REQUEST__USER_RESET_PASSWORD, { email: this.ui.textEmail.val() });
     }
 }
 ViewForgotPassword.prototype.modelEvents = {
@@ -23,7 +23,7 @@ ViewForgotPassword.prototype.modelEvents = {
 };
 ViewForgotPassword.prototype.ui = {
     buttonSubmit: "#button-request_password_reset",
-    textUsername: "#text-username",
+    textEmail: "#text-email",
     textMessage: "#text-message",
 };
 ViewForgotPassword.prototype.events = {
