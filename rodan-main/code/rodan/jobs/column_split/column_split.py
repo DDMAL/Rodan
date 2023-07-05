@@ -1,11 +1,26 @@
 import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
 
 # converts 4 channel rgba image to grayscale
 def convert_to_grayscale(img):    
     img_gray = 255 - img[:, :, 3]
     # save img to disk for debugging
     return img_gray
+
+# merges all binarized layers into one
+def get_merged_layers(images):
+    # get the first image
+    merged = images[0]
+    # merge the rest
+    for i in range(1,len(images)):
+        merged = np.logical_or(merged,images[i])
+    return merged
+
+
+def preprocess(img):
+    kernel = np.ones((3,3),np.uint8)
+    cv.morphologyEx(img, cv.MORPH_OPEN, kernel)
 
 def moving_avg_filter(data, filter_size):
     """
@@ -25,12 +40,19 @@ def moving_avg_filter(data, filter_size):
 
 def get_split_locations(gray,num_splits):
     # invert colors to make math easier
-    flipped = gray == False
-    projection = np.sum(flipped,axis=0)
+    projection = np.sum(gray,axis=0)
     # apply filter to projection
     # not sure if this is necessary
-    filtered = moving_avg_filter(projection,filter_size=5)
-
+    plt.plot(projection,color='blue')
+    filtered = moving_avg_filter(projection,filter_size=30)
+    rooted = np.sqrt(filtered + 1)
+    plt.plot(rooted * np.max(filtered)/np.max(rooted),color='orange')
+    normed = rooted / np.max(rooted)
+    signal = normed > 0.5
+    plt.plot(signal * np.max(filtered),color='green')
+    # plot the projection and save
+    plt.plot(filtered,color='red')
+    plt.savefig('test_data/2-projection.png')
     # for the number of columns, find a point in the column,
     # then find the bounds as the first points to the right
     # and left of that point that are 0
@@ -93,3 +115,27 @@ def get_stacked_image(img,ranges):
         output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant',constant_values=255))
     # stack and return
     return np.vstack(output)
+
+if __name__ == "__main__":
+    # read image
+    text = cv.imread('test_data/2-text.png',cv.IMREAD_UNCHANGED)
+    staff = cv.imread('test_data/2-staff.png',cv.IMREAD_UNCHANGED)
+    neume = cv.imread('test_data/2-neume.png',cv.IMREAD_UNCHANGED)
+    # convert to grayscale
+    gray_text = convert_to_grayscale(text) == False
+    gray_staff = convert_to_grayscale(staff) == False
+    gray_neume = convert_to_grayscale(neume) == False
+    # merge layers
+    merged = get_merged_layers([gray_text,gray_staff,gray_neume])
+    # get split locations
+    splits = get_split_locations(merged,3)
+    # get split ranges
+    ranges = get_split_ranges(merged,splits)
+    # get stacked image
+    stacked_text = get_stacked_image(text,ranges)
+    stacked_staff = get_stacked_image(staff,ranges)
+    stacked_neume = get_stacked_image(neume,ranges)
+    # save stacked images
+    cv.imwrite('test_data/2-text-stacked.png',stacked_text)
+    cv.imwrite('test_data/2-staff-stacked.png',stacked_staff)
+    cv.imwrite('test_data/2-neume-stacked.png',stacked_neume)
