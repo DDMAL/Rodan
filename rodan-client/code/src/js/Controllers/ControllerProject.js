@@ -132,9 +132,16 @@ export default class ControllerProject extends BaseController
      */
     _handleEventProjectGenericResponse()
     {
-        this._projectCollection.fetch();
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECTS_LOAD, {});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);      
+        const fetchProjects = new Promise((resolve, reject) => {
+            this._projectCollection.fetch({ success: () => resolve(), reject: () => reject()});
+        });
+
+        return fetchProjects.then(() => {
+            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
+        }).catch(() => {
+            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, { title: 'Error', content: 'An error occurred while updating the project.' })
+        });
     }
 
     /**
@@ -142,8 +149,7 @@ export default class ControllerProject extends BaseController
      */
     _handleEventProjectDeleteResponse()
     {
-        this._handleEventProjectGenericResponse();
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
+        this._handleEventProjectGenericResponse().then(() => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION));
     }
 
     /**
