@@ -512,6 +512,8 @@ class RODAN_EVENTS
         this.EVENT__WORKFLOWRUN_SAVED = 'EVENT__WORKFLOWRUN_SAVED';
         /** Triggered when WorkflowRun started. Sends {workflowrun: WorkflowRun}. */
         this.EVENT__WORKFLOWRUN_STARTED = 'EVENT__WORKFLOWRUN_STARTED';
+        /** Triggered when WorkflowRun retried. Sends {workflowrun: WorkflowRun}. */
+        this.EVENT__WORKFLOWRUN_RETRIED = 'EVENT__WORKFLOWRUN_RETRIED';
         /** Triggered when the user selects an individual WorkflowRun. Sends {workflow: WorkflowRun}. */
         this.EVENT__WORKFLOWRUN_SELECTED = 'EVENT__WORKFLOWRUN_SELECTED';
         /** Triggered when the user selects to see all available WorkflowRuns. Sends {project: Project (Project associated with WorkflowRunCollection)}. */
@@ -524,6 +526,8 @@ class RODAN_EVENTS
         this.REQUEST__WORKFLOWRUN_SAVE = 'REQUEST__WORKFLOWRUN_SAVE';
         /** Request a WorkflowRun be started. Takes {model: WorkflowRun}. */
         this.REQUEST__WORKFLOWRUN_START = 'REQUEST__WORKFLOWRUN_START';
+        /** Request a failed or cancelled WorkflowRun be retried. Takes {model: WorkflowRun}. */
+        this.REQUEST__WORKFLOWRUN_RETRY = 'REQUEST__WORKFLOWRUN_RETRY';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // VERSION COMPATIBILITY CHECKS
