@@ -49,25 +49,27 @@ def get_split_locations(gray,num_splits):
     plt.plot(rooted * np.max(filtered)/np.max(rooted),color='orange')
     normed = rooted / np.max(rooted)
     signal = normed > 0.5
+    normed_filtered = signal * np.max(filtered)
     plt.plot(signal * np.max(filtered),color='green')
     # plot the projection and save
     plt.plot(filtered,color='red')
     plt.savefig('test_data/2-projection.png')
-    # for the number of columns, find a point in the column,
-    # then find the bounds as the first points to the right
-    # and left of that point that are 0
-    # then make the projection at the column 0 and repeat
-    bounds = []
-    for i in range(num_splits+1):
-        max = np.argmax(filtered)
-        left_bound, right_bound = max, max
-        while filtered[left_bound] > 0:
-            left_bound -= 1
-        while filtered[right_bound] > 0:
-            right_bound += 1
-        bounds.append((left_bound,right_bound))
-        filtered[left_bound:right_bound + 1] = 0
 
+    # for the number of columns, find the starting point of the bound (minimum)
+    # then find where the end of the bound should be (maximum - 1 --> this is the last minimum value in this portion of the graph)
+    # append these two values to the bounds list
+    # set all values in the graph before the current max to an arbitrary value that will never be min or max 
+    bounds = [(0,0)]
+    normed_filtered[:np.argmax(normed_filtered)] = np.argmax(normed_filtered)/2 # first bound is always zero
+    for i in range(num_splits-2):
+        min = np.argmin(normed_filtered)
+        normed_filtered[:min] = np.argmax(normed_filtered)/2 #arbitrary value that will never be min or max
+        max = np.argmax(normed_filtered)
+        bounds.append((min,max-1))
+        normed_filtered[:max] = np.argmax(normed_filtered)/2
+
+    #get last x coordinate in normed_filtered dataset as right most bound.
+    bounds.append((np.argmin(normed_filtered),len(normed_filtered)))
     
     # sort column bounds in left to right order
     bounds.sort(key=lambda x: x[0])
@@ -82,8 +84,8 @@ def get_split_locations(gray,num_splits):
 
     # get the split points as the midpoint between the bounds
     splits = []
-    for i in range(len(bounds) -1):
-        mid = (bounds[i][1] + bounds[i+1][0]) // 2
+    for i in range(len(bounds)):
+        mid = (bounds[i][0] + bounds[i][1]) // 2
         splits.append(mid)
 
     return splits
@@ -91,10 +93,9 @@ def get_split_locations(gray,num_splits):
 
 # gets the ranges of the original image that correspond to the columns
 def get_split_ranges(img,splits):
-    ranges = [(0,splits[0])]
-    for split in splits[1:]:
-        ranges.append((ranges[-1][1],split))
-    ranges.append((splits[-1],img.shape[1]))
+    ranges = []
+    for i in range(len(splits) -1):
+        ranges.append((splits[i], splits[i+1]))
     return ranges
 
 # takes ranges in x, and stacks them vertically
