@@ -56,7 +56,6 @@ export default class LayoutViewNavigation extends Marionette.View
     {
         var model = new Backbone.Model({name: 'Projects'});
         var object = {model: model, collection: Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECT_COLLECTION)};
-        console.log(object);
         this.showChildView('regionNavigationTree', new ViewNavigationNodeRoot(object));
         this.$el.find('#button-navigation_logout').prop('disabled', false);
         this.$el.find('#button-navigation_preferences').prop('disabled', false);

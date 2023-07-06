@@ -1,29 +1,23 @@
-<div class="content-wrapper column-content region-main-section table-control">
-	<div class="content-wrapper column-content">
-		<div class="panel-header">
-		    <div class="btn-group" role="group" aria-label="...">
-				<div class="btn-group" role="group" id="filter-menu">
-					<button type="button" id="button-add-filter" class="btn btn-xs btn-success dropdown-toggle">Add search filter</button>
-					<ul id="dropdown-menu-table-filter" class="dropdown-menu hidden">
-						<!-- Filter choices are injected here. -->
-					</ul>
-				</div>
-				<button type="button" class="btn btn-xs btn-success" id="button-clearall">Clear search filters</button>
-			</div>
-		</div>
-		<div class="panel-body">
-
-			<form class="form-inline" id="filter-inputs" action="javascript:void(0);">
-				<!-- Filters will appear here. -->
-			</form>
-
-		</div>
+<!-- FILTER CONTROLS -->
+<div class="content-wrapper column-content region-main-section table-control filters">
+	<div id="filter-inputs-title">TABLE FILTERS</div>
+	<!-- Filter inputs -->
+	<div id="filter-inputs-wrapper" class="content-wrapper row-content">
+		<form class="content-wrapper row-content" id="filter-inputs" action="javascript:void(0);">
+			<!-- Filter options will appear here. -->
+		</form>
 	</div>
-    <div class="btn-group" role="group" aria-label="...">
+</div>
+
+<!-- PAGINATION CONTROLS -->
+<div class="content-wrapper column-content region-main-section table-control pagination">
+	<div id="table-pagination-controls-wrapper" class="content-wrapper column-content">
 		<button type="button" class="btn btn-success btn-xs" id="pagination-first">First</button>
 		<button type="button" class="btn btn-success btn-xs" id="pagination-previous">Previous</button>
 		<button type="button" class="btn btn-success btn-xs" id="pagination-next">Next</button>
 		<button type="button" class="btn btn-success btn-xs" id="pagination-last">Last</button>
 	</div>
-	<select id="pagination-select"><span id="pagination-select-text">Page</span></select>
+	<select id="pagination-select">
+		<span id="pagination-select-text">Page</span>
+	</select>
 </div>

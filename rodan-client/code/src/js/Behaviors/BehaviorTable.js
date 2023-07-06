@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
+// import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
 import 'jqueryui';
 import BaseCollection from 'js/Collections/BaseCollection';
 import Configuration from 'js/Configuration';
@@ -197,29 +197,17 @@ export default class BehaviorTable extends Marionette.Behavior
     _injectFiltering(filterFields)
     {
         var filters = this._getFilters(this.view.collection, filterFields);
-        for (var index in filters)
-        {
-            var $collectionItem = $(filters[index].collectionItem);
-            var $formInput = $(filters[index].input);
-            $collectionItem.click((event) => this._handleFilterClick(event));
-            $(this.el).find('#filter-menu ul').append($collectionItem);
-            $(this.el).find('#filter-inputs').append($formInput);
-        }
 
-        // Setup datetimepickers.
-        for (index in this._datetimepickerElements)
+        for (let index in filters)
         {
-            var elementId = this._datetimepickerElements[index];
-            $(this.el).find(elementId).datetimepicker();
-            $(this.el).find(elementId).data('DateTimePicker').format(Configuration.DATETIME_FORMAT);
-            $(this.el).find(elementId).on('dp.change', () => this._handleSearch());
+            var $formInput = $(filters[index].input);
+            $(this.el).find('#filter-inputs').append($formInput);
         }
 
         $(this.el).find('#filter-inputs input').on('change keyup paste mouseup', () => this._handleSearch());
         $(this.el).find('#filter-inputs select').on('change keyup paste mouseup', () => this._handleSearch());
 
         this._filtersInjected = true;
-        this._hideFormElements();
     }
 
     /**
@@ -277,17 +265,27 @@ export default class BehaviorTable extends Marionette.Behavior
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS - Event handlers
 ///////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handles click events on "Add Search Filter" button.
+     */
+    _handleButtonAddFilter() {
+        $('#dropdown-menu-table-filter').toggleClass('hidden');
+    }
+
     /**
      * Handles filter click.
      */
     _handleFilterClick(event)
     {
         var data = $(event.target).data();
-        //this._hideFormElements();
         if (data.id)
         {
             this._showFormElement(data.id);
         }
+
+        // Hide filter menu dropdown.
+        $('#dropdown-menu-table-filter').toggleClass('hidden');
     }
 
     /**
@@ -633,6 +631,7 @@ BehaviorTable.prototype.ui = {
     paginationNext: '#pagination-next',
     paginationFirst: '#pagination-first',
     paginationLast: '#pagination-last',
+    buttonAddFilter: '#button-add-filter',
     buttonSearch: '#button-search',
     buttonRemove: '#button-remove',
     buttonClearAll: '#button-clearall',
@@ -644,6 +643,7 @@ BehaviorTable.prototype.events = {
     'click @ui.paginationFirst': '_handlePaginationFirst',
     'click @ui.paginationLast': '_handlePaginationLast',
     'click th': '_handleSort',
+    'click @ui.buttonAddFilter': '_handleButtonAddFilter',
     'click @ui.buttonSearch': '_handleSearch',
     'click @ui.buttonRemove': '_handleButtonRemove',
     'click @ui.buttonClearAll': '_handleButtonClearAll',
