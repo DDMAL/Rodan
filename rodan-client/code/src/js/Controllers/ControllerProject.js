@@ -14,6 +14,7 @@ import ViewProjectCollection from 'js/Views/Master/Main/Project/Collection/ViewP
 import ViewUserCollectionItem from 'js/Views/Master/Main/User/Collection/ViewUserCollectionItem';
 import ViewWorkflowRunCollection from 'js/Views/Master/Main/WorkflowRun/Collection/ViewWorkflowRunCollection';
 import WorkflowRunCollection from 'js/Collections/WorkflowRunCollection';
+import ProjectCollection from '../Collections/ProjectCollection';
 
 /**
  * Controller for Projects.
@@ -29,6 +30,7 @@ export default class ControllerProject extends BaseController
     initialize()
     {
         this._activeProject = null;
+        this._projectCollection = new ProjectCollection();
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -130,8 +132,9 @@ export default class ControllerProject extends BaseController
      */
     _handleEventProjectGenericResponse()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
+        this._projectCollection.fetch();
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECTS_LOAD, {});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);      
     }
 
     /**
@@ -139,8 +142,7 @@ export default class ControllerProject extends BaseController
      */
     _handleEventProjectDeleteResponse()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECTS_LOAD, {});
+        this._handleEventProjectGenericResponse();
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
     }
 
@@ -202,9 +204,10 @@ export default class ControllerProject extends BaseController
      */
     _handleEventCollectionSelected()
     {
-        var collection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECT_COLLECTION);
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [collection]});
-        var view = new ViewProjectCollection({collection: collection});
+        this._projectCollection.fetch();
+        var globalProjectCollection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_PROJECT_COLLECTION);
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [globalProjectCollection, this._projectCollection]});
+        var view = new ViewProjectCollection({collection: this._projectCollection});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: view});
     }
 
