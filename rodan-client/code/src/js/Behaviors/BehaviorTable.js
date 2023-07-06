@@ -53,14 +53,6 @@ export default class BehaviorTable extends Marionette.Behavior
         {
             this._handleCollectionEventSync(view.collection);
         }
-        
-        if (view.collection._route === "projects")
-        {
-            Radio.channel('rodan').on(RODAN_EVENTS.REQUEST__NAVIGATION_PAGINATION_FIRST, () => this._handlePaginationFirst());
-            Radio.channel('rodan').on(RODAN_EVENTS.REQUEST__NAVIGATION_PAGINATION_PREVIOUS, () => this._handlePaginationPrevious());
-            Radio.channel('rodan').on(RODAN_EVENTS.REQUEST__NAVIGATION_PAGINATION_NEXT, () => this._handlePaginationNext());
-            Radio.channel('rodan').on(RODAN_EVENTS.REQUEST__NAVIGATION_PAGINATION_LAST, () => this._handlePaginationLast());
-        }
     }
 
     /**
@@ -581,7 +573,6 @@ export default class BehaviorTable extends Marionette.Behavior
         $(this.el).find('.table-control #pagination-select').hide();
         $(this.el).find('.table-control #pagination-select').empty();
         $(this.el).find('.table-control #pagination-select-text').hide();
-        Radio.channel('radio').request(RODAN_EVENTS.REQUEST__UPDATE_NAVIGATION_PAGINATION);
 
         // If collection, setup pagination.
         if (collection)
