@@ -8,6 +8,7 @@ import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/Vie
 import ViewResourceCollectionItem from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollectionItem';
 import ViewRunJobCollection from 'js/Views/Master/Main/RunJob/Collection/ViewRunJobCollection';
 import ViewRunJobCollectionItem from 'js/Views/Master/Main/RunJob/Collection/ViewRunJobCollectionItem';
+import ViewConfirmationDialog from '../../../Dialog/ViewConfirmationDialog';
 
 /**
  * WorkflowRun view.
@@ -113,7 +114,11 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     _handleButtonDelete()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWRUN_DELETE, {workflowrun: this.model});
+        const content = new ViewConfirmationDialog({
+            message: 'Are you sure you want to delete this WorkflowRun? This will delete all related Run Jobs and Resources.',
+            onConfirm: () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWRUN_DELETE, { workflowrun: this.model }),
+        });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: 'Delete WorkflowRun', content });
     }
 }
 LayoutViewIndividualWorkflowRun.prototype.modelEvents = {
