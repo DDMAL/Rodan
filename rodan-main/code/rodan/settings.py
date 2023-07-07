@@ -239,19 +239,28 @@ LOGGING = {
 ###############################################################################
 # A sample email configuration. These parameters are used to send emails to
 # the owner of WorkflowRuns, etc.
-# To enable emailing, fill out email parameters below and set EMAIL_USE to True.
-# See https://docs.djangoproject.com/en/1.10/topics/email/ for
-# more details on how to customize your email configuration.
+# SMTP credentials should be set as environment variables. If they are not set,
+# emails will be printed to the console instead.
 
-# [TODO] - Setup proper email configuration.
+EMAIL_USE = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend" if os.getenv("EMAIL_HOST") else "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
 
-EMAIL_USE = False
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASS')
-# EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = "Rodan <noreply@rodan2.simssa.ca>"
 
+SITE_NAME = "Rodan"
+
+DJOSER = {
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "EMAIL": {
+        "password_changed_confirmation": "rodan.email.PasswordChangedConfirmationEmail",
+    }
+    
+}
 
 ###############################################################################
 # 2.a  Rodan Server Configuration
