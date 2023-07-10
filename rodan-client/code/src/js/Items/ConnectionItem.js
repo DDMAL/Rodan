@@ -2,6 +2,7 @@ import paper from 'paper';
 import BaseItem from './BaseItem';
 import GUI_EVENTS from '../Shared/Events';
 import Rodan from 'rodan';
+import { Segment } from 'paper';
 
 /**
  * Connection item.
@@ -22,6 +23,7 @@ class ConnectionItem extends BaseItem
         this.menuItems = [{label: 'Delete', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_REMOVE_CONNECTION, options: {connection: options.model, workflow: workflow}}];
 
         this.strokeWidth = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_WIDTH;
+        this.fillColor = null;
         this._inputPortItem = null;
         this._outputPortItem = null;
         this._inputPortUrl = options.inputporturl;
@@ -75,12 +77,17 @@ class ConnectionItem extends BaseItem
         if (this._inputPortItem && this._outputPortItem)
         {
             this._circle.visible = this.visible;
-            this.firstSegment.point.x = this._outputPortItem.position.x;
-            this.firstSegment.point.y = this._outputPortItem.bounds.bottom;
-            this.lastSegment.point.x = this._inputPortItem.position.x;
-            this.lastSegment.point.y = this._inputPortItem.bounds.top;
-            this._circle.position.x = this.firstSegment.point.x + ((this.lastSegment.point.x - this.firstSegment.point.x) / 2);
-            this._circle.position.y = this.firstSegment.point.y + ((this.lastSegment.point.y - this.firstSegment.point.y) / 2);
+            this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
+            this._circle.position.y = (this._inputPortItem.bounds.top + this._outputPortItem.bounds.bottom) / 2;
+
+            this.removeSegments();
+
+            const start = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
+            const mid1 = new Point(this._inputPortItem.position.x, this._circle.position.y);
+            const mid2 = new Point(this._outputPortItem.position.x, this._circle.position.y);
+            const end = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+
+            this.add(start, mid1, mid2, end);
         }
     }
 
