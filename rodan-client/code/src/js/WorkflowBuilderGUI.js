@@ -219,6 +219,8 @@ class WorkflowBuilderGUI
     {
         paper.install(window);
         paper.setup(canvasElementId);
+        new paper.Layer({ name: 'connections' });
+        new paper.Layer({ name: 'default' });
         paper.view.onFrame = (event) => this._handleFrame(event);
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);

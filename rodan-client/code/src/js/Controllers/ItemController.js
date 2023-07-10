@@ -347,10 +347,12 @@ class ItemController
 
                     case 'Connection':
                     {
+                        paper.project.layers['connections'].activate();
                         var item = new ConnectionItem({segments: this._segments.connection,
                                                        model: options.model, 
                                                        inputporturl: options.model.get('input_port'), 
                                                        outputporturl: options.model.get('output_port')});
+                        paper.project.layers['default'].activate();
                         break;
                     }
 
