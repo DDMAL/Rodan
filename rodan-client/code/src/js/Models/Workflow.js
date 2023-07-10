@@ -20,7 +20,7 @@ export default class Workflow extends BaseModel
      */
     initialize(options)
     {
-        this.set('connections', new ConnectionCollection(options.connections));
+        this.set('workflow_connections', new ConnectionCollection(options.connections));
         this.set('workflow_input_ports', new InputPortCollection(options.workflow_input_ports));
         this.set('workflow_output_ports', new OutputPortCollection(options.workflow_output_ports));
         this.set('workflow_jobs', new WorkflowJobCollection(options.workflow_jobs));
@@ -72,13 +72,21 @@ export default class Workflow extends BaseModel
                 workflow_output_ports.add(workflow_output_port);
             }
         }
+
+        const workflow_connections = new ConnectionCollection();
+        if (response.workflow_connections) {
+            for (const workflow_connection of response.workflow_connections) {
+                workflow_connections.add(workflow_connection);
+            }
+        }
         
         const parsed = {
             ...response,
             workflow_runs,
             workflow_jobs,
             workflow_input_ports,
-            workflow_output_ports
+            workflow_output_ports,
+            workflow_connections
         }
 
         return parsed;

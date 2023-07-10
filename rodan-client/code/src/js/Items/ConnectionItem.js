@@ -39,6 +39,7 @@ class ConnectionItem extends BaseItem
         this._circle.onMouseEnter = event => this._handleMouseEvent(event);
         this._circle.onMouseLeave = event => this._handleMouseEvent(event);
         this.addChild(this._circle);
+        this._ratio = this._model.get('ratio');
     }
 
     /**
@@ -46,7 +47,7 @@ class ConnectionItem extends BaseItem
      */
     isMoveable()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -78,7 +79,7 @@ class ConnectionItem extends BaseItem
         {
             this._circle.visible = this.visible;
             this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
-            this._circle.position.y = (this._inputPortItem.bounds.top + this._outputPortItem.bounds.bottom) / 2;
+            this._circle.position.y = this._outputPortItem.bounds.bottom + (this._inputPortItem.bounds.top - this._outputPortItem.bounds.bottom) * this._ratio;
 
             this.removeSegments();
 
@@ -108,6 +109,36 @@ class ConnectionItem extends BaseItem
         }
         this._outputPortItem = null;
         super.destroy();
+    }
+
+    /**
+     * Overrides move method to calculate and update ratio instead of position.
+     */
+    move(delta)
+    {
+        const y = this._circle.position.y + delta.y;
+        this._ratio = (y - this._outputPortItem.bounds.bottom) / (this._inputPortItem.bounds.top - this._outputPortItem.bounds.bottom);
+        this._hasMoved = true;
+    }
+
+    /**
+     * Overrides updatePositionToServer to update ratio instead of position.
+     */
+    updatePositionToServer()
+    {
+        if (this.isMoveable() && this._hasMoved)
+        {
+            // If an ID exists, we know it exists on the server, so we can patch it.
+            // Else if we haven't tried saving it before, do it. This should create
+            // a new model on the server.
+            if (this._modelId || !this._coordinateSetSaveAttempted)
+            {
+                this._coordinateSetSaveAttempted = true;
+                this._model.set({ ratio: this._ratio });
+                this._model.save();
+                this._hasMoved = false;
+            }
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////

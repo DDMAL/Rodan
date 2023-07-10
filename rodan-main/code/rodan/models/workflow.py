@@ -75,3 +75,12 @@ class Workflow(models.Model):
             return apps.get_model(
                 app_label="rodan", model_name="OutputPort"
             ).objects.filter(workflow_job__workflow=self, extern=True)
+
+    @property
+    def workflow_connections(self):
+        if not self.valid:
+            return []
+        else:
+            return apps.get_model(
+                app_label="rodan", model_name="Connection"
+            ).objects.filter(output_port__workflow_job__workflow=self)

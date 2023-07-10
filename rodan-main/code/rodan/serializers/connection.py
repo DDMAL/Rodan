@@ -1,13 +1,8 @@
 from rest_framework import serializers
 from rodan.models.connection import Connection
-from rodan.serializers.workflowjob import WorkflowJobSerializer
-from rodan.serializers.workflow import WorkflowSerializer
 
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
-    input_workflow_job = WorkflowJobSerializer(read_only=True)
-    output_workflow_job = WorkflowJobSerializer(read_only=True)
-    workflow = WorkflowSerializer(read_only=True)
 
     class Meta:
         model = Connection
@@ -15,10 +10,8 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "uuid",
             "input_port",
-            "input_workflow_job",
             "output_port",
-            "output_workflow_job",
-            "workflow",
+            "ratio",
         )
 
     def validate(self, data):

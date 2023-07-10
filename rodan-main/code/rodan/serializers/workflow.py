@@ -15,6 +15,7 @@ from rodan.models import (
 from rodan.serializers.inputport import InputPortSerializer
 from rodan.serializers.outputport import OutputPortSerializer
 from rodan.serializers.workflowjob import WorkflowJobSerializer
+from rodan.serializers.connection import ConnectionSerializer
 from rest_framework import serializers
 from django.conf import settings
 
@@ -23,6 +24,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     workflow_jobs = WorkflowJobSerializer(many=True, read_only=True)
     workflow_input_ports = InputPortSerializer(many=True, read_only=True)
     workflow_output_ports = OutputPortSerializer(many=True, read_only=True)
+    workflow_connections = ConnectionSerializer(many=True, read_only=True)
     creator = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     def validate_project(self, p):
@@ -45,6 +47,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
             "workflow_runs",
             "workflow_input_ports",
             "workflow_output_ports",
+            "workflow_connections",
             "project",
         )
         fields = (
@@ -61,6 +64,7 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
             "workflow_runs",
             "workflow_input_ports",
             "workflow_output_ports",
+            "workflow_connections",
         )
 
 
