@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 
 # converts 4 channel rgba image to grayscale
 def convert_to_grayscale(img):    
@@ -43,33 +42,24 @@ def get_split_locations(gray,num_splits):
     projection = np.sum(gray,axis=0)
     # apply filter to projection
     # not sure if this is necessary
-    plt.plot(projection,color='blue')
     filtered = moving_avg_filter(projection,filter_size=30)
     rooted = np.sqrt(filtered + 1)
-    plt.plot(rooted * np.max(filtered)/np.max(rooted),color='orange')
+    # plt.plot(rooted * np.max(filtered)/np.max(rooted),color='orange')
     normed = rooted / np.max(rooted)
     signal = normed > 0.5
-    normed_filtered = signal * np.max(filtered)
-    plt.plot(signal * np.max(filtered),color='green')
-    # plot the projection and save
-    plt.plot(filtered,color='red')
-    plt.savefig('test_data/2-projection.png')
 
-    # for the number of columns, find the starting point of the bound (minimum)
-    # then find where the end of the bound should be (maximum - 1 --> this is the last minimum value in this portion of the graph)
-    # append these two values to the bounds list
-    # set all values in the graph before the current max to an arbitrary value that will never be min or max 
-    bounds = [(0,0)]
-    normed_filtered[:np.argmax(normed_filtered)] = np.argmax(normed_filtered)/2 # first bound is always zero
-    for i in range(num_splits-2):
-        min = np.argmin(normed_filtered)
-        normed_filtered[:min] = np.argmax(normed_filtered)/2 #arbitrary value that will never be min or max
-        max = np.argmax(normed_filtered)
-        bounds.append((min,max-1))
-        normed_filtered[:max] = np.argmax(normed_filtered)/2
 
-    #get last x coordinate in normed_filtered dataset as right most bound.
-    bounds.append((np.argmin(normed_filtered),len(normed_filtered)))
+    i = 0
+    bounds = []
+    while i < len(signal):
+        if signal[i] == 0 :
+            i += 1
+        else:
+            start = i
+            while signal[i] == 1 and i < len(signal):
+                i += 1
+            end = i -1
+            bounds.append((start,end))
     
     # sort column bounds in left to right order
     bounds.sort(key=lambda x: x[0])
@@ -84,18 +74,22 @@ def get_split_locations(gray,num_splits):
 
     # get the split points as the midpoint between the bounds
     splits = []
-    for i in range(len(bounds)):
-        mid = (bounds[i][0] + bounds[i][1]) // 2
+    for i in range(len(bounds)-1):
+        mid = (bounds[i][1] + bounds[i+1][0]) // 2
         splits.append(mid)
+
+    
+
 
     return splits
 
 
 # gets the ranges of the original image that correspond to the columns
 def get_split_ranges(img,splits):
-    ranges = []
-    for i in range(len(splits) -1):
-        ranges.append((splits[i], splits[i+1]))
+    ranges = [(0,splits[0])]
+    for split in splits[1:]:
+        ranges.append((ranges[-1][1],split))
+    ranges.append((splits[-1],img.shape[1]))
     return ranges
 
 # takes ranges in x, and stacks them vertically
@@ -116,27 +110,3 @@ def get_stacked_image(img,ranges):
         output.append(np.pad(chunk,((0,0),(0,max-chunk.shape[1]),(0,0)),mode='constant',constant_values=255))
     # stack and return
     return np.vstack(output)
-
-if __name__ == "__main__":
-    # read image
-    text = cv.imread('test_data/2-text.png',cv.IMREAD_UNCHANGED)
-    staff = cv.imread('test_data/2-staff.png',cv.IMREAD_UNCHANGED)
-    neume = cv.imread('test_data/2-neume.png',cv.IMREAD_UNCHANGED)
-    # convert to grayscale
-    gray_text = convert_to_grayscale(text) == False
-    gray_staff = convert_to_grayscale(staff) == False
-    gray_neume = convert_to_grayscale(neume) == False
-    # merge layers
-    merged = get_merged_layers([gray_text,gray_staff,gray_neume])
-    # get split locations
-    splits = get_split_locations(merged,3)
-    # get split ranges
-    ranges = get_split_ranges(merged,splits)
-    # get stacked image
-    stacked_text = get_stacked_image(text,ranges)
-    stacked_staff = get_stacked_image(staff,ranges)
-    stacked_neume = get_stacked_image(neume,ranges)
-    # save stacked images
-    cv.imwrite('test_data/2-text-stacked.png',stacked_text)
-    cv.imwrite('test_data/2-staff-stacked.png',stacked_staff)
-    cv.imwrite('test_data/2-neume-stacked.png',stacked_neume)
