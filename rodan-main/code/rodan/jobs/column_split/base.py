@@ -59,7 +59,7 @@ class ColumnSplit(RodanTask):
 
     def run_my_task(self, inputs, settings, outputs):
         logger.info("Running Column Splitting")
-        splits = settings['Number of columns'] - 1
+        num_columns = settings['Number of columns']
 
         staff_layer = inputs['Staff Layer'][0]['resource_path']
         text_layer = inputs['Text Layer'][0]['resource_path']
@@ -76,7 +76,7 @@ class ColumnSplit(RodanTask):
         logger.info("Merging the three layers")
         merged = get_merged_layers([gray_text,gray_staff,gray_neume])
         logger.info("Getting split locations")
-        split_locations = get_split_locations(merged,splits)
+        split_locations = get_split_locations(merged,num_columns)
         logger.info("Getting split ranges")
         ranges = get_split_ranges(merged,split_locations)
         logger.info("Getting stacked images")
@@ -85,9 +85,9 @@ class ColumnSplit(RodanTask):
         stacked_staff = get_stacked_image(staff,ranges)
         stacked_neume = get_stacked_image(neume,ranges)
             # save stacked images
-        cv.imwrite('test_data/2-text-stacked.png',stacked_text)
-        cv.imwrite('test_data/2-staff-stacked.png',stacked_staff)
-        cv.imwrite('test_data/2-neume-stacked.png',stacked_neume)
+        # cv.imwrite('test_data/2-text-stacked.png',stacked_text)
+        # cv.imwrite('test_data/2-staff-stacked.png',stacked_staff)
+        # cv.imwrite('test_data/2-neume-stacked.png',stacked_neume)
 
         outfile_staff = outputs['Staff Layer'][0]['resource_path']
         cv.imwrite(outfile_staff+".png",stacked_staff)
