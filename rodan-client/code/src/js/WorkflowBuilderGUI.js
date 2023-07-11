@@ -98,6 +98,7 @@ class WorkflowBuilderGUI
             "STROKE_COLOR_SELECTED": "#0000ff",
             "STROKE_WIDTH_SELECTED": 2,
             "CONNECTION_CIRCLE_RADIUS": 4,
+            "CONNECTION_PADDING": 5,
             "HOVER_TIME": 1000,
             "LOCAL_STORAGE_ITEMS": ['scroll', 'zoom']
         }

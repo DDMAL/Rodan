@@ -11,7 +11,8 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
             "uuid",
             "input_port",
             "output_port",
-            "ratio",
+            "offset_x",
+            "offset_y",
         )
 
     def validate(self, data):

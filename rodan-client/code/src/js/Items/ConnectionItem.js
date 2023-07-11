@@ -2,7 +2,6 @@ import paper from 'paper';
 import BaseItem from './BaseItem';
 import GUI_EVENTS from '../Shared/Events';
 import Rodan from 'rodan';
-import { Segment } from 'paper';
 
 /**
  * Connection item.
@@ -39,7 +38,9 @@ class ConnectionItem extends BaseItem
         this._circle.onMouseEnter = event => this._handleMouseEvent(event);
         this._circle.onMouseLeave = event => this._handleMouseEvent(event);
         this.addChild(this._circle);
-        this._ratio = this._model.get('ratio');
+        this._padding = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].CONNECTION_PADDING;
+        this._offsetX = this._model.get('offset_x');
+        this._offsetY = this._model.get('offset_y');
     }
 
     /**
@@ -78,17 +79,43 @@ class ConnectionItem extends BaseItem
         if (this._inputPortItem && this._outputPortItem)
         {
             this._circle.visible = this.visible;
-            this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
-            this._circle.position.y = this._outputPortItem.bounds.bottom + (this._inputPortItem.bounds.top - this._outputPortItem.bounds.bottom) * this._ratio;
 
             this.removeSegments();
 
-            const start = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
-            const mid1 = new Point(this._inputPortItem.position.x, this._circle.position.y);
-            const mid2 = new Point(this._outputPortItem.position.x, this._circle.position.y);
-            const end = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+            // If the input port is above the output port, we want to draw the connection in a different way using 5 line segments instead of 3.
+            if (this._inputPortItem.bounds.top < this._outputPortItem.bounds.bottom + 2 * this._padding) {
+                if (this._offsetX == null) {
+                    this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
+                } else {
+                    this._circle.position.x = this._outputPortItem.position.x + this._offsetX;
+                }
+                
+                this._circle.position.y = (this._inputPortItem.position.y + this._outputPortItem.position.y) / 2;
 
-            this.add(start, mid1, mid2, end);
+                const start = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+                const p1 = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom + this._padding);
+                const p2 = new Point(this._circle.position.x, this._outputPortItem.bounds.bottom + this._padding);
+                const p3 = new Point(this._circle.position.x, this._inputPortItem.bounds.top - 5);
+                const p4 = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top - 5);
+                const end = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
+
+                this.add(start, p1, p2, p3, p4, end);
+            } else {
+                if (this._offsetY == null) {
+                    this._circle.position.y = (this._inputPortItem.bounds.top + this._outputPortItem.bounds.bottom) / 2;
+                } else {
+                    this._circle.position.y = this._clamp(this._outputPortItem.bounds.bottom + this._offsetY, this._outputPortItem.bounds.bottom + this._padding, this._inputPortItem.bounds.top - 5);
+                }
+                
+                this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
+
+                const start = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
+                const p1 = new Point(this._inputPortItem.position.x, this._circle.position.y);
+                const p2 = new Point(this._outputPortItem.position.x, this._circle.position.y);
+                const end = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+    
+                this.add(start, p1, p2, end);
+            }
         }
     }
 
@@ -112,17 +139,20 @@ class ConnectionItem extends BaseItem
     }
 
     /**
-     * Overrides move method to calculate and update ratio instead of position.
+     * Overrides move method to calculate and update offset instead of position.
      */
     move(delta)
     {
-        const y = this._circle.position.y + delta.y;
-        this._ratio = (y - this._outputPortItem.bounds.bottom) / (this._inputPortItem.bounds.top - this._outputPortItem.bounds.bottom);
+        if (this._inputPortItem.bounds.top < this._outputPortItem.bounds.bottom + 2 * this._padding) {
+            this._offsetX = (this._circle.position.x - this._outputPortItem.position.x) + delta.x;
+        } else {
+            this._offsetY = (this._circle.position.y - this._outputPortItem.bounds.bottom) + delta.y;
+        }
         this._hasMoved = true;
     }
 
     /**
-     * Overrides updatePositionToServer to update ratio instead of position.
+     * Overrides updatePositionToServer to update offset instead of position.
      */
     updatePositionToServer()
     {
@@ -134,7 +164,7 @@ class ConnectionItem extends BaseItem
             if (this._modelId || !this._coordinateSetSaveAttempted)
             {
                 this._coordinateSetSaveAttempted = true;
-                this._model.set({ ratio: this._ratio });
+                this._model.set({ offset_x: this._offsetX, offset_y: this._offsetY });
                 this._model.save();
                 this._hasMoved = false;
             }
@@ -144,6 +174,13 @@ class ConnectionItem extends BaseItem
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 ///////////////////////////////////////////////////////////////////////////////////////
-}
+   /**
+    * Clamps a value between a min and max.
+    */
+    _clamp(value, min, max)
+        {
+            return Math.min(Math.max(value, min), max);
+        }
+    }
 
 export default ConnectionItem;

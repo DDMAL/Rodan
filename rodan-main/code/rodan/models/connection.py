@@ -15,9 +15,8 @@ class Connection(models.Model):
       the "input" end of the connection.
     - `output_port` -- a reference to the specific `OutputPort` that is on
       the "output" end of the connection.
-    - `ratio` -- a float between 0 and 1, inclusive. Connections are drawn in three segements, 
-      a vertical segment, and horizontal segement, and another vertical segment. This field 
-      determines the ratio of the top vertical segment to the bottom. The default is 0.5.
+    - `offset_x` -- a float value that describes the horizontal offset of the circle from output_port
+    - `offset_y` -- a float value that describes the vertical offset of the circle from output_port
 
     **Properties**
 
@@ -49,7 +48,8 @@ class Connection(models.Model):
         on_delete=models.CASCADE,
         db_index=True,
     )
-    ratio = models.FloatField(default=0.5)
+    offset_x = models.FloatField(null=True)
+    offset_y = models.FloatField(null=True)
 
     @property
     def input_workflow_job(self):
