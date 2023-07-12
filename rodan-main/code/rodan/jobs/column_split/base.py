@@ -2,6 +2,7 @@ from rodan.jobs.base import RodanTask
 from .column_split import *
 import cv2 as cv
 import os
+import json
 import logging
 logger = logging.getLogger('rodan')
 
@@ -55,6 +56,13 @@ class ColumnSplit(RodanTask):
         {'name': 'Layer 8', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 9', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 10', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {
+        'name': 'Column Splitting Data',
+        'resource_types': ['application/json'],
+        'minimum': 1,
+        'maximum': 1,
+        'is_list': False
+        }
     )
 
     def run_my_task(self, inputs, settings, outputs):
@@ -110,4 +118,15 @@ class ColumnSplit(RodanTask):
                 outfile = outputs[key][0]['resource_path']
                 cv.imwrite(outfile+".png",layer_stacked)
                 os.rename(outfile+".png", outfile)
+
+        out_json_file = outputs['Column Splitting Data'][0]['resource_path']
+
+        out_json = {
+            'width': merged.shape[1],
+            'height': merged.shape[0],
+            'split_ranges': ranges,
+        }
+        with open(out_json_file, 'w') as f:
+            json.dump(out_json, f)
+
         return True
