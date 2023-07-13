@@ -471,7 +471,18 @@ def get_custos_pitch_heuristic(all_glyphs, custos_glyph, max_distance_to_next_cl
     next_neume_glyph = all_glyphs[next_neume_index]
     return (next_neume_glyph["note"], next_neume_glyph["octave"])
 
-def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict):
+def staff_to_columns_dict(staves: List[dict], height: int, num_columns):
+    out = {}
+    column = 0
+    for i ,staff in enumerate(staves):
+        if staff["bounding_box"]["uly"] > (column + 1)*height:
+            column += 1
+        if column == num_columns:
+            column = num_columns - 1
+        out[i] = column
+    return out
+
+def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, split_ranges: List[Tuple[int,int]]):
     '''
     Encodes the final MEI document using:
         @pairs: Pairs from the neume_to_lyric_alignment.
@@ -483,6 +494,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     '''
+    height = split_ranges["height"]
     meiDoc, surface, layer = generate_base_document()
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
@@ -517,11 +529,16 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     # it by id in the layer's children.
     all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
 
+    if split_ranges is not None:
+        num_columns = len(split_ranges["split_ranges"])
+        staff_to_column = staff_to_columns_dict(staves, height, num_columns)
+        prev_column = 0
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
         # print (gs)
         # print ("  ")
         # first add information about the text itself
+
         cur_syllable = new_el("syllable")
         bb = {
             'ulx': syl_box['ul'][0],
@@ -529,6 +546,8 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             'lrx': syl_box['lr'][0],
             'lry': syl_box['lr'][1],
         }
+        if split_ranges is not None:
+            bb = translate_syl_bbox(bb, split_ranges["split_ranges"], height)
         zoneId = generate_zone(surface, bb)
 
         # add syl element containing text on page
@@ -539,6 +558,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
+
+            if split_ranges is not None:
+                curr_column = staff_to_column[int(glyph['staff'])-1]
+                if curr_column != prev_column:
+                    # add cb to layer
+                    cb = new_el("cb")
+                    layer.append(cb)
+                    prev_column = curr_column
+
             # if the glyph is a custos, we override its pitch information using the next neume
             if glyph["name"] == "custos":
                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
@@ -589,6 +617,8 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             cur_staff = int(glyph['staff'])
 
             bb = staves[cur_staff]['bounding_box']
+            if split_ranges is not None:
+                bb = translate_glyph_bbox(bb, split_ranges["split_ranges"], height, curr_column)
             bb = {
                 'ulx': bb['ulx'],
                 'uly': bb['uly'],
@@ -704,7 +734,7 @@ def removeEmptySyl(meiDoc: ET.ElementTree):
 
     return meiDoc
 
-def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_container: dict, verbose: bool = True):
+def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_container: dict, split_ranges, verbose: bool = True):
     '''
     Runs the entire MEI encoding process given the three inputs to the rodan job and the
     width_multiplier parameter for merging neume components.
@@ -715,7 +745,7 @@ def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_
 
     glyphs = add_flags_to_glyphs(glyphs)
     pairs = neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing)
-    meiDoc = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'])
+    meiDoc = build_mei(pairs, classifier, width_container, jsomr['staves'], jsomr['page'], split_ranges)
 
     if width_mult > 0:
         meiDoc = merge_nearby_neume_components(meiDoc, width_mult=width_mult)
@@ -726,6 +756,24 @@ def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_
     
     return ET.tostring(tree.getroot(),encoding='utf8').decode('utf8')
 
+def translate_glyph_bbox(bbox,ranges,height,col):
+    ulx, uly = bbox["ulx"], bbox["uly"]
+    new_y = uly - height * col
+    new_x = ulx + ranges[col][0]
+    return {"ulx": new_x, "uly": new_y, "nrows": bbox["nrows"], "ncols": bbox["ncols"]}
+
+def translate_syl_bbox(bbox,ranges,height):
+    col = 0
+    for i in range(len(ranges)):
+        if bbox["uly"] <= (i+1) * height:
+            col = i
+    ulx, uly, lrx, lry = bbox["ulx"], bbox["uly"], bbox["lrx"], bbox["lry"]
+    new_uly = uly - height * col
+    new_ulx = ulx + ranges[col][1]
+    new_lry = lry - height * col
+    new_lrx = lrx + ranges[col][0]
+    return {"ulx": new_ulx, "uly": new_uly, "lrx": new_lrx, "lry": new_lry}
+    
 
 if __name__ == '__main__':
 
