@@ -7,14 +7,10 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan 
+import parse_classifier_table as pct #for rodan 
 #import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
 
-try:
-    from rodan.jobs.MEI_encoding import __version__
-except ImportError:
-    __version__ = "[Not encoded using Rodan]"
 
 
 def new_el(name: str, p: Optional[Element] = None): 
@@ -482,7 +478,7 @@ def staff_to_columns_dict(staves: List[dict], height: int, num_columns):
         out[i] = column
     return out
 
-def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, split_ranges: List[Tuple[int,int]]):
+def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, split_ranges: dict):
     '''
     Encodes the final MEI document using:
         @pairs: Pairs from the neume_to_lyric_alignment.
@@ -494,7 +490,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     '''
-    height = split_ranges["height"]
     meiDoc, surface, layer = generate_base_document()
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
@@ -529,10 +524,14 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     # it by id in the layer's children.
     all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
 
+    # if column splitting data is given, get the height of the original image,
+    # the number of columns, and a mapping for staves to columns
     if split_ranges is not None:
+        height = split_ranges["height"]
         num_columns = len(split_ranges["split_ranges"])
         staff_to_column = staff_to_columns_dict(staves, height, num_columns)
         prev_column = 0
+
     # add to the MEI document, syllable by syllable
     for gs, syl_box in pairs:
         # print (gs)
@@ -546,8 +545,11 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             'lrx': syl_box['lr'][0],
             'lry': syl_box['lr'][1],
         }
+
+        # if there are multiple columns, shift the bounding box back accordingly
         if split_ranges is not None:
-            bb = translate_syl_bbox(bb, split_ranges["split_ranges"], height)
+            col = bbox_to_col_num(bb, split_ranges["split_ranges"], height)
+            bb = translate_bbox(bb, split_ranges["split_ranges"], height, col)
         zoneId = generate_zone(surface, bb)
 
         # add syl element containing text on page
@@ -559,6 +561,8 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
 
+            # if there are multiple columns,
+            # check if a column break is necessary
             if split_ranges is not None:
                 curr_column = staff_to_column[int(glyph['staff'])-1]
                 if curr_column != prev_column:
@@ -566,6 +570,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                     cb = new_el("cb")
                     layer.append(cb)
                     prev_column = curr_column
+                glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], split_ranges["split_ranges"], height, curr_column)
 
             # if the glyph is a custos, we override its pitch information using the next neume
             if glyph["name"] == "custos":
@@ -575,7 +580,10 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
             # are we done with neume components in this grouping?
             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
-            new_element = glyph_to_element(classifier, width_container, glyph, surface)
+            if split_ranges is not None:
+                new_element = glyph_to_element(classifier, width_container, glyph, surface)
+            else:
+                new_element = glyph_to_element(classifier, width_container, glyph, surface)
             
             if new_element is None:
                 continue
@@ -617,14 +625,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             cur_staff = int(glyph['staff'])
 
             bb = staves[cur_staff]['bounding_box']
-            if split_ranges is not None:
-                bb = translate_glyph_bbox(bb, split_ranges["split_ranges"], height, curr_column)
+            # if there are multiple columns, shift the bounding box accordingly
             bb = {
                 'ulx': bb['ulx'],
                 'uly': bb['uly'],
                 'lrx': bb['ulx'] + bb['ncols'],
                 'lry': bb['uly'] + bb['nrows'],
             }
+            if split_ranges is not None:
+                bb = translate_bbox(bb, split_ranges["split_ranges"], height, staff_to_column[cur_staff])
             zoneId = generate_zone(surface, bb)  
             
             sb = new_el('sb')
@@ -734,7 +743,7 @@ def removeEmptySyl(meiDoc: ET.ElementTree):
 
     return meiDoc
 
-def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_container: dict, split_ranges, verbose: bool = True):
+def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_container: dict, split_ranges: dict, verbose: bool = True):
     '''
     Runs the entire MEI encoding process given the three inputs to the rodan job and the
     width_multiplier parameter for merging neume components.
@@ -756,20 +765,24 @@ def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_
     
     return ET.tostring(tree.getroot(),encoding='utf8').decode('utf8')
 
-def translate_glyph_bbox(bbox,ranges,height,col):
-    ulx, uly = bbox["ulx"], bbox["uly"]
-    new_y = uly - height * col
-    new_x = ulx + ranges[col][0]
-    return {"ulx": new_x, "uly": new_y, "nrows": bbox["nrows"], "ncols": bbox["ncols"]}
 
-def translate_syl_bbox(bbox,ranges,height):
+def bbox_to_col_num(bbox: dict, ranges: List, height: int):
     col = 0
     for i in range(len(ranges)):
         if bbox["uly"] <= (i+1) * height:
             col = i
+            break
+    return col
+
+def translate_bbox(bbox: dict,ranges: list, height: int, col: int):
+    '''
+    When there are multiple columns, this function is used to reposition the bounding
+    box of a syl to be where it belongs on the original page
+    '''
+   
     ulx, uly, lrx, lry = bbox["ulx"], bbox["uly"], bbox["lrx"], bbox["lry"]
     new_uly = uly - height * col
-    new_ulx = ulx + ranges[col][1]
+    new_ulx = ulx + ranges[col][0]
     new_lry = lry - height * col
     new_lrx = lrx + ranges[col][0]
     return {"ulx": new_ulx, "uly": new_uly, "lrx": new_lrx, "lry": new_lry}
