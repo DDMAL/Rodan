@@ -92,10 +92,7 @@ class ColumnSplit(RodanTask):
         stacked_text = get_stacked_image(text,ranges)
         stacked_staff = get_stacked_image(staff,ranges)
         stacked_neume = get_stacked_image(neume,ranges)
-            # save stacked images
-        # cv.imwrite('test_data/2-text-stacked.png',stacked_text)
-        # cv.imwrite('test_data/2-staff-stacked.png',stacked_staff)
-        # cv.imwrite('test_data/2-neume-stacked.png',stacked_neume)
+
 
         outfile_staff = outputs['Staff Layer'][0]['resource_path']
         cv.imwrite(outfile_staff+".png",stacked_staff)
