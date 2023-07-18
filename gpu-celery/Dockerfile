@@ -141,10 +141,11 @@ RUN set -e \
 RUN rm -rf /var/lib/apt/lists/*
 
 # Bandaid fix for the cannot import name '_registerMatType' from 'cv2.cv2' issue
-RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.1.2.30
+#RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.1.2.30
 
 # Install GPU Rodan Jobs
 COPY ./scripts/install_gpu_rodan_jobs /opt/
+
 # Install Rodan
 # Runs on both Rodan service, and Rodan-Celery
 COPY ./scripts/entrypoint /opt/
@@ -181,5 +182,8 @@ RUN set -x \
 
 # Install Rodan.
 RUN pip3 install -r /code/Rodan/requirements.txt
+
+RUN pip3 uninstall -y opencv-python opencv-python-headless
+RUN pip3 install opencv-python-headless==4.1.2.30
 
 ENTRYPOINT ["/opt/entrypoint"]
