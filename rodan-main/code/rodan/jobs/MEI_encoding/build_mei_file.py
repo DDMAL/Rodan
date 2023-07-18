@@ -224,7 +224,7 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == 'clef':
-        attribs['line'] = str(glyph['strt_pos'])
+        attribs['line'] = str(int(glyph['strt_pos']))
 
     attribs['oct'] = str(glyph['octave'])
     attribs['pname'] = str(glyph['note'])
@@ -393,8 +393,8 @@ def add_to_layer(syllable_dict: dict, tag: str, layer: Element, cur_syllable: El
 def precedes_follows(syl_dict: dict, layer: Element, new_element: Element):
     prev_syllable = syl_dict['opening_syl']
     new_syllable = new_el("syllable", layer)
-    prev_syllable.set("xml:precedes", new_syllable.get('xml:id'))
-    new_syllable.set("xml:follows", prev_syllable.get('xml:id'))
+    prev_syllable.set("precedes", '#' + new_syllable.get('xml:id'))
+    new_syllable.set("follows", "#" + prev_syllable.get('xml:id'))
     syl_dict['opening_syl'] = new_syllable  #to be able to access most recent syllable 
 
     new_syllable.append(new_element)  #add new element to new syllable
