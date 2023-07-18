@@ -145,7 +145,7 @@ def neume_to_lyric_alignment(glyphs: List[dict], syl_boxes: List[dict], median_l
     return pairs
 
 
-def generate_base_document():
+def generate_base_document(split_ranges):
     '''
     Generates a generic template for an MEI document for neume notation.
 
@@ -176,6 +176,10 @@ def generate_base_document():
     body = new_el("body", music)
     mdiv = new_el("mdiv", body)
     score = new_el("score", mdiv)
+    if split_ranges is not None:
+        col_layout = new_el("colLayout", score)
+        col_layout.set("cols", str(len(split_ranges)))
+
     scoreDef = new_el("scoreDef", score)
     staffGrp = new_el("staffGrp", scoreDef)
     staffDef = new_el("staffDef", staffGrp)
@@ -506,6 +510,12 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
 
     #add an initial system beginning
+    if split_ranges is not None:
+        cb = new_el("cb")
+        cb.set("n", "1")
+        # set cb facs here
+        previous_cb = {"cb": cb,"bb": None}
+        layer.append(cb)
     sb = new_el("sb")
     bb = staves[0]['bounding_box']
     bb = {
@@ -565,11 +575,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             # check if a column break is necessary
             if split_ranges is not None:
                 curr_column = staff_to_column[int(glyph['staff'])-1]
-                if curr_column != prev_column:
-                    # add cb to layer
-                    cb = new_el("cb")
-                    layer.append(cb)
-                    prev_column = curr_column
                 glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], split_ranges["split_ranges"], height, curr_column)
 
             # if the glyph is a custos, we override its pitch information using the next neume
@@ -622,6 +627,18 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
                 continue
 
+            if split_ranges is not None:
+                if curr_column > prev_column:
+                    # add cb to layer
+                    cb = new_el("cb")
+                    cb.set("n", str(curr_column + 1))
+                    zoneId = generate_zone(surface, previous_cb["bb"])
+                    cb.set("facs", "#" + zoneId)
+                    layer.append(cb)
+                    prev_column = curr_column
+                    previous_cb["cb"] = cb
+                    previous_cb["bb"] = None
+
             cur_staff = int(glyph['staff'])
 
             bb = staves[cur_staff]['bounding_box']
@@ -652,6 +669,19 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 #system break must be added to the layer 
                 layer.append(sb)
                 syl_dict["latest"] = sb
+
+            if split_ranges is not None:
+                if previous_cb["bb"] is None:
+                    previous_cb["bb"] = bb
+                else:
+                    if previous_cb["bb"]["ulx"] > bb["ulx"]:
+                        previous_cb["bb"]["ulx"] = bb["ulx"]
+                    if previous_cb["bb"]["uly"] < bb["uly"]:
+                        previous_cb["bb"]["uly"] = bb["uly"]
+                    if previous_cb["bb"]["lrx"] < bb["lrx"]:
+                        previous_cb["bb"]["lrx"] = bb["lrx"]
+                    if previous_cb["bb"]["lry"] > bb["lry"]:
+                        previous_cb["bb"]["lry"] = bb["lry"]
 
     return meiDoc
 
