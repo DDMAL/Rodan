@@ -86,6 +86,9 @@ def get_split_locations(gray,num_columns):
 
 # gets the ranges of the original image that correspond to the columns
 def get_split_ranges(img,splits):
+    if len(splits) == 0:
+        return [(0,img.shape[1])]
+    
     ranges = [(0,splits[0])]
     for split in splits[1:]:
         ranges.append((ranges[-1][1],split))
