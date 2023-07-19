@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from rodan.models.workflow import Workflow
+from sortedm2m.fields import SortedManyToManyField
 
 
 class InputPort(models.Model):
@@ -45,6 +46,7 @@ class InputPort(models.Model):
     )
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     extern = models.BooleanField(default=False, db_index=True)
+    extern_resources = SortedManyToManyField("rodan.Resource", blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
