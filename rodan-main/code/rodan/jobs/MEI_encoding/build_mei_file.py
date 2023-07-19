@@ -494,7 +494,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     '''
-    meiDoc, surface, layer = generate_base_document()
+    meiDoc, surface, layer = generate_base_document(split_ranges)
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
         'uly': page['bounding_box']['uly'],
@@ -509,14 +509,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     surface.set('uly', str(math.trunc(surface_bb['uly'])))
 
 
-    #add an initial system beginning
-    if split_ranges is not None:
-        cb = new_el("cb")
-        cb.set("n", "1")
-        # set cb facs here
-        previous_cb = {"cb": cb,"bb": None}
-        layer.append(cb)
-    sb = new_el("sb")
     bb = staves[0]['bounding_box']
     bb = {
         'ulx': bb['ulx'],
@@ -524,6 +516,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         'lrx': bb['ulx'] + bb['ncols'],
         'lry': bb['uly'] + bb['nrows'],
     }
+    #add an initial system beginning
+    if split_ranges is not None:
+        cb = new_el("cb")
+        cb.set("n", "1")
+        # set cb facs here
+        previous_cb = {"cb": cb,"bb": bb}
+        layer.append(cb)
+    sb = new_el("sb")
+    
     zoneId = generate_zone(surface, bb)
     sb.set('facs', '#' + zoneId)
     layer.append(sb)
@@ -570,7 +571,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
-
             # if there are multiple columns,
             # check if a column break is necessary
             if split_ranges is not None:
@@ -627,19 +627,21 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
                 continue
 
-            if split_ranges is not None:
-                if curr_column > prev_column:
-                    # add cb to layer
-                    cb = new_el("cb")
-                    cb.set("n", str(curr_column + 1))
-                    zoneId = generate_zone(surface, previous_cb["bb"])
-                    cb.set("facs", "#" + zoneId)
-                    layer.append(cb)
-                    prev_column = curr_column
-                    previous_cb["cb"] = cb
-                    previous_cb["bb"] = None
 
             cur_staff = int(glyph['staff'])
+
+            if split_ranges is not None:
+                if staff_to_column[cur_staff] > prev_column:
+                    # add cb to layer
+                    zoneId = generate_zone(surface, previous_cb["bb"])
+                    previous_cb["cb"].set("facs", "#" + zoneId)
+
+                    prev_column = staff_to_column[cur_staff]
+                    cb = new_el("cb")
+                    cb.set("n", str(staff_to_column[cur_staff] + 1))
+                    previous_cb["cb"] = cb
+                    previous_cb["bb"] = None
+                    layer.append(cb)
 
             bb = staves[cur_staff]['bounding_box']
             # if there are multiple columns, shift the bounding box accordingly
@@ -649,9 +651,13 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 'lrx': bb['ulx'] + bb['ncols'],
                 'lry': bb['uly'] + bb['nrows'],
             }
+
+
             if split_ranges is not None:
                 bb = translate_bbox(bb, split_ranges["split_ranges"], height, staff_to_column[cur_staff])
             zoneId = generate_zone(surface, bb)  
+
+            print(staff_to_column[cur_staff],bb)
             
             sb = new_el('sb')
             sb.set('facs', '#' + zoneId)   
@@ -676,12 +682,17 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 else:
                     if previous_cb["bb"]["ulx"] > bb["ulx"]:
                         previous_cb["bb"]["ulx"] = bb["ulx"]
-                    if previous_cb["bb"]["uly"] < bb["uly"]:
+                    if previous_cb["bb"]["uly"] > bb["uly"]:
                         previous_cb["bb"]["uly"] = bb["uly"]
                     if previous_cb["bb"]["lrx"] < bb["lrx"]:
                         previous_cb["bb"]["lrx"] = bb["lrx"]
-                    if previous_cb["bb"]["lry"] > bb["lry"]:
+                    if previous_cb["bb"]["lry"] < bb["lry"]:
                         previous_cb["bb"]["lry"] = bb["lry"]
+                    
+    if split_ranges is not None:
+        # add cb to layer
+        zoneId = generate_zone(surface, previous_cb["bb"])
+        previous_cb["cb"].set("facs", "#" + zoneId)
 
     return meiDoc
 
