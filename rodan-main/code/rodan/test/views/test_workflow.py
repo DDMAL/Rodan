@@ -787,3 +787,172 @@ class WorkflowExternPortsTestCase(
         self.assertFalse(Fip2.extern)
         Fop = OutputPort.objects.get(uuid=self.test_Fop.uuid)
         self.assertTrue(Fop.extern)
+
+class WorkflowResourceAssignmentsTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
+    def setUp(self):
+        self.setUp_rodan()
+        self.setUp_user()
+        self.setUp_complex_dummy_workflow()
+        self.setUp_resources_for_complex_dummy_workflow()
+        self.client.force_authenticate(user=self.test_superuser)
+
+    def test_get_resource_assignments(self):
+        ip_a = self.test_Aip
+        ip_d = self.test_Dip1
+
+        ip_a.extern_resources.set(self.test_resourcecollection)
+        ip_d.extern_resources.set(self.test_resourcecollection[:2])
+
+        resource_urls = list(map(self.url, self.test_resourcecollection))
+
+        response = self.client.get(
+            reverse("workflow-detail-resourceassignments", kwargs={"pk": self.test_workflow.uuid})
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        
+        input_ports = InputPort.objects.filter(workflow_job__workflow=self.test_workflow)
+
+        for input_port in input_ports.exclude(uuid__in=(ip_a.uuid, ip_d.uuid)):
+            self.assertEquals(response.data[self.url(input_port)], [])
+
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_a)])), resource_urls)
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_d)])), resource_urls[:2])
+    
+    def test_create_resource_assignments(self):
+        ip_a = self.test_Aip
+        ip_d = self.test_Dip1
+
+        resource_urls = list(map(self.url, self.test_resourcecollection))
+
+        data = {
+            self.url(ip_a): resource_urls,
+            self.url(ip_d): resource_urls[:2],
+        }
+
+        response = self.client.put(
+            reverse("workflow-detail-resourceassignments", kwargs={"pk": self.test_workflow.uuid}),
+            data,
+            format="json",
+        )
+
+        # check that the update was made
+        self.assertEquals(list(ip_a.extern_resources.all()), self.test_resourcecollection)
+        self.assertEquals(list(ip_d.extern_resources.all()), self.test_resourcecollection[:2])
+
+        # check that the response is correct
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        input_ports = InputPort.objects.filter(workflow_job__workflow=self.test_workflow)
+
+        for input_port in input_ports.exclude(uuid__in=(ip_a.uuid, ip_d.uuid)):
+            self.assertEquals(response.data[self.url(input_port)], [])
+
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_a)])), resource_urls)
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_d)])), resource_urls[:2])
+
+    def test_update_resource_assignments(self):
+        ip_a = self.test_Aip
+        ip_d = self.test_Dip1
+        
+        ip_a.extern_resources.set(self.test_resourcecollection)
+        ip_d.extern_resources.set(self.test_resourcecollection[:2])
+
+        resource_urls = list(map(self.url, self.test_resourcecollection))
+
+        data = {
+            self.url(ip_a): resource_urls[:2],
+            self.url(ip_d): resource_urls[2:],
+        }
+
+        response = self.client.put(
+            reverse("workflow-detail-resourceassignments", kwargs={"pk": self.test_workflow.uuid}),
+            data,
+            format="json",
+        )
+
+        # check that the update was made
+        self.assertEquals(list(ip_a.extern_resources.all()), self.test_resourcecollection[:2])
+        self.assertEquals(list(ip_d.extern_resources.all()), self.test_resourcecollection[2:])
+
+        # check that the response is correct
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        
+        input_ports = InputPort.objects.filter(workflow_job__workflow=self.test_workflow)
+
+        for input_port in input_ports.exclude(uuid__in=(ip_a.uuid, ip_d.uuid)):
+            self.assertEquals(response.data[self.url(input_port)], [])
+
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_a)])), resource_urls[:2])
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_d)])), resource_urls[2:])
+
+    def test_partial_update_resource_assignments(self):
+        ip_a = self.test_Aip
+        ip_d = self.test_Dip1
+
+        ip_a.extern_resources.set(self.test_resourcecollection)
+        ip_d.extern_resources.set(self.test_resourcecollection[:2])
+
+        resource_urls = list(map(self.url, self.test_resourcecollection))
+
+        data = {
+            self.url(ip_a): resource_urls[2:],
+        }
+
+        response = self.client.patch(
+            reverse("workflow-detail-resourceassignments", kwargs={"pk": self.test_workflow.uuid}),
+            data,
+            format="json",
+        )
+
+        # check that the update was made
+        self.assertEquals(list(ip_a.extern_resources.all()), self.test_resourcecollection[2:])
+        self.assertEquals(list(ip_d.extern_resources.all()), self.test_resourcecollection[:2])
+
+        # check that the response is correct
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        input_ports = InputPort.objects.filter(workflow_job__workflow=self.test_workflow)
+
+        for input_port in input_ports.exclude(uuid__in=(ip_a.uuid, ip_d.uuid)):
+            self.assertEquals(response.data[self.url(input_port)], [])
+
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_a)])), resource_urls[2:])
+        self.assertEquals(list(map(lambda r: r["url"], response.data[self.url(ip_d)])), resource_urls[:2])
+
+    def test_delete_resource_assignments(self):
+        other_workflow_ip_a = self.test_Aip
+        other_workflow_ip_d = self.test_Dip1
+        
+        other_workflow_ip_a.extern_resources.set(self.test_resourcecollection[::2])
+        other_workflow_ip_d.extern_resources.set(self.test_resourcecollection[2:])
+
+        self.setUp_complex_dummy_workflow()
+        
+        ip_a = self.test_Aip
+        ip_d = self.test_Dip1
+        
+        ip_a.extern_resources.set(self.test_resourcecollection)
+        ip_d.extern_resources.set(self.test_resourcecollection[:2])
+
+        assigned_resources = InputPort.extern_resources.through.objects.filter(inputport__workflow_job__workflow=self.test_workflow)
+
+        self.assertTrue(assigned_resources.exists())
+
+        response = self.client.delete(
+            reverse("workflow-detail-resourceassignments", kwargs={"pk": self.test_workflow.uuid}),
+        )
+
+        # check that all resource assignments have been deleted
+        self.assertEquals(assigned_resources.count(), 0)
+
+        # check that resource assignments for other workflows are not deleted
+        self.assertEquals(list(other_workflow_ip_a.extern_resources.all()), self.test_resourcecollection[::2])
+        self.assertEquals(list(other_workflow_ip_d.extern_resources.all()), self.test_resourcecollection[2:])
+
+        # check that the response is correct
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        input_ports = InputPort.objects.filter(workflow_job__workflow=self.test_workflow)
+        for input_port in input_ports:
+            self.assertEquals(response.data[self.url(input_port)], [])
