@@ -1,6 +1,8 @@
 from rest_framework import generics
 from rest_framework import permissions
 import django_filters
+import django_filters.rest_framework as filters
+
 from rodan.models import WorkflowJobGroup
 from rodan.serializers.workflowjobgroup import (
     WorkflowJobGroupSerializer,
@@ -24,6 +26,10 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
     filter_fields = ("origin",)
     queryset = WorkflowJobGroup.objects.all()  # [TODO] filter according to the user?
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-created')  # Order the queryset
+
     def get_serializer_class(self, *a, **k):
         if self.request.method == "POST" and "origin" in self.request.data:
             return WorkflowJobGroupImportCreateSerializer
@@ -31,8 +37,8 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
             return WorkflowJobGroupSerializer
 
     class filter_class(django_filters.FilterSet):
-        workflow = django_filters.CharFilter(name="workflow_jobs__workflow")
-        project = django_filters.CharFilter(name="workflow_jobs__workflow__project")
+        workflow = django_filters.CharFilter(field_name="workflow_jobs__workflow")
+        project = django_filters.CharFilter(field_name="workflow_jobs__workflow__project")
 
         class Meta:
             model = WorkflowJobGroup

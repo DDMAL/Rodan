@@ -85,6 +85,28 @@ class BaseItem extends paper.Path
         return [{channel: 'rodan-client_gui', label: 'Cancel', radiorequest: GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_HIDE_CONTEXTMENU}];
     }
 
+    /**
+     * Converts coordinates from the database to the paper.js project coordinates.
+     * @param {{x: number, y: number}} appearance - The coordinates stored in the database
+     * @returns {{x: number, y: number}} The paper.js project coordinates
+     */
+    static appearanceToProject(appearance)
+    {
+        const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
+        return { x: appearance.x * multiplier, y: appearance.y * multiplier };
+    }
+
+    /**
+     * Converts coordinates from the paper.js project coordinates to the database coordinates.
+     * @param {{x: number, y: number}} coordinates - The paper.js project coordinates
+     * @returns {{x: number, y: number}} The coordinates stored in the database
+    */
+    static projectToAppearance(coordinates)
+    {
+        const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
+        return { x: coordinates.x / multiplier, y: coordinates.y / multiplier };
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PUBLIC METHODS
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -189,11 +211,9 @@ class BaseItem extends paper.Path
             if (this._modelId || !this._coordinateSetSaveAttempted)
             {
                 this._coordinateSetSaveAttempted = true;
-                var x = this.position.x / paper.view.zoom / paper.view.size.width;
-                var y = this.position.y / paper.view.zoom / paper.view.size.height;
-                var coordinates = {x: x, y: y};
-                this._model.set({'appearance': coordinates});
-                this._model.save(); 
+                const appearance = BaseItem.projectToAppearance(this.position);
+                this._model.set({ appearance });
+                this._model.save();
                 this._hasMoved = false;
             }
         }
@@ -204,13 +224,8 @@ class BaseItem extends paper.Path
      */
     loadCoordinates()
     {
-        // Create callback.
-        var callback = (coordinates) => this._handleCoordinateLoadSuccess(coordinates);
 
-        // Fetch.
-        var query = {};
-        query[this.coordinateSetInfo['url']] = this._modelId;
-        this._model.fetch({data: query, success: callback, error: callback});
+        this._handleCoordinateLoadSuccess(this._model);
     }
 
     /**
@@ -407,11 +422,11 @@ class BaseItem extends paper.Path
      */
     _handleCoordinateLoadSuccess(model)
     {
-        var coordinates = model.get("appearance");
-        if (coordinates)
+        var appearance = model.get("appearance");
+        if (appearance)
         {
-            this.position = new paper.Point(coordinates.x * paper.view.size.width * paper.view.zoom, 
-                                            coordinates.y * paper.view.size.height * paper.view.zoom);
+            const { x, y } = BaseItem.appearanceToProject(appearance);
+            this.position = new paper.Point(x, y);
         }
     }
 

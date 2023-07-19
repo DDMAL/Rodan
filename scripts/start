@@ -23,10 +23,11 @@ runuser -u root -- yes | MIGRATE="True" python3 manage.py migrate --noinput
 cat << EOF | runuser -u root -- python3 manage.py shell
 
 import os
-from django.contrib.auth.models import User
+from django.db.models import Q
+from rodan.models.user import User
 print ("Checking if Django super user exists...")
-if not User.objects.filter(username=os.getenv('ADMIN_USER')).exists():
-    User.objects.create_superuser(os.getenv('ADMIN_USER'), '', os.getenv('ADMIN_PASS'))
+if not User.objects.filter(Q(username=os.getenv('ADMIN_USER')) | Q(email=os.getenv('ADMIN_EMAIL'))).exists():
+    User.objects.create_superuser(os.getenv('ADMIN_USER'), os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASS'))
     print ("Created new user.")
 
 EOF
@@ -43,4 +44,4 @@ sed -i "s/15/999999/g" /code/Rodan/rodan/settings.py
 # Usually, unix sockets would be faster but between docker containers, I am not certain because of the
 # complexity from volumes. Do not merge other services into the rodan service. We are keeping them isolated
 # for scaling in the future. --graceful-timeout 0 --preload True --workers=3
-runuser -u root -- /usr/local/bin/gunicorn --name=rodan -b 0.0.0.0:8000 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application
+runuser -u root -- /usr/local/bin/gunicorn --name=rodan -b 0.0.0.0:8000 --timeout 120 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application 

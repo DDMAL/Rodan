@@ -43,7 +43,7 @@ export default class ControllerResource extends BaseController
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, options => this._handleCommandShowLayoutView(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_VIEWER_ACQUIRE, options => this._handleRequestViewer(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_LOAD, options => this._handleRequestResources(options));
-        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_UPDATE_LABELS, () => this._handleRequestUpdateLabels());
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_LOAD_NO_PAGE, options => this._handleRequestResourcesNoPagination(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_CURRENT, options => this._handleCurrentResources(options));
     }
 
@@ -60,6 +60,7 @@ export default class ControllerResource extends BaseController
      */
     _handleEventCollectionSelected(options)
     {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_LOAD_NO_PAGE, {data: {project: options.project.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_LOAD, {data: {project: options.project.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
         this._layoutView = new LayoutViewModel();
@@ -172,10 +173,10 @@ export default class ControllerResource extends BaseController
     _handleCurrentResources(options)
     {
         try {
-            if (this._collection['_lastData']['project'] === options.data.project) {
-                return this._collection;
+            if (this._collection_no_page['_lastData']['project'] === options.data.project) {
+                return this._collection_no_page;
             } else {
-                return this._handleRequestResources(options);
+                return this._handleRequestResourcesNoPagination(options);
             }
         } catch (e) {
             console.debug(e);
@@ -194,6 +195,18 @@ export default class ControllerResource extends BaseController
     }
 
     /**
+     * Handle request Resources.
+     */
+    _handleRequestResourcesNoPagination(options)
+    {
+        options.data.no_page = true;
+        options.async = false;
+        this._collection_no_page = new ResourceCollection();
+        this._collection_no_page.fetch(options);
+        return this._collection_no_page;
+    }
+
+    /**
      * Handle request for Resource viewer.
      */
     _handleRequestViewer(options)
@@ -205,14 +218,6 @@ export default class ControllerResource extends BaseController
             success: (response) => this._handleSuccessAcquire(response)
         };
         $.ajax(ajaxOptions);
-    }
-
-    _handleRequestUpdateLabels()
-    {
-        let resources = this._collection;
-        resources.forEach(resource => {
-            resource._updateResourceLabelsFull();
-        });
     }
 
     /**

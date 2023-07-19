@@ -1,4 +1,6 @@
-from rest_framework import generics, filters
+from rest_framework import generics
+import django_filters.rest_framework as filters
+from rest_framework.filters import OrderingFilter
 from rest_framework import permissions, status
 from rodan.models import ResourceList
 from rodan.serializers.resourcelist import ResourceListSerializer
@@ -14,7 +16,9 @@ class ResourceListList(generics.ListCreateAPIView):
 
     queryset = ResourceList.objects.all()
     serializer_class = ResourceListSerializer
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
+
+
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
 
     class filter_class(django_filters.FilterSet):

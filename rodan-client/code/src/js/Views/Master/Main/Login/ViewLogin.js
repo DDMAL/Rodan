@@ -28,14 +28,14 @@ export default class ViewLogin extends Marionette.View
      */
     _handleButton()
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_LOGIN, {username: this.ui.textUsername.val(), password: this.ui.textPassword.val()}); 
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_LOGIN, { email: this.ui.textEmail.val(), password: this.ui.textPassword.val() }); 
     }
 }
 ViewLogin.prototype.modelEvents = {
     'all': 'render'
 };
 ViewLogin.prototype.ui = {
-    textUsername: '#text-login_username',
+    textEmail: '#text-login_email',
     textPassword: '#text-login_password',
     buttonLogin: '#button-login'
 };

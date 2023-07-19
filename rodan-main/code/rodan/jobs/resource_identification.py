@@ -1,7 +1,7 @@
 import re
 import base64
 import magic
-import io 
+import io
 
 
 def define_midi(*args, **kwargs):
@@ -85,7 +85,8 @@ def define_text(filename, mime=None):
         "<features_to_extract>": "application/jsc+txt",
         # This ought not be called a CSV file.
         "imagePath,imagesBinary,name,folio,description,classification,mei,review,dob,project": "text/csv",  # noqa
-    }
+        "imagePath,imagesBinary,name,folio,description,classification,width,mei,review,dob,project": "text/csv",  # with width column
+    }   
 
     try:
         return text_mimetypes[data]
@@ -120,6 +121,10 @@ def define_text(filename, mime=None):
     return "text/plain"
 
 
+def define_csv(filename, mime=None):
+    return "text/csv"
+
+
 def define_stream(filename, mime=None):
     with io.open(filename, "rb") as f:
         data = f.read()
@@ -141,6 +146,8 @@ def fileparse(filename):
 
     mimetype_translation = {
         "text/plain": define_text,
+        "text/csv": define_text,
+        "application/csv": define_csv,
 
         # Depends how libmagic feels: RFC 7303 or RFC 3023
         "text/xml": define_xml,
@@ -154,6 +161,7 @@ def fileparse(filename):
         "application/json": define_json,
         "application/octet-stream": define_stream,
         "application/x-hdf": define_stream,
+        "application/x-hdf5": define_stream,
     }
 
     try:
@@ -182,7 +190,7 @@ if __name__ == "__main__":
         print("[+] Failed - Current Filetypes don't work")
         try:
             assert fileparse("../test/files/LLIA") == "application/ace+xml"
-        except: 
+        except Exception as e: 
             print("application/ace+xml")
         try: 
             assert fileparse("../test/files/AWKQ") == "application/arff"

@@ -31,6 +31,7 @@ class OutputPort(models.Model):
     class Meta:
         app_label = "rodan"
         permissions = (("view_outputport", "View OutputPort"),)
+        ordering = ["created"]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow_job = models.ForeignKey(
@@ -44,6 +45,7 @@ class OutputPort(models.Model):
     )
     label = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     extern = models.BooleanField(default=False, db_index=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.label:

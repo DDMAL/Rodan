@@ -27,6 +27,7 @@ export default class BehaviorTable extends Marionette.Behavior
         this._lastTarget = null;
         this._multipleSelectionKey = Environment.getMultipleSelectionKey();
         this._rangeSelectionKey = Environment.getRangeSelectionKey();
+        this._submitSearch = _.debounce((filters) => this.view.collection.fetchFilter(filters), Configuration.SEARCH_DEBOUNCE_DELAY);
     }
 
     /**
@@ -257,7 +258,7 @@ export default class BehaviorTable extends Marionette.Behavior
         var project_resources = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_CURRENT, {data: {project: project.id}});
         var labels = new Set();
         project_resources.each(function (resource) {
-            resource.attributes.labels.forEach(function (url) {
+            resource.attributes.labels.forEach(function ({ url }) {
                 labels.add(url);
             });
         });
@@ -314,7 +315,7 @@ export default class BehaviorTable extends Marionette.Behavior
                 filters[name].push(value);
             }
         }
-        this.view.collection.fetchFilter(filters);
+        this._submitSearch(filters);
     }
 
     /**
@@ -478,6 +479,7 @@ export default class BehaviorTable extends Marionette.Behavior
             }
             else
             {
+                $(event.currentTarget).addClass('active clickable-row');
                 this._lastTarget = event.currentTarget;
             }
         }

@@ -2,6 +2,7 @@
 import logging
 import uuid
 from django.db import models
+from django.conf import settings
 from rodan.constants import task_status
 # import shutil
 
@@ -69,7 +70,7 @@ class WorkflowRun(models.Model):
         db_index=True,
     )
     creator = models.ForeignKey(
-        "auth.User",
+        settings.AUTH_USER_MODEL,
         related_name="workflow_runs",
         blank=True,
         null=True,

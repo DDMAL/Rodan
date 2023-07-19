@@ -1,4 +1,5 @@
-FROM ddmal/rodan-client:nightly as webapp
+ARG VERSION
+FROM ddmal/rodan-client:${VERSION} as webapp
 
 # Add local configuration and build.
 RUN rm -rf /code/configuration.json
@@ -7,7 +8,7 @@ RUN /code/node_modules/.bin/gulp dist
 
 
 ###########################################################
-FROM ddmal/rodan-main:nightly as rodan-static
+FROM ddmal/rodan-main:${VERSION} as rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
 

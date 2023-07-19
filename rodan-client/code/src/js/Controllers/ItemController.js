@@ -330,8 +330,6 @@ class ItemController
                     case 'WorkflowJob':
                     {
                         var item = new WorkflowJobItem({segments: this._segments.workflowJobItem, model: options.model, text: true});
-                        var position = new paper.Point(paper.view.size.width * paper.view.zoom / 2, paper.view.size.height * paper.view.zoom / 2);
-                        item.setPosition(position);
                         break;
                     }
 
@@ -359,8 +357,6 @@ class ItemController
                     case 'WorkflowJobGroup':
                     {
                         var item = new WorkflowJobGroupItem({segments: this._segments.workflowJobItem, model: options.model, text: true});
-                        var position = new paper.Point(paper.view.size.width * paper.view.zoom / 2, paper.view.size.height * paper.view.zoom / 2);
-                        item.setPosition(position);
                         break;
                     }
 

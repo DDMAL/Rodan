@@ -11,7 +11,7 @@ jobs:
   rodan-CI-test:
     runs-on: ubuntu-20.04
     container:
-        image: softcat477/ci-jobs:latest
+        image: ddmal/ci-jobs:django-v2.0.13
         env: 
           CELERY_JOB_QUEUE: None
           ADMIN_USER: rodan

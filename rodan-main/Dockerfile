@@ -1,7 +1,8 @@
-FROM ddmal/rodan-python3-celery:nightly
 ARG BRANCHES
 ARG VERSION
 ARG BUILD_HASH
+
+FROM ddmal/rodan-python3-celery:${VERSION}
 
 # Install OpenJPEG dependencies.
 RUN \
@@ -10,9 +11,9 @@ RUN \
   && mkdir /vendor || echo "Already exists" \
   && apt update \
   && apt -q install -y \
-    libopenjp2-7 \
-    libopenjp2-7-dev \
-    libopenjp2-tools
+  libopenjp2-7 \
+  libopenjp2-7-dev \
+  libopenjp2-tools
 
 # We need make to compile Grok.
 RUN apt-get install -y make

@@ -4,9 +4,10 @@ import shutil
 import traceback
 import uuid
 from django.conf import settings
-from django.contrib.auth.models import User, Group
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
+from django.urls import reverse
 from django.db import models
+from rodan.models.user import User
 
 
 logger = logging.getLogger("rodan")
@@ -56,8 +57,8 @@ class Project(models.Model):
         User, related_name="projects", on_delete=models.PROTECT, db_index=True
     )
 
-    admin_group = models.ForeignKey(Group, related_name="project_as_admin")
-    worker_group = models.ForeignKey(Group, related_name="project_as_worker")
+    admin_group = models.ForeignKey(Group, related_name="project_as_admin", on_delete=models.CASCADE)
+    worker_group = models.ForeignKey(Group, related_name="project_as_worker", on_delete=models.CASCADE)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)

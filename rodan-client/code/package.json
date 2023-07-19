@@ -39,7 +39,6 @@
     "core-js": "^3.6.5",
     "del": "^5.1.0",
     "gulp": "^4.0.2",
-    "gulp-sass": "^4.1.0",
     "ip": "^1.1.4",
     "paper": "^0.12.4",
     "prompt-sync": "^4.2.0",
@@ -68,7 +67,7 @@
     "underscore": "^1.10.2"
   },
   "engines": {
-    "node": ">=4.2.6"
+    "node": "12.22.x"
   },
   "jspm": {
     "directories": {

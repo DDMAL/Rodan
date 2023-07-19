@@ -1,0 +1,8 @@
+// Configuration for *.spec.js files
+{
+    "extends": "./.eslintrc.json",
+
+    "env": {
+        "jasmine": true
+    }
+}

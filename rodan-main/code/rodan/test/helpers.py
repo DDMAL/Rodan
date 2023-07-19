@@ -3,13 +3,13 @@ import os
 # import uuid
 # import time
 from model_mommy import mommy
-from django.contrib.auth.models import User
 from rodan.models import Job, ResourceType
 from django.core.files.base import ContentFile
 from django.conf import settings
 
 from importlib import reload
 from rodan.celery import app
+from rodan.models.user import User
 
 class RodanTestSetUpMixin(object):
     def url(self, obj):
@@ -53,10 +53,10 @@ class RodanTestSetUpMixin(object):
 
     def setUp_user(self):
         self.test_user = User.objects.create_user(
-            username="ahankins", password="hahaha"
+            username="ahankins", email="ahankins@rodan2.simssa.ca", password="hahaha"
         )
         self.test_superuser = User.objects.create_superuser(
-            username="super", email="s@s.com", password="hahaha"
+            username="super", email="super@rodan2.simssa.ca", password="hahaha"
         )
 
     def setUp_basic_workflow(self):

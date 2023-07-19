@@ -32,7 +32,7 @@ class WorkflowList(generics.ListCreateAPIView):
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
-    queryset = Workflow.objects.all()
+    queryset = Workflow.objects.all().order_by("-created")
     serializer_class = WorkflowListSerializer
     filter_fields = {
         "updated": ["lt", "gt"],
@@ -72,7 +72,7 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
     _ignore_model_permissions = True
-    queryset = Workflow.objects.all()
+    queryset = Workflow.objects.all().order_by("-created")
     serializer_class = WorkflowSerializer
 
     def get(self, request, *a, **k):
@@ -151,15 +151,16 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                         ),
                         [wfjob, ipt],
                     )
-                elif number_of_input_ports > ipt.maximum:
-                    raise WorkflowValidationError(
-                        "WFJ_TOO_MANY_IP",
-                        "The WorkflowJob {0} has too many InputPorts of type {1}.".format(
-                            wfjob.job_name, ipt.name
-                        ),
-                        [wfjob, ipt],
-                    )
-
+                elif ipt.maximum != 0: #since in the Wiki, 0 means there is no maximum requirement. More info here: https://github.com/DDMAL/Rodan/wiki/Write-a-Rodan-job-package#1-describe-a-rodan-job
+                     if number_of_input_ports > ipt.maximum:
+                         raise WorkflowValidationError(
+                             "WFJ_TOO_MANY_IP",
+                             "The WorkflowJob {0} has too many InputPorts of type {1}.".format(
+                                 wfjob.job_name, ipt.name
+                             ),
+                             [wfjob, ipt],
+                         )
+    
             for opt in output_port_types:
                 number_of_output_ports = wfjob.output_ports.filter(
                     output_port_type=opt
@@ -172,14 +173,15 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
                         ),
                         [wfjob, opt],
                     )
-                elif number_of_output_ports > opt.maximum:
-                    raise WorkflowValidationError(
-                        "WFJ_TOO_MANY_OP",
-                        "The WorkflowJob {0} has too many OutputPorts of type {1}.".format(
-                            wfjob.job_name, opt.name
-                        ),
-                        [wfjob, opt],
-                    )
+                elif opt.maximum != 0: #since in the Wiki, 0 is described as there is no maximum requirement. More info here: https://github.com/DDMAL/Rodan/wiki/Write-a-Rodan-job-package#1-describe-a-rodan-job
+                     if number_of_output_ports > opt.maximum:
+                         raise WorkflowValidationError(
+                             "WFJ_TOO_MANY_OP",
+                             "The WorkflowJob {0} has too many OutputPorts of type {1}.".format(
+                                 wfjob.job_name, opt.name
+                             ),
+                             [wfjob, opt],
+                         )
 
             v = jsonschema.Draft4Validator(
                 dict(job.settings)

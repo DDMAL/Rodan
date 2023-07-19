@@ -63,7 +63,7 @@ urlpatterns = [
     url(
         settings.ADMIN_URL,
         decorator_include(
-            logged_in_or_basicauth("Rodan admin"), include(admin.site.urls)
+            logged_in_or_basicauth("Rodan admin"), admin.site.urls
         ),
     )
 ]
@@ -263,7 +263,7 @@ api_patterns = [
     url(r"^api/auth/me/", AuthMeView.as_view(), name="auth-me"),
     url(
         r"^api/auth/register/",
-        djoser_views.UserCreateView.as_view(),
+        djoser_views.UserViewSet.as_view({'post': 'create'}), #DEPRECATED
         name="auth-register",
     ),
     url(r"^api/auth/token/", AuthTokenView.as_view(), name="auth-token"),
@@ -274,7 +274,7 @@ api_patterns = [
     ),
     url(
         r"^api/auth/change-password/",
-        djoser_views.SetPasswordView.as_view(),
+        djoser_views.UserViewSet.as_view({'post': 'set_password'}),
         name="auth-change-password",
     ),
     url(r"^api/ht/", include("health_check.urls")),

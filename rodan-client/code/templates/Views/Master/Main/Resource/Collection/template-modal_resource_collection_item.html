@@ -2,6 +2,6 @@
 <td><%= creator %></td>
 <td><%= _.formatFromUTC(created) %></td>
 <td><%= resource_type_full.mimetype %></td>
-<td><%= _.map(resource_label_full, (label) => { return label.name; }) %></td>
+<td><%= _.map(labels, (label) => { return label.name; }) %></td>
 <td></td>
 <td></td>

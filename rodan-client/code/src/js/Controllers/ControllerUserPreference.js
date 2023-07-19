@@ -5,6 +5,7 @@ import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Radio from 'backbone.radio';
 import UserPreference from 'js/Models/UserPreference';
 import UserPreferenceCollection from 'js/Collections/UserPreferenceCollection';
+import BaseModel from '../Models/BaseModel';
 
 /**
  * UserPreference controller.
@@ -43,25 +44,14 @@ export default class ControllerUserPreference extends BaseController
      */
     _handleEventAuthenticationSuccess(options)
     {
-        this._collection.fetch({data: {user: options.user.id}, success: () => this._handleAjaxLoadUserPreference(options.user)});
-    }
-
-    /**
-     * Handle loading of user preference. If DNE, will automatically create it.
-     */
-    _handleAjaxLoadUserPreference(user)
-    {
-        // @todo - see https://github.com/DDMAL/Rodan/issues/460
-        var userPreference = this._collection.findWhere({user: user.get('url')});
-        if (!userPreference)
-        {
-            this._userPreference = new UserPreference({user: user.get('url')});
-            this._userPreference.save();
-        }
-        else
-        {
-            this._userPreference = userPreference;
-            Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_PREFERENCE_LOADED, {user_preference: this._userPreference});
+        const url = options.user.get("user_preference");
+        if (url) {
+            const uuid = BaseModel.parseIdFromUrl(url);
+            this._userPreference = new UserPreference({ uuid, url });
+            this._userPreference.fetch({ success: () => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_PREFERENCE_LOADED, {user_preference: this._userPreference}) });
+        } else {
+            this._userPreference = new UserPreference({ user: options.user.get('url') });
+            this._userPreference.save({ success: () => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__USER_PREFERENCE_LOADED, {user_preference: this._userPreference}) });
         }
     }
 

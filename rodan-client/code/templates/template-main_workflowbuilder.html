@@ -1,5 +1,5 @@
 <div class="row gui">
-    <nav class="navbar navbar-inverse navbar-fixed-top" style="margin: 0; position: absolute">
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="margin: 0; position: static">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -10,7 +10,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <!-- This must eventually become the workflow name -->
-                <a class="navbar-brand" href="#" >Workflow</a>
+                <h3 class="workflow-name">Workflow</h3>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
@@ -43,13 +43,13 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a><span id="data-workflow_status"></span></a></li>
+                    <li><p class="workflow-status"><span id="data-workflow_status"></span></p></li>
                 </ul>
             </div>
         </div>
     </nav>
     <div id="canvas-wrap" class="col-xs-12">
-        <canvas id="canvas-workspace"></canvas>
+        <canvas id="canvas-workspace" resize></canvas>
         <div id="canvas-tooltip"></div>
     </div>
 </div>

@@ -25,6 +25,7 @@ import ViewWorkflowCollectionImportItem from 'js/Views/Master/Main/Workflow/Coll
 import WorkflowCollection from 'js/Collections/WorkflowCollection';
 import ViewWorkflowJobGroup from 'js/Views/Master/Main/WorkflowJobGroup/ViewWorkflowJobGroup';
 import ViewSettings from 'js/Views/Master/Main/WorkflowJob/ViewSettings';
+import BaseModel from '../Models/BaseModel';
 
 /**
  * Controller for the WorkflowBuilder.
@@ -217,7 +218,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleRequestAddWorkflowJob(options)
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOB_CREATE, {job: options.job, workflow: options.workflow, addports: this._addPorts});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOB_CREATE, {job: options.job, workflow: options.workflow, addports: this._addPorts, appearance: options.appearance});
         Radio.channel('rodan').once(RODAN_EVENTS.EVENT__WORKFLOWJOB_CREATED,
                                () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: options.workflow}));
     }
@@ -655,14 +656,13 @@ export default class ControllerWorkflowBuilder extends BaseController
         for (var connectionUrl in connections)
         {
             var connection = connections[connectionUrl];
-            var connectionModel = new Connection({input_port: connection.inputPort.get('url'),
-                                                  output_port: connection.outputPort.get('url'),
-                                                  url: connectionUrl});
-
-            // TODO - better way to get connections?
-            var connectionId = connectionModel.parseIdFromUrl(connectionUrl);
-            connectionModel.set({uuid: connectionId});
-            connectionModel.fetch();
+            var connectionId = BaseModel.parseIdFromUrl(connectionUrl);
+            var connectionModel = new Connection({
+                input_port: connection.inputPort.get('url'),
+                output_port: connection.outputPort.get('url'),
+                url: connectionUrl,
+                uuid: connectionId
+            });
             workflow.get('connections').add(connectionModel);
         }
 

@@ -148,6 +148,8 @@ class RODAN_EVENTS
         ///////////////////////////////////////////////////////////////////////////////////////
         /** Request an error be displayed. This is a "convenience" request -- if a modal is currently visible (which is probably related somehow to the error) the footer will be updated with the error message. If no modal visible, REQUEST__MODAL_SHOW will be called. Takes {content: Marionette.View OR string}. */
         this.REQUEST__MODAL_ERROR = 'REQUEST__MODAL_ERROR';
+        /** Request form validation errors to be displayed. Takes {errors: {[string]: string[]}} mapping input field name to an array of error strings. */
+        this.REQUEST__MODAL_FORM_VALIDATION_ERROR = 'REQUEST__MODAL_FORM_VALIDATION_ERROR';
         /** Request modal window to hide/close. */
         this.REQUEST__MODAL_HIDE = 'REQUEST__MODAL_HIDE';
         /** Request modal window to show/open with provided Marionette View. If another modal is currently open the request will not show. Takes {content: string, title: string}. */
@@ -240,8 +242,7 @@ class RODAN_EVENTS
         this.REQUEST__RESOURCE_VIEWER_ACQUIRE = 'REQUEST__RESOURCE_VIEWER_ACQUIRE';
         /** Request a ResourceCollection to be loaded. Takes {data: Object (query parameters)}. Returns ResourceCollection. */
         this.REQUEST__RESOURCES_LOAD = 'REQUEST__RESOURCES_LOAD';
-        /** Request resource labels to be updated. */
-        this.REQUEST__RESOURCES_UPDATE_LABELS = 'REQUEST__RESOURCES_UPDATE_LABELS';
+        this.REQUEST__RESOURCES_LOAD_NO_PAGE = 'REQUEST__RESOURCES_LOAD_NO_PAGE';
         /** Request ResourceCollection without reloading if possible. */
         this.REQUEST__RESOURCES_CURRENT = 'REQUEST__RESOURCES_CURRENT';
 

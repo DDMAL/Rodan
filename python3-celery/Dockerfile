@@ -20,13 +20,13 @@ RUN ./node_modules/.bin/gulp develop:rodan
 WORKDIR /
 RUN git clone --recurse-submodules -b "${BRANCH}" https://github.com/DDMAL/neon_wrapper
 WORKDIR /neon_wrapper
-RUN git submodule update --init
-RUN git submodule update --remote
+# RUN git submodule update --init
+# RUN git submodule update --remote
 RUN yarn install
 RUN yarn build
 
 # Make Gamera files accessible to the main container.
-FROM ddmal/gamera4:v1.0.1 AS gamera
+FROM ddmal/gamera4:fix_IC AS gamera
 
 # This release is based on Debian 11 "Bullseye"
 FROM python:3.7-slim

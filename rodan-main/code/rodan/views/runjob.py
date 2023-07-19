@@ -20,7 +20,7 @@ class RunJobList(generics.ListAPIView):
     serializer_class = RunJobSerializer
 
     class filter_class(django_filters.FilterSet):
-        project = django_filters.CharFilter(name="workflow_run__project")
+        project = django_filters.CharFilter(field_name="workflow_run__project")
         resource_uuid__isnull = django_filters.BooleanFilter(
             # action=lambda q, v: q.filter(resource_uuid__isnull=v)
             method=lambda q, v: q.filter(resource_uuid__isnull=v)
@@ -38,6 +38,9 @@ class RunJobList(generics.ListAPIView):
                 "resource_uuid": ["exact"],
                 "job_name": ["exact", "icontains"],
             }
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-created')  # Order the queryset
 
 
 class RunJobDetail(generics.RetrieveAPIView):

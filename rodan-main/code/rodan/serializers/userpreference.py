@@ -12,7 +12,7 @@ class UserPreferenceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = UserPreference
-        fields = ("url", "user", "send_email")
+        fields = ("url", "user", "uuid", "send_email")
 
 
 class UserPreferenceListSerializer(serializers.HyperlinkedModelSerializer):

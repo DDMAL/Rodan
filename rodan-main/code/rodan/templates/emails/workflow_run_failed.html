@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}{{ site_name }} - Workflow run '{{ name }}'' failed{% endblocktrans %}
+{% endblock %}
+
+{% block html_body %}
+<p>{% trans "A workflow run you started has failed." %}</p>
+<table>
+    <tr>
+        <th>{% trans "Name" %}</th>
+        <td>{{ name }}</td>
+    </tr>
+    <tr>
+        <th>{% trans "Description" %}</th>
+        <td>{{ description }}</td>
+    </tr>
+</table>
+{% endblock html_body %}

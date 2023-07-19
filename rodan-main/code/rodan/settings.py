@@ -3,11 +3,12 @@ Rodan settings. Remember to set your environment variables.
 """
 import os
 import sys
+import yaml
 
 # This is Django-Environ, not environ. (!= pip install environ)
 import environ
 from distutils.util import strtobool  # noqa
-
+from yaml.loader import SafeLoader
 
 ###############################################################################
 # 1.a  General Django Configuration
@@ -112,6 +113,9 @@ MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 # trailing slash.
 MEDIA_URL = "/uploads/"
 
+# Custom user model
+AUTH_USER_MODEL = "rodan.User"
+
 ###############################################################################
 # 1.b  General Rodan Configuration
 ###############################################################################
@@ -130,36 +134,18 @@ RODAN_RUNJOB_WORKING_USER_EXPIRY_SECONDS = 999999
 ###############################################################################
 # 1.c  Rodan Job Package Registration
 ###############################################################################
+
+# Open the file and load the file
+with open(os.path.join(os.path.dirname(PROJECT_PATH), 'rodan/registerJobs.yaml')) as file:
+    allJobs = yaml.load(file, Loader=SafeLoader)
+
 # Job Packages
 RODAN_JOB_QUEUE = os.getenv("CELERY_JOB_QUEUE")
 RODAN_JOB_PACKAGES = []
-BASE_JOB_PACKAGES = [
-    "rodan.jobs.resource_distributor",
-    "rodan.jobs.labeler",
-]
-RODAN_PYTHON3_JOBS = [
-    "rodan.jobs.helloworld",
-    "rodan.jobs.hpc_fast_trainer",
-    "rodan.jobs.MEI_encoding",
-    "rodan.jobs.pil_rodan",
-    "rodan.jobs.mei2vol_wrapper",
-    "rodan.jobs.gamera_rodan",
-    "rodan.jobs.heuristic_pitch_finding",
-    "rodan.jobs.biollante_rodan",
-    "rodan.jobs.interactive_classifier",
-    "rodan.jobs.diagonal_neume_slicing",
-    "rodan.jobs.MEI_resizing",
-    "rodan.jobs.neon_wrapper",
-    "rodan.jobs.pixel_wrapper",
-    "rodan.jobs.mei2vol_wrapper"
-]
-RODAN_GPU_JOBS = [
-    "rodan.jobs.Calvo_classifier",
-    "rodan.jobs.text_alignment",
-    "rodan.jobs.Paco_classifier",
-    "rodan.jobs.background_removal",
-    "rodan.jobs.SAE_binarization"
-]
+
+BASE_JOB_PACKAGES = [base_jobs for base_jobs in allJobs['BASE_JOB_PACKAGES']]
+RODAN_PYTHON3_JOBS = [py3_jobs for py3_jobs in allJobs['RODAN_PYTHON3_JOBS']]
+RODAN_GPU_JOBS = [gpu_jobs for gpu_jobs in allJobs['RODAN_GPU_JOBS']]
 
 if RODAN_JOB_QUEUE == "None" or RODAN_JOB_QUEUE == "celery":
     # All the jobs must be registered in the database, so all jobs must be here.
@@ -253,19 +239,28 @@ LOGGING = {
 ###############################################################################
 # A sample email configuration. These parameters are used to send emails to
 # the owner of WorkflowRuns, etc.
-# To enable emailing, fill out email parameters below and set EMAIL_USE to True.
-# See https://docs.djangoproject.com/en/1.10/topics/email/ for
-# more details on how to customize your email configuration.
+# SMTP credentials should be set as environment variables. If they are not set,
+# emails will be printed to the console instead.
 
-# [TODO] - Setup proper email configuration.
+EMAIL_USE = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend" if os.getenv("EMAIL_HOST") else "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
 
-EMAIL_USE = False
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASS')
-# EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = "Rodan <noreply@rodan2.simssa.ca>"
 
+SITE_NAME = "Rodan"
+
+DJOSER = {
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "EMAIL": {
+        "password_changed_confirmation": "rodan.email.PasswordChangedConfirmationEmail",
+    }
+    
+}
 
 ###############################################################################
 # 2.a  Rodan Server Configuration
@@ -340,7 +335,7 @@ TEMPLATES = [
 ]
 
 # Middleware classes
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.gzip.GZipMiddleware",
@@ -356,7 +351,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
+    # "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
 ]
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
 FILE_UPLOAD_PERMISSIONS =  0o644
@@ -378,22 +373,20 @@ REST_FRAMEWORK = {
     "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
-        "rest_framework.filters.DjangoObjectPermissionsFilter",
-        "rest_framework.filters.DjangoFilterBackend",
-        "rest_framework.filters.OrderingFilter",
+        # "django_filters.rest_framework.DjangoObjectPermissionsFilter", DEPRECATED
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter"
     ),
     "DEFAULT_PAGINATION_CLASS": "rodan.paginators.pagination.CustomPagination",
 }
 
-# used by django-guardian
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",  # default
+    "django.contrib.auth.backends.ModelBackend", # Authenticate with User.USERNAME_FIELD and password
     "guardian.backends.ObjectPermissionBackend",
 ]
-# [TODO] This is completely depricated.
-# https://django-guardian.readthedocs.io/en/stable/develop/changes.html?highlight=User%20ID#release-1-4-2-mar-09-2016
-# Fix it per the suggestions above.
-ANONYMOUS_USER_ID = -1
+
+# Disable anonymous user for django-guardian
+ANONYMOUS_USER_NAME = None
 
 ###############################################################################
 # 2.b  CORS Configuration
