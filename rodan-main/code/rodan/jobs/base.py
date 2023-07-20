@@ -1012,7 +1012,7 @@ class RodanTask(Task,metaclass=RodanTaskType):
             if (
                 user.email
                 and rodan_settings.EMAIL_USE
-                and user.user_preference.sned_email
+                and user.user_preference.send_email
             ):
                 to = [user.email]
                 email_template = "rodan/email/workflow_run_failed.html"
