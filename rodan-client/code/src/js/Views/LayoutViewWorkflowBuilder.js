@@ -130,7 +130,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     {
         if (this._lastErrorCode !== '' || this._lastErrorDetails !== '')
         {   
-            this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: "ERROR", content: "Error code: " + this._lastErrorCode + " " + this._lastErrorDetails});
+            this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: "Invalid Workflow", content: this._lastErrorDetails });
         }
     }
 
@@ -148,20 +148,29 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _updateView(event, model)
     {
-        this.ui.workflowName.text(this.model.get('name'));
+        const workflowName = this.model.get('name');
+        this.ui.workflowName.text(workflowName);
         if (this.model.get('valid'))
         {
             this._lastErrorCode = '';
             this._lastErrorDetails = '';
-            this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" is valid'); 
+            this.ui.dataStatus.text(`Workflow "${workflowName}" is valid.`); 
+            this.ui.dataStatus.removeClass('text-danger');
         }
         else
         {
-            if (this._lastErrorCode == '' && this._lastErrorDetails == '') {
-                this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" setup is incomplete.'); 
-            } else {
-                this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" is INVALID (click here for details)'); 
+            if (this._lastErrorCode == '' && this._lastErrorDetails == '') 
+            {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" setup is incomplete.`);
+            } 
+            else if (this._lastErrorDetails == '') {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" is invalid.`);
             }
+            else
+            {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" is invalid: ${this._lastErrorDetails}`);
+            }
+            this.ui.dataStatus.addClass('text-danger');
         }
     }
 }
