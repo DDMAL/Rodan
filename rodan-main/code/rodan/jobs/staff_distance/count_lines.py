@@ -64,11 +64,30 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.25, rescale_amt=0.25):
 
     return fine_angle
 
+def get_kernel_size(img):
+    pixels = img.shape[0] * img.shape[1]
 
-def preprocess_image(input_image, fill_holes=2):
+    # (x1,y1) and (x2,y2) are mapping from pixels from kernel size that were
+    # determined experimentally
+
+    x1 = 4872* 6496
+    y1 = 2
+    x2 = 9322*13438
+    y2 = 6
+
+    slope = (y2-y1)/(x2-x1)
+    intercept = y1 - slope * x1
+    size = slope * pixels + intercept
+    print(size)
+    return max(1, int(size))
+
+def preprocess_image(input_image):
 
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
+
+    fill_holes = get_kernel_size(input_image)
+
     input_image = img_as_float32(input_image)
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
         input_image = rgba2rgb(input_image)
@@ -78,14 +97,7 @@ def preprocess_image(input_image, fill_holes=2):
     # dark pixels don't mess up the statistics too much (we only care about text!)
     thresh = threshold_otsu(fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True))
 
-    # n.b. here we are setting black pixels from the original image to have a value of 1 (effectively inverting
-    # what you would get from a normal binarization, because the math gets easier this way)
-    img_bin = img_as_ubyte(gray_img < thresh)
-    img_blur_bin = img_as_ubyte(img_as_ubyte(gaussian(gray_img, soften)) < thresh)
-
     # now, fill corners of binarized images with black (value 0)
-    img_bin = fill_corners(img_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
-    img_blur_bin = fill_corners(img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
     img_blur = img_as_ubyte(img_as_ubyte(gray_img) < thresh)
 
     # now, fill corners of binarized images with black (value 0)
@@ -148,7 +160,7 @@ def calculate_via_slices(img):
 
 
 if __name__ == "__main__":
-    img = get_image('Test_Data/MS.jpg')
+    img = get_image('Test_Data/Hali.png')
     print("preprocessing image")
     processed = preprocess_image(img)
     # save binarized image
