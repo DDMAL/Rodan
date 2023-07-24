@@ -62,7 +62,7 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.25):
 
     return fine_angle
 
-def preprocess_images(input_image, soften=5, fill_holes=5):
+def preprocess_image(input_image, soften=5, fill_holes=5):
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
     input_image = img_as_float32(input_image)
@@ -89,10 +89,9 @@ def preprocess_images(input_image, soften=5, fill_holes=5):
 
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_cleaned)
-    img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode='edge') > 0
     img_bin_rot = rotate(img_bin, angle, order=0, mode='edge') > 0
 
-    return img_bin_rot, img_cleaned_rot, angle
+    return img_bin_rot
 
 def plot_image(image, title, cmap=None):
     plt.figure(figsize=(6, 6))  # You can adjust the size as needed
@@ -133,18 +132,11 @@ def calculate_via_slices(img):
                     distances[distance] += 1
                 else:
                     distances[distance] = 1
+    distances[1] = 0
     return max(distances, key=distances.get)
 
 
-ein_img = get_image("Test_Data/Einsie.jpg")
-
-# ein_bin_rot, ein_cleaned_rot, ein_angle = preprocess_images(ein_img)
-
-# plt.imsave("Test_Data/ein_bin.png",ein_bin_rot,cmap='gray')
-ein_bin_rot = io.imread("Test_Data/ein_bin.png", as_gray=True)
-
-# hist_dist = calculate_via_histogram(ein_bin_rot)
-slice_dist = calculate_via_slices(ein_bin_rot)
-
-# print("Histogram distance: ", hist_dist)
-print("Slice distance: ", slice_dist)
+if __name__ == "__main__":
+    img = get_image('Test_Data/Hali.png')
+    processed = preprocess_image(img)
+    distance = calculate_via_slices(processed)
