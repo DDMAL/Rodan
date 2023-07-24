@@ -38,7 +38,7 @@ def fill_corners(input_image, fill_value=0, thresh=1, tol=None, fill_below_thres
 
     return input_image
 
-def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.25):
+def find_rotation_angle(img, coarse_bound=4, fine_bound=0.25, rescale_amt=0.25):
     num_trials = int(coarse_bound / fine_bound)
     img_resized = rescale(img, rescale_amt, order=0)
 
@@ -53,16 +53,20 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.25):
                 highest_variation = variation
                 best_angle = a
         return best_angle
-
+    
     angles_to_try = np.linspace(-coarse_bound, coarse_bound, num_trials)
+    print("finding coarse angle")
     coarse_angle = project_angles(img_resized, angles_to_try)
 
-    angles_to_try = np.linspace(-fine_bound + coarse_angle, fine_bound + coarse_angle, num_trials)
+    angles_to_try = np.linspace(-fine_bound + coarse_angle, fine_bound + coarse_angle, int(num_trials/2))
+    print("finding fine angle")
     fine_angle = project_angles(img_resized, angles_to_try)
 
     return fine_angle
 
-def preprocess_image(input_image, soften=5, fill_holes=5):
+
+def preprocess_image(input_image, fill_holes=2):
+
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
     input_image = img_as_float32(input_image)
@@ -82,16 +86,22 @@ def preprocess_image(input_image, soften=5, fill_holes=5):
     # now, fill corners of binarized images with black (value 0)
     img_bin = fill_corners(img_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
     img_blur_bin = fill_corners(img_blur_bin, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
+    img_blur = img_as_ubyte(img_as_ubyte(gray_img) < thresh)
+
+    # now, fill corners of binarized images with black (value 0)
+    img_blur_bin = fill_corners(img_blur, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
 
     # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     kernel = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned = binary_opening(binary_closing(img_blur_bin, kernel), kernel)
 
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
+    print("finding rotation angle")
     angle = find_rotation_angle(img_cleaned)
-    img_bin_rot = rotate(img_bin, angle, order=0, mode='edge') > 0
+    print("angle: ", angle)
+    img_cleaned_rot = rotate(img_cleaned, angle, order=0, mode='edge') > 0
 
-    return img_bin_rot
+    return img_cleaned_rot
 
 def plot_image(image, title, cmap=None):
     plt.figure(figsize=(6, 6))  # You can adjust the size as needed
@@ -132,11 +142,17 @@ def calculate_via_slices(img):
                     distances[distance] += 1
                 else:
                     distances[distance] = 1
-    distances[1] = 0
+    # distances[1] = 0
+    print(sorted(distances, key=distances.get, reverse=True)[:5])
     return max(distances, key=distances.get)
 
 
 if __name__ == "__main__":
-    img = get_image('Test_Data/Hali.png')
+    img = get_image('Test_Data/MS.jpg')
+    print("preprocessing image")
     processed = preprocess_image(img)
+    # save binarized image
+    plt.imsave('Test_Data/debug.jpg', np.array(processed), cmap='gray')
+    print("calculating distance")
     distance = calculate_via_slices(processed)
+    print("distance: ", distance)
