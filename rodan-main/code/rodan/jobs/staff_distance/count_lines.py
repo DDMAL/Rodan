@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 from skimage import io
 from skimage.color import rgb2gray, rgba2rgb
 from skimage.util import img_as_float32, img_as_ubyte
@@ -13,7 +12,6 @@ from skimage.filters import gaussian, threshold_yen, threshold_local
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
-import matplotlib.pyplot as plt
 
 
 
@@ -110,10 +108,9 @@ def get_kernel_size(img):
     coefficients = np.matmul(inverse, vector)
     # the kernel size
     size = coefficients[0] * (height ** 2) + coefficients[1] * height + coefficients[2]
-    print(size)
-    return max(1, round(size))
+    return max(1, int(round(size)))
 
-def preprocess_image(input_image, contrast=0.25, brightness=0):
+def preprocess_image(input_image):
 
     # ensure that all points which are transparent have RGB values of 255 (will become white when
     # converted to non-transparent grayscale.)
