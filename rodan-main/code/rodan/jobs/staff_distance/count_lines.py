@@ -64,22 +64,53 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.25, rescale_amt=0.25):
 
     return fine_angle
 
+# def get_kernel_size(img):
+#     pixels = img.shape[0] * img.shape[1]
+
+#     # (x1,y1) and (x2,y2) are mapping from pixels from kernel size that were
+#     # determined experimentally
+
+#     x1 = 4872* 6496
+#     y1 = 2
+#     x2 = 9322*13438
+#     y2 = 6
+
+#     slope = (y2-y1)/(x2-x1)
+#     intercept = y1 - slope * x1
+#     size = slope * pixels + intercept
+#     print(size)
+#     return max(1, int(size))
+
 def get_kernel_size(img):
-    pixels = img.shape[0] * img.shape[1]
+    height = img.shape[0]
 
-    # (x1,y1) and (x2,y2) are mapping from pixels from kernel size that were
+    # (x1,y1) and (x2,y2) (x3,xy) are mapping from pixels from kernel size that were
     # determined experimentally
+    # ideal kernel size is linear in the number of pixels, or quadratic in side length
+    # two options: map pixels to kernel size with a linear function
+    # or map side length to kernel size with a quadratic function
+    # the latter is preferable because for multi column folios, the width can be arbitrarily large
+    # but the ideal kernel size will still be quadratic in the image height
 
-    x1 = 4872* 6496
+    # solve for the interpolating quadratic function
+    x1 = 6496
     y1 = 2
-    x2 = 9322*13438
-    y2 = 6
+    x2 = 9854
+    y2 = 4
+    x3 = 13438
+    y3 = 6
 
-    slope = (y2-y1)/(x2-x1)
-    intercept = y1 - slope * x1
-    size = slope * pixels + intercept
-    print(size)
-    return max(1, int(size))
+    matrix = np.array([[x1 **2, x1, 1],
+                       [x2 **2, x2, 1],
+                       [x3 **2, x3, 1]])
+    vector = np.array([y1, y2, y3])
+    inverse = np.linalg.inv(matrix)
+    # a, b, c cofficients of y = ax^2 + bx + c
+    # note that for positive x, this function will not fall below 1.1
+    coefficients = np.matmul(inverse, vector)
+    # the kernel size
+    size = coefficients[0] * (height ** 2) + coefficients[1] * height + coefficients[2]
+    return max(1, round(size))
 
 def preprocess_image(input_image):
 
@@ -115,28 +146,6 @@ def preprocess_image(input_image):
 
     return img_cleaned_rot
 
-def plot_image(image, title, cmap=None):
-    plt.figure(figsize=(6, 6))  # You can adjust the size as needed
-    plt.imshow(image, cmap=cmap)
-    plt.title(title)  # Optional title
-    plt.axis('off')  # To hide axis values
-    plt.show()
-
-def plot_histogram(histogram):
-    plt.figure(figsize=(20, 10))
-    plt.plot(range(len(histogram)), histogram)
-    plt.xlabel('Row')
-    plt.ylabel('Count of 1s')
-    plt.title('Count of 1s in each row')
-    plt.show()
-
-def calculate_via_histogram(img):
-    histogram = np.sum(img, axis=1)
-    threshold = np.mean(histogram) + 2 * np.std(histogram)
-    filtered = np.where(histogram < threshold, 0, threshold)
-    peak_indices = np.where(filtered != 0)[0]
-    distances = np.diff(peak_indices)
-    return np.mean(distances)
 
 
 def calculate_via_slices(img):
@@ -160,7 +169,7 @@ def calculate_via_slices(img):
 
 
 if __name__ == "__main__":
-    img = get_image('Test_Data/Hali.png')
+    img = get_image('Test_Data/5r.jpg')
     print("preprocessing image")
     processed = preprocess_image(img)
     # save binarized image
