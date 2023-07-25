@@ -3,6 +3,7 @@ import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Radio from 'backbone.radio';
 import WorkflowJobGroup from 'js/Models/WorkflowJobGroup';
 import WorkflowJobGroupCollection from 'js/Collections/WorkflowJobGroupCollection';
+import wfbgui from 'js/WorkflowBuilderGUI';
 
 /**
  * Controller for WorkflowJobGroups.
@@ -56,7 +57,9 @@ export default class ControllerWorkflowJobGroup extends BaseController
         {
             urls.push(workflowJobs[index].get('url'));
         }
-        var workflowJobGroup = new WorkflowJobGroup({workflow_jobs: urls, workflow: workflow});
+        const boundingBox = wfbgui._getBoundingBox(workflowJobs);
+        const appearance = wfbgui._getBoundingBoxCenter(boundingBox);
+        var workflowJobGroup = new WorkflowJobGroup({ appearance, workflow_jobs: urls, workflow: workflow });
         workflowJobGroup.save({}, {success: (model) => this._handleWorkflowJobGroupCreationSuccess(model)});
     }
 
