@@ -73,8 +73,8 @@ var Configuration = {
     // Interval (in milliseconds) that the RunJob controller will use to reacquire interactive locks.
     RUNJOB_ACQUIRE_INTERVAL: 5000,
 
-    // Time (in miliseconds) that the client will wait before submitting a search.
-    SEARCH_DEBOUNCE_DELAY: 400,
+    // Default debounce delay in milliseconds.
+    DEBOUNCE_DELAY: 400,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // DON'T EDIT BELOW THIS LINE (unless you know what you're doing)

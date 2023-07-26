@@ -422,6 +422,8 @@ class RODAN_EVENTS
         this.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN = 'REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN';
         /** Request the Resources that are currently assigned to an InputPort. Takes {inputport: InputPort}. Returns [Resource]. */
         this.REQUEST__WORKFLOWBUILDER_GET_RESOURCEASSIGNMENTS = 'REQUEST__WORKFLOWBUILDER_GET_RESOURCEASSIGNMENTS';
+        /** Request all InputPort resource assignments to be cleared. */
+        this.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS = 'REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS';
         /** Request all InputPorts that could satisfy the provided OutputPort in the given Workflow. Takes {workflow: Workflow, outputport: OutputPort}. Returns [string] (InputPort URLs). */
         this.REQUEST__WORKFLOWBUILDER_GET_SATISFYING_INPUTPORTS = 'REQUEST__WORKFLOWBUILDER_GET_SATISFYING_INPUTPORTS';
         /** Request a Workflow (origin) be added to another Workflow (target). Takes {origin: Workflow, target: Workflow}. */

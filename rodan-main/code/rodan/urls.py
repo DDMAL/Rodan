@@ -11,8 +11,7 @@ from rodan.admin.helpers import logged_in_or_basicauth
 from rodan.views.auth import AuthMeView, AuthTokenView
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
-from rodan.views.workflow import WorkflowList
-from rodan.views.workflow import WorkflowDetail
+from rodan.views.workflow import WorkflowList, WorkflowDetail, WorkflowResourceAssignments
 from rodan.views.workflowjob import WorkflowJobList
 from rodan.views.workflowjob import WorkflowJobDetail
 from rodan.views.workflowjobgroup import WorkflowJobGroupList
@@ -108,6 +107,11 @@ api_patterns = [
         r"^api/workflow/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
         WorkflowDetail.as_view(),
         name="workflow-detail",
+    ),
+    url(
+        r"^api/workflow/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/resourceassignments/$",
+        WorkflowResourceAssignments.as_view(),
+        name="workflow-detail-resourceassignments",
     ),
     url(r"^api/workflowjobs/$", WorkflowJobList.as_view(), name="workflowjob-list"),
     url(

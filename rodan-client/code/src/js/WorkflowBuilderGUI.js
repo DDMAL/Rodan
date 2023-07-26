@@ -121,10 +121,13 @@ class WorkflowBuilderGUI
     {
         var view = new LayoutViewWorkflowBuilder({model: this.getWorkflow()});
         Radio.channel('rodan').request(Rodan.RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: view});
-        this._menuItems = [{label: 'Edit Name/Description', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Add Job', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_JOBCOLLECTION_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Import Workflow', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOWCOLLECTION_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Run', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN, options: {workflow: this.getWorkflow()}}];
+        this._menuItems = [
+            { label: 'Edit Name/Description', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Add Job', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_JOBCOLLECTION_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Import Workflow', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOWCOLLECTION_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Clear Assigned Resources', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, options: { workflow: this.getWorkflow() } },
+            { label: 'Run', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN, options: { workflow: this.getWorkflow() } }
+        ];
     }
 
     /**

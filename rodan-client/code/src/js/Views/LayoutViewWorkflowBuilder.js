@@ -89,6 +89,14 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     {
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, {workflow: this.model});
     }
+
+    /**
+     * Handle button clear assigned resources.
+     */
+    _handleButtonClearAssignedResources()
+    {
+        this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, {workflow: this.model});
+    }
     
     /**
      * Handle button add job.
@@ -179,6 +187,7 @@ LayoutViewWorkflowBuilder.prototype.ui = {
     checkboxAddPorts: '#checkbox-add_ports',
     dataStatus: '#data-workflow_status',
     buttonEdit: '#button-edit',
+    buttonClearAssignedResources: '#button-clear_assigned_resources',
     buttonAddJob: '#button-add_job',
     buttonImportWorkflow: '#button-import_workflow',
     buttonRun: '#button-run'
@@ -190,6 +199,7 @@ LayoutViewWorkflowBuilder.prototype.events = {
     'click @ui.dataStatus': '_handleClickDataStatus',
     'change @ui.checkboxAddPorts': '_handleClickCheckboxAddPorts',
     'click @ui.buttonEdit': '_handleButtonEdit',
+    'click @ui.buttonClearAssignedResources': '_handleButtonClearAssignedResources',
     'click @ui.buttonAddJob': '_handleButtonAddJob',
     'click @ui.buttonImportWorkflow': '_handleButtonImportWorkflow',
     'click @ui.buttonRun': '_handleButtonRun'
