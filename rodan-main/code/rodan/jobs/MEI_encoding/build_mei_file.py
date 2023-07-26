@@ -148,7 +148,7 @@ def neume_to_lyric_alignment(glyphs: List[dict], syl_boxes: List[dict], median_l
     return pairs
 
 
-def generate_base_document(column_split_info: dict):
+def generate_base_document(column_split_info: Optional[dict]):
     '''
     Generates a generic template for an MEI document for neume notation.
 
@@ -487,7 +487,7 @@ def staff_to_columns_dict(staves: List[dict], height: int, num_columns):
         out[i] = column
     return out
 
-def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, column_split_info: dict):
+def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, column_split_info: Optional[dict]):
     '''
     Encodes the final MEI document using:
         @pairs: Pairs from the neume_to_lyric_alignment.
@@ -583,7 +583,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
         # iterate over glyphs on the page that fall within the bounds of this syllable
         for i, glyph in enumerate(gs):
-            # if there are multiple columns, shift glyph box
+            # if there are multiple columns, shift the glyph box back to was in the original input image
             if is_multi_column:
                 curr_column = staff_to_column[int(glyph['staff'])-1]
                 glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], column_split_info["split_ranges"], height, curr_column)
@@ -639,8 +639,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             cur_staff = int(glyph['staff'])
 
             # if multi column and next system is new column, add new cb
-            if is_multi_column:
-                if staff_to_column[cur_staff] > prev_column:
+            if is_multi_column and staff_to_column[cur_staff] > prev_column:
                     # add cb to layer
                     zoneId = generate_zone(surface, previous_cb["bb"])
                     previous_cb["cb"].set("facs", "#" + zoneId)
