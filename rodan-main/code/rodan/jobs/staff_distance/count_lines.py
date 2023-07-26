@@ -2,24 +2,17 @@
 # coding: utf-8
 
 import numpy as np
-import cv2
-import numpy as np
-import os
-from skimage import io
 from skimage.color import rgb2gray, rgba2rgb
 from skimage.util import img_as_float32, img_as_ubyte
-from skimage.filters import gaussian, threshold_yen, threshold_local
+from skimage.filters import threshold_yen
 from skimage.morphology import binary_opening, binary_closing
 from skimage.transform import rescale, rotate
 from skimage.segmentation import flood_fill
 
 
-
-def get_image(path):
-    image = cv2.cvtColor(cv2.imread(path), cv2.COLOR_RGB2BGR)
-    return image
-
 def fill_corners(input_image, fill_value=0, thresh=1, tol=None, fill_below_thresh=True):
+    # fills the corners of an image with a given value
+    # taken from the text alignment job
 
     s = input_image.shape
 
@@ -37,6 +30,8 @@ def fill_corners(input_image, fill_value=0, thresh=1, tol=None, fill_below_thres
     return input_image
 
 def find_rotation_angle(img, coarse_bound=4, fine_bound=0.25, rescale_amt=0.25):
+    # finds the optimal rotation angle that maximizes the straightness of lines
+    # taken from the text alginment job
     num_trials = int(coarse_bound / fine_bound)
     img_resized = rescale(img, rescale_amt, order=0)
 
@@ -74,8 +69,7 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.25, rescale_amt=0.25):
 #     slope = (y2-y1)/(x2-x1)
 #     intercept = y1 - slope * x1
 #     size = slope * pixels + intercept
-#     print(size)
-#     return max(1, int(size))
+#     return max(1, int(round(size)))
 
 def get_kernel_size(img):
     height = img.shape[0]
@@ -112,30 +106,29 @@ def get_kernel_size(img):
 
 def preprocess_image(input_image):
 
-    # ensure that all points which are transparent have RGB values of 255 (will become white when
-    # converted to non-transparent grayscale.)
+    # converts 
 
     fill_holes = get_kernel_size(input_image)
-    # contrasted = cv2.addWeighted( input_image, contrast, input_image, 0, brightness)
     input_image = img_as_float32(input_image)
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
         input_image = rgba2rgb(input_image)
     gray_img = img_as_ubyte(rgb2gray(input_image))
 
-    # get the otsu threshold after running a flood fill on the corners, so that those huge clumps of
+    # get the yen threshold after running a flood fill on the corners, so that those huge clumps of
     # dark pixels don't mess up the statistics too much (we only care about text!)
     thresh = threshold_yen(fill_corners(gray_img, fill_value=255, thresh=5, tol=1, fill_below_thresh=True))
     # now, fill corners of binarized images with black (value 0)
-    img_blur = img_as_ubyte(img_as_ubyte(gray_img) < thresh)
+    img_thresh = img_as_ubyte(img_as_ubyte(gray_img) < thresh)
     # now, fill corners of binarized images with black (value 0)
-    img_blur_bin = fill_corners(img_blur, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
+    img_blur_bin = fill_corners(img_thresh, fill_value=0, thresh=1, tol=1, fill_below_thresh=False)
 
-    # run smoothing on the blurred-binarized image so we get blobs of text in neat lines
     
     # find rotation angle of cleaned, smoothed image. use that to correct the rotation of the unsmoothed image
     angle = find_rotation_angle(img_blur_bin)
     img_rot = rotate(img_blur_bin, angle, order=0, mode='edge') > 0
 
+    # despeckle the image then fill holes
+    # use rectangular kernel for despeckle to punish non staff lines
     kernel1 = np.ones((fill_holes, fill_holes*4), np.uint8)
     kernel2 = np.ones((fill_holes, fill_holes), np.uint8)
     img_cleaned_rot = binary_opening(img_rot, kernel1)
@@ -146,18 +139,25 @@ def preprocess_image(input_image):
 
 
 def calculate_via_slices(img):
+    # calculate the staff line distance by looking at the vertical slices of the image
+    # counts the lengths of black pixels and returns the most common length
     distances = {}
     for col in img.T:
-        start_indicies = (col[:-1]) != (col[1:])
-        if start_indicies.sum() == 0:
+        # true at indices where the value changes
+        start_indices = (col[:-1]) != (col[1:])
+        if start_indices.sum() == 0:
             continue
-        split_indicies = np.nonzero(start_indicies)[0] + 1
-        splits = np.split(col, split_indicies)
+        # get list of those indexes
+        split_indices = np.nonzero(start_indices)[0] + 1
+        # split the column at those indices
+        splits = np.split(col, split_indices)
         for split in splits:
+            # if a run of black, count the length
             if split[0] == 0:
                 distance = len(split)
                 if distance in distances:
                     distances[distance] += 1
                 else:
                     distances[distance] = 1
+    # return most common length
     return max(distances, key=distances.get)
