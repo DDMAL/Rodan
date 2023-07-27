@@ -1,9 +1,30 @@
+import imgaug as ia
 import os
 import numpy as np
 from imgaug import augmenters as iaa
+from imgaug import parameters as iap
+from skimage.color import rgb2gray
+from skimage.filters import threshold_otsu
+from skimage.util import img_as_ubyte
 import cv2
 from math import floor
 from random import shuffle
+
+
+contrast = iaa.GammaContrast((0.8,1.3))
+brightness = iaa.Multiply((0.8,1.3))
+blur = iaa.GaussianBlur(sigma=(0,1.5))
+noise = iaa.AdditiveGaussianNoise(scale=(0,0.2*255))
+hueAndSat = iaa.AddToHueAndSaturation((-200,100))
+pad = iaa.Pad(px= ((0,30),(0,10),(0,30),(0,2000)), pad_cval=255)
+
+aug_some = iaa.SomeOf((0,None),[pad,contrast,brightness,blur,noise,hueAndSat])
+
+scale = iaa.Affine(scale=(0.8, 1.3))
+cutout = iaa.Cutout(nb_iterations=(110, 140), size=(0.1,0.15), squared=True,fill_mode="constant", cval=255)
+dropout = iaa.ReplaceElementwise(0.2, 255)
+aug_all = iaa.Sequential([scale,dropout,cutout])
+
 pwd = os.getcwd() +"/"
 
 #fixes old nump verion issue
@@ -19,7 +40,7 @@ def augment_images(img, num):
     
     for j in range(5):
         file_name = name + "-" + str(j+1)
-        #img_aug = aug_some.augment_image(img)
+        img_aug = aug_some.augment_image(img)
         img_aug = (aug_all.augment_image(img))
         #write img_aig to file
         cv2.imwrite(file_name+".png",img_aug)
@@ -46,27 +67,6 @@ for dir in dirs:
                         print(e)
                     #cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
                     
-                    
-
-#create augmenter for resclaing   
-
-contrast = iaa.GammaContrast((0.8,1.3))
-brightness = iaa.Multiply((0.8,1.3))
-blur = iaa.GaussianBlur(sigma=(0,1.5))
-noise = iaa.AdditiveGaussianNoise(scale=(0,0.2*255))
-hueAndSat = iaa.AddToHueAndSaturation((-200,100))
-pad = iaa.Pad(px= ((0,30),(0,10),(0,30),(0,2000)), pad_cval=255)
-#translateY = iaa.Affine(translate_percent={"y":(-0.2,0.2)},cval=255)
-
-#aug_some = iaa.SomeOf((0,None),[pad,contrast,brightness,blur,noise,hueAndSat])
-
-
-
-# rescale = iaa.Resize((0.5,1.3))
-scale = iaa.Affine(scale=(0.8, 1.3))
-cutout = iaa.Cutout(nb_iterations=(105, 120), size=(0.05,0.1), squared=True,fill_mode="constant", cval=255)
-dropout = iaa.ReplaceElementwise(0.1, 255)
-aug_all = iaa.Sequential([pad,contrast,brightness,blur,noise,scale,hueAndSat,dropout,cutout])
 
 outupt_dir = pwd + "train_aug"
 if(not os.path.isdir(outupt_dir)):
@@ -88,7 +88,7 @@ for img in images[:index]:
     # if(not os.path.isdir(new_dir)):
     #     os.mkdir(new_dir)
     # os.chdir(new_dir)
-    #write label to txt file
+    # # write label to txt file
     augment_images(img,i)
     i+=1
 
@@ -104,7 +104,7 @@ for img in images[index:]:
     # if(not os.path.isdir(new_dir)):
     #     os.mkdir(new_dir)
     # os.chdir(new_dir)
-    #write label to txt file
+    # write label to txt file
     augment_images(img,i)
     i+=1
 
