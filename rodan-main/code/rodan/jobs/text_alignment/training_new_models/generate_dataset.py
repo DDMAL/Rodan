@@ -10,6 +10,7 @@ import cv2
 from math import floor
 from random import shuffle
 
+AUGS_PER_IMAGE = 5
 
 contrast = iaa.GammaContrast((0.8,1.3))
 brightness = iaa.Multiply((0.8,1.3))
@@ -38,16 +39,18 @@ labels = []
 def augment_images(img, num):
     name = str(num)
     
-    for j in range(5):
+    for j in range(AUGS_PER_IMAGE):
         file_name = name + "-" + str(j+1)
         # these are the optional augmentations that might not do anything
         img_aug = aug_some.augment_image(img)
+        # these augmentations are essential
         img_aug = (aug_all.augment_image(img_aug))
         #write img_aig to file
         cv2.imwrite(file_name+".png",img_aug)
         text_file = open(file_name+".gt.txt", "w")
         text_file.write(labels[i-1])
 
+# traverse files and aggregate images and text files
 for dir in dirs:
     currdir = pwd+dir
     os.chdir(currdir)
@@ -66,16 +69,9 @@ for dir in dirs:
                         images.append(img)
                     except Exception as e:
                         print(e)
-                    #cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
                     
 
-outupt_dir = pwd + "train_aug"
-if(not os.path.isdir(outupt_dir)):
-    os.mkdir(outupt_dir)
-
-os.chdir(outupt_dir)
-i = 1
-
+# suffle data
 temp = list(zip(images,labels))
 shuffle(temp)
 
@@ -84,36 +80,31 @@ images, labels = list(images), list(labels)
 
 index= floor(len(images)*0.8)
 
+# output train_aug
+outupt_dir = pwd + "train_aug"
+if(not os.path.isdir(outupt_dir)):
+    os.mkdir(outupt_dir)
+os.chdir(outupt_dir)
+i = 1
 for img in images[:index]:
-    # new_dir = outupt_dir + "/" + str(i)
-    # if(not os.path.isdir(new_dir)):
-    #     os.mkdir(new_dir)
-    # os.chdir(new_dir)
-    # # write label to txt file
     augment_images(img,i)
     i+=1
 
+# output val_aug
 os.chdir(pwd)
 outupt_dir = pwd + "val_aug"
 if(not os.path.isdir(outupt_dir)):
     os.mkdir(outupt_dir)
-
 os.chdir(outupt_dir)
-
 for img in images[index:]:
-    # new_dir = outupt_dir + "/" + str(i)
-    # if(not os.path.isdir(new_dir)):
-    #     os.mkdir(new_dir)
-    # os.chdir(new_dir)
-    # write label to txt file
     augment_images(img,i)
     i+=1
 
+# output train_same
 os.chdir(pwd)
 outupt_dir = pwd + "train_same"
 if(not os.path.isdir(outupt_dir)):
     os.mkdir(outupt_dir)
-
 os.chdir(outupt_dir)
 i = 1
 for img in images[:index]:
@@ -122,11 +113,11 @@ for img in images[:index]:
     text_file.write(labels[i-1])
     i+=1
 
+# output val_same
 os.chdir(pwd)
 outupt_dir = pwd + "val_same"
 if(not os.path.isdir(outupt_dir)):
     os.mkdir(outupt_dir)
-
 os.chdir(outupt_dir)
 for img in images[index:]:
     cv2.imwrite(str(i)+".png",img)
