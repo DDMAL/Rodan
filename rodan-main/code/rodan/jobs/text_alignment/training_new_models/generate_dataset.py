@@ -40,8 +40,9 @@ def augment_images(img, num):
     
     for j in range(5):
         file_name = name + "-" + str(j+1)
+        # these are the optional augmentations that might not do anything
         img_aug = aug_some.augment_image(img)
-        img_aug = (aug_all.augment_image(img))
+        img_aug = (aug_all.augment_image(img_aug))
         #write img_aig to file
         cv2.imwrite(file_name+".png",img_aug)
         text_file = open(file_name+".gt.txt", "w")

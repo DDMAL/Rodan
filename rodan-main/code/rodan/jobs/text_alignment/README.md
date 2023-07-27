@@ -49,7 +49,7 @@ median_line_spacing: [median space between adjacent text lines, in pixels]
 
 ### Installation
 
-Unfortunately, Calamari-ocr depends on a tfaip, which is now dead. Calamari-ocr is not being maintained. However, the Rodan GPU container's environment is still able to run Calamari-ocr to train a new model.
+Unfortunately, Calamari-ocr depends on tfaip, which is now dead. Calamari-ocr is not being maintained. However, the Rodan GPU container's environment is still able to run Calamari-ocr to train a new model.
 
 ### How to Run Locally
 
@@ -76,10 +76,11 @@ You don't need to do _too_ many for text alignment to work correctly; 99% accura
 
 #### Running calamari-train
 
-After generating the labeled text strips, it is best to augment the data to artificially inflate the size of the training set. The script generate_dataset.py will automatically generate an augmented data set. Each folio that was labelled should have its own folder containing a .gt.txt and .png file for each labelled text strip. These folders should be placed together in a folder with the name of the manuscript they came from. This should be done for each manuscript being used for training. Finally, these folders should be beside generate_dataset.py. The file structure should like something like this:
+After generating the labeled text strips, it is best to augment the data to artificially inflate the size of the training set and mimic the results of a bad layer seperatation. The script generate_dataset.py will automatically generate an augmented data set. Note that it is recommended that the augmentations are tuned every time a new model is trained. The augmentations are defined at the top of generate_dataset.py right after the import statements. Refer to [here](https://imgaug.readthedocs.io/en/latest/) for how to change the augmentations. \
+Each folio that was labelled should have its own folder containing a .gt.txt and .png file for each labelled text strip. These folders should be placed together in a folder with the name of the manuscript they came from. This should be done for each manuscript being used for training. Finally, these folders should be beside generate_dataset.py. The file structure should like something like this:
 
 >generate_dataset.py\
->save_text_strips.py
+>save_text_strips.py\
 >Salzinnes
 >>    Folio1
 >>>        1.gt.txt
@@ -99,7 +100,7 @@ Next, modify the dirs variable of generate_dataset.py to be a list of the names 
 
 The most successful text alignment models we've trained have been based off of the deep3 architecture as specificed [here](https://github.com/Calamari-OCR/calamari/blob/master/calamari_ocr/resources/networks/deep3.json).
 
-Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train). With `calamari-ocr==1.0.5`, following the instrunctions [here](https://github.com/Calamari-OCR/calamari/tree/calamari/1.0#training-of-a-model).
+Calamari has a command-line interface for training models, that can be run once enough training data has been collected: [Calamari getting started guide](https://calamari-ocr.readthedocs.io/en/latest/doc.command-line-usage.html#calamari-train).
 
 The first step of training is to produce a model trained on the augmented data from scratch. Create a folder called new_model. The command to train is:
 
@@ -107,9 +108,9 @@ The first step of training is to produce a model trained on the augmented data f
 
 If you have a gpu, then add --device.gpus 0.
 
-After this is finished, new models can be found in the new_models folder called best.ckpt.h5 and best.ckpt.json. The step is to tune the model using the unaugmented data. First, remove best.ckpt.h5 and best.ckpt.json from new_model, and place them beside the training data folders. Next, rename them to best.h5 and best.json. Now clear the new_models folder.
+After this is finished, new models can be found in the new_models folder called best.ckpt.h5 and best.ckpt.json. The next step is to tune the model using the unaugmented data. Remove best.ckpt.h5 and best.ckpt.json from new_model, and place them beside the training data folders. Run this command next.
 
-    calamari-train --train.images train_same/*.png --val.images val_same/*.png --trainer.output_dir new_model --warmstart.model best.h5 --trainer.write_checkpoints True --network=conv=40:3x3,pool=2x2,conv=60:3x3,pool=2x2,conv=120,lstm=200,lstm=200,lstm=200,dropout=0.5
+    calamari-train --train.images train_same/*.png --val.images val_same/*.png --trainer.output_dir new_model --warmstart.model best.ckpt.h5 --trainer.write_checkpoints True --network=conv=40:3x3,pool=2x2,conv=60:3x3,pool=2x2,conv=120,lstm=200,lstm=200,lstm=200,dropout=0.5
 
-Now you have a trained ocr model. It is sometimes worth it to repeat this process by fine tuning the model on the augmented data followed by the unaugmented data.
+Now you have a trained an ocr model. It is sometimes worth it to repeat this process by fine tuning the model on the augmented data followed by the unaugmented data.
 
