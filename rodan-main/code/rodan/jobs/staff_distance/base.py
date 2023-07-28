@@ -1,5 +1,4 @@
 from rodan.jobs.base import RodanTask
-from .count_lines import *
 import cv2 as cv
 import logging
 import json
@@ -34,6 +33,7 @@ class StaffDistance(RodanTask):
     ]
 
     def run_my_task(self, inputs, settings, outputs):
+        from .count_lines import preprocess_image, calculate_via_slices
         image_path = inputs['Input Image'][0]['resource_path']
         image = cv.imread(image_path,cv.IMREAD_UNCHANGED)
         processed = preprocess_image(image)
