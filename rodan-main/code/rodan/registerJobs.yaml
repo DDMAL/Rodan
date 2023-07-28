@@ -153,6 +153,9 @@
     },
     "rodan.jobs.SAE_binarization": {
         "rodan.jobs.SAE_binarization.SAE_binarization" : [ "SAE_binarization" ]
+    },
+    "rodan.jobs.staff_distance": {
+        "rodan.jobs.staff_distance.base" : [ "StaffDistance" ]
     }
 }
 
