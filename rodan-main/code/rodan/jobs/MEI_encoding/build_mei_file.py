@@ -224,7 +224,7 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == 'clef':
-        attribs['line'] = str(int(glyph['strt_pos']))
+        attribs['line'] = str(int(float(glyph['strt_pos'])))
 
     attribs['oct'] = str(glyph['octave'])
     attribs['pname'] = str(glyph['note'])
