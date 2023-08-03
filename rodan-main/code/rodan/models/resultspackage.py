@@ -77,7 +77,7 @@ class ResultsPackage(models.Model):
     )
     packaging_mode = models.IntegerField(choices=PACKAGING_MODE_CHOICES, db_index=True)
     creator = models.ForeignKey(
-        "auth.User",
+        settings.AUTH_USER_MODEL,
         related_name="results_packages",
         on_delete=models.SET_NULL,
         blank=True,

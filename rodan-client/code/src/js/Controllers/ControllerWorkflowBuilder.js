@@ -40,9 +40,11 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     initialize()
     {
-        this._resourceAssignments = []; // this helps manage the list of resource assignments while building the resource
+        this._workflow = null;
+        this._resourceAssignments = {}; // this helps manage the list of resource assignments while building the resource
         this._resourcesAvailable = []; // this is just a cache for resources that will work with a given input port
         this._workflowRunOptions = {};
+        this._debouncedSave = _.debounce(this._saveResourceAssignments, Configuration.DEBOUNCE_DELAY);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +88,7 @@ export default class ControllerWorkflowBuilder extends BaseController
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_UNGROUP_WORKFLOWJOBGROUP, options => this._handleRequestWorkflowJobGroupUngroup(options), this);
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, options => this._handleRequestValidateWorkflow(options), this);
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_GET_SATISFYING_INPUTPORTS, options => this._handleRequestGetSatisfyingInputPorts(options), this);
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, options => this._handleRequestClearResourceAssignments(options), this);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -96,10 +99,43 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleEventBuilderSelected(options)
     {
-        this._resourceAssignments = [];
+        this._workflow = options.workflow;
+        this._resourceAssignments = {};
         this._resourcesAvailable = [];
         this._addPorts = true;
+        this._fetchResourceAssignments();
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_LOAD_WORKFLOW, {'workflow': options.workflow});
+    }
+
+    /**
+     * Fetches all resource assignments for this workflow, creates a ResourceCollection for 
+     * each InputPort, and adds listeners to each ResourceCollection to save when changed.
+     */
+    _fetchResourceAssignments()
+    {
+        const ajaxSettings = {
+            url: this._workflow.get('url') + 'resourceassignments/',
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                Object.entries(response).forEach(([url, resources]) => {
+                    response[url] = this._createResourceAssignmentCollection(resources)
+                });
+                this._resourceAssignments = response;
+            }
+        }
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+    }
+
+    /**
+     * Creates a new collection for the given InputPort and list of resources 
+     * and binds a listener to the collection to save when changed.
+     */
+    _createResourceAssignmentCollection(resources)
+    {
+        const collection = new ResourceCollection(resources);
+        collection.on('all', () => this._debouncedSave());
+        return collection;
     }
 
     /**
@@ -118,7 +154,7 @@ export default class ControllerWorkflowBuilder extends BaseController
         this._workflowRunOptions = {workflow: options.workflow, assignments: {}};
         var inputPortTypes = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_INPUTPORTTYPE_COLLECTION);
         var knownInputPorts = this._workflowRunOptions.workflow.get('workflow_input_ports').clone();
-        for (var inputPortUrl in this._resourceAssignments)
+        for (const inputPortUrl of Object.keys(this._resourceAssignments))
         {
             // If our assignments for an InputPort are not needed, we just skip it.
             var inputPort = knownInputPorts.findWhere({url: inputPortUrl});
@@ -176,6 +212,14 @@ export default class ControllerWorkflowBuilder extends BaseController
     }
 
     /**
+     * Handle request to clear all input port resource assignments.
+     */
+    _handleRequestClearResourceAssignments(options)
+    {
+        Object.values(this._resourceAssignments).forEach(collection => collection.reset());
+    }
+
+    /**
      * Handle request show Resource assignment view.
      */
     _handleRequestShowResourceAssignmentView(options)
@@ -229,8 +273,7 @@ export default class ControllerWorkflowBuilder extends BaseController
     _handleRequestDeleteWorkflowJob(options)
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOB_DELETE, {workflowjob: options.workflowjob, workflow: options.workflow});
-        Radio.channel('rodan').once(RODAN_EVENTS.EVENT__WORKFLOWJOB_DELETED,
-                               () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: options.workflow}));
+        Radio.channel('rodan').once(RODAN_EVENTS.EVENT__WORKFLOWJOB_DELETED, () => this._handleWorkflowJobDeletionSuccess(options.workflowjob, options.workflow));
     }
 
     /**
@@ -362,12 +405,31 @@ export default class ControllerWorkflowBuilder extends BaseController
     }
 
     /**
+     * Save resource assignments.
+     */
+    _saveResourceAssignments()
+    {
+        const data = {};
+        Object.entries(this._resourceAssignments).forEach(([url, resources]) => {
+            data[url] = resources.models.map(resource => resource.get('url'));
+        });
+
+        const ajaxSettings = {
+            url: this._workflow.get('url') + 'resourceassignments/',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+        };
+
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings });
+    }
+
+    /**
      * Handle request assign Resource to InputPort.
      */
     _handleRequestAssignResource(options)
     {
-        var url = options.inputport.get('url');
-        var resourcesAssigned = this._getResourceAssignments(url);
+        var resourcesAssigned = this._getResourceAssignments(options.inputport.get('url'));
         resourcesAssigned.add(options.resource);
     }
 
@@ -385,8 +447,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleMoveUpAssignedResource(options)
     {
-        var url = options.inputport.get('url');
-        var resourcesAssigned = this._getResourceAssignments(url);
+        var resourcesAssigned = this._getResourceAssignments(options.inputport.get('url'));
         var index1 = resourcesAssigned.indexOf(options.resource);
         var index2 = Math.max(0, index1 - 1);
         resourcesAssigned.swapItems(index1, index2);
@@ -397,8 +458,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleMoveDownAssignedResource(options)
     {
-        var url = options.inputport.get('url');
-        var resourcesAssigned = this._getResourceAssignments(url);
+        var resourcesAssigned = this._getResourceAssignments(options.inputport.get('url'));
         var index1 = resourcesAssigned.indexOf(options.resource);
         var index2 = Math.min(index1 + 1, resourcesAssigned.length - 1);
         resourcesAssigned.swapItems(index1, index2);
@@ -541,6 +601,7 @@ export default class ControllerWorkflowBuilder extends BaseController
     {
         workflow.get('workflow_input_ports').add(model);
         workflowJob.get('input_ports').add(model);
+        this._resourceAssignments[model.get('url')] = this._createResourceAssignmentCollection();
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
     }
 
@@ -575,6 +636,7 @@ export default class ControllerWorkflowBuilder extends BaseController
     _handleInputPortDeletionSuccess(model, workflow, workflowJob)
     {
         workflowJob.get('input_ports').remove(model);
+        delete this._resourceAssignments[model.get('url')];
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
     }
 
@@ -594,6 +656,15 @@ export default class ControllerWorkflowBuilder extends BaseController
     {
         workflow.get('connections').remove(model);
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
+    }
+
+    /**
+     * Handle WorkflowJob deletion success.
+     */
+    _handleWorkflowJobDeletionSuccess(model, workflow)
+    {
+        model.get("input_ports").forEach((inputPort) => delete this._resourceAssignments[inputPort.get('url')]);
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow})
     }
 
     /**
@@ -798,24 +869,6 @@ export default class ControllerWorkflowBuilder extends BaseController
             satisfiableJobs.push(job);
         }
         return satisfiableJobs;
-    }
-
-    /**
-     * DEPRECATED
-     * Return InputPort URL that has multiple assignments.
-     * Returns null if DNE.
-     */
-    _getInputPortURLWithMultipleAssignments()
-    {
-        for (var inputPortUrl in this._resourceAssignments)
-        {
-            var resourceAssignments = this._getResourceAssignments(inputPortUrl);
-            if (resourceAssignments.length > 1)
-            {
-                return inputPortUrl;
-            }
-        }
-        return null;
     }
 
     /**

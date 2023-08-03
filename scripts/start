@@ -23,10 +23,11 @@ runuser -u root -- yes | MIGRATE="True" python3 manage.py migrate --noinput
 cat << EOF | runuser -u root -- python3 manage.py shell
 
 import os
-from django.contrib.auth.models import User
+from django.db.models import Q
+from rodan.models.user import User
 print ("Checking if Django super user exists...")
-if not User.objects.filter(username=os.getenv('ADMIN_USER')).exists():
-    User.objects.create_superuser(os.getenv('ADMIN_USER'), '', os.getenv('ADMIN_PASS'))
+if not User.objects.filter(Q(username=os.getenv('ADMIN_USER')) | Q(email=os.getenv('ADMIN_EMAIL'))).exists():
+    User.objects.create_superuser(os.getenv('ADMIN_USER'), os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASS'))
     print ("Created new user.")
 
 EOF

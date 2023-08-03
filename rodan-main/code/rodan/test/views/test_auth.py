@@ -12,7 +12,7 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
     def test_token_auth_pass(self):
         token = self.client.post(
             "/api/auth/token/",
-            {"username": "ahankins", "password": "hahaha"},
+            {"email": "ahankins@rodan2.simssa.ca", "password": "hahaha"},
             format="multipart",
         )
         token_header = "Token {0}".format(token.data["token"])
@@ -26,7 +26,7 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
     def test_token_auth_fail(self):
         token = self.client.post(
             "/api/auth/token/",
-            {"username": "ahankins", "password": "wrongg"},
+            {"email": "ahankins@rodan2.simssa.ca", "password": "wrongg"},
             format="multipart",
         )
         self.assertEqual(token.data, {"is_logged_in": False})

@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from rodan.models import UserPreference
+from rodan.models import UserPreference, User
 from rodan.serializers.userpreference import (
     UserPreferenceListSerializer,
     UserPreferenceSerializer,
@@ -7,7 +7,6 @@ from rodan.serializers.userpreference import (
 from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
 
-from django.contrib.auth.models import User
 from django.urls import reverse, Resolver404, resolve
 
 from rest_framework import generics

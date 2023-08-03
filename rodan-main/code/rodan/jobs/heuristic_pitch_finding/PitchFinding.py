@@ -3,6 +3,7 @@ from gamera.plugins.image_utilities import union_images
 from operator import itemgetter, attrgetter
 import logging
 logger = logging.getLogger("__name__")
+from math import floor
 
 class PitchFinder(object):
 
@@ -28,6 +29,12 @@ class PitchFinder(object):
 
         self.sorted_glyphs = None
 
+        # when getting the subimage to find the com, this determines how much
+        # times the average punctum size to extend the subimage by
+        # using 1.0 isn't great because for neume components smaller than the average punctum,
+        # it tends to grab the next neume component
+        self.subimage_width_factor = 0.8
+
     ##########
     # Public
     ##########
@@ -49,8 +56,6 @@ class PitchFinder(object):
                 pitch_info[pitch_feature_names[j]] = str(pf)
             cur_json['pitch'] = pitch_info
 
-            # print g[0].get_main_id()
-
             # get glyph information
             glyph_info['bounding_box'] = {
                 'ncols': g[0].ncols,
@@ -64,7 +69,6 @@ class PitchFinder(object):
             cur_json['glyph'] = glyph_info
 
             output.append(cur_json)
-
         return output
 
     ########
@@ -99,7 +103,6 @@ class PitchFinder(object):
                 if glyph_type not in self.pitchless_glyphs:
                     line_or_space, line_num = self._return_line_or_space_no(g, center_of_mass, staff_locations)
                     strt_pos = self._strt_pos_find(line_or_space, line_num)
-                    # print staff_number, glyph_var, line_or_space, line_num
                 else:
                     strt_pos = None
                     staff_number = None
@@ -107,11 +110,6 @@ class PitchFinder(object):
                 proc_glyphs.append([g, staff_number, g.offset_x, strt_pos])
 
         self.sorted_glyphs = self._sort_glyphs(proc_glyphs)
-
-        # print self.staff_finder
-        # print self.staves
-        # print self.interpolated_staves
-        # print '\n\n', self.staff_bounds
 
     ##################
     # Glyph Position
@@ -131,12 +129,18 @@ class PitchFinder(object):
 
         if g.ncols > self.discard_size and g.nrows > self.discard_size:
             if g.ncols < self.avg_punctum:
-                this_punctum_size = g.ncols
+                this_punctum_size_cols = g.ncols
             else:
-                this_punctum_size = self.avg_punctum
+                this_punctum_size_cols = self.avg_punctum * self.subimage_width_factor
 
-            temp_glyph = g.subimage((g.offset_x + 0.0 * this_punctum_size, g.offset_y),
-                                    ((g.offset_x + 1.0 * this_punctum_size - 1), (g.offset_y + g.nrows - 1)))
+            if g.nrows < self.avg_punctum:
+                this_punctum_size_rows = g.nrows
+            else:
+                this_punctum_size_rows = self.avg_punctum
+
+            # temp_glyph = g.subimage((g.offset_x + 0.0 * this_punctum_size, g.offset_y),
+            #                         ((g.offset_x + 1.0 * this_punctum_size - 1), (g.offset_y + g.nrows - 1)))
+            temp_glyph,y_add = self.get_subimage(g,this_punctum_size_cols,this_punctum_size_rows)
             projection_vector = temp_glyph.projection_rows()
             center_of_mass = self._center_of_mass(projection_vector)
 
@@ -144,6 +148,38 @@ class PitchFinder(object):
             center_of_mass = 0
 
         return center_of_mass + y_add
+    
+    # gets a subimage of the glyph. If the glyph is a virga, it will try to only get the note head
+    # if the glyph is two note heads that are stacked, it will try to get the bottom note head
+    # otherwise it will grab the left most part of the glyph with the width of the average punctum size * 0.8
+    def get_subimage(self,glyph,extend_by_cols,extend_by_rows):
+        # neumes where the bottom left head needs to be targeted
+        
+        # for some strange reason the type randomly will switch from bytes to str
+        id = glyph.get_main_id()
+        if type(id) is bytes:
+            id = id.decode()
+
+        bottom_lefts = ["neume.podatus2b","neume.podatus3","neume.podatus4","neume.podatus5","neume.scandicus22b"]
+        if(id in bottom_lefts):
+            # gets bottom left head
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y + glyph.nrows -1 - extend_by_rows),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows -1)))
+            #offset from the top of the glyph is the height of the glyph - average punctum size
+            y_add = glyph.nrows -1 - extend_by_rows
+            return temp_glyph,y_add
+        elif(id == "neume.virga"):
+            # gets the note head
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 *extend_by_cols, glyph.offset_y),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + 1.0 * extend_by_rows - 1)))
+            y_add = 0
+            return temp_glyph,y_add
+        else:
+            temp_glyph = glyph.subimage((glyph.offset_x + 0.0 * extend_by_cols, glyph.offset_y),
+                                    ((glyph.offset_x + 1.0 * extend_by_cols - 1), (glyph.offset_y + glyph.nrows - 1)))
+            y_add = 0
+            return temp_glyph,y_add
+        
 
     def _center_of_mass(self, projection_vector):
         com = 0.
@@ -264,8 +300,6 @@ class PitchFinder(object):
         for i, st in enumerate(staves):
             coord = self._convert_bb_to_coords(st['bounding_box'])
 
-            # print i, '/', len(staves) - 1
-
             # define corner points
             ul = (coord[0], coord[1])
             ur = (coord[2], coord[1])
@@ -280,7 +314,6 @@ class PitchFinder(object):
 
             if closest == None or closest[0] > min(distances):
                 closest = (min(distances), st['line_positions'], st['staff_no'])
-                # print closest[0], i
 
         return closest[1:]
 
@@ -299,7 +332,6 @@ class PitchFinder(object):
         elif line_type is 'horizontal':
             perp = x3 < max([x1, x2]) and x3 > min([x1, x2])
 
-        # print(perp, line_type, p1, p2, p3)
         if not perp:
             s1 = self._find_distance_between_points(p3, p1)
             s2 = self._find_distance_between_points(p3, p2)
@@ -364,8 +396,6 @@ class PitchFinder(object):
             elif i == len(staff[0]) - 1:
                 line_pos = [i]              # if after staff, use last line point
 
-        # print line_pos, (ref_x, ref_y)
-
         # find line below center_of_mass
         for i, line in enumerate(staff[1:]):
             last_line = staff[i]
@@ -384,9 +414,6 @@ class PitchFinder(object):
             y_above = func_above(ref_x)
             y_below = func_below(ref_x)
 
-            # print pa_left, pa_right, '\t:\t', pb_left, pb_right
-            # print y_above, '\t\t\t:\t', y_below
-
             if line_snap and y_below >= ref_y:
                 y_dif = y_below - y_above
                 y_mid = y_above + y_dif / 2
@@ -403,23 +430,16 @@ class PitchFinder(object):
                 space = y_mid - (y_dif * self.space_proportion / 2), \
                     y_mid + (y_dif * self.space_proportion / 2)
 
-                # print '\n', ref_x, ref_y, line_pos, '\n'
-
-                # print int(y_above), int(min(space)), int(max(space)), int(y_below)
-
                 # upper line
                 if ref_y < min(space):
-                    # print 'line', i
                     return 0, i
 
                 # within space
                 elif ref_y >= min(space) and ref_y <= max(space):
-                    # print 'space', i
                     return 1, i
 
                 # lower line
                 elif ref_y > max(space):
-                    # print 'line', i + 1
                     return 0, i + 1
 
                 else:
@@ -433,8 +453,8 @@ class PitchFinder(object):
         # func(x) = y
         if point_right != None:
             m = float(point_right[1] - point_left[1]) / float(point_right[0] - point_left[0])
-            b = point_left[1] - (m * point_left[0])
-            return lambda x: (m * x) + b
+            b = point_left[1]
+            return lambda x: (m * (x-point_left[0])) + b
 
         else:   # flat line
             return lambda x: point_left[1]
@@ -445,7 +465,7 @@ class PitchFinder(object):
 
     def _strt_pos_find(self, line_or_space, line_num):
         # sets 0 as the 2nd ledger line above a staff
-        return (line_num) * 2 + line_or_space - self.transpose
+        return (line_num) * 2 + line_or_space + 1 - self.transpose
 
     def _sort_glyphs(self, proc_glyphs):
 
@@ -457,13 +477,12 @@ class PitchFinder(object):
         sorted_glyphs = sorted(proc_glyphs, key=itemgetter(1, 2))
 
         for i, glyph_array in enumerate(sorted_glyphs):
-
             gtype = __glyph_type(glyph_array)
             if gtype == 'clef':
 
                 # overwrite last defined clef
                 self.clef = glyph_array[0].get_main_id().decode().split('.')[1], glyph_array[3]
-                glyph_array[3] = 6 - glyph_array[3] / 2  # get clef line excluding spaces
+                glyph_array[3] = 6 - floor(glyph_array[3] / 2)  # get clef line excluding spaces
                 glyph_array.extend([None, None, None, None])
 
             elif gtype == "neume" or gtype == "custos":
@@ -479,16 +498,14 @@ class PitchFinder(object):
 
                 # find octave
                 if my_strt_pos <= clef_line:
-                    octave = 3 + int((clef_line - my_strt_pos + noteShift) / len(SCALE))
+                    octave = 3 + floor((clef_line - my_strt_pos + noteShift) / len(SCALE))
                 elif my_strt_pos > clef_line:
-                    octave = 3 - int((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
+                    octave = 3 - floor((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
 
                 glyph_array.extend([note, octave, clef_line, 'clef.' + clef])
-                # print clef, note, octave, glyph_array[1:], glyph_array[0].get_main_id()
 
             else:   # no pitch info necessary
                 glyph_array.extend([None, None, None, None])
-
         return sorted_glyphs
 
     ########
@@ -499,7 +516,7 @@ class PitchFinder(object):
         width_sum = 0
         num_punctums = 0
         for g in glyphs:
-            if g.get_main_id().decode() == 'neume.punctum':
+            if g.get_main_id().decode() == 'neume.punctum' or g.get_main_id().decode() == 'neume.virga':
                 width_sum += g.ncols
                 num_punctums += 1
 

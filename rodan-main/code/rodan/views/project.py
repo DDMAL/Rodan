@@ -1,12 +1,12 @@
 from rest_framework import generics
 from rest_framework import permissions, exceptions
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rodan.models.project import Project
+from rodan.models.project import Project, User
 from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerializer
 from rodan.permissions import CustomObjectPermissions
+from django.conf import settings
 from django.db.models import Q
-
+from celery import registry
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -92,14 +92,31 @@ class ProjectDetailAdmins(generics.GenericAPIView):
                     detail={"detail": "User {0} does not exist.".format(u_info)}
                 )
             users.append(user)
+
+        new_users = [user for user in users if user not in p.admin_group.user_set.all()]
+
         p.admin_group.user_set.clear()
         p.admin_group.user_set.add(*users)
         if p.creator:
             p.admin_group.user_set.add(p.creator)
+        
+        if (getattr(settings, "EMAIL_USE", False)):
+            self.send_email(new_users)
+
         return Response(p.admin_group.user_set.values_list("username", flat=True))
 
     def patch(self, request, *args, **kwargs):
         return self.put(request, *args, **kwargs)
+    
+    def send_email(self, new_users):
+        project = self.get_object()
+        user = self.request.user
+
+        to = [user.email for user in new_users if user.email and user.user_preference.send_email]
+        email_template = "emails/added_to_project.html"
+        context = {"project_name": project.name, "role": "admin", "adder": user.username}
+        
+        registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))
 
 
 class ProjectDetailWorkers(generics.GenericAPIView):
@@ -141,9 +158,25 @@ class ProjectDetailWorkers(generics.GenericAPIView):
                     detail={"detail": "User {0} does not exist.".format(u_info)}
                 )
             users.append(user)
+
+        new_users = [user for user in users if user not in p.admin_group.user_set.all()]
+
         p.worker_group.user_set.clear()
         p.worker_group.user_set.add(*users)
+
+        self.send_email(new_users)
+
         return Response(p.worker_group.user_set.values_list("username", flat=True))
 
     def patch(self, request, *args, **kwargs):
         return self.put(request, *args, **kwargs)
+    
+    def send_email(self, new_users):
+        project = self.get_object()
+        user = self.request.user
+
+        to = [user.email for user in new_users if user.email and user.user_preference.send_email]
+        email_template = "emails/added_to_project.html"
+        context = {"project_name": project.name, "role": "worker", "adder": user.username}
+        
+        registry.tasks["rodan.core.send_templated_email"].apply_async((to, email_template, context))

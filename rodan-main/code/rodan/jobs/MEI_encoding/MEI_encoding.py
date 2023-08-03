@@ -50,6 +50,12 @@ class MEI_encoding(RodanTask):
         'minimum': 1,
         'maximum': 1,
         'is_list': False
+    }, {
+        'name': 'Column Splitting Data',
+        'resource_types': ['application/json'],
+        'minimum': 0,
+        'maximum': 1,
+        'is_list': False
     }
     ]
 
@@ -69,6 +75,13 @@ class MEI_encoding(RodanTask):
         with open(jsomr_path, 'r') as file:
             jsomr = json.loads(file.read())
 
+        if 'Column Splitting Data' in inputs:
+            split_ranges_path = inputs['Column Splitting Data'][0]['resource_path']
+            with open(split_ranges_path, 'r') as file:
+                split_ranges = json.loads(file.read())
+        else:
+            split_ranges = None
+
         try:
             alignment_path = inputs['Text Alignment JSON'][0]['resource_path']
         except KeyError:
@@ -82,7 +95,7 @@ class MEI_encoding(RodanTask):
         self.logger.info('fetching classifier...')
         classifier_table, width_container = pct.fetch_table_from_csv(inputs['MEI Mapping CSV'][0]['resource_path'])
         width_mult = settings[u'Neume Component Spacing']
-        mei_string = bm.process(jsomr, syls, classifier_table, width_mult, width_container)
+        mei_string = bm.process(jsomr, syls, classifier_table, width_mult, width_container, split_ranges)
 
         self.logger.info('writing to file...')
         outfile_path = outputs['MEI'][0]['resource_path']

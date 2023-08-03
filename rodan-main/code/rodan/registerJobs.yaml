@@ -127,6 +127,12 @@
         "rodan.jobs.pixel_wrapper.wrapper": [ 
           "PixelInteractive"
           ]
+    },
+
+    "rodan.jobs.column_split": {
+        "rodan.jobs.column_split.base": [ 
+          "ColumnSplit"
+          ]
     }
       
     }
@@ -147,6 +153,9 @@
     },
     "rodan.jobs.SAE_binarization": {
         "rodan.jobs.SAE_binarization.SAE_binarization" : [ "SAE_binarization" ]
+    },
+    "rodan.jobs.staff_distance": {
+        "rodan.jobs.staff_distance.base" : [ "StaffDistance" ]
     }
 }
 

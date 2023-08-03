@@ -89,6 +89,14 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     {
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, {workflow: this.model});
     }
+
+    /**
+     * Handle button clear assigned resources.
+     */
+    _handleButtonClearAssignedResources()
+    {
+        this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, {workflow: this.model});
+    }
     
     /**
      * Handle button add job.
@@ -130,7 +138,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     {
         if (this._lastErrorCode !== '' || this._lastErrorDetails !== '')
         {   
-            this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: "ERROR", content: "Error code: " + this._lastErrorCode + " " + this._lastErrorDetails});
+            this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: "Invalid Workflow", content: this._lastErrorDetails });
         }
     }
 
@@ -148,20 +156,29 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _updateView(event, model)
     {
-        this.ui.workflowName.text(this.model.get('name'));
+        const workflowName = this.model.get('name');
+        this.ui.workflowName.text(workflowName);
         if (this.model.get('valid'))
         {
             this._lastErrorCode = '';
             this._lastErrorDetails = '';
-            this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" is valid'); 
+            this.ui.dataStatus.text(`Workflow "${workflowName}" is valid.`); 
+            this.ui.dataStatus.removeClass('text-danger');
         }
         else
         {
-            if (this._lastErrorCode == '' && this._lastErrorDetails == '') {
-                this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" setup is incomplete.'); 
-            } else {
-                this.ui.dataStatus.text('Workflow "' + this.model.get('name') + '" is INVALID (click here for details)'); 
+            if (this._lastErrorCode == '' && this._lastErrorDetails == '') 
+            {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" setup is incomplete.`);
+            } 
+            else if (this._lastErrorDetails == '') {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" is invalid.`);
             }
+            else
+            {
+                this.ui.dataStatus.text(`Workflow "${workflowName}" is invalid: ${this._lastErrorDetails}`);
+            }
+            this.ui.dataStatus.addClass('text-danger');
         }
     }
 }
@@ -179,6 +196,7 @@ LayoutViewWorkflowBuilder.prototype.ui = {
     checkboxAddPorts: '#checkbox-add_ports',
     dataStatus: '#data-workflow_status',
     buttonEdit: '#button-edit',
+    buttonClearAssignedResources: '#button-clear_assigned_resources',
     buttonAddJob: '#button-add_job',
     buttonImportWorkflow: '#button-import_workflow',
     buttonRun: '#button-run'
@@ -190,6 +208,7 @@ LayoutViewWorkflowBuilder.prototype.events = {
     'click @ui.dataStatus': '_handleClickDataStatus',
     'change @ui.checkboxAddPorts': '_handleClickCheckboxAddPorts',
     'click @ui.buttonEdit': '_handleButtonEdit',
+    'click @ui.buttonClearAssignedResources': '_handleButtonClearAssignedResources',
     'click @ui.buttonAddJob': '_handleButtonAddJob',
     'click @ui.buttonImportWorkflow': '_handleButtonImportWorkflow',
     'click @ui.buttonRun': '_handleButtonRun'

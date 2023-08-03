@@ -148,6 +148,8 @@ class RODAN_EVENTS
         ///////////////////////////////////////////////////////////////////////////////////////
         /** Request an error be displayed. This is a "convenience" request -- if a modal is currently visible (which is probably related somehow to the error) the footer will be updated with the error message. If no modal visible, REQUEST__MODAL_SHOW will be called. Takes {content: Marionette.View OR string}. */
         this.REQUEST__MODAL_ERROR = 'REQUEST__MODAL_ERROR';
+        /** Request form validation errors to be displayed. Takes {errors: {[string]: string[]}} mapping input field name to an array of error strings. */
+        this.REQUEST__MODAL_FORM_VALIDATION_ERROR = 'REQUEST__MODAL_FORM_VALIDATION_ERROR';
         /** Request modal window to hide/close. */
         this.REQUEST__MODAL_HIDE = 'REQUEST__MODAL_HIDE';
         /** Request modal window to show/open with provided Marionette View. If another modal is currently open the request will not show. Takes {content: string, title: string}. */
@@ -420,6 +422,8 @@ class RODAN_EVENTS
         this.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN = 'REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN';
         /** Request the Resources that are currently assigned to an InputPort. Takes {inputport: InputPort}. Returns [Resource]. */
         this.REQUEST__WORKFLOWBUILDER_GET_RESOURCEASSIGNMENTS = 'REQUEST__WORKFLOWBUILDER_GET_RESOURCEASSIGNMENTS';
+        /** Request all InputPort resource assignments to be cleared. */
+        this.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS = 'REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS';
         /** Request all InputPorts that could satisfy the provided OutputPort in the given Workflow. Takes {workflow: Workflow, outputport: OutputPort}. Returns [string] (InputPort URLs). */
         this.REQUEST__WORKFLOWBUILDER_GET_SATISFYING_INPUTPORTS = 'REQUEST__WORKFLOWBUILDER_GET_SATISFYING_INPUTPORTS';
         /** Request a Workflow (origin) be added to another Workflow (target). Takes {origin: Workflow, target: Workflow}. */

@@ -1,8 +1,8 @@
 import uuid
 from django.db import models
 from sortedm2m.fields import SortedManyToManyField
-from django.contrib.auth.models import User
 from django.apps import apps
+from rodan.models.user import User
 
 import logging
 
