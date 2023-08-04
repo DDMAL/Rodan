@@ -16,34 +16,69 @@
                 <button class="btn project-nav-bar-btn" id="workflow_count">Workflows</button>
                 <button class="btn project-nav-bar-btn" id="resource_count">Resources</button>
                 <button class="btn project-nav-bar-btn" id="button-project_users">Users</button>              
-                <!-- <button class="btn btn-xs btn-success" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button> -->            
+                <!-- <button class="btn project-nav-bar-btn" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button> -->            
             </div>
 
             <div id="region-collection-container" class="region-main-section">
-                <!-- Collections will go in here -->
+                <!-- Collections will appear here -->
             </div>
 
 
         </div>
 
         <div class="content-wrapper column-content information-container">
-            <!-- Project information -->
-            <div id="region-project-info-container">
-                <!-- <div><%= name %></div> -->
-                <label for="text-project_name">Name:</label>
-                <input type="text" class="form-control" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
-                <br>
-                <label for="text-project_description">Description:</label>
-                <textarea type="text" class="form-control" id="text-project_description" name="text-project_description"><%= _.unescape(description) %></textarea>
-                Creator: <%= creator %> <br>
-                Created on: <%= _.formatFromUTC(created) %><br>
-                Updated on: <%= _.formatFromUTC(updated) %><br>
-                URL: <%= url %><br>
-                <button class="btn btn-xs btn-warning" id="button-save_project">Save</button>
-                <button class="btn btn-xs btn-danger" id="button-delete_project">Delete</button>
+            
+            <div id="region-project-info-container" class="content-wrapper column-content">
+
+                <!-- Project details title -->
+                <div id="project-details-title-container" class="content-wrapper row-content details-panel-section">
+                    <div id="project-details-title" class="content-wrapper row-content">
+                        <div class="project-details-title-text">PROJECT DETAILS</div>
+                    </div>
+                </div>
+
+                <!-- Project details -->
+                <div id="project-details-container" class="content-wrapper column-content details-panel-section">
+                    <div class="content-wrapper row-content project-info-item-container">
+                        <label class="project-info-item-label" for="text-project_name">Name:</label>
+                        <input class="project-info-item-value" type="text" class="form-control" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
+                    </div>
+
+                    <div class="content-wrapper column-content project-info-item-container">
+                        <label for="text-project_description">Description:</label>
+                        <textarea type="text" class="form-control" id="text-project_description" name="text-project_description"><%= _.unescape(description) %></textarea>
+                    </div>   
+
+                    <div class="content-wrapper row-content project-info-item-container">
+                        <div class="project-info-item-label">Creator:</div>
+                        <div class="project-info-item-value"><%= creator %></div>
+                    </div>
+
+                    <div class="content-wrapper row-content project-info-item-container">
+                        <div class="project-info-item-label">Created on:</div>
+                        <div class="project-info-item-value"><%= _.formatFromUTC(created) %></div>
+                    </div>
+
+                    <div class="content-wrapper row-content project-info-item-container">
+                        <div class="project-info-item-label">Updated on:</div>
+                        <div class="project-info-item-value"><%= _.formatFromUTC(updated) %></div>
+                    </div>
+
+                    <div class="content-wrapper row-content project-info-item-container">
+                        <div class="project-info-item-label">URL:</div>
+                        <div class="project-info-item-value"><%= url %></div>
+                    </div>
+                </div>                    
+                 
+                <!-- Project details actions (buttons) -->
+                <div id="project-details-actions-container" class="content-wrapper row-content details-panel-section">
+                    <button class="btn project-details-action-btn" id="button-save_project">Save</button>
+                    <button class="btn project-details-action-btn" id="button-delete_project">Delete</button>
+                </div>                                
             </div>
 
-            <!-- Collection item information -->
+
+            <!-- Collection item details -->
             <div id="region-collection-item-info-container">
 
             </div>

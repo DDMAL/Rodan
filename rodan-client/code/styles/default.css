@@ -453,9 +453,11 @@ hr {
     gap: 5px;
 }
 
-/* Individual project view content */
+/* ----------------------- */
+/* Individual project view */
+/* ----------------------- */
 .region-main-content {
-    overflow: scroll;
+    overflow: auto;
     height: 96%;
 }
 .individual-project-view {
@@ -477,7 +479,7 @@ hr {
     box-sizing: border-box;
     width: 85%;
     border-right: 2px solid #dfdfdf;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 /* Project navigation bar */
@@ -499,11 +501,68 @@ hr {
 .collection-wrapper {
     gap: 5px;
 }
-/* Project and collection info panel */
+/* Project and collection details panel */
 .information-container {
     width: 25%;
     box-sizing: border-box;
+}
+#region-project-info-container {
+    /* gap: 15px; */
+    box-sizing: border-box;
+    border-bottom: 2px solid #dfdfdf;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    height: 50%;
+}
+.details-panel-section {
     padding: 10px;
+    box-sizing: border-box;
+}
+#project-details-title-container {
+    height: 10%;
+    background-color: #f2f2f2;
+}
+#project-details-container {
+    height: 80%;
+    gap: 10px;
+    overflow: auto;
+}
+#project-details-actions-container {
+    height: 10%;
+    width: 94%;
+    gap: 5px;
+    border-top: 2px solid #f2f2f2;
+}
+.project-info-item-container {
+    height: fit-content;
+    align-items: flex-start;
+    gap: 7px;
+}
+.content-wrapper.row-content.project-info-item-container {
+    align-items: center;
+    height: fit-content;
+}
+.project-info-item-value {
+    overflow-wrap: anywhere;
+    background-color: whitesmoke;
+    padding: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+.btn.project-details-action-btn {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 3px;
+}
+#button-save_project {
+    background-color: #EB9E3E;
+}
+#button-delete_project {
+    background-color: #E76B6B;
 }
 
 
@@ -541,9 +600,10 @@ canvas[resize] {
 /* Input fields */
 textarea[type=text]
 {
-    height: 200px;
+    height: 50px;
     width: 100%;
     resize: vertical;
+    box-sizing: border-box;
 }
 .vertical-center {
     height: calc(var(--height-top) * 1%); /*fallback */

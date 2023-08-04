@@ -116,6 +116,9 @@ export default class ViewProject extends Marionette.View
         $('#workflow_count').addClass('active');
     }
 
+    /**
+     * Handle button WorkflowRuns.
+     */
     _handleButtonWorkflowRuns()
     {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, {project: this.model});
@@ -143,13 +146,18 @@ export default class ViewProject extends Marionette.View
         $('#button-project_users').addClass('active');
     }
 }
+
 ViewProject.prototype.ui = {
     // buttonResourceLists: '#button-resourcelists',
     resourceCount: '#resource_count',
     workflowCount: '#workflow_count',
     buttonRunJobs: '#button-runjobs',
     buttonUsers: '#button-project_users',
-    buttonWorkflowRuns: '#button-workflow_runs'
+    buttonWorkflowRuns: '#button-workflow_runs',
+    buttonDeleteProject: '#button-delete_project',
+    buttonSaveProject: '#button-save_project',
+    textName: '#text-project_name',
+    textDescription: '#text-project_description'
 };
 
 ViewProject.prototype.events = {
@@ -158,7 +166,9 @@ ViewProject.prototype.events = {
     'click @ui.buttonRunJobs': '_handleButtonRunJobs',
     'click @ui.buttonResourceLists': '_handleButtonResourceLists',
     'click @ui.buttonUsers': '_handleButtonProjectUsers',
-    'click @ui.buttonWorkflowRuns': '_handleButtonWorkflowRuns'
+    'click @ui.buttonWorkflowRuns': '_handleButtonWorkflowRuns',
+    'click @ui.buttonDeleteProject': '_handleButtonDelete',
+    'click @ui.buttonSaveProject': '_handleButtonSave'
 };
 
 // ViewProject.prototype.template = _.template($('#template-main_layoutview_model').text());
