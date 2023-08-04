@@ -8,10 +8,10 @@ services:
       replicas: 1
       resources:
         reservations:
-          cpus: "0.5"
+          cpus: "1"
           memory: 1G
         limits:
-          cpus: "0.5"
+          cpus: "1"
           memory: 1G
       restart_policy:
         condition: any
@@ -43,10 +43,10 @@ services:
       replicas: 1
       resources:
         reservations:
-          cpus: "1"
+          cpus: "4"
           memory: 4G
         limits:
-          cpus: "1"
+          cpus: "4"
           memory: 4G
       restart_policy:
         condition: any
@@ -98,7 +98,7 @@ services:
       timeout: "30s"
       # Ignore failures during the start_period
       start_period: "1m"
-      # accept 3 consecutive failures before 
+      # accept 3 consecutive failures before
       retries: 5
     command: /run/start-celery
     environment:
@@ -260,10 +260,10 @@ services:
       replicas: 1
       resources:
         reservations:
-          cpus: "1"
+          cpus: "0"
           memory: 2G
         limits:
-          cpus: "1"
+          cpus: "0"
           memory: 2G
       restart_policy:
         condition: any

@@ -44,4 +44,4 @@ sed -i "s/15/999999/g" /code/Rodan/rodan/settings.py
 # Usually, unix sockets would be faster but between docker containers, I am not certain because of the
 # complexity from volumes. Do not merge other services into the rodan service. We are keeping them isolated
 # for scaling in the future. --graceful-timeout 0 --preload True --workers=3
-runuser -u root -- /usr/local/bin/gunicorn --name=rodan -b 0.0.0.0:8000 --timeout 120 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application 
+runuser -u root -- /usr/local/bin/gunicorn --name=rodan -b --workers=7 0.0.0.0:8000 --timeout 120 --max-requests 10000 --worker-connections 1001 --log-level=debug --log-file=/code/Rodan/gunicorn-error.log --access-logfile=/code/Rodan/gunicorn-access.log rodan.wsgi_django:application 
