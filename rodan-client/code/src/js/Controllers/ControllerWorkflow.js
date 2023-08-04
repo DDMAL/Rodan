@@ -6,6 +6,7 @@ import ViewWorkflow from 'js/Views/Master/Main/Workflow/Individual/ViewWorkflow'
 import ViewWorkflowCollection from 'js/Views/Master/Main/Workflow/Collection/ViewWorkflowCollection';
 import Workflow from 'js/Models/Workflow';
 import WorkflowCollection from 'js/Collections/WorkflowCollection';
+import ViewProject from 'js/Views/Master/Main/Project/Individual/ViewProject';
 
 /**
  * Controller for Workflows.
@@ -46,10 +47,11 @@ export default class ControllerWorkflow extends BaseController
         this._collection = new WorkflowCollection();
         this._collection.fetch({data: {project: options.project.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
-        this._layoutView = new LayoutViewModel();
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._layoutView});
+        const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        this._projectView = new ViewProject({model: activeProject});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
         this._viewCollection = new ViewWorkflowCollection({collection: this._collection});
-        this._layoutView.showCollection(this._viewCollection);
+        this._projectView.showCollection(this._viewCollection);
     }
 
     /**
@@ -58,7 +60,7 @@ export default class ControllerWorkflow extends BaseController
     _handleEventItemSelected(options)
     {
         this._viewItem = new ViewWorkflow({model: options.workflow});
-        this._layoutView.showItem(this._viewItem);
+        this._projectView.showCollectionItemInfo(this._viewItem);
     }
 
     /**
@@ -70,7 +72,7 @@ export default class ControllerWorkflow extends BaseController
         // Clear the individual view (if there).
         if (this._viewItem !== null && options.workflow === this._viewItem.model)
         {
-            this._layoutView.clearItemView();
+            this._projectView.clearItemView();
         }
         options.workflow.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection)});
     }

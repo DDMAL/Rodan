@@ -5,6 +5,7 @@ import Radio from 'backbone.radio';
 import ViewWorkflowRunCollection from 'js/Views/Master/Main/WorkflowRun/Collection/ViewWorkflowRunCollection';
 import WorkflowRun from 'js/Models/WorkflowRun';
 import WorkflowRunCollection from 'js/Collections/WorkflowRunCollection';
+import ViewProject from '../Views/Master/Main/Project/Individual/ViewProject';
 
 /**
  * Controller for WorkflowRun.
@@ -86,11 +87,18 @@ export default class ControllerWorkflowRun extends BaseController
      */
     _handleEventCollectionSelected(options)
     {
-        var collection = new WorkflowRunCollection();
+        // create new worlfow run collection and populate it through a fetch
+        const collection = new WorkflowRunCollection();
         collection.fetchSort(false, 'created', {data: {project: options.project.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [collection]});
-        var view = new ViewWorkflowRunCollection({collection: collection});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: view});
+
+        // get active project and create project view
+        const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        const projectView = new ViewProject({model: activeProject});
+
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: projectView});
+
+        projectView.showCollection(new ViewWorkflowRunCollection({collection: collection}));
     }
 
     /**

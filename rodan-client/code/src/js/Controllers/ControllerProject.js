@@ -3,7 +3,7 @@ import _ from 'underscore';
 import BaseController from './BaseController';
 import BaseViewCollection from 'js/Views/Master/Main/BaseViewCollection';
 import BaseViewCollectionItem from 'js/Views/Master/Main/BaseViewCollectionItem';
-import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
+// import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import LayoutViewProjectUsers from 'js/Views/Master/Main/Project/Individual/LayoutViewProjectUsers';
 import Project from 'js/Models/Project';
 import Radio from 'backbone.radio';
@@ -188,13 +188,12 @@ export default class ControllerProject extends BaseController
     {
         this._activeProject = options.project;
         this._activeProject.fetch();
+        
+        // default collection inside project view is the workflowrun collection
         var collection = new WorkflowRunCollection();
-        collection.fetch({data: {project: this._activeProject.id}});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [collection]});
-        var layoutView = new LayoutViewModel({template: _.template($('#template-main_layoutview_model_inverse').text())});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: layoutView});
-        layoutView.showItem(new ViewProject({model: this._activeProject}));
-        layoutView.showCollection(new ViewWorkflowRunCollection({collection: collection}));
+        var viewProject = new ViewProject({model: this._activeProject});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: viewProject, options: {project: this._activeProject}});
+        viewProject.showCollection(new ViewWorkflowRunCollection({collection: collection}));
     }
 
     /**

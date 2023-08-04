@@ -453,8 +453,15 @@ hr {
     gap: 5px;
 }
 
-/* Main region content */
-.region-main-section.table-responsive {
+/* Individual project view content */
+.region-main-content {
+    overflow: scroll;
+    height: 96%;
+}
+.individual-project-view {
+    display: flex;
+}
+.table-responsive {
     border: 1px solid #dfdfdf;
     border-radius: 5px;
     /* box-shadow: 0px 0px 5px 2px #eeeeee; */
@@ -462,6 +469,41 @@ hr {
     height: fit-content;
     width: 98%;
     overflow: hidden;
+}
+.project-collections {
+    gap: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+    width: 85%;
+    border-right: 2px solid #dfdfdf;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+/* Project navigation bar */
+.project-navigation-bar {
+    height: 2vh;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid #f0f0f0;
+    width: 90%;
+}
+.project-nav-bar-btn {
+    background-color: transparent;
+    font-size: 15px;
+    color: grey;
+}
+.project-nav-bar-btn.active {
+    border-bottom: 3px solid var(--primary-app-color);  
+}
+.collection-wrapper {
+    gap: 5px;
+}
+/* Project and collection info panel */
+.information-container {
+    width: 25%;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 
@@ -514,7 +556,7 @@ textarea[type=text]
     width: 100%;
     text-align: center;
 }
-div.fixed_individual {
+div.individual-marionette-item-view {
     /*position: fixed;*/
     width: 100%;
 }

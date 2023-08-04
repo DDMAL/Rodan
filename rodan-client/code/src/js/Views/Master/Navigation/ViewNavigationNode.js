@@ -105,7 +105,6 @@ export default class ViewNavigationNode extends Marionette.CollectionView
      * Does highlighting.
      */
     _handleEventNodeSelected(event) {
-        console.log(event.node);
         if (this === event.node)
         {
             this._setHighlight(true);

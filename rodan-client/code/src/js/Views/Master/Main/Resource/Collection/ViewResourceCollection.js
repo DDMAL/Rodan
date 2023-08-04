@@ -5,6 +5,7 @@ import BehaviorTable from 'js/Behaviors/BehaviorTable';
 import BaseViewCollection from 'js/Views/Master/Main/BaseViewCollection';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Radio from 'backbone.radio';
+import ViewResourceCollectionItem from './ViewResourceCollectionItem';
 
 /**
  * View for Resource Collection.
@@ -24,10 +25,11 @@ export default class ViewResourceCollection extends BaseViewCollection
         for (var i = 0; i < this.ui.fileInput[0].files.length; i++)
         {
         	var file = this.ui.fileInput[0].files[i];
-          var escapedFile = new File([file.slice(0, file.size)], _.escape(_.escape(file.name)));  // This won't work with only one escape!
+            var escapedFile = new File([file.slice(0, file.size)], _.escape(_.escape(file.name)));  // This won't work with only one escape!
+            const project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
     	    Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_CREATE,
               {
-                  project: this.model,
+                  project: project,
                   file: escapedFile,
                   resourcetype: this.octetStreamType,
                   label_names: this.ui.labelInput[0].value
@@ -62,6 +64,9 @@ export default class ViewResourceCollection extends BaseViewCollection
         }
     }
 }
+
+ViewResourceCollection.prototype.template = _.template($('#template-main_resource_collection').text());
+ViewResourceCollection.prototype.childView = ViewResourceCollectionItem;
 ViewResourceCollection.prototype.behaviors = [{behaviorClass: BehaviorTable, table: '#table-resources'}]
 ViewResourceCollection.prototype.ui = {
     fileInput: '#file-main_resource_file',

@@ -9,6 +9,7 @@ import RunJobCollection from 'js/Collections/RunJobCollection';
 import ViewRunJob from 'js/Views/Master/Main/RunJob/Individual/ViewRunJob';
 import ViewRunJobCollection from 'js/Views/Master/Main/RunJob/Collection/ViewRunJobCollection';
 import ViewRunJobCollectionItem from 'js/Views/Master/Main/RunJob/Collection/ViewRunJobCollectionItem';
+import ViewProject from '../Views/Master/Main/Project/Individual/ViewProject';
 
 /**
  * Controller for RunJobs.
@@ -55,7 +56,7 @@ export default class ControllerRunJob extends BaseController
      */
     _handleEventItemSelected(options)
     {
-        this._layoutView.showItem(new ViewRunJob({model: options.runjob}));
+        this._layoutView.showCollectionItemInfo(new ViewRunJob({model: options.runjob}));
     }
 
     /**
@@ -66,12 +67,13 @@ export default class ControllerRunJob extends BaseController
         this._collection = new RunJobCollection();
         this._collection.fetch({data: {project: options.project.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
-        this._layoutView = new LayoutViewModel();
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._layoutView});
+        const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        this._projectView = new ViewProject({model: activeProject});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
         var view = new ViewRunJobCollection({collection: this._collection,
                                        template: _.template($('#template-main_runjob_collection').text()),
                                        childView: ViewRunJobCollectionItem});
-        this._layoutView.showCollection(view);
+        this._projectView.showCollection(view);
     }
 
     /**
