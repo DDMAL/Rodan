@@ -15,6 +15,8 @@ class Connection(models.Model):
       the "input" end of the connection.
     - `output_port` -- a reference to the specific `OutputPort` that is on
       the "output" end of the connection.
+    - `offset_x` -- a float value that describes the horizontal offset of the circle from output_port
+    - `offset_y` -- a float value that describes the vertical offset of the circle from output_port
 
     **Properties**
 
@@ -46,6 +48,8 @@ class Connection(models.Model):
         on_delete=models.CASCADE,
         db_index=True,
     )
+    offset_x = models.FloatField(null=True)
+    offset_y = models.FloatField(null=True)
 
     @property
     def input_workflow_job(self):
