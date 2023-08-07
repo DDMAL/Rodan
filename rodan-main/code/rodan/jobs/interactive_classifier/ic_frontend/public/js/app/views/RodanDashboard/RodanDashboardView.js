@@ -497,21 +497,24 @@ var RodanDashboardView = Marionette.LayoutView.extend(
 
             // This section deals with resizing.
 
-            $("#collapse-button").click(function()
-            {
+            const toggleClassifierGlyphs = () => {
                 $("#right0").toggle();
                 that.collapsePanes();
-            });
-            $("#collapse-page").click(function()
-            {
+            }
+
+            const togglePageGlyphs = () => {
                 $("#right1").toggle();
                 that.collapsePanes();
-            });
-            $("#collapse-image").click(function()
-            {
+            }
+
+            const togglePreviewImage = () => {
                 $("#right2").toggle();
                 that.collapsePanes();
-            });
+            }
+
+            $("#collapse-button").on("click", toggleClassifierGlyphs);
+            $("#collapse-page").on("click", togglePageGlyphs);
+            $("#collapse-image").on("click", togglePreviewImage);
 
             this.collapseHeight = document.getElementById("collapse-button").getClientRects()[0].height;
             this.collapseWidth  = document.getElementById("collapse-button").getClientRects()[0].width;
@@ -545,10 +548,16 @@ var RodanDashboardView = Marionette.LayoutView.extend(
             image.style.top = page.getClientRects()[0].bottom + "px";
             image.style.height = window.innerHeight - page.getClientRects()[0].bottom + "px";
 
+            // Hide the classifier glyphs by default. 
+            // Note: This should probably be done in a declarative way but would likely require a lot of changes and would be more risky.
+            // This method seems to work well for now.
+            toggleClassifierGlyphs();
+
             $(document).mousedown(function ()
             {
                 that.isMouseDown = true;
             });
+            
             $(document).mousemove(function (event)
             {
                 var resizeClass = false;
