@@ -54,6 +54,8 @@ export default class UpdateManager
      */
     _handleRequestUpdateClear(options)
     {
-        this._updater.clear();
+        if (this._updater) {
+            this._updater.clear();
+        }
     }
 }
