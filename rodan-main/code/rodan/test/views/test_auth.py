@@ -29,7 +29,7 @@ class AuthViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin)
             {"email": "ahankins@rodan2.simssa.ca", "password": "wrongg"},
             format="multipart",
         )
-        self.assertEqual(token.data, {"is_logged_in": False})
+        self.assertEqual(token.data, {"is_logged_in": False, "detail": "Invalid email or password."})
 
         response = self.client.get("/api/auth/me/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

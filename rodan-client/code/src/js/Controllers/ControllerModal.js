@@ -97,6 +97,7 @@ export default class ControllerModal extends BaseController
         if ($modalEl.is(':visible'))
         {
             $('.modal-footer').text(options.title + ': ' + options.content);
+            $('.modal-footer').removeClass('modal-footer-error');
         }
         else
         {
