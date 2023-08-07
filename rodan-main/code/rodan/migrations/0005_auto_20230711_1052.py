@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rodan', '0003_auto_20230627_1526'),
+        ('rodan', '0004_inputport_extern_resources'),
     ]
 
     operations = [
