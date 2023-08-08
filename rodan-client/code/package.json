@@ -61,6 +61,7 @@
     "jquery": "^3.5.0",
     "jqueryui": "^1.11.1",
     "json-editor": "0.7.28",
+    "marionette.approuter": "^1.0.2",
     "moment": "^2.25.3",
     "moment-timezone": "^0.5.28",
     "popper.js": "^1.16.1",

@@ -98,6 +98,7 @@ class WorkflowBuilderGUI
             "STROKE_COLOR_SELECTED": "#0000ff",
             "STROKE_WIDTH_SELECTED": 2,
             "CONNECTION_CIRCLE_RADIUS": 4,
+            "CONNECTION_PADDING": 5,
             "HOVER_TIME": 1000,
             "LOCAL_STORAGE_ITEMS": ['scroll', 'zoom']
         }
@@ -139,7 +140,7 @@ class WorkflowBuilderGUI
         this._multipleSelectionKey = Rodan.Environment.getMultipleSelectionKey();
         this._line = null;
         this._zoomRate = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        this._itemController = new ItemController();
+        this._itemController = new ItemController({ workflow: this._workflow });
         paper.handleMouseEvent = event => this._itemController.handleMouseEvent(event);
 
         window.addEventListener('keydown', (e) => {
@@ -222,6 +223,8 @@ class WorkflowBuilderGUI
     {
         paper.install(window);
         paper.setup(canvasElementId);
+        new paper.Layer({ name: 'connections' });
+        new paper.Layer({ name: 'default' });
         paper.view.onFrame = (event) => this._handleFrame(event);
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);

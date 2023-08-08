@@ -252,14 +252,19 @@ EMAIL_USE_TLS = True
 
 DEFAULT_FROM_EMAIL = "Rodan <noreply@rodan2.simssa.ca>"
 
+DOMAIN = os.getenv("SERVER_HOST")
 SITE_NAME = "Rodan"
+
+###############################################################################
+# 1.f  Djoser configuration
+###############################################################################
 
 DJOSER = {
     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
-    "EMAIL": {
-        "password_changed_confirmation": "rodan.email.PasswordChangedConfirmationEmail",
-    }
-    
+    "PASSWORD_RESET_CONFIRM_URL": "#password-reset/{uid}/{token}",
+    "SEND_CONFIRMATION_EMAIL": True,
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "#activate/{uid}/{token}",
 }
 
 ###############################################################################
@@ -381,7 +386,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend", # Authenticate with User.USERNAME_FIELD and password
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",  # Allow inactive users to authenticate
     "guardian.backends.ObjectPermissionBackend",
 ]
 

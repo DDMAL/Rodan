@@ -3,6 +3,8 @@ import _ from 'underscore';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Marionette from 'backbone.marionette';
 import Radio from 'backbone.radio';
+import ViewForgotPassword from './ViewForgotPassword';
+import ViewRegister from './ViewRegister';
 
 /**
  * Login view.
@@ -30,6 +32,24 @@ export default class ViewLogin extends Marionette.View
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_LOGIN, { email: this.ui.textEmail.val(), password: this.ui.textPassword.val() }); 
     }
+
+    /**
+     * Handle register button.
+     */
+    _handleButtonRegister()
+    {
+        const content = new ViewRegister();
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: 'Register', content });
+    }
+
+    /**
+     * Handle forgot password button.
+     */
+    _handleButtonForgotPassword()
+    {
+        const content = new ViewForgotPassword();
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: 'Forgot Password', content });
+    }
 }
 ViewLogin.prototype.modelEvents = {
     'all': 'render'
@@ -37,9 +57,13 @@ ViewLogin.prototype.modelEvents = {
 ViewLogin.prototype.ui = {
     textEmail: '#text-login_email',
     textPassword: '#text-login_password',
-    buttonLogin: '#button-login'
+    buttonLogin: '#button-login',
+    buttonRegister: '#button-register',
+    buttonForgotPassword: '#button-forgot_password'
 };
 ViewLogin.prototype.events = {
-    'click @ui.buttonLogin': '_handleButton'
+    'click @ui.buttonLogin': '_handleButton',
+    'click @ui.buttonRegister': '_handleButtonRegister',
+    'click @ui.buttonForgotPassword': '_handleButtonForgotPassword'
 };
 ViewLogin.prototype.template = _.template($('#template-main_login').text());

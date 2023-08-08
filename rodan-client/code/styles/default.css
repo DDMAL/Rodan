@@ -720,7 +720,8 @@ div#main_workflowbuilder
 {
     text-align: left !important;
 }
-.modal-footer-error
+
+.modal-footer-error, .modal-input-error
 {
     color: #aa0000;
 }

@@ -115,6 +115,10 @@ export default Backbone.Model.extend(
                 RadioChannels.edit.trigger(GlyphEvents.moveGlyph, this, oldClassName, this.get("class_name"));
                 RadioChannels.edit.trigger(GlyphEvents.changeGlyph, this);
                 RadioChannels.edit.trigger(GlyphEvents.setGlyphName, this.get("class_name"));
+                
+                // Deselect the glyph after changing its class
+                // This is for the user's convenience so they can continue using arrow keys to navigate the page glyphs
+                RadioChannels.edit.trigger(GlyphEvents.deselectGlyph, this);
             }
         },
         /**

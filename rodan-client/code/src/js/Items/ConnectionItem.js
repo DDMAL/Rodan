@@ -22,6 +22,7 @@ class ConnectionItem extends BaseItem
         this.menuItems = [{label: 'Delete', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_REMOVE_CONNECTION, options: {connection: options.model, workflow: workflow}}];
 
         this.strokeWidth = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_WIDTH;
+        this.fillColor = null;
         this._inputPortItem = null;
         this._outputPortItem = null;
         this._inputPortUrl = options.inputporturl;
@@ -37,6 +38,9 @@ class ConnectionItem extends BaseItem
         this._circle.onMouseEnter = event => this._handleMouseEvent(event);
         this._circle.onMouseLeave = event => this._handleMouseEvent(event);
         this.addChild(this._circle);
+        this._padding = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].CONNECTION_PADDING;
+        this._offsetX = this._model.get('offset_x');
+        this._offsetY = this._model.get('offset_y');
     }
 
     /**
@@ -44,7 +48,7 @@ class ConnectionItem extends BaseItem
      */
     isMoveable()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -75,12 +79,43 @@ class ConnectionItem extends BaseItem
         if (this._inputPortItem && this._outputPortItem)
         {
             this._circle.visible = this.visible;
-            this.firstSegment.point.x = this._outputPortItem.position.x;
-            this.firstSegment.point.y = this._outputPortItem.bounds.bottom;
-            this.lastSegment.point.x = this._inputPortItem.position.x;
-            this.lastSegment.point.y = this._inputPortItem.bounds.top;
-            this._circle.position.x = this.firstSegment.point.x + ((this.lastSegment.point.x - this.firstSegment.point.x) / 2);
-            this._circle.position.y = this.firstSegment.point.y + ((this.lastSegment.point.y - this.firstSegment.point.y) / 2);
+
+            this.removeSegments();
+
+            // If the input port is above the output port, we want to draw the connection in a different way using 5 line segments instead of 3.
+            if (this._inputPortItem.bounds.top < this._outputPortItem.bounds.bottom + 2 * this._padding) {
+                if (this._offsetX == null) {
+                    this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
+                } else {
+                    this._circle.position.x = this._outputPortItem.position.x + this._offsetX;
+                }
+                
+                this._circle.position.y = (this._inputPortItem.position.y + this._outputPortItem.position.y) / 2;
+
+                const start = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+                const p1 = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom + this._padding);
+                const p2 = new Point(this._circle.position.x, this._outputPortItem.bounds.bottom + this._padding);
+                const p3 = new Point(this._circle.position.x, this._inputPortItem.bounds.top - 5);
+                const p4 = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top - 5);
+                const end = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
+
+                this.add(start, p1, p2, p3, p4, end);
+            } else {
+                if (this._offsetY == null) {
+                    this._circle.position.y = (this._inputPortItem.bounds.top + this._outputPortItem.bounds.bottom) / 2;
+                } else {
+                    this._circle.position.y = this._clamp(this._outputPortItem.bounds.bottom + this._offsetY, this._outputPortItem.bounds.bottom + this._padding, this._inputPortItem.bounds.top - 5);
+                }
+                
+                this._circle.position.x = (this._inputPortItem.position.x + this._outputPortItem.position.x) / 2;
+
+                const start = new Point(this._inputPortItem.position.x, this._inputPortItem.bounds.top);
+                const p1 = new Point(this._inputPortItem.position.x, this._circle.position.y);
+                const p2 = new Point(this._outputPortItem.position.x, this._circle.position.y);
+                const end = new Point(this._outputPortItem.position.x, this._outputPortItem.bounds.bottom);
+    
+                this.add(start, p1, p2, end);
+            }
         }
     }
 
@@ -103,9 +138,49 @@ class ConnectionItem extends BaseItem
         super.destroy();
     }
 
+    /**
+     * Overrides move method to calculate and update offset instead of position.
+     */
+    move(delta)
+    {
+        if (this._inputPortItem.bounds.top < this._outputPortItem.bounds.bottom + 2 * this._padding) {
+            this._offsetX = (this._circle.position.x - this._outputPortItem.position.x) + delta.x;
+        } else {
+            this._offsetY = (this._circle.position.y - this._outputPortItem.bounds.bottom) + delta.y;
+        }
+        this._hasMoved = true;
+    }
+
+    /**
+     * Overrides updatePositionToServer to update offset instead of position.
+     */
+    updatePositionToServer()
+    {
+        if (this.isMoveable() && this._hasMoved)
+        {
+            // If an ID exists, we know it exists on the server, so we can patch it.
+            // Else if we haven't tried saving it before, do it. This should create
+            // a new model on the server.
+            if (this._modelId || !this._coordinateSetSaveAttempted)
+            {
+                this._coordinateSetSaveAttempted = true;
+                this._model.set({ offset_x: this._offsetX, offset_y: this._offsetY });
+                this._model.save();
+                this._hasMoved = false;
+            }
+        }
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 ///////////////////////////////////////////////////////////////////////////////////////
-}
+   /**
+    * Clamps a value between a min and max.
+    */
+    _clamp(value, min, max)
+        {
+            return Math.min(Math.max(value, min), max);
+        }
+    }
 
 export default ConnectionItem;

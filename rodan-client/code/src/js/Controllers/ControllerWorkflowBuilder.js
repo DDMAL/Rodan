@@ -252,7 +252,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleWorkflowLoadSuccess(workflow)
     {
-        this._processWorkflow(workflow);
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOBGROUP_LOAD_COLLECTION, {workflow: workflow});
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWBUILDER_LOADED_WORKFLOW, {workflow: workflow});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
     }
@@ -624,7 +624,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleConnectionCreationSuccess(model, workflow, inputPort, outputPort)
     {
-        workflow.get('connections').add(model);
+        workflow.get('workflow_connections').add(model);
         inputPort.fetch(); // to get populated Connection array
         outputPort.fetch(); // to get populated Connection array
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
@@ -654,7 +654,7 @@ export default class ControllerWorkflowBuilder extends BaseController
      */
     _handleConnectionDeletionSuccess(model, workflow)
     {
-        workflow.get('connections').remove(model);
+        workflow.get('workflow_connections').remove(model);
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_VALIDATE_WORKFLOW, {workflow: workflow});
     }
 
@@ -686,106 +686,6 @@ export default class ControllerWorkflowBuilder extends BaseController
     {
         var connection = new Connection({input_port: inputPort.get('url'), output_port: outputPort.get('url')});
         connection.save({}, {success: (model) => this._handleConnectionCreationSuccess(model, workflow, inputPort, outputPort)});
-    }
-
-    /**
-     * Process workflow for GUI.
-     */
-    _processWorkflow(workflow)
-    {
-        // Process all WorkflowJobs and their associated ports.
-        var connections = {};
-        var workflowJobs = workflow.get('workflow_jobs');
-        if (workflowJobs !== undefined)
-        {
-            for (var i = 0; i < workflowJobs.length; i++)
-            {
-                // Create WorkflowJob item then process connections.
-                var workflowJob = workflowJobs.at(i);
-                var tempConnections = this._processWorkflowJob(workflowJob);
-
-                // For the connections returned, merge them into our master list.
-                for (var connectionUrl in tempConnections)
-                {
-                    var connection = tempConnections[connectionUrl];
-                    if (connections.hasOwnProperty(connectionUrl))
-                    {
-                        connections[connectionUrl].inputPort =
-                            connections[connectionUrl].inputPort === null ? connection.inputPort : connections[connectionUrl].inputPort;
-                        connections[connectionUrl].outputPort =
-                            connections[connectionUrl].outputPort === null ? connection.outputPort : connections[connectionUrl].outputPort;
-                    }
-                    else
-                    {
-                        connections[connectionUrl] = connection;
-                    }
-                }
-            }
-        }
-
-        // Process connections.
-        for (var connectionUrl in connections)
-        {
-            var connection = connections[connectionUrl];
-            var connectionId = BaseModel.parseIdFromUrl(connectionUrl);
-            var connectionModel = new Connection({
-                input_port: connection.inputPort.get('url'),
-                output_port: connection.outputPort.get('url'),
-                url: connectionUrl,
-                uuid: connectionId
-            });
-            workflow.get('connections').add(connectionModel);
-        }
-
-        // Finally inport the WorkflowJobGroups.
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWJOBGROUP_LOAD_COLLECTION, {workflow: workflow});
-    }
-
-    /**
-     * Process workflow job for GUI.
-     */
-    _processWorkflowJob(model)
-    {
-        // We want to keep track of what connections need to be made and return those.
-        var connections = {};
-
-        // Process input ports.
-        var inputPorts = model.get('input_ports');
-        if (inputPorts !== undefined)
-        {
-            for (var i = 0; i < inputPorts.length; i++)
-            {
-                var inputPort = inputPorts.at(i);
-
-                // Get connections.
-                var inputPortConnections = inputPort.get('connections');
-                for (var k = 0; k < inputPortConnections.length; k++)
-                {
-                    var connection = inputPortConnections[k];
-                    connections[connection] = {'inputPort': inputPort, 'outputPort': null};
-                }
-            }
-        }
-
-        // Process output ports.
-        var outputPorts = model.get('output_ports');
-        if (outputPorts !== undefined)
-        {
-            for (var j = 0; j < outputPorts.length; j++)
-            {
-                var outputPort = outputPorts.at(j);
-
-                // Get connections.
-                var outputPortConnections = outputPort.get('connections');
-                for (var k = 0; k < outputPortConnections.length; k++)
-                {
-                    var connection = outputPortConnections[k];
-                    connections[connection] = {'inputPort': null, 'outputPort': outputPort};
-                }
-            }
-        }
-
-        return connections;
     }
 
     /**
