@@ -18,8 +18,8 @@ export default class ViewProject extends Marionette.View
         this.setElement('<div id="region-main-content-wrapper" class="content-wrapper column-content"></div>');
         this.addRegions({
             regionCollection: '#region-collection-container',
-            regionProjectInfo: '#region-project-info-container',
-            regionCollectionItemInfo: '#region-collection-item-info-container'
+            // regionProjectInfo: '#region-project-details-panel',
+            regionCollectionItemInfo: '#region-collection-item-details-panel'
         });
     }
 
@@ -38,10 +38,10 @@ export default class ViewProject extends Marionette.View
     *
     * @param {Marionette.View} view item view to show
     */
-    showProjectInfo(view)
-    {
-        this.showChildView('regionProjectInfo', view);
-    }
+    // showProjectInfo(view)
+    // {
+    //     this.showChildView('regionProjectInfo', view);
+    // }
 
     /**
     * Show an item view. This is for the secondary item view.
