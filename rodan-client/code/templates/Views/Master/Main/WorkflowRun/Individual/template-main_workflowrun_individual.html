@@ -10,6 +10,9 @@
         Updated on: <%= _.formatFromUTC(updated) %><br/>
         URL: <%= url %><br>
         Status: <%= statusText %><br/>
+        <% if (status === -1 || status === 9) { %>
+            <button class="btn btn-xs btn-warning" id="button-retry_workflowrun">Retry</button>
+        <% } %>
         <button class="btn btn-xs btn-warning" id="button-save_workflowrun">Save</button>
         <button class="btn btn-xs btn-danger" id="button-delete_workflowrun">Delete</button>
     </div>

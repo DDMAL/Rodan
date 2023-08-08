@@ -115,6 +115,14 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWRUN_DELETE, {workflowrun: this.model});
     }
+
+    /**
+     * Handle retry button.
+     */
+    _handleButtonRetry()
+    {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOWRUN_RETRY, {workflowrun: this.model});
+    }
 }
 LayoutViewIndividualWorkflowRun.prototype.modelEvents = {
     'all': 'render'
@@ -124,6 +132,7 @@ LayoutViewIndividualWorkflowRun.prototype.ui = {
     buttonShowRunJobs: '#button-runjobs_show',
     buttonSave: '#button-save_workflowrun',
     buttonDelete: '#button-delete_workflowrun',
+    buttonRetry: '#button-retry_workflowrun',
     textName: '#text-workflowrun_name',
     textDescription: '#text-workflowrun_description'
 };
@@ -131,7 +140,7 @@ LayoutViewIndividualWorkflowRun.prototype.events = {
     'click @ui.buttonShowResources': '_showResources',
     'click @ui.buttonShowRunJobs': '_showRunJobs',
     'click @ui.buttonSave': '_handleButtonSave',
-    'click @ui.buttonDelete': '_handleButtonDelete'
-
+    'click @ui.buttonDelete': '_handleButtonDelete',
+    'click @ui.buttonRetry': '_handleButtonRetry',
 };
 LayoutViewIndividualWorkflowRun.prototype.template = _.template($('#template-main_workflowrun_individual').text());

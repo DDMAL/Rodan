@@ -25,6 +25,7 @@ export default class ControllerWorkflowRun extends BaseController
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__WORKFLOWRUN_DELETED, options => this._handleEventWorkflowRunDeleteResponse(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__WORKFLOWRUN_SAVED, options => this._handleEventWorkflowRunSaveResponse(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__WORKFLOWRUN_STARTED, options => this._handleEventWorkflowRunStartResponse(options));
+        Radio.channel('rodan').on(RODAN_EVENTS.EVENT__WORKFLOWRUN_RETRIED, options => this._handleEventWorkflowRunRetryResponse(options));
 
         // Requests.
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, options => this._handleEventCollectionSelected(options), this);
@@ -33,6 +34,7 @@ export default class ControllerWorkflowRun extends BaseController
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWRUN_DELETE, options => this._handleRequestWorkflowRunDelete(options), this);
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWRUN_SAVE, options => this._handleRequestWorkflowRunSave(options), this);
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWRUN_START, options => this._handleRequestWorkflowRunStart(options), this);
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOWRUN_RETRY, options => this._handleRequestWorkflowRunRetry(options), this);        
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +168,13 @@ export default class ControllerWorkflowRun extends BaseController
         });
     }
 
+    _handleEventWorkflowRunRetryResponse(options)
+    {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
+        const project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, {project: project});
+    }
+
     /**
      * Handle request create WorkflowRun.
      */
@@ -212,6 +221,17 @@ export default class ControllerWorkflowRun extends BaseController
         options.workflowrun.set({status: 21});
         options.workflowrun.save(options.workflowrun.changed,
                                  {patch: true, success: (model) => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_STARTED, {workflowrun: model})});
+    }
+
+    /**
+     * Handle request retry WorkflowRun.
+     */
+    _handleRequestWorkflowRunRetry(options)
+    {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Restarting Workflow Run', content: 'Please wait...'});
+        options.workflowrun.set({status: 31});
+        options.workflowrun.save(options.workflowrun.changed,
+                                    {patch: true, success: (model) => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_RETRIED, {workflowrun: model})});
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
