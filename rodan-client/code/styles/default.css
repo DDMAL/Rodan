@@ -148,13 +148,6 @@ tbody > tr:hover {
 .content-wrapper.row-content {
     flex-direction: row;
 }
-
-li::marker {
-    content: '';
-}
-.btn-group {
-    display: flex;
-}
 .btn {
     outline: none;
     border: none;
@@ -164,29 +157,55 @@ hr {
     border: 1px solid #e5e5e5;
     width: 100%;
 }
-.dropdown-menu {
-    position: absolute;
-    flex-direction: column;
-    top: 101%;
-    padding: 0;
-    margin: 0;
-    left: 0%;
-    background-color: #fafafa;
-    border: 1px solid #d7d7d7;
-    width: 99%;
-    border-radius: 3px;
+.dropdown {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
-.dropdown-menu.hidden {
-    display: none;
-}
-.dropdown-menu > li {
-    padding: 5px;
+.dropdown-toggle {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     cursor: pointer;
 }
-.dropdown-menu > li:hover {
-    color: white;
-    background-color: var(--secondary-app-color);
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -15%;
+    width: fit-content;
+    min-width: 150px;
+    height: fit-content;
+    background-color: white;
+    color: black;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 5px 1px #00000057;
+    border-radius: 0px 0px 3px 3px;
 }
+.dropdown-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 13px;
+    text-wrap: nowrap;
+    cursor: pointer;
+}
+.dropdown-btn:hover {
+    color: white;
+    background-color: var(--primary-app-color);
+}
+
+/* remove this after!!!!!!!!! */
+.modal-dialog {
+    display: none;
+}
+
 
 /* ------------------------------------ */
 /* General styles end
@@ -391,24 +410,6 @@ hr {
     box-sizing: border-box;
     border: 1px solid #d7d7d7;
     border-radius: 5px;
-}
-#filter-options-wrapper {
-    gap: 10px;
-}
-#filter-menu {
-    width: 10%;
-    justify-content: center;
-    position: relative;
-}
-#button-add-filter {
-    width: 100%;
-    height: 100%;
-    border-radius: 3px;
-    padding: 0;
-    border: 1px solid #d7d7d7;
-}
-#dropdown-menu-table-filter {
-
 }
 #clear-filters-btn-wrapper {
     width: auto;
@@ -625,13 +626,39 @@ hr {
 /*//////////////////////////////////////////////////////////////////////////////////////
 // Canvas
 /////////////////////////////////////////////////////////////////////////////////////// */
-div#canvas-wrap
+#workflow-builder-container {
+    border-left: 2px solid #69a3a8;
+    box-sizing: border-box;
+}
+#workflow-builder-navbar {
+    height: 5vh;
+    color: white;
+    background-color: #69a3a8;
+}
+#worlkflow-builder-navbar-content-wrapper {
+    gap: 5vw;
+    padding: 0px 2vw;
+}
+#navbar-header {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+}
+#navbar-workflow-name {
+    font-size: 20px;
+}
+#workflow-builder-navbar-btns-wrapper {
+    gap: 3vw;
+    font-size: 13px;
+}
+#canvas-wrap
 {
-    height: 100%;
+    flex-grow: 0.9;
     overflow: hidden;
     padding: 0px;
+    height: -webkit-fill-available;
 }
-div#canvas-tooltip
+#canvas-tooltip
 {
     position: fixed;
     background-color: #ffff88;
