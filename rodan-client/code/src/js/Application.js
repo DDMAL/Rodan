@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import $ from 'jquery';
-import bootstrap from 'bootstrap';
 import Marionette from 'backbone.marionette';
 import moment from 'moment';
 import Radio from 'backbone.radio';
