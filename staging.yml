@@ -23,11 +23,11 @@ services:
       timeout: "10s"
       retries: 10
       start_period: "5m"
-    command: /run/start-production
+    command: /run/start
     environment:
       TZ: America/Toronto
       SERVER_HOST: rodan-staging.simssa.ca
-      TLS: 1
+      TLS: 0
     ports:
       - "80:80"
       - "443:443"

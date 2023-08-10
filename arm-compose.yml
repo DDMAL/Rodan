@@ -1,86 +1,87 @@
-version: "3.4"
 services:
   nginx:
-    image: "nginx-local:latest"
+    image: "ddmal/nginx:latest"
+    healthcheck:
+      test: ["CMD", "/usr/sbin/service", "nginx", "status"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 10
+      start_period: "5m"
     command: /run/start
-    depends_on:
-      - rodan-main
+    environment:
+            - TLS=0
+    env_file:
+      - ./.env
     ports:
       - "80:80"
       - "443:443"
+      - "5671:5671"
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
-  
+
   rodan-main:
     image: "ddmal/rodan-main:${DOCKER_TAG}"
+    # TODO: Make the healthcheck a service status call instead of adding to the logfile.
+    # https://github.com/DDMAL/rodan-docker/issues/61
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
-      interval: "10s"
-      timeout: "5s"
-      retries: 2
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
       start_period: "2m"
-    command: bash -c "tail -f /dev/null"
+    command: /run/start
     environment:
       CELERY_JOB_QUEUE: None
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
     env_file:
-      - ./scripts/local.env
+      - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
+  rodan-client:
+    image: "ddmal/rodan-client:${DOCKER_TAG}"
 
   iipsrv:
-    image: "ddmal/iipsrv:nightly"
+    image: "ddmal/iipsrv:${DOCKER_TAG}"
     volumes:
       - "resources:/rodan/data"
 
-      
   celery:
     image: "ddmal/rodan-main:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+      # first run interval seconds after the container is started, and then again interval seconds after each previous
+      interval: "30s"
+      # How long to wait for the healthcheck to succeed
+      timeout: "30s"
+      # Ignore failures during the start_period
+      start_period: "1m"
+      # accept 3 consecutive failures before 
+      retries: 5
+    command: /run/start-celery
     environment:
       CELERY_JOB_QUEUE: celery
-    healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
-      interval: "30s"
-      timeout: "3s"
-      start_period: "1m"
-      retries: 3
-    depends_on:
-      - postgres
-      - rodan-main
-      - rabbitmq
-      - redis
     env_file:
-      - ./scripts/local.env
+      - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    image: "ddmal/rodan-python3-celery:nightly"
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+      interval: "30s"
+      timeout: "30s"
+      retries: 5
+    command: /run/start-celery
     environment:
       CELERY_JOB_QUEUE: Python3
-    depends_on:
-      - postgres
-      - rodan-main
-      - rabbitmq
-      - redis
-      - celery
     env_file:
-      - ./scripts/local.env
-      - ./hpc-rabbitmq/scripts/local.env
+      - ./scripts/staging.env
+      - ./hpc-rabbitmq/scripts/staging.env
     volumes:
       - "resources:/rodan/data"
-      - "./rodan-main/code:/code/Rodan"
-  
-  
+
   redis:
     image: "redis:alpine"
     healthcheck:
@@ -88,8 +89,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    depends_on:
-      - postgres
 
   postgres:
     image: "ddmal/postgres-plpython:${DOCKER_TAG}"
@@ -98,20 +97,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+      - "pg_backup:/backups"
     env_file:
-      - ./scripts/local.env
-  
+      - ./scripts/staging.env
+
   rabbitmq:
     image: "rabbitmq:alpine"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: "30s"
-      timeout: "3s"
-      retries: 3
-    depends_on:
-      - redis
+      test: rabbitmq-diagnostics -q ping
+      #interval: "30s" # default
+      timeout: 3s
+      #retries: 3 # default
     env_file:
-      - ./scripts/local.env
+      - ./scripts/staging.env
 
 volumes:
   resources:
+  pg_backup:
+  pg_data:

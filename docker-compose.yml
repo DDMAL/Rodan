@@ -9,6 +9,10 @@ services:
       - rabbitmq
       - redis
       - rodan-main
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: rodan.dev.simssa.ca
+      TLS: 0
     ports:
       - "80:80"
       - "443:443"
@@ -38,8 +42,11 @@ services:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
 
+  rodan-client:
+    image: "ddmal/rodan-client:${DOCKER_TAG}"
+
   iipsrv:
-    image: "ddmal/iipsrv:nightly"
+    image: "ddmal/iipsrv:${DOCKER_TAG}"
     volumes:
       - "resources:/rodan/data"
 
@@ -78,7 +85,6 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-      - ./hpc-rabbitmq/scripts/local.env
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"
@@ -131,18 +137,6 @@ services:
       - redis
     env_file:
       - ./scripts/local.env
-
-  hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:${DOCKER_TAG}"
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: "30s"
-      timeout: "3s"
-      retries: 3
-    env_file:
-      - ./hpc-rabbitmq/scripts/local.env
-    ports:
-      - "5672:5672"
 
 volumes:
   resources:

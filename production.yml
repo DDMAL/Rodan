@@ -23,7 +23,7 @@ services:
       timeout: "10s"
       retries: 10
       start_period: "5m"
-    command: /run/start-production
+    command: /run/start
     environment:
       TZ: America/Toronto
       SERVER_HOST: rodan2.simssa.ca
