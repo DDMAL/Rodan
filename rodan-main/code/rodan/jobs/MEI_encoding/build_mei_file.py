@@ -424,8 +424,11 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
         else: 
             #need to create a new syllable and add according precedes and follows attributes 
             if (syl_dict["added"]):  #syl, neume now precedes follows 
-                
-                cur_syllable = precedes_follows(syl_dict, layer, new_element) #update current syllable
+                if tag == "neume":
+                    cur_syllable = precedes_follows(syl_dict, layer, new_element) #update current syllable
+                else:
+                    layer.append(new_element)
+                    syl_dict["neume_added"] = False
             #if the syllable hasn't been added yet (no neume so far) then add new element to current syllable
             else : 
                 cur_syllable.append(new_element)
