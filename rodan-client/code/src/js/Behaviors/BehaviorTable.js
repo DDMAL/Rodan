@@ -215,6 +215,11 @@ export default class BehaviorTable extends Marionette.Behavior
             $(this.el).find(elementId).on('dp.change', () => this._handleSearch());
         }
 
+        // Load label filters.
+        if (filterFields.labels) {
+            this._updateFilterLabels();
+        }
+
         $(this.el).find('#filter-inputs input').on('change keyup paste mouseup', () => this._handleSearch());
         $(this.el).find('#filter-inputs select').on('change keyup paste mouseup', () => this._handleSearch());
 
@@ -253,25 +258,42 @@ export default class BehaviorTable extends Marionette.Behavior
     {
         var templateChoice = _.template($(this.options.templateFilterChoice).html());
         var templateInput = _.template($(this.options.templateFilterMultipleEnum).html());
-        var labelCollection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_RESOURCELABEL_COLLECTION);
-        var project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
-        var project_resources = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_CURRENT, {data: {project: project.id}});
-        var labels = new Set();
-        project_resources.each(function (resource) {
-            resource.attributes.labels.forEach(function ({ url }) {
-                labels.add(url);
-            });
-        });
-        var filtered_collection = labelCollection.filter(function (resource) { return labels.has(resource.attributes.url); });
-        var labelModels = filtered_collection.map((label) => {
-            return {
-                label: label.get('name'),
-                value: label.get('uuid')
-            };
-        });
         var htmlChoice = templateChoice({label: label, field: field});
-        var htmlInput = templateInput({label: label, field: field, values: labelModels});
+        var htmlInput = templateInput({label: label, field: field, values: [] }); // Values will be populated later
         return {collectionItem: htmlChoice, input: htmlInput};
+    }
+
+    /**
+     * Update the label filters with the labels for the current project
+     */
+    _updateFilterLabels()
+    {
+        const project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        
+        if (!project) {
+            return;
+        }
+        
+        const route = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'labels');
+        const ajaxSettings = {
+            url: route + '?resource__project=' + project.get('uuid'),
+            type: 'GET',
+            dataType: 'json',
+            success: (data) => {
+                const select = document.getElementById('labels');
+                if (select) {
+                    const labels = data.results.map(label => {
+                        const element = document.createElement('option');
+                        element.value = label.uuid;
+                        element.label = label.name;
+                        return element;
+                    });
+                    select.replaceChildren(...labels);
+                }
+            },
+        };
+
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings});
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -419,6 +441,10 @@ export default class BehaviorTable extends Marionette.Behavior
                 if (options)
                 {
                     this._injectFiltering(options.filter_fields);
+
+                    if (options.filter_fields.labels) {
+                        collection.on('add remove sync', () => this._updateFilterLabels());
+                    }
                 }
             }
 
