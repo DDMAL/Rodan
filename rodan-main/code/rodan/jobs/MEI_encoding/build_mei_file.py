@@ -515,8 +515,12 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
 
     is_multi_column = column_split_info is not None
+    try:
+        bb = staves[0]['bounding_box']
+    except IndexError as exception:
+        #Add extra information about why this error occurred
+        raise Exception("This mistake could be a result of assigning the same model to two different input ports in the Fast Pixelwise Analysis job\n. or Assigning a previously generated symbol layer as the original folio image.") from exception
 
-    bb = staves[0]['bounding_box']
     bb = {
         'ulx': bb['ulx'],
         'uly': bb['uly'],
@@ -810,7 +814,7 @@ def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_
     meiDoc = removeEmptySyl(meiDoc)
 
     tree = ET.ElementTree(meiDoc.getroot())
-    
+        
     return ET.tostring(tree.getroot(),encoding='utf8').decode('utf8')
 
 

@@ -88,7 +88,11 @@ class ClassificationTask(RodanTask):
         with self.tempdir() as tdir:
             tempPath = os.path.join(tdir, classifier_path + '.xml')
         copyfile(classifier_path, tempPath)
-        cknn = gamera.knn.kNNNonInteractive(tempPath)
+        try: 
+            cknn = gamera.knn.kNNNonInteractive(tempPath)
+        except ValueError as exception: 
+            raise Exception("This mistake could be a result of assigning the split_features file to the training data port and vice-versa.") from exception
+
         if 'GameraXML - Feature Selection' in inputs:
             cknn.load_settings(inputs['GameraXML - Feature Selection'][0]['resource_path'])
         func = gamera.classify.BoundingBoxGroupingFunction(
