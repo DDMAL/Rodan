@@ -448,6 +448,16 @@ hr {
 }
 
 /* Table controls: table filtering */
+#table-filters-header-container {
+    height: fit-content;
+}
+#filter-inputs-dropdown-btn {
+    width: 25px;
+    cursor: pointer;
+}
+#filter-inputs-dropdown-btn.open {
+    transform: rotate(180deg);
+}
 .region-main-section.table-control.filters {
     background-color: #fafafa;
     padding: 8px;
@@ -469,6 +479,9 @@ hr {
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
+}
+#filter-inputs-wrapper.hidden {
+    display: none;
 }
 #filter-inputs-title {
     width: 100%;

@@ -536,6 +536,11 @@ export default class BehaviorTable extends Marionette.Behavior
         this.view.collection.fetchPage({page: parseInt(event.currentTarget.value)});
     }
 
+    _handleFiltersDropdown() {
+        $(this.el).find('#filter-inputs-wrapper').toggleClass('hidden');
+        $(this.el).find('#filter-inputs-dropdown-btn').toggleClass('open');
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -661,7 +666,8 @@ BehaviorTable.prototype.ui = {
     buttonSearch: '#button-search',
     buttonRemove: '#button-remove',
     buttonClearAll: '#button-clearall',
-    paginationSelect: '#pagination-select'
+    paginationSelect: '#pagination-select',
+    filtersDropdown: '#filter-inputs-dropdown-btn',
 };
 BehaviorTable.prototype.events = {
     'click @ui.paginationPrevious': '_handlePaginationPrevious',
@@ -675,7 +681,8 @@ BehaviorTable.prototype.events = {
     'click @ui.buttonClearAll': '_handleButtonClearAll',
     'click tbody tr': '_handleLeftClickRow',
     'contextmenu tbody tr': '_handleRowRightClick',
-    'change @ui.paginationSelect': '_handlePaginationSelect'
+    'change @ui.paginationSelect': '_handlePaginationSelect',
+    'click @ui.filtersDropdown': '_handleFiltersDropdown',
 };
 BehaviorTable.prototype.options = {
     'templateControl': '#template-table_control',
