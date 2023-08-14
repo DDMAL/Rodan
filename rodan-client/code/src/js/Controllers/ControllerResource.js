@@ -141,7 +141,7 @@ export default class ControllerResource extends BaseController
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Deleting Resource', content: 'Please wait...'});
         this._layoutView.clearItemView();
-        options.resource.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection)});
+        options.resource.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection), wait: true});
     }
 
     /**
