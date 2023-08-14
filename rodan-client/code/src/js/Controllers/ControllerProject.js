@@ -98,6 +98,7 @@ export default class ControllerProject extends BaseController
         var collection = new UserCollection();
         collection.fetch();
         var userSelectionView = new BaseViewCollection({collection: collection,
+                                                        el: '<div class="content-wrapper column-content column-left"></div>',
                                                         template: _.template($('#template-main_user_selection').text()),
                                                         childView: BaseViewCollectionItem,
                                                         childViewContainer: 'select',
@@ -120,7 +121,7 @@ export default class ControllerProject extends BaseController
                                                viewprojectadmins: projectAdminsView,
                                                viewprojectworkers: projectWorkersView,
                                                project: options.project});
-
+                                                                                         
         // Show modal.
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'Project Users'});
     }

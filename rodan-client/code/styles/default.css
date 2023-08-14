@@ -41,6 +41,7 @@
     --secondary-app-color: #589ed5;
     --text-color-navigation: white;
     --app-font: Montserrat, sans-serif;
+    --btn-remove-color: #E76B6B;
 
     /* Navigation area */
     --background-color-navigation: #000000;
@@ -78,6 +79,12 @@
 /* General styles
 /* ------------------------------------ */
 
+/* 
+ * General styles (especially .content-wrapper styles) are used EVERYWHERE.
+ * If you modify these styles, it will affect a lot of the UI throughout the whole website.
+ * PLEASE MAKE SURE YOU KNOW WHAT YOU'RE DOING!
+ */
+
 .text-small
 {
     font-size: x-small;
@@ -91,13 +98,22 @@ body {
     margin: 0px;
     overflow: hidden;
 }
-input {
+input, select {
     border: 1px solid #cecece;
     border-radius: 3px;
     font-family: Montserrat, sans-serif;
     padding: 2px;
     box-sizing: border-box;
     flex-grow: 1;
+    outline: none;
+}
+textarea {
+    border: 1px solid #cecece;
+    height: 50px;
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+    border-radius: 3px;
     outline: none;
 }
 /* Table styles */
@@ -111,12 +127,14 @@ table {
     font-size: 15px;
 }
 thead {
-    /* border-bottom: 1px solid #c2c2c2; */
     background-color: #ecf0f5;
 }
 th, td {
     cursor: pointer;
-    padding: 10px 5px;
+    padding: 10px;
+}
+td {
+    border-top: 1px solid rgb(215 215 215);
 }
 tr {
     cursor: default;
@@ -124,18 +142,14 @@ tr {
 th {
     font-weight: 400;
     text-align: left;
+    text-wrap: nowrap;
 }
 tbody > tr:hover {
     background-color: var(--secondary-app-color);
     color: white;
     cursor: pointer;
 }
-
-/* 
- * Content wrappers are used EVERYWHERE to wrap various HTML content.
- * If you modify the content-wrapper classes, it will affect a lot of the UI.
- * PLEASE MAKE SURE YOU KNOW WHAT YOU'RE DOING!
-*/
+/* flex content alignment start */
 .content-wrapper {
     display: flex;
     align-items: center;
@@ -148,15 +162,51 @@ tbody > tr:hover {
 .content-wrapper.row-content {
     flex-direction: row;
 }
+.column-left {
+    align-items: flex-start;
+}
+.row-left {
+    justify-content: flex-start;
+}
+.column-center {
+    align-items: center;
+}
+.row-center {
+    justify-content: center;
+}
+.column-right {
+    align-items: flex-end;
+}
+.row-right {
+    justify-content: flex-end;
+}
+.flex-gap-10 {
+    gap: 10px;
+}
+.flex-gap-20 {
+    gap: 20px;
+}
+.flex-gap-30 {
+    gap: 30px;
+}
+/* flex content alignment end */
 .btn {
     outline: none;
     border: none;
     cursor: pointer;
+    padding: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+.btn-delete, .btn-remove, .btn-logout {
+    color: white;
+    background-color: var(--btn-remove-color);
 }
 hr {
     border: 1px solid #e5e5e5;
     width: 100%;
 }
+/* dropdowns */
 .dropdown {
     height: 100%;
     display: flex;
@@ -199,11 +249,6 @@ hr {
 .dropdown-btn:hover {
     color: white;
     background-color: var(--primary-app-color);
-}
-
-/* remove this after!!!!!!!!! */
-.modal-dialog {
-    display: none;
 }
 
 
@@ -518,11 +563,12 @@ hr {
     background-color: transparent;
     font-size: 15px;
     color: grey;
+    border-radius: 0px;
 }
 .project-nav-bar-btn.active {
     border-bottom: 3px solid var(--primary-app-color);  
 }
-.collection-wrapper {
+.single-project-view-collection-wrapper {
     gap: 10px;
 }
 .resource-upload-container {
@@ -646,6 +692,10 @@ hr {
 }
 #navbar-workflow-name {
     font-size: 20px;
+    text-wrap: nowrap;
+}
+#data-workflow_status {
+    text-wrap: nowrap;
 }
 #workflow-builder-navbar-btns-wrapper {
     gap: 3vw;
@@ -653,10 +703,10 @@ hr {
 }
 #canvas-wrap
 {
-    flex-grow: 0.9;
+    /* flex-grow: 0.9; */
     overflow: hidden;
     padding: 0px;
-    height: -webkit-fill-available;
+    /* height: -webkit-fill-available; */
 }
 #canvas-tooltip
 {
@@ -668,7 +718,7 @@ hr {
     border-style: solid;
     border-width: 2px;
     width: auto;
-    visibility: visible;
+    visibility: hidden;
     display: inline-block;
 }
 canvas#canvas-workspace
@@ -681,13 +731,6 @@ canvas[resize] {
     height: 100%;
 }
 /* Input fields */
-textarea[type=text]
-{
-    height: 50px;
-    width: 100%;
-    resize: vertical;
-    box-sizing: border-box;
-}
 .vertical-center {
     height: calc(var(--height-top) * 1%); /*fallback */
     height: calc(var(--height-top) * 1vh);
@@ -698,10 +741,6 @@ textarea[type=text]
 {
     width: 100%;
     text-align: center;
-}
-div.individual-marionette-item-view {
-    /*position: fixed;*/
-    width: 100%;
 }
 div.top {
     height: calc(var(--height-top) * 1%); /*fallback */
@@ -728,32 +767,87 @@ div#main_workflowbuilder
     background: #dddddd;
 }
 
-/* Modals */
+/* ------------------------------------ */
+/* ----------- Modal Styles ----------- */
+/* ------------------------------------ */
+
+/* general modal styles */
+#modal-generic {
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    max-width: 1000px;
+    min-width: 500px;
+    background-color: #ffffff00;
+    box-shadow: 0px 0px 5000px 5000px #0000005c;
+    z-index: 9999;
+    border-radius: 5px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    margin: 100px auto; /* centers horizontally 100px from top of body */
+}
+.modal-content
+{
+
+}
+.modal-header {
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #488bcb;
+    color: white;
+    font-size: 15px;
+}
+.modal-close {
+    cursor: pointer;
+}
 .modal-body
 {
     max-height: 600px;
     overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
-.modal-content
-{
-    opacity: 1 !important;
+.modal-body-section {
+    align-items: flex-start;
 }
-
-.modal-backdrop
-{
-    opacity: 0.3 !important;
+.modal-subtitle {
+    font-size: 13px;
+    font-weight: bold;
 }
 .modal-footer
 {
-    text-align: left !important;
+    padding: 10px;
 }
-
 .modal-footer-error, .modal-input-error
 {
     color: #aa0000;
 }
+.modal-body-section-left {
+    align-items: flex-start;
+}
 
-/* Table overrides */
+/* project-users modal styles */
+#admins-and-workers-tables {
+    align-items: flex-start;
+    gap: 25px;
+
+    .table-responsive {
+        width: 100%;
+    }
+}
+
+/* user preferences modal */
+#checkbox-send_email {
+    flex-grow: 0; /* overwrite general input element styles (which have flex-grow value of 1) */
+}
+
+
+/* ------------ */
+/* Table styles */
+/* ------------ */
+
 /**
  * Make text in table unselectable. This helps make multiple selection look better.
  */
