@@ -7,9 +7,10 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan  
+import parse_classifier_table as pct #for rodan  
 #import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
+from state_machine import SylMachine
 
 try:
     from rodan.jobs.MEI_encoding import __version__
@@ -409,12 +410,15 @@ def add_to_syllable(syl_dict: dict, tag: str, layer: Element, new_element: Eleme
     # These are the elements that can be contained in a syllable
     contained_in_syllable = {"neume", "divLine", "clef", "accid"}
 
-    #To ensure that divLines are not leftmost element 
-    #clefs and custos should be outside of the syllable 
-    if tag not in contained_in_syllable or (tag != "neume" and not syl_dict["neume_added"]):
+    
+    should_be_in_syllable = tag in contained_in_syllable
+    safe_to_add_to_syllable = should_be_in_syllable and (syl_dict["neume_added"] or tag == "neume")
+
+    # add outside the syllable if not safe (add to the layer)
+    if not safe_to_add_to_syllable:
         layer.append(new_element)
 
-    else: #divline or neume 
+    else:
         #continue as normal (append to current syllable) 
         if syl_dict["latest"].tag in contained_in_syllable: 
             cur_syllable.append(new_element)                            
@@ -490,6 +494,244 @@ def staff_to_columns_dict(staves: List[dict], height: int, num_columns):
         out[i] = column
     return out
 
+# def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, column_split_info: Optional[dict]):
+#     '''
+#     Encodes the final MEI document using:
+#         @pairs: Pairs from the neume_to_lyric_alignment.
+#         @classifier: The MEI mapping dictionary output
+#             by fetch_table_from_csv() in parse_classifier_table.py
+#         @width_container: The width column by fetch_table_from_csv() in parse_classifier_table.py
+#             the length of the list indicates the width of the neume,
+#             the sum of the list indicates the number of the ncs in the neume
+#         @staves: Bounding box information from pitch finding JSON.
+#         @page: Page dimension information from pitch finding JSON.
+#     '''
+#     meiDoc, surface, layer = generate_base_document(column_split_info)
+#     surface_bb = {
+#         'ulx': page['bounding_box']['ulx'],
+#         'uly': page['bounding_box']['uly'],
+#         'lrx': page['bounding_box']['ulx'] + page['bounding_box']['ncols'],
+#         'lry': page['bounding_box']['uly'] + page['bounding_box']['nrows']
+#     }
+
+
+#     surface.set('lry', str(math.trunc(surface_bb['lry'])))
+#     surface.set('lrx', str(math.trunc(surface_bb['lrx'])))
+#     surface.set('ulx', str(math.trunc(surface_bb['ulx'])))
+#     surface.set('uly', str(math.trunc(surface_bb['uly'])))
+
+
+#     is_multi_column = column_split_info is not None
+
+#     bb = staves[0]['bounding_box']
+#     bb = {
+#         'ulx': bb['ulx'],
+#         'uly': bb['uly'],
+#         'lrx': bb['ulx'] + bb['ncols'],
+#         'lry': bb['uly'] + bb['nrows'],
+#     }
+#     if is_multi_column:
+#         # if multi columnm, add column begin
+#         cb = new_el("cb")
+#         cb.set("n", "1")
+#         # set cb facs here, bb initially first sb bounding box
+#         # box will grow with each new sb
+#         previous_cb = {"cb": cb,"bb": bb}
+#         layer.append(cb)
+
+#         # get height of original image, number of columns, and mapping for staves to columns
+#         height = column_split_info["height"]
+#         num_columns = len(column_split_info["split_ranges"])
+#         staff_to_column = staff_to_columns_dict(staves, height, num_columns)
+#         prev_column = 0
+
+#     #add an initial system beginning
+#     sb = new_el("sb")
+    
+#     zoneId = generate_zone(surface, bb)
+#     sb.set('facs', '#' + zoneId)
+#     layer.append(sb)
+
+#     # The flattened list of glyphs is used to search for the next neume after a custos.
+#     # we look forwards instead of storing the last custos because we simply updating an 
+#     # element that has already been added to the layer doesn't work. We would have to find 
+#     # it by id in the layer's children.
+#     all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
+
+#     # if column splitting data is given, get the height of the original image,
+#     # the number of columns, and a mapping for staves to columns
+        
+
+#     # add to the MEI document, syllable by syllable
+#     for gs, syl_box in pairs:
+#         # print (gs)
+#         # print ("  ")
+#         # first add information about the text itself
+
+#         cur_syllable = new_el("syllable")
+#         bb = {
+#             'ulx': syl_box['ul'][0],
+#             'uly': syl_box['ul'][1],
+#             'lrx': syl_box['lr'][0],
+#             'lry': syl_box['lr'][1],
+#         }
+
+#         # if there are multiple columns, shift the bounding box back accordingly
+#         if is_multi_column:
+#             col = bbox_to_col_num(bb, column_split_info["split_ranges"], height)
+#             bb = translate_bbox(bb, column_split_info["split_ranges"], height, col)
+#         zoneId = generate_zone(surface, bb)
+
+#         # add syl element containing text on page
+#         syl = new_el("syl", cur_syllable)
+#         syl.text =  syl_box['syl']
+#         syl.set('facs', '#' + zoneId)
+
+#         syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
+#         # iterate over glyphs on the page that fall within the bounds of this syllable
+#         for i, glyph in enumerate(gs):
+#             # if there are multiple columns, shift the glyph box back to was in the original input image
+#             if is_multi_column:
+#                 curr_column = staff_to_column[int(glyph['staff'])-1]
+#                 glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], column_split_info["split_ranges"], height, curr_column)
+
+#             # if the glyph is a custos, we override its pitch information using the next neume
+#             if glyph["name"] == "custos":
+#                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
+#                 glyph["note"] = note
+#                 glyph["octave"] = octave
+
+#             # are we done with neume components in this grouping?
+#             syllable_over = not any(('neume' in x['name']) for x in gs[i:])
+#             new_element = glyph_to_element(classifier, width_container, glyph, surface)
+#             if new_element is None:
+#                 continue
+#             # four cases to consider:
+#             # 1. no line break and done with this syllable (everything gets added to layer)
+#             # 2. no line break and not done with this syllable
+#                 # Case a: no neume has been added yet and new element is not neume (added to layer)
+#                 # Case b: custos, clef, accid (added to layer)
+#                 # Case c: neume or divline to be added, latest element was added inside the syllable 
+#                 # Case d: neume or divline to be added, latest element was added outside the syllable, syllable has been
+#                 #         added to the mei file (precedes and follows)
+#                 # Case e: neume or divline to be added, latest element was added outside the syllable, syllable has not been 
+#                 #         added to the mei file (add element to syllable & add syllable to file if new element is neume)
+#             # 3. a line break and done with this syllable (everything gets added to layer)
+#             # 4. a line break and not done with this syllable 
+#                 # Same cases a to e (with added line break) 
+
+#             tag = new_element.tag
+
+#             if not glyph['system_begin']:
+
+#                 # case 1
+#                 if syllable_over:
+#                     layer.append(new_element)
+#                     if (syl_dict["added"] is False):
+#                         layer.append(cur_syllable)
+#                         syl_dict["added"] = True
+
+#                 # case 2
+#                 else:
+#                     #need to handle all five cases, done with add_to_syllable
+#                     add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable)
+
+#                     #need to update latest elemetn
+#                     syl_dict["latest"] = new_element 
+
+#                 continue
+
+
+#             cur_staff = int(glyph['staff'])
+
+#             # if multi column and next system is new column, add new cb
+#             if is_multi_column and staff_to_column[cur_staff] > prev_column:
+#                 # add cb to layer
+#                 zoneId = generate_zone(surface, previous_cb["bb"])
+#                 previous_cb["cb"].set("facs", "#" + zoneId)
+
+#                 #start new cb
+#                 prev_column = staff_to_column[cur_staff]
+#                 cb = new_el("cb")
+#                 cb.set("n", str(staff_to_column[cur_staff] + 1))
+#                 previous_cb["cb"] = cb
+#                 previous_cb["bb"] = None
+#                 layer.append(cb)
+
+#             bb = staves[cur_staff]['bounding_box']
+#             # if there are multiple columns, shift the bounding box accordingly
+#             bb = {
+#                 'ulx': bb['ulx'],
+#                 'uly': bb['uly'],
+#                 'lrx': bb['ulx'] + bb['ncols'],
+#                 'lry': bb['uly'] + bb['nrows'],
+#             }
+
+#             # if multi column move the bounding box back
+#             # adjust current cb zone to include newest sb bb
+#             if is_multi_column:
+#                 bb = translate_bbox(bb, column_split_info["split_ranges"], height, staff_to_column[cur_staff])
+#                 if previous_cb["bb"] is None:
+#                     previous_cb["bb"] = bb
+#                 else:
+#                     if previous_cb["bb"]["ulx"] > bb["ulx"]:
+#                         previous_cb["bb"]["ulx"] = bb["ulx"]
+#                     if previous_cb["bb"]["uly"] > bb["uly"]:
+#                         previous_cb["bb"]["uly"] = bb["uly"]
+#                     if previous_cb["bb"]["lrx"] < bb["lrx"]:
+#                         previous_cb["bb"]["lrx"] = bb["lrx"]
+#                     if previous_cb["bb"]["lry"] < bb["lry"]:
+#                         previous_cb["bb"]["lry"] = bb["lry"]
+#             zoneId = generate_zone(surface, bb)  
+            
+#             sb = new_el('sb')
+#             sb.set('facs', '#' + zoneId)   
+
+#             # case 3: the syllable is over, so the custos goes outside the syllable
+#             # do not include custos in <sb> tags! this was a typo in the MEI documentation
+#             if syllable_over:
+#                 layer.append(new_element)
+#                 layer.append(sb)
+#             # case 4 
+#             # syllable not over, so need to handle all five cases, done with add_to_syllable
+#             else:
+#                 add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable)
+
+#                 #system break must be added to the layer 
+#                 layer.append(sb)
+#                 syl_dict["latest"] = sb
+                
+#     # set the final cb's zone            
+#     if is_multi_column:
+#         # add cb to layer
+#         zoneId = generate_zone(surface, previous_cb["bb"])
+#         previous_cb["cb"].set("facs", "#" + zoneId)
+
+#     return meiDoc
+
+
+def reformat_box(box: dict):
+    bb = {
+        'ulx': box['ulx'],
+        'uly': box['uly'],
+        'lrx': box['ulx'] + box['ncols'],
+        'lry': box['uly'] + box['nrows'],
+    }
+    return bb
+
+def union_bbox(box1: dict, box2: dict):
+    '''
+    Returns the union of two bounding boxes.
+    '''
+    if box1 is None:
+        return box2
+    return {
+        'ulx': min(box1['ulx'], box2['ulx']),
+        'uly': min(box1['uly'], box2['uly']),
+        'lrx': max(box1['lrx'], box2['lrx']),
+        'lry': max(box1['lry'], box2['lry']),
+    }
+
 def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_container: dict, staves: List[dict], page: dict, column_split_info: Optional[dict]):
     '''
     Encodes the final MEI document using:
@@ -503,6 +745,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         @page: Page dimension information from pitch finding JSON.
     '''
     meiDoc, surface, layer = generate_base_document(column_split_info)
+
+    # TODO
+    # THIS NEEDS TO BE SHIFTED IF MULTI-COLUMN
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
         'uly': page['bounding_box']['uly'],
@@ -519,15 +764,14 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
 
     is_multi_column = column_split_info is not None
 
-    bb = staves[0]['bounding_box']
-    bb = {
-        'ulx': bb['ulx'],
-        'uly': bb['uly'],
-        'lrx': bb['ulx'] + bb['ncols'],
-        'lry': bb['uly'] + bb['nrows'],
-    }
+
+    system_boxes = [staff['bounding_box'] for staff in staves]
+    system_boxes = [reformat_box(box) for box in system_boxes]
+    bb = system_boxes[0]
     if is_multi_column:
         # if multi columnm, add column begin
+        system_boxes = [translate_bbox(box, column_split_info["split_ranges"], column_split_info["height"], staff_to_column[i]) for i,box in enumerate(system_boxes)]
+        bb = system_boxes[0]
         cb = new_el("cb")
         cb.set("n", "1")
         # set cb facs here, bb initially first sb bounding box
@@ -559,12 +803,8 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         
 
     # add to the MEI document, syllable by syllable
-    for gs, syl_box in pairs:
-        # print (gs)
-        # print ("  ")
-        # first add information about the text itself
+    for glyphs, syl_box in pairs:
 
-        cur_syllable = new_el("syllable")
         bb = {
             'ulx': syl_box['ul'][0],
             'uly': syl_box['ul'][1],
@@ -578,125 +818,68 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
             bb = translate_bbox(bb, column_split_info["split_ranges"], height, col)
         zoneId = generate_zone(surface, bb)
 
-        # add syl element containing text on page
-        syl = new_el("syl", cur_syllable)
-        syl.text =  syl_box['syl']
-        syl.set('facs', '#' + zoneId)
+        machine = SylMachine(syl_box['syl'],zoneId)
 
-        syl_dict = {"opening_syl": cur_syllable, "latest": syl, "added": False, "neume_added": False}
-        # iterate over glyphs on the page that fall within the bounds of this syllable
-        for i, glyph in enumerate(gs):
-            # if there are multiple columns, shift the glyph box back to was in the original input image
-            if is_multi_column:
-                curr_column = staff_to_column[int(glyph['staff'])-1]
-                glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], column_split_info["split_ranges"], height, curr_column)
+        # find the last neume index
+        last_neume_index  = 0
+        for i, g in enumerate(glyphs):
+            if "neume" in g["name"]:
+                last_neume_index = i
 
-            # if the glyph is a custos, we override its pitch information using the next neume
+        # all glyphs before the last neume
+        in_sly_glyphs = glyphs[:last_neume_index+ 1]
+        # all glyphs after the last neume, taken out of the syllable
+        out_syl_glyphs = glyphs[last_neume_index+1:]
+        for glyph in in_sly_glyphs:
+
             if glyph["name"] == "custos":
                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
                 glyph["note"] = note
                 glyph["octave"] = octave
-
-            # are we done with neume components in this grouping?
-            syllable_over = not any(('neume' in x['name']) for x in gs[i:])
-            new_element = glyph_to_element(classifier, width_container, glyph, surface)
             
+            # new_element is of type ET.Element. <neueme>, <divLine>, <clef>, <accid>, <custos>, etc.
+            new_element = glyph_to_element(classifier, width_container, glyph, surface)
             if new_element is None:
                 continue
-            # four cases to consider:
-            # 1. no line break and done with this syllable (everything gets added to layer)
-            # 2. no line break and not done with this syllable
-                # Case a: no neume has been added yet and new element is not neume (added to layer)
-                # Case b: custos, clef, accid (added to layer)
-                # Case c: neume or divline to be added, latest element was added inside the syllable 
-                # Case d: neume or divline to be added, latest element was added outside the syllable, syllable has been
-                #         added to the mei file (precedes and follows)
-                # Case e: neume or divline to be added, latest element was added outside the syllable, syllable has not been 
-                #         added to the mei file (add element to syllable & add syllable to file if new element is neume)
-            # 3. a line break and done with this syllable (everything gets added to layer)
-            # 4. a line break and not done with this syllable 
-                # Same cases a to e (with added line break) 
-
+            # tag is "neume", "divLine", "clef", "accid", "custos", etc.
             tag = new_element.tag
+            machine.read(tag, new_element)
 
-            if not glyph['system_begin']:
+            if glyph['system_begin']:
+                bb = system_boxes[int(glyph['staff'])]
+                if is_multi_column:
+                    if staff_to_column[cur_staff] > prev_column:
+                        # add cb to layer
+                        zoneId = generate_zone(surface, previous_cb["bb"])
+                        previous_cb["cb"].set("facs", "#" + zoneId)
 
-                # case 1
-                if syllable_over:
-                    layer.append(new_element)
-                    if (syl_dict["added"] is False):
-                        layer.append(cur_syllable)
-                        syl_dict["added"] = True
+                        #start new cb
+                        prev_column = staff_to_column[cur_staff]
+                        cb = new_el("cb")
+                        cb.set("n", str(staff_to_column[cur_staff] + 1))
+                        previous_cb["cb"] = cb
+                        previous_cb["bb"] = None
+                        machine.add_column_break(cb)
+                    previous_cb["bb"] = union_bbox(previous_cb["bb"], bb)
 
-                # case 2
-                else:
-                    #need to handle all five cases, done with add_to_syllable
-                    add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable)
+                cur_staff = int(glyph['staff'])
+                bb = system_boxes[cur_staff]
+                zoneId = generate_zone(surface, bb)  
+                sb = new_el('sb')
+                sb.set('facs', '#' + zoneId)
+                machine.add_line_break(sb)
 
-                    #need to update latest elemetn
-                    syl_dict["latest"] = new_element 
+        layer.extend(machine.layer)
 
-                continue
+        for glyph in out_syl_glyphs:
+            if glyph["name"] == "custos":
+                note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
+                glyph["note"] = note
+                glyph["octave"] = octave
+            new_element = glyph_to_element(classifier, width_container, glyph, surface)
+            layer.append(new_element)
+        
 
-
-            cur_staff = int(glyph['staff'])
-
-            # if multi column and next system is new column, add new cb
-            if is_multi_column and staff_to_column[cur_staff] > prev_column:
-                    # add cb to layer
-                    zoneId = generate_zone(surface, previous_cb["bb"])
-                    previous_cb["cb"].set("facs", "#" + zoneId)
-
-                    #start new cb
-                    prev_column = staff_to_column[cur_staff]
-                    cb = new_el("cb")
-                    cb.set("n", str(staff_to_column[cur_staff] + 1))
-                    previous_cb["cb"] = cb
-                    previous_cb["bb"] = None
-                    layer.append(cb)
-
-            bb = staves[cur_staff]['bounding_box']
-            # if there are multiple columns, shift the bounding box accordingly
-            bb = {
-                'ulx': bb['ulx'],
-                'uly': bb['uly'],
-                'lrx': bb['ulx'] + bb['ncols'],
-                'lry': bb['uly'] + bb['nrows'],
-            }
-
-            # if multi column move the bounding box back
-            # adjust current cb zone to include newest sb bb
-            if is_multi_column:
-                bb = translate_bbox(bb, column_split_info["split_ranges"], height, staff_to_column[cur_staff])
-                if previous_cb["bb"] is None:
-                    previous_cb["bb"] = bb
-                else:
-                    if previous_cb["bb"]["ulx"] > bb["ulx"]:
-                        previous_cb["bb"]["ulx"] = bb["ulx"]
-                    if previous_cb["bb"]["uly"] > bb["uly"]:
-                        previous_cb["bb"]["uly"] = bb["uly"]
-                    if previous_cb["bb"]["lrx"] < bb["lrx"]:
-                        previous_cb["bb"]["lrx"] = bb["lrx"]
-                    if previous_cb["bb"]["lry"] < bb["lry"]:
-                        previous_cb["bb"]["lry"] = bb["lry"]
-            zoneId = generate_zone(surface, bb)  
-            
-            sb = new_el('sb')
-            sb.set('facs', '#' + zoneId)   
-
-            # case 3: the syllable is over, so the custos goes outside the syllable
-            # do not include custos in <sb> tags! this was a typo in the MEI documentation
-            if syllable_over:
-                layer.append(new_element)
-                layer.append(sb)
-            # case 4 
-            # syllable not over, so need to handle all five cases, done with add_to_syllable
-            else:
-                add_to_syllable(syl_dict, tag, layer, new_element, cur_syllable)
-
-                #system break must be added to the layer 
-                layer.append(sb)
-                syl_dict["latest"] = sb
                 
     # set the final cb's zone            
     if is_multi_column:
