@@ -121,7 +121,7 @@ export default class ControllerProject extends BaseController
                                                viewprojectadmins: projectAdminsView,
                                                viewprojectworkers: projectWorkersView,
                                                project: options.project});
-                                                                                         
+
         // Show modal.
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'Project Users'});
     }
@@ -192,6 +192,8 @@ export default class ControllerProject extends BaseController
         
         // default collection inside project view is the workflowrun collection
         var collection = new WorkflowRunCollection();
+        collection.fetch({data: {project: this._activeProject.id}});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [collection]});
         var viewProject = new ViewProject({model: this._activeProject});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: viewProject, options: {project: this._activeProject}});
         viewProject.showCollection(new ViewWorkflowRunCollection({collection: collection}));
