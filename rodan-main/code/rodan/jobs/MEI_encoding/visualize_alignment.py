@@ -1,6 +1,5 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from pymei import MeiDocument, MeiElement, MeiAttribute, documentToText, documentToFile
 
 # This file contains only functions for drawing out intermediate results of the alignment, for
 # use when developing; nothing here is called in the rodan job.
