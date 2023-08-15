@@ -746,8 +746,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     '''
     meiDoc, surface, layer = generate_base_document(column_split_info)
 
-    # set the bounds of the page. If this is multi column
-    # this will be overwritten
+    # set the bounds of the page. If this is multi column then this will be overwritten
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
         'uly': page['bounding_box']['uly'],
@@ -756,10 +755,10 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     }
     is_multi_column = column_split_info is not None
 
-    # get a list of system bounding boxes that are formatted in
-    # ulx uly lrx lry format
+    # get a list of system bounding boxes that are formatted in ulx uly lrx lry format
     system_boxes = [staff['bounding_box'] for staff in staves]
     system_boxes = [reformat_box(box) for box in system_boxes]
+
     bb = system_boxes[0]
 
     if is_multi_column:
@@ -831,13 +830,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         for i, g in enumerate(glyphs):
             if "neume" in g["name"]:
                 last_neume_index = i
-
         # all glyphs before the last neume
         in_sly_glyphs = glyphs[:last_neume_index+ 1]
         # all glyphs after the last neume, taken out of the syllable
         out_syl_glyphs = glyphs[last_neume_index+1:]
+
+        # iterate over glyphs belonging to this syllable up to and including the final neume
         for glyph in in_sly_glyphs:
 
+            # if this glyph is a custos, make it the same pitch as next neume
             if glyph["name"] == "custos":
                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
                 glyph["note"] = note
@@ -849,13 +850,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 continue
             # tag is "neume", "divLine", "clef", "accid", "custos", etc.
             tag = new_element.tag
+            # feed the element into the state machine. The state machine will take care of
+            # building the mei
             machine.read(tag, new_element)
 
-            if glyph['system_begin']:
+            if glyph['system_begin']: # end of this system
                 bb = system_boxes[int(glyph['staff'])]
-                if is_multi_column:
-                    if staff_to_column[cur_staff] > prev_column:
-                        # add cb to layer
+                if is_multi_column: 
+                    if staff_to_column[cur_staff] > prev_column: # reached a column begin
+                        # give the previous cb its zone
                         zoneId = generate_zone(surface, previous_cb["bb"])
                         previous_cb["cb"].set("facs", "#" + zoneId)
 
@@ -866,17 +869,21 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                         previous_cb["cb"] = cb
                         previous_cb["bb"] = None
                         machine.add_column_break(cb)
+                    # if multi column, grow the column bounding box to including the system
                     previous_cb["bb"] = union_bbox(previous_cb["bb"], bb)
 
+                # create a new system begin
                 cur_staff = int(glyph['staff'])
                 bb = system_boxes[cur_staff]
                 zoneId = generate_zone(surface, bb)  
                 sb = new_el('sb')
                 sb.set('facs', '#' + zoneId)
                 machine.add_line_break(sb)
-
+        
+        # add the mei from the state machine to the layer
         layer.extend(machine.layer)
 
+        # iterate over all glyphs after the final neume
         for glyph in out_syl_glyphs:
             if glyph["name"] == "custos":
                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
@@ -884,8 +891,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 glyph["octave"] = octave
             new_element = glyph_to_element(classifier, width_container, glyph, surface)
             layer.append(new_element)
-        
-
                 
     # set the final cb's zone            
     if is_multi_column:
