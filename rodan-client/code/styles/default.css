@@ -784,6 +784,11 @@ div#main_workflowbuilder
 /* ----------- Modal Styles ----------- */
 /* ------------------------------------ */
 
+@keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
 /* general modal styles */
 #modal-generic {
     position: absolute;
@@ -791,13 +796,15 @@ div#main_workflowbuilder
     height: fit-content;
     max-width: 1000px;
     min-width: 500px;
-    background-color: #ffffff00;
+    background-color: #ffffff90;
     box-shadow: 0px 0px 5000px 5000px #0000005c;
     z-index: 9999;
     border-radius: 5px;
     backdrop-filter: blur(20px);
     overflow: hidden;
     margin: 100px auto; /* centers horizontally 100px from top of body */
+    display: none;
+    animation: fade-in 0.2s ease-in-out forwards;
 }
 .modal-content
 {
