@@ -3,7 +3,6 @@ import _ from 'underscore';
 import BaseController from './BaseController';
 import Configuration from 'js/Configuration';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
-import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import Radio from 'backbone.radio';
 import RunJobCollection from 'js/Collections/RunJobCollection';
 import ViewRunJob from 'js/Views/Master/Main/RunJob/Individual/ViewRunJob';
@@ -48,6 +47,7 @@ export default class ControllerRunJob extends BaseController
      */
     _handleCommandShowLayoutView(options)
     {
+        console.log('show layout view');
         this._layoutView = options.layoutView;
     }
 
@@ -56,7 +56,7 @@ export default class ControllerRunJob extends BaseController
      */
     _handleEventItemSelected(options)
     {
-        this._layoutView.showCollectionItemInfo(new ViewRunJob({model: options.runjob}));
+        this._projectView.showCollectionItemInfo(new ViewRunJob({model: options.runjob}));
     }
 
     /**

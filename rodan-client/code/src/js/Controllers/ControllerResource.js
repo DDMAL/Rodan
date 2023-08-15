@@ -2,7 +2,6 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseController from './BaseController';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
-import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import Radio from 'backbone.radio';
 import Resource from 'js/Models/Resource';
 import ResourceCollection from 'js/Collections/ResourceCollection';
