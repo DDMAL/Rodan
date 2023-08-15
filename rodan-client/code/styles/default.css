@@ -42,6 +42,7 @@
     --text-color-navigation: white;
     --app-font: Montserrat, sans-serif;
     --btn-remove-color: #E76B6B;
+    --btn-save-color: #EB9E3E;
 
     /* Navigation area */
     --background-color-navigation: #000000;
@@ -144,12 +145,16 @@ th {
     text-align: left;
     text-wrap: nowrap;
 }
+hr {
+    border: 1px solid #e5e5e5;
+    width: 100%;
+}
 tbody > tr:hover {
     background-color: var(--secondary-app-color);
     color: white;
     cursor: pointer;
 }
-/* flex content alignment start */
+/* flex content alignment */
 .content-wrapper {
     display: flex;
     align-items: center;
@@ -189,22 +194,55 @@ tbody > tr:hover {
 .flex-gap-30 {
     gap: 30px;
 }
-/* flex content alignment end */
+/* buttons */
 .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     outline: none;
     border: none;
     cursor: pointer;
-    padding: 3px;
+    padding: 4px;
     border-radius: 3px;
     box-sizing: border-box;
+    color: white;
+    background-color: var(--secondary-app-color);
+    border: 1px solid var(--secondary-app-color);
 }
-.btn-delete, .btn-remove, .btn-logout {
+.btn:hover {
+    background-color: white;
+    color: var(--secondary-app-color);
+}
+.btn.btn-delete, .btn.btn-remove, .btn.btn-logout {
     color: white;
     background-color: var(--btn-remove-color);
+    border: 1px solid var(--btn-remove-color);
 }
-hr {
-    border: 1px solid #e5e5e5;
-    width: 100%;
+.btn.btn-delete:hover, .btn.btn-remove:hover, .btn.btn-logout:hover {
+    color: var(--btn-remove-color);
+    background-color: white;
+}
+.btn.save-btn {
+    color: white;
+    background-color: var(--btn-save-color);
+    border: 1px solid var(--btn-save-color);
+}
+.btn.save-btn:hover {
+    background-color: white;
+    color: var(--btn-save-color);
+}
+:disabled
+{
+    color: white !important;
+    background: #dddddd !important;
+    border: 1px solid #dddddd !important;
+    cursor: not-allowed !important;
+}
+:disabled:hover
+{
+    background: #dddddd !important;
+    border: 1px solid #dddddd !important;
+    color: white !important;
 }
 /* dropdowns */
 .dropdown {
@@ -577,9 +615,15 @@ hr {
     font-size: 15px;
     color: grey;
     border-radius: 0px;
+    border: none;
+    padding: 2px;
+}
+.project-nav-bar-btn:hover {
+    color: var(--primary-app-color);
+    background-color: transparent;
 }
 .project-nav-bar-btn.active {
-    border-bottom: 3px solid var(--primary-app-color);  
+    border-bottom: 3px solid var(--primary-app-color);
 }
 .single-project-view-collection-wrapper {
     gap: 10px;
@@ -645,6 +689,9 @@ hr {
     width: 94%;
     gap: 5px;
     border-top: 2px solid #f2f2f2;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 3px;
 }
 .details-item-container {
     height: fit-content;
@@ -661,21 +708,6 @@ hr {
     padding: 3px;
     border-radius: 3px;
     box-sizing: border-box;
-}
-.btn.details-action-btn {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    border-radius: 3px;
-    background-color: var(--secondary-app-color);
-}
-.btn.details-action-btn.details-save-btn {
-    background-color: #EB9E3E;
-}
-.btn.details-action-btn.details-delete-btn {
-    background-color: #E76B6B;
 }
 #select-resourcetype {
     width: 100%;
@@ -774,10 +806,6 @@ div#main_workflowbuilder
 .instruction
 {
     font-style: italic;
-}
-:disabled
-{
-    background: #dddddd;
 }
 
 /* ------------------------------------ */
