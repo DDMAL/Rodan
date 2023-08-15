@@ -746,31 +746,27 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     '''
     meiDoc, surface, layer = generate_base_document(column_split_info)
 
-    # TODO
-    # THIS NEEDS TO BE SHIFTED IF MULTI-COLUMN
+    # set the bounds of the page. If this is multi column
+    # this will be overwritten
     surface_bb = {
         'ulx': page['bounding_box']['ulx'],
         'uly': page['bounding_box']['uly'],
         'lrx': page['bounding_box']['ulx'] + page['bounding_box']['ncols'],
         'lry': page['bounding_box']['uly'] + page['bounding_box']['nrows']
     }
-
-
-    surface.set('lry', str(math.trunc(surface_bb['lry'])))
-    surface.set('lrx', str(math.trunc(surface_bb['lrx'])))
-    surface.set('ulx', str(math.trunc(surface_bb['ulx'])))
-    surface.set('uly', str(math.trunc(surface_bb['uly'])))
-
-
     is_multi_column = column_split_info is not None
 
-
+    # get a list of system bounding boxes that are formatted in
+    # ulx uly lrx lry format
     system_boxes = [staff['bounding_box'] for staff in staves]
     system_boxes = [reformat_box(box) for box in system_boxes]
     bb = system_boxes[0]
+
     if is_multi_column:
-        # if multi columnm, add column begin
+        # since this is multi column, move all system bounding boxes to the right place
         system_boxes = [translate_bbox(box, column_split_info["split_ranges"], column_split_info["height"], staff_to_column[i]) for i,box in enumerate(system_boxes)]
+
+        # add initial column begin
         bb = system_boxes[0]
         cb = new_el("cb")
         cb.set("n", "1")
@@ -784,6 +780,16 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         num_columns = len(column_split_info["split_ranges"])
         staff_to_column = staff_to_columns_dict(staves, height, num_columns)
         prev_column = 0
+
+        # set the surface dimensions to match the original resized image
+        surface_bb['lrx'] = column_split_info["width"]
+        surface_bb['lry'] = column_split_info["height"]
+
+    # set the dimensions of the page
+    surface.set('lry', str(math.trunc(surface_bb['lry'])))
+    surface.set('lrx', str(math.trunc(surface_bb['lrx'])))
+    surface.set('ulx', str(math.trunc(surface_bb['ulx'])))
+    surface.set('uly', str(math.trunc(surface_bb['uly'])))
 
     #add an initial system beginning
     sb = new_el("sb")
