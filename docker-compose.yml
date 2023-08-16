@@ -23,7 +23,11 @@ services:
   rodan-main:
     image: "ddmal/rodan-main:${DOCKER_TAG}"
     healthcheck:
-      test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"
+        ]
       interval: "10s"
       timeout: "5s"
       retries: 2
@@ -44,6 +48,9 @@ services:
 
   rodan-client:
     image: "ddmal/rodan-client:${DOCKER_TAG}"
+    command: bash -c "tail -f /dev/null"
+    volumes:
+      - "./rodan-client/code:/code"
 
   iipsrv:
     image: "ddmal/iipsrv:${DOCKER_TAG}"
@@ -56,7 +63,19 @@ services:
     environment:
       CELERY_JOB_QUEUE: celery
     healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]
+      test:
+        [
+          "CMD",
+          "celery",
+          "inspect",
+          "ping",
+          "-A",
+          "rodan",
+          "--workdir",
+          "/code/Rodan",
+          "-d",
+          "celery@celery"
+        ]
       interval: "30s"
       timeout: "3s"
       start_period: "1m"
@@ -109,7 +128,7 @@ services:
   redis:
     image: "redis:alpine"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -119,7 +138,7 @@ services:
   postgres:
     image: "ddmal/postgres-plpython:${DOCKER_TAG}"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      test: [ "CMD-SHELL", "pg_isready", "-U", "postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -129,7 +148,7 @@ services:
   rabbitmq:
     image: "rabbitmq:alpine"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
       interval: "30s"
       timeout: "3s"
       retries: 3

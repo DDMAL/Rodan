@@ -5,6 +5,8 @@ FROM node:12.22.6-alpine as builder
 RUN apk add --no-cache \
   giflib-dev
 
+RUN apk add bash
+
 WORKDIR code
 
 # Install Yarn packages.
