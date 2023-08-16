@@ -79,7 +79,10 @@ export default class ControllerWorkflowRun extends BaseController
 
         // Create view and show.
         this._viewItem = new LayoutViewIndividualWorkflowRun({runjobs: runJobs, resources: resources, model: options.workflowrun});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._viewItem});
+        const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        this._projectView = new ViewProject({model: activeProject});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
+        this._projectView.showCollection(this._viewItem);
     }
 
     /**
