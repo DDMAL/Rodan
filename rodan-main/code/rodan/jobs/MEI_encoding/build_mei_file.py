@@ -830,13 +830,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         for i, g in enumerate(glyphs):
             if "neume" in g["name"]:
                 last_neume_index = i
-        # all glyphs before the last neume
-        in_sly_glyphs = glyphs[:last_neume_index+ 1]
-        # all glyphs after the last neume, taken out of the syllable
-        out_syl_glyphs = glyphs[last_neume_index+1:]
 
         # iterate over glyphs belonging to this syllable up to and including the final neume
-        for glyph in in_sly_glyphs:
+        for i, glyph in enumerate(glyphs):
 
             # if this glyph is a custos, make it the same pitch as next neume
             if glyph["name"] == "custos":
@@ -850,10 +846,18 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 continue
             # tag is "neume", "divLine", "clef", "accid", "custos", etc.
             tag = new_element.tag
-            # feed the element into the state machine. The state machine will take care of
-            # building the mei
-            machine.read(tag, new_element)
 
+            # the state machine is responsible for abstracting the confusing logic of when to add
+            # an element inside vs outside the syllable. An optimization we make is that we find where the last
+            # neume is, and consider that the true end of the syllable, and every glyph associated with this syllable
+            # that comes after that are added outside the syllable.
+            if i <= last_neume_index:
+                machine.read(tag, new_element)
+            else:
+                machine.read_outside_syllable(new_element)
+
+            # TODO
+            # It would be nice to find ways to reduce the amount of indentation here
             if glyph['system_begin']: # end of this system
                 bb = system_boxes[int(glyph['staff'])]
                 if is_multi_column: 
@@ -883,18 +887,9 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         # add the mei from the state machine to the layer
         layer.extend(machine.layer)
 
-        # iterate over all glyphs after the final neume
-        for glyph in out_syl_glyphs:
-            if glyph["name"] == "custos":
-                note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
-                glyph["note"] = note
-                glyph["octave"] = octave
-            new_element = glyph_to_element(classifier, width_container, glyph, surface)
-            layer.append(new_element)
                 
     # set the final cb's zone            
     if is_multi_column:
-        # add cb to layer
         zoneId = generate_zone(surface, previous_cb["bb"])
         previous_cb["cb"].set("facs", "#" + zoneId)
 

@@ -102,6 +102,9 @@ class SylMachine:
         next_state = self.adjacency_matrix[self.prev_state.value][input.value]
         self.state_mapper[next_state.value](element)
         self.prev_state = next_state
+    
+    def read_outside_syllable(self,element):
+        self.layer.append(element)
 
     def add_line_break(self,element):
         assert element.tag == "sb"
