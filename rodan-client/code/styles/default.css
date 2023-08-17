@@ -86,6 +86,10 @@
  * PLEASE MAKE SURE YOU KNOW WHAT YOU'RE DOING!
  */
 
+
+* {
+    box-sizing: border-box;
+}
 .text-small
 {
     font-size: x-small;
@@ -216,7 +220,7 @@ tbody > tr:hover {
     outline: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 0.3vh;
     border-radius: 3px;
     box-sizing: border-box;
     color: white;
@@ -643,7 +647,7 @@ tbody > tr:hover {
     border-bottom: 3px solid var(--primary-app-color);
 }
 #region-collection-container {
-    height: 88vh;
+    height: 94%;
     display: flex;
     border-radius: 3px;
 }
@@ -693,28 +697,23 @@ tbody > tr:hover {
 #region-project-details-panel, #region-collection-item-details-panel {
     height: 50%;
 }
-.details-panel-section {
-    padding: 10px;
-    box-sizing: border-box;
-}
-.details-panel-section.details-panel-title-section {
+.details-panel-title-section {
     height: 5vh;
     background-color: #f2f2f2;
 }
-.details-panel-section.details-panel-details-section {
+.details-panel-details-section {
     /* height: 80%; */
     gap: 10px;
     overflow: auto;
     flex-grow: 1;
 }
-.details-panel-section.details-panel-action-btns-section {
+.details-panel-action-btns-section {
     height: 5vh;
-    width: 94%;
     gap: 5px;
     border-top: 2px solid #f2f2f2;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 3px;
+    padding: 5px;
 }
 .details-item-container {
     height: fit-content;
@@ -735,15 +734,29 @@ tbody > tr:hover {
 #select-resourcetype {
     width: 100%;
 }
-/* Individual workflow runs */
+/* Individual workflow runs page */
+#individual-workflow-run-container {
+    border-radius: 5px;
+    overflow: hidden;
+}
+#workflow-run-details-and-action-btns-container {
+    border: 1px solid #efefef;
+    height: 30%;
+}
+#workflow-run-resources-and-run-jobs-container {
+    border: 1px solid #efefef;
+    height: 64%;
+}
 #workflow-run-collections-wrapper {
     height: fit-content;
+    padding-top: 10px;
 }
 #region-main_workflowrun_individual_resources {
     padding-top: 20px;
 }
 #region-main_workflowrun_individual_resources, #region-main_workflowrun_individual_runjobs {
     height: fit-content;
+    max-height: 82%;
 }
 
 
