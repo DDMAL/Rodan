@@ -84,7 +84,6 @@ copy_docker_tag:
 	@docker image tag $(docker images ddmal/rodan-gpu-celery:nightly -q) ddmal/rodan-gpu-celery:$(tag)
 
 pull_prod:
-	docker pull ddmal/hpc-rabbitmq:$(PROD_TAG)
 	docker pull ddmal/iipsrv:nightly
 	docker pull ddmal/nginx:$(PROD_TAG)
 	docker pull ddmal/postgres-plpython:$(PROD_TAG)
@@ -180,7 +179,6 @@ scale:
 	@docker service scale rodan_redis=$(num)
 	# @docker service scale rodan_postgres=$(num)
 	@docker service scale rodan_rabbitmq=$(num)
-	@docker service scale rodan_hpc-rabbitmq=$(num)
 
 health:
 	@docker inspect --format "{{json .State.Health }}" $(log) | jq

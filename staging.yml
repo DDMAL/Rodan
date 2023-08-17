@@ -26,11 +26,11 @@ services:
     command: /run/start
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
-      TLS: 0
+      SERVER_HOST: rodan.staging.simssa.ca
+    env_file:
+      - ./scripts/staging.env
     ports:
       - "80:80"
-      - "443:443"
       - "5671:5671"
       - "9002:9002"
     volumes:
@@ -62,12 +62,17 @@ services:
     command: /run/start
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: None
     env_file:
       - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
+  
+  rodan-client:
+    image: "ddmal/rodan-client:nightly"
+    volumes:
+        - "./rodan-client/config/configuration.json:/client/configuration.json"
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
@@ -102,7 +107,7 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: celery
     env_file:
       - ./scripts/staging.env
@@ -132,7 +137,7 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: Python3
     env_file:
       - ./scripts/staging.env
@@ -162,7 +167,7 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: GPU
     depends_on:
       - postgres

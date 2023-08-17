@@ -49,8 +49,8 @@ services:
       dockerfile: Dockerfile
     image: "ddmal/rodan-client:nightly"
 
-  hpc-rabbitmq:
+  iipsrv:
     build:
-      context: ./hpc-rabbitmq
+      context: ./iipsrv
       dockerfile: Dockerfile
-    image: "ddmal/hpc-rabbitmq:nightly"
+    image: "ddmal/iipsrv:nightly"

@@ -10,7 +10,7 @@ RUN apk add bash
 WORKDIR code
 
 # Install Yarn packages.
-COPY code/package.json code/yarn.lock .
+COPY code/package.json code/yarn.lock ./
 RUN yarn install --inline-builds && yarn cache clean
 
 # Install node project.
