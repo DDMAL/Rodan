@@ -507,13 +507,15 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     bb = system_boxes[0]
 
     if is_multi_column:
-        # since this is multi column, move all system bounding boxes to the right place
-        system_boxes = [translate_bbox(box, column_split_info["split_ranges"], column_split_info["height"], staff_to_column[i]) for i,box in enumerate(system_boxes)]
 
         # get height of original image, number of columns, and mapping for staves to columns
         height = column_split_info["height"]
         num_columns = len(column_split_info["split_ranges"])
         staff_to_column = staff_to_columns_dict(staves, height, num_columns)
+
+        # since this is multi column, move all system bounding boxes to the right place
+        system_boxes = [translate_bbox(box, column_split_info["split_ranges"], column_split_info["height"], staff_to_column[i]) for i,box in enumerate(system_boxes)]
+
         col_boxes = column_bboxes(staff_to_column, system_boxes)
         prev_column = 0
 
@@ -522,6 +524,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         cb.set("n", "1")
         zoneId = generate_zone(surface, col_boxes[0])
         cb.set("facs", "#" + zoneId)
+        layer.append(cb)
 
         # set the surface dimensions to match the original resized image
         surface_bb['lrx'] = column_split_info["width"]
@@ -546,9 +549,6 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     # it by id in the layer's children.
     all_glyphs = flatten_list([syllable_glyphs for syllable_glyphs, _ in pairs])
 
-    # if column splitting data is given, get the height of the original image,
-    # the number of columns, and a mapping for staves to columns
-        
 
     # add to the MEI document, syllable by syllable
     for glyphs, syl_box in pairs:
@@ -564,6 +564,10 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         if is_multi_column:
             col = bbox_to_col_num(bb, column_split_info["split_ranges"], height)
             bb = translate_bbox(bb, column_split_info["split_ranges"], height, col)
+
+            for glyph in glyphs:
+                curr_column = staff_to_column[int(glyph['staff'])-1]
+                glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], column_split_info["split_ranges"], height, curr_column)
         zoneId = generate_zone(surface, bb)
 
         machine = SylMachine(syl_box['syl'],zoneId)
@@ -602,18 +606,21 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 machine.read_outside_syllable(new_element)
 
 
+            # do the minus one to get the cur staff because hpf indexes by one and we index by 0
+            cur_staff = int(glyph['staff']) - 1
+            next_staff = cur_staff + 1
+
             if is_multi_column and staff_to_column[cur_staff] > prev_column: # reached a column begin
                 #start new cb
                 prev_column = staff_to_column[cur_staff]
                 cb = new_el("cb")
-                cb.set("n", str(staff_to_column[cur_staff] + 1))
+                cb.set("n", str(staff_to_column[cur_staff] + 1)) # + 1 to go from indexed by 0 to index by 1
                 zoneId = generate_zone(surface, col_boxes[prev_column])
                 cb.set("facs", "#" + zoneId)   
                 machine.add_column_break(cb)
 
             if glyph['system_begin']: # end of this system
-                cur_staff = int(glyph['staff'])
-                bb = system_boxes[cur_staff]
+                bb = system_boxes[next_staff]
                 # create a new system begin
                 zoneId = generate_zone(surface, bb)  
                 sb = new_el('sb')
