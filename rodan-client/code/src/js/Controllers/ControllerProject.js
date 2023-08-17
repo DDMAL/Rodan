@@ -3,7 +3,6 @@ import _ from 'underscore';
 import BaseController from './BaseController';
 import BaseViewCollection from 'js/Views/Master/Main/BaseViewCollection';
 import BaseViewCollectionItem from 'js/Views/Master/Main/BaseViewCollectionItem';
-// import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import LayoutViewProjectUsers from 'js/Views/Master/Main/Project/Individual/LayoutViewProjectUsers';
 import Project from 'js/Models/Project';
 import Radio from 'backbone.radio';
