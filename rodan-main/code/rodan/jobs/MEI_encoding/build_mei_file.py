@@ -181,12 +181,13 @@ def generate_base_document(column_split_info: Optional[dict]):
     mdiv = new_el("mdiv", body)
     score = new_el("score", mdiv)
 
+    scoreDef = new_el("scoreDef", score)
+
     # if multi column, add the colLayout tag to the score tag
     if column_split_info is not None:
         col_layout = new_el("colLayout", score)
         col_layout.set("cols", str(len(column_split_info['split_ranges'])))
 
-    scoreDef = new_el("scoreDef", score)
     staffGrp = new_el("staffGrp", scoreDef)
     staffDef = new_el("staffDef", staffGrp)
 
@@ -198,6 +199,8 @@ def generate_base_document(column_split_info: Optional[dict]):
 
     section = new_el("section", score)
     staff = new_el("staff", section)
+
+        
     layer = new_el("layer", staff)
 
     # placeholder meiHead
