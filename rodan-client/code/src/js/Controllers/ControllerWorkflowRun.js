@@ -77,10 +77,10 @@ export default class ControllerWorkflowRun extends BaseController
         var resources = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_LOAD, {data: {result_of_workflow_run: options.workflowrun.id}});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [runJobs, resources]});
 
-        // Create view and show.
-        this._viewItem = new LayoutViewIndividualWorkflowRun({runjobs: runJobs, resources: resources, model: options.workflowrun});
+        // Create view and show.        
         const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
         this._projectView = new ViewProject({model: activeProject});
+        this._viewItem = new LayoutViewIndividualWorkflowRun({projectView: this._projectView, activeProject: activeProject, runjobs: runJobs, resources: resources, model: options.workflowrun});
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
         this._projectView.showCollection(this._viewItem);
     }

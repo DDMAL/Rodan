@@ -35,10 +35,19 @@ export default class ControllerRunJob extends BaseController
      */
     _initializeRadio()
     {
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RUNJOB_SHOWLAYOUTVIEW, options => this._handleCommandShowLayoutView(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__RUNJOB_SELECTED, options => this._handleEventItemSelected(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__RUNJOB_SELECTED_COLLECTION, options => this._handleEventCollectionSelected(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RUNJOB_ACQUIRE, options => this._handleRequestAcquire(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RUNJOBS_LOAD, options => this._handleRequestRunJobs(options));
+    }
+
+    /**
+     * Handle show LayoutView.
+     */
+    _handleCommandShowLayoutView(options)
+    {
+        this._projectView = options.projectView;
     }
 
     /**

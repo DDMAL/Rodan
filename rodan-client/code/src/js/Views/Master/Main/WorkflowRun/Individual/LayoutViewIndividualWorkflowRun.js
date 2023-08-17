@@ -23,12 +23,16 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     initialize(options)
     {
+        // console.log(options);
+        this._projectView = options.projectView;
+        this._activeProject = options.activeProject;
         this._runJobs = options.runjobs;
         this._resources = options.resources;
         this.addRegions({
             regionRunJobCollection: '#region-main_workflowrun_individual_runjobs',
             regionResourceCollection: '#region-main_workflowrun_individual_resources'
         });
+        this.setElement('<div class="content-wrapper row-content"></div>');
     }
 
     /**
@@ -36,6 +40,9 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     onRender()
     {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, {projectView: this._projectView});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RUNJOB_SHOWLAYOUTVIEW, {projectView: this._projectView});
+
         // Create Resource collection view.
         this._viewResourceCollection = new ViewResourceCollection({
             collection: this._resources,
@@ -66,8 +73,8 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
     {
         this.detachChildView('regionRunJobCollection');
         this.showChildView('regionResourceCollection', this._viewResourceCollection)
-        this.ui.buttonShowResources.css('text-decoration', 'underline');
-        this.ui.buttonShowRunJobs.css('text-decoration', 'none');
+        this.ui.buttonShowResources.addClass('active');
+        this.ui.buttonShowRunJobs.removeClass('active');
     }
 
     /**
@@ -75,10 +82,11 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     _showRunJobs()
     {
+        // Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RUNJOB_SELECTED, {project: this._activeProject});
         this.detachChildView('regionResourceCollection')
         this.showChildView('regionRunJobCollection', this._viewRunJobCollection)
-        this.ui.buttonShowResources.css('text-decoration', 'none');
-        this.ui.buttonShowRunJobs.css('text-decoration', 'underline');
+        this.ui.buttonShowRunJobs.addClass('active');
+        this.ui.buttonShowResources.removeClass('active');        
     }
 
     /**
