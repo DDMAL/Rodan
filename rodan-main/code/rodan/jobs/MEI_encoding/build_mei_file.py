@@ -10,7 +10,7 @@ import json
 from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan
 #import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
-from state_machine import SylMachine
+from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 try:
     from rodan.jobs.MEI_encoding import __version__
