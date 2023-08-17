@@ -7,7 +7,7 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-import parse_classifier_table as pct #for rodan  
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan
 #import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
 from state_machine import SylMachine
