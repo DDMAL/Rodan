@@ -498,6 +498,14 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
         'lrx': page['bounding_box']['ulx'] + page['bounding_box']['ncols'],
         'lry': page['bounding_box']['uly'] + page['bounding_box']['nrows']
     }
+
+    # add pb element
+    pb = new_el("pb")
+    pb.set("n", "1")
+    zoneId = surface.get('xml:id')
+    pb.set("facs", "#" + zoneId)
+    layer.append(pb)
+
     is_multi_column = column_split_info is not None
 
     # get a list of system bounding boxes that are formatted in ulx uly lrx lry format
@@ -541,6 +549,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
     
     zoneId = generate_zone(surface, bb)
     sb.set('facs', '#' + zoneId)
+    sb.set("n","1")
     layer.append(sb)
 
     # The flattened list of glyphs is used to search for the next neume after a custos.
@@ -625,6 +634,7 @@ def build_mei(pairs: List[Tuple[List[dict], dict]], classifier: dict, width_cont
                 zoneId = generate_zone(surface, bb)  
                 sb = new_el('sb')
                 sb.set('facs', '#' + zoneId)
+                sb.set("n",str(next_staff + 1)) # + 1 to go from indexed by 0 to index by 1
                 machine.add_line_break(sb)
         
         # add the mei from the state machine to the layer
