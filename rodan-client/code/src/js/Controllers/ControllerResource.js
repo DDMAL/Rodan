@@ -60,17 +60,17 @@ export default class ControllerResource extends BaseController
      */
     _handleEventCollectionSelected(options)
     {
-        const collection = new ResourceCollection();
-        collection.fetch({data: {project: options.project.id}});
+        this._collection = new ResourceCollection();
+        this._collection.fetch({data: {project: options.project.id}});
 
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [collection]});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
 
         const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
         this._projectView = new ViewProject({model: activeProject});
 
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
 
-        this._viewCollection = new ViewResourceCollection({collection: collection});
+        this._viewCollection = new ViewResourceCollection({collection: this._collection});
         this._projectView.showCollection(this._viewCollection);
     }
 
@@ -243,7 +243,7 @@ export default class ControllerResource extends BaseController
      * Handle delete success.
      */
     _handleDeleteSuccess(model, collection)
-    {
+    {        
         collection.remove(model);
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_DELETED, {resource: model});
     }
