@@ -135,11 +135,3 @@ class SylMachine:
     # reads an element, and adds it outside the syllable
     def read_outside_syllable(self,element):
         self.layer.append(element)
-
-    def add_line_break(self,element):
-        assert element.tag == "sb"
-        self.layer.append(element)
-    
-    def add_column_break(self,element):
-        assert element.tag == "cb"
-        self.layer.append(element)
