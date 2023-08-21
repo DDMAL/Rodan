@@ -22,8 +22,17 @@ class to_png(RodanTask):
         infile = inputs['Image'][0]['resource_path']
         outfile = outputs['RGB PNG Image'][0]['resource_path']
 
-        image = PIL.Image.open(infile).convert('RGB')
-        image.save(outfile, 'PNG')
+        image = PIL.Image.open(infile)
+
+        # in case image is rgba. see more here: https://stackoverflow.com/a/9459208 
+        if image.mode == "RGBA":
+            image.load()
+            background = PIL.Image.new("RGB", image.size, (255, 255, 255))
+            background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
+            background.save(outfile, "PNG")
+
+        else: 
+            image.convert('RGB').save(outfile, 'PNG')            
 
         return True
 
