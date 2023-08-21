@@ -1,6 +1,12 @@
 <div class="content-wrapper column-content flex-gap-10">
 
     <div class="content-wrapper row-content flex-gap-10 row-left">
+        <label for="text-user_username">Username:</label>
+        <input type="text" class="form-control input-sm" id="text-user_username" value="<%= _.unescape(username) %>" name="text-user_username">
+        <p id="error-user_username" class="text-danger"></p>
+    </div>
+
+    <div class="content-wrapper row-content flex-gap-10 row-left">
         <label for="text-user_firstname">First name:</label>
         <input type="text" class="form-control input-sm" id="text-user_firstname" value="<%= _.unescape(first_name) %>" name="text-user_firstname">
         <p id="error-user_firstname" class="text-danger"></p>
