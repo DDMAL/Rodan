@@ -54,7 +54,7 @@ export default class ControllerContextMenu extends BaseController
             var anchor = $('<a>' + label + '</a>');
             anchor.data('radio', {request: radiorequest, options: callOptions});
             anchor.click(functionCall);
-            $('#menu-context').append($('<li></li>').append(anchor));
+            $('#menu-context').append($('<div class="dropdown-btn"></div>').append(anchor));
         }
         $('#menu-context').css('top', options.top);
         $('#menu-context').css('left', options.left);
