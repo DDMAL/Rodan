@@ -2,7 +2,6 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseController from './BaseController';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
-import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import Radio from 'backbone.radio';
 import Resource from 'js/Models/Resource';
 import ResourceCollection from 'js/Collections/ResourceCollection';
@@ -10,6 +9,7 @@ import ViewResource from 'js/Views/Master/Main/Resource/Individual/ViewResource'
 import ViewResourceMulti from 'js/Views/Master/Main/Resource/Individual/ViewResourceMulti';
 import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollection';
 import ViewResourceCollectionItem from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollectionItem';
+import ViewProject from '../Views/Master/Main/Project/Individual/ViewProject';
 
 /**
  * Controller for Resources.
@@ -36,11 +36,11 @@ export default class ControllerResource extends BaseController
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__RESOURCE_SAVED, options => this._handleSuccessGeneric(options));
 
         // Requests
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, options => this._handleCommandShowLayoutView(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_CREATE, options => this._handleRequestResourceCreate(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_DELETE, options => this._handleCommandResourceDelete(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_DOWNLOAD, options => this._handleRequestResourceDownload(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SAVE, options => this._handleCommandResourceSave(options));
-        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, options => this._handleCommandShowLayoutView(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_VIEWER_ACQUIRE, options => this._handleRequestViewer(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_LOAD, options => this._handleRequestResources(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCES_LOAD_NO_PAGE, options => this._handleRequestResourcesNoPagination(options));
@@ -52,7 +52,7 @@ export default class ControllerResource extends BaseController
      */
     _handleCommandShowLayoutView(options)
     {
-        this._layoutView = options.layoutView;
+        this._projectView = options.projectView;
     }
 
     /**
@@ -60,16 +60,18 @@ export default class ControllerResource extends BaseController
      */
     _handleEventCollectionSelected(options)
     {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_LOAD_NO_PAGE, {data: {project: options.project.id}});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_LOAD, {data: {project: options.project.id}});
+        this._collection = new ResourceCollection();
+        this._collection.fetch({data: {project: options.project.id}});
+
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
-        this._layoutView = new LayoutViewModel();
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._layoutView});
-        var view = new ViewResourceCollection({collection: this._collection,
-                                         template: _.template($('#template-main_resource_collection').text()),
-                                         childView: ViewResourceCollectionItem,
-                                         model: options.project});
-        this._layoutView.showCollection(view);
+
+        const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        this._projectView = new ViewProject({model: activeProject});
+
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
+
+        this._viewCollection = new ViewResourceCollection({collection: this._collection});
+        this._projectView.showCollection(this._viewCollection);
     }
 
     /**
@@ -100,13 +102,13 @@ export default class ControllerResource extends BaseController
         }
 
         if (this._selectedResources.size === 0) {
-            this._layoutView.clearItemView();
+            this._projectView.clearCollectionItemInfoView();
         }
         else if (this._selectedResources.size === 1) {
-          this._layoutView.showItem(new ViewResource({model: this._selectedResources.values().next().value}));
+          this._projectView.showCollectionItemInfo(new ViewResource({model: this._selectedResources.values().next().value}));
         }
         else {
-          this._layoutView.showItem(new ViewResourceMulti({models: this._selectedResources}));
+          this._projectView.showCollectionItemInfo(new ViewResourceMulti({models: this._selectedResources}));
         }
     }
 
@@ -140,8 +142,8 @@ export default class ControllerResource extends BaseController
     _handleCommandResourceDelete(options)
     {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Deleting Resource', content: 'Please wait...'});
-        this._layoutView.clearItemView();
-        options.resource.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection), wait: true});
+        this._projectView.clearCollectionItemInfoView();
+        options.resource.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection)});
     }
 
     /**
@@ -241,7 +243,7 @@ export default class ControllerResource extends BaseController
      * Handle delete success.
      */
     _handleDeleteSuccess(model, collection)
-    {
+    {        
         collection.remove(model);
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_DELETED, {resource: model});
     }

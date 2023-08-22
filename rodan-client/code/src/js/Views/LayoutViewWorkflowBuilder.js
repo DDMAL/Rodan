@@ -22,6 +22,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__UPDATER_CLEAR);
         this._lastErrorCode = '';
         this._lastErrorDetails = '';
+        this.setElement('<div class="content-wrapper column-content"></div>');
     }
 
     /**
@@ -59,10 +60,19 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     }
 
     /**
+     * Hide all dropdowns in the workflow builder.
+     */
+    _hideDropdowns()
+    {
+        $('.dropdown-menu').hide();
+    }
+
+    /**
      * Handle button zoom in.
      */
     _handleButtonZoomIn()
     {
+        this._hideDropdowns();
         this.guiChannel.request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_IN);
     }
     
@@ -71,6 +81,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonZoomOut()
     {
+        this._hideDropdowns();
         this.guiChannel.request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_OUT);
     }
     
@@ -79,6 +90,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonZoomReset()
     {
+        this._hideDropdowns();
         this.guiChannel.request(GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_ZOOM_RESET);
     }
     
@@ -87,6 +99,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonEdit()
     {
+        this._hideDropdowns();
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, {workflow: this.model});
     }
 
@@ -95,6 +108,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonClearAssignedResources()
     {
+        this._hideDropdowns();
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, {workflow: this.model});
     }
     
@@ -103,6 +117,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonAddJob()
     {
+        this._hideDropdowns();
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_JOBCOLLECTION_VIEW, {workflow: this.model});
     }
     
@@ -111,6 +126,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonImportWorkflow()
     {
+        this._hideDropdowns();
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOWCOLLECTION_VIEW, {workflow: this.model});
     }
     
@@ -119,6 +135,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      */
     _handleButtonRun()
     {
+        this._hideDropdowns();
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN, {workflow: this.model});
     }
 
@@ -135,7 +152,7 @@ class LayoutViewWorkflowBuilder extends Marionette.View
      * Handle click data status.
      */
     _handleClickDataStatus()
-    {
+    {        
         if (this._lastErrorCode !== '' || this._lastErrorDetails !== '')
         {   
             this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__MODAL_SHOW, { title: "Invalid Workflow", content: this._lastErrorDetails });
@@ -149,7 +166,39 @@ class LayoutViewWorkflowBuilder extends Marionette.View
     {
         var checked = this.ui.checkboxAddPorts.is(':checked'); 
         this.rodanChannel.request(Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SET_ADDPORTS, {addports: checked});
+        this._hideDropdowns();
     }
+
+    /**
+     * Handle click on "Workflow" navbar button.
+     */
+    _handleClickWorkflowDropdownToggle() 
+    {
+        this.ui.viewDropdownToggle.siblings('.dropdown-menu').hide();
+        this.ui.settingsDropdownToggle.siblings('.dropdown-menu').hide();
+        this.ui.workflowDropdownToggle.siblings('.dropdown-menu').toggle();
+    }
+
+    /**
+     * Handle click on "View" navbar button.
+     */
+    _handleClickViewDropdownToggle()
+    {
+        this.ui.settingsDropdownToggle.siblings('.dropdown-menu').hide();
+        this.ui.workflowDropdownToggle.siblings('.dropdown-menu').hide();
+        this.ui.viewDropdownToggle.siblings('.dropdown-menu').toggle();
+    }
+
+    /**
+     * Handle click on "Settings" navbar button.
+     */
+    _handleClickSettingsDropdownToggle()
+    {
+        this.ui.viewDropdownToggle.siblings('.dropdown-menu').hide();        
+        this.ui.workflowDropdownToggle.siblings('.dropdown-menu').hide();
+        this.ui.settingsDropdownToggle.siblings('.dropdown-menu').toggle();
+    }
+
 
     /**
      * Updates info of Workflow in view.
@@ -199,7 +248,10 @@ LayoutViewWorkflowBuilder.prototype.ui = {
     buttonClearAssignedResources: '#button-clear_assigned_resources',
     buttonAddJob: '#button-add_job',
     buttonImportWorkflow: '#button-import_workflow',
-    buttonRun: '#button-run'
+    buttonRun: '#button-run',
+    workflowDropdownToggle: '#workflow-dropdown-toggle',
+    viewDropdownToggle: '#view-dropdown-toggle',
+    settingsDropdownToggle: '#settings-dropdown-toggle',
 };
 LayoutViewWorkflowBuilder.prototype.events = {
     'click @ui.buttonZoomIn': '_handleButtonZoomIn',
@@ -211,7 +263,10 @@ LayoutViewWorkflowBuilder.prototype.events = {
     'click @ui.buttonClearAssignedResources': '_handleButtonClearAssignedResources',
     'click @ui.buttonAddJob': '_handleButtonAddJob',
     'click @ui.buttonImportWorkflow': '_handleButtonImportWorkflow',
-    'click @ui.buttonRun': '_handleButtonRun'
+    'click @ui.buttonRun': '_handleButtonRun',
+    'click @ui.workflowDropdownToggle': '_handleClickWorkflowDropdownToggle',
+    'click @ui.viewDropdownToggle': '_handleClickViewDropdownToggle',
+    'click @ui.settingsDropdownToggle': '_handleClickSettingsDropdownToggle'
 };
 LayoutViewWorkflowBuilder.prototype.modelEvents = {
     'all': '_updateView'

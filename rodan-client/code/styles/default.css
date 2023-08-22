@@ -1,12 +1,49 @@
 /**
  * Styles for Rodan client.
+ * 
+ * ------------------------------------
+ * PLEASE READ BEFORE MAKING CHANGES!!!
+ * ------------------------------------
+ *
+ * -----------
+ * Terminology
+ * -----------
+ *
+ * Navigation region:
+ *      The region that displays the Rodan logo, status bar, navigation tree,
+ *      and a button menu at the bottom.
+ *
+ * Main region: 
+ *      The region that displays project information, 
+ *      resource information, allows for resource creation, project-name modification etc.
+ * 
+ *      Whenever a user selects anything in the navigation tree within the nagivation region,
+ *      The main region's content will be dynamically updated.
+ * 
  */
 
 /**************************************************************************************
  * General parameters
  *************************************************************************************/
 
+ /* Set values for variables used throughout the stylesheet */
 :root {
+    /* Navigation tree area */
+    --navigation-node-color: #939393;
+
+    /* Status area */
+    --background-color-status: #000000;
+    --text-color-status-user: #cccccc;
+    --text-color-status-user: #cccccc;
+    --text-color-status-server: #cccccc;
+
+    --primary-app-color: #7ab2b7;
+    --secondary-app-color: #589ed5;
+    --text-color-navigation: white;
+    --app-font: Montserrat, sans-serif;
+    --btn-remove-color: #E76B6B;
+    --btn-save-color: #EB9E3E;
+
     /* Navigation area */
     --background-color-navigation: #000000;
     --text-color-navigation: #cccccc;
@@ -35,77 +72,734 @@
     --height-gui: 100; /* % of vertical space in GUI viewport */
     --height-gui_menu: 4; /* % of vertical space in GUI viewport for menu */
     --size-font: 11px; /* pixels */
+    --font-weight: 100;
 }
 
 
+/* ------------------------------------ */
+/* General styles
+/* ------------------------------------ */
 
-/* General classes */
+/* 
+ * General styles (especially .content-wrapper styles) are used EVERYWHERE.
+ * If you modify these styles, it will affect a lot of the UI throughout the whole website.
+ * PLEASE MAKE SURE YOU KNOW WHAT YOU'RE DOING!
+ */
 
+
+* {
+    box-sizing: border-box;
+}
 .text-small
 {
     font-size: x-small;
 }
-
-/* Navigation region */
-
-div#region-navigation
-{
-    background: var(--background-color-navigation);
-    height: 100%;
-    color: var(--text-color-navigation);
-    overflow-y: auto;
-    overflow-x: hidden;
+body {
+    width: 100vw;
+    height: 100vh;
+    font-family: var(--app-font);
+    font-size: var(--size-font);
+    font-weight: var(--font-weight);
+    margin: 0px;
+    overflow: hidden;
+}
+input, select {
+    border: 1px solid #cecece;
+    border-radius: 3px;
+    font-family: Montserrat, sans-serif;
+    padding: 2px;
+    box-sizing: border-box;
+    flex-grow: 1;
+    outline: none;
+}
+textarea {
+    border: 1px solid #cecece;
+    height: 50px;
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+    border-radius: 3px;
+    outline: none;
+}
+/* Table styles */
+table {
+    user-select: none;
+    text-align: left;
+    width: 98%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    height: fit-content;
+    font-size: 15px;
+}
+thead {
+    background-color: #ecf0f5;
+    position: sticky;
+    top: 0px;
+}
+th, td {
+    cursor: pointer;
+    padding: 10px;
+}
+td {
+    border-top: 1px solid rgb(215 215 215);
+}
+tr {
     cursor: default;
 }
-
-div#region-navigation ul
-{
-    list-style-type: disc;
-    margin: 0;
-    padding-left: 10px;
+th {
+    font-weight: 400;
+    text-align: left;
+    text-wrap: nowrap;
 }
-
-div#region-navigation div.node_text
-{
+hr {
+    border: 1px solid #e5e5e5;
+    width: 100%;
+}
+tbody > tr:hover {
+    background-color: var(--secondary-app-color);
+    color: white;
     cursor: pointer;
 }
-
-.workflow-name, .workflow-status {
-    color: #9d9d9d;
-    line-height: 20px;
-    padding: 15px;
-    margin: 0;
-    display: block;
-}
-
-.workflow-name {
-    float: left;
-    height: 50px;
-    font-size: 18px;
-    margin-left: -15px;
-}
-
-/* Main region */
-div#region-main
-{
-    /*background-image: url("resources/rodan.jpg"); */
-    background-repeat: no-repeat;
-    background-position: center center;
+/* flex content alignment */
+.content-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
     height: 100%;
+}
+.content-wrapper.column-content {
+    flex-direction: column;
+}
+.content-wrapper.row-content {
+    flex-direction: row;
+}
+.column-left {
+    align-items: flex-start;
+}
+.row-left {
+    justify-content: flex-start;
+}
+.column-center {
+    align-items: center;
+}
+.row-center {
+    justify-content: center;
+}
+.column-right {
+    align-items: flex-end;
+}
+.row-right {
+    justify-content: flex-end;
+}
+.flex-gap-10 {
+    gap: 10px;
+}
+.flex-gap-20 {
+    gap: 20px;
+}
+.flex-gap-30 {
+    gap: 30px;
+}
+.padding-5 {
+    padding: 5px;
+    box-sizing: border-box;
+}
+.padding-10 {
+    padding: 10px;
+    box-sizing: border-box;
+}
+.padding-20 {
+    padding: 20px;
+    box-sizing: border-box;
+}
+/* buttons */
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3vh;
+    border-radius: 3px;
+    box-sizing: border-box;
+    color: white;
+    background-color: var(--secondary-app-color);
+    border: 1px solid var(--secondary-app-color);
+}
+.btn:hover {
+    background-color: white;
+    color: var(--secondary-app-color);
+}
+.btn.btn-delete, .btn.btn-remove, .btn.btn-logout {
+    color: white;
+    background-color: var(--btn-remove-color);
+    border: 1px solid var(--btn-remove-color);
+}
+.btn.btn-delete:hover, .btn.btn-remove:hover, .btn.btn-logout:hover {
+    color: var(--btn-remove-color);
+    background-color: white;
+}
+.btn.save-btn {
+    color: white;
+    background-color: var(--btn-save-color);
+    border: 1px solid var(--btn-save-color);
+}
+.btn.save-btn:hover {
+    background-color: white;
+    color: var(--btn-save-color);
+}
+:disabled
+{
+    color: white !important;
+    background: #dddddd !important;
+    border: 1px solid #dddddd !important;
+    cursor: not-allowed !important;
+}
+:disabled:hover
+{
+    background: #dddddd !important;
+    border: 1px solid #dddddd !important;
+    color: white !important;
+}
+/* dropdowns */
+.dropdown {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.dropdown-toggle {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -15%;
+    width: fit-content;
+    min-width: 150px;
+    height: fit-content;
+    background-color: white;
+    color: black;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 5px 1px #00000057;
+    border-radius: 0px 0px 3px 3px;
+}
+.dropdown-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 13px;
+    text-wrap: nowrap;
+    cursor: pointer;
+}
+.dropdown-btn:hover {
+    color: white;
+    background-color: var(--primary-app-color);
+}
+
+
+/* ------------------------------------ */
+/* General styles end
+/* ------------------------------------ */
+
+
+
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+#app-content-wrapper {
+    justify-content: center;
+    align-items: center;
+}
+
+/* ///////////////////////////////////////////////////////////////////////////////////////
+// Navigation region
+/////////////////////////////////////////////////////////////////////////////////////// */
+
+#region-navigation {
+    background: #0000000f;
+    width: 17%;
+    color: var(--navigation-node-color);
     overflow-y: auto;
     overflow-x: hidden;
-    cursor: default;
+    z-index: 999;
+    justify-content: center;
+}
+#region-navigation .node-text {
+    cursor: pointer;
+}
+#navigation-panel-content-wrapper {
+    justify-content: center;
+    width: 92%;
+}
+#app-navbar {
+    height: 99%;
+    justify-content: space-between;
 }
 
-/* Canvas */
-div#canvas-wrap
+/* Logo and requests status styles */
+#rodan-logo {
+    font-size: 35px;
+    display: flex;
+    align-items: flex-start;
+    color: var(--primary-app-color);
+    height: 5%;
+}
+#requests-status {
+    color: var(--primary-app-color);
+    height: 10%;
+    align-items: flex-start;
+}
+
+/* Project navigation tree styles */
+.navigation-tree-node {
+    cursor: pointer;
+}
+.navigation-tree-node:hover {
+    background-color: var(--primary-app-color);
+    color: white;
+}
+#my-projects-btn {
+    font-size: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+#my-projects-btn:hover {
+    background-color: var(--primary-app-color);
+    color: white;
+}
+#project-navigation-tree {
+    list-style-type: disc;
+}
+.navigation-tree-child-view-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 90%;
+    padding-left: 5px;
+    border-left: 2px solid #69a3a870;
+}
+.navigation-tree-child-view-container.no-indent {
+    width: 100%;
+    border: none;
+    padding: 0;
+}
+.btn-group.main-navbar-btn-group {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 3px;
+}
+.node-text {
+    font-size: 15px;
+    width: 100%;
+    padding: 3px 0px;
+}
+.node-text:hover {
+    background-color: var(--primary-app-color);
+    color: white;
+}
+.node-text.highlighted {
+    background-color: var(--primary-app-color);
+    color: white;
+}
+.node-text.project {
+    margin-top: 7px;
+    margin-bottom: 4px;
+}
+.node-text.project-child {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+/* main navbar buttons */
+#navigation-panel-btns {
+    height: auto;
+}
+.btn.main-navbar-btn {
+    background-color: white;
+    outline: none;
+    border: 1px solid #dedede;
+    color: var(--primary-app-color);
+    border-radius: 3px;
+    flex-grow: 1;
+    min-height: 25px;
+}
+.btn.main-navbar-btn:hover {
+    background-color: var(--primary-app-color);
+    color: white;
+}
+.btn.main-navbar-btn#button-navigation_logout {
+    color: #E76B6B;
+}
+.btn.main-navbar-btn#button-navigation_logout:hover {
+    background-color: #E76B6B;
+    color: white;
+}
+
+
+/* ///////////////////////////////////////////////////////////////////////////////////////
+// Main region
+/////////////////////////////////////////////////////////////////////////////////////////*/
+
+/* Main region general styles */
+#region-main
 {
+    Background-repeat: no-repeat;
+    background-position: center center;
+    width: 83%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-grow: 1;
+    justify-content: center;
+}
+#region-main-content-wrapper {
+    gap: 15px;
+}
+.region-main-section {
+    width: 98%;
+}
+/* Main region header */
+.region-main-section.region-main-header {
+    width: 100%;
+    height: 4%;
+    justify-content: space-between;    
+    border-bottom: 2px solid #e5e5e5;
+}
+#region-main-header {
+    width: 98%;
+    justify-content: space-between;
+}
+.region-main-content-title {
+    font-size: 15px;
+    font-weight: 100;
+}
+.region-main-default-btn {
+    border: none;
+    background-color: var(--secondary-app-color);
+    border: 1px solid var(--secondary-app-color);
+    color: white;
+    border-radius: 3px;
+    padding: 5px;
+    font-family: Montserrat, sans-serif;
+    cursor: pointer;
+}
+.region-main-default-btn:hover {
+    background-color: white;
+    color: var(--secondary-app-color);
+}
+/* Table controls */
+.region-main-section.table-control {
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Table controls: table filtering */
+#table-filters-header-container {
+    height: fit-content;
+}
+#filter-inputs-dropdown-btn {
+    width: 25px;
+    cursor: pointer;
+}
+#filter-inputs-dropdown-btn.open {
+    transform: rotate(180deg);
+}
+.region-main-section.table-control.filters {
+    background-color: #fafafa;
+    padding: 8px;
+    gap: 3px;
+    box-sizing: border-box;
+    border: 1px solid #d7d7d7;
+    border-radius: 5px;
+}
+#clear-filters-btn-wrapper {
+    width: auto;
+    height: 100%;
+}
+#button-clearall {
+    height: 100%;
+    max-height: 25px;
+}
+#filter-inputs-wrapper {
+    gap: 10px;
     height: 100%;
     overflow: hidden;
-    padding: 0px;
+    box-sizing: border-box;
+}
+#filter-inputs-wrapper.hidden {
+    display: none;
+}
+#filter-inputs-title {
+    width: 100%;
+    font-size: 12px;
+}
+#filter-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+    height: fit-content;
+    align-items: center;
+    justify-content: flex-start;
+}
+.filter-input-wrapper {
+    width: fit-content;
+    align-items: flex-start;
+    background-color: #488bcb12;
+    border-radius: 3px;
+    /* border: 1px solid #e5e5e5; */
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    box-sizing: border-box;
+    padding: 7px;
+    color: var(--secondary-app-color);
+    flex: 1;
+}
+.filter-values-wrapper {
+    gap: 5px;
 }
 
-div#canvas-tooltip
+/* pagination controls styles */
+.region-main-section.table-control.pagination {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 98%;
+    gap: 5px;
+}
+#table-pagination-controls-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.pagination-btn {
+    color: white;
+    background-color: var(--secondary-app-color);
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+/* ----------------------- */
+/* Individual project view */
+/* ----------------------- */
+.region-main-content {
+    overflow: auto;
+    height: 96%;
+}
+.individual-project-view {
+    display: flex;
+}
+.table-responsive {
+    border: 1px solid #dfdfdf;
+    border-radius: 5px;
+    background-color: #f0f0f047;
+    height: fit-content;
+    width: 98%;
+    overflow-x: auto;
+    max-height: 85%;
+}
+.project-collections {
+    gap: 25px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+    width: 85%;
+    border-right: 2px solid #dfdfdf;
+}
+.project-navigation-bar {
+    height: 2.5vh;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid #f0f0f0;
+    width: 90%;
+    box-sizing: border-box;
+}
+.project-nav-bar-btn {
+    background-color: transparent;
+    font-size: 15px;
+    color: grey;
+    border-radius: 0px;
+    border: none;
+    padding: 2px;
+}
+.project-nav-bar-btn:hover {
+    color: var(--primary-app-color);
+    background-color: transparent;
+}
+.project-nav-bar-btn.active {
+    border-bottom: 3px solid var(--primary-app-color);
+}
+#region-collection-container {
+    height: 94%;
+    display: flex;
+    border-radius: 3px;
+}
+.single-project-view-collection-wrapper {
+    gap: 10px;
+}
+.resource-upload-container {
+    height: fit-content;
+    gap: 10px;
+}
+.main-region-action-btn {
+    padding: 5px;
+    border-radius: 3px;
+    background-color: var(--secondary-app-color);
+    border: 1px solid var(--secondary-app-color);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 400;
+}
+.main-region-action-btn:hover {
+    background-color: white;
+    color: var(--secondary-app-color);
+}
+
+/* Workflows collection page */
+#new-workflow-btns-container {
+    height: fit-content;
+    gap: 5px;
+    width: 98%;
+}
+
+
+/* Project and collection details panels */
+.detail-panels-container {
+    width: 25%;
+    box-sizing: border-box;
+}
+.details-panel {
+    box-sizing: border-box;
+    border-bottom: 2px solid #dfdfdf;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    /* height: 50%; */
+}
+#region-project-details-panel, #region-collection-item-details-panel {
+    height: 50%;
+}
+.details-panel-title-section {
+    height: 5vh;
+    background-color: #f2f2f2;
+}
+.details-panel-details-section {
+    /* height: 80%; */
+    gap: 10px;
+    overflow: auto;
+    flex-grow: 1;
+}
+.details-panel-action-btns-section {
+    height: 5vh;
+    gap: 5px;
+    border-top: 2px solid #f2f2f2;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 5px;
+}
+.details-item-container {
+    height: fit-content;
+    align-items: flex-start;
+    gap: 7px;
+}
+.content-wrapper.row-content.details-item-container {
+    align-items: center;
+    height: fit-content;
+}
+.details-item-value {
+    overflow-wrap: anywhere;
+    background-color: whitesmoke;
+    padding: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+#select-resourcetype {
+    width: 100%;
+}
+/* Individual workflow runs page */
+#individual-workflow-run-container {
+    border-radius: 5px;
+    overflow: hidden;
+}
+#workflow-run-details-and-action-btns-container {
+    border: 1px solid #efefef;
+    height: 30%;
+}
+#workflow-run-resources-and-run-jobs-container {
+    border: 1px solid #efefef;
+    height: 64%;
+}
+#workflow-run-collections-wrapper {
+    height: fit-content;
+    padding-top: 10px;
+}
+#region-main_workflowrun_individual_resources {
+    padding-top: 20px;
+}
+#region-main_workflowrun_individual_resources, #region-main_workflowrun_individual_runjobs {
+    height: fit-content;
+    max-height: 82%;
+}
+
+
+/*//////////////////////////////////////////////////////////////////////////////////////
+// Canvas
+/////////////////////////////////////////////////////////////////////////////////////// */
+#workflow-builder-container {
+    border-left: 2px solid #69a3a8;
+    box-sizing: border-box;
+}
+#workflow-builder-navbar {
+    height: 5vh;
+    color: white;
+    background-color: #69a3a8;
+}
+#worlkflow-builder-navbar-content-wrapper {
+    gap: 5vw;
+    padding: 0px 2vw;
+}
+#navbar-header {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+}
+#navbar-workflow-name {
+    font-size: 20px;
+    text-wrap: nowrap;
+}
+#data-workflow_status {
+    text-wrap: nowrap;
+}
+#workflow-builder-navbar-btns-wrapper {
+    gap: 3vw;
+    font-size: 13px;
+}
+#canvas-wrap
+{
+    /* flex-grow: 0.9; */
+    overflow: hidden;
+    padding: 0px;
+    /* height: -webkit-fill-available; */
+}
+#canvas-tooltip
 {
     position: fixed;
     background-color: #ffff88;
@@ -115,111 +809,138 @@ div#canvas-tooltip
     border-style: solid;
     border-width: 2px;
     width: auto;
-    visibility: visible;
+    visibility: hidden;
     display: inline-block;
 }
-
 canvas#canvas-workspace
 {
     background-color: var(--background-color-workflowbuilder-workspace);
     padding: 0px;
 }
-
 canvas[resize] {
     width: 100%;
     height: 100%;
 }
-
 /* Input fields */
-textarea[type=text]
-{
-    height: 200px;
-    width: 100%;
-    resize: vertical;
-}
-
 .vertical-center {
     height: calc(var(--height-top) * 1%); /*fallback */
     height: calc(var(--height-top) * 1vh);
     display: flex;
     align-items: center;
 }
-
 .horizontal-center
 {
     width: 100%;
     text-align: center;
 }
-
-body
-{
-    overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: var(--size-font);
-}
-
-div.fixed_individual {
-    /*position: fixed;*/
-    width: 100%;
-}
-
 div.top {
     height: calc(var(--height-top) * 1%); /*fallback */
     height: calc(var(--height-top) * 1vh);
 }
-
 div.gui {
     height: calc(var(--height-gui) * 1%); /*fallback*/
     height: calc(var(--height-gui) * 1vh);
     display: flex;
     flex-direction: column;
 }
-
 div#main_workflowbuilder
 {
     background-color: white;
     height: 100%;
     overflow: auto;
 }
-
 .instruction
 {
     font-style: italic;
 }
 
-:disabled
-{
-    background: #dddddd;
+/* ------------------------------------ */
+/* ----------- Modal Styles ----------- */
+/* ------------------------------------ */
+
+@keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
 
-/* Modals */
+/* general modal styles */
+#modal-generic {
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    max-width: 1200px;
+    min-width: 500px;
+    background-color: #ffffff90;
+    box-shadow: 0px 0px 5000px 5000px #0000005c;
+    z-index: 9999;
+    border-radius: 5px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    display: none;
+    animation: fade-in 0.2s ease-in-out forwards;
+}
+.modal-content
+{
+
+}
+.modal-header {
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #488bcb;
+    color: white;
+    font-size: 15px;
+}
+.modal-close {
+    cursor: pointer;
+}
 .modal-body
 {
     max-height: 600px;
     overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
-
-.modal-content
-{
-    opacity: 1 !important;
+.modal-body-section {
+    align-items: flex-start;
 }
-
-.modal-backdrop
-{
-    opacity: 0.3 !important;
+.modal-subtitle {
+    font-size: 13px;
+    font-weight: bold;
 }
-
 .modal-footer
 {
-    text-align: left !important;
+    padding: 10px;
 }
-
 .modal-footer-error, .modal-input-error
 {
     color: #aa0000;
 }
+.modal-body-section-left {
+    align-items: flex-start;
+}
 
-/* Table overrides */
+/* project-users modal styles */
+#admins-and-workers-tables {
+    align-items: flex-start;
+    gap: 25px;
+
+    .table-responsive {
+        width: 100%;
+    }
+}
+
+/* user preferences modal */
+#checkbox-send_email {
+    flex-grow: 0; /* overwrite general input element styles (which have flex-grow value of 1) */
+}
+
+
+/* ------------ */
+/* Table styles */
+/* ------------ */
+
 /**
  * Make text in table unselectable. This helps make multiple selection look better.
  */
@@ -241,17 +962,9 @@ table
 
 .table tr.clickable-row.active td
 {
-    background-color: #93DB70;
+    background-color: var(--secondary-app-color);
 }
-
-div.table-control
-{
-   width: 100%;
-   padding-left: 10px;
-   padding-right: 10px;
-}
-
-div.table-control span
+.table-control span
 {
     display:inline-block;
     font-size: var(--size-font);
@@ -288,6 +1001,37 @@ table.scroll
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Styles for smaller devices */
+@media screen and (max-width: 768px) {
+    /* .rodan-region {
+        width: 100%;
+    }
+    #region-navigation {
+        height: 7%;
+        width: 100%;
+        overflow: hidden;
+    }
+    #app-navbar {
+        height: 100%;
+        width: 100%;
+        flex-direction: column;
+    }
+    .navbar-section.main-navbar-section {
+        width: 98%;
+    }
+    #rodan-logo {
+        height: 100%;
+        justify-content: center;
+    }
+    .navbar-sections-wrapper {
+        display: none;
+    }
+    #region-main {
+        height: 93%;
+        width: 100%;
+    } */
 }
 
 .tags-input{display:inline-block;padding:0 2px;background:#FFF;border:1px solid #CCC;width:16em;border-radius:2px;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}.tags-input .tag{display:inline-block;background:#EEE;color:#444;padding:0 4px;margin:2px;border:1px solid #CCC;border-radius:2px;font:inherit;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition:all .1s ease}.tags-input .tag.selected{background-color:#777;border-color:#777;color:#EEE}.tags-input .tag.dupe{-webkit-transform:scale3d(1.2,1.2,1.2);transform:scale3d(1.2,1.2,1.2);background-color:#FCC;border-color:#700}.tags-input input{-webkit-appearance:none!important;-moz-appearance:none!important;appearance:none!important;display:inline-block!important;padding:3px;margin:0!important;background:0 0!important;border:none!important;box-shadow:none!important;font:inherit!important;font-size:100%!important;outline:0!important}.tags-input .selected~input{opacity:.3}

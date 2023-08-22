@@ -9,6 +9,10 @@ import Radio from 'backbone.radio';
  */
 export default class ViewWorkflow extends Marionette.View
 {
+
+    initialize() {
+        this.setElement('<div class="content-wrapper column-content details-panel"></div>');
+    }
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 ///////////////////////////////////////////////////////////////////////////////////////
