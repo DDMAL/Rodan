@@ -326,6 +326,12 @@ export default class BehaviorTable extends Marionette.Behavior
         for (var index in values)
         {
             var name = values[index].name;
+
+            // Format datetime values correctly.
+            if (name === 'updated__gt' || name === 'updated__lt' || name === 'created__gt' || name === 'created__lt') {
+                values[index].value = values[index].value.replace('T', ' ');
+            }
+
             var value = values[index].value;
             if (typeof filters[name] === 'undefined') {
                 filters[name] = value;
