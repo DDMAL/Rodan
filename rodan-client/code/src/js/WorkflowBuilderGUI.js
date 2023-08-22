@@ -73,7 +73,7 @@ class WorkflowBuilderGUI
             "GRID":
             {
                 "DIMENSION": 20,
-                "LINE_COLOR": "#606060",
+                "LINE_COLOR": "#9e9e9ec7",
                 "LINE_WIDTH": 0.5
             },
             "DATABASE_COORDINATES_MULTIPLIER": 1500, // Legacy workflows stored coordinates in the database differently. This is to maintain backwards compatibility.
