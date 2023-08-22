@@ -487,16 +487,12 @@ def precompute_multi_column(glyphs: List[dict], column_split_info: dict, staves:
         @column_split_info: The column split information from the pitch finding JSON.
     '''
     height = column_split_info["height"]
-    num_columns = len(column_split_info["split_ranges"])
-    staff_to_column = staff_to_columns_dict(staves, height, num_columns)
     prev_column = 0
-    print(staff_to_column)
     for glyph in glyphs:
         curr_column = column_split_info["staff_to_column"][int(glyph['staff'])]
         glyph["bounding_box"] = translate_bbox(glyph["bounding_box"], column_split_info["split_ranges"], height, curr_column)
         glyph["column"] = curr_column
         if glyph["system_begin"] and curr_column > prev_column:
-            print("hello world")
             glyph["column_begin"] = True
             prev_column = curr_column
         else:
@@ -504,7 +500,7 @@ def precompute_multi_column(glyphs: List[dict], column_split_info: dict, staves:
     
     # translate staves
     for i, staff in enumerate(staves):
-        curr_column = staff_to_column[i]
+        curr_column = column_split_info["staff_to_column"][i]
         staff["bounding_box"] = translate_bbox(staff["bounding_box"], column_split_info["split_ranges"], height, curr_column)
 
     return glyphs
