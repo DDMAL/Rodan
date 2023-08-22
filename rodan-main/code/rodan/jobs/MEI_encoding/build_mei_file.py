@@ -7,10 +7,10 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring #more c
 import math
 import numpy as np
 import json
-# from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan
-import parse_classifier_table as pct #---> for testing locally 
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct #for rodan
+# import parse_classifier_table as pct #---> for testing locally 
 from itertools import groupby
-from state_machine import SylMachine
+from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 try:
     from rodan.jobs.MEI_encoding import __version__
@@ -763,14 +763,14 @@ def process(jsomr: dict, syls: dict, classifier: dict, width_mult: float, width_
     '''
     staves = reformat_staves(jsomr['staves'])
     glyphs = jsomr['glyphs']
-    staff_to_column = staff_to_columns_dict(staves, column_split_info["height"], len(column_split_info["split_ranges"]))
-    column_split_info["staff_to_column"] = staff_to_column
     syl_boxes = syls['syl_boxes'] if syls is not None else None
     median_line_spacing = syls['median_line_spacing'] if syls is not None else None
 
     glyphs = add_flags_to_glyphs(glyphs)
     pairs = neume_to_lyric_alignment(glyphs, syl_boxes, median_line_spacing)
     if column_split_info is not None:
+        staff_to_column = staff_to_columns_dict(staves, column_split_info["height"], len(column_split_info["split_ranges"]))
+        column_split_info["staff_to_column"] = staff_to_column
         precompute_multi_column(glyphs, column_split_info, staves)
     meiDoc = build_mei(pairs, classifier, width_container, staves, jsomr['page'], column_split_info)
 
