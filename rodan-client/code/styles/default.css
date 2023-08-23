@@ -176,6 +176,7 @@ tbody > tr:hover {
 .content-wrapper.row-content {
     flex-direction: row;
 }
+/* flex horizontal alignment */
 .column-left {
     align-items: flex-start;
 }
@@ -194,6 +195,26 @@ tbody > tr:hover {
 .row-right {
     justify-content: flex-end;
 }
+/* flex vertical alignment */
+.column-top {
+    justify-content: flex-start;
+}
+.row-top {
+    align-items: flex-start;
+}
+.column-middle {
+    justify-content: center;
+}
+.row-middle {
+    align-items: center;
+}
+.column-bottom {
+    justify-content: flex-end;
+}
+.row-bottom {
+    align-items: flex-end;
+}
+/* flex gap */
 .flex-gap-10 {
     gap: 10px;
 }
@@ -203,6 +224,7 @@ tbody > tr:hover {
 .flex-gap-30 {
     gap: 30px;
 }
+/* padding */
 .padding-5 {
     padding: 5px;
     box-sizing: border-box;
@@ -476,7 +498,7 @@ tbody > tr:hover {
     gap: 15px;
 }
 .region-main-section {
-    width: 98%;
+    width: 100%;
 }
 /* Main region header */
 .region-main-section.region-main-header {
@@ -618,14 +640,13 @@ tbody > tr:hover {
     border-radius: 5px;
     background-color: #f0f0f047;
     height: fit-content;
-    width: 98%;
+    width: 100%;
     overflow-x: auto;
     max-height: 85%;
 }
 .project-collections {
     gap: 25px;
     padding-top: 20px;
-    padding-bottom: 10px;
     box-sizing: border-box;
     width: 85%;
     border-right: 2px solid #dfdfdf;
