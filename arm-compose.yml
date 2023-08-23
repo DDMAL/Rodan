@@ -38,13 +38,18 @@ services:
       - postgres
       - rabbitmq
       - redis
+      - iipsrv
     env_file:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   rodan-client:
     image: "ddmal/rodan-client:${DOCKER_TAG}"
+    volumes:
+      - "./rodan-client/code:/code"
+      - "./rodan-client/config/configuration.json:/client/configuration.json"
 
   iipsrv:
     image: "ddmal/iipsrv:${DOCKER_TAG}"
@@ -53,14 +58,28 @@ services:
 
   celery:
     image: "ddmal/rodan-main:${DOCKER_TAG}"
+    command: bash -c "tail -f /dev/null"
+    environment:
+      TZ: America/Toronto
+      SERVER_HOST: localhost
+      CELERY_JOB_QUEUE: celery
     healthcheck:
-      test: ["CMD", "celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery"]      # first run interval seconds after the container is started, and then again interval seconds after each previous
+      test:
+        [
+          "CMD",
+          "celery",
+          "inspect",
+          "ping",
+          "-A",
+          "rodan",
+          "--workdir",
+          "/code/Rodan",
+          "-d",
+          "celery@celery"
+        ]
       interval: "30s"
-      # How long to wait for the healthcheck to succeed
       timeout: "3s"
-      # Ignore failures during the start_period
       start_period: "1m"
-      # accept 3 consecutive failures before 
       retries: 3
     depends_on:
       - postgres
@@ -74,11 +93,14 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
     image: "ddmal/rodan-python3-celery:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
+      TZ: America/Toronto
+      SERVER_HOST: localhost
       CELERY_JOB_QUEUE: Python3
     depends_on:
       - postgres
@@ -90,6 +112,7 @@ services:
       - ./scripts/local.env
     volumes:
       - "resources:/rodan/data"
+      - "./rodan-main/code:/code/Rodan"
 
   redis:
     image: "redis:alpine"
@@ -98,6 +121,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    depends_on:
+      - postgres
 
   postgres:
     image: "ddmal/postgres-plpython:${DOCKER_TAG}"
@@ -112,14 +137,14 @@ services:
   rabbitmq:
     image: "rabbitmq:alpine"
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      #interval: "30s" # default
-      timeout: 3s
-      #retries: 3 # default
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: "30s"
+      timeout: "3s"
+      retries: 3
+    depends_on:
+      - redis
     env_file:
       - ./scripts/local.env
 
 volumes:
   resources:
-  pg_backup:
-  pg_data:
