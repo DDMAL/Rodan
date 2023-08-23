@@ -4,7 +4,7 @@ set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
 /run/setup
-sed -i "s/SERVER_HOST/${SERVER_HOST}/g" /etc/nginx/conf.d/ssl.conf
+#sed -i "s/SERVER_HOST/${SERVER_HOST}/g" /etc/nginx/conf.d/ssl.conf
 
 nginx
 #tail -f /var/log/nginx/access.log & tail -f /var/log/nginx/error.log
