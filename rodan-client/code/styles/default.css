@@ -58,7 +58,7 @@
     --background-color-main: #ffffff;
 
     /* WorkflowBuilder area */
-    --background-color-workflowbuilder-workspace: #dddddd;
+    --background-color-workflowbuilder-workspace: #f2f2f2;
     --background-color-workflowbuilder-menu: #000000;
     --text-color-workflowbuilder-menu: #ffffff;
 
@@ -212,6 +212,15 @@ tbody > tr:hover {
     padding: 20px;
     box-sizing: border-box;
 }
+.overflow-scroll {
+    overflow: scroll;
+}
+.overflow-auto {
+    overflow: auto;
+}
+.overflow-hidden {
+    overflow: hidden;
+}
 /* buttons */
 .btn {
     display: flex;
@@ -330,7 +339,7 @@ tbody > tr:hover {
 
 #region-navigation {
     background: #0000000f;
-    width: 17%;
+    width: 16.66666667%;
     color: var(--navigation-node-color);
     overflow-y: auto;
     overflow-x: hidden;
@@ -355,7 +364,7 @@ tbody > tr:hover {
     display: flex;
     align-items: flex-start;
     color: var(--primary-app-color);
-    height: 5%;
+    height: 45px;
 }
 #requests-status {
     color: var(--primary-app-color);
@@ -459,7 +468,7 @@ tbody > tr:hover {
 {
     Background-repeat: no-repeat;
     background-position: center center;
-    width: 83%;
+    width: 83.33333333%;
     overflow-y: auto;
     overflow-x: hidden;
     flex-grow: 1;
@@ -474,7 +483,7 @@ tbody > tr:hover {
 /* Main region header */
 .region-main-section.region-main-header {
     width: 100%;
-    height: 4%;
+    height: 40px;
     justify-content: space-between;    
     border-bottom: 2px solid #e5e5e5;
 }
@@ -624,7 +633,7 @@ tbody > tr:hover {
     border-right: 2px solid #dfdfdf;
 }
 .project-navigation-bar {
-    height: 2.5vh;
+    height: 25px;
     display: flex;
     justify-content: space-around;
     border-bottom: 2px solid #f0f0f0;
@@ -698,8 +707,8 @@ tbody > tr:hover {
     height: 50%;
 }
 .details-panel-title-section {
-    height: 5vh;
     background-color: #f2f2f2;
+    height: 40px;
 }
 .details-panel-details-section {
     /* height: 80%; */
@@ -768,9 +777,10 @@ tbody > tr:hover {
     box-sizing: border-box;
 }
 #workflow-builder-navbar {
-    height: 5vh;
+    height: 50px;
     color: white;
     background-color: #69a3a8;
+    position: static;
 }
 #worlkflow-builder-navbar-content-wrapper {
     gap: 5vw;
@@ -797,6 +807,7 @@ tbody > tr:hover {
     /* flex-grow: 0.9; */
     overflow: hidden;
     padding: 0px;
+    height: 100%;
     /* height: -webkit-fill-available; */
 }
 #canvas-tooltip
