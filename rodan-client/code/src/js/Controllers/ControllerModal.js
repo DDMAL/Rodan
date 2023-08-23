@@ -122,7 +122,7 @@ export default class ControllerModal extends BaseController
         }
         else
         {
-            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'ERROR', content: options.content});
+            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: options.title || 'Error', content: options.content});
         }
         $('.modal-footer').addClass('modal-footer-error');
     }
