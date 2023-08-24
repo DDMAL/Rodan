@@ -92,6 +92,17 @@ def clean(string):
         return string
     return string[index+1:]
 
+def traverse_layer(element):
+    if element.tag.endswith("pb"):
+        return []
+    facsimile = find_attrib(element,"facs")
+    out = []
+    if facsimile != None:
+        out.append(facsimile[1:])
+    for sub in element:
+        out += traverse_layer(sub)
+    return out
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('filepath')
@@ -131,5 +142,21 @@ if __name__ == "__main__":
     assert machine.check_status(), "Test 1 failed"
     print("Test 1 passed")
 
+    print("Test 2: Matching zones and elements")
 
+    zones = []
+    for zone in surface:
+        zones.append(find_attrib(zone,"id"))
+    
+    faces = traverse_layer(layer)
+
+    # check that zones and faces is a bijection
+    assert len(zones) == len(faces), "Test 2 failed"
+    for zone in zones:
+        assert zone in faces, "Test 2 failed"
+    
+    for fac in faces:
+        assert fac in zones, "Test 2 failed"
+    
+    print("Test 2 passed")
     
