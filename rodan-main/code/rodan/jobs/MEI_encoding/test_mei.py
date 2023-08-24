@@ -109,7 +109,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     tree = ET.parse(args.filepath)
     root = tree.getroot()
-    # print([child.tag for child in root.iter()])
     music = find_child(root,"music")
     facsimile = find_child(music,"facsimile")
     surface = find_child(facsimile,"surface")
@@ -153,10 +152,37 @@ if __name__ == "__main__":
     # check that zones and faces is a bijection
     assert len(zones) == len(faces), "Test 2 failed"
     for zone in zones:
-        assert zone in faces, "Test 2 failed"
+        assert zone in faces, "Test 2 failed, zone: " + zone + " not in a facsimile"
     
     for fac in faces:
-        assert fac in zones, "Test 2 failed"
+        assert fac in zones, "Test 2 failed, facsimile: " + fac + " not in a zone"
     
     print("Test 2 passed")
+
+    print("Test 3: Proceeds and follows")
+
+    syllables = []
+    for child in layer:
+        if child.tag.endswith("syllable"):
+            syllables.append(child)
+
+    for syllable in syllables:
+        follows = find_attrib(syllable,"follows")
+        syl_child = find_child(syllable,"syl")
+        assert follows == None or syl_child == None, "Test 3 failed, syllable: " + find_attrib(syllable,"id") + " has both a follows and a syl child"
+
+    for i, syllable in enumerate(syllables[:-1]):
+        proceeds = find_attrib(syllable,"precedes")
+        if proceeds != None:
+            assert proceeds[1:] == find_attrib(syllables[i+1],"id"), "Test 3 failed, syllable: " + find_attrib(syllable,"id") + " does not precede syllable: " + find_attrib(syllables[i+1],"id")
+    
+    for i, syllable in enumerate(syllables):
+        follows = find_attrib(syllable,"follows")
+        if follows != None:
+            assert follows[1:] == find_attrib(syllables[i-1],"id"), "Test 3 failed, syllable: " + find_attrib(syllable,"id") + " does not follow syllable: " + find_attrib(syllables[i-1],"id")
+        
+    print("Test 3 passed")
+
+
+
     
