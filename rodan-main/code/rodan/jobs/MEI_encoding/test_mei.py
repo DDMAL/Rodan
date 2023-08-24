@@ -103,6 +103,23 @@ def traverse_layer(element):
         out += traverse_layer(sub)
     return out
 
+def traverse_for_negatives(element):
+    ulx = find_attrib(element,"ulx")
+    uly = find_attrib(element,"uly")
+    lrx = find_attrib(element,"lrx")
+    lry = find_attrib(element,"lry")
+    if ulx != None:
+        assert int(ulx) >= 0, "Element with id: " + find_attrib(element,"id") + " has negative ulx"
+    if uly != None:
+        assert int(uly) >= 0, "Element with id: " + find_attrib(element,"id") + " has negative uly"
+    if lrx != None:
+        assert int(lrx) >= 0, "Element with id: " + find_attrib(element,"id") + " has negative lrx"
+    if lry != None:
+        assert int(lry) >= 0, "Element with id: " + find_attrib(element,"id") + " has negative lry"
+    
+    for sub in element:
+        traverse_for_negatives(sub)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('filepath')
@@ -183,6 +200,8 @@ if __name__ == "__main__":
         
     print("Test 3 passed")
 
-
+    print("Test 4: No negative coordinates")
+    traverse_for_negatives(surface)
+    print("Test 4 passed")
 
     
