@@ -42,6 +42,9 @@ COPY --from=rodan-static /code/Rodan/staticfiles /rodan/static
 COPY ./scripts/setup /run/
 RUN chmod +x /run/setup
 
+COPY ../scripts/wait-for-app /run/
+RUN chmod +x /run/wait-for-app
+
 # This script starts nginx
 COPY ./scripts/start /run/
 RUN chmod +x /run/start
