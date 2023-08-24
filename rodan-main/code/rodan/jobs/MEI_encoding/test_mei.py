@@ -79,38 +79,48 @@ class SylMachine:
         return self.previous_state != State.WAIT_FOR_NEUME and self.previous_state != State.FAIL
 
 
-def find(element,key):
-    for key in element.attrib:
-        if key.endswith("}id"):
-            return element.attrib[key]
+def find_attrib(element,key):
+    for k in element.attrib:
+        if k.endswith(key):
+            return element.attrib[k]
+        
+def find_child(element,tag):
+    for child in element:
+        if child.tag.endswith("" + tag):
+            return child
+
+def clean(string):
+    index = string.index("}")
+    if index == -1:
+        return string
+    return string[index+1:]
 
 if __name__ == "__main__":
     tree = ET.parse('debug/result.mei')
     root = tree.getroot()
     # print([child.tag for child in root.iter()])
-    stupid_prefix = '{http://www.music-encoding.org/ns/mei}'
-    music = root.find(stupid_prefix + "music")
-    facsimile = music.find(stupid_prefix + "facsimile")
-    surface = facsimile.find(stupid_prefix + "surface")
-    body = music.find(stupid_prefix + "body")
-    mdiv = body.find(stupid_prefix + "mdiv")
-    score = mdiv.find(stupid_prefix + "score")
-    section = score.find(stupid_prefix + "section")
-    staff = section.find(stupid_prefix + "staff")
-    layer = staff.find(stupid_prefix + "layer")
+    music = find_child(root,"music")
+    facsimile = find_child(music,"facsimile")
+    surface = find_child(facsimile,"surface")
+    body = find_child(music,"body")
+    mdiv = find_child(body,"mdiv")
+    score = find_child(mdiv,"score")
+    section = find_child(score,"section")
+    staff = find_child(section,"staff")
+    layer = find_child(staff,"layer")
 
     elements = []
     for child in layer:
-        if child.tag == stupid_prefix + "syllable":
-            elements.append(("syl_begin",find(child,"id")))
+        if child.tag.endswith("syllable"):
+            elements.append(("syl_begin",find_attrib(child,"id")))
             for grandchild in child:
-                tag = grandchild.tag.replace(stupid_prefix,"")
-                id = find(grandchild,"id")
+                tag = clean(grandchild.tag)
+                id = find_attrib(grandchild,"id")
                 elements.append((tag,id))   
-            elements.append(("syl_end",find(child,"id")))
+            elements.append(("syl_end",find_attrib(child,"id")))
             continue
-        tag = child.tag.replace(stupid_prefix,"")
-        id = find(child,"id")
+        tag = clean(child.tag)
+        id = find_attrib(child,"id")
         elements.append((tag,id))
 
 
