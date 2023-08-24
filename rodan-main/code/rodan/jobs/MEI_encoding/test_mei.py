@@ -49,9 +49,6 @@ class SylMachine:
         self.adjacency_matrix.append(in_syllable_transitions)
 
 
-    def fail(self,input):
-        raise ValueError("Failed to invalidate MEI on element with id: " + input[1])
-    
     # TODO
     # add check for gibberish tag?
     def input_to_enum(self,input):
@@ -70,10 +67,10 @@ class SylMachine:
         if input[0] == "syl": return
         transition = self.input_to_enum(input[0])
         next_state = self.adjacency_matrix[self.previous_state.value][transition.value]    
-        if next_state == State.FAIL:
-            self.fail(input)
-        else:
-            self.previous_state = next_state
+        
+        assert next_state != State.FAIL, "Failed to invalidate MEI on element with id: " + input[1]
+
+        self.previous_state = next_state
 
     def check_status(self):
         return self.previous_state != State.WAIT_FOR_NEUME and self.previous_state != State.FAIL
