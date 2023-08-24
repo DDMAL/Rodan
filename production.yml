@@ -67,6 +67,11 @@ services:
     volumes:
       - "resources:/rodan/data"
   
+  rodan-client:
+    image: "ddmal/rodan-client:nightly"
+    volumes:
+        - "./rodan-client/config/configuration.json:/client/configuration.json"
+
   iipsrv:
     image: "ddmal/iipsrv:nightly"
     volumes:
