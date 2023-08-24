@@ -1,7 +1,7 @@
 {
-    "SERVER_HOST": "rodan.staging.simssa.ca",
+    "SERVER_HOST": "localhost",
     "SERVER_PORT": "443",
-    "SERVER_HTTPS": true,
+    "SERVER_HTTPS": false,
     "SERVER_SOCKET_AVAILABLE": false,
     "SERVER_AUTHENTICATION_TYPE": "token",
     "ADMIN_CLIENT": {
