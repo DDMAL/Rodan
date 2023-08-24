@@ -53,14 +53,6 @@ test_prod: pull_prod
 	# different tag.
 	docker compose -f test-prod-compose.yml up
 
-build_arm:
-	@docker build -f ./nginx/Dockerfile.arm --no-cache --tag nginx-local --build-arg VERSION=${DOCKER_TAG} nginx
-
-run_arm:
-	# Run build_arm first if you don't have the NGINX container.
-	# Launch ARM instance 
-	@DOCKER_TAG=$(DOCKER_TAG) docker compose -f arm-compose.yml up
-
 run_client:
 	# Run Rodan-Client for dev (needs local dev up and running)
 	@docker run -p 8080:9002 -v `pwd`/rodan-client/code:/code ddmal/rodan-client:nightly bash
