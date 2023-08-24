@@ -1,20 +1,17 @@
 {
-    "SERVER_HOST": "localhost",
+    "SERVER_HOST": "rodan.staging.simssa.ca",
     "SERVER_PORT": "443",
     "SERVER_HTTPS": true,
     "SERVER_SOCKET_AVAILABLE": false,
     "SERVER_AUTHENTICATION_TYPE": "token",
-    "ADMIN_CLIENT":
-    {
+    "ADMIN_CLIENT": {
         "NAME": "",
         "EMAIL": ""
     },
     "DEBUG": false,
-    "WORKFLOWBUILDERGUI":
-    {
+    "WORKFLOWBUILDERGUI": {
         "USER_AGENT": "rodan-standard",
-        "GRID":
-        {
+        "GRID": {
             "DIMENSION": 20,
             "LINE_COLOR": "#606060",
             "LINE_WIDTH": 0.5
