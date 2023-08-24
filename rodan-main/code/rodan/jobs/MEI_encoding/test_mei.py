@@ -1,7 +1,7 @@
 from enum import Enum
 import xml.etree.ElementTree as ET
 from uuid import uuid4
-
+import argparse
 class Inputs(Enum):
     NEUME = 0
     IN_SYL = 1
@@ -96,7 +96,10 @@ def clean(string):
     return string[index+1:]
 
 if __name__ == "__main__":
-    tree = ET.parse('debug/result.mei')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filepath')
+    args = parser.parse_args()
+    tree = ET.parse(args.filepath)
     root = tree.getroot()
     # print([child.tag for child in root.iter()])
     music = find_child(root,"music")
