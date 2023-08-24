@@ -110,12 +110,12 @@ docker build \
   --tag ddmal/nginx:${DOCKER_TAG} \
   ./nginx
 
-echo "[+] Building HPC-RabbitMQ"
+echo "[+] Building iipsrv"
 
 docker build \
   --no-cache \
   --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/hpc-rabbitmq:${DOCKER_TAG} \
-  ./hpc-rabbitmq
+  --tag ddmal/iipsrv:${DOCKER_TAG} \
+  ./iipsrv
 
 echo "[+] Finished"

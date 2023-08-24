@@ -18,7 +18,7 @@ const WebpackDevServer = require("webpack-dev-server");
 ////////////////////////////////////////////////////////////////////////////////
 // CONFIGURATION - Develop
 ////////////////////////////////////////////////////////////////////////////////
-const DEVELOP_HOST = process.env.RODAN_CLIENT_DEVELOP_HOST || "localhost";
+const DEVELOP_HOST = process.env.SERVER_HOST;
 const DEVELOP_PORT = 9002;
 const DEVELOP_SOURCEMAP = 'eval-source-map';
 const DEVELOP_WEBROOT = '__develop__';

@@ -1,13 +1,4 @@
 ARG VERSION
-FROM ddmal/rodan-client:${VERSION} as webapp
-
-# Add local configuration and build.
-RUN rm -rf /code/configuration.json
-COPY ./config/configuration.json /code/
-RUN /code/node_modules/.bin/gulp dist
-
-
-###########################################################
 FROM ddmal/rodan-main:${VERSION} as rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
@@ -35,10 +26,8 @@ RUN apt-get -qq update \
 # Add configuration files.
 COPY ./config/nginx.conf     /etc/nginx/nginx.conf
 COPY ./config/ssl.conf       /etc/nginx/conf.d/ssl.conf
-COPY ./config/ssl-http.conf  /etc/nginx/conf.d/ssl-http.conf
 COPY ./config/error.conf     /etc/nginx/conf.d/error.conf
 COPY ./config/rodan.conf     /etc/nginx/sites-available/rodan.conf
-COPY ./config/rodan.stream   /etc/nginx/sites-available/rodan.stream
 
 RUN mkdir -p /rodan/data
 RUN chown -R www-data /rodan
@@ -47,32 +36,15 @@ RUN chown -R www-data /rodan
 RUN rm /usr/share/nginx/html/*
 COPY ./html/ /var/www/default/
 
-# Add Rodan Client
-COPY --from=webapp /code/dist/* /var/www/default/dist/
-RUN set -e \
-  && mkdir /var/www/default/dist/resources \
-  && mv /var/www/default/dist/favicon.ico /var/www/default/dist/resources/ \
-  && mv /var/www/default/dist/grids-responsive-min.css /var/www/default/dist/resources/
 # Add Rodan Static files
 COPY --from=rodan-static /code/Rodan/staticfiles /rodan/static
 
-# Create and add SSL certificates.
-#RUN mkdir /etc/nginx/keys
-#COPY ./certs/local_cert.pem     /etc/nginx/keys/cert.pem
-#COPY ./certs/local_key.pem      /etc/nginx/keys/key.pem
-#COPY ./certs/local_dhparam.pem  /etc/nginx/keys/dhparam.pem
-
-RUN mkdir -p /etc/letsencrypt
-RUN mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
-
-# This script corrects permissions in the file system
 COPY ./scripts/setup /run/
 RUN chmod +x /run/setup
 
-# This script starts nginx for development
+COPY ../scripts/wait-for-app /run/
+RUN chmod +x /run/wait-for-app
+
+# This script starts nginx
 COPY ./scripts/start /run/
 RUN chmod +x /run/start
-
-# This script starts nginx for production
-COPY ./scripts/start-production /run/
-RUN chmod +x /run/start-production
