@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+import sys
+ 
+# setting path
+sys.path.append('..')
+
+# To run this file, some imports in build_mei_file.py will need to be changed
+# The correct ones for local development are there commented out
+# Comment out the bad ones and uncomment the good ones
+
 import build_mei_file as bm
 import parse_classifier_table as pct
 import json
@@ -39,12 +48,12 @@ def run_my_task(inputs, settings, outputs):
 
 if __name__ == "__main__":
     import re
-    input_jsomr = "" # path to hpf output
-    input_text = "" # path to text alignment json
-    input_csd = "" # path to column splitting data
-    input_mei_mapping = "" # path to mei mapping csv
-    output_path = "" # path to output mei
-    gt_output_path = "" # path to ground truth mei
+    input_jsomr = "../debug/mei-encoding-test-hpf.json" # path to hpf output
+    input_text = "../debug/mei-encoding-test-ta.json" # path to text alignment json
+    input_csd = "../debug/mei-encoding-test-csd.json" # path to column splitting data
+    input_mei_mapping = "../meimapping.csv" # path to mei mapping csv
+    output_path = "../debug/result.mei" # path to output mei
+    gt_output_path = "/code/Rodan/rodan/test/files/mei-encoding-test.mei" # path to ground truth mei
     inputs = {
         "JSOMR": [{"resource_path":input_jsomr}],
         "Text Alignment JSON": [{"resource_path":input_text}],
