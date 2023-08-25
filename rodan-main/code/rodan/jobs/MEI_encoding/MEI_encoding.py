@@ -106,15 +106,17 @@ class MEI_encoding(RodanTask):
 
     def test_my_task(self, testcase):
         import re
-        input_jsomr = "/code/Rodan/rodan/test/files/238r-heuristic_pitch_finding.json"
-        input_text = "/code/Rodan/rodan/test/files/238r-text-alignment.json"
-        input_mei_mapping = "/code/Rodan/rodan/test/files/238r-mei-mapping.csv"
+        input_jsomr = "/code/Rodan/rodan/test/files/mei-encoding-test-hpf.json"
+        input_text = "/code/Rodan/rodan/test/files/mei-encoding-test-ta.json"
+        input_col_data = "/code/Rodan/rodan/test/files/mei-encoding-test-csd.json"
+        input_mei_mapping = "/code/Rodan/rodan/test/files/mei-encoding-test.csv"
         output_path = testcase.new_available_path()
-        gt_output_path = "/code/Rodan/rodan/test/files/238r-mei.mei"
+        gt_output_path = "/code/Rodan/rodan/test/files/mei-encoding-test.mei"
         inputs = {
             "JSOMR": [{"resource_path":input_jsomr}],
             "Text Alignment JSON": [{"resource_path":input_text}],
-            "MEI Mapping CSV": [{"resource_path":input_mei_mapping}]
+            "MEI Mapping CSV": [{"resource_path":input_mei_mapping}],
+            "Column Splitting Data": [{"resource_path":input_col_data}]
         }
         outputs = {
             "MEI": [{"resource_path":output_path}]

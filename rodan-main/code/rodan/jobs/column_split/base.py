@@ -49,7 +49,7 @@ class ColumnSplit(RodanTask):
         {'name': 'Background Layer', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Music Notes Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Text Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
-        {'name': 'Layer 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'All Layers', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 7', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
@@ -105,16 +105,27 @@ class ColumnSplit(RodanTask):
         outfile_neume = outputs['Music Notes Layer'][0]['resource_path']
         cv.imwrite(outfile_neume+".png",stacked_neume)
         os.rename(outfile_neume+".png", outfile_neume)
+
+        layers = [staff,text,neume]
         
         for key in inputs:
-            if key != 'Staff Layer' and key != 'Text Layer' and key != 'Music Notes Layer':
+            if key != 'Staff Layer' and key != 'Text Layer' and key != 'Music Notes Layer' and key != 'All Layers':
                 layer = inputs[key][0]['resource_path']
                 img = cv.imread(layer,cv.IMREAD_UNCHANGED)
-                logger.info("Getting stacked images")
                 layer_stacked = get_stacked_image(img,ranges)
-                outfile = outputs[key][0]['resource_path']
-                cv.imwrite(outfile+".png",layer_stacked)
-                os.rename(outfile+".png", outfile)
+                layers.append(img)
+                if key in outputs:
+                    outfile = outputs[key][0]['resource_path']
+                    cv.imwrite(outfile+".png",layer_stacked)
+                    os.rename(outfile+".png", outfile)
+        
+        if 'All Layers' in outputs:
+            outfile_all = outputs['All Layers'][0]['resource_path']
+            final = get_stacked_image(layers[0],ranges)
+            for layer in layers[1:]:
+                final = final + get_stacked_image(layer,ranges)
+            cv.imwrite(outfile_all+".png",final)
+            os.rename(outfile_all+".png", outfile_all)
 
         out_json_file = outputs['Column Splitting Data'][0]['resource_path']
 
