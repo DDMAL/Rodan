@@ -1,0 +1,20 @@
+#!/bin/bash
+# hooks/post_build
+
+source ./hooks/helper.sh
+if [[ ret_code -eq 1 ]]; then
+  echo "[-] no branch detected, fallback to use docker tag=$DOCKER_TAG"
+  echo "[-] Stop building due to wrong tag: $DOCKER_TAG"
+  exit 1
+elif [[ ret_code -eq 2 ]]; then
+  echo "[-] no tag on release branch, fallback to use docker tag=$DOCKER_TAG"
+  echo "[-] Stop building due to wrong tag: $DOCKER_TAG"
+  exit 1
+fi
+
+# Pass testing a pull request
+# Push to trigger webhook and send a message to slack
+if [[ "$DOCKER_TAG" ==  "this" ]]; then
+  docker tag ddmal/docker-webhook:placeholder ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}
+  docker push ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}
+fi
