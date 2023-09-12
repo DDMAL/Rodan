@@ -32,3 +32,8 @@ docker push ddmal/nginx:${DOCKER_TAG}
 
 echo "[+] Pushing ddmal/iipsrv:${DOCKER_TAG}"
 docker push ddmal/iipsrv:${DOCKER_TAG}
+
+# Pass building images
+# Push to trigger webhook and send a message to slack
+docker tag ddmal/docker-webhook:placeholder ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}
+docker push ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}
