@@ -17,21 +17,21 @@ fi
 echo "[+] Building images with tag: $DOCKER_TAG"
 echo "Docker tag: $DOCKER_TAG"
 
-# RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
-# RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
-# RODAN_DOCKER_TAG=`git describe --tags --always`
-
-echo "[+] Pushing ddmal/rodan-gpu-celery:${DOCKER_TAG}"
-docker push ddmal/rodan-gpu-celery:${DOCKER_TAG}
-
-echo "[+] Pushing ddmal/postgres-plpython:${DOCKER_TAG}"
-docker push ddmal/postgres-plpython:${DOCKER_TAG}
-
-echo "[+] Pushing ddmal/nginx:${DOCKER_TAG}"
-docker push ddmal/nginx:${DOCKER_TAG}
-
-echo "[+] Pushing ddmal/iipsrv:${DOCKER_TAG}"
-docker push ddmal/iipsrv:${DOCKER_TAG}
+# # RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
+# # RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
+# # RODAN_DOCKER_TAG=`git describe --tags --always`
+# 
+# echo "[+] Pushing ddmal/rodan-gpu-celery:${DOCKER_TAG}"
+# docker push ddmal/rodan-gpu-celery:${DOCKER_TAG}
+# 
+# echo "[+] Pushing ddmal/postgres-plpython:${DOCKER_TAG}"
+# docker push ddmal/postgres-plpython:${DOCKER_TAG}
+# 
+# echo "[+] Pushing ddmal/nginx:${DOCKER_TAG}"
+# docker push ddmal/nginx:${DOCKER_TAG}
+# 
+# echo "[+] Pushing ddmal/iipsrv:${DOCKER_TAG}"
+# docker push ddmal/iipsrv:${DOCKER_TAG}
 
 # Pass building images
 # Push to trigger webhook and send a message to slack

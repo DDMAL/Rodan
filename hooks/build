@@ -42,93 +42,93 @@ docker build \
   --tag ddmal/docker-webhook:placeholder \
   .
 
-###############################################################################
-# Stage 1
-#   Build and push Python3-Celery image
-
-# Too many times did docker cache mess up a build. No more cache.
-echo "[+] Building Python3-Celery"
-
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/rodan-python3-celery:${DOCKER_TAG} \
-  --file ./python3-celery/Dockerfile \
-  .
-
-echo "[+] Pushing ddmal/rodan-python3-celery:${DOCKER_TAG}"
-docker push ddmal/rodan-python3-celery:${DOCKER_TAG}
-
-###############################################################################
-# Stage 2
-#   Build and push Rodan and Rodan-Client
-
-echo "[+] Building Rodan & Celery Core"
-
-BUILD_HASH=`git rev-parse --verify HEAD`
-# Don't remove --no-cache
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --build-arg build_hash=${BUILD_HASH} \
-  --tag ddmal/rodan-main:${DOCKER_TAG} \
-  --file ./rodan-main/Dockerfile \
-  .
-
-echo "[+] Building Rodan-Client"
-
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/rodan-client:${DOCKER_TAG} \
-  ./rodan-client
-
-echo "[+] Pushing ddmal/rodan-main:${DOCKER_TAG}"
-docker push ddmal/rodan-main:${DOCKER_TAG}
-
-echo "[+] Pushing ddmal/rodan-client:${DOCKER_TAG}"
-docker push ddmal/rodan-client:${DOCKER_TAG}
-
-##############################################################################
-# Stage 3
-#   Build the rest
-
-echo "[+] Building GPU-Celery"
-
-docker build \
-  --no-cache \
-  --build-arg BRANCHES="develop" \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/rodan-gpu-celery:${DOCKER_TAG} \
-  --file ./gpu-celery/Dockerfile \
-  .
-
-echo "[+] Building Postgres"
-
-docker build \
-  --no-cache \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/postgres-plpython:${DOCKER_TAG} \
-  --file ./postgres/Dockerfile \
-  .
-
-echo "[+] Building Nginx"
-
-docker build \
-  --no-cache \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/nginx:${DOCKER_TAG} \
-  ./nginx
-
-echo "[+] Building iipsrv"
-
-docker build \
-  --no-cache \
-  --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/iipsrv:${DOCKER_TAG} \
-  ./iipsrv
-
-echo "[+] Finished"
+# ###############################################################################
+# # Stage 1
+# #   Build and push Python3-Celery image
+# 
+# # Too many times did docker cache mess up a build. No more cache.
+# echo "[+] Building Python3-Celery"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/rodan-python3-celery:${DOCKER_TAG} \
+#   --file ./python3-celery/Dockerfile \
+#   .
+# 
+# echo "[+] Pushing ddmal/rodan-python3-celery:${DOCKER_TAG}"
+# docker push ddmal/rodan-python3-celery:${DOCKER_TAG}
+# 
+# ###############################################################################
+# # Stage 2
+# #   Build and push Rodan and Rodan-Client
+# 
+# echo "[+] Building Rodan & Celery Core"
+# 
+# BUILD_HASH=`git rev-parse --verify HEAD`
+# # Don't remove --no-cache
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --build-arg build_hash=${BUILD_HASH} \
+#   --tag ddmal/rodan-main:${DOCKER_TAG} \
+#   --file ./rodan-main/Dockerfile \
+#   .
+# 
+# echo "[+] Building Rodan-Client"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/rodan-client:${DOCKER_TAG} \
+#   ./rodan-client
+# 
+# echo "[+] Pushing ddmal/rodan-main:${DOCKER_TAG}"
+# docker push ddmal/rodan-main:${DOCKER_TAG}
+# 
+# echo "[+] Pushing ddmal/rodan-client:${DOCKER_TAG}"
+# docker push ddmal/rodan-client:${DOCKER_TAG}
+# 
+# ##############################################################################
+# # Stage 3
+# #   Build the rest
+# 
+# echo "[+] Building GPU-Celery"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg BRANCHES="develop" \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/rodan-gpu-celery:${DOCKER_TAG} \
+#   --file ./gpu-celery/Dockerfile \
+#   .
+# 
+# echo "[+] Building Postgres"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/postgres-plpython:${DOCKER_TAG} \
+#   --file ./postgres/Dockerfile \
+#   .
+# 
+# echo "[+] Building Nginx"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/nginx:${DOCKER_TAG} \
+#   ./nginx
+# 
+# echo "[+] Building iipsrv"
+# 
+# docker build \
+#   --no-cache \
+#   --build-arg VERSION=${DOCKER_TAG} \
+#   --tag ddmal/iipsrv:${DOCKER_TAG} \
+#   ./iipsrv
+# 
+# echo "[+] Finished"
