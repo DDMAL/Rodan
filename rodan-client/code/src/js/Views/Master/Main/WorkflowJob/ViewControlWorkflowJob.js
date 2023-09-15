@@ -20,6 +20,7 @@ export default class ViewControlWorkflowJob extends Marionette.View
     initialize(options)
     {
         this._workflow = options.workflow;
+        this.setElement('<div class="content-wrapper column-content"></div>');
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////

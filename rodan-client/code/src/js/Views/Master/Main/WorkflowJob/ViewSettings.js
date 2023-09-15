@@ -21,6 +21,7 @@ export default class ViewSettings extends Marionette.View
     initialize(options)
     {
         this._workflow = options.workflow;
+        this.setElement('<div class="content-wrapper column-content"></div>');
     }
 
     /**
@@ -63,16 +64,19 @@ export default class ViewSettings extends Marionette.View
         var jobUuid = this.model.getJobUuid();
         var collection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_JOB_COLLECTION);
         var job = collection.get(jobUuid);
+        console.log(job);
+        console.log(job.get('settings'));
         var settingsSchema = {
             schema: job.get('settings'),
-            theme: 'bootstrap3',
+            theme: 'barebones',
             disable_collapse: true,
             disable_edit_json: true,
             disable_properties: true,
             no_additional_properties: true,
             show_errors: 'always',
             startval: startValues,
-            form_name_root: ' '
+            form_name_root: ' ',
+            onClassName: () => { return 'content-wrapper row-content'; },
         };
         this._editor = new JSONEditor(element, settingsSchema);
     }
@@ -90,8 +94,8 @@ ViewSettings.prototype.modelEvents = {
 };
 ViewSettings.prototype.ui = {
     buttonSave: '#button-save_workflowjob_settings'
-        };
+};
 ViewSettings.prototype.events = {
     'click @ui.buttonSave': '_handleButtonSave'
-        };
+};
 ViewSettings.prototype.template = _.template($('#template-main_workflowjob_settings').text());

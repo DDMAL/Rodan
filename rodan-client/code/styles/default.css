@@ -121,9 +121,7 @@ textarea {
     border-radius: 3px;
     outline: none;
 }
-ul {
-    padding: 0px;
-}
+ 
 /* Table styles */
 table {
     user-select: none;
@@ -215,6 +213,9 @@ tbody > tr:hover {
     align-items: flex-end;
 }
 /* flex gap */
+.flex-gap-5 {
+    gap: 5px;
+}
 .flex-gap-10 {
     gap: 10px;
 }
@@ -227,15 +228,32 @@ tbody > tr:hover {
 /* padding */
 .padding-5 {
     padding: 5px;
-    box-sizing: border-box;
 }
 .padding-10 {
     padding: 10px;
-    box-sizing: border-box;
 }
 .padding-20 {
     padding: 20px;
-    box-sizing: border-box;
+}
+.padding-30 {
+    padding: 30px;
+}
+/* positioning */
+.pos-absolute {
+    position: absolute;
+}
+.pos-relative {
+    position: relative;
+}
+.pos-fixed {
+    position: fixed;
+}
+.pos-static {
+    position: static;
+}
+/* text */
+.text-nowrap {
+    text-wrap: nowrap;
 }
 /* buttons */
 .btn {
@@ -642,7 +660,7 @@ tbody > tr:hover {
     height: fit-content;
     width: 100%;
     overflow-x: auto;
-    max-height: 85%;
+    max-height: 1000px;
 }
 .project-collections {
     gap: 25px;
@@ -894,8 +912,8 @@ div#main_workflowbuilder
 /* general modal styles */
 #modal-generic {
     position: absolute;
-    width: fit-content;
-    height: fit-content;
+    width: initial;
+    height: initial;
     max-width: 1200px;
     min-width: 500px;
     background-color: #ffffff90;
@@ -903,13 +921,21 @@ div#main_workflowbuilder
     z-index: 9999;
     border-radius: 5px;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     display: none;
     animation: fade-in 0.2s ease-in-out forwards;
 }
-.modal-content
-{
-
+.modal-dialog {
+    width: fit-content;
+    height: fit-content;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+    background-color: white;
+    backdrop-filter: blur(20px);
+    min-width: 500px;
+    /* min-height: 300px; */
 }
 .modal-header {
     align-items: center;
@@ -919,6 +945,7 @@ div#main_workflowbuilder
     background-color: #488bcb;
     color: white;
     font-size: 15px;
+    height: 40px;
 }
 .modal-close {
     cursor: pointer;
@@ -929,9 +956,13 @@ div#main_workflowbuilder
     overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
+    font-size: 12px;
 }
 .modal-body-section {
     align-items: flex-start;
+}
+.modal-subtitle-container {
+    height: 30px;
 }
 .modal-subtitle {
     font-size: 13px;
@@ -940,6 +971,8 @@ div#main_workflowbuilder
 .modal-footer
 {
     padding: 10px;
+    max-height: 40px;
+    height: fit-content;
 }
 .modal-footer-error, .modal-input-error
 {
@@ -963,6 +996,33 @@ div#main_workflowbuilder
 #checkbox-send_email {
     flex-grow: 0; /* overwrite general input element styles (which have flex-grow value of 1) */
 }
+
+/* resource assignment modal */
+#resource-assignment-actions-container {
+    height: fit-content;
+    padding: 5px;
+    border: 1px solid #cecece;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    max-width: 150px;
+}
+
+/* job settings modal */
+#workflowjob-settings:first-child {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+#workflowjob-settings {
+
+}
+
+.this-is-my-class {
+    background-color: green;
+}
+
 
 
 /* ------------ */
