@@ -121,6 +121,7 @@ textarea {
     border-radius: 3px;
     outline: none;
 }
+ 
 /* Table styles */
 table {
     user-select: none;
@@ -173,6 +174,7 @@ tbody > tr:hover {
 .content-wrapper.row-content {
     flex-direction: row;
 }
+/* flex horizontal alignment */
 .column-left {
     align-items: flex-start;
 }
@@ -191,6 +193,29 @@ tbody > tr:hover {
 .row-right {
     justify-content: flex-end;
 }
+/* flex vertical alignment */
+.column-top {
+    justify-content: flex-start;
+}
+.row-top {
+    align-items: flex-start;
+}
+.column-middle {
+    justify-content: center;
+}
+.row-middle {
+    align-items: center;
+}
+.column-bottom {
+    justify-content: flex-end;
+}
+.row-bottom {
+    align-items: flex-end;
+}
+/* flex gap */
+.flex-gap-5 {
+    gap: 5px;
+}
 .flex-gap-10 {
     gap: 10px;
 }
@@ -200,17 +225,35 @@ tbody > tr:hover {
 .flex-gap-30 {
     gap: 30px;
 }
+/* padding */
 .padding-5 {
     padding: 5px;
-    box-sizing: border-box;
 }
 .padding-10 {
     padding: 10px;
-    box-sizing: border-box;
 }
 .padding-20 {
     padding: 20px;
-    box-sizing: border-box;
+}
+.padding-30 {
+    padding: 30px;
+}
+/* positioning */
+.pos-absolute {
+    position: absolute;
+}
+.pos-relative {
+    position: relative;
+}
+.pos-fixed {
+    position: fixed;
+}
+.pos-static {
+    position: static;
+}
+/* text */
+.text-nowrap {
+    text-wrap: nowrap;
 }
 .overflow-scroll {
     overflow: scroll;
@@ -299,6 +342,10 @@ tbody > tr:hover {
     box-sizing: border-box;
     box-shadow: 0px 5px 5px 1px #00000057;
     border-radius: 0px 0px 3px 3px;
+}
+.dropdown-menu.context-menu {
+    box-shadow: 0px 0px 5px 1px #00000057;
+    border-radius: 3px;
 }
 .dropdown-btn {
     display: flex;
@@ -414,7 +461,7 @@ tbody > tr:hover {
 .node-text {
     font-size: 15px;
     width: 100%;
-    padding: 3px 0px;
+    padding: 3px;
 }
 .node-text:hover {
     background-color: var(--primary-app-color);
@@ -478,7 +525,7 @@ tbody > tr:hover {
     gap: 15px;
 }
 .region-main-section {
-    width: 98%;
+    width: 100%;
 }
 /* Main region header */
 .region-main-section.region-main-header {
@@ -620,14 +667,13 @@ tbody > tr:hover {
     border-radius: 5px;
     background-color: #f0f0f047;
     height: fit-content;
-    width: 98%;
+    width: 100%;
     overflow-x: auto;
-    max-height: 85%;
+    max-height: 1000px;
 }
 .project-collections {
     gap: 25px;
     padding-top: 20px;
-    padding-bottom: 10px;
     box-sizing: border-box;
     width: 85%;
     border-right: 2px solid #dfdfdf;
@@ -877,8 +923,8 @@ div#main_workflowbuilder
 /* general modal styles */
 #modal-generic {
     position: absolute;
-    width: fit-content;
-    height: fit-content;
+    width: initial;
+    height: initial;
     max-width: 1200px;
     min-width: 500px;
     background-color: #ffffff90;
@@ -886,13 +932,21 @@ div#main_workflowbuilder
     z-index: 9999;
     border-radius: 5px;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     display: none;
     animation: fade-in 0.2s ease-in-out forwards;
 }
-.modal-content
-{
-
+.modal-dialog {
+    width: fit-content;
+    height: fit-content;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+    background-color: white;
+    backdrop-filter: blur(20px);
+    min-width: 500px;
+    /* min-height: 300px; */
 }
 .modal-header {
     align-items: center;
@@ -902,6 +956,7 @@ div#main_workflowbuilder
     background-color: #488bcb;
     color: white;
     font-size: 15px;
+    height: 40px;
 }
 .modal-close {
     cursor: pointer;
@@ -912,9 +967,13 @@ div#main_workflowbuilder
     overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
+    font-size: 12px;
 }
 .modal-body-section {
     align-items: flex-start;
+}
+.modal-subtitle-container {
+    height: 30px;
 }
 .modal-subtitle {
     font-size: 13px;
@@ -923,6 +982,8 @@ div#main_workflowbuilder
 .modal-footer
 {
     padding: 10px;
+    max-height: 40px;
+    height: fit-content;
 }
 .modal-footer-error, .modal-input-error
 {
@@ -946,6 +1007,33 @@ div#main_workflowbuilder
 #checkbox-send_email {
     flex-grow: 0; /* overwrite general input element styles (which have flex-grow value of 1) */
 }
+
+/* resource assignment modal */
+#resource-assignment-actions-container {
+    height: fit-content;
+    padding: 5px;
+    border: 1px solid #cecece;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    max-width: 150px;
+}
+
+/* job settings modal */
+#workflowjob-settings:first-child {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+#workflowjob-settings {
+
+}
+
+.this-is-my-class {
+    background-color: green;
+}
+
 
 
 /* ------------ */
