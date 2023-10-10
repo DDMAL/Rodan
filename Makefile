@@ -220,7 +220,7 @@ push:
 
 pull:
 	@echo "[-] Pulling docker images from Docker Hub..."
-	@docker compose pull
+	@DOCKER_TAG=$(DOCKER_TAG) docker compose pull
 	@echo "[+] Done."
 
 $(JOBS_PATH)/neon_wrapper/Neon/package.json:
