@@ -7,7 +7,7 @@ set -o xtrace # Print commands and their arguments as they are executed.
 #sed -i "s/SERVER_HOST/${SERVER_HOST}/g" /etc/nginx/conf.d/ssl.conf
 
 # Wait for everything to be up.
-# /run/wait-for-app iipsrv:9003
+/run/wait-for-app iipsrv:9003
 /run/wait-for-app redis:6379
 /run/wait-for-app rodan-main:8000 --timeout=900
 /run/wait-for-app rodan-client:80
