@@ -34,4 +34,4 @@ ENV PORT 9003
 
 EXPOSE ${PORT}
 
-ENTRYPOINT ./src/iipsrv.fcgi --bind 0.0.0.0:${PORT}
+ENTRYPOINT /fcgi-bin/iipsrv.fcgi --bind 0.0.0.0:${PORT}
