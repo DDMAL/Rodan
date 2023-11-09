@@ -122,6 +122,12 @@ class ResourceList(generics.ListCreateAPIView):
         elif uploaded == u'False':
             condition &= Q(origin__isnull=False)
 
+        file_exists = self.request.query_params.get('file_exists', None)
+        if file_exists == u'True':
+            condition &= ~Q(resource_file="")
+        elif file_exists == u'False':
+            condition &= Q(resource_file="")
+
         # finding the resourcelist query parameter and adding it to the condition
         resource_list_param = self.request.query_params.get('resource_list', None)
         if resource_list_param is not None:
