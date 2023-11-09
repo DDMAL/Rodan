@@ -6,7 +6,10 @@ from django.db import models
 from django.urls import reverse
 from rodan.constants import task_status
 from rodan.models.resourcelabel import ResourceLabel
+from rodan.models.output import Output
 from rodan.models.user import User
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 import logging
 
@@ -298,3 +301,12 @@ class Resource(models.Model):
     def viewer_relurl(self):
         if self.get_viewer() is not None:
             return reverse("resource-viewer-acquire", args=(self.uuid,))
+    
+@receiver(post_delete, sender=Output)
+def post_output_delete(sender, instance, **kwargs):
+    """
+    Deletes resource when associated output is deleted. Cascade delete does not work due to on_delete=PROTECT in Output model. 
+    In newer Django versions, we can use on_delete=models.RESTRICT in Output model to allow cascade delete to work.
+    """
+    if instance.resource:
+        instance.resource.delete()
