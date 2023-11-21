@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   nginx:
-    image: "ddmal/nginx:v2.0.15"
+    image: "ddmal/nginx:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -37,7 +37,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "ddmal/rodan-main:v2.0.15"
+    image: "ddmal/rodan-main:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -78,7 +78,7 @@ services:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:v2.0.15"
+    image: "ddmal/rodan-main:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -109,7 +109,7 @@ services:
       - "resources:/rodan/data"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:v2.0.15"
+    image: "ddmal/rodan-python3-celery:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -139,7 +139,7 @@ services:
       - "resources:/rodan/data"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:v2.0.15"
+    image: "ddmal/rodan-gpu-celery:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -195,7 +195,7 @@ services:
       TZ: America/Toronto
 
   postgres:
-    image: "ddmal/postgres-plpython:v2.0.15"
+    image: "ddmal/postgres-plpython:v3.0.0"
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
