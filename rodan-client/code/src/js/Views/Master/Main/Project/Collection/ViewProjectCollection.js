@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import _ from 'underscore';
+import _, { initial } from 'underscore';
 import BehaviorTable from 'js/Behaviors/BehaviorTable';
 import BaseViewCollection from 'js/Views/Master/Main/BaseViewCollection';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
@@ -11,6 +11,11 @@ import ViewProjectCollectionItem from './ViewProjectCollectionItem';
  */
 export default class ViewProjectCollection extends BaseViewCollection
 {
+    initialize() {
+        super.initialize();
+        this.setElement('<div id="region-main-content-wrapper" class="content-wrapper column-content"></div>');
+    }
+
     _handleButtonNewProject()
     {
         var user = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_USER);

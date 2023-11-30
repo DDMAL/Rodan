@@ -85,12 +85,20 @@ class APIRoot(APIView):
                 "auth-register": reverse(
                     "auth-register", request=request, format=format
                 ),
+                "auth-activate": reverse("auth-activate", request=request, format=format),
+                "auth-resend-activation": reverse("auth-resend-activation", request=request, format=format),
                 "auth-token": reverse("auth-token", request=request, format=format),
                 "auth-reset-token": reverse(
                     "auth-reset-token", request=request, format=format
                 ),
                 "auth-change-password": reverse(
                     "auth-change-password", request=request, format=format
+                ),
+                "auth-reset-password": reverse(
+                    "auth-reset-password", request=request, format=format
+                ),
+                "auth-reset-password-confirm": reverse(
+                    "auth-reset-password-confirm", request=request, format=format
                 ),
             },
             "configuration": {

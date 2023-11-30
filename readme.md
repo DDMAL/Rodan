@@ -4,7 +4,7 @@
   - Master Branch ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ddmal/rodan/master)
   - Develop Branch ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ddmal/rodan/develop)
 
-This repository contains Docker images that can be used to set up [Rodan](https://github.com/DDMAL/rodan) locally for development. These images can also be used in the future with slight modifications for deployment to a swarm production environment. Please see the wiki for more information about deploying Rodan. [Rodan-Docker Wiki](https://github.com/DDMAL/rodan-docker/wiki)
+This repository contains Docker images that can be used to set up [Rodan](https://github.com/DDMAL/rodan) locally for development. These images can also be used in the future with slight modifications for deployment to a swarm production environment. Please see the wiki for more information about deploying Rodan. [Rodan Wiki](https://github.com/DDMAL/Rodan/wiki)
 
 #### Objectives
 
@@ -16,13 +16,13 @@ This repository contains Docker images that can be used to set up [Rodan](https:
 If you are working on **Rodan** or **Rodan Jobs**
 
 - Make sure you have Rodan submodule cloned in `${repository_root}/rodan/code` and **it is up to date** with the branch you wish to work with. The branches should be either `develop`, or the **name of the feature** you would like to include into develop. The `master` branch is only for version releases and is supposed to be a guaranteed working version.
-- Follow the instructions here: https://github.com/DDMAL/rodan-docker/wiki/Working-on-Rodan
+- Follow the instructions here: https://github.com/DDMAL/Rodan/wiki/Working-on-Rodan
   - Note the `BRANCHES` environment variable in the installation scripts, you can set the environment variable locally by running the following command: `export BRANCHES="develop"`.
 
 If you are working on **Rodan-Client**
 
 - Make sure you have Rodan-Client cloned in `${repository_root}/rodan-client/code` and it is up to date with the branch you wish to work with.
-- Follow the instructions here: https://github.com/DDMAL/rodan-docker/wiki/Working-on-Rodan-Client
+- Follow the instructions here: https://github.com/DDMAL/Rodan/wiki/Working-on-Rodan-Client
 
 ## Tips for Interacting with Running Containers
 

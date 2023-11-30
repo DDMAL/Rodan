@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import $ from 'jquery';
-import bootstrap from 'bootstrap';
 import Marionette from 'backbone.marionette';
 import moment from 'moment';
 import Radio from 'backbone.radio';
@@ -33,6 +32,8 @@ import GlobalResourceLabelCollection from './Collections/Global/GlobalResourceLa
 import LayoutViewMaster from './Views/Master/LayoutViewMaster';
 import UpdateManager from './Managers/UpdateManager';
 import TransferManager from './Managers/TransferManager';
+import Router from 'js/Router';
+import Backbone from 'backbone';
 
 /**
  * Main application class.
@@ -88,9 +89,7 @@ export default class Application extends Marionette.Application
     {
         this._transferManager = new TransferManager();
         this._updateManager = new UpdateManager();
-        // This is commented out because deleting a workflowRun throws a null error despite the error
-        // being non-existent. Its errors are not very useful anyway. Fix in progress, see issue 475 (Rodan).
-        // this._errorManager = new ErrorManager();
+        this._errorManager = new ErrorManager();
     }
 
     /**
@@ -195,6 +194,10 @@ export default class Application extends Marionette.Application
 
         // Check authentication.
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__AUTHENTICATION_CHECK);
+
+        // Start router.
+        new Router();
+        Backbone.history.start();
     }
 
     /**
@@ -213,4 +216,4 @@ export default class Application extends Marionette.Application
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
     }
 }
-Application.prototype.region = '#region-master';
+Application.prototype.region = '#app';

@@ -1,0 +1,68 @@
+name: Create Release checklist
+on:
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  release-checklist:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Create output folder
+        run: mkdir -p ${{ github.workspace }}/checklist_items
+      - name: Write checklist items to files
+        id: merge_commits
+        run: |
+          git fetch origin master
+          git fetch origin ${GITHUB_HEAD_REF}
+          MERGE_COMMITS=$(git --no-pager log origin/${GITHUB_HEAD_REF} ^origin/master --oneline --merges --grep "Merge pull request" --pretty=format:"%h")
+
+          for COMMIT in $MERGE_COMMITS; do
+            # Merge commit title
+            checkitem_title=$(git --no-pager show $COMMIT --pretty=format:"%s" | head -n 1 | sed 's/Merge\ pull\ request\ //' | sed 's/from.*\///')
+            # Commits inside this pull request
+            details=$(git --no-pager log  $COMMIT^1..$COMMIT^2 --oneline | sed 's/[a-f0-9]*\ /- /')
+
+            content="- [ ] ${checkitem_title}
+          <details><summary> details </summary>
+
+          \`\`\`
+          ${details}
+          \`\`\`
+          </details>
+          "
+            echo "$content" > checklist_items/$COMMIT.log
+          done
+
+      - name: Collect checklist items
+        run: |
+          msg=$(awk 'FNR==1 && NR!=1 {print "---"}{print}' checklist_items/*.log)
+          echo "$msg" >> aggregated.log
+          sha="*SHA: ${{ github.event.pull_request.head.sha }}*"
+          sed -i "1i\\
+          $sha
+          " aggregated.log
+
+      - name: Update Pull Request
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            fs.readFile('aggregated.log', 'utf8', (err, data) => {
+              if (err) {
+                console.error(err);
+              } else {
+                const output = data;
+
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: output
+                })
+              }
+            });

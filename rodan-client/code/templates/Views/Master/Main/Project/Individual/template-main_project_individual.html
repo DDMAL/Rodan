@@ -1,20 +1,83 @@
-<div class="fixed_individual">
-    <h3>Project</h3>
-    <label for="text-project_name">Name:</label>
-    <input type="text" class="form-control input-sm" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
-    <label for="text-project_description">Description:</label>
-    <textarea type="text" class="form-control input-sm" id="text-project_description" name="text-project_description"><%= _.unescape(description) %></textarea>
-    Creator: <%= creator %> <br>
-    Created on: <%= _.formatFromUTC(created) %><br>
-    Updated on: <%= _.formatFromUTC(updated) %><br>
-    URL: <%= url %><br>
-    <div class="btn-group" role="group">
-        <button class="btn btn-xs btn-success" id="button-project_users">Users</button>
-        <button class="btn btn-xs btn-success" id="resource_count">Resources: <%= resource_count%></button>
-     <!--   <button class="btn btn-xs btn-success" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button>-->
-        <button class="btn btn-xs btn-success" id="workflow_count">Workflows: <%= workflow_count%></button>
-        <button class="btn btn-xs btn-success" id="button-runjobs">Run Jobs</button>
-        <button class="btn btn-xs btn-warning" id="button-save_project">Save</button>
-        <button class="btn btn-xs btn-danger" id="button-delete_project">Delete</button>
+<div class="content-wrapper column-content">  
+    <div class="content-wrapper column-content region-main-section region-main-header">
+        <div id="region-main-header" class="content-wrapper row-content">
+            <div class="region-main-content-title">My Projects / <%= name %></div>
+        </div>
+    </div>
+
+    <div class="content-wrapper row-content region-main-content">
+        <!-- Project collections (workflow runs, resources, etc.) -->
+        <div class="content-wrapper column-content project-collections padding-10">
+            <div class="content-wrapper row-content project-navigation-bar">
+                <button class="btn project-nav-bar-btn active" id="button-workflow_runs">Workflow Runs</button>
+                <button class="btn project-nav-bar-btn" id="button-runjobs">Run Jobs</button>
+                <button class="btn project-nav-bar-btn" id="workflow_count">Workflows</button>
+                <button class="btn project-nav-bar-btn" id="resource_count">Resources</button>                          
+                <!-- <button class="btn project-nav-bar-btn" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button> -->            
+            </div>
+
+            <div id="region-collection-container" class="region-main-section">
+                <!-- Collections will appear here -->
+            </div>
+        </div>
+
+        <div class="content-wrapper column-content detail-panels-container">            
+            <div id="region-project-details-panel" class="content-wrapper column-content">
+                <div class="content-wrapper column-content details-panel">
+
+                    <!-- Project details title -->
+                    <div class="content-wrapper row-content  details-panel-title-section">
+                        <div id="details-title" class="content-wrapper row-content padding-10">
+                            <div class="details-title-text">PROJECT DETAILS</div>
+                        </div>
+                    </div>
+
+                    <!-- Project details -->
+                    <div class="content-wrapper column-content  details-panel-details-section padding-10">
+                        <div class="content-wrapper row-content details-item-container">
+                            <label class="details-item-label" for="text-project_name">Name:</label>
+                            <input class="details-item-value" type="text" class="form-control" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
+                        </div>
+
+                        <div class="content-wrapper column-content details-item-container">
+                            <label for="text-project_description">Description:</label>
+                            <textarea type="text" class="details-item-value" id="text-project_description" name="text-project_description"><%= _.unescape(description) %></textarea>
+                        </div>   
+
+                        <div class="content-wrapper row-content details-item-container">
+                            <div class="details-item-label">Creator:</div>
+                            <div class="details-item-value"><%= creator %></div>
+                        </div>
+
+                        <div class="content-wrapper row-content details-item-container">
+                            <div class="details-item-label">Created on:</div>
+                            <div class="details-item-value"><%= _.formatFromUTC(created) %></div>
+                        </div>
+
+                        <div class="content-wrapper row-content details-item-container">
+                            <div class="details-item-label">Updated on:</div>
+                            <div class="details-item-value"><%= _.formatFromUTC(updated) %></div>
+                        </div>
+
+                        <div class="content-wrapper row-content details-item-container">
+                            <div class="details-item-label">URL:</div>
+                            <div class="details-item-value"><%= url %></div>
+                        </div>
+                    </div>                    
+                    
+                    <!-- Project details actions (buttons) -->
+                    <div class="content-wrapper row-content  details-panel-action-btns-section">
+                        <button class="btn details-action-btn " id="button-project_users">Edit Users</button>
+                        <button class="btn details-action-btn save-btn" id="button-save_project">Save</button>
+                        <button class="btn details-action-btn btn-delete" id="button-delete_project">Delete</button>
+                    </div>
+                </div>                            
+            </div>
+
+            <!-- Collection item details -->
+            <div id="region-collection-item-details-panel" class="content-wrapper column-content">
+                <!-- Collection item details will appear here -->
+            </div>
+        </div>
     </div>
 </div>

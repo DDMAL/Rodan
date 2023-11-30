@@ -26,6 +26,7 @@ export default class LayoutViewResourceAssignment extends Marionette.View
         this._viewAssignedResources = options.viewassignedresources;
 
         this._viewAssignedResources.collection.on('update', this._updateAssignedCount);
+        this.setElement('<div class="content-wrapper row-content"></div>');
     }
 
     /**

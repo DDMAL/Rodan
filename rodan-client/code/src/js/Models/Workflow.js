@@ -20,7 +20,7 @@ export default class Workflow extends BaseModel
      */
     initialize(options)
     {
-        this.set('connections', new ConnectionCollection(options.connections));
+        this.set('workflow_connections', new ConnectionCollection(options.connections));
         this.set('workflow_input_ports', new InputPortCollection(options.workflow_input_ports));
         this.set('workflow_output_ports', new OutputPortCollection(options.workflow_output_ports));
         this.set('workflow_jobs', new WorkflowJobCollection(options.workflow_jobs));
@@ -45,43 +45,42 @@ export default class Workflow extends BaseModel
      */
     parse(response)
     {
-        const workflow_runs = new WorkflowRunCollection();
-        if (response.workflow_runs) {
-            for (const workflow_run of response.workflow_runs) {
-                workflow_runs.add(workflow_run);
-            }
+        for (var i in response.workflow_runs)
+        {
+            var modelClass = this.get('workflow_runs').model;
+            var model = new modelClass(response.workflow_runs[i]);
+            this.get('workflow_runs').add(model, {merge: true});
         }
+        response.workflow_runs = this.get('workflow_runs');
 
-        const workflow_jobs = new WorkflowJobCollection();
-        if (response.workflow_jobs) {
-            for (const workflow_job of response.workflow_jobs) {
-                workflow_jobs.add(workflow_job);
-            }
+        for (var i in response.workflow_jobs)
+        {
+            var modelClass = this.get('workflow_jobs').model;
+            var model = new modelClass(response.workflow_jobs[i]);
+            this.get('workflow_jobs').add(model, {merge: true});
         }
+        response.workflow_jobs = this.get('workflow_jobs');
 
-        const workflow_input_ports = new InputPortCollection();
-        if (response.workflow_input_ports) {
-            for (const workflow_input_port of response.workflow_input_ports) {
-                workflow_input_ports.add(workflow_input_port);
-            }
-        }
+        this.get('workflow_input_ports').set(response.workflow_input_ports, {merge: true, remove: true});
+        response.workflow_input_ports = this.get('workflow_input_ports');
 
-        const workflow_output_ports = new OutputPortCollection();
-        if (response.workflow_output_ports) {
-            for (const workflow_output_port of response.workflow_output_ports) {
-                workflow_output_ports.add(workflow_output_port);
-            }
+        for (var i in response.workflow_output_ports)
+        {
+            var modelClass = this.get('workflow_output_ports').model;
+            var model = new modelClass(response.workflow_output_ports[i]);
+            this.get('workflow_output_ports').add(model, {merge: true});
         }
-        
-        const parsed = {
-            ...response,
-            workflow_runs,
-            workflow_jobs,
-            workflow_input_ports,
-            workflow_output_ports
-        }
+        response.workflow_output_ports = this.get('workflow_output_ports');
 
-        return parsed;
+        for (var i in response.workflow_connections)
+        {
+            var modelClass = this.get('workflow_connections').model;
+            var model = new modelClass(response.workflow_connections[i]);
+            this.get('workflow_connections').add(model, {merge: true});
+        }
+        response.workflow_connections = this.get('workflow_connections');
+
+        return response;
     }
 }
 Workflow.prototype.routeName = 'workflows';

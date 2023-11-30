@@ -255,5 +255,9 @@ class WorkflowPortsTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixi
     def test_invalid(self):
         self.test_workflow.valid = False
         self.test_workflow.save()
-        self.assertEqual(self.test_workflow.workflow_input_ports, [])
-        self.assertEqual(self.test_workflow.workflow_output_ports, [])
+
+        self.assertEqual(len(self.test_workflow.workflow_input_ports), 1)
+        self.assertEqual(self.test_workflow.workflow_input_ports[0], self.test_ip1)
+
+        self.assertEqual(len(self.test_workflow.workflow_output_ports), 1)
+        self.assertEqual(self.test_workflow.workflow_output_ports[0], self.test_op2)

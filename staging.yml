@@ -23,19 +23,18 @@ services:
       timeout: "10s"
       retries: 10
       start_period: "5m"
-    command: /run/start-production
+    command: /run/start
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
-      TLS: 1
+      SERVER_HOST: rodan.staging.simssa.ca
+    env_file:
+      - ./scripts/staging.env
     ports:
       - "80:80"
-      - "443:443"
       - "5671:5671"
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
-      - "certbot:/etc/letsencrypt"
 
   rodan-main:
     image: "ddmal/rodan-main:nightly"
@@ -63,12 +62,17 @@ services:
     command: /run/start
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: None
     env_file:
       - ./scripts/staging.env
     volumes:
       - "resources:/rodan/data"
+  
+  rodan-client:
+    image: "ddmal/rodan-client:nightly"
+    volumes:
+        - "./rodan-client/config/configuration.json:/client/configuration.json"
 
   iipsrv:
     image: "ddmal/iipsrv:nightly"
@@ -103,7 +107,7 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: celery
     env_file:
       - ./scripts/staging.env
@@ -133,11 +137,10 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: Python3
     env_file:
       - ./scripts/staging.env
-      - ./hpc-rabbitmq/scripts/staging.env
     volumes:
       - "resources:/rodan/data"
 
@@ -164,7 +167,7 @@ services:
     command: /run/start-celery
     environment:
       TZ: America/Toronto
-      SERVER_HOST: rodan-staging.simssa.ca
+      SERVER_HOST: rodan.staging.simssa.ca
       CELERY_JOB_QUEUE: GPU
     depends_on:
       - postgres
@@ -254,33 +257,7 @@ services:
     env_file:
       - ./scripts/staging.env
 
-  hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:nightly"
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          cpus: "1"
-          memory: 2G
-        limits:
-          cpus: "1"
-          memory: 2G
-      restart_policy:
-        condition: any
-        delay: 5s
-        window: 30s
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: "30s"
-      timeout: "3s"
-      retries: 3
-    environment:
-      TZ: America/Toronto
-    env_file:
-      - ./hpc-rabbitmq/scripts/staging.env
-
 volumes:
   resources:
   pg_backup:
   pg_data:
-  certbot:

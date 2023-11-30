@@ -73,7 +73,7 @@ class WorkflowBuilderGUI
             "GRID":
             {
                 "DIMENSION": 20,
-                "LINE_COLOR": "#606060",
+                "LINE_COLOR": "#9e9e9ec7",
                 "LINE_WIDTH": 0.5
             },
             "DATABASE_COORDINATES_MULTIPLIER": 1500, // Legacy workflows stored coordinates in the database differently. This is to maintain backwards compatibility.
@@ -98,6 +98,7 @@ class WorkflowBuilderGUI
             "STROKE_COLOR_SELECTED": "#0000ff",
             "STROKE_WIDTH_SELECTED": 2,
             "CONNECTION_CIRCLE_RADIUS": 4,
+            "CONNECTION_PADDING": 5,
             "HOVER_TIME": 1000,
             "LOCAL_STORAGE_ITEMS": ['scroll', 'zoom']
         }
@@ -121,10 +122,13 @@ class WorkflowBuilderGUI
     {
         var view = new LayoutViewWorkflowBuilder({model: this.getWorkflow()});
         Radio.channel('rodan').request(Rodan.RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: view});
-        this._menuItems = [{label: 'Edit Name/Description', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Add Job', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_JOBCOLLECTION_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Import Workflow', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOWCOLLECTION_VIEW, options: {workflow: this.getWorkflow()}},
-                           {label: 'Run', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN, options: {workflow: this.getWorkflow()}}];
+        this._menuItems = [
+            { label: 'Edit Name/Description', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOW_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Add Job', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_JOBCOLLECTION_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Import Workflow', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_SHOW_WORKFLOWCOLLECTION_VIEW, options: { workflow: this.getWorkflow() } },
+            { label: 'Clear Assigned Resources', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CLEAR_RESOURCEASSIGNMENTS, options: { workflow: this.getWorkflow() } },
+            { label: 'Run', radiorequest: Rodan.RODAN_EVENTS.REQUEST__WORKFLOWBUILDER_CREATE_WORKFLOWRUN, options: { workflow: this.getWorkflow() } }
+        ];
     }
 
     /**
@@ -136,7 +140,7 @@ class WorkflowBuilderGUI
         this._multipleSelectionKey = Rodan.Environment.getMultipleSelectionKey();
         this._line = null;
         this._zoomRate = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].ZOOM_RATE;
-        this._itemController = new ItemController();
+        this._itemController = new ItemController({ workflow: this._workflow });
         paper.handleMouseEvent = event => this._itemController.handleMouseEvent(event);
 
         window.addEventListener('keydown', (e) => {
@@ -219,6 +223,8 @@ class WorkflowBuilderGUI
     {
         paper.install(window);
         paper.setup(canvasElementId);
+        new paper.Layer({ name: 'connections' });
+        new paper.Layer({ name: 'default' });
         paper.view.onFrame = (event) => this._handleFrame(event);
         this.drawGrid = drawGrid;
         this.drawGrid(Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].GRID, paper);
@@ -515,7 +521,7 @@ class WorkflowBuilderGUI
     {
         const boundingBox = this._getWorkflowBoundingBox();
         if (boundingBox) {
-            const workflowCenter = this._getWorkflowCenter(boundingBox);
+            const workflowCenter = this._getBoundingBoxCenter(boundingBox);
             paper.view.center = workflowCenter;
             const width = boundingBox.bottomRight.x - boundingBox.topLeft.x + 2 * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WORKFLOW_PADDING;
             const height = boundingBox.bottomRight.y - boundingBox.topLeft.y + 2 * Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].WORKFLOW_PADDING;
@@ -540,33 +546,47 @@ class WorkflowBuilderGUI
     }
 
     /**
+     * Calculates the bounding box given a list of workflow jobs.
+     * @param {WorkflowJob[]} workflow_jobs - The workflow jobs to calculate the bounding box for.
+     * @returns the bounding box of the workflow jobs or null if no workflow_jobs are provided.
+     */
+    _getBoundingBox(workflow_jobs)
+    {
+        if (!workflow_jobs) return null;
+        let minX, maxX, minY, maxY;
+        workflow_jobs.forEach(job => {
+            const { x, y } = job.get('appearance');
+            minX = minX === undefined || x < minX ? x : minX;
+            maxX = maxX === undefined || x > maxX ? x : maxX;
+            minY = minY === undefined || y < minY ? y : minY;
+            maxY = maxY === undefined || y > maxY ? y : maxY;
+        });
+        const topLeft = { x: minX, y: minY };
+        const bottomRight = { x: maxX, y: maxY };
+        return { topLeft, bottomRight };
+    }
+    
+    /**
      * Calculate the bounding box of the workflow in paper.js project coordinates.
      * @returns {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} The bounds of the workflow in paper.js project coordinates or null if there are no jobs.
      */
     _getWorkflowBoundingBox()
     {
-        let minX, maxX, minY, maxY;
         if (this._workflow && this._workflow.get('workflow_jobs').length > 0) {
-            this._workflow.get('workflow_jobs').forEach(job => {
-                const { x, y } = job.get('appearance');
-                minX = minX === undefined || x < minX ? x : minX;
-                maxX = maxX === undefined || x > maxX ? x : maxX;
-                minY = minY === undefined || y < minY ? y : minY;
-                maxY = maxY === undefined || y > maxY ? y : maxY;
-            });
-            const topLeft = BaseItem.appearanceToProject({ x: minX, y: minY });
-            const bottomRight = BaseItem.appearanceToProject({ x: maxX, y: maxY });
+            const boundingBox = this._getBoundingBox(this._workflow.get('workflow_jobs'));
+            const topLeft = BaseItem.appearanceToProject(boundingBox.topLeft);
+            const bottomRight = BaseItem.appearanceToProject(boundingBox.bottomRight);
             return { topLeft, bottomRight };
         }
         return null;
     }
 
     /**
-     * Calculates the paper.js project coordinates of the center of the workflow.
-     * @param {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} boundingBox The bounding box of the workflow in paper.js project coordinates.
-     * @return {{x: number, y: number} | null} The center of the workflow in paper.js project coordinates or null if no bounding box is provided.
+     * Calculates the center of a bounding box.
+     * @param {{topLeft: {x: number, y: number}, bottomRight: {x: number, y: number}} | null} boundingBox The bounding box.
+     * @return {{x: number, y: number} | null} The center of the bounding box or null if no bounding box is provided.
     */
-    _getWorkflowCenter(boundingBox)
+    _getBoundingBoxCenter(boundingBox)
     {
         return boundingBox ? { x: (boundingBox.topLeft.x + boundingBox.bottomRight.x) / 2, y: (boundingBox.topLeft.y + boundingBox.bottomRight.y) / 2 } : null;
     }
@@ -578,9 +598,7 @@ class WorkflowBuilderGUI
      */
     _handleGetNewJobPosition()
     {
-        const x = this._rightClickPosition === null ? paper.view.center.x : this._rightClickPosition.x;
-        const y = this._rightClickPosition === null ? paper.view.center.y : this._rightClickPosition.y;
-        const position = { x, y};
+        const position = this._rightClickPosition == null ? paper.view.center : this._rightClickPosition;
         return BaseItem.projectToAppearance(position);
     }
 

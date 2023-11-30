@@ -1,20 +1,19 @@
 import jsonschema
-from rest_framework import generics
-from rest_framework import permissions
-from rest_framework import status
+
+from django.conf import settings
+from django.urls import resolve
+
+from rest_framework import generics, views, permissions, status
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
-from rodan.models import Workflow, InputPort, OutputPort, Job
-from rodan.serializers.workflow import (
-    WorkflowSerializer,
-    WorkflowListSerializer,
-    version_map,
-)
-from rodan.exceptions import CustomAPIException
-from django.conf import settings
+from six.moves.urllib.parse import urlparse
 
+from rodan.models import Workflow, InputPort, OutputPort, Job, Resource
+from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map
+from rodan.serializers.resource import NestedLabelsResourceSerializer
+from rodan.exceptions import CustomAPIException
 from rodan.permissions import CustomObjectPermissions
 
 
@@ -335,6 +334,81 @@ class WorkflowDetail(generics.RetrieveUpdateDestroyAPIView):
 
             self.permanent_marks_global.add(this_wfjob)
             self.temporary_marks_global.remove(this_wfjob)
+
+
+class WorkflowResourceAssignments(views.APIView):
+    """
+    Retrieve, update, or delete a Workflow's resource assignments.
+
+    **Parameters**
+
+    - [input_port_url: string]: [resource_url: string][] -- PUT and PATCH only
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieve all resource assignments for a Workflow's InputPorts.
+        Returns a dictionary mapping InputPort URLs to a list of serialized Resources.
+        """
+        workflow = Workflow.objects.get(uuid=kwargs["pk"])
+        
+        input_ports = InputPort.objects.filter(workflow_job__workflow=workflow).prefetch_related("extern_resources")
+
+        resource_assignments = {}
+
+        for input_port in input_ports:
+            serializer = NestedLabelsResourceSerializer(input_port.extern_resources.all(), context={"request": request}, many=True)
+            url = request.build_absolute_uri(reverse("inputport-detail", kwargs={"pk": input_port.uuid}))
+            resource_assignments[url] = serializer.data
+
+        return Response(resource_assignments)
+    
+    def put(self, request, *args, **kwargs):
+        """
+        Replace all resource assignments for a Workflow's InputPorts.
+        Expects a dictionary mapping InputPort URLs to a list of Resource URLs.
+        Returns the same as a GET request.
+        """
+        self.delete(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
+    
+    def patch(self, request, *args, **kwargs):
+        """
+        Update resource assignments for provided Workflow's InputPorts.
+        Expects a dictionary mapping InputPort URLs to a list of Resource URLs.
+        Returns the same as a GET request.
+        """
+        data = request.data
+
+        for input_port_url, resource_urls in data.items():
+            input_port_path = urlparse(input_port_url).path
+            input_port_id = resolve(input_port_path).kwargs["pk"]
+            
+            try:
+                input_port = InputPort.objects.get(uuid=input_port_id)
+                input_port.extern_resources.clear()
+
+                for resource_url in resource_urls:
+                    resource_path = urlparse(resource_url).path
+                    resource_id = resolve(resource_path).kwargs["pk"]
+                    resource = Resource.objects.get(uuid=resource_id)
+                    input_port.extern_resources.add(resource)
+            
+            except InputPort.DoesNotExist:
+                raise NotFound(f"InputPort with UUID {input_port_id} does not exist.")
+            
+            except Resource.DoesNotExist:
+                raise NotFound(f"Resource with UUID {resource_id} does not exist.")
+
+        return self.get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Deletes all resource assignments for a Workflow's InputPorts.
+        Returns the same as a GET request.
+        """
+        workflow = Workflow.objects.get(uuid=kwargs["pk"])
+        InputPort.extern_resources.through.objects.filter(inputport__workflow_job__workflow=workflow).delete()
+        return self.get(request, *args, **kwargs)
 
 
 class WorkflowValidationError(Exception):

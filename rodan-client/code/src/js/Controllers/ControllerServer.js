@@ -49,6 +49,8 @@ export default class ControllerServer extends BaseController
                 oldOnBeforeSend(xhr);
             }
 
+            xhr.setRequestHeader('Accept', 'application/json');
+
             // Set a timeout for x seconds.
             if (that._responseTimeout === null)
             {

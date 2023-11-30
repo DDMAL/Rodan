@@ -60,18 +60,18 @@ class Workflow(models.Model):
 
     @property
     def workflow_input_ports(self):
-        if not self.valid:
-            return []
-        else:
-            return apps.get_model(
-                app_label="rodan", model_name="InputPort"
-            ).objects.filter(workflow_job__workflow=self, extern=True)
+        return apps.get_model(
+            app_label="rodan", model_name="InputPort"
+        ).objects.filter(workflow_job__workflow=self, extern=True)
 
     @property
     def workflow_output_ports(self):
-        if not self.valid:
-            return []
-        else:
-            return apps.get_model(
-                app_label="rodan", model_name="OutputPort"
-            ).objects.filter(workflow_job__workflow=self, extern=True)
+        return apps.get_model(
+            app_label="rodan", model_name="OutputPort"
+        ).objects.filter(workflow_job__workflow=self, extern=True)
+
+    @property
+    def workflow_connections(self):
+        return apps.get_model(
+            app_label="rodan", model_name="Connection"
+        ).objects.filter(output_port__workflow_job__workflow=self)

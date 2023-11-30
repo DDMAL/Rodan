@@ -28,6 +28,7 @@ export default class LayoutViewProjectUsers extends Marionette.View
         this._viewProjectWorkers = options.viewprojectworkers;
         this._viewUsers = options.viewusers;
         this._project = options.project;
+        this.setElement('<div id="project-users-modal-body-wrapper" class="content-wrapper column-content flex-gap-30"></div>');
     }
 
     /**

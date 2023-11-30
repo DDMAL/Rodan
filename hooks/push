@@ -21,9 +21,6 @@ echo "Docker tag: $DOCKER_TAG"
 # RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
 # RODAN_DOCKER_TAG=`git describe --tags --always`
 
-echo "[+] Pushing ddmal/rodan-python3-celery:${DOCKER_TAG}"
-docker push ddmal/rodan-python3-celery:${DOCKER_TAG}
-
 echo "[+] Pushing ddmal/rodan-gpu-celery:${DOCKER_TAG}"
 docker push ddmal/rodan-gpu-celery:${DOCKER_TAG}
 
@@ -33,5 +30,10 @@ docker push ddmal/postgres-plpython:${DOCKER_TAG}
 echo "[+] Pushing ddmal/nginx:${DOCKER_TAG}"
 docker push ddmal/nginx:${DOCKER_TAG}
 
-echo "[+] Pushing ddmal/hpc-rabbitmq:${DOCKER_TAG}"
-docker push ddmal/hpc-rabbitmq:${DOCKER_TAG}
+echo "[+] Pushing ddmal/iipsrv:${DOCKER_TAG}"
+docker push ddmal/iipsrv:${DOCKER_TAG}
+
+# Pass building images
+# Push to trigger webhook and send a message to slack
+docker tag ddmal/docker-webhook:placeholder ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}
+docker push ddmal/docker-webhook:rodan-pass-${SOURCE_BRANCH}-${DOCKER_TAG}

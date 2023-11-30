@@ -77,7 +77,6 @@ services:
       - celery
     env_file:
       - ./scripts/local.env
-      - ./hpc-rabbitmq/scripts/local.env
     volumes:
       - "resources:/rodan/data"
       - "./rodan-main/code:/code/Rodan"

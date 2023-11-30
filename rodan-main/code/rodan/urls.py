@@ -11,8 +11,7 @@ from rodan.admin.helpers import logged_in_or_basicauth
 from rodan.views.auth import AuthMeView, AuthTokenView
 from rodan.views.project import ProjectList
 from rodan.views.project import ProjectDetail, ProjectDetailAdmins, ProjectDetailWorkers
-from rodan.views.workflow import WorkflowList
-from rodan.views.workflow import WorkflowDetail
+from rodan.views.workflow import WorkflowList, WorkflowDetail, WorkflowResourceAssignments
 from rodan.views.workflowjob import WorkflowJobList
 from rodan.views.workflowjob import WorkflowJobDetail
 from rodan.views.workflowjobgroup import WorkflowJobGroupList
@@ -108,6 +107,11 @@ api_patterns = [
         r"^api/workflow/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$",
         WorkflowDetail.as_view(),
         name="workflow-detail",
+    ),
+    url(
+        r"^api/workflow/(?P<pk>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/resourceassignments/$",
+        WorkflowResourceAssignments.as_view(),
+        name="workflow-detail-resourceassignments",
     ),
     url(r"^api/workflowjobs/$", WorkflowJobList.as_view(), name="workflowjob-list"),
     url(
@@ -266,6 +270,16 @@ api_patterns = [
         djoser_views.UserViewSet.as_view({'post': 'create'}), #DEPRECATED
         name="auth-register",
     ),
+    url(
+        r"^api/auth/activate/$",
+        djoser_views.UserViewSet.as_view({'post': 'activation'}),
+        name="auth-activate",
+    ),
+    url(
+        r"^api/auth/resend-activation/$", 
+    djoser_views.UserViewSet.as_view({'post': 'resend_activation'}), 
+        name="auth-resend-activation"
+    ),
     url(r"^api/auth/token/", AuthTokenView.as_view(), name="auth-token"),
     url(
         r"^api/auth/reset-token/",
@@ -276,6 +290,16 @@ api_patterns = [
         r"^api/auth/change-password/",
         djoser_views.UserViewSet.as_view({'post': 'set_password'}),
         name="auth-change-password",
+    ),
+    url(
+        r"^api/auth/reset-password/$",
+        djoser_views.UserViewSet.as_view({'post': 'reset_password'}),
+        name="auth-reset-password",
+    ),
+    url(
+        r"^api/auth/reset-password/confirm/$",
+        djoser_views.UserViewSet.as_view({'post': 'reset_password_confirm'}),
+        name="auth-reset-password-confirm",
     ),
     url(r"^api/ht/", include("health_check.urls")),
 ]

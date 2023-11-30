@@ -14,7 +14,7 @@ DJANGO_ADMIN_URL=^api/random_secret_admin/
 IIPSRV_URL=https://rodan2.simssa.ca/fcgi-bin/iipsrv.fcgi/
 DJANGO_ACCESS_LOG=/code/Rodan/rodan.log
 DJANGO_DEBUG_LOG=/code/Rodan/database.log
-SERVER_HOST=
+SERVER_HOST=rodan2.simssa.ca
 
 ###############################################################################
 # SMTP Configuration

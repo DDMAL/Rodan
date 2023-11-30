@@ -46,7 +46,7 @@ export default class ControllerModal extends BaseController
     {
         var $modalElement = $('#modal-generic');
         $('.modal-footer').removeClass('modal-footer-error');
-        $modalElement.modal('hide');
+        $modalElement.hide();
         this._waiting = false;
     }
 
@@ -55,7 +55,9 @@ export default class ControllerModal extends BaseController
      */
     _handleRequestModalShow(options)
     {
+        console.log(options);
         var $modalEl = $('#modal-generic');
+        console.log($modalEl);
         if ($modalEl.is(':visible'))
         {
             return;
@@ -63,27 +65,28 @@ export default class ControllerModal extends BaseController
 
         if (typeof options.content == 'string')
         {
-            this._layoutViewModal = new Marionette.View({template: _.template($('#template-modal_simple').text())});
+            this._layoutViewModal = new Marionette.View({ template: _.template($('#template-modal_simple').text()) });
+            this._layoutViewModal.setElement('<div class="content-wrapper column-content"></div>');
             this._layoutViewModal.render();
 
-            $modalEl.css({top: 0, left: 0, position: 'absolute'});
             $modalEl.html(this._layoutViewModal.el);
             $('.modal-title').text(options.title);
             $('.modal-body').append(options.content);
-            $modalEl.modal({backdrop: 'static', keyboard: false});
+            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));
+            $modalEl.show();            
         }
         else
         {
-            this._layoutViewModal = new Marionette.View({template: _.template($('#template-modal').text())});
+            this._layoutViewModal = new Marionette.View({ template: _.template($('#template-modal').text()) });
+            this._layoutViewModal.setElement('<div class="content-wrapper column-content"></div>');
             this._layoutViewModal.addRegions({modal_body: '#region-modal_body'});
             this._layoutViewModal.render();
             this._layoutViewModal.showChildView('modal_body', options.content);
 
-            $modalEl.css({top: 0, left: 0, position: 'absolute'});
             $modalEl.html(this._layoutViewModal.el);
-            $modalEl.draggable({handle: '.modal-header'});
             $('.modal-title').text(options.title);
-            $modalEl.modal({backdrop: 'static'});
+            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));
+            $modalEl.show();            
         }
     }
 
@@ -97,6 +100,7 @@ export default class ControllerModal extends BaseController
         if ($modalEl.is(':visible'))
         {
             $('.modal-footer').text(options.title + ': ' + options.content);
+            $('.modal-footer').removeClass('modal-footer-error');
         }
         else
         {
@@ -118,7 +122,7 @@ export default class ControllerModal extends BaseController
         }
         else
         {
-            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'ERROR', content: options.content});
+            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: options.title || 'Error', content: options.content});
         }
         $('.modal-footer').addClass('modal-footer-error');
     }

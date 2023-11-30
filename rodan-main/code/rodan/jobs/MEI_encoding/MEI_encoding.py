@@ -50,6 +50,12 @@ class MEI_encoding(RodanTask):
         'minimum': 1,
         'maximum': 1,
         'is_list': False
+    }, {
+        'name': 'Column Splitting Data',
+        'resource_types': ['application/json'],
+        'minimum': 0,
+        'maximum': 1,
+        'is_list': False
     }
     ]
 
@@ -69,6 +75,13 @@ class MEI_encoding(RodanTask):
         with open(jsomr_path, 'r') as file:
             jsomr = json.loads(file.read())
 
+        if 'Column Splitting Data' in inputs:
+            split_ranges_path = inputs['Column Splitting Data'][0]['resource_path']
+            with open(split_ranges_path, 'r') as file:
+                split_ranges = json.loads(file.read())
+        else:
+            split_ranges = None
+
         try:
             alignment_path = inputs['Text Alignment JSON'][0]['resource_path']
         except KeyError:
@@ -82,7 +95,7 @@ class MEI_encoding(RodanTask):
         self.logger.info('fetching classifier...')
         classifier_table, width_container = pct.fetch_table_from_csv(inputs['MEI Mapping CSV'][0]['resource_path'])
         width_mult = settings[u'Neume Component Spacing']
-        mei_string = bm.process(jsomr, syls, classifier_table, width_mult, width_container)
+        mei_string = bm.process(jsomr, syls, classifier_table, width_mult, width_container, split_ranges)
 
         self.logger.info('writing to file...')
         outfile_path = outputs['MEI'][0]['resource_path']
@@ -93,15 +106,17 @@ class MEI_encoding(RodanTask):
 
     def test_my_task(self, testcase):
         import re
-        input_jsomr = "/code/Rodan/rodan/test/files/238r-heuristic_pitch_finding.json"
-        input_text = "/code/Rodan/rodan/test/files/238r-text-alignment.json"
-        input_mei_mapping = "/code/Rodan/rodan/test/files/238r-mei-mapping.csv"
+        input_jsomr = "/code/Rodan/rodan/test/files/mei-encoding-test-hpf.json"
+        input_text = "/code/Rodan/rodan/test/files/mei-encoding-test-ta.json"
+        input_col_data = "/code/Rodan/rodan/test/files/mei-encoding-test-csd.json"
+        input_mei_mapping = "/code/Rodan/rodan/test/files/mei-encoding-test.csv"
         output_path = testcase.new_available_path()
-        gt_output_path = "/code/Rodan/rodan/test/files/238r-mei.mei"
+        gt_output_path = "/code/Rodan/rodan/test/files/mei-encoding-test.mei"
         inputs = {
             "JSOMR": [{"resource_path":input_jsomr}],
             "Text Alignment JSON": [{"resource_path":input_text}],
-            "MEI Mapping CSV": [{"resource_path":input_mei_mapping}]
+            "MEI Mapping CSV": [{"resource_path":input_mei_mapping}],
+            "Column Splitting Data": [{"resource_path":input_col_data}]
         }
         outputs = {
             "MEI": [{"resource_path":output_path}]

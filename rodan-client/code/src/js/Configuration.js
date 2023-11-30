@@ -73,8 +73,8 @@ var Configuration = {
     // Interval (in milliseconds) that the RunJob controller will use to reacquire interactive locks.
     RUNJOB_ACQUIRE_INTERVAL: 5000,
 
-    // Time (in miliseconds) that the client will wait before submitting a search.
-    SEARCH_DEBOUNCE_DELAY: 400,
+    // Default debounce delay in milliseconds.
+    DEBOUNCE_DELAY: 400,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // DON'T EDIT BELOW THIS LINE (unless you know what you're doing)
@@ -109,8 +109,8 @@ var Configuration = {
  */
 Configuration.getServerURL = function()
 {
-    var url = this.SERVER_HOST + ':' + this.SERVER_PORT;
-    return this.SERVER_HTTPS ? 'https://' + url : 'http://' + url;
+    var url = (this.SERVER_HTTPS ? 'https://' : 'http://') + this.SERVER_HOST + '/api/';
+    return url;
 };
 
 /**
