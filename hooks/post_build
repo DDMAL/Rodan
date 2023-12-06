@@ -1,17 +1,6 @@
 #!/bin/bash
 # hooks/post_build
 
-source ./hooks/helper.sh
-if [[ ret_code -eq 1 ]]; then
-  echo "[-] no branch detected, fallback to use docker tag=$DOCKER_TAG"
-  echo "[-] Stop building due to wrong tag: $DOCKER_TAG"
-  exit 1
-elif [[ ret_code -eq 2 ]]; then
-  echo "[-] no tag on release branch, fallback to use docker tag=$DOCKER_TAG"
-  echo "[-] Stop building due to wrong tag: $DOCKER_TAG"
-  exit 1
-fi
-
 echo "[+] pose_build images with tag: $DOCKER_TAG"
 
 # Pass testing a pull request
