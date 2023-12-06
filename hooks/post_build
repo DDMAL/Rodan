@@ -12,6 +12,8 @@ elif [[ ret_code -eq 2 ]]; then
   exit 1
 fi
 
+echo "[+] pose_build images with tag: $DOCKER_TAG"
+
 # Pass testing a pull request
 # Push to trigger webhook and send a message to slack
 if [[ "$DOCKER_TAG" ==  "this" ]]; then
