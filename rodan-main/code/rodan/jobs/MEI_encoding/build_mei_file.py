@@ -13,15 +13,15 @@ import math
 import numpy as np
 import json
 
-# from rodan.jobs.MEI_encoding import parse_classifier_table as pct  # for rodan
+from rodan.jobs.MEI_encoding import parse_classifier_table as pct  # for rodan
 
-import parse_classifier_table as pct  # ---> for testing locally
+# import parse_classifier_table as pct  # ---> for testing locally
 
-# from itertools import groupby
+from itertools import groupby
 
-from state_machine import SylMachine  # ---> for testing locally
+# from state_machine import SylMachine  # ---> for testing locally
 
-# from rodan.jobs.MEI_encoding.state_machine import SylMachine
+from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 try:
     from rodan.jobs.MEI_encoding import __version__
