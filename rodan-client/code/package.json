@@ -55,8 +55,6 @@
     "backbone": "^1.4.0",
     "backbone.marionette": "^4.1.2",
     "backbone.radio": "^2.0.0",
-    "bootstrap": "^4.4.1",
-    "eonasdan-bootstrap-datetimepicker": "4.17.47",
     "file-saver": "^2.0.2",
     "jquery": "^3.5.0",
     "jqueryui": "^1.11.1",

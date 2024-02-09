@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
-import LayoutViewModel from 'js/Views/Master/Main/LayoutViewModel';
 import Marionette from 'backbone.marionette';
 import Radio from 'backbone.radio';
 import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollection';
@@ -24,12 +23,16 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     initialize(options)
     {
+        // console.log(options);
+        this._projectView = options.projectView;
+        this._activeProject = options.activeProject;
         this._runJobs = options.runjobs;
         this._resources = options.resources;
         this.addRegions({
             regionRunJobCollection: '#region-main_workflowrun_individual_runjobs',
             regionResourceCollection: '#region-main_workflowrun_individual_resources'
         });
+        this.setElement('<div class="content-wrapper row-content"></div>');
     }
 
     /**
@@ -37,34 +40,26 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     onRender()
     {
-        // Empty regions.
-        this.getRegion('regionRunJobCollection').empty();
-        this.getRegion('regionResourceCollection').empty();
-
-        if (this.getRegion('regionRunJobCollection').el === undefined || this.getRegion('regionResourceCollection').el === undefined) {
-          this.getRegion('regionRunJobCollection').el = '#region-main_workflowrun_individual_runjobs'
-          this.getRegion('regionResourceCollection').el = '#region-main_workflowrun_individual_resources'
-        }
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, {projectView: this._projectView});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RUNJOB_SHOWLAYOUTVIEW, {projectView: this._projectView});
 
         // Create Resource collection view.
-        this._layoutViewResources = new LayoutViewModel();
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, {layoutView: this._layoutViewResources});
-        this.showChildView('regionResourceCollection', this._layoutViewResources);
-        this._viewResourceCollection = new ViewResourceCollection({collection: this._resources,
-                                                       template: _.template($('#template-main_workflowrun_individual_resources_collection').text()),
-                                                       childView: ViewResourceCollectionItem});
-        this._layoutViewResources.showCollection(this._viewResourceCollection);
+        this._viewResourceCollection = new ViewResourceCollection({
+            collection: this._resources,
+            template: _.template($('#template-main_workflowrun_individual_resources_collection').text()),
+            childView: ViewResourceCollectionItem
+        });     
 
         // Create RunJob collection view.
-        this._layoutViewRunJobs = new LayoutViewModel();
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RUNJOB_SHOWLAYOUTVIEW, {layoutView: this._layoutViewRunJobs});
-        this.showChildView('regionRunJobCollection', this._layoutViewRunJobs);
-        this._viewRunJobCollection = new ViewRunJobCollection({collection: this._runJobs,
-                                                   template: _.template($('#template-main_runjob_collection_notitle').text()),
-                                                   childView: ViewRunJobCollectionItem});
-        this._layoutViewRunJobs.showCollection(this._viewRunJobCollection);
+        this._viewRunJobCollection = new ViewRunJobCollection({
+            collection: this._runJobs,
+            template: _.template($('#template-main_runjob_collection_notitle').text()),
+            childView: ViewRunJobCollectionItem
+        });
 
-        // Show Resources on default.
+        // Show Resource collection view by default.
+        // If needed, this can be changed to show RunJob collection view by default (_showRunJobs()).
+        // Consult with regular Rodan users and researchers before changing.
         this._showResources();
     }
 
@@ -76,13 +71,10 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     _showResources()
     {
-        this.getRegion('regionRunJobCollection').$el.hide();
-        this.ui.buttonShowResources.css('text-decoration', 'underline');
-        this.ui.buttonShowRunJobs.css('text-decoration', 'none');
-        if (!this.getRegion('regionResourceCollection').$el.is(':visible'))
-        {
-            this.getRegion('regionResourceCollection').$el.toggle('fast');
-        }
+        this.detachChildView('regionRunJobCollection');
+        this.showChildView('regionResourceCollection', this._viewResourceCollection)
+        this.ui.buttonShowResources.addClass('active');
+        this.ui.buttonShowRunJobs.removeClass('active');
     }
 
     /**
@@ -90,13 +82,11 @@ export default class LayoutViewIndividualWorkflowRun extends Marionette.View
      */
     _showRunJobs()
     {
-        this.getRegion('regionResourceCollection').$el.hide();
-        this.ui.buttonShowResources.css('text-decoration', 'none');
-        this.ui.buttonShowRunJobs.css('text-decoration', 'underline');
-        if (!this.getRegion('regionRunJobCollection').$el.is(':visible'))
-        {
-            this.getRegion('regionRunJobCollection').$el.toggle('fast');
-        }
+        // Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RUNJOB_SELECTED, {project: this._activeProject});
+        this.detachChildView('regionResourceCollection')
+        this.showChildView('regionRunJobCollection', this._viewRunJobCollection)
+        this.ui.buttonShowRunJobs.addClass('active');
+        this.ui.buttonShowResources.removeClass('active');        
     }
 
     /**

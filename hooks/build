@@ -2,13 +2,6 @@
 # hooks/build
 # https://docs.docker.com/docker-cloud/builds/advanced/
 
-# This "useless" image is build to prevent dockerhub from overwriting
-# the nightly image with it's obligatory minimum of a build rule. If we want a build
-# trigger with a HTTPS POST request, we must have at least 1 build rule.
-docker build \
-  --tag ddmal/rodan:placeholder \
-  .
-
 # RODAN_TAG=`cd rodan-main/code && git describe --tags --always`
 # RODAN_CLIENT_TAG=`cd rodan-client/code && git describe --tags --always`
 # RODAN_DOCKER_TAG=`git describe --tags --always`
@@ -28,6 +21,26 @@ fi
 echo "[+] Building images with tag: $DOCKER_TAG"
 
 set -o errexit
+
+# Fail building images
+# Push to trigger webhook and send a message to slack
+trap 'cleanup $?' EXIT
+cleanup() {
+  if [ "$1" != "0" ]; then
+    echo "An error occurs when building images."
+    echo "Push to another repo to trigger webhook on failure with tag syntax: {repo name}-{build status}-{source branch}-{docker tag}"
+
+    docker tag ddmal/docker-webhook:placeholder ddmal/docker-webhook:rodan-fail-${SOURCE_BRANCH}-${DOCKER_TAG}
+    docker push ddmal/docker-webhook:rodan-fail-${SOURCE_BRANCH}-${DOCKER_TAG}
+  fi
+}
+
+# This "useless" image is build to prevent dockerhub from overwriting
+# the nightly image with it's obligatory minimum of a build rule. If we want a build
+# trigger with a HTTPS POST request, we must have at least 1 build rule.
+docker build \
+  --tag ddmal/docker-webhook:placeholder \
+  .
 
 ###############################################################################
 # Stage 1
@@ -110,12 +123,12 @@ docker build \
   --tag ddmal/nginx:${DOCKER_TAG} \
   ./nginx
 
-echo "[+] Building HPC-RabbitMQ"
+echo "[+] Building iipsrv"
 
 docker build \
   --no-cache \
   --build-arg VERSION=${DOCKER_TAG} \
-  --tag ddmal/hpc-rabbitmq:${DOCKER_TAG} \
-  ./hpc-rabbitmq
+  --tag ddmal/iipsrv:${DOCKER_TAG} \
+  ./iipsrv
 
 echo "[+] Finished"

@@ -21,6 +21,7 @@ export default class ViewUser extends Marionette.CollectionView
         /** @ignore */
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__USER_PREFERENCE_LOADED, (options) => this._handleUserPreferenceLoaded(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__MODAL_FORM_VALIDATION_ERROR, (options) => this._handleErrors(options));
+        this.setElement('<div class="content-wrapper column-content"></div>');
     }
 
     /**

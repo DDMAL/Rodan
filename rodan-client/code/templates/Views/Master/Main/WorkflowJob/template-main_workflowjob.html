@@ -1,7 +1,16 @@
-<label for="text-workflowjob_name">Name:</label>
-<input type="text" class="form-control input-sm" id="text-workflowjob_name" value="<%= _.escape(name) %>" name="text-workflowjob_name">
-<br/>
-<label for="text-job_name">Job:</label><span name="text-job_name"><%= job_name %></span>
+<div class="content-wrapper row-content row-left flex-gap-10">
+    <label class="details-item-label" for="text-workflowjob_name">Name:</label>
+    <input type="text" class="details-item-value" id="text-workflowjob_name" value="<%= _.escape(name) %>" name="text-workflowjob_name">
+</div>
+
+<div class="content-wrapper row-content row-left flex-gap-10">
+    <label class="details-item-label" for="text-job_name">Job:</label>
+    <span class="details-item-value" name="text-job_name"><%= job_name %></span>
+</div>
+
 <hr>
-<button class="btn btn-xs btn-warning" id="button-save_workflowjob_data">Save</button>
-<button class="btn btn-xs btn-danger" id="button-delete_workflowjob">Delete</button>
+
+<div class="content-wrapper row-content row-left flex-gap-10">
+    <button class="btn" id="button-save_workflowjob_data">Save</button>
+    <button class="btn btn-remove" id="button-delete_workflowjob">Delete</button>
+</div>

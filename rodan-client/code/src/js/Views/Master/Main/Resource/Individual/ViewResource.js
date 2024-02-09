@@ -25,6 +25,7 @@ export default class ViewResource extends Marionette.CollectionView
         this.collection.each(function(model) { model.unset('selected'); });
         var resourceType = this.collection.findWhere({url: this.model.get('resource_type')});
         resourceType.set('selected', 'selected');
+        this.setElement('<div class="content-wrapper column-content details-panel"></div>'); // set container element
     }
 
     /**

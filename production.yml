@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   nginx:
-    image: "ddmal/nginx:v2.0.14"
+    image: "ddmal/nginx:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -23,7 +23,7 @@ services:
       timeout: "10s"
       retries: 10
       start_period: "5m"
-    command: /run/start-production
+    command: /run/start
     environment:
       TZ: America/Toronto
       SERVER_HOST: rodan2.simssa.ca
@@ -35,10 +35,9 @@ services:
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
-      - "certbot:/etc/letsencrypt"
 
   rodan-main:
-    image: "ddmal/rodan-main:v2.0.14"
+    image: "ddmal/rodan-main:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -68,13 +67,18 @@ services:
     volumes:
       - "resources:/rodan/data"
   
+  rodan-client:
+    image: "ddmal/rodan-client:nightly"
+    volumes:
+        - "./rodan-client/config/configuration.json:/client/configuration.json"
+
   iipsrv:
     image: "ddmal/iipsrv:nightly"
     volumes:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:v2.0.14"
+    image: "ddmal/rodan-main:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -105,7 +109,7 @@ services:
       - "resources:/rodan/data"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:v2.0.14"
+    image: "ddmal/rodan-python3-celery:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -131,12 +135,11 @@ services:
       CELERY_JOB_QUEUE: Python3
     env_file:
       - ./scripts/production.env
-      - ./hpc-rabbitmq/scripts/production.env
     volumes:
       - "resources:/rodan/data"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:v2.0.14"
+    image: "ddmal/rodan-gpu-celery:v3.0.0"
     deploy:
       replicas: 1
       resources:
@@ -192,7 +195,7 @@ services:
       TZ: America/Toronto
 
   postgres:
-    image: "ddmal/postgres-plpython:v2.0.14"
+    image: "ddmal/postgres-plpython:v3.0.0"
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
@@ -245,33 +248,7 @@ services:
     env_file:
       - ./scripts/production.env
 
-  hpc-rabbitmq:
-    image: "ddmal/hpc-rabbitmq:v2.0.14"
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          cpus: "1"
-          memory: 2G
-        limits:
-          cpus: "1"
-          memory: 2G
-      restart_policy:
-        condition: any
-        delay: 5s
-        window: 30s
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: "30s"
-      timeout: "3s"
-      retries: 3
-    environment:
-      TZ: America/Toronto
-    env_file:
-      - ./hpc-rabbitmq/scripts/production.env
-
 volumes:
   resources:
   pg_backup:
   pg_data:
-  certbot:

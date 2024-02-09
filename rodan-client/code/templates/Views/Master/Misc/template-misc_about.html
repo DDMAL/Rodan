@@ -1,18 +1,26 @@
-<h3>Rodan server</h3>
-Version: <%= version %><br>
-URI: <%= hostname %><br>
-Last known server date/time: <%= date %><br>
-Pagination length: <%= serverConfiguration.page_length %><br>
-Job packages:
-<ul>
-<% for(var package in serverConfiguration.job_packages) { %>
-    <li><%= package %> (<%= serverConfiguration.job_packages[package] %>)</li>
-<% } %>
-</ul>
-<hr>
-<h3>Rodan client</h3>
-<ul>
-<% for(var field in client) { %>
-    <li><%= field %>: <%= client[field] %></li>
-<% } %>
-</ul>
+<div class="content-wrapper column-content flex-gap-20">
+    <div class="content-wrapper column-content flex-gap-10 column-left">
+        <h3>Rodan server</h3>
+        <div>Version: <%= version %></div>
+        <div>URI: <%= hostname %></div>
+        <div>Last known server date/time: <%= date %></div>
+        <div>Pagination length: <%= serverConfiguration.page_length %></div>
+        <div>Job packages:</div>
+        <ul>
+            <% for(var package in serverConfiguration.job_packages) { %>
+                <li><%= package %> (<%= serverConfiguration.job_packages[package] %>)</li>
+            <% } %>
+        </ul>
+    </div>
+
+    <hr>
+
+    <div class="content-wrapper column-content flex-gap-10 column-left">
+        <h3>Rodan client</h3>
+        <ul>
+            <% for(var field in client) { %>
+                <li><%= field %>: <%= client[field] %></li>
+            <% } %>
+        </ul>
+    </div>
+</div>

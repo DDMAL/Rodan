@@ -53,31 +53,7 @@ export default class ErrorHandler
             }
             else
             {
-                var response = options.response;
-                var responseTextObject = JSON.parse(response.responseText);
-                var message = 'An unknown error occured.';
-
-                // Look for message in options first.
-                if (options.hasOwnProperty('message'))
-                {
-                    message = options.message;
-                }
-
-                // Go through the response text.
-                var first =  true;
-                for(var property in responseTextObject)
-                {
-                    if (responseTextObject.hasOwnProperty(property))
-                    {
-                        message += '\n';
-                        if (first)
-                        {
-                            message += '\n';
-                            first = false;
-                        }
-                        message += responseTextObject[property];
-                    }
-                }
+                var message = options.message || 'An unknown error occured.';
                 this._showError(message, null);
             }
         }
@@ -92,7 +68,9 @@ export default class ErrorHandler
      */
     _showError(text, error)
     {
-        console.error(error);
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, {content: text, title: 'Error'});
+        if (error) {
+            console.error(error);
+        }
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_ERROR, {content: text});
     }
 }

@@ -20,6 +20,7 @@ export default class ViewResourceMulti extends Marionette.CollectionView
         this.labelNames = '';
         this.isSameType = true;
         this.isSameLabel = true;
+        this.setElement('<div class="content-wrapper column-content details-panel"></div>'); // set container element
 
         for (let model of this._models) {
             let modelResourceTypeURL = model.get('resource_type');

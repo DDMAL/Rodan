@@ -31,9 +31,18 @@ export default class ViewNavigationNodeRoot extends ViewNavigationNode
     {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
     }
+
+    /**
+     * Handle click. 
+     * We don't want to toggle subviews here, so we override the parent method.
+     */
+    _handleClick(event) {
+        event.stopPropagation();
+        this._sendClickEvents();
+    }
 }
 ViewNavigationNodeRoot.prototype.ui = {
-    text: '.node_text'
+    text: '#my-projects-btn'
 };
 ViewNavigationNodeRoot.prototype.events = {
     'click @ui.text': '_handleClick'

@@ -9,9 +9,15 @@ import Radio from 'backbone.radio';
  */
 export default class ViewRunJob extends Marionette.View
 {
+
+    initialize() {
+        this.setElement('<div class="content-wrapper column-content details-panel"></div>');
+    }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // PUBLIC METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////    
+
     /**
      * Set 'Open' button availability after render.
      *
@@ -41,5 +47,5 @@ ViewRunJob.prototype.ui = {
 };
 ViewRunJob.prototype.events = {
     'click @ui.buttonOpen': '_handleButtonOpen'
-        };
+};
 ViewRunJob.prototype.template = _.template($('#template-main_runjob_individual').text());

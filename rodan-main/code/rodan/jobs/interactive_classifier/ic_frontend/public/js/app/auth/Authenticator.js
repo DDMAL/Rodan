@@ -43,9 +43,8 @@ export default class Authenticator {
             type: 'POST',
             headers: {
                 Accept: "application/json; charset=utf-8",
-                "Content-Type": "application/json; charset=utf-8"
-                // For testing only.
-                //Authorization: "Token d1f6d0386d796fe2045a1e631d6e14d27ea94999"
+                "Content-Type": "application/json; charset=utf-8",
+                Authorization: "Token " + document.cookie.split('; ').find(cookie => cookie.startsWith('token=')).split('=')[1]
             },
             complete: function (response)
             {

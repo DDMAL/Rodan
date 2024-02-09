@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
+// import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
 import 'jqueryui';
 import BaseCollection from 'js/Collections/BaseCollection';
 import Configuration from 'js/Configuration';
@@ -197,29 +197,22 @@ export default class BehaviorTable extends Marionette.Behavior
     _injectFiltering(filterFields)
     {
         var filters = this._getFilters(this.view.collection, filterFields);
-        for (var index in filters)
+
+        for (let index in filters)
         {
-            var $collectionItem = $(filters[index].collectionItem);
             var $formInput = $(filters[index].input);
-            $collectionItem.click((event) => this._handleFilterClick(event));
-            $(this.el).find('#filter-menu ul').append($collectionItem);
             $(this.el).find('#filter-inputs').append($formInput);
         }
 
-        // Setup datetimepickers.
-        for (index in this._datetimepickerElements)
-        {
-            var elementId = this._datetimepickerElements[index];
-            $(this.el).find(elementId).datetimepicker();
-            $(this.el).find(elementId).data('DateTimePicker').format(Configuration.DATETIME_FORMAT);
-            $(this.el).find(elementId).on('dp.change', () => this._handleSearch());
+        // Load label filters.
+        if (filterFields.labels) {
+            this._updateFilterLabels();
         }
 
         $(this.el).find('#filter-inputs input').on('change keyup paste mouseup', () => this._handleSearch());
         $(this.el).find('#filter-inputs select').on('change keyup paste mouseup', () => this._handleSearch());
 
         this._filtersInjected = true;
-        this._hideFormElements();
     }
 
     /**
@@ -253,41 +246,68 @@ export default class BehaviorTable extends Marionette.Behavior
     {
         var templateChoice = _.template($(this.options.templateFilterChoice).html());
         var templateInput = _.template($(this.options.templateFilterMultipleEnum).html());
-        var labelCollection = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_RESOURCELABEL_COLLECTION);
-        var project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
-        var project_resources = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCES_CURRENT, {data: {project: project.id}});
-        var labels = new Set();
-        project_resources.each(function (resource) {
-            resource.attributes.labels.forEach(function ({ url }) {
-                labels.add(url);
-            });
-        });
-        var filtered_collection = labelCollection.filter(function (resource) { return labels.has(resource.attributes.url); });
-        var labelModels = filtered_collection.map((label) => {
-            return {
-                label: label.get('name'),
-                value: label.get('uuid')
-            };
-        });
         var htmlChoice = templateChoice({label: label, field: field});
-        var htmlInput = templateInput({label: label, field: field, values: labelModels});
+        var htmlInput = templateInput({label: label, field: field, values: [] }); // Values will be populated later
         return {collectionItem: htmlChoice, input: htmlInput};
+    }
+
+    /**
+     * Update the label filters with the labels for the current project
+     */
+    _updateFilterLabels()
+    {
+        const project = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
+        
+        if (!project) {
+            return;
+        }
+        
+        const route = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, 'labels');
+        const ajaxSettings = {
+            url: route + '?resource__project=' + project.get('uuid'),
+            type: 'GET',
+            dataType: 'json',
+            success: (data) => {
+                const select = document.getElementById('labels');
+                if (select) {
+                    const labels = data.results.map(label => {
+                        const element = document.createElement('option');
+                        element.value = label.uuid;
+                        element.label = label.name;
+                        return element;
+                    });
+                    select.replaceChildren(...labels);
+                }
+            },
+        };
+
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_REQUEST_AJAX, { settings: ajaxSettings});
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS - Event handlers
 ///////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handles click events on "Add Search Filter" button.
+     */
+    _handleButtonAddFilter() {
+        $('#dropdown-menu-table-filter').toggleClass('hidden');
+    }
+
     /**
      * Handles filter click.
      */
     _handleFilterClick(event)
     {
         var data = $(event.target).data();
-        //this._hideFormElements();
         if (data.id)
         {
             this._showFormElement(data.id);
         }
+
+        // Hide filter menu dropdown.
+        $('#dropdown-menu-table-filter').toggleClass('hidden');
     }
 
     /**
@@ -306,6 +326,12 @@ export default class BehaviorTable extends Marionette.Behavior
         for (var index in values)
         {
             var name = values[index].name;
+
+            // Format datetime values correctly.
+            if (name === 'updated__gt' || name === 'updated__lt' || name === 'created__gt' || name === 'created__lt') {
+                values[index].value = values[index].value.replace('T', ' ');
+            }
+
             var value = values[index].value;
             if (typeof filters[name] === 'undefined') {
                 filters[name] = value;
@@ -419,6 +445,10 @@ export default class BehaviorTable extends Marionette.Behavior
                 if (options)
                 {
                     this._injectFiltering(options.filter_fields);
+
+                    if (options.filter_fields.labels) {
+                        collection.on('add remove sync', () => this._updateFilterLabels());
+                    }
                 }
             }
 
@@ -510,6 +540,11 @@ export default class BehaviorTable extends Marionette.Behavior
     _handlePaginationSelect(event)
     {
         this.view.collection.fetchPage({page: parseInt(event.currentTarget.value)});
+    }
+
+    _handleFiltersDropdown() {
+        $(this.el).find('#filter-inputs-wrapper').toggleClass('hidden');
+        $(this.el).find('#filter-inputs-dropdown-btn').toggleClass('open');
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -633,10 +668,12 @@ BehaviorTable.prototype.ui = {
     paginationNext: '#pagination-next',
     paginationFirst: '#pagination-first',
     paginationLast: '#pagination-last',
+    buttonAddFilter: '#button-add-filter',
     buttonSearch: '#button-search',
     buttonRemove: '#button-remove',
     buttonClearAll: '#button-clearall',
-    paginationSelect: '#pagination-select'
+    paginationSelect: '#pagination-select',
+    filtersDropdown: '#filter-inputs-dropdown-btn',
 };
 BehaviorTable.prototype.events = {
     'click @ui.paginationPrevious': '_handlePaginationPrevious',
@@ -644,12 +681,14 @@ BehaviorTable.prototype.events = {
     'click @ui.paginationFirst': '_handlePaginationFirst',
     'click @ui.paginationLast': '_handlePaginationLast',
     'click th': '_handleSort',
+    'click @ui.buttonAddFilter': '_handleButtonAddFilter',
     'click @ui.buttonSearch': '_handleSearch',
     'click @ui.buttonRemove': '_handleButtonRemove',
     'click @ui.buttonClearAll': '_handleButtonClearAll',
     'click tbody tr': '_handleLeftClickRow',
     'contextmenu tbody tr': '_handleRowRightClick',
-    'change @ui.paginationSelect': '_handlePaginationSelect'
+    'change @ui.paginationSelect': '_handlePaginationSelect',
+    'click @ui.filtersDropdown': '_handleFiltersDropdown',
 };
 BehaviorTable.prototype.options = {
     'templateControl': '#template-table_control',

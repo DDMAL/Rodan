@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import $ from 'jquery';
-import bootstrap from 'bootstrap';
 import Marionette from 'backbone.marionette';
 import moment from 'moment';
 import Radio from 'backbone.radio';
@@ -217,4 +216,4 @@ export default class Application extends Marionette.Application
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_SELECTED_COLLECTION);
     }
 }
-Application.prototype.region = '#region-master';
+Application.prototype.region = '#app';

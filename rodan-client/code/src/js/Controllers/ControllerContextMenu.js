@@ -51,10 +51,10 @@ export default class ControllerContextMenu extends BaseController
                 Radio.channel(channel).request(data.request, data.options);
             };
 
-            var anchor = $('<a>' + label + '</a>');
+            var anchor = $('<a class="dropdown-btn">' + label + '</a>');
             anchor.data('radio', {request: radiorequest, options: callOptions});
             anchor.click(functionCall);
-            $('#menu-context').append($('<li></li>').append(anchor));
+            $('#menu-context').append(anchor);
         }
         $('#menu-context').css('top', options.top);
         $('#menu-context').css('left', options.left);
