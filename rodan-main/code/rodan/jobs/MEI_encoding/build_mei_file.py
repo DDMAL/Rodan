@@ -182,7 +182,7 @@ def generate_base_document(column_split_info: Optional[dict]):
 
     mei = new_el("mei")
     mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
-    mei.set("meiversion", "5.0.0-dev")
+    mei.set("meiversion", "5.0")
 
     meiHead = new_el("meiHead", mei)
 
