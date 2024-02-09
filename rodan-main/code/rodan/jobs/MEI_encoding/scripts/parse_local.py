@@ -37,8 +37,15 @@ def run_my_task(inputs, settings, outputs):
         inputs["MEI Mapping CSV"][0]["resource_path"]
     )
     width_mult = settings["Neume Component Spacing"]
+    verbose = settings["verbose"]
     mei_string = bm.process(
-        jsomr, syls, classifier_table, width_mult, width_container, split_ranges
+        jsomr,
+        syls,
+        classifier_table,
+        width_mult,
+        width_container,
+        split_ranges,
+        verbose,
     )
 
     outfile_path = outputs["MEI"][0]["resource_path"]
@@ -53,11 +60,11 @@ if __name__ == "__main__":
 
     base_path = "C:/Users/tim/Documents/Rodan/rodan-main/code/rodan/test/files/"
     # path to hpf output
-    input_jsomr = os.path.join(base_path, "mei-encoding-test-hpf.json")
+    # input_jsomr = os.path.join(base_path, "mei-encoding-test-hpf.json")
     # path to text alignment json
-    input_text = os.path.join(base_path, "mei-encoding-test-ta.json")
+    # input_text = os.path.join(base_path, "mei-encoding-test-ta.json")
     # path to column splitting data
-    input_csd = os.path.join(base_path, "mei-encoding-test-csd.json")
+    # input_csd = os.path.join(base_path, "mei-encoding-test-csd.json")
     # path to mei mapping csv
     input_mei_mapping = os.path.join(base_path, "mei-encoding-test.csv")
     # path to output mei
@@ -65,14 +72,20 @@ if __name__ == "__main__":
     # path to ground truth mei
     gt_output_path = os.path.join(base_path, "mei-encoding-test.mei")
 
+    input_jsomr = r"C:\Users\tim\Desktop\manuscript\165v.PF.json"
+    input_text = r"C:\Users\tim\Desktop\manuscript\165v.TA.json"
+    input_mei_mapping = (
+        r"C:\Users\tim\Desktop\manuscript\csv-square_notation_neume_level_newest.csv"
+    )
+
     inputs = {
         "JSOMR": [{"resource_path": input_jsomr}],
         "Text Alignment JSON": [{"resource_path": input_text}],
         "MEI Mapping CSV": [{"resource_path": input_mei_mapping}],
-        "Column Splitting Data": [{"resource_path": input_csd}],
+        # "Column Splitting Data": [{"resource_path": input_csd}],
     }
     outputs = {"MEI": [{"resource_path": output_path}]}
-    settings = {"Neume Component Spacing": 0.5}
+    settings = {"Neume Component Spacing": 0.5, "verbose": True}
 
     run_my_task(inputs=inputs, outputs=outputs, settings=settings)
 
