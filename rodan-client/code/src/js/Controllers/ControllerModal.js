@@ -106,6 +106,7 @@ export default class ControllerModal extends BaseController
         {
             Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, options);
         }
+        $('.modal-dialog').addClass('modal-fit');
         $('.modal-footer').removeClass('modal-footer-error');
     }
 
