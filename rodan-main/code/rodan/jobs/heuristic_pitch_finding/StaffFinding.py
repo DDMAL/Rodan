@@ -3,6 +3,9 @@ from gamera.toolkits import musicstaves
 
 import copy
 
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
+
 
 class StaffFinder(object):
 
@@ -20,6 +23,7 @@ class StaffFinder(object):
 
         self.staff_results = {}
 
+
     ####################
     # Public Functions
     ####################
@@ -34,9 +38,9 @@ class StaffFinder(object):
         self._process_staves()
 
         output = []
-        # Fixes: Title page with no information bug
+
         if self.staves is None:
-            return []
+            raise Exception("The algorithm cannot find staves for this input.")
 
         for i, s in enumerate(self.staves):
 
@@ -228,30 +232,43 @@ class StaffFinder(object):
         blackness = 0.8
         tolerance = -1
 
-        # there is no one right value for these things. We'll give it the old college try
-        # until we find something that works.
-        while not self.staff_finder:
-            if blackness <= 0.3:
-                # we want to return if we've reached a limit and still can't
-                # find staves.
-                return None
+        # find staves with initial blackness and lower it until we find something or reach the threshold 
+        # in each iteration, either gamera fails or didn't find anything
+        success_run = 0
+        while blackness >= 0.3:
 
-            s.find_staves(self.lines_per_staff, scanlines, blackness, tolerance)
-            av_lines = s.get_average()
-            if len(self._flatten(s.linelist)) == 0:
-                # no lines were found
-                return None
-
-            # get a polygon object. This stores a set of vertices for x,y values along the staffline.
-            self.staff_finder = s.get_polygon()
-
-            if not self.staff_finder:
-                lg.debug("No staves found. Decreasing blackness.")
-                blackness -= 0.1
-
-        # if len(self.staff_finder) < self.lines_per_staff:
-        #     # the number of lines found was less than expected.
-        #     return None
+            try:
+                s.find_staves(self.lines_per_staff, scanlines, blackness, tolerance)
+            
+                av_lines = s.get_average()
+                # get a polygon object. This stores a set of vertices for x,y values along the staffline.
+                # code for polygon: https://github.com/DDMAL/gamera4-rodan/blob/d5cfe7b899e035151ee02c2c79ade1a373e2a54c/musicstaves/gamera/toolkits/musicstaves/stafffinder.py#L478C1-L494C22
+                self.staff_finder = s.get_polygon()
+    
+                # if find staves
+                # number 4 makes sure we find at least one small part (https://github.com/DDMAL/Rodan/issues/1124#issuecomment-1948744904)
+                if len(self._flatten(self.staff_finder)) > 4:
+                    success_run = 1
+                    logger.info(f"StaffFinding succeeds at blackness {blackness}.")
+                    break            
+                
+                # if not found, decrease blackness and continue
+                logger.info(f"No staves found at blackness {blackness}. Decreasing blackness by 0.05.")
+            except:
+                logger.info(f"Gamera fails at blackness {blackness}. Decreasing blackness by 0.05.")
+            
+            blackness -= 0.05
+        
+        # sanity check if passed the while loop
+        assert self.staff_finder is not None
+        
+        # if gamera did not work at all 
+        if success_run == 0:
+            raise Exception("Gamera cannot find staves with threshold blackness 0.3")
+        
+        
+       
+                    
 
         all_line_positions = []
 
@@ -365,6 +382,8 @@ class StaffFinder(object):
             all_line_positions.append(self.staff_results[i])
 
         self.staves = all_line_positions
+
+
         if self.interpolation:
             self.staves = self._interpolate_staff_locations(self.staves)
         self._staff_coords()
