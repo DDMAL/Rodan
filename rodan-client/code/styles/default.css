@@ -666,7 +666,6 @@ tbody > tr:hover {
     border: 1px solid #dfdfdf;
     border-radius: 5px;
     background-color: #f0f0f047;
-    height: fit-content;
     width: 100%;
     overflow-x: auto;
     max-height: 1000px;
@@ -938,8 +937,8 @@ div#main_workflowbuilder
     animation: fade-in 0.2s ease-in-out forwards;
 }
 .modal-dialog {
-    width: fit-content;
-    height: fit-content;
+    width: 80vw;
+    height: 80vh;
     border-radius: 3px;
     position: relative;
     overflow: hidden;
@@ -993,7 +992,10 @@ div#main_workflowbuilder
 .modal-body-section-left {
     align-items: flex-start;
 }
-
+.modal-fit {
+    width: fit-content;
+    height: fit-content;
+}
 /* project-users modal styles */
 #admins-and-workers-tables {
     align-items: flex-start;
@@ -1010,6 +1012,10 @@ div#main_workflowbuilder
 }
 
 /* resource assignment modal */
+.modal-grid {
+    display: grid;
+    grid-template-columns: 35vw auto 35vw;
+}
 #resource-assignment-actions-container {
     height: fit-content;
     padding: 5px;
@@ -1017,6 +1023,31 @@ div#main_workflowbuilder
     border-radius: 3px;
     background-color: #f9f9f9;
     max-width: 150px;
+}
+
+/* tables in modal */
+.table-modal-container {
+    height: 55vh;
+}
+.table-modal {
+    overflow-y: scroll;
+}
+.table-modal>thead>tr>th,
+.table-modal>tbody>tr>th {
+    max-width: 70px;
+    word-wrap: break-word;
+}
+.table-modal>thead>tr>td,
+.table-modal>tbody>tr>td {
+    max-width: 70px;
+    word-wrap: break-word;
+    border-bottom: 1px solid rgb(215 215 215);
+}
+.table-modal>thead>tr>th:first-child,
+.table-modal>tbody>tr>th:first-child,
+.table-modal>thead>tr>td:first-child,
+.table-modal>tbody>tr>td:first-child {
+    max-width: 180px;
 }
 
 /* job settings modal */
