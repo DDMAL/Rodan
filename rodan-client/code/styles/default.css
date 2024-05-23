@@ -667,8 +667,7 @@ tbody > tr:hover {
     border-radius: 5px;
     background-color: #f0f0f047;
     width: 100%;
-    overflow-x: auto;
-    max-height: 1000px;
+    overflow: scroll;
 }
 .project-collections {
     gap: 25px;
@@ -937,8 +936,7 @@ div#main_workflowbuilder
     animation: fade-in 0.2s ease-in-out forwards;
 }
 .modal-dialog {
-    width: 80vw;
-    height: 80vh;
+    height: fit-content;
     border-radius: 3px;
     position: relative;
     overflow: hidden;
@@ -946,7 +944,6 @@ div#main_workflowbuilder
     backdrop-filter: blur(20px);
     min-width: 500px;
     max-width: 100%;
-    /* min-height: 300px; */
 }
 .modal-header {
     align-items: center;
@@ -964,7 +961,6 @@ div#main_workflowbuilder
 .modal-body
 {
     max-height: 600px;
-    overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
     font-size: 12px;
@@ -1014,7 +1010,7 @@ div#main_workflowbuilder
 /* resource assignment modal */
 .modal-grid {
     display: grid;
-    grid-template-columns: 35vw auto 35vw;
+    grid-template-columns: 8fr 1fr 8fr;
 }
 #resource-assignment-actions-container {
     height: fit-content;
@@ -1027,10 +1023,13 @@ div#main_workflowbuilder
 
 /* tables in modal */
 .table-modal-container {
-    height: 55vh;
+    height: 45vh;
 }
 .table-modal {
     overflow-y: scroll;
+}
+.table-modal>tbody {
+    overflow: scroll;
 }
 .table-modal>thead>tr>th,
 .table-modal>tbody>tr>th {
