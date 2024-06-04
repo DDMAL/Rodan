@@ -128,7 +128,7 @@ export default class LayoutViewNavigation extends Marionette.View
                                                                  serverConfiguration: serverConfig,
                                                                  date: serverDate,
                                                                  client: Configuration.CLIENT});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'About', content: html});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'About', content: html, scroll: 'modal'});
     }
 
     /**
@@ -149,7 +149,7 @@ export default class LayoutViewNavigation extends Marionette.View
         var view = new BaseViewCollection({collection: collection,
                                            template: _.template($('#template-resourcetype_collection').text()),
                                            childView: ViewResourceTypeDetailCollectionItem});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'Development', content: view});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {title: 'Development', content: view, scroll: 'table'});
     }
 
 

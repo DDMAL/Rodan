@@ -706,6 +706,7 @@ tbody > tr:hover {
 }
 .single-project-view-collection-wrapper {
     gap: 10px;
+    overflow: hidden;
 }
 .resource-upload-container {
     height: fit-content;
@@ -992,6 +993,9 @@ div#main_workflowbuilder
     width: fit-content;
     height: fit-content;
 }
+.modal-scroll {
+    overflow: scroll;
+}
 /* project-users modal styles */
 #admins-and-workers-tables {
     align-items: flex-start;
@@ -1048,7 +1052,9 @@ div#main_workflowbuilder
 .table-modal>tbody>tr>td:first-child {
     max-width: 180px;
 }
-
+.tbody-scroll {
+    overflow: scroll;
+}
 /* job settings modal */
 #workflowjob-settings:first-child {
     display: flex;

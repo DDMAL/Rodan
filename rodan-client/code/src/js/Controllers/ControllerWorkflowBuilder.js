@@ -498,7 +498,7 @@ export default class ControllerWorkflowBuilder extends BaseController
         var collection = new JobCollection();
         collection.fetch();
         var view = new ViewJobCollection({collection: collection, childViewOptions: {workflow: options.workflow}});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'Jobs'});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'Jobs', scroll: 'table'});
     }
 
     /**
@@ -531,7 +531,7 @@ export default class ControllerWorkflowBuilder extends BaseController
     _handleRequestShowWorkflowJobPortsView(options)
     {
         var view = new LayoutViewControlPorts(options);
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'WorkflowJob Ports'});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {content: view, title: 'WorkflowJob Ports', scroll: 'modal'});
     }
 
     /**
