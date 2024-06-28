@@ -133,8 +133,13 @@
         "rodan.jobs.column_split.base": [ 
           "ColumnSplit"
           ]
+    },
+
+    "rodan.jobs.extract_c_clefs": {
+        "rodan.jobs.extract_c_clefs.base": [ 
+          "ExtractCClefs"
+          ]
     }
-      
     }
 
 "RODAN_GPU_JOBS": {
