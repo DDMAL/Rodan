@@ -100,14 +100,6 @@ class RODAN_EVENTS
         this.REQUEST__SHOW_NAVIGATION_PAGINATION = 'REQUEST__SHOW_NAVIGATION_PAGINATION';
         /** Request update navigation pagination */
         this.REQUEST__UPDATE_NAVIGATION_PAGINATION = 'REQUEST__UPDATE_NAVIGATION_PAGINATION';
-        /** Request pagination from navigation bar for first */ 
-        this.REQUEST__NAVIGATION_PAGINATION_FIRST = 'REQUEST__NAVIGATION_PAGINATION_FIRST';
-        /** Request pagination from navigation bar for previous */ 
-        this.REQUEST__NAVIGATION_PAGINATION_PREVIOUS = 'REQUEST__NAVIGATION_PAGINATION_PREVIOUS';
-        /** Request pagination from navigation bar for next */ 
-        this.REQUEST__NAVIGATION_PAGINATION_NEXT = 'REQUEST__NAVIGATION_PAGINATION_NEXT';
-        /** Request pagination from navigation bar for last */ 
-        this.REQUEST__NAVIGATION_PAGINATION_LAST = 'REQUEST__NAVIGATION_PAGINATION_LAST';
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Global Collections

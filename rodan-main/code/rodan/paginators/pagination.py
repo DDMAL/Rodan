@@ -2,6 +2,26 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from collections import OrderedDict
 from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+class SafePaginator(Paginator):
+    """
+    A paginator that returns a valid page even if the page argument isn't a number or isn't 
+    in range instead of throwing an exception.
+    """
+    def page(self, number):
+        """
+        Return a valid page, even if the page argument isn't a number or isn't
+        in range.
+        """
+        try:
+            number = self.validate_number(number)
+        except PageNotAnInteger:
+            number = 1
+        except EmptyPage:
+            number = self.num_pages
+        
+        return super(SafePaginator, self).page(number)
 
 
 class CustomPagination(PageNumberPagination):
@@ -12,6 +32,7 @@ class CustomPagination(PageNumberPagination):
 
     page_size_query_param = "page_size"
     max_page_size = settings.REST_FRAMEWORK["MAX_PAGE_SIZE"]
+    django_paginator_class = SafePaginator
 
     def get_paginated_response(self, data):
         return Response(
