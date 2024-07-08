@@ -94,7 +94,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
-  && wget https://bootstrap.pypa.io/get-pip.py \
+  && wget https://bootstrap.pypa.io/pip/3.7/get-pip.py \
   && ${PYTHON} get-pip.py \
   && ln -sf /usr/bin/${PYTHON} /usr/local/bin/python3 \
   && ln -sf /usr/local/bin/pip /usr/local/bin/pip3 \
