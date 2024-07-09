@@ -49,8 +49,3 @@ services:
       dockerfile: Dockerfile
     image: "ddmal/rodan-client:nightly"
 
-  iipsrv:
-    build:
-      context: ./iipsrv
-      dockerfile: Dockerfile
-    image: "ddmal/iipsrv:nightly"
