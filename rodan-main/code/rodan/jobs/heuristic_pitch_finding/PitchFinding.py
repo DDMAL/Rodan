@@ -500,7 +500,7 @@ class PitchFinder(object):
                 clef_octave_map = {
                     'c': 4,
                     'f': 3,
-                    'g': 5
+                    'g': 4
                 }
                 base_octave = clef_octave_map.get(clef, 3)
                 if my_strt_pos <= clef_line:
