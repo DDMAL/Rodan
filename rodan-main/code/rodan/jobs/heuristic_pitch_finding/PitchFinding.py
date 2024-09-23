@@ -1,8 +1,8 @@
 from gamera import gamera_xml
 from gamera.plugins.image_utilities import union_images
 from operator import itemgetter, attrgetter
-import logging
-logger = logging.getLogger("__name__")
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 from math import floor
 
 class PitchFinder(object):
@@ -497,10 +497,16 @@ class PitchFinder(object):
                 note = SCALE[int((clef_line - my_strt_pos + noteShift) % len(SCALE))]
 
                 # find octave
+                clef_octave_map = {
+                    'c': 4,
+                    'f': 3,
+                    'g': 4
+                }
+                base_octave = clef_octave_map.get(clef, 3)
                 if my_strt_pos <= clef_line:
-                    octave = 3 + floor((clef_line - my_strt_pos + noteShift) / len(SCALE))
+                    octave = base_octave + floor((clef_line - my_strt_pos + noteShift) / len(SCALE))
                 elif my_strt_pos > clef_line:
-                    octave = 3 - floor((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
+                    octave = base_octave - floor((len(SCALE) - clef_line + my_strt_pos - 1 - noteShift) / len(SCALE))
 
                 glyph_array.extend([note, octave, clef_line, 'clef.' + clef])
 
