@@ -176,27 +176,38 @@ class ResourceDistributor(RodanTask):
         import PIL.Image
         import numpy as np
         resource_types_list = list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all()))
+        from model_mommy import mommy
+        from rodan.models import Resource, ResourceType
 
-        # Not so sure what this job is for, but I'll use image/png as the testcase.
+        # Create a Resource instance using mommy
+        resource_type = mommy.make(ResourceType, mimetype="image/rgb+png")
+        rc = mommy.make(Resource, resource_type=resource_type)
+
         inputs = {
-            "Resource input": [
-                {
-                    'resource_type': 'image/rgb+png',
-                    'resource_path': testcase.new_available_path()
+                    "Resource input": [
+                        {
+                            "resource_path": rc.resource_path,
+                            "resource_type": rc.resource_type.mimetype,
+                            "resource": rc
+                        }
+                    ]
                 }
-            ]
-        }
         outputs = {
-            "Resource output": [
-                {
-                    "resource_type": "image/rgb+png",
-                    "resource_path": testcase.new_available_path()
+                    "Resource output": [
+                        {
+                            "resource_type": "image/rgb+png",
+                            "resource_path": testcase.new_available_path()
+                        }
+                    ]
                 }
-            ]
-        }
         settings = {
-            "Resource type": resource_types_list.index("image/rgb+png")
-        }
+                    "Resource type": resource_types_list.index("image/rgb+png"),
+                    "User custom prefix": "test prefix - ",
+                    "User custom suffix": "- test suffix"
+                    }
+        
+        original_image = rc.name
+
         PIL.Image.new("RGB", size=(50, 50), color=(255, 0, 0)).save(inputs['Resource input'][0]['resource_path'], 'PNG')
         array_gt = np.zeros((50, 50, 3)).astype(np.uint8)
         array_gt[:, :, 0] = 255
@@ -211,3 +222,6 @@ class ResourceDistributor(RodanTask):
         testcase.assertEqual(result.format, 'PNG')
         # and the data should be identical
         np.testing.assert_equal(array_gt, array_result)
+
+        new_name = f"{settings['User custom prefix']}{original_image}{settings['User custom suffix']}"
+        testcase.assertEqual(inputs['Resource input'][0]['resource'].name, new_name)
