@@ -175,18 +175,18 @@ class ResourceDistributor(RodanTask):
     def test_my_task(self, testcase):
         import PIL.Image
         import numpy as np
-        resource_types_list = list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all()))
-        from model_mommy import mommy
         from rodan.models import Resource, ResourceType
+        resource_types_list = list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all()))
+        from model_mommy import mommy        
 
         # Create a Resource instance using mommy
-        resource_type = mommy.make(ResourceType, mimetype="image/rgb+png")
-        rc = mommy.make(Resource, resource_type=resource_type)
+        resource_type, created = ResourceType.objects.get_or_create(mimetype="image/rgb+png")
+        rc = mommy.make(Resource, resource_type=resource_type, name="test_filename")
 
         inputs = {
                     "Resource input": [
                         {
-                            "resource_path": rc.resource_path,
+                            "resource_path": testcase.new_available_path(),
                             "resource_type": rc.resource_type.mimetype,
                             "resource": rc
                         }
@@ -223,5 +223,6 @@ class ResourceDistributor(RodanTask):
         # and the data should be identical
         np.testing.assert_equal(array_gt, array_result)
 
+        # Test name change
         new_name = f"{settings['User custom prefix']}{original_image}{settings['User custom suffix']}"
         testcase.assertEqual(inputs['Resource input'][0]['resource'].name, new_name)
