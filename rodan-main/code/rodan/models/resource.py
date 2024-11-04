@@ -142,6 +142,10 @@ class Resource(models.Model):
 
     labels = models.ManyToManyField(ResourceLabel, blank=True)
 
+    def rename(self, newname):
+        self.name = newname
+        self.save()
+
     def save(self, *args, **kwargs):
         super(Resource, self).save(*args, **kwargs)
         if not os.path.exists(self.resource_path):
