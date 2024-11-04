@@ -33,7 +33,7 @@ class ResourceDistributor(RodanTask):
             'Resource type': {
                 'enum': list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all())),
                 'type': 'string',
-                'default': 'application/octet-stream',
+                'default': 'image/rgba+png',
                 'description': 'Specifies the eligible resource types for input'
             },
             'User custom prefix': {
