@@ -137,7 +137,7 @@ class ResourceDistributor(RodanTask):
             self.my_error_information(
                 None,
                 (
-                    "Input cannot be of type {0}. Valid input set in setting is "
+                    "Mismatched input of type {0}. The input type in job setting is "
                     "{1}"
                 ).format(input_type, valid_input_type)
             )
