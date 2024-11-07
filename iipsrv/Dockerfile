@@ -1,4 +1,4 @@
-FROM alpine AS builder
+FROM alpine:3.18.5 AS builder
 
 RUN apk add --no-cache \
   autoconf \
@@ -15,7 +15,7 @@ RUN ./autogen.sh
 RUN ./configure --enable-openjpeg
 RUN make
 
-FROM alpine
+FROM alpine:3.18.5
 
 RUN apk add --no-cache \
   libgcc \

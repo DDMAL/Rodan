@@ -71,7 +71,7 @@ export default class ControllerWorkflow extends BaseController
         // Clear the individual view (if there).
         if (this._viewItem !== null && options.workflow === this._viewItem.model)
         {
-            this._projectView.clearItemView();
+            this._projectView.clearCollectionItemInfoView();
         }
         options.workflow.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection)});
     }

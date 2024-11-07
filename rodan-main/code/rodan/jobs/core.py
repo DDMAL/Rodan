@@ -7,6 +7,8 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import io, base64
+import six
 
 from celery import task, registry
 from celery import Task
@@ -17,7 +19,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Case, Value, When, BooleanField
 import PIL
 from pybagit.bagit import BagIt
-import six
 
 import rodan  # noqa
 from rodan.models import (
@@ -43,7 +44,8 @@ from rodan.jobs.resource_identification import fileparse
 from templated_mail.mail import BaseEmailMessage
 
 # from rodan.celery import app
-
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 class create_resource(Task):
     name = "rodan.core.create_resource"
@@ -946,26 +948,29 @@ def send_templated_email(to, email_template, context):
 @task(name="rodan.core.create_archive")
 def create_archive(resource_uuids):
     """
-    Creates a zip archive of resosurces in memory for a user to download
+    Creates a zip archive of resources in memory for a user to download
     """
     condition = Q()
     for uuid in resource_uuids:
         condition |= Q(uuid=uuid)
     resources = Resource.objects.filter(Q(resource_file__isnull=False) & condition)
+    logger.info('Number of resources to archive: %d', resources.count())
+    
     # Don't return an empty zip file
     if resources.count() == 0:
         return None
-    temporary_storage = six.StringIO()
-    with zipfile.ZipFile(temporary_storage, "a", zipfile.ZIP_DEFLATED) as archive:
+
+    temporary_storage = io.BytesIO()
+    with zipfile.ZipFile(temporary_storage, "w", zipfile.ZIP_DEFLATED) as archive:
         for resource in resources:
             if not resource.resource_file:
-                print("{} has no file!".format(resource.name))
+                logger.warning("{} has no file!".format(resource.name))
                 continue
 
-            # determine a path that doesn't conflict
+            # Determine a path that doesn't conflict
             filepath = resource.name + "." + resource.resource_type.extension
             if filepath in archive.namelist():
-                for i in six.moves.range(1, sys.maxint):
+                for i in range(1, sys.maxsize):
                     filepath = resource.name + " ({}).".format(i) + resource.resource_type.extension
                     if filepath not in archive.namelist():
                         break
@@ -976,7 +981,7 @@ def create_archive(resource_uuids):
             )
 
     temporary_storage.seek(0)
-    return temporary_storage
+    return base64.b64encode(temporary_storage.getvalue()).decode('utf-8')
 
 
 class test_work(Task):

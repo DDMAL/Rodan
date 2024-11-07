@@ -4,6 +4,7 @@ import os
 import re
 # import urlparse
 import six.moves.urllib.parse
+import base64, io
 
 from celery import registry
 from django.conf import settings
@@ -408,11 +409,14 @@ class ResourceArchive(generics.GenericAPIView):
 
         archive = registry.tasks['rodan.core.create_archive'] \
             .si(resource_uuids).apply_async(queue="celery")
-        storage = archive.get()
-        if storage is None:
+        encoded_archive = archive.get()
+
+        if encoded_archive is None:
             raise ValidationError({'resource_uuid': ["The specified resources must exist."]})
+
+        binary_data = base64.b64decode(encoded_archive)
         response = FileResponse(
-            storage,
+            io.BytesIO(binary_data),
             content_type="application/zip"
         )
         response['Content-Disposition'] = "attachment; filename=Archive.zip"

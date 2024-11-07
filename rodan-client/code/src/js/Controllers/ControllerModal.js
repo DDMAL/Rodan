@@ -72,8 +72,7 @@ export default class ControllerModal extends BaseController
             $modalEl.html(this._layoutViewModal.el);
             $('.modal-title').text(options.title);
             $('.modal-body').append(options.content);
-            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));
-            $modalEl.show();            
+            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));      
         }
         else
         {
@@ -85,9 +84,21 @@ export default class ControllerModal extends BaseController
 
             $modalEl.html(this._layoutViewModal.el);
             $('.modal-title').text(options.title);
-            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));
-            $modalEl.show();            
+            $('#modal-close').on('click', () => Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE));         
         }
+
+        switch (options.scroll) {
+            case 'modal':
+                $('.modal-body').addClass('modal-scroll');
+                break;
+
+            case 'table':
+                $('.modal .table-responsive').css('height', '50vh');
+                $('.modal .table-responsive>.table>tbody').addClass('tbody-scroll');
+                break;
+        }
+
+        $modalEl.show();      
     }
 
     /**
@@ -106,6 +117,7 @@ export default class ControllerModal extends BaseController
         {
             Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, options);
         }
+        $('.modal-dialog').addClass('modal-fit');
         $('.modal-footer').removeClass('modal-footer-error');
     }
 
