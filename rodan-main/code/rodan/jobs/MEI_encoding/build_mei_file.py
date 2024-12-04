@@ -12,12 +12,16 @@ from xml.etree.ElementTree import (
 import math
 import numpy as np
 import json
+
 from rodan.jobs.MEI_encoding import parse_classifier_table as pct  # for rodan
 
-# import parse_classifier_table as pct #---> for testing locally
+# import parse_classifier_table as pct  # ---> for testing locally
+
 from itertools import groupby
+
+# from state_machine import SylMachine  # ---> for testing locally
+
 from rodan.jobs.MEI_encoding.state_machine import SylMachine
-# from state_machine import SylMachine #---> for testing locally
 
 try:
     from rodan.jobs.MEI_encoding import __version__
@@ -178,7 +182,7 @@ def generate_base_document(column_split_info: Optional[dict]):
 
     mei = new_el("mei")
     mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
-    mei.set("meiversion", "5.0.0-dev")
+    mei.set("meiversion", "5.0.0")
 
     meiHead = new_el("meiHead", mei)
 
@@ -569,6 +573,7 @@ def build_mei(
     staves: List[dict],
     page: dict,
     column_split_info: Optional[dict],
+    verbose: bool = False,
 ):
     """
     Encodes the final MEI document using:
@@ -643,6 +648,9 @@ def build_mei(
 
     # add to the MEI document, syllable by syllable
     for glyphs, syl_box in pairs:
+        if verbose:
+            print("processing syl: ", syl_box["syl"], [g["name"] for g in glyphs])
+
         bb = {
             "ulx": syl_box["ul"][0],
             "uly": syl_box["ul"][1],
@@ -667,25 +675,33 @@ def build_mei(
 
         # iterate over glyphs belonging to this syllable up to and including the final neume
         for i, glyph in enumerate(glyphs):
-            # if this glyph is a custos, make it the same pitch as next neume
-            if glyph["name"] == "custos":
+            # if this glyph is a custos and we've already added one to this syllable, disregard it
+            prev_custos = "custos" in [x.tag for x in machine.layer]
+            if glyph["name"] == "custos" and prev_custos:
+                continue
+            elif glyph["name"] == "custos":
+                # else, if this glyph is a custos, make it the same pitch as next neume
                 note, octave = get_custos_pitch_heuristic(all_glyphs, glyph)
                 glyph["note"] = note
                 glyph["octave"] = octave
 
-            # new_element is of type ET.Element. <neueme>, <divLine>, <clef>, <accid>, <custos>, etc.
+            # new_element is of type ET.Element. <neume>, <divLine>, <clef>, <accid>, <custos>, etc.
             new_element = glyph_to_element(classifier, width_container, glyph, surface)
-            # TODO
-            # Investigate why new_element can be None
+
+            # new_element can be None iff the name is not found in the classifier
             if new_element is None:
                 continue
-            # tag is "neume", "divLine", "clef", "accid", "custos", etc.
+
+            # tag is one of "neume", "divLine", "clef", "accid", "custos", etc.
             tag = new_element.tag
 
             # the state machine is responsible for abstracting the confusing logic of when to add
             # an element inside vs outside the syllable. An optimization we make is that we find where the last
             # neume is, and consider that the true end of the syllable, and every glyph associated with this syllable
             # that comes after that are added outside the syllable.
+            if verbose:
+                print(f"machine_state: {machine.prev_state} glyph: {tag}")
+
             if i <= last_neume_index:
                 machine.read(tag, new_element)
             else:
@@ -832,7 +848,7 @@ def process(
     width_mult: float,
     width_container: dict,
     column_split_info: dict,
-    verbose: bool = True,
+    verbose: bool = False,
 ):
     """
     Runs the entire MEI encoding process given the three inputs to the rodan job and the
@@ -851,8 +867,15 @@ def process(
         )
         column_split_info["staff_to_column"] = staff_to_column
         precompute_multi_column(glyphs, column_split_info, staves)
+
     meiDoc = build_mei(
-        pairs, classifier, width_container, staves, jsomr["page"], column_split_info
+        pairs,
+        classifier,
+        width_container,
+        staves,
+        jsomr["page"],
+        column_split_info,
+        verbose,
     )
 
     if width_mult > 0:
