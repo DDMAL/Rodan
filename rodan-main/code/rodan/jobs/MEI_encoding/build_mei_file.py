@@ -17,6 +17,7 @@ from rodan.jobs.MEI_encoding import parse_classifier_table as pct  # for rodan
 # import parse_classifier_table as pct #---> for testing locally
 from itertools import groupby
 from rodan.jobs.MEI_encoding.state_machine import SylMachine
+
 # from state_machine import SylMachine #---> for testing locally
 
 try:
@@ -211,7 +212,7 @@ def generate_base_document(column_split_info: Optional[dict]):
     staffDef.set("n", "1")
     staffDef.set("lines", "4")
     staffDef.set("notationtype", "neume")
-    staffDef.set("clef.line", "3")
+    staffDef.set("clef.line", "4")
     staffDef.set("clef.shape", "C")
 
     section = new_el("section", score)
