@@ -5,6 +5,10 @@
   "rodan.jobs.labeler" : [ "Labeler" ] }
 
 "RODAN_PYTHON3_JOBS": {
+  #new job being added in
+    "rodan.jobs.aquitanian_staff_detection":{
+      "rodan.jobs.aquitanian_staff_detection.aquitanian_staff_detection": ["AquitanianStaffDetection"]
+    },
     "rodan.jobs.helloworld": {
         "rodan.jobs.helloworld.helloworld" :  ["HelloWorld"],
         "rodan.jobs.helloworld.helloworld" : ["HelloWorldMultiPort"], 
