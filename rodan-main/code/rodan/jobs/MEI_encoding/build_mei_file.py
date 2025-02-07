@@ -98,7 +98,6 @@ def neume_to_lyric_alignment(
     are, strictly speaking, not part of the MEI for the syllable; that is handled in the method that
     actually encodes the MEI.
     """
-    dummy_syl = {"syl": "", "ul": [0, 0], "lr": [0, 0]}
 
     # if there's no syl information then make fake syllables for testing. this method makes one
     # large syllable covering an entire staff line.
@@ -108,12 +107,10 @@ def neume_to_lyric_alignment(
         grouped_glyphs = [
             list(g) for k, g in groupby(glyphs, key=lambda x: int(x["staff"]))
         ]
+        dummy_syl = {"syl": "", "ul": [0, 0], "lr": [0, 0]}
 
         pairs = [(g, dummy_syl) for g in grouped_glyphs]
         return pairs
-
-    glyphs_pos = 0
-    num_glyphs = len(glyphs)
 
     pairs = []
     starts = []
@@ -149,10 +146,9 @@ def neume_to_lyric_alignment(
         starts.append(glyphs.index(nearest_glyph))
         last_used = max(starts)
 
-    # if there are unassigned "orphan" glyphs at the beginning of the page, assign them all to a
-    # dummy syl_box so they can be detected later
-    if not starts[0] == 0:
-        pairs.append((glyphs[: starts[0]], dummy_syl))
+    # if there are unassigned "orphan" glyphs at the beginning of the page,
+    # force them to be assigned to the first syllable
+    starts[0] = 0
 
     starts.append(len(glyphs))
     for i in range(len(starts) - 1):
