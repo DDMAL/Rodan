@@ -271,6 +271,9 @@ def glyph_to_element(
     Currently the assumption is that no MEI information in the given classifier is more than one
     level deep - that is, everything is either a single element (clef, custos) or the child of a
     single element (neumes). THIS IS NOT TRUE FOR ALL NEUMATIC NOTATION TYPES!
+
+    UPDATE 2025.02: the given classifier can have 2 levels of depth, to handle cases like liquescent.
+    TODO: consider to convert to recursive function to handle arbitrary depth.
     """
     name = str(glyph["name"])
     try:
@@ -316,6 +319,10 @@ def glyph_to_element(
     for i in range(len(ncs)):
         try:
             el = create_primitive_element(ncs[i], glyph, i, surface)
+            if list(ncs[i]):
+                for child in ncs[i]:
+                    child_el = new_el(child.tag)
+                    el.append(child_el)
         except IndexError:
             print(
                 "Width column indicates {} neume components but gets {} neume components from input for classifier {}".format(
