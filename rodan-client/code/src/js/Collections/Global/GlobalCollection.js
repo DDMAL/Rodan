@@ -50,7 +50,6 @@ export default class GlobalCollection extends BaseCollection
     _retrieveCollection(options)
     {
         options = options ? options : {};
-        this.reset();
         var data = options.hasOwnProperty('data') ? options.data : {};
         if (!this._allowPagination)
         {
@@ -59,6 +58,6 @@ export default class GlobalCollection extends BaseCollection
         options.data = data;
         /** @ignore */
         this.url = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__SERVER_GET_ROUTE, this._route);
-        this.fetch(options);
+        this.fetch({ ...options, reset: true });
     }
 }
