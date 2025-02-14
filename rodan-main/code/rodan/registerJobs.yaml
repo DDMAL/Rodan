@@ -7,7 +7,8 @@
 "RODAN_PYTHON3_JOBS": {
   #new job being added in
     "rodan.jobs.aquitanian_staff_detection":{
-      "rodan.jobs.aquitanian_staff_detection.aquitanian_staff_detection": ["AquitanianStaffDetection"]
+      "rodan.jobs.aquitanian_staff_detection.aquitanian_staff_detection": ["StrikethroughStaffDetection"],
+      "rodan.jobs.aquitanian_staff_detection.aquitanian_staff_detection": ["UnderlineStaffDetection"]
     },
     "rodan.jobs.helloworld": {
         "rodan.jobs.helloworld.helloworld" :  ["HelloWorld"],
