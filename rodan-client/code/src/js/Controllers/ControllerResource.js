@@ -14,20 +14,18 @@ import ViewProject from '../Views/Master/Main/Project/Individual/ViewProject';
 /**
  * Controller for Resources.
  */
-export default class ControllerResource extends BaseController
-{
+export default class ControllerResource extends BaseController {
     initialize() {
-      this._selectedResources = new Set();
-      this._baseSelectResource = null;
+        this._selectedResources = new Set();
+        this._baseSelectResource = null;
     }
-///////////////////////////////////////////////////////////////////////////////////////
-// PRIVATE METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Initialize Radio.
      */
-    _initializeRadio()
-    {
+    _initializeRadio() {
         // Events
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__RESOURCE_SELECTED_COLLECTION, options => this._handleEventCollectionSelected(options));
         Radio.channel('rodan').on(RODAN_EVENTS.EVENT__RESOURCE_SELECTED, options => this._handleEventItemSelected(options));
@@ -50,35 +48,32 @@ export default class ControllerResource extends BaseController
     /**
      * Handle show LayoutView.
      */
-    _handleCommandShowLayoutView(options)
-    {
+    _handleCommandShowLayoutView(options) {
         this._projectView = options.projectView;
     }
 
     /**
      * Handle collection selection.
      */
-    _handleEventCollectionSelected(options)
-    {
+    _handleEventCollectionSelected(options) {
         this._collection = new ResourceCollection();
-        this._collection.fetch({data: {project: options.project.id}});
+        this._collection.fetch({ data: { project: options.project.id } });
 
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, {collections: [this._collection]});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, { collections: [this._collection] });
 
         const activeProject = Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_GET_ACTIVE);
-        this._projectView = new ViewProject({model: activeProject});
+        this._projectView = new ViewProject({ model: activeProject });
 
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {view: this._projectView});
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, { view: this._projectView });
 
-        this._viewCollection = new ViewResourceCollection({collection: this._collection});
+        this._viewCollection = new ViewResourceCollection({ collection: this._collection });
         this._projectView.showCollection(this._viewCollection);
     }
 
     /**
      * Handle item selection.
      */
-    _handleEventItemSelected(options)
-    {
+    _handleEventItemSelected(options) {
         if (!options.multiple && !options.range) {
             this._selectedResources.clear();
             this._baseSelectResource = null;
@@ -87,70 +82,61 @@ export default class ControllerResource extends BaseController
         if (options.multiple && this._selectedResources.has(options.resource)) {
             this._selectedResources.delete(options.resource);
             this._baseSelectResource = null;
-        }
-        else if (options.range && this._baseSelectResource !== null) {
+        } else if (options.range && this._baseSelectResource !== null) {
             let indexBase = this._collection.indexOf(this._baseSelectResource);
             let indexRes = this._collection.indexOf(options.resource);
             this._selectedResources.clear();
             for (let n = Math.min(indexBase, indexRes); n <= Math.max(indexBase, indexRes); n++) {
                 this._selectedResources.add(this._collection.at(n));
             }
-        }
-        else {
+        } else {
             this._selectedResources.add(options.resource);
             this._baseSelectResource = options.resource;
         }
 
         if (this._selectedResources.size === 0) {
             this._projectView.clearCollectionItemInfoView();
-        }
-        else if (this._selectedResources.size === 1) {
-          this._projectView.showCollectionItemInfo(new ViewResource({model: this._selectedResources.values().next().value}));
-        }
-        else {
-          this._projectView.showCollectionItemInfo(new ViewResourceMulti({models: this._selectedResources}));
+        } else if (this._selectedResources.size === 1) {
+            this._projectView.showCollectionItemInfo(new ViewResource({ model: this._selectedResources.values().next().value }));
+        } else {
+            this._projectView.showCollectionItemInfo(new ViewResourceMulti({ models: this._selectedResources }));
         }
     }
 
     /**
      * Handle command add Resource.
      */
-    _handleRequestResourceCreate(options)
-    {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Creating Resource', content: 'Please wait...'});
+    _handleRequestResourceCreate(options) {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Creating Resource', content: 'Please wait...' });
         var resource = null;
         let opts = {
-          project: options.project.get('url'),
-          file: options.file,
+            project: options.project.get('url'),
+            file: options.file
         };
-        if (options.resourcetype)
-        {
+        if (options.resourcetype) {
             opts['resource_type'] = options.resourcetype;
         }
-        if (options.label_names !== undefined)
-        {
+        if (options.label_names !== undefined) {
             opts['label_names'] = options.label_names;
         }
         resource = new Resource(opts);
-        var jqXHR = resource.save({}, {success: (model) => this._handleCreateSuccess(model, this._collection)});
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__TRANSFERMANAGER_MONITOR_UPLOAD, {request: jqXHR, file: options.file});
+        var jqXHR = resource.save({}, { success: model => this._handleCreateSuccess(model, this._collection) });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__TRANSFERMANAGER_MONITOR_UPLOAD, { request: jqXHR, file: options.file });
     }
 
     /**
      * Handle command delete Resource.
      */
-    _handleCommandResourceDelete(options)
-    {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Deleting Resource', content: 'Please wait...'});
+    _handleCommandResourceDelete(options) {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Deleting Resource', content: 'Please wait...' });
         this._projectView.clearCollectionItemInfoView();
-        options.resource.destroy({success: (model) => this._handleDeleteSuccess(model, this._collection)});
+        options.resource.destroy({ success: model => this._handleDeleteSuccess(model, this._collection) });
     }
 
     /**
      * Handle command download Resource.
      */
-    _handleRequestResourceDownload(options)
-    {
+    _handleRequestResourceDownload(options) {
         var mimetype = options.resource.get('resource_type_full').mimetype;
         var ext = options.resource.get('resource_type_full').extension;
         var filename = options.resource.get('name') + '.' + ext;
@@ -166,14 +152,12 @@ export default class ControllerResource extends BaseController
     /**
      * Handle command save Resource.
      */
-    _handleCommandResourceSave(options)
-    {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {title: 'Saving Resource', content: 'Please wait...'});
-        options.resource.save(options.fields, {patch: true, success: (model) => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SAVED, {resource: model})});
+    _handleCommandResourceSave(options) {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Saving Resource', content: 'Please wait...' });
+        options.resource.save(options.fields, { patch: true, success: model => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SAVED, { resource: model }) });
     }
 
-    _handleCurrentResources(options)
-    {
+    _handleCurrentResources(options) {
         try {
             if (this._collection_no_page['_lastData']['project'] === options.data.project) {
                 return this._collection_no_page;
@@ -189,8 +173,7 @@ export default class ControllerResource extends BaseController
     /**
      * Handle request Resources.
      */
-    _handleRequestResources(options)
-    {
+    _handleRequestResources(options) {
         this._collection = new ResourceCollection();
         this._collection.fetch(options);
         return this._collection;
@@ -199,8 +182,7 @@ export default class ControllerResource extends BaseController
     /**
      * Handle request Resources.
      */
-    _handleRequestResourcesNoPagination(options)
-    {
+    _handleRequestResourcesNoPagination(options) {
         options.data.no_page = true;
         options.async = false;
         this._collection_no_page = new ResourceCollection();
@@ -211,13 +193,12 @@ export default class ControllerResource extends BaseController
     /**
      * Handle request for Resource viewer.
      */
-    _handleRequestViewer(options)
-    {
+    _handleRequestViewer(options) {
         var ajaxOptions = {
             url: options.resource.get('url') + 'acquire/',
             type: 'POST',
             dataType: 'json',
-            success: (response) => this._handleSuccessAcquire(response)
+            success: response => this._handleSuccessAcquire(response)
         };
         $.ajax(ajaxOptions);
     }
@@ -225,34 +206,30 @@ export default class ControllerResource extends BaseController
     /**
      * Handle acquire success.
      */
-    _handleSuccessAcquire(response)
-    {
+    _handleSuccessAcquire(response) {
         window.open(response.working_url, '', '_blank');
     }
 
     /**
      * Handle create success.
      */
-    _handleCreateSuccess(resource, collection)
-    {
+    _handleCreateSuccess(resource, collection) {
         collection.add(resource);
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_CREATED, {resource: resource});
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_CREATED, { resource: resource });
     }
 
     /**
      * Handle delete success.
      */
-    _handleDeleteSuccess(model, collection)
-    {        
+    _handleDeleteSuccess(model, collection) {
         collection.remove(model);
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_DELETED, {resource: model});
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_DELETED, { resource: model });
     }
 
     /**
      * Handle generic success.
      */
-    _handleSuccessGeneric(options)
-    {
+    _handleSuccessGeneric(options) {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_HIDE);
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__GLOBAL_RESOURCELABELS_LOAD, {});
     }

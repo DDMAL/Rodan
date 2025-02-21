@@ -21,27 +21,24 @@ let _instance = null;
 /**
  * Backbone.Radio events use in the client. Do not instantiate this class.
  */
-class RODAN_EVENTS
-{
+class RODAN_EVENTS {
     /** @ignore */
-    constructor()
-    {
-        if (_instance)
-        {
+    constructor() {
+        if (_instance) {
             throw new Error('this class cannot be instantiated more than once');
         }
         _instance = this;
 
         /** @ignore */
-        this.REQUEST__RESOURCE_SHOWLAYOUTVIEW = 'REQUEST__RESOURCE_SHOWLAYOUTVIEW';  // Show LayoutView for Resource control (outside of the primary Resources view). This tells the ControllerResource which LayoutView to reference upon events. Takes {layoutView: LayoutView}.
+        this.REQUEST__RESOURCE_SHOWLAYOUTVIEW = 'REQUEST__RESOURCE_SHOWLAYOUTVIEW'; // Show LayoutView for Resource control (outside of the primary Resources view). This tells the ControllerResource which LayoutView to reference upon events. Takes {layoutView: LayoutView}.
         /** @ignore */
-        this.REQUEST__RUNJOB_SHOWLAYOUTVIEW = 'REQUEST__RUNJOB_SHOWLAYOUTVIEW';      // Show LayoutView for RunJob control (outside of the primary RunJobs view). This tells the ControllerRunJob which LayoutView to reference upon events. Takes {layoutView: LayoutView}.
+        this.REQUEST__RUNJOB_SHOWLAYOUTVIEW = 'REQUEST__RUNJOB_SHOWLAYOUTVIEW'; // Show LayoutView for RunJob control (outside of the primary RunJobs view). This tells the ControllerRunJob which LayoutView to reference upon events. Takes {layoutView: LayoutView}.
         /** @ignore */
-        this.EVENT__SERVER_WENTAWAY = 'EVENT__SERVER_WENTAWAY';                      // Called on server disconnect. No pass.
+        this.EVENT__SERVER_WENTAWAY = 'EVENT__SERVER_WENTAWAY'; // Called on server disconnect. No pass.
         /** @ignore */
-        this.EVENT__SERVER_PANIC = 'EVENT__SERVER_PANIC';                            // Called when the app suspects that something went wrong.
+        this.EVENT__SERVER_PANIC = 'EVENT__SERVER_PANIC'; // Called when the app suspects that something went wrong.
         /** @ignore */
-        this.REQUEST__SYSTEM_HANDLE_ERROR = 'REQUEST__SYSTEM_HANDLE_ERROR';          // Sends error to error handler. Takes {model: BaseModel, response: HTTP response, option: associated options}.
+        this.REQUEST__SYSTEM_HANDLE_ERROR = 'REQUEST__SYSTEM_HANDLE_ERROR'; // Sends error to error handler. Takes {model: BaseModel, response: HTTP response, option: associated options}.
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Authentication
@@ -89,9 +86,9 @@ class RODAN_EVENTS
         // General
         ///////////////////////////////////////////////////////////////////////////////////////
         /** Request "API" information to be show. */
-        this.REQUEST__SHOW_API = 'REQUEST__SHOW_API',
-        /** Request last 100 Radio events. Returns [{name (string), event (string), options (object)}]. */
-        this.REQUEST__LOG = 'REQUEST__LOG';
+        (this.REQUEST__SHOW_API = 'REQUEST__SHOW_API'),
+            /** Request last 100 Radio events. Returns [{name (string), event (string), options (object)}]. */
+            (this.REQUEST__LOG = 'REQUEST__LOG');
         /** Request "About" information be shown. */
         this.REQUEST__SHOW_ABOUT = 'REQUEST__SHOW_ABOUT';
         /** Request "Help" page be shown. */
@@ -100,13 +97,13 @@ class RODAN_EVENTS
         this.REQUEST__SHOW_NAVIGATION_PAGINATION = 'REQUEST__SHOW_NAVIGATION_PAGINATION';
         /** Request update navigation pagination */
         this.REQUEST__UPDATE_NAVIGATION_PAGINATION = 'REQUEST__UPDATE_NAVIGATION_PAGINATION';
-        /** Request pagination from navigation bar for first */ 
+        /** Request pagination from navigation bar for first */
         this.REQUEST__NAVIGATION_PAGINATION_FIRST = 'REQUEST__NAVIGATION_PAGINATION_FIRST';
-        /** Request pagination from navigation bar for previous */ 
+        /** Request pagination from navigation bar for previous */
         this.REQUEST__NAVIGATION_PAGINATION_PREVIOUS = 'REQUEST__NAVIGATION_PAGINATION_PREVIOUS';
-        /** Request pagination from navigation bar for next */ 
+        /** Request pagination from navigation bar for next */
         this.REQUEST__NAVIGATION_PAGINATION_NEXT = 'REQUEST__NAVIGATION_PAGINATION_NEXT';
-        /** Request pagination from navigation bar for last */ 
+        /** Request pagination from navigation bar for last */
         this.REQUEST__NAVIGATION_PAGINATION_LAST = 'REQUEST__NAVIGATION_PAGINATION_LAST';
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -181,19 +178,19 @@ class RODAN_EVENTS
         // Project
         ///////////////////////////////////////////////////////////////////////////////////////
         /** Triggered when User has been added as Project admin. Sends {project: Project}. */
-        this.EVENT__PROJECT_ADDED_USER_ADMIN = 'EVENT__PROJECT_ADDED_USER_ADMIN',
-        /** Triggered when User has been added as Project worker. Sends {project: Project}. */
-        this.EVENT__PROJECT_ADDED_USER_WORKER = 'EVENT__PROJECT_ADDED_USER_WORKER',
-        /** Triggered when Project has been created. Sends {project: Project}. */
-        this.EVENT__PROJECT_CREATED = 'EVENT__PROJECT_CREATED';
+        (this.EVENT__PROJECT_ADDED_USER_ADMIN = 'EVENT__PROJECT_ADDED_USER_ADMIN'),
+            /** Triggered when User has been added as Project worker. Sends {project: Project}. */
+            (this.EVENT__PROJECT_ADDED_USER_WORKER = 'EVENT__PROJECT_ADDED_USER_WORKER'),
+            /** Triggered when Project has been created. Sends {project: Project}. */
+            (this.EVENT__PROJECT_CREATED = 'EVENT__PROJECT_CREATED');
         /** Triggered when Project has been deleted. Sends {project: Project}. */
         this.EVENT__PROJECT_DELETED = 'EVENT__PROJECT_DELETED';
         /** Triggered when User has been removed as Project admin. Sends {project: Project}. */
-        this.EVENT__PROJECT_REMOVED_USER_ADMIN = 'EVENT__PROJECT_REMOVED_USER_ADMIN',
-        /** Triggered when User has been removed as Project worker. Sends {project: Project}. */
-        this.EVENT__PROJECT_REMOVED_USER_WORKER = 'EVENT__PROJECT_REMOVED_USER_WORKER',
-        /** Triggered when Project has been saved. Sends {project: Project}. */
-        this.EVENT__PROJECT_SAVED = 'EVENT__PROJECT_SAVED';
+        (this.EVENT__PROJECT_REMOVED_USER_ADMIN = 'EVENT__PROJECT_REMOVED_USER_ADMIN'),
+            /** Triggered when User has been removed as Project worker. Sends {project: Project}. */
+            (this.EVENT__PROJECT_REMOVED_USER_WORKER = 'EVENT__PROJECT_REMOVED_USER_WORKER'),
+            /** Triggered when Project has been saved. Sends {project: Project}. */
+            (this.EVENT__PROJECT_SAVED = 'EVENT__PROJECT_SAVED');
         /** Triggered when the user selects an individual Project. Sends {project: Project}. */
         this.EVENT__PROJECT_SELECTED = 'EVENT__PROJECT_SELECTED';
         /** Triggered when the user selects to see all available Projects. */
@@ -201,21 +198,21 @@ class RODAN_EVENTS
         /** Triggered when Project admin interface has been selected. Takes {project: Project}. */
         this.EVENT__PROJECT_USERS_SELECTED = 'EVENT__PROJECT_USERS_SELECTED';
         /** Request a User be added as Project admin. Takes {project: Project, username: string} */
-        this.REQUEST__PROJECT_ADD_USER_ADMIN = 'REQUEST__PROJECT_ADD_USER_ADMIN',
-        /** Request a User be added as Project worker. Takes {project: Project, username: string} */
-        this.REQUEST__PROJECT_ADD_USER_WORKER = 'REQUEST__PROJECT_ADD_USER_WORKER',
-        /** Request a Project be created. Takes {creator: User}. */
-        this.REQUEST__PROJECT_CREATE = 'REQUEST__PROJECT_CREATE';
+        (this.REQUEST__PROJECT_ADD_USER_ADMIN = 'REQUEST__PROJECT_ADD_USER_ADMIN'),
+            /** Request a User be added as Project worker. Takes {project: Project, username: string} */
+            (this.REQUEST__PROJECT_ADD_USER_WORKER = 'REQUEST__PROJECT_ADD_USER_WORKER'),
+            /** Request a Project be created. Takes {creator: User}. */
+            (this.REQUEST__PROJECT_CREATE = 'REQUEST__PROJECT_CREATE');
         /** Request a Project be deleted. Takes {project: Project}. */
         this.REQUEST__PROJECT_DELETE = 'REQUEST__PROJECT_DELETE';
         /** Request currently active/open Project. Returns Project (or null). */
         this.REQUEST__PROJECT_GET_ACTIVE = 'REQUEST__PROJECT_GET_ACTIVE';
         /** Request a User be removed as Project admin. Takes {project: Project, user: User} */
-        this.REQUEST__PROJECT_REMOVE_USER_ADMIN = 'REQUEST__PROJECT_REMOVE_USER_ADMIN',
-        /** Request a User be removed as Project worker. Takes {project: Project, user: User} */
-        this.REQUEST__PROJECT_REMOVE_USER_WORKER = 'REQUEST__PROJECT_REMOVE_USER_WORKER',
-        /** Request a Project be saved/updated. Takes {project: Project, fields: {object with attributes to change}}. */
-        this.REQUEST__PROJECT_SAVE = 'REQUEST__PROJECT_SAVE';
+        (this.REQUEST__PROJECT_REMOVE_USER_ADMIN = 'REQUEST__PROJECT_REMOVE_USER_ADMIN'),
+            /** Request a User be removed as Project worker. Takes {project: Project, user: User} */
+            (this.REQUEST__PROJECT_REMOVE_USER_WORKER = 'REQUEST__PROJECT_REMOVE_USER_WORKER'),
+            /** Request a Project be saved/updated. Takes {project: Project, fields: {object with attributes to change}}. */
+            (this.REQUEST__PROJECT_SAVE = 'REQUEST__PROJECT_SAVE');
         /** Request a Project be set as active Project. Takes {project: Project}. */
         this.REQUEST__PROJECT_SET_ACTIVE = 'REQUEST__PROJECT_SET_ACTIVE';
 
@@ -559,37 +556,32 @@ class RODAN_EVENTS
         // version it requires.
         ///////////////////////////////////////////////////////////////////////////////////////
         /** @ignore **/
-        this.VERSION__COMPATIBILITY =
-        {
-            'EVENT__PROJECT_USERS_SELECTED': '1.1.5'
+        this.VERSION__COMPATIBILITY = {
+            EVENT__PROJECT_USERS_SELECTED: '1.1.5'
         };
     }
 
     /** @ignore **/
-    enforceVersionCompatibility()
-    {
+    enforceVersionCompatibility() {
         var serverVersionString = Radio.channel('rodan').request(this.REQUEST__SERVER_GET_VERSION);
         var serverVersion = serverVersionString.split('.').map(Number);
-        for (var event in this.VERSION__COMPATIBILITY)
-        {
-            if (this[event])
-            {
+        for (var event in this.VERSION__COMPATIBILITY) {
+            if (this[event]) {
                 var requiredVersionString = this.VERSION__COMPATIBILITY[event];
                 var requiredVersion = requiredVersionString.split('.').map(Number);
                 if (
                     // 1) Rodan Major version is smaller
-                    requiredVersion[0] > serverVersion[0]
-                    // 2) Rodan Minor version is smaller, and Major 
-                    || (requiredVersion[1] > serverVersion[1] && requiredVersion[0] > serverVersion[0])
+                    requiredVersion[0] > serverVersion[0] ||
+                    // 2) Rodan Minor version is smaller, and Major
+                    (requiredVersion[1] > serverVersion[1] && requiredVersion[0] > serverVersion[0]) ||
                     // 3) Rodan Patch version is smaller, and minor, and Major
-                    || (requiredVersion[2] > serverVersion[2] && requiredVersion[1] > serverVersion[1] && requiredVersion[0] > serverVersion[0])
-                    )
-                {
+                    (requiredVersion[2] > serverVersion[2] && requiredVersion[1] > serverVersion[1] && requiredVersion[0] > serverVersion[0])
+                ) {
                     var requiresEvent = 'EVENT__REQUIRES_RODAN_VERSION_' + serverVersionString;
                     this[event] = requiresEvent;
                     var messageString = 'This feature requires Rodan Server v' + requiredVersionString + '. The Rodan Server is currently v' + serverVersionString + '.';
                     messageString += ' (' + event + ')';
-                    var modalOptions = {content: messageString};
+                    var modalOptions = { content: messageString };
                     Radio.channel('rodan').on(requiresEvent, () => Radio.channel('rodan').request(this.REQUEST__MODAL_ERROR, modalOptions));
                     Radio.channel('rodan').reply(requiresEvent, () => Radio.channel('rodan').request(this.REQUEST__MODAL_ERROR, modalOptions));
                 }
