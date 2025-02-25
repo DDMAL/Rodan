@@ -7,14 +7,11 @@ import Radio from 'backbone.radio';
 /**
  * Project view.
  */
-export default class ViewProject extends Marionette.View
-{
-
+export default class ViewProject extends Marionette.View {
     /**
      * Initializes the instance.
      */
-    initialize()
-    {
+    initialize() {
         this.setElement('<div id="region-main-content-wrapper" class="content-wrapper column-content"></div>');
         this.addRegions({
             regionCollection: '#region-collection-container',
@@ -28,90 +25,81 @@ export default class ViewProject extends Marionette.View
      *
      * @param {Marionette.View} view Collection view to show
      */
-    showCollection(view)
-    {
+    showCollection(view) {
         this.showChildView('regionCollection', view);
     }
 
     /**
-    * Show an item view.
-    *
-    * @param {Marionette.View} view item view to show
-    */
+     * Show an item view.
+     *
+     * @param {Marionette.View} view item view to show
+     */
     // showProjectInfo(view)
     // {
     //     this.showChildView('regionProjectInfo', view);
     // }
 
     /**
-    * Show an item view. This is for the secondary item view.
-    * 
-    * @param {Marionette.View} view item view to show
-    */
+     * Show an item view. This is for the secondary item view.
+     *
+     * @param {Marionette.View} view item view to show
+     */
     showCollectionItemInfo(view) {
         this.showChildView('regionCollectionItemInfo', view);
     }
 
     /**
-    * Clears item view.
-    */
-    clearCollectionItemInfoView()
-    {
+     * Clears item view.
+     */
+    clearCollectionItemInfoView() {
         this.getRegion('regionCollectionItemInfo').empty();
     }
-///////////////////////////////////////////////////////////////////////////////////////
-// PRIVATE METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Handle save button.
      */
-    _handleButtonSave()
-    {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_SAVE, 
-                                        {
-                                            project: this.model,
-                                            fields: {
-                                                name: _.escape(this.ui.textName.val()), 
-                                                description: _.escape(this.ui.textDescription.val())
-                                            }
-                                        }
-        );
+    _handleButtonSave() {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_SAVE, {
+            project: this.model,
+            fields: {
+                name: _.escape(this.ui.textName.val()),
+                description: _.escape(this.ui.textDescription.val())
+            }
+        });
     }
 
     /**
      * Handle delete button.
      */
-    _handleButtonDelete()
-    {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_DELETE, {project: this.model});
+    _handleButtonDelete() {
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__PROJECT_DELETE_CONFIRM, { project: this.model });
     }
- 
+
     /**
-    * Handle RunJob button.
-    */
-    _handleButtonRunJobs()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RUNJOB_SELECTED_COLLECTION, {project: this.model});
+     * Handle RunJob button.
+     */
+    _handleButtonRunJobs() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RUNJOB_SELECTED_COLLECTION, { project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#button-runjobs').addClass('active');
     }
 
     /**
-    * Handle click resource count.
-    */
-    _handleClickResourceCount()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SELECTED_COLLECTION, {project: this.model});
+     * Handle click resource count.
+     */
+    _handleClickResourceCount() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SELECTED_COLLECTION, { project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#resource_count').addClass('active');
     }
 
     /**
-    * Handle click workflow count.
-    */
-    _handleClickWorkflowCount()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOW_SELECTED_COLLECTION, {view: this, project: this.model});
+     * Handle click workflow count.
+     */
+    _handleClickWorkflowCount() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOW_SELECTED_COLLECTION, { view: this, project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#workflow_count').addClass('active');
     }
@@ -119,29 +107,26 @@ export default class ViewProject extends Marionette.View
     /**
      * Handle button WorkflowRuns.
      */
-    _handleButtonWorkflowRuns()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, {project: this.model});
+    _handleButtonWorkflowRuns() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, { project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#button-workflow_runs').addClass('active');
     }
 
     /**
-    * Handle click button ResourceLists.
-    */
-    _handleButtonResourceLists()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCELIST_SELECTED_COLLECTION, {project: this.model});
+     * Handle click button ResourceLists.
+     */
+    _handleButtonResourceLists() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCELIST_SELECTED_COLLECTION, { project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#resource_count').addClass('active');
     }
 
     /**
-    * Handle button Project users.
-    */
-    _handleButtonProjectUsers()
-    {
-        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_USERS_SELECTED, {project: this.model});
+     * Handle button Project users.
+     */
+    _handleButtonProjectUsers() {
+        Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_USERS_SELECTED, { project: this.model });
         $('.project-nav-bar-btn').removeClass('active');
         $('#button-project_users').addClass('active');
     }

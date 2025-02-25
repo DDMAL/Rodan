@@ -80,7 +80,7 @@ export default class ViewResource extends Marionette.CollectionView {
      * Handle button delete.
      */
     _handleClickButtonDelete() {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_DELETE, { resource: this.model });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_DELETE_CONFIRM, { resource: this.model });
     }
 
     /**

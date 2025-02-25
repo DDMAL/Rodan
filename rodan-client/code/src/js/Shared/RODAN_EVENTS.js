@@ -205,6 +205,8 @@ class RODAN_EVENTS {
             (this.REQUEST__PROJECT_CREATE = 'REQUEST__PROJECT_CREATE');
         /** Request a Project be deleted. Takes {project: Project}. */
         this.REQUEST__PROJECT_DELETE = 'REQUEST__PROJECT_DELETE';
+        /** Request a Project delete confirm modal window. Takes {project: Project}. */
+        this.REQUEST__PROJECT_DELETE_CONFIRM = 'REQUEST__PROJECT_DELETE_CONFIRM';
         /** Request currently active/open Project. Returns Project (or null). */
         this.REQUEST__PROJECT_GET_ACTIVE = 'REQUEST__PROJECT_GET_ACTIVE';
         /** Request a User be removed as Project admin. Takes {project: Project, user: User} */
@@ -233,6 +235,8 @@ class RODAN_EVENTS {
         this.REQUEST__RESOURCE_CREATE = 'REQUEST__RESOURCE_CREATE';
         /** Request a Resource be deleted. Takes {resource: Resource}. */
         this.REQUEST__RESOURCE_DELETE = 'REQUEST__RESOURCE_DELETE';
+        /** Request a Resource delete confirm modal window. Takes {resource: Resource}. */
+        this.REQUEST__RESOURCE_DELETE_CONFIRM = 'REQUEST__RESOURCE_DELETE_CONFIRM';
         /** Request a Resource be downloaded. Takes {resource: Resource}. */
         this.REQUEST__RESOURCE_DOWNLOAD = 'REQUEST__RESOURCE_DOWNLOAD';
         /** Request a Resource be saved/updated. Takes {resource: Resource, fields: {object with attributes to change}}. */

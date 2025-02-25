@@ -95,9 +95,7 @@ export default class ViewResourceMulti extends Marionette.CollectionView {
      * Handle button delete.
      */
     _handleClickButtonDelete() {
-        for (var model of this._models) {
-            Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_DELETE, { resource: model });
-        }
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_DELETE_CONFIRM, { resource: this._models });
     }
 
     _handleClickButtonDownload() {

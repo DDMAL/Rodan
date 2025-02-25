@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $, { type } from 'jquery';
 import _ from 'underscore';
 import BaseController from './BaseController';
 import BaseViewCollection from 'js/Views/Master/Main/BaseViewCollection';
@@ -8,6 +8,7 @@ import Project from 'js/Models/Project';
 import Radio from 'backbone.radio';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import UserCollection from 'js/Collections/UserCollection';
+import ViewDeleteConfirm from '../Views/Master/Main/Shared/ViewDeleteConfirm';
 import ViewProject from 'js/Views/Master/Main/Project/Individual/ViewProject';
 import ViewProjectCollection from 'js/Views/Master/Main/Project/Collection/ViewProjectCollection';
 import ViewUserCollectionItem from 'js/Views/Master/Main/User/Collection/ViewUserCollectionItem';
@@ -55,6 +56,7 @@ export default class ControllerProject extends BaseController {
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_SET_ACTIVE, options => this._handleRequestSetActiveProject(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_SAVE, options => this._handleRequestProjectSave(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_DELETE, options => this._handleRequestProjectDelete(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_DELETE_CONFIRM, options => this._handleRequestProjectDeleteConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_REMOVE_USER_ADMIN, options => this._handleRequestRemoveUserAdmin(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__PROJECT_REMOVE_USER_WORKER, options => this._handleRequestRemoveUserWorker(options));
     }
@@ -201,19 +203,33 @@ export default class ControllerProject extends BaseController {
     }
 
     /**
-     * Handle request Project delete.
+     * Handle request Project delete confirm modal window.
      */
     _handleRequestProjectDelete(options) {
+        this._activeProject = null;
+
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, {
             title: 'Deleting Project',
             content: 'Please wait...'
         });
         this._activeProject = null;
         options.project.destroy({
-            success: model =>
-                Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_DELETED, {
-                    project: model
-                })
+            success: () => Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__PROJECT_DELETED, {})
+        });
+    }
+
+    /**
+     * Handle request Project delete confirm modal window.
+     */
+    _handleRequestProjectDeleteConfirm(options) {
+        var view = new ViewDeleteConfirm({
+            type: 'project',
+            names: [options.project.get('name')],
+            toDelete: options.project
+        });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {
+            content: view,
+            title: 'Deleting Project'
         });
     }
 

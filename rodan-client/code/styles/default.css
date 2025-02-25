@@ -1061,6 +1061,12 @@ div#main_workflowbuilder {
     background-color: green;
 }
 
+/* Delete confirm modal */
+#delete-confirm-modal-body-wrapper {
+    align-items: flex-start;
+    padding: 0 2em;
+}
+
 /* ------------ */
 /* Table styles */
 /* ------------ */

@@ -5,6 +5,7 @@ import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Radio from 'backbone.radio';
 import Resource from 'js/Models/Resource';
 import ResourceCollection from 'js/Collections/ResourceCollection';
+import ViewDeleteConfirm from '../Views/Master/Main/Shared/ViewDeleteConfirm';
 import ViewResource from 'js/Views/Master/Main/Resource/Individual/ViewResource';
 import ViewResourceMulti from 'js/Views/Master/Main/Resource/Individual/ViewResourceMulti';
 import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollection';
@@ -37,6 +38,7 @@ export default class ControllerResource extends BaseController {
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SHOWLAYOUTVIEW, options => this._handleCommandShowLayoutView(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_CREATE, options => this._handleRequestResourceCreate(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_DELETE, options => this._handleCommandResourceDelete(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_DELETE_CONFIRM, options => this._handleCommandResourceDeleteConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_DOWNLOAD, options => this._handleRequestResourceDownload(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_SAVE, options => this._handleCommandResourceSave(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__RESOURCE_VIEWER_ACQUIRE, options => this._handleRequestViewer(options));
@@ -130,7 +132,29 @@ export default class ControllerResource extends BaseController {
     _handleCommandResourceDelete(options) {
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW_IMPORTANT, { title: 'Deleting Resource', content: 'Please wait...' });
         this._projectView.clearCollectionItemInfoView();
-        options.resource.destroy({ success: model => this._handleDeleteSuccess(model, this._collection) });
+        if (options.resource.size) {
+            options.resource.forEach(resource => resource.destroy({ success: model => this._handleDeleteSuccess(model, this._collection) }));
+        } else {
+            options.resource.destroy({ success: model => this._handleDeleteSuccess(model, this._collection) });
+        }
+    }
+
+    /**
+     * Handle command delete Resource confirm modal window.
+     */
+    _handleCommandResourceDeleteConfirm(options) {
+        console.log(options.resource.size);
+        let names = options.resource.size ? [...options.resource].map(resource => resource.get('name')) : options.resource.get('name');
+        console.log(names);
+        var view = new ViewDeleteConfirm({
+            type: 'resource',
+            names: names,
+            toDelete: options.resource
+        });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {
+            content: view,
+            title: 'Deleting Resource'
+        });
     }
 
     /**
