@@ -659,9 +659,8 @@ def build_mei(
             col = bbox_to_col_num(bb, column_split_info["split_ranges"], height)
             bb = translate_bbox(bb, column_split_info["split_ranges"], height, col)
 
-        zoneId = generate_zone(surface, bb)
-
-        machine = SylMachine(syl_box["syl"], zoneId)
+        # Pass both surface and layer
+        machine = SylMachine(syl_box.get("syl", ""), bb, surface, layer)
 
         # find the last neume index
         last_neume_index = 0
@@ -712,9 +711,6 @@ def build_mei(
                 sb.set("facs", "#" + zoneId)
                 sb.set("n", str(next_staff + 1))
                 machine.read(sb.tag, sb)
-
-        # add the mei from the state machine to the layer
-        layer.extend(machine.layer)
 
     return meiDoc
 
@@ -800,26 +796,6 @@ def merge_nearby_neume_components(meiDoc: ET.ElementTree, width_mult: float):
     return meiDoc
 
 
-def removeEmptySyl(meiDoc: ET.ElementTree):
-    """
-    Removes all empty syllables from the layer
-    """
-
-    layers = list((meiDoc.getroot()).iter("layer"))
-    layer = layers[0]  # only one layer so this gets the corresponding element
-
-    # this could be cleaner
-    for i in list(layer):
-        if i.tag == "syllable":
-            if len(list(i)) == 1:
-                if (list(i)[0].tag == "syl") & (
-                    (i.get("xml:precedes") is None) & (i.get("xml:follows") is None)
-                ):
-                    layer.remove(i)
-
-    return meiDoc
-
-
 def reformat_staves(staves: List[dict]):
     """
     Reformats the bounding box information from the pitch finding JSON.
@@ -861,8 +837,6 @@ def process(
 
     if width_mult > 0:
         meiDoc = merge_nearby_neume_components(meiDoc, width_mult=width_mult)
-
-    meiDoc = removeEmptySyl(meiDoc)
 
     tree = ET.ElementTree(meiDoc.getroot())
     return ET.tostring(tree.getroot(), encoding="utf8").decode("utf8")
