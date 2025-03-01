@@ -5,6 +5,10 @@
   "rodan.jobs.labeler" : [ "Labeler" ] }
 
 "RODAN_PYTHON3_JOBS": {
+  #new job
+    "rodan.jobs.one_staff_finding":{
+        "rodan.jobs.one_staff_finding.one_staff_finding": ["OneStaffFinding"]
+    },
     "rodan.jobs.helloworld": {
         "rodan.jobs.helloworld.helloworld" :  ["HelloWorld"],
         "rodan.jobs.helloworld.helloworld" : ["HelloWorldMultiPort"], 
