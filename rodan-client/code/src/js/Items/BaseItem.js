@@ -9,18 +9,15 @@ let itemMap = null;
 /**
  * Base Item in WorkflowBuilder
  */
-class BaseItem extends paper.Path
-{
-///////////////////////////////////////////////////////////////////////////////////////
-// PUBLIC STATIC METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+class BaseItem extends paper.Path {
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC STATIC METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Returns associated item given a URL.
      */
-    static getAssociatedItem(url)
-    {
-        if (!itemMap)
-        {
+    static getAssociatedItem(url) {
+        if (!itemMap) {
             itemMap = {};
         }
         return itemMap[url];
@@ -29,10 +26,8 @@ class BaseItem extends paper.Path
     /**
      * Associates given item with URL.
      */
-    static associateItemWithUrl(item, url)
-    {
-        if (!itemMap)
-        {
+    static associateItemWithUrl(item, url) {
+        if (!itemMap) {
             itemMap = {};
         }
         itemMap[url] = item;
@@ -41,14 +36,11 @@ class BaseItem extends paper.Path
     /**
      * Removes item from map with he provided URL.
      */
-    static removeItemFromMap(url)
-    {
-        if (!itemMap)
-        {
+    static removeItemFromMap(url) {
+        if (!itemMap) {
             itemMap = {};
         }
-        if (itemMap[url])
-        {
+        if (itemMap[url]) {
             delete itemMap[url];
         }
     }
@@ -56,14 +48,11 @@ class BaseItem extends paper.Path
     /**
      * Update all items.
      */
-    static updateItems()
-    {
-        if (!itemMap)
-        {
+    static updateItems() {
+        if (!itemMap) {
             itemMap = {};
         }
-        for (var url in itemMap)
-        {
+        for (var url in itemMap) {
             var item = itemMap[url];
             item.update();
         }
@@ -72,17 +61,15 @@ class BaseItem extends paper.Path
     /**
      * Clears the map.
      */
-    static clearMap()
-    {
+    static clearMap() {
         itemMap = {};
     }
 
     /**
      * Returns context menu data for multiple items of this class.
      */
-    static getContextMenuDataMultiple()
-    {
-        return [{channel: 'rodan-client_gui', label: 'Cancel', radiorequest: GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_HIDE_CONTEXTMENU}];
+    static getContextMenuDataMultiple() {
+        return [{ channel: 'rodan-client_gui', label: 'Cancel', radiorequest: GUI_EVENTS.REQUEST__WORKFLOWBUILDER_GUI_HIDE_CONTEXTMENU }];
     }
 
     /**
@@ -90,8 +77,7 @@ class BaseItem extends paper.Path
      * @param {{x: number, y: number}} appearance - The coordinates stored in the database
      * @returns {{x: number, y: number}} The paper.js project coordinates
      */
-    static appearanceToProject(appearance)
-    {
+    static appearanceToProject(appearance) {
         const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
         return { x: appearance.x * multiplier, y: appearance.y * multiplier };
     }
@@ -100,21 +86,19 @@ class BaseItem extends paper.Path
      * Converts coordinates from the paper.js project coordinates to the database coordinates.
      * @param {{x: number, y: number}} coordinates - The paper.js project coordinates
      * @returns {{x: number, y: number}} The coordinates stored in the database
-    */
-    static projectToAppearance(coordinates)
-    {
+     */
+    static projectToAppearance(coordinates) {
         const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
         return { x: coordinates.x / multiplier, y: coordinates.y / multiplier };
     }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// PUBLIC METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Constructor.
      */
-    constructor(options)
-    {
+    constructor(options) {
         super(options.segments);
         this._initializeRadio(options);
         this._initializeAppearance(options);
@@ -126,19 +110,16 @@ class BaseItem extends paper.Path
     /**
      * Returns associated model.
      */
-    getModel()
-    {
+    getModel() {
         return this._model;
     }
 
     /**
      * Returns context menu data for single item of this class.
      */
-    getContextMenuDataSingle()
-    {
+    getContextMenuDataSingle() {
         var menuItems = [];
-        if (this.menuItems)
-        {
+        if (this.menuItems) {
             menuItems = this.menuItems;
         }
         return menuItems;
@@ -147,20 +128,17 @@ class BaseItem extends paper.Path
     /**
      * Return true if this item can be moved by itself.
      */
-    isMoveable()
-    {
+    isMoveable() {
         return true;
     }
 
     /**
      * Moves the item.
      */
-    move(delta)
-    {
+    move(delta) {
         this.position.x += delta.x;
         this.position.y += delta.y;
-        if (this._text !== null)
-        {
+        if (this._text !== null) {
             this._text.position = this.bounds.center;
         }
         this._hasMoved = true;
@@ -169,11 +147,9 @@ class BaseItem extends paper.Path
     /**
      * Set position.
      */
-    setPosition(point)
-    {
+    setPosition(point) {
         this.position = point;
-        if (this._text !== null)
-        {
+        if (this._text !== null) {
             this._text.position = this.bounds.center;
         }
         this._hasMoved = true;
@@ -182,8 +158,7 @@ class BaseItem extends paper.Path
     /**
      * Set visibility.
      */
-    setVisible(visible)
-    {
+    setVisible(visible) {
         this.visible = visible;
         this._text.visible = this._useText && this.visible;
     }
@@ -191,8 +166,7 @@ class BaseItem extends paper.Path
     /**
      * Destroy.
      */
-    destroy()
-    {
+    destroy() {
         BaseItem.removeItemFromMap(this._modelURL);
         this._text.remove();
         this.remove();
@@ -201,15 +175,12 @@ class BaseItem extends paper.Path
     /**
      * Updates the position to the server.
      */
-    updatePositionToServer()
-    {
-        if (this.isMoveable() && this._hasMoved)
-        {
+    updatePositionToServer() {
+        if (this.isMoveable() && this._hasMoved) {
             // If an ID exists, we know it exists on the server, so we can patch it.
             // Else if we haven't tried saving it before, do it. This should create
             // a new model on the server.
-            if (this._modelId || !this._coordinateSetSaveAttempted)
-            {
+            if (this._modelId || !this._coordinateSetSaveAttempted) {
                 this._coordinateSetSaveAttempted = true;
                 const appearance = BaseItem.projectToAppearance(this.position);
                 this._model.set({ appearance });
@@ -222,33 +193,28 @@ class BaseItem extends paper.Path
     /**
      * Gets coordinates from server.
      */
-    loadCoordinates()
-    {
-
+    loadCoordinates() {
         this._handleCoordinateLoadSuccess(this._model);
     }
 
     /**
      * Returns associated model ID.
      */
-    getModelID()
-    {
+    getModelID() {
         return this._modelId;
     }
 
     /**
      * Returns associated model URL.
      */
-    getModelURL()
-    {
+    getModelURL() {
         return this._modelURL;
     }
 
     /**
      * Highlights this object.
      */
-    setHighlight(highlighted)
-    {
+    setHighlight(highlighted) {
         this.strokeColor = highlighted ? Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_COLOR_SELECTED : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_COLOR;
         this.strokeWidth = highlighted ? Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_WIDTH_SELECTED : Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_WIDTH;
     }
@@ -256,14 +222,10 @@ class BaseItem extends paper.Path
     /**
      * Gets description.
      */
-    getDescription()
-    {
-        if (this._description && this._description !== '')
-        {
+    getDescription() {
+        if (this._description && this._description !== '') {
             return this._description;
-        }
-        else
-        {
+        } else {
             return 'no description available';
         }
     }
@@ -271,70 +233,61 @@ class BaseItem extends paper.Path
     /**
      * Sets temporary color.
      */
-    setTemporaryColor(color)
-    {
+    setTemporaryColor(color) {
         this._temporaryColor = color;
     }
 
     /**
      * Clears temporary color.
      */
-    clearTemporaryColor()
-    {
+    clearTemporaryColor() {
         this._temporaryColor = null;
     }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// ABSTRACT METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // ABSTRACT METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Abstract method. Update.
      */
-    update()
-    {
+    update() {
         // TODO - better way to do abstract methods
         console.error('This must be defined in sub-class.');
     }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// PRIVATE METHODS - Backbone event handlers
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS - Backbone event handlers
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Handle event model sync.
      */
-    _handleEventModelSync(options)
-    {
+    _handleEventModelSync(options) {
         this._model = options.model;
-        switch (options.options.task)
-        {
-            case 'save':
-            {
+        switch (options.options.task) {
+            case 'save': {
                 this._text.content = this._model.get('name');
                 this._description = this._model.getDescription();
                 break;
             }
 
-            case 'destroy':
-            {
+            case 'destroy': {
                 this.destroy();
                 break;
             }
 
-            default:
-            {
+            default: {
                 break;
             }
         }
     }
 
-///////////////////////////////////////////////////////////////////////////////////////
-// PRIVATE METHODS
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Initialize hover.
      */
-    _initializeHover(options)
-    {
+    _initializeHover(options) {
         this._timerEvent = null;
         this._popup = new paper.PointText(new paper.Point(0, 0));
     }
@@ -342,8 +295,7 @@ class BaseItem extends paper.Path
     /**
      * Initialize appearance.
      */
-    _initializeAppearance(options)
-    {
+    _initializeAppearance(options) {
         this.strokeColor = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_COLOR;
         this.strokeJoin = 'round';
         this.strokeWidth = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_WIDTH;
@@ -354,9 +306,8 @@ class BaseItem extends paper.Path
     /**
      * Initialize model binding.
      */
-    _initializeModelBinding(options)
-    {
-        this._model = options.model ? options.model: null;
+    _initializeModelBinding(options) {
+        this._model = options.model ? options.model : null;
         this._modelId = options.model ? options.model.id : null;
         this._modelURL = options.model ? options.model.get('url') : null;
         this._description = options.model ? options.model.getDescription() : null;
@@ -369,8 +320,7 @@ class BaseItem extends paper.Path
     /**
      * Initialize event handlers.
      */
-    _initializeInputEventHandlers(options)
-    {
+    _initializeInputEventHandlers(options) {
         this.onMouseDown = event => this._handleMouseEvent(event);
         this.onMouseUp = event => this._handleMouseEvent(event);
         this.onClick = event => this._handleMouseEvent(event);
@@ -388,9 +338,8 @@ class BaseItem extends paper.Path
     /**
      * Initialize text.
      */
-    _initializeText(options)
-    {
-        this._useText = (options.hasOwnProperty('text') && options.text === true);
+    _initializeText(options) {
+        this._useText = options.hasOwnProperty('text') && options.text === true;
         this._text = new paper.PointText(new paper.Point(0, 0));
         this._text.justification = 'center';
         this._text.fillColor = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].STROKE_COLOR;
@@ -398,8 +347,7 @@ class BaseItem extends paper.Path
         this._text.content = '';
         this._text.position = this.bounds.center;
         this.addChild(this._text);
-        if (options.model)
-        {
+        if (options.model) {
             this._text.content = options.model.get('name');
         }
     }
@@ -407,12 +355,10 @@ class BaseItem extends paper.Path
     /**
      * Initialize radio.
      */
-    _initializeRadio(options)
-    {
+    _initializeRadio(options) {
         this.guiChannel = Radio.channel('rodan-client_gui');
         this.rodanChannel = Radio.channel('rodan');
-        if (options && options.model)
-        {
+        if (options && options.model) {
             this.rodanChannel.on(Rodan.RODAN_EVENTS.EVENT__MODEL_SYNC + options.model.get('url'), options => this._handleEventModelSync(options));
         }
     }
@@ -420,11 +366,9 @@ class BaseItem extends paper.Path
     /**
      * Handle coordinate load success.
      */
-    _handleCoordinateLoadSuccess(model)
-    {
-        var appearance = model.get("appearance");
-        if (appearance)
-        {
+    _handleCoordinateLoadSuccess(model) {
+        var appearance = model.get('appearance');
+        if (appearance) {
             const { x, y } = BaseItem.appearanceToProject(appearance);
             this.position = new paper.Point(x, y);
         }
@@ -433,10 +377,8 @@ class BaseItem extends paper.Path
     /**
      * Shows popup.
      */
-    _showPopup(event)
-    {
-        if ($('div#canvas-tooltip'))
-        {
+    _showPopup(event) {
+        if ($('div#canvas-tooltip')) {
             var description = this.getDescription();
             var tooltip = $('div#canvas-tooltip');
             tooltip.css('visibility', 'visible');
@@ -449,10 +391,8 @@ class BaseItem extends paper.Path
     /**
      * Hide popup.
      */
-    _hidePopup()
-    {
-        if ($('div#canvas-tooltip'))
-        {
+    _hidePopup() {
+        if ($('div#canvas-tooltip')) {
             $('div#canvas-tooltip').css('visibility', 'hidden');
         }
     }
@@ -460,55 +400,46 @@ class BaseItem extends paper.Path
     /**
      * Handle mouse event.
      */
-    _handleMouseEvent(event)
-    {
+    _handleMouseEvent(event) {
         // We do this because paperjs doesn't bubble up events.
         // This line guarantees that events caught by the TEXT actually get to the parent base item.
         event.target = this;
 
-        switch (event.type)
-        {
-            case 'mouseenter':
-            {
+        switch (event.type) {
+            case 'mouseenter': {
                 this._timerEvent = setTimeout(() => this._showPopup(event), Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].HOVER_TIME);
                 paper.handleMouseEvent(event);
                 break;
             }
 
-            case 'mouseleave':
-            {
+            case 'mouseleave': {
                 this._hidePopup();
                 clearTimeout(this._timerEvent);
                 paper.handleMouseEvent(event);
                 break;
             }
 
-            case 'mouseup':
-            {
+            case 'mouseup': {
                 this._handleMouseUp(event);
                 break;
             }
 
-            case 'mousedown':
-            {
+            case 'mousedown': {
                 this._handleMouseDown(event);
                 break;
             }
 
-            case 'click':
-            {
+            case 'click': {
                 this._handleClick(event);
                 break;
             }
 
-            case 'doubleclick':
-            {
+            case 'doubleclick': {
                 this._handleDoubleClick(event);
                 break;
             }
 
-            default:
-            {
+            default: {
                 paper.handleMouseEvent(event);
                 break;
             }
@@ -518,8 +449,7 @@ class BaseItem extends paper.Path
     /**
      * Handle mouse enter.
      */
-    _handleMouseEnter(mouseEvent)
-    {
+    _handleMouseEnter(mouseEvent) {
         this._timerEvent = setTimeout(() => this._showPopup(mouseEvent), Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].HOVER_TIME);
         paper.handleMouseEvent(mouseEvent);
     }
@@ -527,42 +457,37 @@ class BaseItem extends paper.Path
     /**
      * Handle mouse leave.
      */
-    _handleMouseLeave(mouseEvent)
-    {
+    _handleMouseLeave(mouseEvent) {
         this._hidePopup();
         clearTimeout(this._timerEvent);
-        paper.handleMouseEvent(mouseEvent); 
+        paper.handleMouseEvent(mouseEvent);
     }
 
     /**
      * Handle mouse up.
      */
-    _handleMouseUp(mouseEvent)
-    {
+    _handleMouseUp(mouseEvent) {
         paper.handleMouseEvent(mouseEvent);
     }
 
     /**
      * Handle mouse down.
      */
-    _handleMouseDown(mouseEvent)
-    {
+    _handleMouseDown(mouseEvent) {
         paper.handleMouseEvent(mouseEvent);
     }
 
     /**
      * Handle mouse click.
      */
-    _handleClick(mouseEvent)
-    {
+    _handleClick(mouseEvent) {
         paper.handleMouseEvent(mouseEvent);
     }
 
     /**
      * Handle mouse double click.
      */
-    _handleDoubleClick(mouseEvent)
-    {
+    _handleDoubleClick(mouseEvent) {
         paper.handleMouseEvent(mouseEvent);
     }
 }
