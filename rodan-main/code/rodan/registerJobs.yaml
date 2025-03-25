@@ -5,9 +5,8 @@
   "rodan.jobs.labeler" : [ "Labeler" ] }
 
 "RODAN_PYTHON3_JOBS": {
-  #new job
-    "rodan.jobs.one_staff_finding":{
-        "rodan.jobs.one_staff_finding.one_staff_finding": ["OneStaffFinding"]
+    "rodan.jobs.aquitanian_ref_line_finding":{
+        "rodan.jobs.aquitanian_ref_line_finding.aquitanian_ref_line_finding": ["AquitanianReferenceLineFinding"]
     },
     "rodan.jobs.helloworld": {
         "rodan.jobs.helloworld.helloworld" :  ["HelloWorld"],

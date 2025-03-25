@@ -87,10 +87,10 @@ def to_json(img, data):
         }
     }
 
-class OneStaffFinding(RodanTask):
-    name = "One Staff Finding"
+class AquitanianReferenceLineFinding(RodanTask):
+    name = "Aquitanian Reference Line Finding"
     author = "Deanna Chun"
-    description = "Trace single Aquitanian staff lines"
+    description = "Trace single Aquitanian reference lines"
     settings = {
         'title': 'Settings',
         'type': 'object',
@@ -102,7 +102,7 @@ class OneStaffFinding(RodanTask):
                 'default': 8,
                 'minimum': 1,
                 'maximum': 24,
-                'description': 'Number of divisions per single staff line'
+                'description': 'Number of divisions per single reference line'
             }
         }
     }
