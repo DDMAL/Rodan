@@ -82,9 +82,9 @@ def to_json(img, data):
                 "nrows": h,
                 "ulx": 0,
                 "uly": 0
-            },
-            "staves": staves
-        }
+            }
+        },
+        "staves": staves
     }
 
 class AquitanianReferenceLineFinding(RodanTask):
