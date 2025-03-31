@@ -208,8 +208,6 @@ def generate_base_document(column_split_info: Optional[dict]):
     staffDef = new_el("staffDef", staffGrp)
 
     staffDef.set("n", "1")
-    #if staves is not None:
-    #    staffDef_lines = staves[0]["num_lines"]
     staffDef.set("lines", str(staffDef_lines))
     staffDef.set("notationtype", "neume")
     staffDef.set("clef.line", "4")
@@ -250,8 +248,6 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == "clef":
-        #attribs["line"] = str(int(float(glyph["strt_pos"])))
-        #staffDef_lines = int(xml.find('staffDef').attrib['lines'])
         attribs["line"] = str(int(float(glyph["strt_pos"])) + (staffDef_lines - 4))
 
     attribs["oct"] = str(glyph["octave"])
@@ -591,8 +587,6 @@ def build_mei(
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     """
-    #if staves is not None:
-    #    staffDef_lines = staves[0]["num_lines"]
     meiDoc, surface, layer = generate_base_document(column_split_info)
 
     # set the bounds of the page. If this is multi column then this will be overwritten
