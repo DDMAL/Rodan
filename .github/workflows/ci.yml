@@ -9,7 +9,7 @@ on:
       - develop
 jobs:
   rodan-CI-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
         image: ddmal/ci-jobs:django-v2.0.13
         env: 
