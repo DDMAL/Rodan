@@ -20,6 +20,8 @@ from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 # from state_machine import SylMachine #---> for testing locally
 
+staffDef_lines = 4
+
 try:
     from rodan.jobs.MEI_encoding import __version__
 except ImportError:
@@ -164,7 +166,7 @@ def neume_to_lyric_alignment(
     return pairs
 
 
-def generate_base_document(column_split_info: Optional[dict], staves: Optional[list]):
+def generate_base_document(column_split_info: Optional[dict]):
     """
     Generates a generic template for an MEI document for neume notation.
 
@@ -206,10 +208,9 @@ def generate_base_document(column_split_info: Optional[dict], staves: Optional[l
     staffDef = new_el("staffDef", staffGrp)
 
     staffDef.set("n", "1")
-    if staves is not None:
-        staffDef.set("lines", str(staves[0]["num_lines"]))
-    else:
-        staffDef.set("lines", "4")
+    #if staves is not None:
+    #    staffDef_lines = staves[0]["num_lines"]
+    staffDef.set("lines", str(staffDef_lines))
     staffDef.set("notationtype", "neume")
     staffDef.set("clef.line", "4")
     staffDef.set("clef.shape", "C")
@@ -249,7 +250,9 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == "clef":
-        attribs["line"] = str(int(float(glyph["strt_pos"])))
+        #attribs["line"] = str(int(float(glyph["strt_pos"])))
+        #staffDef_lines = int(xml.find('staffDef').attrib['lines'])
+        attribs["line"] = str(int(float(glyph["strt_pos"])) + (staffDef_lines - 4))
 
     attribs["oct"] = str(glyph["octave"])
     attribs["pname"] = str(glyph["note"])
@@ -588,7 +591,9 @@ def build_mei(
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     """
-    meiDoc, surface, layer = generate_base_document(column_split_info, staves)
+    #if staves is not None:
+    #    staffDef_lines = staves[0]["num_lines"]
+    meiDoc, surface, layer = generate_base_document(column_split_info)
 
     # set the bounds of the page. If this is multi column then this will be overwritten
     surface_bb = {
@@ -822,6 +827,9 @@ def process(
     width_multiplier parameter for merging neume components.
     """
     staves = reformat_staves(jsomr["staves"])
+    if staves is not None:
+        global staffDef_lines
+        staffDef_lines = staves[0]["num_lines"]
     glyphs = jsomr["glyphs"]
     syl_boxes = syls["syl_boxes"] if syls is not None else None
     median_line_spacing = syls["median_line_spacing"] if syls is not None else None
