@@ -79,7 +79,10 @@ class BaseItem extends paper.Path {
      */
     static appearanceToProject(appearance) {
         const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
-        return { x: appearance.x * multiplier, y: appearance.y * multiplier };
+        return {
+            x: appearance.x * multiplier,
+            y: appearance.y * multiplier
+        };
     }
 
     /**
@@ -89,7 +92,10 @@ class BaseItem extends paper.Path {
      */
     static projectToAppearance(coordinates) {
         const multiplier = Rodan.Configuration.PLUGINS['rodan-client-wfbgui'].DATABASE_COORDINATES_MULTIPLIER;
-        return { x: coordinates.x / multiplier, y: coordinates.y / multiplier };
+        return {
+            x: coordinates.x / multiplier,
+            y: coordinates.y / multiplier
+        };
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +188,11 @@ class BaseItem extends paper.Path {
             // a new model on the server.
             if (this._modelId || !this._coordinateSetSaveAttempted) {
                 this._coordinateSetSaveAttempted = true;
-                const appearance = BaseItem.projectToAppearance(this.position);
+                const topLeft = {
+                    x: this.bounds.topLeft.x,
+                    y: this.bounds.topLeft.y
+                };
+                const appearance = BaseItem.projectToAppearance(topLeft);
                 this._model.set({ appearance });
                 this._model.save();
                 this._hasMoved = false;
@@ -370,7 +380,8 @@ class BaseItem extends paper.Path {
         var appearance = model.get('appearance');
         if (appearance) {
             const { x, y } = BaseItem.appearanceToProject(appearance);
-            this.position = new paper.Point(x, y);
+            this.bounds.topLeft = new paper.Point(x, y);
+            this.position = this.bounds.center;
         }
     }
 
