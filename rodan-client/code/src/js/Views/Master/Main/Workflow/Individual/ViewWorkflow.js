@@ -25,7 +25,7 @@ export default class ViewWorkflow extends Marionette.View {
      * Handle button delete workflow.
      */
     _handleButtonDeleteWorkflow() {
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOW_DELETE, { workflow: this.model });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOW_DELETE_CONFIRM, { workflow: this.model });
     }
 
     /**

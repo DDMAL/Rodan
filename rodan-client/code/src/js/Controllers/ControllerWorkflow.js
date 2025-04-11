@@ -6,6 +6,7 @@ import ViewWorkflowCollection from 'js/Views/Master/Main/Workflow/Collection/Vie
 import Workflow from 'js/Models/Workflow';
 import WorkflowCollection from 'js/Collections/WorkflowCollection';
 import ViewProject from 'js/Views/Master/Main/Project/Individual/ViewProject';
+import ViewDeleteConfirm from '../Views/Master/Main/Shared/ViewDeleteConfirm';
 
 /**
  * Controller for Workflows.
@@ -28,6 +29,7 @@ export default class ControllerWorkflow extends BaseController {
         // Requests.
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_SAVE, options => this._handleRequestSaveWorkflow(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_DELETE, options => this._handleCommandDeleteWorkflow(options));
+        Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_DELETE_CONFIRM, options => this._handleCommandDeleteWorkflowConfirm(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_IMPORT, options => this._handleCommandImportWorkflow(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_CREATE, options => this._handleCommandAddWorkflow(options));
         Radio.channel('rodan').reply(RODAN_EVENTS.REQUEST__WORKFLOW_EXPORT, options => this._handleCommandExportWorkflow(options));
@@ -68,6 +70,21 @@ export default class ControllerWorkflow extends BaseController {
             this._projectView.clearCollectionItemInfoView();
         }
         options.workflow.destroy({ success: model => this._handleDeleteSuccess(model, this._collection) });
+    }
+
+    /**
+     * Handle command delete workflow confirm modal window.
+     */
+    _handleCommandDeleteWorkflowConfirm(options) {
+        var view = new ViewDeleteConfirm({
+            type: 'workflow',
+            names: options.workflow.get('name'),
+            toDelete: options.workflow
+        });
+        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {
+            content: view,
+            title: 'Deleting Workflow'
+        });
     }
 
     /**

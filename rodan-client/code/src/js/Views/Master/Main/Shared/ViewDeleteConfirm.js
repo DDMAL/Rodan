@@ -58,6 +58,11 @@ export default class ViewDeleteConfirm extends Marionette.View {
             case 'resource':
                 Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__RESOURCE_DELETE, { resource: this._toDelete });
                 break;
+            case 'workflow':
+                Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__WORKFLOW_DELETE, { workflow: this._toDelete });
+                break;
+            default:
+                throw new Error('Invalid type: ' + this._type);
         }
     }
 }
