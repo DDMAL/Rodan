@@ -224,7 +224,7 @@ export default class ControllerProject extends BaseController {
     _handleRequestProjectDeleteConfirm(options) {
         var view = new ViewDeleteConfirm({
             type: 'project',
-            names: [options.project.get('name')],
+            names: options.project.get('name'),
             toDelete: options.project
         });
         Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MODAL_SHOW, {

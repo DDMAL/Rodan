@@ -408,9 +408,11 @@ class RODAN_EVENTS {
         this.REQUEST__WORKFLOW_CREATE = 'REQUEST__WORKFLOW_CREATE';
         /** Request a Workflow be deleted. Takes {workflow: Workflow}. */
         this.REQUEST__WORKFLOW_DELETE = 'REQUEST__WORKFLOW_DELETE';
+        /** Request a Workflow delete confirm modal window. Takes {workflow: Workflow}. */
+        this.REQUEST__WORKFLOW_DELETE_CONFIRM = 'REQUEST__WORKFLOW_DELETE_CONFIRM';
         /** Request a Workflow be exported. Takes {workflow: Workflow}. */
         this.REQUEST__WORKFLOW_EXPORT = 'REQUEST__WORKFLOW_EXPORT';
-        /** Request a Workflow be imported. Takes {}. */
+        /** Request a Workflow be imported. Takes {project: Project, file: File}. */
         this.REQUEST__WORKFLOW_IMPORT = 'REQUEST__WORKFLOW_IMPORT';
         /** Request a Workflow be saved/updated. Takes {workflow: Workflow, fields: {object with attributes to change}}. */
         this.REQUEST__WORKFLOW_SAVE = 'REQUEST__WORKFLOW_SAVE';
