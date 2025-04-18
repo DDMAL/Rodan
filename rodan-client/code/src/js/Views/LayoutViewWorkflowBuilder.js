@@ -254,6 +254,7 @@ LayoutViewWorkflowBuilder.prototype.ui = {
     settingsDropdownToggle: '#settings-dropdown-toggle',
 };
 LayoutViewWorkflowBuilder.prototype.events = {
+    'click @ui.canvasWorkspace': '_hideDropdowns',
     'click @ui.buttonZoomIn': '_handleButtonZoomIn',
     'click @ui.buttonZoomOut': '_handleButtonZoomOut',
     'click @ui.buttonZoomReset': '_handleButtonZoomReset',
