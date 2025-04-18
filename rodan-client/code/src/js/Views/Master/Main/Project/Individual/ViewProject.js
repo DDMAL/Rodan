@@ -3,6 +3,10 @@ import _ from 'underscore';
 import RODAN_EVENTS from 'js/Shared/RODAN_EVENTS';
 import Marionette from 'backbone.marionette';
 import Radio from 'backbone.radio';
+import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollection';
+import ViewWorkflowCollection from 'js/Views/Master/Main/Workflow/Collection/ViewWorkflowCollection';
+import ViewWorkflowRunCollection from 'js/Views/Master/Main/WorkflowRun/Collection/ViewWorkflowRunCollection';
+import ViewRunJobCollection from 'js/Views/Master/Main/RunJob/Collection/ViewRunJobCollection';
 
 /**
  * Project view.
@@ -27,6 +31,18 @@ export default class ViewProject extends Marionette.View {
      */
     showCollection(view) {
         this.showChildView('regionCollection', view);
+
+        // Update tab status based on view type
+        $('.project-nav-bar-btn').removeClass('active');
+        if (view instanceof ViewResourceCollection) {
+            $('#resource_count').addClass('active');
+        } else if (view instanceof ViewWorkflowCollection) {
+            $('#workflow_count').addClass('active');
+        } else if (view instanceof ViewWorkflowRunCollection) {
+            $('#button-workflow_runs').addClass('active');
+        } else if (view instanceof ViewRunJobCollection) {
+            $('#button-runjobs').addClass('active');
+        }
     }
 
     /**
@@ -82,8 +98,6 @@ export default class ViewProject extends Marionette.View {
      */
     _handleButtonRunJobs() {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RUNJOB_SELECTED_COLLECTION, { project: this.model });
-        $('.project-nav-bar-btn').removeClass('active');
-        $('#button-runjobs').addClass('active');
     }
 
     /**
@@ -91,8 +105,6 @@ export default class ViewProject extends Marionette.View {
      */
     _handleClickResourceCount() {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SELECTED_COLLECTION, { project: this.model });
-        $('.project-nav-bar-btn').removeClass('active');
-        $('#resource_count').addClass('active');
     }
 
     /**
@@ -100,8 +112,6 @@ export default class ViewProject extends Marionette.View {
      */
     _handleClickWorkflowCount() {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOW_SELECTED_COLLECTION, { view: this, project: this.model });
-        $('.project-nav-bar-btn').removeClass('active');
-        $('#workflow_count').addClass('active');
     }
 
     /**
@@ -109,8 +119,6 @@ export default class ViewProject extends Marionette.View {
      */
     _handleButtonWorkflowRuns() {
         Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__WORKFLOWRUN_SELECTED_COLLECTION, { project: this.model });
-        $('.project-nav-bar-btn').removeClass('active');
-        $('#button-workflow_runs').addClass('active');
     }
 
     /**

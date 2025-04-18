@@ -12,8 +12,8 @@ import ViewDeleteConfirm from '../Views/Master/Main/Shared/ViewDeleteConfirm';
 import ViewProject from 'js/Views/Master/Main/Project/Individual/ViewProject';
 import ViewProjectCollection from 'js/Views/Master/Main/Project/Collection/ViewProjectCollection';
 import ViewUserCollectionItem from 'js/Views/Master/Main/User/Collection/ViewUserCollectionItem';
-import ViewWorkflowRunCollection from 'js/Views/Master/Main/WorkflowRun/Collection/ViewWorkflowRunCollection';
-import WorkflowRunCollection from 'js/Collections/WorkflowRunCollection';
+import ViewResourceCollection from 'js/Views/Master/Main/Resource/Collection/ViewResourceCollection';
+import ResourceCollection from 'js/Collections/ResourceCollection';
 
 /**
  * Controller for Projects.
@@ -245,18 +245,27 @@ export default class ControllerProject extends BaseController {
      */
     _handleEventItemSelected(options) {
         this._activeProject = options.project;
-        this._activeProject.fetch();
-
-        // default collection inside project view is the workflowrun collection
-        var collection = new WorkflowRunCollection();
-        collection.fetch({ data: { project: this._activeProject.id } });
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, { collections: [collection] });
-        var viewProject = new ViewProject({ model: this._activeProject });
-        Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {
-            view: viewProject,
-            options: { project: this._activeProject }
+        
+        // Fetch project first and wait for it to complete
+        this._activeProject.fetch({
+            success: () => {
+                // default collection inside project view is the resource collection
+                var collection = new ResourceCollection();
+                collection.fetch({ data: { project: this._activeProject.id } });
+                
+                // Set up view
+                Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__UPDATER_SET_COLLECTIONS, { collections: [collection] });
+                var viewProject = new ViewProject({ model: this._activeProject });
+                Radio.channel('rodan').request(RODAN_EVENTS.REQUEST__MAINREGION_SHOW_VIEW, {
+                    view: viewProject,
+                    options: { project: this._activeProject }
+                });
+                
+                // Show resource collection by default and trigger resource selection event
+                viewProject.showCollection(new ViewResourceCollection({ collection: collection }));
+                Radio.channel('rodan').trigger(RODAN_EVENTS.EVENT__RESOURCE_SELECTED_COLLECTION, { project: this._activeProject });
+            }
         });
-        viewProject.showCollection(new ViewWorkflowRunCollection({ collection: collection }));
     }
 
     /**
