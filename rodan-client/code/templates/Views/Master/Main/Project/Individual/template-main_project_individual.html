@@ -9,10 +9,10 @@
         <!-- Project collections (workflow runs, resources, etc.) -->
         <div class="content-wrapper column-content project-collections padding-10">
             <div class="content-wrapper row-content project-navigation-bar">
-                <button class="btn project-nav-bar-btn active" id="button-workflow_runs">Workflow Runs</button>
-                <button class="btn project-nav-bar-btn" id="button-runjobs">Run Jobs</button>
+                <button class="btn project-nav-bar-btn" id="resource_count">Resources</button>
                 <button class="btn project-nav-bar-btn" id="workflow_count">Workflows</button>
-                <button class="btn project-nav-bar-btn" id="resource_count">Resources</button>                          
+                <button class="btn project-nav-bar-btn" id="button-workflow_runs">Workflow Runs</button>
+                <button class="btn project-nav-bar-btn" id="button-runjobs">Run Jobs</button>
                 <!-- <button class="btn project-nav-bar-btn" id="button-resourcelists">Resource Lists: <%= resourcelist_count%></button> -->            
             </div>
 
@@ -36,7 +36,7 @@
                     <div class="content-wrapper column-content  details-panel-details-section padding-10">
                         <div class="content-wrapper row-content details-item-container">
                             <label class="details-item-label" for="text-project_name">Name:</label>
-                            <input class="details-item-value" type="text" class="form-control" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
+                            <input class="details-item-value form-control" type="text" id="text-project_name" value="<%= _.unescape(name) %>" name="text-project_name">
                         </div>
 
                         <div class="content-wrapper column-content details-item-container">
