@@ -164,7 +164,7 @@ def neume_to_lyric_alignment(
     return pairs
 
 
-def generate_base_document(column_split_info: Optional[dict], staves: Optional[list]):
+def generate_base_document(column_split_info: Optional[dict]):
     """
     Generates a generic template for an MEI document for neume notation.
 
@@ -206,10 +206,7 @@ def generate_base_document(column_split_info: Optional[dict], staves: Optional[l
     staffDef = new_el("staffDef", staffGrp)
 
     staffDef.set("n", "1")
-    if staves is not None:
-        staffDef.set("lines", str(staves[0]["num_lines"]))
-    else:
-        staffDef.set("lines", "4")
+    staffDef.set("lines", "4")
     staffDef.set("notationtype", "neume")
     staffDef.set("clef.line", "4")
     staffDef.set("clef.shape", "C")
@@ -588,7 +585,7 @@ def build_mei(
         @staves: Bounding box information from pitch finding JSON.
         @page: Page dimension information from pitch finding JSON.
     """
-    meiDoc, surface, layer = generate_base_document(column_split_info, staves)
+    meiDoc, surface, layer = generate_base_document(column_split_info)
 
     # set the bounds of the page. If this is multi column then this will be overwritten
     surface_bb = {

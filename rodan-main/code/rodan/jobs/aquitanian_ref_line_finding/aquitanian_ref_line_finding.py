@@ -55,7 +55,7 @@ def padding(sect):
 
     return ret
 
-def to_json(img, data):
+def to_json(img, data, neume_size):
     h, w, _ = img.shape
     staves = []
     for i in range(0, len(data)):
@@ -63,16 +63,21 @@ def to_json(img, data):
         box = cur[0]
         x, y, width, height = box
         lines = cur[1]
+        up_ledger_2 = [[x[0], x[1] - (2 * neume_size)] for x in lines]
+        up_ledger_1 = [[x[0], x[1] - neume_size] for x in lines]
+        down_ledger_1 = [[x[0], x[1] + neume_size] for x in lines]
+        down_ledger_2 = [[x[0], x[1] + (2 * neume_size)] for x in lines]
         staves.append({
-            "staff_no": i,
+            "staff_no": i+1,
             "bounding_box":{
                 "ncols": width,
-                "nrows": height,
+                "nrows": height + (4 * neume_size),
                 "ulx": x,
-                "uly": y
+                "uly": y - (2 * neume_size)
             },
             "num_lines": 1,
-            "line_positions": lines
+            "line_positions": [up_ledger_2, up_ledger_1, lines, down_ledger_1, down_ledger_2]
+            #"line_positions": [lines]
         })
     return {
         "page":{
@@ -95,7 +100,7 @@ class AquitanianReferenceLineFinding(RodanTask):
         'title': 'Settings',
         'type': 'object',
         'job_queue': 'Python3',
-        'required': ['Slices'],
+        'required': ['Slices', 'Neume Height'],
         'properties': {
             'Slices': {
                 'type': 'integer',
@@ -103,9 +108,17 @@ class AquitanianReferenceLineFinding(RodanTask):
                 'minimum': 1,
                 'maximum': 24,
                 'description': 'Number of divisions per single reference line'
+            },
+            'Neume Height': {
+                'type': 'integer',
+                'default': 50,
+                'minimum': 1,
+                'maximum': 500,
+                'description': "Height of neumes (for generating ledger lines)"
             }
         }
     }
+
     enabled = True
     category = "Staff Detection"
     interactive = False
@@ -175,13 +188,16 @@ class AquitanianReferenceLineFinding(RodanTask):
                         line[0] = last
                     last = line[1]
                     lines.append(line[0])
+                    if i == (slices - 1):
+                        lines.append(line[1])
 
                     #draw line
                     if overlay:
                         cv2.line(img, tuple(line[0]), tuple(line[1]), (255, 0, 0), 2)
             ret.append(([x, y, w, h], lines))
 
-        jsomr = to_json(img, ret)
+        neume_size = settings['Neume Height']
+        jsomr = to_json(img, ret, neume_size)
 
         outfile_path = outputs['JSOMR'][0]['resource_path']
         with open(outfile_path, "w") as outfile:
