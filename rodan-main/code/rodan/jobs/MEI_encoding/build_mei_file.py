@@ -248,7 +248,7 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == "clef":
-        #Adds an offset to the clef's position based on the number of lines
+        #To resolve Rodan issue #1276 (https://github.com/DDMAL/Rodan/issues/1276), moves clef position to fix wrong note offsets due to different numbers of lines than 4
         attribs["line"] = str(int(float(glyph["strt_pos"])) + (staffDef_lines - 4))
 
     attribs["oct"] = str(glyph["octave"])
