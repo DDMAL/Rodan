@@ -114,7 +114,7 @@ class AquitanianReferenceLineFinding(RodanTask):
                 'default': 50,
                 'minimum': 1,
                 'maximum': 500,
-                'description': "Height of neumes (for generating ledger lines)"
+                'description': "Neume Height multiplied by 3 (for generating ledger lines)"
             }
         }
     }
