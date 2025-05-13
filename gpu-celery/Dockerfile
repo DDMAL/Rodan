@@ -1,149 +1,47 @@
-# Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ============================================================================
-#
-# THIS IS A GENERATED DOCKERFILE.
-#
-# This file was assembled from multiple pieces, whose use is documented
-# throughout. Please refer to the TensorFlow dockerfiles documentation
-# for more information.
+# ARG UBUNTU_VERSION=24.04
+# ARG CUDA=12.9.0
+# ARG IMAGE_VER=cudnn-runtime-ubuntu$UBUNTU_VERSION
 
-ARG UBUNTU_VERSION=18.04
-ARG CUDA=11.2
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}.2-base-ubuntu${UBUNTU_VERSION} as base
-# ARCH and CUDA are specified again because the FROM directive resets ARGs
-# (but their default value is retained if set previously)
-ARG ARCH
-ARG CUDA
-ARG CUDNN=8.1.0.77-1
-ARG CUDNN_MAJOR_VERSION=8
-ARG LIB_DIR_PREFIX=x86_64
-ARG LIBNVINFER=7.2.2-1
-ARG LIBNVINFER_MAJOR_VERSION=7
+# ARG BASEIMAGE="nvidia/cuda:${CUDA}-${IMAGE_VER}"
+ARG BASEIMAGE="tensorflow/tensorflow:latest-gpu"
 
-# The following two arguments are rodan-specific
-ARG BRANCHES
-ARG VERSION
+FROM ${BASEIMAGE}
 
-# Needed for string substitution
 SHELL ["/bin/bash", "-c"]
-# Pick up some TF dependencies
-#RUN apt-get update 
 
-#RUN rm  -rf /etc/apt/sources.list.d/cuda.list
+RUN apt-get update
+# RUN apt-get install -y --no-install-recommends \
+#    wget \
+#    ca-certificates \
+#    git \
+#    build-essential \
+#    dh-make \
+#    fakeroot \
+#    devscripts \
+#    lsb-release
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        libcublas-${CUDA/./-} \
-        cuda-nvrtc-${CUDA/./-} \
-        libcufft-${CUDA/./-} \
-        libcurand-${CUDA/./-} \
-        libcusolver-${CUDA/./-} \
-        libcusparse-${CUDA/./-} \
-        curl \
-        libcudnn8=${CUDNN}+cuda${CUDA} \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
-        pkg-config \
-        software-properties-common \
-        unzip \
-		wget
-# added wget		
+# ENV LANG=C.UTF-8
 
-# Install TensorRT if not building for PowerPC
-# NOTE: libnvinfer uses cuda11.1 versions
-# RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-#         apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-#         libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.1 \
-#         && apt-get clean \
-#         && rm -rf /var/lib/apt/lists/*; }
+# Install python
+#RUN apt-get install -y --no-install-recommends \
+#    python3 python3-pip python3-venv
 
-# For CUDA profiling, TensorFlow requires CUPTI.
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:/usr/local/cuda-11.1/lib64:$LD_LIBRARY_PATH
+# WORKDIR missing
+# ENV VIRTUAL_ENV=.venv
+# RUN python3 -m venv .venv
+# ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
-# dynamic linker run-time bindings
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-    && ldconfig
+# RUN source .venv/bin/activate
+# RUN pip3 --no-cache-dir install --upgrade pip setuptools
 
-# See http://bugs.python.org/issue19846
-ENV LANG C.UTF-8
+# use .venv/bin/python3
+# we want tensorflow 2.5.1?
+# Other possible options: tensorflow, tensorflow-gpu, tf-nightly?, tf-nightly-gpu?
+# RUN pip3 install tensorflow
 
-# This section differs from the default tensorflow2.5.1 Dockerfile, because we specifically add python 3.7;
-ARG PYTHON=python3.7
-ARG TF_PACKAGE=tensorflow
-ARG TF_PACKAGE_VERSION=2.5.1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.7 \
-    python3-pip \
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
-  && wget https://bootstrap.pypa.io/pip/3.7/get-pip.py \
-  && ${PYTHON} get-pip.py \
-  && ln -sf /usr/bin/${PYTHON} /usr/local/bin/python3 \
-  && ln -sf /usr/local/bin/pip /usr/local/bin/pip3 \
-  && pip3 --no-cache-dir install --upgrade pip setuptools==57.0.0 \
-  # Some TF tools expect a "python" binary
-  && ln -s $(which python3) /usr/local/bin/python \
-  && python3 -m pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
-
-# RUN ln -s $(which python3) /usr/local/bin/python
-
-# Options:
-#   tensorflow
-#   tensorflow-gpu
-#   tf-nightly
-#   tf-nightly-gpu
-# Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
-# Installs the latest version by default.
-
-# COPY bashrc /etc/bash.bashrc
-# RUN chmod a+rwx /etc/bash.bashrc
-
-# This ends the material obtained from TensorFlow's dockerfile. the remainder is rodan-docker-specific setup.
-
-# FROM base
-RUN set -e \
-  && apt-get update \
-  && DEBIAN_FRONTEND="noninteractive" apt-get install -yqq \
-    git \
-    # Python lxml dependencies
-    python3.7-dev \
-    python3-opencv \
-    libxml2-dev \
-    libxslt1-dev \
-    zlib1g-dev \
-    lib32ncurses5-dev \
-    # Psycopg2 dependencies
-    libpq-dev \
-    # For resource identification
-    libmagic-dev \
-    unzip \
-    # Remove when done
-    vim
-
-RUN rm -rf /var/lib/apt/lists/*
-
-# Bandaid fix for the cannot import name '_registerMatType' from 'cv2.cv2' issue
-#RUN pip uninstall opencv-python-headless && pip install opencv-python-headless==4.1.2.30
 
 # Install GPU Rodan Jobs
+
 COPY ./scripts/install_gpu_rodan_jobs /opt/
 
 # Install Rodan
@@ -158,21 +56,18 @@ COPY ./rodan-main/code /code/Rodan
 
 # necessary for scikit-image > 0.17, or else it will try to make a cache directory
 # in a place where the www-data user does not have permissions to do so
-ENV SKIMAGE_DATADIR "/tmp/.skimage_cache"
+ENV SKIMAGE_DATADIR="/tmp/.skimage_cache"
 
-
-RUN set -x \
-  # Create Folders
-  && mkdir -p /code/jobs \
+RUN set -x
+RUN mkdir -p /code/jobs
   # Install GPU Jobs
-  && chmod +x /opt/install_gpu_rodan_jobs \
-  && /opt/install_gpu_rodan_jobs \
-  # Install Rodan
-  && sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt \
+RUN chmod +x /opt/install_gpu_rodan_jobs
+RUN /opt/install_gpu_rodan_jobs ## issue here!!!
+RUN sed -i "s/lxml/#lxml/g" /code/Rodan/requirements.txt
   # && sed -i "s/pybagit==1.5.0/-e git:\/\/github.com\/deepio\/pybagit.git@a27c9e0fc3bdf99dab8bd327f3ce9ea884abd6b4#egg=pybagit/g" /code/Rodan/requirements.txt \
   # Add Entrypoints
-  && sed -i 's/\r//' /opt/entrypoint \
-  && chmod +x /opt/entrypoint \
+RUN sed -i 's/\r//' /opt/entrypoint \
+RUN chmod +x /opt/entrypoint \
   # Add Celery script
   && chmod +x /run/start-celery \
   # Change the concurency for gpu jobs because Calvo is very expensive
@@ -187,3 +82,4 @@ RUN pip3 uninstall -y opencv-python opencv-python-headless
 RUN pip3 install opencv-python-headless==4.1.2.30
 
 ENTRYPOINT ["/opt/entrypoint"]
+
