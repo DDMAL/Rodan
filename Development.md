@@ -1,4 +1,6 @@
-# Rodan Frontend components
+
+# Architecture
+## Rodan Frontend components
 
 Rodan frontend has 3 main components, all Dockerized:
 - `nginx` - a reverse proxy server. It also serves the minified version of the web viewer when not working on the frontend.
