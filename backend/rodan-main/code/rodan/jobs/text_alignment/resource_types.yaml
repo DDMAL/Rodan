@@ -1,0 +1,9 @@
+- mimetype: application/json
+  description: JSON
+  extension: json
+- mimetype: image/rgb+png
+  description: RGB PNG image
+  extension: png
+- mimetype: text/plain
+  description: Plain text
+  extension: txt

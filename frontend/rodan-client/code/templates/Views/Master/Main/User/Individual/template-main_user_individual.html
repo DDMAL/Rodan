@@ -1,0 +1,42 @@
+<div class="content-wrapper column-content flex-gap-10">
+
+    <div class="content-wrapper row-content flex-gap-10 row-left">
+        <label for="text-user_username">Username:</label>
+        <input type="text" class="form-control input-sm" id="text-user_username" value="<%= _.unescape(username) %>" name="text-user_username">
+        <p id="error-user_username" class="text-danger"></p>
+    </div>
+
+    <div class="content-wrapper row-content flex-gap-10 row-left">
+        <label for="text-user_firstname">First name:</label>
+        <input type="text" class="form-control input-sm" id="text-user_firstname" value="<%= _.unescape(first_name) %>" name="text-user_firstname">
+        <p id="error-user_firstname" class="text-danger"></p>
+    </div>
+
+    <div class="content-wrapper row-content flex-gap-10 row-left">
+        <label for="text-user_lastname">Last name:</label>
+        <input type="text" class="form-control input-sm" id="text-user_lastname" value="<%= _.unescape(last_name) %>" name="text-user_lastname">
+        <p id="error-user_lastname" class="text-danger"></p>
+    </div>
+    
+    <div class="content-wrapper row-content flex-gap-10 row-left">
+        <label for="text-user_email">Email:</label>
+        <input inputmode="email" type="email" class="form-control input-sm" id="text-user_email" value="<%= _.unescape(email) %>" name="text-user_email">
+        <p id="error-user_email" class="text-danger"></p>
+    </div>
+
+    <div class="checkbox content-wrapper row-content flex-gap-10 row-left" id="div-user_preference">
+        <label class="content-wrapper row-content flex-gap-10 row-left">
+            <input id="checkbox-send_email" type="checkbox" value="">
+            <div>Receive Rodan notifications via email</div>
+        </label>
+    </div>
+
+    <div class="content-wrapper row-content flex-gap-10 row-left">
+        <div id="div-user_preference_loading">Waiting for user preferences to load.</div>
+        <div class="content-wrapper row-content flex-gap-10 row-left">
+            <button class="btn save-btn" id="button-save_user">Save</button>
+            <button class="btn" id="button-change_password">Change Password</button>
+        </div>
+    </div>
+
+</div>

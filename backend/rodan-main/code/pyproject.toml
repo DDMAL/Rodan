@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "rodan"
+version = "1.2.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+celery = "3.1.25"
+django = "1.11.29"
+django-cors-headers = "3.0.2"
+django-decorator-include = "1.3"
+django-environ = "^0.4.5"
+django-extensions = "1.6.7"
+django-filter = "1.1.0"
+django-guardian = "1.4.5"
+django-health-check = "2.4.0"
+django-sortedm2m = "1.1.1"
+django-websocket-redis = "0.5.2"
+djangorestframework = "3.6.4"
+djoser = "1.5.1"
+jsonfield = "1.0.0"
+jsonschema = "2.5.1"
+lxml = "4.5.1"
+pybagit = {git = "https://github.com/deepio/pybagit"}
+python-magic = {git = "https://github.com/ahupp/python-magic.git", rev = "0e977c98649b4ed4533a7700fbc5fea6895bfe71"}
+psycopg2-binary = "^2.8.5"
+
+[tool.poetry.dev-dependencies]
+sphinx = "^3.1.2"
+m2r = {git = "https://github.com/crossnox/m2r", branch = "dev"}
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

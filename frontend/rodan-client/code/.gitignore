@@ -1,0 +1,14 @@
+._.DS_Store
+.DS_Store
+npm-debug.log
+node_modules/
+dist/
+web
+bundle
+tmp
+website/_site
+configuration.json
+._*
+
+__*
+src/js/.plugins.js

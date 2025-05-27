@@ -1,0 +1,39 @@
+<!-- Run job details title -->
+<div class="content-wrapper row-content  details-panel-title-section">
+    <div id="details-title" class="content-wrapper row-content padding-10">
+        <div class="details-title-text">RUN JOB DETAILS</div>
+    </div>
+</div>
+
+<!-- Run job details -->
+<div class="content-wrapper column-content details-panel-details-section padding-10">
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Name:</div>
+        <div class="details-item-value"><%= job_name %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Created:</div>
+        <div class="details-item-value"><%= _.formatFromUTC(created) %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Updated:</div>
+        <div class="details-item-value"><%= _.formatFromUTC(updated) %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Status:</div>
+        <div class="details-item-value"><%= statusText %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Error summary:</div>
+        <div class="details-item-value"><%= error_summary %></div>
+    </div>
+    <div class="content-wrapper column-content details-item-container">
+        <div class="details-item-label">Error details:</div>
+        <textarea class="details-item-value" rows='10' readonly='readonly'><%= _.escape(error_details) %></textarea>
+    </div>
+</div>
+
+<!-- Run job details actions (buttons) -->
+<div class="content-wrapper row-content  details-panel-action-btns-section">
+    <button class="btn details-action-btn" id="button-open_runjob" disabled>Open</button>
+</div>

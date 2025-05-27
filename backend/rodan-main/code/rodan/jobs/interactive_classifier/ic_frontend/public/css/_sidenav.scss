@@ -1,0 +1,70 @@
+@mixin sidenav-size($width: 250px, $position: left) {
+    width: $width;
+
+    // Hold the sidebar just out of view until it's triggered
+    @if ($position == left) {
+        transform: translate(-$width, 0);
+    }
+    @else {
+        right: 0;
+        transform: translate($width, 0);
+    }
+
+    // Include this rule here as a hack to ensure specificity
+    &.in {
+        transform: translate(0, 0);
+    }
+}
+
+.sidenav {
+    // Default width and side
+    @include sidenav-size;
+
+    transition: transform 300ms ease-in-out;
+
+    display: none;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    height: 100%;
+    overflow: auto;
+
+    // Copied from the Bootstrap modal settings
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    z-index: 1050;
+
+    // FIXME: use variable?
+    background: #fff;
+
+    &.in, &.sliding {
+        display: block;
+    }
+}
+
+// Hide the body's scroll bar while the sidenav enters and exits
+.sidenav-animating {
+    overflow: hidden;
+}
+
+// Exactly the same as .modal-backdrop from Bootstrap
+//
+// TODO: use an @extend to achieve this?
+.sidenav-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #000;
+}
+.sidenav-backdrop.fade {
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+.sidenav-backdrop.in {
+    filter: alpha(opacity=50);
+    opacity: .5;
+}

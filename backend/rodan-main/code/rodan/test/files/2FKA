@@ -1,0 +1,56 @@
+imagePath,imagesBinary,name,folio,description,classification,mei,review,dob,project
+[],[],Punctum,001r,,neume.punctum,"<neume>
+
+    <nc/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Podastus 2,001r,,neume.podastus2,"<neume>
+
+    <nc/>
+
+    <nc intm=""1S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Inclinatum,001r,,neume.inclinatum,"<neume>
+
+   <nc tilt=""se""/> 
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Podastus 3,001r,,neume.podastus3,"<neume>
+
+    <nc/>
+
+    <nc intm=""2S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Podastus 4,001r,,neume.podastus4,"<neume>
+
+    <nc/>
+
+    <nc intm=""3S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Oblique 2,001r,,neume.oblique2,"<neume>
+
+    <nc ligated=""true""/>
+
+    <nc ligated=""true"" intm=""-1S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Oblique 3,001r,,neume.oblique3,"<neume>
+
+    <nc ligated=""true""/>
+
+    <nc ligated=""true"" intm=""-2S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Oblique 4,001r,,neume.oblique4,"<neume>
+
+    <nc ligated=""true""/>
+
+    <nc ligated=""true"" intm=""-3S""/>
+
+</neume>",No,,5d39e8755fbd53216a2fa442
+[],[],Custos,001r,,custos,<custos/>,No,,5d39e8755fbd53216a2fa442
+[],[],C clef,001r,clef.c,clef.c,"<clef shape=""C""/>",No,,5d39e8755fbd53216a2fa442
+[],[],F Clef,001r,,clef.f,"<clef shape=""F""/>",No,,5d39e8755fbd53216a2fa442

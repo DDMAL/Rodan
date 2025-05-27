@@ -1,0 +1,81 @@
+
+<div id="individual-workflow-run-container" class="content-wrapper column-content">
+    <!-- Workflow run details title -->
+    <div class="content-wrapper row-content  details-panel-title-section">
+        <div id="details-title" class="content-wrapper row-content padding-10">
+            <div class="details-title-text">WORKFLOW RUN DETAILS</div>
+        </div>
+    </div>
+
+    
+    <div id="workflow-run-details-and-action-btns-container" class="content-wrapper column-content">
+        <!-- Workflow run details -->
+        <div class="content-wrapper column-content details-panel-details-section">
+            <div class="content-wrapper column-content flex-gap-10 padding-5">
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">Creator:</div>
+                    <div class="details-item-value"><%= creator %></div>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <label class="details-item-label" for="text-workflowrun_name">Name:</label>
+                    <input type="text" id="text-workflowrun_name" value="<%= _.unescape(name) %>" name="text-workflowrun_name">
+                </div>
+
+                <div class="content-wrapper column-content details-item-container">
+                    <label class="details-item-label" for="text-workflowrun_description">Description:</label>
+                    <textarea type="text" id="text-workflowrun_description" name="text-workflowrun_description"><%= _.unescape(description) %></textarea>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">Creator:</div>
+                    <div class="details-item-value"><%= creator %></div>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">Created on:</div>
+                    <div class="details-item-value"><%= _.formatFromUTC(created) %></div>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">Updated on:</div>
+                    <div class="details-item-value"><%= _.formatFromUTC(updated) %></div>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">URL:</div>
+                    <div class="details-item-value"><%= url %></div>
+                </div>
+
+                <div class="content-wrapper row-content details-item-container">
+                    <div class="details-item-label">Status:</div>
+                    <div class="details-item-value"><%= statusText %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow run details actions (buttons) -->
+        <div class="content-wrapper row-content  details-panel-action-btns-section">
+            <button class="btn details-action-btn save-btn" id="button-save_workflowrun">Save</button>
+            <button class="btn details-action-btn btn-delete" id="button-delete_workflowrun">Delete</button>
+        </div>
+    </div>
+
+    <!-- Workflow run resources and run jobs collections -->
+    <div id="workflow-run-resources-and-run-jobs-container" class="content-wrapper column-content">
+        <!-- Workflow run resources + run jobs title -->
+        <div class="content-wrapper row-content  details-panel-title-section">
+            <div id="details-title" class="content-wrapper row-content padding-10">
+                <div class="details-title-text">WORKFLOW RUN RESOURCES & RUN JOBS</div>
+            </div>
+        </div>
+
+        <div id="workflow-run-collections-wrapper" class="content-wrapper row-content project-navigation-bar">
+            <span class="btn project-nav-bar-btn" id="button-resources_show">Resources</span>
+            <span class="btn project-nav-bar-btn" id="button-runjobs_show">Run Jobs</span>
+        </div>
+        <div class="content-wrapper column-content" id="region-main_workflowrun_individual_resources"></div>
+        <div class="content-wrapper column-content" id="region-main_workflowrun_individual_runjobs"></div>
+    </div>
+</div>
+

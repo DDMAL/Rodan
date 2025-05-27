@@ -1,0 +1,11 @@
+<div class="content-wrapper column-content filter-input-wrapper" id="filter_<%- field %>">
+    <label for="<%- field %>"><%- label %>:</label>
+    <div class="content-wrapper row-content filter-values-wrapper">
+        <select class="form-control input-sm" id="<%- field %>" name="<%- field %>" multiple>
+            <% _(values).each(function(value) { %>
+            <option value="<%= value.value %>"><%= value.label %></option>
+            <% }); %>
+        </select>
+        <!-- <button type="button" class="btn btn-warning btn-xs" id="button-remove" data-id="filter_<%- field %>">&times;</button> -->
+    </div>
+</div>

@@ -1,0 +1,1784 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamera-database version="2.0">
+  <glyphs>
+    <glyph uly="3" ulx="103" nrows="15" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 2 7 4 6 4 5 2 1 2 5 2 1 2 4 2 2 2 4 2 2 3 2 2 3 3 2 2 4 2 1 2 5 4 6
+        4 7 2 8 2 8 2 8 2 
+      </data>
+    </glyph>
+    <glyph uly="3" ulx="294" nrows="13" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 7 2 7 3 6 3 5 5 4 5 3 2 2 2 3 2 2 3 1 3 3 2 1 2 4 5 5 4 5 3 8 0 
+      </data>
+    </glyph>
+    <glyph uly="9" ulx="255" nrows="27" ncols="12">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 1 10 2 10 2 9 3 9 3 9 3 9 3 8 4 8 5 7 5 7 2 1 2 7 2 1 3 6 2 2 2 5 2
+        3 3 4 8 4 3 2 3 4 2 4 2 4 2 4 1 5 2 3 2 5 2 3 2 1 6 3 2 1 6 3 1 2 6 6
+        5 7 4 8 4 8 4 8 0 
+      </data>
+    </glyph>
+    <glyph uly="10" ulx="25" nrows="20" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 7 1 2 2 3 1 2 2 3 5 2 5 2 1 1 4 2 1 1 4 2 6 3 2 1 1 4 4 4 4 3 5 3
+        4 4 4 4 4 4 4 4 1 1 2 3 2 1 2 3 2 1 2 3 2 1 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="12" ulx="2" nrows="85" ncols="20">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        15 4 15 2 1 2 15 1 3 1 15 1 3 2 13 2 3 2 13 2 3 2 13 2 3 2 13 1 3 2
+        14 1 3 2 14 1 1 3 15 1 1 2 15 2 1 2 15 2 18 2 15 5 15 1 2 1 15 2 2 1
+        14 3 1 2 3 2 9 2 2 2 3 2 9 2 2 2 3 2 9 2 3 1 3 2 9 2 3 1 3 2 9 2 3 1
+        2 3 9 2 3 1 2 3 9 2 3 1 2 2 11 2 1 1 3 1 12 2 1 1 2 2 6 1 6 6 7 1 6 6
+        7 1 6 6 7 1 7 1 11 1 3 1 3 1 11 1 2 3 2 1 11 1 2 3 1 1 12 5 2 1 12 5
+        1 2 12 3 3 1 13 1 1 2 1 2 13 1 2 3 14 1 18 2 18 2 19 1 19 1 19 1 19 1
+        19 1 19 1 19 1 18 2 18 2 18 2 18 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1
+        19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1 19 1
+        19 1 19 1 18 2 18 2 18 2 18 2 18 2 18 2 18 2 18 2 18 1 19 0 
+      </data>
+    </glyph>
+    <glyph uly="13" ulx="0" nrows="17" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 4 1 4 1 5 1 4 2 4 1 4 2 4 1 5 1 4 2 4 2 4 1 5 1 5 1 5 1 5 1 5 1 5
+        0 
+      </data>
+    </glyph>
+    <glyph uly="14" ulx="180" nrows="18" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 1 7 1 6 2 5 3 5 3 5 3 6 2 6 2 6 2 6 2 6 2 6 2 2 6 1 6 1 7 1 7 1 7 2
+        5 2 0 
+      </data>
+    </glyph>
+    <glyph uly="14" ulx="291" nrows="24" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 2 6 2 6 2 6 2 6 2 6 2 5 3 5 3 5 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6
+        2 2 6 1 7 1 6 2 6 2 5 3 4 4 0 
+      </data>
+    </glyph>
+    <glyph uly="15" ulx="165" nrows="21" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 2 7 2 7 2 7 1 8 1 8 4 4 2 7 2 7 2 7 2 7 2 7 2 7 2 6 3 3 6 3 6 3 5 4
+        5 4 5 4 5 4 5 4 0 
+      </data>
+    </glyph>
+    <glyph uly="16" ulx="98" nrows="19" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 2 7 2 7 2 7 2 7 2 7 2 7 2 6 3 6 3 6 2 7 2 7 2 7 2 1 8 1 8 1 7 2 6 3
+        5 4 5 4 0 
+      </data>
+    </glyph>
+    <glyph uly="16" ulx="348" nrows="23" ncols="24">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 1 1 15 6 18 6 18 6 3 7 2 1 1 1 3 6 2 22 2 22 2 22 2 21 3 21 3 21 2
+        22 2 22 2 22 2 20 4 20 4 19 4 19 5 18 6 18 6 18 6 18 4 21 2 21 0 
+      </data>
+    </glyph>
+    <glyph uly="17" ulx="39" nrows="5" ncols="16">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 14 2 14 2 18 10 4 14 2 
+      </data>
+    </glyph>
+    <glyph uly="17" ulx="176" nrows="3" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 9 
+      </data>
+    </glyph>
+    <glyph uly="17" ulx="242" nrows="77" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+        2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2
+        1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+        2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+        2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="17" ulx="367" nrows="26" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 3 7 4 6 4 8 2 8 2 8 1 8 2 7 3 7 3 7 3 8 2 7 2 8 2 8 2 8 2 8 2 8 2 8
+        2 7 3 2 8 2 6 4 6 4 6 4 5 6 3 7 3 6 0 
+      </data>
+    </glyph>
+    <glyph uly="18" ulx="405" nrows="78" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
+        1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 2 1 1 2 1 2 1 2 1 2 1 2 1 2
+        2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
+        1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 2 1 2 1 2 1 1 2 2 1 2 1 2 1 2 1 2
+        1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="19" ulx="426" nrows="4" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 28 
+      </data>
+    </glyph>
+    <glyph uly="19" ulx="431" nrows="38" ncols="19">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 6 1 2 10 15 4 15 4 15 4 2 4 4 9 2 17 2 17 2 17 2 18 1 18 1 18 1 17
+        2 17 2 17 2 17 1 18 1 18 1 18 1 18 1 18 1 18 1 18 1 17 2 15 4 15 4 15
+        4 14 5 15 5 15 1 2 1 15 1 2 1 15 2 1 1 15 4 16 2 18 1 17 1 2 1 14 4
+        15 1 1 2 13 0 
+      </data>
+    </glyph>
+    <glyph uly="20" ulx="36" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 7 
+      </data>
+    </glyph>
+    <glyph uly="21" ulx="411" nrows="26" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 2 6 2 6 2 6 2 6 3 5 3 5 3 5 1 7 1 7 1 7 1 7 1 7 1 7 1 7 1 7 1 7 1 7
+        1 6 2 4 4 3 5 2 6 2 6 2 5 3 5 4 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="25" ulx="5" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="26" ulx="54" nrows="28" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 5 5 6 4 7 4 7 4 6 5 5 6 2 9 1 2 1 6 2 2 3 4 2 2 3 4 2 3 2 4 2 3 2 4
+        2 3 2 4 2 3 2 3 3 3 3 2 3 3 3 2 2 4 3 2 2 4 2 3 2 4 2 3 2 3 3 3 2 2 3
+        4 1 2 3 4 6 5 5 6 3 7 3 8 2 9 2 9 0 
+      </data>
+    </glyph>
+    <glyph uly="36" ulx="421" nrows="16" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 1 3 2 1 1 3 2 1 1 3 2 1 1 3 2 1 1 3 2 1 1 3 2 1 1 3 2 1 1 3 2 1
+        1 3 2 1 1 3 1 2 2 2 11 2 2 2 1 3 1 2 1 6 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="40" ulx="97" nrows="9" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 1 2 1 3 1 2 1 3 1 2 1 3 1 2 2 1 2 4 2 4 3 2 1 1 3 1 2 3 3 1 0 
+      </data>
+    </glyph>
+    <glyph uly="40" ulx="446" nrows="16" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 23 1 3 1 1 3 1 3 1 3 1 3 1 3 1 2 2 3 1 3 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="41" ulx="351" nrows="10" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 4 1 4 1 4 1 3 4 4 2 3 2 2 2 3 2 2 1 3 0 
+      </data>
+    </glyph>
+    <glyph uly="44" ulx="292" nrows="7" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 1 1 2 1 2 1 2 1 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="45" ulx="67" nrows="9" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 3 1 2 1 2 3 1 3 2 3 3 3 2 3 2 1 3 2 2 2 0 
+      </data>
+    </glyph>
+    <glyph uly="46" ulx="419" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="50" ulx="0" nrows="1" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 
+      </data>
+    </glyph>
+    <glyph uly="50" ulx="412" nrows="7" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 7 
+      </data>
+    </glyph>
+    <glyph uly="50" ulx="444" nrows="2" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="53" ulx="0" nrows="2" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="59" ulx="448" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="60" ulx="294" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 3 1 0 
+      </data>
+    </glyph>
+    <glyph uly="61" ulx="357" nrows="2" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 4 
+      </data>
+    </glyph>
+    <glyph uly="62" ulx="90" nrows="5" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 9 1 0 
+      </data>
+    </glyph>
+    <glyph uly="64" ulx="89" nrows="41" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 3 7 4 6 6 5 6 5 5 5 6 5 5 6 5 5 6 5 2 1 1 7 6 5 6 5 6 4 7 4 7 4 5 6
+        4 7 2 9 2 9 2 9 2 9 2 9 1 10 1 9 2 9 2 9 2 9 2 9 2 9 2 9 2 9 2 8 3 8
+        3 8 2 9 2 9 2 9 2 9 2 9 2 9 2 9 0 
+      </data>
+    </glyph>
+    <glyph uly="65" ulx="160" nrows="40" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 4 5 5 4 6 4 6 3 7 3 5 5 1 1 2 6 1 1 2 6 1 9 1 8 2 1 2 6 5 5 6 3 7 3
+        7 3 6 4 5 5 2 8 1 8 2 8 2 8 2 8 1 9 1 8 2 8 2 8 2 8 2 8 2 8 2 8 2 8 2
+        8 2 8 2 8 2 8 2 8 2 8 2 8 2 8 2 8 0 
+      </data>
+    </glyph>
+    <glyph uly="65" ulx="285" nrows="42" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 1 8 3 6 4 5 5 4 6 4 5 5 5 4 6 4 6 4 6 4 6 4 6 4 5 5 5 5 5 5 1 9 1 8
+        2 8 2 8 2 8 2 8 1 9 1 8 2 8 2 8 2 7 3 7 2 8 2 8 2 8 2 8 2 8 2 8 2 8 2
+        8 3 7 3 7 3 7 3 7 3 7 3 7 3 7 0 
+      </data>
+    </glyph>
+    <glyph uly="66" ulx="347" nrows="43" ncols="12">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        9 1 7 1 2 4 5 7 5 7 5 7 5 7 5 1 1 4 6 6 6 6 6 6 5 7 5 6 6 6 6 6 6 2 9
+        2 10 2 10 2 10 2 10 2 10 1 11 1 10 2 10 2 10 1 10 2 10 2 10 2 10 2 10
+        2 10 2 9 4 8 4 8 4 8 4 8 4 8 4 8 4 8 4 8 4 8 4 8 6 8 2 1 1 6 0 
+      </data>
+    </glyph>
+    <glyph uly="69" ulx="23" nrows="19" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 1 3 1 1 2 2 2 1 2 2 2 1 2 2 2 1 2 2 2 1 6 1 2 2 1 2 1 2 2 1 2 2 2 1
+        2 2 2 1 2 2 2 1 2 2 2 1 2 2 2 1 1 3 4 3 4 3 1 1 2 5 2 5 1 3 0 
+      </data>
+    </glyph>
+    <glyph uly="71" ulx="8" nrows="20" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 6 2 6 2 6 1 2 3 4 4 4 4 4 4 4 4 4 4 2 5 2 6 2 5 2 6 2 4 4 4 2 6 2 6
+        2 6 2 6 2 6 2 4 0 
+      </data>
+    </glyph>
+    <glyph uly="71" ulx="55" nrows="5" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 6 1 1 
+      </data>
+    </glyph>
+    <glyph uly="71" ulx="443" nrows="10" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 2 2 1 2 2 1 3 1 2 2 2 2 2 2 2 2 2 2 2 2 0 
+      </data>
+    </glyph>
+    <glyph uly="72" ulx="84" nrows="13" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 2 1 2 1 2 1 2 1 2 1 1 1 3 1 1 3 1 1 1 5 1 5 3 2 3 2 2 3 1 1 3 2 5
+        1 5 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="72" ulx="256" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="74" ulx="418" nrows="33" ncols="32">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        30 2 30 2 30 2 30 2 30 1 31 1 31 2 30 2 30 2 30 2 30 2 2 4 23 3 2 4
+        23 3 2 4 23 2 2 5 23 2 1 6 23 1 2 5 23 2 2 5 23 2 2 5 23 2 3 1 26 2 3
+        1 26 2 3 1 26 1 4 1 26 1 3 2 26 1 3 2 25 2 3 2 25 2 3 2 25 2 3 2 25 2
+        3 1 26 2 3 2 25 2 3 19 8 2 3 2 6 24 23 9 
+      </data>
+    </glyph>
+    <glyph uly="75" ulx="19" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="77" ulx="38" nrows="16" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 6 3 6 3 6 3 6 3 2 1 2 4 1 2 2 3 2 2 1 4 2 1 2 4 2 1 2 4 2 1 2 2 6 5
+        1 2 1 5 1 1 2 5 1 1 2 7 2 7 1 4 0 
+      </data>
+    </glyph>
+    <glyph uly="78" ulx="249" nrows="29" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 5 4 5 4 5 3 6 3 5 3 5 4 5 4 5 5 2 7 1 8 1 8 1 7 2 7 2 7 2 7 2 7 2 7
+        2 6 3 6 3 6 2 7 2 7 2 7 2 7 2 6 2 7 4 5 4 6 3 5 0 
+      </data>
+    </glyph>
+    <glyph uly="78" ulx="420" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="80" ulx="49" nrows="23" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 4 4 6 2 7 2 7 2 7 2 5 4 4 5 2 7 2 6 2 7 2 7 2 7 2 7 2 7 2 6 2 7 2 7
+        2 7 2 7 2 7 1 8 1 8 1 8 0 
+      </data>
+    </glyph>
+    <glyph uly="81" ulx="19" nrows="1" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 
+      </data>
+    </glyph>
+    <glyph uly="81" ulx="22" nrows="1" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 
+      </data>
+    </glyph>
+    <glyph uly="81" ulx="38" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="83" ulx="442" nrows="10" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 1 1 1 3 1 9 1 3 2 2 2 2 2 1 3 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="84" ulx="46" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="84" ulx="130" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="87" ulx="127" nrows="22" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 4 2 6 1 6 1 6 1 6 1 6 1 4 3 2 5 2 5 2 5 2 5 2 5 2 5 2 5 1 5 2 5 2 5
+        2 5 1 6 2 5 2 6 1 5 0 
+      </data>
+    </glyph>
+    <glyph uly="87" ulx="319" nrows="21" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 2 28 1 4 2 3 3 2 4 3 3 3 3 3 3 2 4 3 3 2 4 2 4 2 4 2 4 3 3 3 3 3
+        3 0 
+      </data>
+    </glyph>
+    <glyph uly="99" ulx="0" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="102" ulx="2" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 1 1 1 2 1 
+      </data>
+    </glyph>
+    <glyph uly="103" ulx="261" nrows="3" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 15 
+      </data>
+    </glyph>
+    <glyph uly="104" ulx="275" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="105" ulx="315" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="115" ulx="76" nrows="13" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 7 2 7 3 5 4 5 4 5 1 1 2 4 2 1 3 2 2 3 2 2 2 3 2 1 2 4 4 6 3 6 3 6
+        2 
+      </data>
+    </glyph>
+    <glyph uly="116" ulx="307" nrows="5" ncols="48">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        34 14 25 15 14 26 17 20 27 6 42 0 
+      </data>
+    </glyph>
+    <glyph uly="117" ulx="279" nrows="2" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 4 1 0 
+      </data>
+    </glyph>
+    <glyph uly="118" ulx="0" nrows="89" ncols="18">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 6 3 7 2 5 2 1 2 6 1 5 1 4 2 4 2 4 2 5 2 2 2 5 1 6 2 2 2 5 1 6 2 2
+        1 5 2 6 1 2 2 5 1 7 1 2 1 1 2 3 1 7 1 1 2 1 2 3 1 7 1 1 1 2 2 3 1 9 1
+        2 2 3 1 9 1 2 2 3 1 12 2 3 1 12 2 3 1 12 2 2 2 12 2 2 2 13 1 2 2 12 2
+        1 4 11 4 1 2 11 4 1 2 11 4 1 2 12 2 2 2 12 1 4 1 11 2 4 1 12 1 4 1 11
+        2 4 1 11 3 3 2 10 4 2 2 10 4 3 1 10 4 2 2 10 2 4 2 10 2 4 2 10 2 4 2
+        10 2 4 2 10 1 2 1 2 1 11 1 1 3 1 1 11 7 11 6 12 3 2 1 12 5 13 1 1 2
+        14 1 17 1 17 1 17 1 17 1 17 1 16 2 16 2 16 2 16 2 16 2 16 2 16 1 17 1
+        17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1
+        17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1 17 1
+        17 1 17 1 16 2 16 2 16 2 15 0 
+      </data>
+    </glyph>
+    <glyph uly="118" ulx="137" nrows="11" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 2 3 4 2 2 2 2 1 1 4 3 1 1 1 6 1 8 2 4 3 2 2 2 1 2 2 2 1 2 2 2 
+      </data>
+    </glyph>
+    <glyph uly="118" ulx="231" nrows="14" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 9 2 7 3 7 4 5 2 1 2 5 2 1 2 5 1 3 2 3 2 3 2 3 1 4 2 2 2 4 6 4 5 6
+        4 6 3 8 1 
+      </data>
+    </glyph>
+    <glyph uly="119" ulx="276" nrows="7" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 2 1 1 2 1 2 2 2 1 4 1 0 
+      </data>
+    </glyph>
+    <glyph uly="120" ulx="293" nrows="7" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 2 2 2 3 1 7 3 1 3 2 4 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="120" ulx="422" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="121" ulx="21" nrows="15" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 1 4 1 1 3 3 5 1 3 1 1 4 2 1 1 4 4 4 4 4 4 3 5 2 3 1 2 3 2 1 2 3 2 1
+        2 3 2 1 2 3 1 2 2 6 1 3 0 
+      </data>
+    </glyph>
+    <glyph uly="121" ulx="426" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="122" ulx="429" nrows="6" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 4 4 2 6 2 4 3 3 4 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="124" ulx="197" nrows="30" ncols="13">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 1 12 2 10 2 11 2 11 3 10 3 10 3 9 5 8 2 1 3 7 2 2 2 7 2 2 3 6 2 3 2
+        6 2 3 2 6 2 3 2 6 1 4 2 5 2 4 1 6 2 3 2 6 2 3 2 6 2 3 1 7 2 3 1 7 1
+        11 2 10 3 7 6 7 6 7 5 8 5 8 4 9 4 9 4 9 0 
+      </data>
+    </glyph>
+    <glyph uly="125" ulx="356" nrows="8" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 2 1 2 1 2 2 1 2 3 1 0 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="11" nrows="8" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 3 1 3 1 2 2 1 2 1 1 3 1 3 1 3 0 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="72" nrows="24" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        9 1 8 2 8 2 8 2 8 1 8 2 8 2 8 2 8 2 8 2 8 2 8 1 8 2 8 2 8 3 7 1 8 2 6
+        4 5 5 4 6 3 7 3 7 3 5 5 4 6 0 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="323" nrows="16" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 5 2 5 2 5 2 5 2 5 4 3 6 1 2 2 2 1 2 2 2 1 2 2 2 1 1 3 2 1 1 3 1 1
+        6 5 2 5 2 5 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="369" nrows="10" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 3 2 2 1 16 1 2 2 3 4 2 2 5 1 5 1 5 1 0 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="393" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 8 
+      </data>
+    </glyph>
+    <glyph uly="126" ulx="396" nrows="6" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 10 2 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="127" ulx="148" nrows="4" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 17 3 0 
+      </data>
+    </glyph>
+    <glyph uly="127" ulx="155" nrows="18" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 4 2 3 2 3 2 3 17 2 2 3 2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="127" ulx="382" nrows="9" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 2 10 1 1 1 2 1 2 1 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="128" ulx="143" nrows="80" ncols="50">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        44 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 1 49 1 49 1 49 2 48 2 48 2
+        48 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 5 3 41 1 1 7 40 11
+        40 1 1 4 1 7 32 10 3 10 22 10 11 14 9 12 2 2 20 18 10 2 48 2 48 2 48
+        2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48 2 48
+        2 48 1 49 1 49 2 48 2 48 2 48 2 48 1 48 3 48 1 49 1 49 1 49 1 49 1 49
+        2 48 2 48 2 48 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49 1 49
+        1 49 1 48 2 48 2 48 2 6 0 
+      </data>
+    </glyph>
+    <glyph uly="128" ulx="269" nrows="28" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 5 6 5 5 6 5 5 6 4 7 3 8 3 8 2 9 2 9 2 9 2 9 1 9 2 9 2 9 2 9 2 9 2 9
+        2 8 3 8 4 7 3 8 2 9 2 9 33 3 3 1 3 3 1 8 0 
+      </data>
+    </glyph>
+    <glyph uly="128" ulx="279" nrows="14" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 1 2 3 2 1 2 3 5 1 7 2 2 1 2 3 2 1 2 1 7 1 7 1 6 4 1 1 2 3 2 1 2 3
+        2 1 2 3 2 1 2 3 2 1 2 2 0 
+      </data>
+    </glyph>
+    <glyph uly="128" ulx="303" nrows="78" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 2 1 2 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
+        1 1 2 1 2 1 2 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
+        1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2
+        1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+        2 1 2 1 2 1 2 1 2 1 2 1 1 2 2 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="128" ulx="312" nrows="20" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 5 2 5 2 5 1 6 1 5 3 4 3 4 3 4 3 1 5 2 5 2 5 2 5 2 5 2 5 1 6 1 5 3 4
+        3 4 3 4 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="129" ulx="417" nrows="80" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3
+        2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 2 3 2 3 3 2 3 2 3 2 3 2 3 1
+        4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 1 4 1 4 1 4
+        1 4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 2 3 2 3 2 2 3 2
+        3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="35" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="37" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="136" nrows="22" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 5 6 2 9 2 9 4 7 4 7 4 6 3 9 1 9 2 9 2 9 2 9 2 9 2 9 2 9 1 6 7 4 8 3
+        5 5 6 5 6 5 5 6 5 6 0 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="229" nrows="25" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 2 6 1 7 2 6 2 6 2 6 1 6 2 6 2 6 2 6 2 6 2 6 1 6 2 6 2 6 2 6 2 5 3 5
+        3 3 5 2 6 2 6 2 6 2 6 2 5 4 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="289" nrows="23" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 3 4 6 3 6 3 6 3 6 3 3 6 2 7 1 8 1 7 2 7 2 7 2 7 2 7 2 7 2 5 4 5 4 5
+        4 6 3 6 2 7 2 7 2 7 2 6 0 
+      </data>
+    </glyph>
+    <glyph uly="131" ulx="331" nrows="19" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 3 5 4 4 5 4 5 4 5 4 4 5 3 6 2 7 2 7 2 7 2 7 2 7 2 7 2 7 1 4 2 1 2 4
+        5 4 5 6 1 6 0 
+      </data>
+    </glyph>
+    <glyph uly="132" ulx="40" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="132" ulx="380" nrows="1" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 
+      </data>
+    </glyph>
+    <glyph uly="133" ulx="30" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="134" ulx="351" nrows="28" ncols="47">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 5 38 3 1 5 38 3 1 5 38 3 1 5 37 4 1 5 7 3 27 4 1 4 7 4 27 4 1 3 8 4
+        27 3 2 3 8 4 11 4 12 3 2 2 9 3 12 4 12 2 3 2 9 2 12 5 12 2 3 2 9 2 12
+        5 12 2 3 2 9 2 12 4 13 2 3 2 9 2 12 3 14 2 2 7 4 3 12 3 13 3 2 7 4 3
+        12 2 14 3 2 7 4 2 13 2 14 2 3 2 4 1 1 6 12 2 14 2 3 2 9 7 8 2 14 2 3
+        2 9 7 8 2 14 2 3 3 1 14 7 8 9 2 3 14 11 8 9 2 7 10 3 1 7 8 1 2 6 1 16
+        10 3 18 21 10 7 9 25 13 4 5 28 19 29 1 6 10 43 4 5 0 
+      </data>
+    </glyph>
+    <glyph uly="135" ulx="435" nrows="25" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 6 2 5 4 3 5 3 5 3 5 3 5 3 4 4 3 5 2 6 2 6 1 2 2 3 1 2 3 2 1 2 3 2
+        1 3 2 2 1 4 2 1 1 3 2 2 1 3 2 1 7 1 6 2 5 3 5 3 3 5 1 7 1 7 0 
+      </data>
+    </glyph>
+    <glyph uly="135" ulx="445" nrows="5" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 10 1 0 
+      </data>
+    </glyph>
+    <glyph uly="136" ulx="44" nrows="22" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 4 3 6 3 6 2 7 2 6 3 5 4 2 7 2 7 2 7 2 7 2 7 1 8 1 8 1 8 1 7 5 4 5 4
+        5 3 4 5 2 7 2 7 2 7 0 
+      </data>
+    </glyph>
+    <glyph uly="139" ulx="14" nrows="8" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 8 
+      </data>
+    </glyph>
+    <glyph uly="143" ulx="150" nrows="7" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 1 3 4 1 22 2 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="145" ulx="51" nrows="8" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 9 1 1 1 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="145" ulx="316" nrows="3" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 21 
+      </data>
+    </glyph>
+    <glyph uly="146" ulx="12" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="146" ulx="276" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="152" ulx="373" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="166" ulx="381" nrows="2" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 4 
+      </data>
+    </glyph>
+    <glyph uly="167" ulx="334" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 5 
+      </data>
+    </glyph>
+    <glyph uly="169" ulx="139" nrows="3" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 4 1 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="170" ulx="373" nrows="40" ncols="16">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        9 2 13 4 12 5 6 10 7 12 7 9 6 6 10 5 11 1 15 1 15 1 1 3 11 6 10 6 9 7
+        9 7 9 6 10 6 10 4 12 1 14 2 14 2 14 1 14 2 14 2 14 2 14 2 13 3 13 2
+        14 2 14 2 14 1 14 2 14 2 14 2 14 2 14 1 15 1 14 2 14 2 14 2 14 0 
+      </data>
+    </glyph>
+    <glyph uly="171" ulx="72" nrows="2" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 1 0 
+      </data>
+    </glyph>
+    <glyph uly="171" ulx="233" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="172" ulx="316" nrows="40" ncols="26">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        19 3 22 5 20 6 18 10 16 11 17 5 21 2 24 1 25 1 1 2 22 5 20 6 20 6 20
+        6 20 5 21 4 22 2 24 1 11 5 8 2 11 5 8 2 11 5 8 2 11 5 8 2 11 5 8 2 11
+        4 9 2 11 4 9 2 11 4 9 2 11 2 11 2 11 2 11 2 11 2 11 2 11 2 11 2 10 3
+        11 2 10 2 12 2 10 2 12 1 11 2 12 1 11 2 12 1 11 2 12 1 11 2 12 1 10
+        17 9 17 9 17 13 2 20 0 
+      </data>
+    </glyph>
+    <glyph uly="175" ulx="68" nrows="33" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 1 5 4 3 5 3 5 3 5 3 5 3 4 3 5 3 5 3 5 3 5 3 5 3 5 3 5 3 2 1 1 4 1 7
+        1 6 2 6 2 6 2 6 2 6 2 6 2 6 1 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 0
+        
+      </data>
+    </glyph>
+    <glyph uly="176" ulx="134" nrows="32" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 2 4 4 3 5 3 5 3 5 2 5 3 5 3 6 2 6 2 6 2 6 2 5 3 5 3 3 5 1 7 1 6 2 6
+        2 6 2 5 3 5 2 6 2 6 2 6 2 6 2 6 2 6 1 7 1 7 1 7 1 7 1 7 1 7 0 
+      </data>
+    </glyph>
+    <glyph uly="176" ulx="224" nrows="35" ncols="60">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 2 57 5 45 3 7 5 44 4 5 6 44 5 6 5 44 5 6 4 44 6 5 2 47 6 4 6 44 6 4
+        6 44 5 5 6 44 5 5 6 44 5 5 5 45 5 5 5 45 5 5 5 23 4 18 5 5 2 26 4 18
+        3 7 1 27 4 18 2 7 2 26 5 17 3 7 2 26 5 17 2 8 2 26 4 18 2 7 3 26 4 18
+        2 8 2 26 2 20 2 8 1 27 1 21 2 7 2 27 1 20 2 8 2 27 1 20 2 8 2 26 2 20
+        2 8 2 26 2 20 2 8 2 26 2 20 2 8 2 26 2 20 2 8 1 27 2 20 2 8 1 27 2 19
+        2 8 2 27 2 19 3 6 25 1 28 6 54 6 54 29 22 8 1 6 0 
+      </data>
+    </glyph>
+    <glyph uly="180" ulx="22" nrows="21" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 3 3 1 1 1 1 5 1 5 1 5 1 5 2 1 1 2 2 3 2 4 2 4 2 4 1 6 1 1 1 2 2 1 1
+        1 2 2 1 1 2 2 1 1 2 2 4 2 4 1 5 1 5 1 5 0 
+      </data>
+    </glyph>
+    <glyph uly="181" ulx="101" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="182" ulx="6" nrows="9" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 2 1 4 1 14 1 0 
+      </data>
+    </glyph>
+    <glyph uly="182" ulx="8" nrows="19" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 2 5 2 5 2 6 2 5 2 5 2 5 2 5 1 6 1 5 1 5 2 4 2 4 3 4 2 5 1 5 2 5 2 5
+        2 5 2 5 0 
+      </data>
+    </glyph>
+    <glyph uly="182" ulx="43" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="182" ulx="200" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="182" ulx="320" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="183" ulx="258" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="183" ulx="353" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 8 
+      </data>
+    </glyph>
+    <glyph uly="183" ulx="434" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="188" ulx="39" nrows="21" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 2 8 2 9 2 9 2 9 2 9 1 10 1 10 1 9 2
+        9 2 9 33 
+      </data>
+    </glyph>
+    <glyph uly="188" ulx="96" nrows="21" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 1 3 2 5 2 5 2 5 2 5 2 4 2 5 2 5 2 3 4 2 5 2 5 2 5 2 5 2 5 2 5 2 5
+        1 5 2 5 5 2 5 4 3 2 0 
+      </data>
+    </glyph>
+    <glyph uly="189" ulx="194" nrows="20" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 4 3 4 2 5 2 4 3 3 4 2 4 3 4 2 5 2 5 2 5 2 5 2 5 2 5 1 6 1 5 2 5 2 5
+        2 5 2 6 1 5 0 
+      </data>
+    </glyph>
+    <glyph uly="189" ulx="349" nrows="21" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 5 2 5 2 5 2 5 1 6 1 5 2 5 2 5 3 1 6 1 5 2 5 2 5 2 5 2 5 2 5 2 5 2 5
+        1 5 21 
+      </data>
+    </glyph>
+    <glyph uly="189" ulx="430" nrows="21" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 5 2 5 2 5 1 5 2 5 1 5 2 5 2 3 4 2 5 2 5 2 5 2 5 2 5 2 5 2 5 2 5 2 5
+        2 5 21 
+      </data>
+    </glyph>
+    <glyph uly="192" ulx="17" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 1 1 
+      </data>
+    </glyph>
+    <glyph uly="206" ulx="109" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="206" ulx="198" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="207" ulx="212" nrows="3" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 9 
+      </data>
+    </glyph>
+    <glyph uly="207" ulx="216" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="207" ulx="364" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="208" ulx="338" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="213" ulx="0" nrows="4" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 3 2 3 2 3 2 
+      </data>
+    </glyph>
+    <glyph uly="219" ulx="230" nrows="8" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 1 1 2 1 2 2 1 1 2 1 1 2 1 2 2 4 4 2 4 2 4 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="225" ulx="85" nrows="15" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 3 8 3 8 4 7 4 6 2 1 2 6 2 1 3 5 1 3 2 4 2 3 2 4 1 4 3 2 2 4 3 2 1 6
+        2 1 2 6 5 7 4 7 4 7 2 
+      </data>
+    </glyph>
+    <glyph uly="225" ulx="209" nrows="11" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 3 2 4 1 3 2 2 3 1 6 1 3 2 2 3 2 3 2 3 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="227" ulx="272" nrows="2" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="228" ulx="159" nrows="9" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 4 2 2 1 5 1 10 1 5 4 2 4 3 4 3 4 1 5 0 
+      </data>
+    </glyph>
+    <glyph uly="228" ulx="269" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="228" ulx="318" nrows="7" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 3 1 3 2 2 3 1 1 1 2 3 2 3 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="228" ulx="408" nrows="11" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 1 4 4 2 2 2 2 1 1 3 5 2 5 2 1 2 1 2 2 5 1 5 2 5 2 5 2 2 0 
+      </data>
+    </glyph>
+    <glyph uly="229" ulx="16" nrows="8" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 2 4 6 1 3 2 5 4 3 5 2 5 2 6 2 6 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="229" ulx="51" nrows="30" ncols="12">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        9 2 10 2 9 2 10 2 10 2 10 2 9 2 10 2 10 3 8 5 7 5 7 2 1 2 7 2 1 3 6 2
+        2 2 6 2 2 2 5 3 2 2 5 3 2 2 5 3 2 2 5 2 3 2 5 2 10 2 10 2 7 5 7 5 6 5
+        7 5 6 5 7 4 8 3 9 3 9 0 
+      </data>
+    </glyph>
+    <glyph uly="229" ulx="143" nrows="8" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 2 2 2 2 2 2 3 2 3 2 3 2 3 1 3 0 
+      </data>
+    </glyph>
+    <glyph uly="230" ulx="231" nrows="25" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 3 3 3 3 3
+        3 2 15 1 5 1 5 1 4 3 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="230" ulx="269" nrows="1" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 
+      </data>
+    </glyph>
+    <glyph uly="231" ulx="27" nrows="17" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 1 6 2 1 2 6 2 1 3 5 2 1 3 4 3 1 3 4 2 2 1 6 2 2 1 6 2 1 3 5 2 1 5 3
+        1 2 5 3 1 1 13 6 2 1 2 6 2 1 2 6 5 6 5 6 1 1 2 5 0 
+      </data>
+    </glyph>
+    <glyph uly="231" ulx="388" nrows="9" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 3 1 4 4 1 3 3 2 3 3 2 3 2 3 2 3 2 
+      </data>
+    </glyph>
+    <glyph uly="233" ulx="270" nrows="5" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 5 
+      </data>
+    </glyph>
+    <glyph uly="235" ulx="4" nrows="37" ncols="15">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        10 1 13 2 13 2 12 3 1 1 1 1 8 7 8 2 1 4 8 6 9 4 10 4 9 1 1 3 9 2 1 3
+        9 2 1 2 10 1 2 2 9 1 3 3 7 2 3 6 4 2 3 7 2 3 3 8 1 2 4 2 4 2 1 2 4 2
+        4 2 1 2 4 2 4 2 1 2 4 2 4 2 1 3 3 2 4 2 2 2 3 2 3 2 3 3 2 2 2 3 3 3 2
+        2 2 2 5 2 2 2 2 1 6 3 1 2 1 2 9 4 11 4 11 4 11 1 14 1 13 2 8 1 4 1 9
+        2 2 1 10 4 12 2 12 0 
+      </data>
+    </glyph>
+    <glyph uly="235" ulx="83" nrows="28" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 5 3 5 2 6 2 6 2 6 2 6 2 6 2 6 1 6 2 6
+        2 6 2 4 4 3 5 2 6 2 6 2 6 2 5 3 5 3 4 5 1 6 0 
+      </data>
+    </glyph>
+    <glyph uly="236" ulx="284" nrows="11" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 1 2 2 3 1 16 1 3 2 2 2 2 2 2 
+      </data>
+    </glyph>
+    <glyph uly="237" ulx="20" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="237" ulx="207" nrows="35" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 3 6 4 6 4 6 2 8 2 8 2 8 1 9 1 8 2 8 2 8 2 8 2 8 2 8 2 7 3 7 2 8 2 8
+        2 8 2 8 2 8 2 8 2 8 2 8 1 8 2 8 2 8 2 5 5 5 5 5 5 5 5 5 4 6 4 6 4 7 1
+        8 0 
+      </data>
+    </glyph>
+    <glyph uly="238" ulx="419" nrows="81" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 4 1 4 1 4 1 4 1 4 1 4 1 4 1 4 1 4 1 4 2 3 2 3 2 3 2 3 1 4 1 4 1 4
+        1 4 1 4 1 4 1 4 1 4 1 4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+        3 2 3 2 3 2 3 1 4 1 4 1 4 1 4 1 4 1 4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3
+        2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+        3 1 4 1 4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 0 
+      </data>
+    </glyph>
+    <glyph uly="238" ulx="423" nrows="81" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 4 1 4 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3
+        2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 2 3 2 3 2 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+        3 2 3 2 3 2 3 2 3 2 2 3 3 2 2 3 2 3 2 2 3 2 3 2 3 2 3 2 3 2 3 2 3 3 2
+        2 3 2 4 2 3 2 3 2 3 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 2 3 2 3
+        2 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="238" ulx="430" nrows="32" ncols="20">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        18 2 18 2 14 2 2 2 10 10 6 6 2 2 10 6 14 6 14 3 17 2 18 2 17 3 17 3
+        17 3 17 3 18 2 17 3 17 3 17 3 17 3 17 3 17 2 18 2 18 2 18 2 18 2 14 6
+        14 6 13 6 14 5 15 4 16 4 16 3 17 0 
+      </data>
+    </glyph>
+    <glyph uly="239" ulx="1" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 1 1 1 1 2 
+      </data>
+    </glyph>
+    <glyph uly="239" ulx="137" nrows="26" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        8 1 8 1 7 2 7 2 7 2 7 2 6 3 6 3 6 2 7 2 7 2 7 1 7 2 7 2 7 2 7 2 6 2 7
+        2 7 2 3 6 3 6 3 5 4 5 4 5 4 4 5 4 5 0 
+      </data>
+    </glyph>
+    <glyph uly="239" ulx="149" nrows="30" ncols="13">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        12 1 12 1 12 1 11 12 1 28 1 1 3 1 3 4 11 2 11 2 11 1 11 2 11 2 11 2
+        11 2 11 2 11 2 11 2 11 2 10 3 10 3 10 2 9 4 8 5 7 6 6 7 6 6 7 5 8 4
+        10 1 7 0 
+      </data>
+    </glyph>
+    <glyph uly="239" ulx="192" nrows="82" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 1 4 1 4 1 3 2 4 1 3
+        2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 1
+        4 1 4 1 4 1 4 1 4 1 4 1 4 1 4 1 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3
+        2 3 2 3 2 3 2 3 2 3 2 3 1 4 1 4 1 4 1 4 1 4 1 4 1 4 1 3 2 3 2 3 2 3 2
+        3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="239" ulx="299" nrows="79" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 10 1 1 1 1 1 1 1 139 1 1 
+      </data>
+    </glyph>
+    <glyph uly="241" ulx="312" nrows="27" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 1 7 1 7 1 7 1 6 2 6 2 6 2 6 2 6 2 6 2 5 3 5 2 6 2 6 2 6 2 6 2 6 2 6
+        2 6 1 6 2 4 4 3 6 1 7 1 7 1 6 3 5 3 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="244" ulx="382" nrows="23" ncols="34">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 14 12 1 6 15 12 1 6 15 12 1 6 3 24 1 6 2 10 4 2 10 6 28 6 28 6 28 6
+        2 25 1 6 2 24 2 6 1 25 2 6 1 25 2 5 2 25 2 5 2 25 2 5 2 25 2 3 4 25 2
+        2 5 22 2 1 1 1 6 22 5 1 6 22 5 1 6 22 5 1 6 22 4 3 3 24 4 31 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="244" ulx="443" nrows="4" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 10 2 0 
+      </data>
+    </glyph>
+    <glyph uly="245" ulx="0" nrows="36" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 4 1 10
+        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="245" ulx="262" nrows="20" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 5 3 5 2 6 2 5 2 6 2 6 2 6 2 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 6 2 5 2 6
+        2 6 2 6 2 6 0 
+      </data>
+    </glyph>
+    <glyph uly="248" ulx="279" nrows="18" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 3 2 21 2 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 2 4 1 5 1 5 1 5 1 5 0 
+      </data>
+    </glyph>
+    <glyph uly="250" ulx="39" nrows="5" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 6 1 1 
+      </data>
+    </glyph>
+    <glyph uly="251" ulx="9" nrows="5" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 5 
+      </data>
+    </glyph>
+    <glyph uly="254" ulx="397" nrows="18" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 1 7 2 7 2 7 2 7 2 7 2 7 2 4 1 2 1 5 1 1 2 4 2 1 2 3 3 1 2 3 2 2 2 2
+        3 2 1 2 3 3 1 1 3 3 5 4 4 5 3 6 2 7 0 
+      </data>
+    </glyph>
+    <glyph uly="256" ulx="441" nrows="13" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 2 4 2 4 2 4 4 1 8 1 5 2 13 1 5 4 2 4 2 4 2 1 0 
+      </data>
+    </glyph>
+    <glyph uly="260" ulx="326" nrows="5" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 19 
+      </data>
+    </glyph>
+    <glyph uly="262" ulx="198" nrows="14" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 2 4 2 2 1 1 2 2 1 1 2 2 1 1 2 2 4 1 5 1 5 1 10 2 4 2 1 1 2 2 1 1 2
+        2 1 1 2 2 0 
+      </data>
+    </glyph>
+    <glyph uly="262" ulx="449" nrows="4" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 4 
+      </data>
+    </glyph>
+    <glyph uly="267" ulx="137" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 6 
+      </data>
+    </glyph>
+    <glyph uly="270" ulx="140" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="270" ulx="430" nrows="10" ncols="6">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 2 3 2 4 2 3 3 1 5 1 1 2 2 4 2 4 1 5 1 5 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="273" ulx="438" nrows="3" ncols="12">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 7 9 4 10 
+      </data>
+    </glyph>
+    <glyph uly="280" ulx="83" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="281" ulx="146" nrows="3" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 1 3 1 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="281" ulx="279" nrows="3" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 1 5 1 0 
+      </data>
+    </glyph>
+    <glyph uly="281" ulx="439" nrows="38" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 3 7 5 6 5 4 7 2 9 5 4 7 3 7 2 9 2 9 7 4 7 4 28 1 9 5 5 6 6 5 6 5 6
+        5 6 5 6 5 5 6 4 7 3 8 2 9 2 9 1 10 1 10 1 10 1 9 2 9 2 9 2 9 2 9 2 9
+        2 9 2 9 2 7 0 
+      </data>
+    </glyph>
+    <glyph uly="282" ulx="0" nrows="2" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="284" ulx="229" nrows="2" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="285" ulx="0" nrows="31" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 
+      </data>
+    </glyph>
+    <glyph uly="287" ulx="274" nrows="41" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 2 7 4 5 5 4 6 4 6 4 6 3 7 3 7 2 8 2 8 2 7 4 5 5 3 7 2 8 2 8 2 8 2 8
+        2 1 2 5 6 4 6 3 7 3 7 3 6 4 4 6 2 8 2 7 3 7 3 7 3 7 2 8 2 8 2 8 2 8 2
+        8 2 8 2 7 3 8 2 8 2 8 2 8 2 7 0 
+      </data>
+    </glyph>
+    <glyph uly="287" ulx="330" nrows="34" ncols="9">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 1 7 3 5 5 4 5 3 6 3 6 4 4 4 5 4 5 4 2 7 2 7 2 7 2 7 2 7 2 7 2 7 2 7
+        2 7 1 7 2 7 2 7 2 7 2 7 1 8 1 8 1 7 2 7 2 7 2 7 2 7 2 6 3 6 3 6 3 6 0
+        
+      </data>
+    </glyph>
+    <glyph uly="288" ulx="55" nrows="35" ncols="51">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        29 1 48 4 47 5 45 6 45 5 46 5 45 5 46 5 46 5 46 5 46 5 46 5 46 4 47 4
+        46 5 46 3 48 2 49 2 49 2 49 2 48 3 48 2 49 2 49 2 49 2 49 2 48 3 48 2
+        49 2 49 2 49 2 49 2 27 153 
+      </data>
+    </glyph>
+    <glyph uly="289" ulx="137" nrows="30" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        7 3 7 5 6 5 6 5 5 6 5 5 5 6 5 6 5 6 5 6 5 5 5 6 5 6 5 6 5 3 2 1 5 2 9
+        2 8 2 9 2 9 2 9 2 9 2 9 1 9 2 9 2 9 2 9 2 8 2 9 2 9 2 9 0 
+      </data>
+    </glyph>
+    <glyph uly="291" ulx="212" nrows="38" ncols="19">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        14 4 14 6 13 6 13 6 5 14 12 6 13 6 12 3 16 2 17 2 16 3 10 2 3 4 10 2
+        3 2 10 1 1 2 3 2 9 2 1 1 4 4 7 2 1 1 4 5 6 4 3 6 5 14 5 5 3 6 5 5 3 6
+        6 4 3 4 8 3 4 2 10 3 4 2 10 3 3 3 16 2 17 2 17 2 17 2 17 2 16 3 16 2
+        17 2 17 2 17 2 17 2 17 2 17 2 17 2 11 0 
+      </data>
+    </glyph>
+    <glyph uly="292" ulx="28" nrows="23" ncols="10">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 1 6 1 2 1 6 1 1 2 5 2 1 3 1 1 2 2 1 5 2 2 1 5 2 2 1 9 1 2 5 1 2 1 6
+        1 2 1 5 2 1 4 3 2 1 4 3 2 1 4 3 2 1 4 3 2 1 2 5 2 1 1 6 4 6 1 1 2 5 2
+        1 2 5 2 1 2 5 2 1 2 5 2 1 2 5 2 1 2 5 0 
+      </data>
+    </glyph>
+    <glyph uly="292" ulx="433" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="293" ulx="10" nrows="21" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        4 1 7 2 6 3 6 2 7 1 7 2 6 2 6 2 5 2 5 3 5 2 5 3 4 3 5 2 5 3 5 3 5 1 6
+        2 6 2 6 1 7 1 7 0 
+      </data>
+    </glyph>
+    <glyph uly="293" ulx="51" nrows="4" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 1 9 
+      </data>
+    </glyph>
+    <glyph uly="294" ulx="348" nrows="26" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 5 3 5 3 5 3 5 3 5 2 6 2 6 2 6 2 5 3 5 3 5 3 5 3 5 3 5 3 2 6 1 6 2 6
+        2 6 2 6 2 6 2 6 1 7 1 6 3 5 3 5 3 5 0 
+      </data>
+    </glyph>
+    <glyph uly="295" ulx="6" nrows="10" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        2 1 3 1 3 1 2 2 2 2 2 14 2 1 2 0 
+      </data>
+    </glyph>
+    <glyph uly="295" ulx="309" nrows="27" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 5 3 5 3 5 2 6 2 6 1 7 1 7 1 6 2 6 2 6 2 6 2 6 2 6 2 6 2 3 5 2 6 2 6
+        2 6 2 6 2 6 2 6 2 5 2 7 1 7 3 5 3 5 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="296" ulx="111" nrows="4" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 8 
+      </data>
+    </glyph>
+    <glyph uly="297" ulx="387" nrows="15" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        6 3 4 4 3 4 1 16 2 5 5 2 4 2 5 2 4 3 4 2 5 2 5 2 5 2 3 0 
+      </data>
+    </glyph>
+    <glyph uly="299" ulx="255" nrows="4" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 1 9 
+      </data>
+    </glyph>
+    <glyph uly="301" ulx="203" nrows="4" ncols="3">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        1 1 1 9 
+      </data>
+    </glyph>
+    <glyph uly="301" ulx="281" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+    <glyph uly="302" ulx="50" nrows="21" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 24 1 4 1 4 1 3 2 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 3 4 1 4 1
+        2 0 
+      </data>
+    </glyph>
+    <glyph uly="302" ulx="107" nrows="21" ncols="19">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 5 14 5 14 5 13 6 13 5 14 5 14 5 14 2 17 2 17 2 17 2 17 2 17 2 17 2
+        17 1 18 1 17 2 17 2 16 57 
+      </data>
+    </glyph>
+    <glyph uly="306" ulx="20" nrows="3" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 6 
+      </data>
+    </glyph>
+    <glyph uly="306" ulx="27" nrows="3" ncols="1">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 3 
+      </data>
+    </glyph>
+    <glyph uly="307" ulx="249" nrows="22" ncols="8">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        5 1 6 2 6 2 4 5 3 6 1 7 1 7 1 7 1 5 3 4 4 2 6 2 6 2 6 2 6 2 6 2 6 2 5
+        3 5 2 6 3 5 3 5 3 5 0 
+      </data>
+    </glyph>
+    <glyph uly="311" ulx="201" nrows="19" ncols="7">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        3 4 2 5 2 5 2 5 2 5 3 3 3 3 4 2 5 2 5 2 5 2 5 2 5 2 5 1 5 2 5 2 5 2 5
+        2 4 3 4 0 
+      </data>
+    </glyph>
+    <glyph uly="318" ulx="314" nrows="3" ncols="15">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 45 
+      </data>
+    </glyph>
+    <glyph uly="318" ulx="334" nrows="3" ncols="11">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 33 
+      </data>
+    </glyph>
+    <glyph uly="320" ulx="128" nrows="3" ncols="4">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 12 
+      </data>
+    </glyph>
+    <glyph uly="320" ulx="134" nrows="4" ncols="5">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 4 1 10 4 1 
+      </data>
+    </glyph>
+    <glyph uly="337" ulx="448" nrows="1" ncols="2">
+      <ids state="UNCLASSIFIED">
+      </ids>
+      <data>
+        0 2 
+      </data>
+    </glyph>
+  </glyphs>
+</gamera-database>

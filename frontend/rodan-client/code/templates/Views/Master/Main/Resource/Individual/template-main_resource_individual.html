@@ -1,0 +1,53 @@
+<!-- Resource details title -->
+<div class="content-wrapper row-content  details-panel-title-section">
+    <div id="details-title" class="content-wrapper row-content padding-10">
+        <div class="details-title-text">RESOURCE DETAILS</div>
+    </div>
+</div> 
+
+<div class="content-wrapper column-content details-panel-details-section padding-10">
+    <div class="content-wrapper row-content details-item-container">
+        <label class="details-item-label" for="text-resource_name">Name:</label>
+        <input class="details-item-value" type="text" class="form-control input-sm" id="text-resource_name" value="<%= _.unescape(name) %>" name="text-resource_name">
+    </div>
+
+    <div class="content-wrapper column-content details-item-container">
+        <label for="text-project_description">Description:</label>
+        <textarea type="text" class="form-control input-sm" id="text-resource_description" name="text-resource_description"><%= _.unescape(description) %></textarea>
+    </div>
+
+    <div class="content-wrapper column-content details-item-container">
+        <label class="details-item-label" for="input-project_labels">Label(s):</label>
+        <input type="tags" class="form-control input-sm" id="input-resource_labels" value="<%= _.map(labels, (label) => { return label.name; }) %>"
+                name="input-resource_labels">
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Creator:</div>
+        <div class="details-item-value"><%= creator %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Created:</div>
+        <div class="details-item-value"><%= _.formatFromUTC(created) %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">Updated:</div>
+        <div class="details-item-value"><%= _.formatFromUTC(updated) %></div>
+    </div>
+    <div class="content-wrapper row-content details-item-container">
+        <div class="details-item-label">URL:</div>
+        <div class="details-item-value"><%= url %></div>
+    </div>
+    <div class="content-wrapper column-content details-item-container">
+        <div class="details-item-label">Type:</div>
+        <select id="select-resourcetype"></select>
+    </div>
+    <!-- <div class="instruction">Note: opening the Resource "View" (if available) may require authentication, but no authentication is required for "Download".</div> -->
+</div>
+
+<!-- Resource details actions (buttons) -->
+<div class="content-wrapper row-content  details-panel-action-btns-section">    
+    <button class="btn details-action-btn" id="button-main_resource_individual_view">View</button>
+    <button class="btn details-action-btn" id="button-main_resource_individual_download">Download</button>
+    <button class="btn details-action-btn save-btn" id="button-main_resource_individual_save">Save</button>
+    <button class="btn details-action-btn btn-delete" id="button-main_resource_individual_delete">Delete</button>
+</div>

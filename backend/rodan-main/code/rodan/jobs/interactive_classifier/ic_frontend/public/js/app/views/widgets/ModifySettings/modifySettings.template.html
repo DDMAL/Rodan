@@ -1,0 +1,45 @@
+<head>
+<style>
+
+#userSelection1{
+
+float: left;
+width: 70%;
+
+}
+
+#userSelection2{
+
+float: left;
+width: 29%;
+
+}
+
+</style>
+</head>
+
+<p><%- text %></p>
+<% if (warning) { %>
+<p><b><%- warning %></b></p>
+<% } %>
+<% for (var x in userOptions) { %>
+	<% var type = userOptions[x]['type'] %>
+	<%if (type == "input"){ %>
+		<% var deflt = userOptions[x]['default'] %>
+		<p id = "userSelection1"><%- userOptions[x]["text"] %> </p>
+		<p id = "userSelection2"> <input id="value" name = "<%- userOptions[x]['text'] %>" value="<%- deflt %>" class = "userOption" style = "width: 50px;" /> </p>
+	<% } else if (type =="dropdown"){ %>
+		<p id = "userSelection1"><%- userOptions[x]["text"] %></p>
+		<% var options = userOptions[x]["options"]; %>
+		<p id = "userSelection2"><select class = "userOption" name = "<%- userOptions[x]['text'] %>">
+			<% for (opt in options) { %>
+			<option ><%- options[opt] %> </option>
+			<%}%>
+		</select></p>
+	<% } else if (type =="checkbox"){ %>
+		<p id = "userSelection1"><%- userOptions[x]["text"] %> </p>
+		<p id = "userSelection2"><input type = "checkbox" class = "userOption" name = "<%- userOptions[x]['text'] %>">
+	<% } %>
+	</p>
+<% } %>
+<p><button class="btn btn-primary"><%- buttonText %></button></p>

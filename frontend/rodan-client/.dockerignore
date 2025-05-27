@@ -1,0 +1,15 @@
+**/.gitignore
+**/.DS_Store
+
+code/__develop__
+code/configuration.json
+code/npm-debug.log
+code/node_modules
+code/dist
+code/web
+code/bundle
+code/tmp
+code/website/_site
+code/configuration.json
+code/src/js/.plugins.js
+code/src/js/Plugins.js

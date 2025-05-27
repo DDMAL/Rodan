@@ -1,0 +1,411 @@
+<!-- Copyright (C) 2020 Juliette Regimbal -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html>
+  <head>
+    <title>Biollante - GA Optimization</title>
+    <link type="text/css" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="opts-tabs" class="tabs is-centered">
+      <ul>
+        <li id="setting-tab" class="is-active"><a>Settings</a></li>
+        <li id="weight-tab"><a>Weights</a></li>
+      </ul>
+    </div>
+    <div id="settings" class="sec-tab">
+      <section class="section">
+        <div class="container">
+          {% if optimizer %}
+          <h2 class="subtitle">Latest Optimizer Results</h2>
+          <p>Last Generation: {{ optimizer.generation }}</p>
+          <p>Best Result: {{ optimizer.bestFitness }}</p>
+          {% else %}
+          <p>No previous optimizer results.</p>
+          {% endif %}
+        </div>
+      </section>
+      <section class="section">
+        <form class="container" id="base-settings">
+          <h2 class="subtitle">Base Settings</h2>
+          <div class="field">
+            <div class="control">
+              <label class="radio">
+                <input type="radio" name="opMode" value="0"
+                   {% if base.opMode == 0 or not base.opMode %}checked{% endif %}>
+                Feature Selection
+              </label>
+              <label class="radio">
+                <input type="radio" name="opMode" value="1"
+                   {% if base.opMode == 1 %}checked{% endif %}>
+                Feature Weighting
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="base-popsize">Population Size</label>
+            <div class="control">
+              <input class="input" type="number" name="popSize" id="base-popsize" min="0" value="{{ base.popSize }}">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="base-mutrate">Mutation Rate</label>
+            <div class="control">
+              <input class="input" type="number" name="mutRate" id="base-mutrate" min="0" max="1" step="0.01" value="{{ base.mutRate }}">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="base-crossrate">Crossover Rate</label>
+            <div class="control">
+              <input class="input" type="number" name="crossRate" id="base-crossrate" min="0" max="1" ste="0.01" value="{{ base.crossRate }}">
+            </div>
+          </div>
+        </form>
+        <br>
+        <div class="container">
+          <div id="settings-tabs" class="tabs is-centered">
+            <ul>
+              <li id="tab-selection" class="is-active"><a>Selection</a></li>
+              <li id="tab-crossover"><a>Crossover</a></li>
+              <li id="tab-mutation"><a>Mutation</a></li>
+              <li id="tab-replacement"><a>Replacement</a></li>
+              <li id="tab-stop-criteria"><a>Stop Criteria</a></li>
+            </ul>
+          </div>
+          <!-- Controls for Selection Settings -->
+          <form class="tab-contents" id="selection-contents">
+            <div class="field">
+              <div class="control">
+                <label class="radio">
+                  <input type="radio" name="method" value="roulette"
+                    {% if selection.method == "roulette" %}checked{% endif %}>
+                  Roulette Wheel
+                </label>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="radio">
+                    <input type="radio" name="method" value="roulette_scaled"
+                      {% if selection.method == "roulette_scaled" or not selection.method %}checked{% endif %}>
+                    Roulette Wheel (linear scaled)
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="selection-roulpressure">Pressure</label>
+                  <input class="input" type="number" name="pressure" id="selection-roulpressure" min="0" step="0.01"
+                   value="{% if selection.parameters.pressure %}{{ selection.parameters.pressure }}{% else %}2.00{% endif %}"
+                  {% if selection.method != "roulette_scaled" and selection.method %}disabled{% endif %}>
+                </div>
+              </div>
+              <div class="control">
+                <label class="radio">
+                  <input type="radio" name="method" value="stochiastic"
+                    {% if selection.method == "stochiastic" %}checked{% endif %}>
+                  Stochiastic Universal Sampling
+                </label>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="radio">
+                    <input type="radio" name="method" value="rank"
+                      {% if selection.method == "rank" %}checked{% endif %}>
+                    Rank Selection
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="selection-rankpressure">Pressure</label>
+                  <input class="input" type="number" name="pressure" id="selection-rankpressure" min="0" step="0.01"
+                    value="{% if selection.parameters.pressure %}{{ selection.parameters.pressure }}{% else %}2.00{% endif %}"
+                    {% if selection.method != "rank" %}disabled{% endif %}>
+                  <label class="label" for="selection-rankexp">Exponent</label>
+                  <input class="input" type="number" name="exponent" id="selection-rankexp" min="0" step="0.01"
+                    value="{% if selection.parameters.exponent %}{{ selection.parameters.exponent }}{% else %}1.00{% endif %}"
+                    {% if selection.method != "rank" %}disabled{% endif %}>
+                </div>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="radio">
+                    <input type="radio" name="method" value="tournament"
+                      {% if selection.method == "tournament" %}checked{% endif %}>
+                    Tournament Selection
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="selection-tsize">Size</label>
+                  <input type="number" class="input" name="tSize" id="selection-tsize" min="0"
+                    value="{% if selection.parameters.tSize %}{{ selection.parameters.tSize }}{% else %}3{% endif %}"
+                    {% if selection.method != "tournament" %}disabled{% endif %}>
+                </div>
+              </div>
+              <div class="control">
+                <label class="radio">
+                  <input type="radio" name="method" value="random"
+                    {% if selection.method == "random" %}checked{% endif %}>
+                  Random Selection
+                </label>
+              </div>
+            </div>
+          </form>
+          <!-- Controls for Crossover -->
+          <form class="tab-contents is-sr-only" id="crossover-contents">
+            <div class="field">
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="nPoint">
+                    N-Point
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="crossover-n">N</label>
+                  <input type="number" class="input" name="n" id="crossover-n" min="0" value="1" disabled>
+                </div>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="uniform" checked>
+                    Uniform
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="crossover-preference">Preference</label>
+                  <input type="number" class="input" name="preference" id="crossover-preference" min="0" max="1" value="0.50" step="0.01">
+                </div>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input class="weighting-only" type="checkbox" name="method" value="sbx" checked>
+                    SBX Crossover
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="crossover-sbx-min">Min</label>
+                  <input type="number" class="input" name="min" id="crossover-sbx-min" value="0.00">
+                  <label class="label" for="crossover-sbx-max">Max</label>
+                  <input type="number" class="input" name="max" id="crossover-sbx-max" value="1.00">
+                  <label class="label" for="crossover-sbx-eta">Eta</label>
+                  <input type="number" class="input" name="eta" id="crossover-sbx-eta" value="1.00">
+                </div>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input class="weighting-only" type="checkbox" name="method" value="segment">
+                    Segment
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="crossover-seg-min">Min</label>
+                  <input type="number" class="input" name="min" id="crossover-seg-min" value="0.00" disabled>
+                  <label class="label" for="crossover-seg-max">Max</label>
+                  <input type="number" class="input" name="max" id="crossover-seg-max" value="1.00" disabled>
+                  <label class="label" for="crossover-seg-alpha">Alpha</label>
+                  <input type="number" class="input" name="alpha" id="crossover-seg-alpha" value="0.00" disabled>
+                </div>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input class="weighting-only" type="checkbox" name="method" value="hypercube">
+                    Hypercube
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="crossover-hc-min">Min</label>
+                  <input class="input" type="number" name="min" id="crossover-hc-min" value="0.00" disabled>
+                  <label class="label" for="crossover-hc-max">Max</label>
+                  <input class="input" type="number" name="max" id="crossover-hc-max" value="1.00" disabled>
+                  <label class="label" for="crossover-hc-alpha">Alpha</label>
+                  <input class="input" type="number" name="alpha" id="crossover-hc-alpha" value="1.00" disabled>
+                </div>
+              </div>
+            </div>
+          </form>
+          <!-- Controls for Mutation settings -->
+          <form class="tab-contents is-sr-only" id="mutation-contents">
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="method" value="shift">
+                  Shift Mutation
+                </label>
+              </div>
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="method" value="swap" checked>
+                  Swap Mutation
+                </label>
+              </div>
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="method" value="inversion">
+                  Inversion Order
+                </label>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input class="selection-only" type="checkbox" name="method" value="binary" checked>
+                    Binary Mutation
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="mutation-bin-rate">Rate</label>
+                  <input type="number" class="input" name="rate" id="mutation-bin-rate" min="0" value="0.05" step="0.01">
+                </div>
+              </div>
+              <div class="control level">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input class="weighting-only" type="checkbox" name="method" value="gauss" checked>
+                    Gauss Mutation
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="mutation-min">Min</label>
+                  <input type="number" class="input" name="min" id="mutation-min" value="0">
+                  <label class="label" for="mutation-max">Max</label>
+                  <input type="number" class="input" name="max" id="mutation-max" value="1">
+                  <label class="label" for="mutation-sigma">Sigma</label>
+                  <input type="number" class="input" name="sigma" id="mutation-sigma" value="0.50">
+                  <label class="label" for="mutation-gauss-rate">Rate</label>
+                  <input type="number" class="input" name="rate" id="mutation-guass-rate" value="0.50">
+                </div>
+              </div>
+            </div>
+          </form>
+          <!-- Controls for Replacement settings -->
+          <form class="tab-contents is-sr-only" id="replacement-contents">
+            <div class="field">
+              <div class="control">
+                <label class="radio">
+                  <input type="radio" name="method" value="generational"
+                    {% if replacement.method == "generational" %}checked{% endif %}>
+                  Generational
+                </label>
+              </div>
+              <div class="control">
+                <label class="radio">
+                  <input type="radio" name="method" value="SSGAworse"
+                    {% if replacement.method == "SSGAworse" %}checked{% endif %}>
+                  SSGA Worse
+                </label>
+              </div>
+              <div class="level">
+                <div class="control level-left">
+                  <label class="radio">
+                    <input type="radio" name="method" value="SSGAdetTournament"
+                      {% if replacement.method == "SSGAdetTournament" or not replacement.method%}checked{% endif %}>
+                    SSGA det. Tournament
+                  </label>
+                </div>
+                <div class="control level-right">
+                  <label class="label" for="replacement-tsize">Size</label>
+                  <input type="number" name="tSize" id="replacement-tsize" min="0"
+                    value="{% if replacement.parameters.tSize %}{{ replacement.parameters.tSize }}{% else %}3{% endif %}"
+                    {% if replacement.method != "SSGAdetTournament" and replacement.method %}disabled{% endif %}>
+                </div>
+              </div>
+            </div>
+          </form>
+          <!-- Controls for Stop Criteria -->
+          <form class="tab-contents is-sr-only" id="stop-criteria-contents">
+            <div class="field">
+              <div class="level control">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="bestFitness">
+                    Best Fitness
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="sc-optimum">Optimum</label>
+                  <input type="number" class="input" name="optimum" id="sc-optimum" min="0" max="1" value="1.00" step="0.01" disabled>
+                </div>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="maxGenerations">
+                    Max. Generations
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="sc-max-gen">N</label>
+                  <input type="number" class="input" name="n" id="sc-max-gen" min=1 value="100" disabled>
+                </div>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="maxFitnessEvals">
+                    Max. Fitness Evals
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="sc-max-eval">N</label>
+                  <input type="number" class="input" name="n" id="sc-max-eval" min="1" value="5000" disabled>
+                </div>
+              </div>
+              <div class="level control">
+                <div class="level-left">
+                  <label class="checkbox">
+                    <input type="checkbox" name="method" value="steadyState" checked>
+                    Steady State
+                  </label>
+                </div>
+                <div class="level-right">
+                  <label class="label" for="sc-min-gens">Min. Generations</label>
+                  <input type="number" class="input" name="minGens" min="1" value="40">
+                  <label class="label" for="sc-no-change-gens">No Change Gens.</label>
+                  <input type="number" class="input" name="noChangeGens" min="1" value="10">
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="level">
+            <button class="button level-item" id="start-button">Start Optimization</button>
+            <button class="button level-item" id="finish-button">Finish Job</button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <section id="weights" class="section sec-tab is-sr-only">
+      <div class="container">
+        {% if weights %}
+        <table class="table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th>Feature Name</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, values in weights.items %}
+            {% for value in values %}
+            <tr>
+              <td>{{ name }} - {{ forloop.counter0 }}</td>
+              <td>
+                {% with v=value|floatformat:2 %}
+                <div class="level">
+                  <span>{{ v }}&nbsp;</span>
+                  <progress class="progress is-info" value="{{ v }}" max="1.00">{{ v }}%</progress>
+                </div>
+                {% endwith %}
+              </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>No weights! An error occurred.</p>
+        {% endif %}
+      </div>
+    </section>
+    <script type="application/javascript" src="./index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<div class="row">
+<table class="table table-hover">
+    <div class="col-xs-6 col-md-3">
+        <h4><%- gui.connectedComponent %></h4>
+        <img src="data:image/png;base64,<%- image_b64 %>"
+             alt="<%- gui.glyphPreview %>" class="img-thumbnail">
+    </div>
+    <div class="col-xs-6 col-md-9">
+            <tr>
+                <td><%- gui.classLabel %></td>
+                <td>
+                    <form class="form-inline">
+                        <input type="text" class="form-control"
+                               value="<%- class_name %>" title="glyph-class"
+                               onfocus="this.value = this.value;">
+                        <button type="submit" id="change" class="btn btn-default"><%-
+                            gui.update %>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td> Splitting </td>
+                <td>
+                <select id = "split_option">
+                <option>Split x</option>
+                <option >Split x left</option>
+                <option >Split x right</option>
+                <option >Split x max</option>
+                <option >Split y</option>
+                <option >Split y bottom</option>
+                <option >Split y top</option>
+                </select>
+                    <button class="split" type="button"><%-
+                        gui.split %>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td><%- gui.manualID %></td>
+                <td><%- id_state_manual %></td>
+            </tr>
+            <tr>
+                <td><%- gui.confidence %></td>
+                <td><%- confidence %></td>
+            </tr>
+            <tr>
+                <td><%- gui.position %></td>
+                <td>(<%- ulx %>, <%- ulx %>)</td>
+            </tr>
+            <tr>
+                <td><%- gui.dimensions %></td>
+                <td>(<%- ncols %>, <%- nrows %>)</td>
+            </tr>
+            <tr>
+                <td>
+                    <form class="form-inline">
+                        <button id="delete" type="button" class="btn btn-danger"><%-
+                            gui.delete %>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>

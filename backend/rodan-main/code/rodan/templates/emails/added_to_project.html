@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}{{ site_name }} - You have been added to project '{{ project_name }}'!{% endblocktrans %}
+{% endblock %}
+
+{% block html_body %}
+<p>{% blocktrans %}You have been added as '{{ role }}' to project '{{ project_name }}' by '{{ adder }}'!{% endblocktrans %}</p>
+{% endblock html_body %}

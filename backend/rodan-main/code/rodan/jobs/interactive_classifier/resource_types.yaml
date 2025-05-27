@@ -1,0 +1,18 @@
+- mimetype: text/plain
+  description: Plain text
+  extension: txt
+- mimetype: image/onebit+png
+  description: One-bit (black and white) PNG image
+  extension: png
+- mimetype: image/greyscale+png
+  description: Greyscale PNG image
+  extension: png
+- mimetype: image/grey16+png
+  description: Greyscale 16 PNG image
+  extension: png
+- mimetype: image/rgb+png
+  description: RGB PNG image
+  extension: png
+- mimetype: application/gamera+xml
+  description: Gamera XML file
+  extension: xml

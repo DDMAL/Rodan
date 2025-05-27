@@ -1,0 +1,39 @@
+<!-- Resource details title -->
+<div class="content-wrapper row-content  details-panel-title-section">
+    <div id="details-title" class="content-wrapper row-content padding-10">
+        <div class="details-title-text">RESOURCE DETAILS</div>
+    </div>
+</div> 
+
+
+<!-- Resource details -->
+<div class="content-wrapper column-content details-panel-details-section padding-10">
+    <div class="content-wrapper column-content details-item-container">
+        <div class="details-item-value"><%- count %> Resources Selected.</div>
+    </div>
+    <div class="content-wrapper column-content details-item-container">
+        <label for="select-resourcetype">Type:</label>
+        <select class="details-item-value" id="select-resourcetype"></select>
+    </div>
+    <% if (isSameLabel) { %>
+        <label class="content-wrapper column-content details-item-container">
+            <div class="details-item-label">Labels:</div>
+            <input class="details-item-value" id="label-multi-input" type="tags" name="labelInput">
+        </label>
+    <% } %>
+    <div class="content-wrapper column-content details-item-container">
+        <div class="details-item-value">Note: multi-selecting resources is still experimental.</div>
+    </div>
+</div>
+
+
+<!-- Resource details actions (buttons) -->
+<div class="content-wrapper row-content  details-panel-action-btns-section">
+    <button class="btn details-action-btn" id="button-main_resource_individual_view">View</button>
+    <button class="btn details-action-btn" id="button-main_resource_individual_download">Download</button>
+    <button class="btn details-action-btn save-btn" id="button-main_resource_individual_save">Save</button>
+    <button class="btn details-action-btn btn-delete" id="button-main_resource_individual_delete">Delete</button>
+</div>
+
+
+

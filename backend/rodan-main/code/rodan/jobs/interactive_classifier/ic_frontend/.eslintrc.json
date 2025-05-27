@@ -1,0 +1,13 @@
+// Config for Node modules
+{
+    "extends": "./.eslintrc.base.json",
+
+    "env": {
+        "node": true
+    },
+
+    "rules": {
+        "strict": 2,
+        "no-console": 0
+    }
+}

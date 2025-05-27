@@ -1,0 +1,58 @@
+<div id="workflow-builder-container" class="content-wrapper column-content">
+    <nav id="workflow-builder-navbar" class="content-wrapper row-content">
+        <div id="worlkflow-builder-navbar-content-wrapper" class="content-wrapper row-content">
+
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" style="display: none;"> 
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                
+                <div id="navbar-workflow-name" class="workflow-name"><%= name %></div>
+            </div>
+
+            <div class="content-wrapper row-content">
+                <div id="workflow-builder-navbar-btns-wrapper" class="content-wrapper row-content">
+                    <div class="dropdown">
+                        <div id="workflow-dropdown-toggle" class="dropdown-toggle">Workflow</div>
+
+                        <div id="workflow-dropdown" class="dropdown-menu content-wrapper column-content">
+                            <a class="dropdown-btn" id="button-edit">Edit Name/Description</a>
+                            <a class="dropdown-btn" id="button-clear_assigned_resources">Clear Assigned Resources</a>
+                            <a class="dropdown-btn" id="button-add_job">Add Job</a>
+                            <a class="dropdown-btn" id="button-import_workflow">Import Workflow</a>
+                            <a class="dropdown-btn" id="button-run">Run</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div id="view-dropdown-toggle" class="dropdown-toggle">View</div>
+
+                        <div id="view-dropdown" class="dropdown-menu content-wrapper column-content">
+                            <a class="dropdown-btn" id="button-zoom_in">Zoom in</a>
+                            <a class="dropdown-btn" id="button-zoom_out">Zoom out</a>
+                            <a class="dropdown-btn" id="button-zoom_reset">Reset</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div id="settings-dropdown-toggle" class="dropdown-toggle">Settings</div>
+
+                        <div id="settings-dropdown" class="dropdown-menu content-wrapper column-content">
+                            <a class="dropdown-btn">
+                                Automatically add ports to job
+                                <input type="checkbox" checked="checked" id="checkbox-add_ports"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="data-workflow_status"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="canvas-wrap" class="content-wrapper column-content">
+        <canvas id="canvas-workspace" resize></canvas>
+        <div id="canvas-tooltip"></div>
+    </div>
+</div>
