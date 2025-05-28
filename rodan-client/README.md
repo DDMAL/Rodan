@@ -1,4 +1,6 @@
-# Rodan client-facing UI
+# Rodan client
+- A GUI that allows you to interact with Rodan jobs and workflows. 
+
 ## Folder structure
 > From https://github.com/DDMAL/Rodan/wiki/Repository-Structure
 
@@ -7,17 +9,19 @@
 - `scripts`: point to start scripts and docker entry points for the container. These scripts exist to help you for that specific container. There can also be scripts to help build the service outside of the dockerfile.
 
 
-# __rodan-client__
+---
 
-Rodan-Client is a GUI that allows you to interact with Rodan jobs and workflows. 
-
-**UPDATE:** You should not need to install rodan-client this way anymore. `Rodan-Docker` does everything for us. 
+**UPDATE:** You should not need to install rodan-client this way anymore. **Docker** does everything for us. 
 
 ## Prerequisites
-Install `Homebrew`, `Yarn`, `Gulp` and `git` if you have not already. You should install both `yarn` and `gulp` globally.
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+Using your package manager, e.g., [`homebrew`](https://brew.sh) for MacOS; `apt` for Linux/WSL; `chocolatey` for Windows, install the following:
+- Install `yarn` via Homebrew:
+```sh
 brew install yarn
+```
+
+- Install `gulp` if you have not already. You should install both `yarn` and `gulp` globally.
+```sh
 yarn global add gulp
 ```
 
