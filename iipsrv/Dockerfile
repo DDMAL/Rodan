@@ -1,3 +1,4 @@
+# ---- Install and Build `iipsrv` ----
 FROM alpine:3.18.5 AS builder
 
 RUN apk add --no-cache \
@@ -15,6 +16,7 @@ RUN ./autogen.sh
 RUN ./configure --enable-openjpeg
 RUN make
 
+# ---- Run the `iipsrv` server ----
 FROM alpine:3.18.5
 
 RUN apk add --no-cache \
