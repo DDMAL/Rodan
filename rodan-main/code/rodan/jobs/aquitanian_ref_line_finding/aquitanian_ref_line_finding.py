@@ -89,7 +89,7 @@ def to_json(img, data, neume_size):
                 "uly": 0
             }
         },
-        "staves": staves
+        "staves": staves#sorted(staves, key=lambda x: x["line_positions"][0][0][1])
     }
 
 class AquitanianReferenceLineFinding(RodanTask):
@@ -162,7 +162,6 @@ class AquitanianReferenceLineFinding(RodanTask):
         conts = sorted(conts, key=lambda x: cv2.boundingRect(x)[0])
 
         ret = []
-
         for c in conts:
             x, y, w, h = cv2.boundingRect(c)
             part = w // slices
@@ -190,12 +189,14 @@ class AquitanianReferenceLineFinding(RodanTask):
                     lines.append(line[0])
                     if i == (slices - 1):
                         lines.append(line[1])
-
+                    
                     #draw line
                     if overlay:
                         cv2.line(img, tuple(line[0]), tuple(line[1]), (255, 0, 0), 2)
             ret.append(([x, y, w, h], lines))
 
+        #sort staff lines based on y height
+        ret = sorted(ret, key=lambda x: x[0][1])
         neume_size = settings['Neume Height']
         jsomr = to_json(img, ret, neume_size)
 
@@ -205,7 +206,6 @@ class AquitanianReferenceLineFinding(RodanTask):
         
         if overlay:
             outfile_path2 = outputs["Overlayed Lines"][0]["resource_path"]
-            #img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
             overlay_save = Image.fromarray(img)
             overlay_save.save(outfile_path2, 'PNG')
 
