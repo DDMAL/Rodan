@@ -6,15 +6,19 @@ from PIL import Image
 import json
 import json.encoder
 
+#Helper function for distance formula
 def dist(pt1, pt2):
     return math.sqrt(((pt1[0] - pt2[0])**2) + ((pt1[1] - pt2[1])**2))
 
+#Helper function to find the matching y value given an x value and 2 points of a line
 def coords(x1, y1, x2, y2, new_x):
     slope = (y2 - y1) / (x2 - x1)
     b = (-1 * (slope * x1)) + y1
     return (slope * new_x) + b
 
-def padding(sect):
+#Handles each line segment by adding extra space, drawing a bounding box, and drawing a line through the center
+#Returns the 2 coords for the line
+def process_section(sect):
     #add extra space around the line segments
     old_h, old_w, c = sect.shape
     new_h = old_h + 100
@@ -24,7 +28,7 @@ def padding(sect):
     y_center = (new_h - old_h) // 2
     result[y_center:y_center+old_h, x_center:x_center+old_w] = sect
 
-    #bounding rectangle preprocessing
+    #preprocess image, draw bounding box around
     gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (1, 1), 0)
     thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
@@ -37,6 +41,7 @@ def padding(sect):
 
     ret = []
 
+    #draw line through the bounding box
     for c in conts:
         rect = cv2.minAreaRect(c)
         box = cv2.boxPoints(rect)
@@ -55,6 +60,8 @@ def padding(sect):
 
     return ret
 
+#Convert results into a JSOMR format
+#Each reference line has 5 lines: 2 ledger lines below, the original line, and 2 ledger lines above
 def to_json(img, data, neume_size):
     h, w, _ = img.shape
     staves = []
@@ -77,7 +84,6 @@ def to_json(img, data, neume_size):
             },
             "num_lines": 1,
             "line_positions": [up_ledger_2, up_ledger_1, lines, down_ledger_1, down_ledger_2]
-            #"line_positions": [lines]
         })
     return {
         "page":{
@@ -89,7 +95,7 @@ def to_json(img, data, neume_size):
                 "uly": 0
             }
         },
-        "staves": staves#sorted(staves, key=lambda x: x["line_positions"][0][0][1])
+        "staves": staves
     }
 
 class AquitanianReferenceLineFinding(RodanTask):
@@ -144,6 +150,13 @@ class AquitanianReferenceLineFinding(RodanTask):
         'maximum': 1
     }]
 
+    # Overall Workflow
+    # 1. Draw bounding boxes around each reference line
+    # 2. Split each bounding box into a number of sections given by slices
+    # 3. Add extra space around each line segment, then draws another bounding box (not necessarily rectangular)
+    # 4. Draw a line through the center of the line segment bounding box
+    # 5. Link each segment together
+    # 6. After all lines are found, convert into JSOMR format
     def run_my_task(self, inputs, settings, outputs):
         input_path = inputs["Image containing staves (RGB, greyscale, or onebit)"][0]["resource_path"]
         overlay = "Overlayed Lines" in outputs
@@ -151,6 +164,7 @@ class AquitanianReferenceLineFinding(RodanTask):
         
         img = cv2.imread(input_path)
 
+        #Image preprocessing to set up bounding boxes
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (1, 1), 0)
         thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
@@ -162,6 +176,8 @@ class AquitanianReferenceLineFinding(RodanTask):
         conts = sorted(conts, key=lambda x: cv2.boundingRect(x)[0])
 
         ret = []
+
+        #Split each bounding box into sections, then connect the line segments
         for c in conts:
             x, y, w, h = cv2.boundingRect(c)
             part = w // slices
@@ -169,7 +185,7 @@ class AquitanianReferenceLineFinding(RodanTask):
             lines = []
             for i in range(0, slices):
                 img_sect = img[y:y+h, x+(part*i):x+(part*(i+1))]
-                line = padding(img_sect)
+                line = process_section(img_sect)
                 if line != []:
                     line[0][0] += x+(part*i)
                     line[1][0] += x+(part*i)
@@ -182,7 +198,7 @@ class AquitanianReferenceLineFinding(RodanTask):
                     line[0] = [x+(part*i), new_y1]
                     line[1] = [x+(part*(i+1)), new_y2]
 
-                    #make sure lines connect together
+                    #make sure line segments connect together
                     if last != []:
                         line[0] = last
                     last = line[1]
@@ -193,11 +209,14 @@ class AquitanianReferenceLineFinding(RodanTask):
                     #draw line
                     if overlay:
                         cv2.line(img, tuple(line[0]), tuple(line[1]), (255, 0, 0), 2)
+            #save bounding box and line points
             ret.append(([x, y, w, h], lines))
 
         #sort staff lines based on y height
         ret = sorted(ret, key=lambda x: x[0][1])
         neume_size = settings['Neume Height']
+
+        #convert data into jsomr format
         jsomr = to_json(img, ret, neume_size)
 
         outfile_path = outputs['JSOMR'][0]['resource_path']
