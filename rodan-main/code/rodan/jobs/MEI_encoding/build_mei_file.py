@@ -20,6 +20,8 @@ from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 # from state_machine import SylMachine #---> for testing locally
 
+staffDef_lines = 4
+
 try:
     from rodan.jobs.MEI_encoding import __version__
 except ImportError:
@@ -206,7 +208,7 @@ def generate_base_document(column_split_info: Optional[dict]):
     staffDef = new_el("staffDef", staffGrp)
 
     staffDef.set("n", "1")
-    staffDef.set("lines", "4")
+    staffDef.set("lines", str(staffDef_lines))
     staffDef.set("notationtype", "neume")
     staffDef.set("clef.line", "4")
     staffDef.set("clef.shape", "C")
@@ -246,7 +248,8 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == "clef":
-        attribs["line"] = str(int(float(glyph["strt_pos"])))
+        #To resolve Rodan issue #1276 (https://github.com/DDMAL/Rodan/issues/1276), moves clef position to fix wrong note offsets due to different numbers of lines than 4
+        attribs["line"] = str(int(float(glyph["strt_pos"])) + (staffDef_lines - 4))
 
     attribs["oct"] = str(glyph["octave"])
     attribs["pname"] = str(glyph["note"])
@@ -819,6 +822,9 @@ def process(
     width_multiplier parameter for merging neume components.
     """
     staves = reformat_staves(jsomr["staves"])
+    if staves is not None:
+        global staffDef_lines
+        staffDef_lines = staves[0]["num_lines"]
     glyphs = jsomr["glyphs"]
     syl_boxes = syls["syl_boxes"] if syls is not None else None
     median_line_spacing = syls["median_line_spacing"] if syls is not None else None
