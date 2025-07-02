@@ -1,6 +1,9 @@
 #numpy==1.17.3; python_version > "3.4"
-git+https://github.com/timothydereuse/calamari@a058d76#egg=calamari_ocr; python_version > "3.4"
-git+https://github.com/DDMAL/tfaip@7fb7f49#egg=tfaip; python_version > "3.4"
+# Specify the tensorflow url link to prevent docker hub build failure due to hash mismatch
+https://files.pythonhosted.org/packages/63/b2/2822fad63bdaedf3da841443daf92775d6fff16aba7199415e06f8d8c50f/tensorflow-2.5.1-cp37-cp37m-manylinux2010_x86_64.whl; python_version > "3.4"
+# Install calamari and tfaip from our DDMAL fork
+https://github.com/DDMAL/calamari/archive/refs/tags/DDMAL-v1.0.0.zip#egg=calamari_ocr; python_version > "3.4"
+https://github.com/DDMAL/tfaip/archive/refs/tags/v1.0.0.zip#egg=tfaip; python_version > "3.4"
 paiargparse==1.1.2; python_version > "3.4"
 scipy==1.7.3; python_version > "3.4"
 Unidecode==1.0.22; python_version > "3.4"
