@@ -115,7 +115,8 @@ class ColumnSplit(RodanTask):
                 layer = inputs[key][0]['resource_path']
                 img = cv.imread(layer,cv.IMREAD_UNCHANGED)
                 layer_stacked = get_stacked_image(img,ranges)
-                layers.append(img)
+                if key != 'RGB Image':
+                    layers.append(img)
                 if key in outputs:
                     outfile = outputs[key][0]['resource_path']
                     cv.imwrite(outfile+".png",layer_stacked)
