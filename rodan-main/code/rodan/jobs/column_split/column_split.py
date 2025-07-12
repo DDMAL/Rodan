@@ -96,6 +96,8 @@ def get_split_ranges(img,splits):
     return ranges
 
 # takes ranges in x, and stacks them vertically
+# works for both RGB and RGBA images by adding white pixels regardless of amt of channels -
+# constant_values=255 pads with (255, 255, 255) for 3, (255, 255, 255, 255) for 4
 def get_stacked_image(img,ranges):
     chunks = []
     max = 0
