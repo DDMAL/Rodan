@@ -1,5 +1,5 @@
 ARG VERSION
-FROM ddmal/rodan-main:${VERSION} as rodan-static
+FROM ddmal/rodan-main:${VERSION} AS rodan-static
 
 RUN touch /code/Rodan/database.log /code/Rodan/rodan.log
 
