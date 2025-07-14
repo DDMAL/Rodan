@@ -19,9 +19,11 @@ RUN export DJANGO_SECRET_KEY=localdev \
 FROM nginx:1.19
 
 # Install OS dependencies
-RUN apt-get -qq update \
-  && apt-get -qq install openssl certbot unzip -y \
-  && rm -rf /var/lib/apt/lists/*
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y openssl certbot unzip && \
+    rm -rf /var/lib/apt/lists/*
 
 # Add configuration files.
 COPY ./config/nginx.conf     /etc/nginx/nginx.conf
