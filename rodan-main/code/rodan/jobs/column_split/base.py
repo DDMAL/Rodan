@@ -35,6 +35,7 @@ class ColumnSplit(RodanTask):
         {'name': 'Background Layer', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Music Notes Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Text Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'RGB Image', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgb+png']},
         {'name': 'Layer 4', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
@@ -49,6 +50,7 @@ class ColumnSplit(RodanTask):
         {'name': 'Background Layer', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Music Notes Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Text Layer', 'minimum': 1, 'maximum': 1, 'resource_types': ['image/rgba+png']},
+        {'name': 'RGB Image', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgb+png']},
         {'name': 'All Layers', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 5', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
         {'name': 'Layer 6', 'minimum': 0, 'maximum': 1, 'resource_types': ['image/rgba+png']},
@@ -113,7 +115,8 @@ class ColumnSplit(RodanTask):
                 layer = inputs[key][0]['resource_path']
                 img = cv.imread(layer,cv.IMREAD_UNCHANGED)
                 layer_stacked = get_stacked_image(img,ranges)
-                layers.append(img)
+                if key != 'RGB Image':
+                    layers.append(img)
                 if key in outputs:
                     outfile = outputs[key][0]['resource_path']
                     cv.imwrite(outfile+".png",layer_stacked)
