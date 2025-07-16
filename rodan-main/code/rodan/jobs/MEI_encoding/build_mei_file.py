@@ -20,6 +20,8 @@ from rodan.jobs.MEI_encoding.state_machine import SylMachine
 
 # from state_machine import SylMachine #---> for testing locally
 
+staffDef_lines = 4
+
 try:
     from rodan.jobs.MEI_encoding import __version__
 except ImportError:
@@ -98,7 +100,6 @@ def neume_to_lyric_alignment(
     are, strictly speaking, not part of the MEI for the syllable; that is handled in the method that
     actually encodes the MEI.
     """
-    dummy_syl = {"syl": "", "ul": [0, 0], "lr": [0, 0]}
 
     # if there's no syl information then make fake syllables for testing. this method makes one
     # large syllable covering an entire staff line.
@@ -108,12 +109,10 @@ def neume_to_lyric_alignment(
         grouped_glyphs = [
             list(g) for k, g in groupby(glyphs, key=lambda x: int(x["staff"]))
         ]
+        dummy_syl = {"syl": "", "ul": [0, 0], "lr": [0, 0]}
 
         pairs = [(g, dummy_syl) for g in grouped_glyphs]
         return pairs
-
-    glyphs_pos = 0
-    num_glyphs = len(glyphs)
 
     pairs = []
     starts = []
@@ -149,10 +148,9 @@ def neume_to_lyric_alignment(
         starts.append(glyphs.index(nearest_glyph))
         last_used = max(starts)
 
-    # if there are unassigned "orphan" glyphs at the beginning of the page, assign them all to a
-    # dummy syl_box so they can be detected later
-    if not starts[0] == 0:
-        pairs.append((glyphs[: starts[0]], dummy_syl))
+    # if there are unassigned "orphan" glyphs at the beginning of the page,
+    # force them to be assigned to the first syllable
+    starts[0] = 0
 
     starts.append(len(glyphs))
     for i in range(len(starts) - 1):
@@ -179,7 +177,7 @@ def generate_base_document(column_split_info: Optional[dict]):
 
     mei = new_el("mei")
     mei.set("xmlns", "http://www.music-encoding.org/ns/mei")
-    mei.set("meiversion", "5.0.0-dev")
+    mei.set("meiversion", "5.1")
 
     meiHead = new_el("meiHead", mei)
 
@@ -210,7 +208,7 @@ def generate_base_document(column_split_info: Optional[dict]):
     staffDef = new_el("staffDef", staffGrp)
 
     staffDef.set("n", "1")
-    staffDef.set("lines", "4")
+    staffDef.set("lines", str(staffDef_lines))
     staffDef.set("notationtype", "neume")
     staffDef.set("clef.line", "4")
     staffDef.set("clef.shape", "C")
@@ -250,7 +248,8 @@ def create_primitive_element(xml: Element, glyph: dict, idx: int, surface: Eleme
 
     # ncs, custos do not have a @line attribute. this is a bit of a hack...
     if xml.tag == "clef":
-        attribs["line"] = str(int(float(glyph["strt_pos"])))
+        #To resolve Rodan issue #1276 (https://github.com/DDMAL/Rodan/issues/1276), moves clef position to fix wrong note offsets due to different numbers of lines than 4
+        attribs["line"] = str(int(float(glyph["strt_pos"])) + (staffDef_lines - 4))
 
     attribs["oct"] = str(glyph["octave"])
     attribs["pname"] = str(glyph["note"])
@@ -275,6 +274,9 @@ def glyph_to_element(
     Currently the assumption is that no MEI information in the given classifier is more than one
     level deep - that is, everything is either a single element (clef, custos) or the child of a
     single element (neumes). THIS IS NOT TRUE FOR ALL NEUMATIC NOTATION TYPES!
+
+    UPDATE 2025.02: the given classifier can have 2 levels of depth, to handle cases like liquescent.
+    TODO: consider to convert to recursive function to handle arbitrary depth.
     """
     name = str(glyph["name"])
     try:
@@ -320,6 +322,10 @@ def glyph_to_element(
     for i in range(len(ncs)):
         try:
             el = create_primitive_element(ncs[i], glyph, i, surface)
+            if list(ncs[i]):
+                for child in ncs[i]:
+                    child_el = new_el(child.tag)
+                    el.append(child_el)
         except IndexError:
             print(
                 "Width column indicates {} neume components but gets {} neume components from input for classifier {}".format(
@@ -656,9 +662,8 @@ def build_mei(
             col = bbox_to_col_num(bb, column_split_info["split_ranges"], height)
             bb = translate_bbox(bb, column_split_info["split_ranges"], height, col)
 
-        zoneId = generate_zone(surface, bb)
-
-        machine = SylMachine(syl_box["syl"], zoneId)
+        # Pass both surface and layer
+        machine = SylMachine(syl_box.get("syl", ""), bb, surface, layer)
 
         # find the last neume index
         last_neume_index = 0
@@ -709,9 +714,6 @@ def build_mei(
                 sb.set("facs", "#" + zoneId)
                 sb.set("n", str(next_staff + 1))
                 machine.read(sb.tag, sb)
-
-        # add the mei from the state machine to the layer
-        layer.extend(machine.layer)
 
     return meiDoc
 
@@ -797,26 +799,6 @@ def merge_nearby_neume_components(meiDoc: ET.ElementTree, width_mult: float):
     return meiDoc
 
 
-def removeEmptySyl(meiDoc: ET.ElementTree):
-    """
-    Removes all empty syllables from the layer
-    """
-
-    layers = list((meiDoc.getroot()).iter("layer"))
-    layer = layers[0]  # only one layer so this gets the corresponding element
-
-    # this could be cleaner
-    for i in list(layer):
-        if i.tag == "syllable":
-            if len(list(i)) == 1:
-                if (list(i)[0].tag == "syl") & (
-                    (i.get("xml:precedes") is None) & (i.get("xml:follows") is None)
-                ):
-                    layer.remove(i)
-
-    return meiDoc
-
-
 def reformat_staves(staves: List[dict]):
     """
     Reformats the bounding box information from the pitch finding JSON.
@@ -840,6 +822,9 @@ def process(
     width_multiplier parameter for merging neume components.
     """
     staves = reformat_staves(jsomr["staves"])
+    if staves is not None:
+        global staffDef_lines
+        staffDef_lines = staves[0]["num_lines"]
     glyphs = jsomr["glyphs"]
     syl_boxes = syls["syl_boxes"] if syls is not None else None
     median_line_spacing = syls["median_line_spacing"] if syls is not None else None
@@ -858,8 +843,6 @@ def process(
 
     if width_mult > 0:
         meiDoc = merge_nearby_neume_components(meiDoc, width_mult=width_mult)
-
-    meiDoc = removeEmptySyl(meiDoc)
 
     tree = ET.ElementTree(meiDoc.getroot())
     return ET.tostring(tree.getroot(), encoding="utf8").decode("utf8")

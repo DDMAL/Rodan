@@ -5,6 +5,9 @@
   "rodan.jobs.labeler" : [ "Labeler" ] }
 
 "RODAN_PYTHON3_JOBS": {
+    "rodan.jobs.aquitanian_ref_line_finding":{
+        "rodan.jobs.aquitanian_ref_line_finding.aquitanian_ref_line_finding": ["AquitanianReferenceLineFinding"]
+    },
     "rodan.jobs.helloworld": {
         "rodan.jobs.helloworld.helloworld" :  ["HelloWorld"],
         "rodan.jobs.helloworld.helloworld" : ["HelloWorldMultiPort"], 

@@ -1,0 +1,22 @@
+
+<div class="column-content">
+   <% if (Array.isArray(names)) { %>
+    <h3>Are you sure you want to delete these <%= type %>s?</h3>
+    <ul>
+      <% names.forEach(function(item) { %>
+        <li><%= item %></li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <h3>Are you sure you want to delete this <%= type %>?</h3>
+    <ul>
+      <li><%= names %></li>
+    </ul>
+  <% } %>
+  <p>This item will be deleted immediately. You can't undo this action.</p>
+  <div class="content-wrapper row-content flex-gap-10">
+    <button class="btn details-action-btn" id="button-cancel_delete">Cancel</button>
+    <button class="btn details-action-btn btn-delete" id="button-confirm_delete">Delete</button>
+  </div>
+</div>
+
