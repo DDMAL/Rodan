@@ -106,7 +106,7 @@ class AquitanianReferenceLineFinding(RodanTask):
         'title': 'Settings',
         'type': 'object',
         'job_queue': 'Python3',
-        'required': ['Slices', 'Neume Height'],
+        'required': ['Slices', 'Step Size: Punctum Height * 3'],
         'properties': {
             'Slices': {
                 'type': 'integer',
@@ -115,12 +115,12 @@ class AquitanianReferenceLineFinding(RodanTask):
                 'maximum': 24,
                 'description': 'Number of divisions per single reference line'
             },
-            'Neume Height': {
+            'Step Size: Punctum Height * 3': {
                 'type': 'integer',
-                'default': 50,
+                'default': 30,
                 'minimum': 1,
                 'maximum': 500,
-                'description': "Neume Height multiplied by 3 (for generating ledger lines)"
+                'description': "The step size is the distance between consecutive two notes, which is an interval of a second, without saying if it's major or minor. It equals three times the punctum height in pixels. This is used to generate ledger lines above and below the original line."
             }
         }
     }
@@ -214,7 +214,7 @@ class AquitanianReferenceLineFinding(RodanTask):
 
         #sort staff lines based on y height
         ret = sorted(ret, key=lambda x: x[0][1])
-        neume_size = settings['Neume Height']
+        neume_size = settings['Step Size: Punctum Height * 3']
 
         #convert data into jsomr format
         jsomr = to_json(img, ret, neume_size)
