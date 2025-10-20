@@ -540,7 +540,7 @@ def precompute_multi_column(
         @column_split_info: The column split information from the pitch finding JSON.
     """
     height = column_split_info["height"]
-    prev_column = 0
+    last_glyph = None
     for glyph in glyphs:
         curr_column = column_split_info["staff_to_column"][int(glyph["staff"])]
         glyph["bounding_box"] = translate_bbox(
@@ -550,11 +550,11 @@ def precompute_multi_column(
             curr_column,
         )
         glyph["column"] = curr_column
-        if glyph["system_begin"] and curr_column > prev_column:
-            glyph["column_begin"] = True
-            prev_column = curr_column
-        else:
-            glyph["column_begin"] = False
+        glyph["column_begin"] = False
+        if last_glyph != None:
+            if curr_column > last_glyph["column"]:
+                last_glyph["column_begin"] = True
+        last_glyph = glyph
 
     # translate staves
     for i, staff in enumerate(staves):
