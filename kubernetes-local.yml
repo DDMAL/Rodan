@@ -1,0 +1,660 @@
+# kubernetes-local.yml — local development (mirrors docker-compose.yml)
+#
+# ── CONFIGURE ────────────────────────────────────────────────────────────────
+# Set RODAN_SRC to the absolute path of this repository on your machine before
+# applying. All hostPath bind-mounts for source code use this variable.
+#
+#   export RODAN_SRC=/Users/yourname/path/to/Rodan
+#
+# Apply with envsubst (requires: brew install gettext && brew link gettext):
+#   envsubst < kubernetes-local.yml | kubectl apply -f -
+#
+# Or inline without exporting:
+#   RODAN_SRC=/Users/yourname/path/to/Rodan envsubst < kubernetes-local.yml | kubectl apply -f -
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Supported local runtimes:
+#   • Docker Desktop (macOS) — hostPath volumes work out of the box for /Users paths
+#   • minikube (Docker driver) — run BEFORE applying:
+#       minikube mount ${RODAN_SRC}/rodan-main/code:/mnt/rodan-code
+#     then replace every hostPath.path for rodan-code below with /mnt/rodan-code
+#   • kind — configure extraMounts in your kind cluster config instead
+#
+# Setup steps:
+#   1. Set DOCKER_TAG — replace the image tags below (currently set to v3.3.1).
+#   2. Fill in the Secret below with values from scripts/local.env.
+#   3. Set RODAN_SRC and apply (see above).
+#   4. Access the app at http://localhost:30080 (NodePort) or:
+#        kubectl port-forward svc/nginx 8080:80 -n rodan-local
+#      then open http://localhost:8080
+#
+# Differences from kubernetes.yml (cloud):
+#   - hostPath volumes instead of NFS PVs (no PV/PVC objects needed)
+#   - No nodeSelector, no resource limits
+#   - SERVER_HOST: localhost, TLS disabled
+#   - Services use NodePort / ClusterIP (no LoadBalancer)
+#   - Celery/rodan-main run "tail -f /dev/null" for manual exec (dev workflow)
+#   - Source code at ./rodan-main/code is bind-mounted into rodan-main & celery pods
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rodan-local
+
+---
+# ── Secret ────────────────────────────────────────────────────────────────────
+# Populate with values from scripts/local.env before applying.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rodan-local-env
+  namespace: rodan-local
+type: Opaque
+stringData:
+  # Django
+  ADMIN_USER: rodan
+  ADMIN_EMAIL: admin@rodan2.simssa.ca
+  ADMIN_PASS: rodan
+  DJANGO_DEBUG_MODE: "False"
+  DJANGO_SECRET_KEY: localdev
+  DJANGO_MEDIA_ROOT: /rodan/data/
+  DJANGO_ALLOWED_HOSTS: "*"
+  DJANGO_ADMIN_URL: ^api/admin/
+  IIPSRV_URL: http://localhost/fcgi-bin/iipsrv.fcgi/
+  DJANGO_ACCESS_LOG: /code/Rodan/rodan.log
+  DJANGO_DEBUG_LOG: /code/Rodan/database.log
+  SERVER_HOST: localhost
+  # Set to "true" to run Django migrations on startup
+  MIGRATE: "False"
+  # Set to "true" to suppress interactive prompts in job runners (useful for CI)
+  RODAN_NON_INTERACTIVE: ""
+  # Optional: provide a Postgres superuser to bootstrap plpython extensions
+  RODAN_PSQL_SUPERUSER_USERNAME: ""
+  RODAN_PSQL_SUPERUSER_PASSWORD: ""
+  # Alternative to the username/password pair above
+  RODAN_PSQL_SUPERUSER_COMMAND: ""
+  # SMTP
+  EMAIL_HOST: ""
+  EMAIL_PORT: ""
+  EMAIL_HOST_USER: ""
+  EMAIL_HOST_PASSWORD: ""
+  # Celery
+  C_FORCE_ROOT: "true"
+  # Postgres
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: rodan
+  POSTGRES_USER: rodan
+  POSTGRES_PASSWORD: rodan
+  POSTGRES_DATABASE_LOGFILE: /code/Rodan/database.log
+  # RabbitMQ
+  RABBITMQ_URL: amqp://guest_user:guest_pass@rabbitmq:5672//
+  RABBITMQ_DEFAULT_USER: guest_user
+  RABBITMQ_DEFAULT_PASS: guest_pass
+  # Redis
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+
+---
+# ── ConfigMap: rodan-client ───────────────────────────────────────────────────
+# Uses localhost settings, matching docker-compose.yml behaviour.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rodan-client-config
+  namespace: rodan-local
+data:
+  configuration.json: |
+    {
+        "SERVER_HOST": "localhost",
+        "SERVER_PORT": 80,
+        "SERVER_HTTPS": false,
+        "SERVER_SOCKET_AVAILABLE": true,
+        "SERVER_AUTHENTICATION_TYPE": "token",
+        "ENFORCE_VERSION_COMPATIBILITY": false,
+        "ADMIN_CLIENT": {
+            "NAME": "",
+            "EMAIL": ""
+        },
+        "DEBUG": false,
+        "WORKFLOWBUILDERGUI": {
+            "USER_AGENT": "rodan-standard",
+            "GRID": {
+                "DIMENSION": 20,
+                "LINE_COLOR": "#606060",
+                "LINE_WIDTH": 0.5
+            },
+            "ZOOM_MAX": 3.0,
+            "ZOOM_MIN": 1.0,
+            "ZOOM_RATE": 0.05,
+            "ZOOM_INITIAL": 1.7,
+            "WORKFLOWJOB_WIDTH": 20,
+            "WORKFLOWJOB_HEIGHT": 22,
+            "PORT_WIDTH": 8,
+            "PORT_HEIGHT": 8,
+            "OUTPUTPORT_COLOR": "#00ff00",
+            "INPUTPORT_COLOR_SATISFIED": "#00ff00",
+            "INPUTPORT_COLOR_UNSATISFIED": "#ff0000",
+            "INPUTPORT_COLOR_CANDIDATE": "#00ff00",
+            "STROKE_COLOR": "#000000",
+            "FILL_COLOR": "#ccccff",
+            "WORKFLOWJOBGROUP_FILL_COLOR": "#8888ff",
+            "STROKE_WIDTH": 1,
+            "FONT_SIZE": 10,
+            "STROKE_COLOR_SELECTED": "#0000ff",
+            "STROKE_WIDTH_SELECTED": 2,
+            "CONNECTION_CIRCLE_RADIUS": 4,
+            "HOVER_TIME": 1000
+        }
+    }
+
+---
+# ── nginx ─────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: ddmal/nginx:v3.3.1   # replace tag as needed
+          command: ["/run/start"]
+          env:
+            - name: TZ
+              value: America/Toronto
+            - name: SERVER_HOST
+              value: localhost
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+            - containerPort: 9002
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources   # created automatically on first run
+            type: DirectoryOrCreate
+
+---
+# NodePort so the app is reachable at localhost:30080 without port-forward
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: rodan-local
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+    - name: https
+      port: 443
+      targetPort: 443
+      nodePort: 30443
+    - name: ws
+      port: 9002
+      targetPort: 9002
+      nodePort: 30902
+
+---
+# ── rodan-main ────────────────────────────────────────────────────────────────
+# Kept as "tail -f /dev/null" to match the docker-compose dev workflow.
+# Start the app manually: kubectl exec -it -n rodan-local deploy/rodan-main -- /run/start
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rodan-main
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rodan-main
+  template:
+    metadata:
+      labels:
+        app: rodan-main
+    spec:
+      containers:
+        - name: rodan-main
+          image: ddmal/rodan-main:v3.3.1
+          command: ["bash", "-c", "tail -f /dev/null"]
+          env:
+            - name: TZ
+              value: America/Toronto
+            - name: SERVER_HOST
+              value: localhost
+            - name: CELERY_JOB_QUEUE
+              value: None
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          # liveness probe omitted — container runs "tail -f /dev/null" in dev mode
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+            - name: rodan-code
+              mountPath: /code/Rodan
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources
+            type: DirectoryOrCreate
+        - name: rodan-code
+          hostPath:
+            path: ${RODAN_SRC}/rodan-main/code
+            type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rodan-main
+  namespace: rodan-local
+spec:
+  selector:
+    app: rodan-main
+  ports:
+    - port: 8000
+      targetPort: 8000
+
+---
+# ── rodan-client ──────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rodan-client
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rodan-client
+  template:
+    metadata:
+      labels:
+        app: rodan-client
+    spec:
+      containers:
+        - name: rodan-client
+          image: ddmal/rodan-client:v3.3.1
+          volumeMounts:
+            - name: client-config
+              mountPath: /client/configuration.json
+              subPath: configuration.json
+            - name: client-code
+              mountPath: /code
+      volumes:
+        - name: client-config
+          configMap:
+            name: rodan-client-config
+        - name: client-code
+          hostPath:
+            path: ${RODAN_SRC}/rodan-client/code
+            type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rodan-client
+  namespace: rodan-local
+spec:
+  selector:
+    app: rodan-client
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+# ── iipsrv ────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iipsrv
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iipsrv
+  template:
+    metadata:
+      labels:
+        app: iipsrv
+    spec:
+      containers:
+        - name: iipsrv
+          image: ddmal/iipsrv:v3.3.1
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources
+            type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iipsrv
+  namespace: rodan-local
+spec:
+  selector:
+    app: iipsrv
+  ports:
+    - port: 9003
+      targetPort: 9003
+
+---
+# ── celery ────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery
+  template:
+    metadata:
+      labels:
+        app: celery
+    spec:
+      containers:
+        - name: celery
+          image: ddmal/rodan-main:v3.3.1
+          command: ["bash", "-c", "tail -f /dev/null"]
+          env:
+            - name: TZ
+              value: America/Toronto
+            - name: SERVER_HOST
+              value: localhost
+            - name: CELERY_JOB_QUEUE
+              value: celery
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          # liveness probe omitted — container runs "tail -f /dev/null" in dev mode
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+            - name: rodan-code
+              mountPath: /code/Rodan
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources
+            type: DirectoryOrCreate
+        - name: rodan-code
+          hostPath:
+            path: ${RODAN_SRC}/rodan-main/code
+            type: Directory
+
+---
+# ── py3-celery ────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py3-celery
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py3-celery
+  template:
+    metadata:
+      labels:
+        app: py3-celery
+    spec:
+      containers:
+        - name: py3-celery
+          image: ddmal/rodan-python3-celery:v3.3.1
+          command: ["bash", "-c", "tail -f /dev/null"]
+          env:
+            - name: TZ
+              value: America/Toronto
+            - name: SERVER_HOST
+              value: localhost
+            - name: CELERY_JOB_QUEUE
+              value: Python3
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+            - name: rodan-code
+              mountPath: /code/Rodan
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources
+            type: DirectoryOrCreate
+        - name: rodan-code
+          hostPath:
+            path: ${RODAN_SRC}/rodan-main/code
+            type: Directory
+
+---
+# ── gpu-celery ────────────────────────────────────────────────────────────────
+# No GPU resource request locally — remove this deployment if you don't need it.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-celery
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-celery
+  template:
+    metadata:
+      labels:
+        app: gpu-celery
+    spec:
+      containers:
+        - name: gpu-celery
+          image: ddmal/rodan-gpu-celery:v3.3.1
+          command: ["bash", "-c", "tail -f /dev/null"]
+          env:
+            - name: TZ
+              value: America/Toronto
+            - name: SERVER_HOST
+              value: localhost
+            - name: CELERY_JOB_QUEUE
+              value: GPU
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+            - name: rodan-code
+              mountPath: /code/Rodan
+      volumes:
+        - name: resources
+          hostPath:
+            path: /tmp/rodan-resources
+            type: DirectoryOrCreate
+        - name: rodan-code
+          hostPath:
+            path: ${RODAN_SRC}/rodan-main/code
+            type: Directory
+
+---
+# ── redis ─────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: rodan-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:alpine
+          env:
+            - name: TZ
+              value: America/Toronto
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: rodan-local
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+
+---
+# ── postgres ──────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: rodan-local
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: ddmal/postgres-plpython:v3.3.1
+          env:
+            - name: TZ
+              value: America/Toronto
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pg-data
+          hostPath:
+            path: /tmp/rodan-pg-data
+            type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: rodan-local
+spec:
+  clusterIP: None   # headless, consistent with cloud manifest
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+
+---
+# ── rabbitmq ──────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: rodan-local
+spec:
+  serviceName: rabbitmq
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:alpine
+          env:
+            - name: TZ
+              value: America/Toronto
+          envFrom:
+            - secretRef:
+                name: rodan-local-env
+          livenessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: rodan-local
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: management
+      port: 15672
+      targetPort: 15672
