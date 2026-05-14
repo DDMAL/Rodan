@@ -111,7 +111,7 @@ data:
         "SERVER_HOST": "localhost",
         "SERVER_PORT": 80,
         "SERVER_HTTPS": false,
-        "SERVER_SOCKET_AVAILABLE": true,
+        "SERVER_SOCKET_AVAILABLE": false,
         "SERVER_AUTHENTICATION_TYPE": "token",
         "ENFORCE_VERSION_COMPATIBILITY": false,
         "ADMIN_CLIENT": {
@@ -190,29 +190,25 @@ spec:
             type: DirectoryOrCreate
 
 ---
-# NodePort so the app is reachable at localhost:30080 without port-forward
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx
   namespace: rodan-local
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: nginx
   ports:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30080
     - name: https
       port: 443
       targetPort: 443
-      nodePort: 30443
     - name: ws
       port: 9002
       targetPort: 9002
-      nodePort: 30902
 
 ---
 # ── rodan-main ────────────────────────────────────────────────────────────────
