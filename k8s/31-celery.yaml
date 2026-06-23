@@ -1,0 +1,53 @@
+# Default Celery worker (queue "celery"). Same image as the API; ENTRYPOINT /opt/entrypoint
+# (waits for pg+redis), then /run/start-celery which also waits for rodan-main:8000 before
+# launching the worker as node "celery@celery".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery
+  namespace: rodan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery
+  template:
+    metadata:
+      labels:
+        app: celery
+    spec:
+      containers:
+        - name: celery
+          image: ddmal/rodan-main:v3.3.1
+          args: ["/run/start-celery"]
+          envFrom:
+            - configMapRef: { name: rodan-config }
+            - secretRef: { name: rodan-secrets }
+          env:
+            - name: CELERY_JOB_QUEUE
+              value: "celery"
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          startupProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+            periodSeconds: 30
+            failureThreshold: 40      # tolerates the long wait-for rodan-main:8000 (up to 900s)
+          livenessProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+            periodSeconds: 60
+            timeoutSeconds: 35
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "12Gi"
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources

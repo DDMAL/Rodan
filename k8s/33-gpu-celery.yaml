@@ -1,0 +1,64 @@
+# GPU Celery worker (queue "GPU") — the ONLY GPU-using workload. Pinned to the GPU node.
+# ENTRYPOINT /opt/entrypoint (waits pg+redis) then /run/start-celery. Node "celery@GPU".
+# Requires: GPU node labeled gpu=true and tainted nvidia.com/gpu=present:NoSchedule,
+# plus the NVIDIA device plugin (60-nvidia-device-plugin.yaml) advertising nvidia.com/gpu.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-celery
+  namespace: rodan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-celery
+  template:
+    metadata:
+      labels:
+        app: gpu-celery
+    spec:
+      nodeSelector:
+        gpu: "true"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      # If k3s exposes the NVIDIA runtime as a RuntimeClass rather than the node default
+      # runtime, uncomment the next line (the RuntimeClass is usually named "nvidia"):
+      # runtimeClassName: nvidia
+      containers:
+        - name: gpu-celery
+          image: ddmal/rodan-gpu-celery:v3.3.1
+          args: ["/run/start-celery"]
+          envFrom:
+            - configMapRef: { name: rodan-config }
+            - secretRef: { name: rodan-secrets }
+          env:
+            - name: CELERY_JOB_QUEUE
+              value: "GPU"
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          startupProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
+            periodSeconds: 30
+            failureThreshold: 40
+          livenessProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
+            periodSeconds: 60
+            timeoutSeconds: 35
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "1"
+              memory: "4Gi"
+            limits:
+              cpu: "2"
+              memory: "16Gi"
+              nvidia.com/gpu: 1
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources

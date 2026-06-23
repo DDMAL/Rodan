@@ -1,0 +1,79 @@
+# Postgres 9.6 + plpython3 (existing image). Single instance, PGDATA on the static NFS PVC.
+# The existing PGDATA is already initialized, so the entrypoint skips initdb and the
+# POSTGRES_USER/PASSWORD/DB env are effectively no-ops on an existing cluster (kept for first-init).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: rodan
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: ddmal/postgres-plpython:v3.3.1
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: TZ
+              value: "America/Toronto"
+            - name: POSTGRES_DB
+              valueFrom: { configMapKeyRef: { name: rodan-config, key: POSTGRES_DB } }
+            - name: POSTGRES_USER
+              valueFrom: { secretKeyRef: { name: rodan-secrets, key: POSTGRES_USER } }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: rodan-secrets, key: POSTGRES_PASSWORD } }
+          volumeMounts:
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
+            - name: pg-backup
+              mountPath: /backups
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+      volumes:
+        - name: pg-data
+          persistentVolumeClaim:
+            claimName: rodan-pg-data
+        - name: pg-backup
+          persistentVolumeClaim:
+            claimName: rodan-pg-backup
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: rodan
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres

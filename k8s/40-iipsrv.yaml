@@ -1,0 +1,60 @@
+# IIP image server (FastCGI :9003). Reads images from the shared resources volume
+# (FILESYSTEM_PREFIX=/rodan/data/ is baked into the image). nginx fastcgi_pass's to it.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iipsrv
+  namespace: rodan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iipsrv
+  template:
+    metadata:
+      labels:
+        app: iipsrv
+    spec:
+      containers:
+        - name: iipsrv
+          image: ddmal/iipsrv:nightly
+          ports:
+            - containerPort: 9003
+              name: fcgi
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          readinessProbe:
+            tcpSocket:
+              port: 9003
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9003
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iipsrv
+  namespace: rodan
+spec:
+  selector:
+    app: iipsrv
+  ports:
+    - port: 9003
+      targetPort: 9003
+      name: fcgi

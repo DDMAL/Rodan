@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rodan-config
+  namespace: rodan
+data:
+  # --- General ---
+  TZ: "America/Toronto"
+  SERVER_HOST: "rodan2.simssa.ca"
+
+  # --- Django ---
+  # Matches the current production (DJANGO_ALLOWED_HOSTS=*). "*" also lets k8s httpGet probes
+  # (which send the pod IP as Host) pass. Tighten to a host list only if you also give the
+  # probes a matching Host header.
+  DJANGO_ALLOWED_HOSTS: "*"
+  DJANGO_DEBUG_MODE: "False"
+  DJANGO_MEDIA_ROOT: "/rodan/data/"
+  # Obscured admin path (kept here as in the existing env files; move to Secret if you treat it as sensitive).
+  DJANGO_ADMIN_URL: "^api/random_secret_admin/"
+  DJANGO_ACCESS_LOG: "/code/Rodan/rodan.log"
+  DJANGO_DEBUG_LOG: "/code/Rodan/database.log"
+
+  # --- IIP image server (public URL the client uses; TLS terminated at edge) ---
+  IIPSRV_URL: "https://rodan2.simssa.ca/fcgi-bin/iipsrv.fcgi/"
+
+  # --- Postgres (non-secret connection coordinates; creds are in the Secret) ---
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "rodan"
+  POSTGRES_DATABASE_LOGFILE: "/code/Rodan/database.log"
+
+  # --- Redis (cache + ws4redis websocket broker) ---
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+
+  # --- Celery ---
+  C_FORCE_ROOT: "true"

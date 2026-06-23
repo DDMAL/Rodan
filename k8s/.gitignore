@@ -1,0 +1,2 @@
+# Real secret with filled-in values — never commit. Use 02-secret.template.yaml as the source.
+02-secret.yaml

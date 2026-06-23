@@ -1,0 +1,78 @@
+# Django REST API (gunicorn :8000). Image ENTRYPOINT is /opt/entrypoint (waits for pg+redis),
+# then runs /run/start which migrates, creates the superuser, collectstatic, then gunicorn.
+# Single replica so migrations never run concurrently.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rodan-main
+  namespace: rodan
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate          # avoid two pods running migrations against the same DB at once
+  selector:
+    matchLabels:
+      app: rodan-main
+  template:
+    metadata:
+      labels:
+        app: rodan-main
+    spec:
+      containers:
+        - name: rodan-main
+          image: ddmal/rodan-main:v3.3.1
+          args: ["/run/start"]
+          envFrom:
+            - configMapRef: { name: rodan-config }
+            - secretRef: { name: rodan-secrets }
+          env:
+            - name: CELERY_JOB_QUEUE
+              value: "None"
+          ports:
+            - containerPort: 8000
+              name: http
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          startupProbe:
+            httpGet:
+              path: /api/?format=json
+              port: 8000
+              httpHeaders:
+                - name: User-Agent
+                  value: k8s-healthcheck
+            periodSeconds: 10
+            failureThreshold: 60      # up to ~10 min for image boot + migrate + collectstatic
+          readinessProbe:
+            httpGet:
+              path: /api/?format=json
+              port: 8000
+              httpHeaders:
+                - name: User-Agent
+                  value: k8s-healthcheck
+            periodSeconds: 15
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rodan-main
+  namespace: rodan
+spec:
+  selector:
+    app: rodan-main
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http

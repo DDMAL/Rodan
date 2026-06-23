@@ -1,0 +1,68 @@
+# Reverse proxy (kept as-is). Listens on :80 (plain HTTP — TLS terminated at the edge).
+# Routes /api,/ht -> rodan-main:8000, / -> rodan-client, /fcgi-bin -> iipsrv:9003,
+# /ws/ -> redis:6379, /uploads + /static -> filesystem. Serves baked static from /rodan/static.
+# ENTRYPOINT is the base nginx /docker-entrypoint.sh; args run /run/start (waits for deps, then nginx).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: rodan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: ddmal/nginx:v3.3.1
+          args: ["/run/start"]
+          env:
+            - name: TZ
+              value: "America/Toronto"
+            - name: SERVER_HOST
+              valueFrom: { configMapKeyRef: { name: rodan-config, key: SERVER_HOST } }
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: rodan
+spec:
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http

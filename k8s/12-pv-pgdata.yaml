@@ -1,0 +1,24 @@
+# Postgres PGDATA (~4.1 GB), PG 9.6, owned by uid 999. Mounted only by the postgres pod.
+# 'hard' mount (DBs must not see truncated/soft-failed I/O). NFS export needs no_root_squash.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rodan-pg-data-pv
+  labels:
+    app.kubernetes.io/part-of: rodan
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - nfsvers=4
+    - hard
+  nfs:
+    server: __ARBUTUS_NFS_IP__
+    path: /export/pg_data
+  claimRef:
+    namespace: rodan
+    name: rodan-pg-data

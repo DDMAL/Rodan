@@ -1,0 +1,23 @@
+# Postgres backups dir (/backups). Mounted by the postgres pod (and the backup CronJob if added).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rodan-pg-backup-pv
+  labels:
+    app.kubernetes.io/part-of: rodan
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - nfsvers=4
+    - hard
+  nfs:
+    server: __ARBUTUS_NFS_IP__
+    path: /export/pg_backup
+  claimRef:
+    namespace: rodan
+    name: rodan-pg-backup
