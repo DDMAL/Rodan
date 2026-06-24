@@ -15,9 +15,11 @@ spec:
       labels:
         app: iipsrv
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: iipsrv
-          image: ddmal/iipsrv:nightly
+          image: ghcr.io/ddmal/iipsrv:k8s-migration
           ports:
             - containerPort: 9003
               name: fcgi

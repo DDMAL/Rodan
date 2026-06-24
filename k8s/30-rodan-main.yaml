@@ -18,9 +18,11 @@ spec:
       labels:
         app: rodan-main
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: rodan-main
-          image: ddmal/rodan-main:v3.3.1
+          image: ghcr.io/ddmal/rodan-main:k8s-migration
           args: ["/run/start"]
           envFrom:
             - configMapRef: { name: rodan-config }

@@ -51,7 +51,7 @@ spec:
               memory: "512Mi"
             limits:
               cpu: "1"
-              memory: "2Gi"
+              memory: "1Gi"
       volumes:
         - name: data
           emptyDir: {}

@@ -17,18 +17,19 @@ spec:
       labels:
         app: gpu-celery
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       nodeSelector:
         gpu: "true"
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
           effect: NoSchedule
-      # If k3s exposes the NVIDIA runtime as a RuntimeClass rather than the node default
-      # runtime, uncomment the next line (the RuntimeClass is usually named "nvidia"):
-      # runtimeClassName: nvidia
+      # k3s exposes the NVIDIA runtime via this RuntimeClass (confirmed present in-cluster).
+      runtimeClassName: nvidia
       containers:
         - name: gpu-celery
-          image: ddmal/rodan-gpu-celery:v3.3.1
+          image: ghcr.io/ddmal/rodan-gpu-celery:k8s-migration
           args: ["/run/start-celery"]
           envFrom:
             - configMapRef: { name: rodan-config }

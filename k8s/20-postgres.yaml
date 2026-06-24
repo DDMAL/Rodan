@@ -17,9 +17,11 @@ spec:
       labels:
         app: postgres
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: postgres
-          image: ddmal/postgres-plpython:v3.3.1
+          image: ghcr.io/ddmal/postgres-plpython:k8s-migration
           ports:
             - containerPort: 5432
               name: postgres
@@ -39,13 +41,13 @@ spec:
               mountPath: /backups
           readinessProbe:
             exec:
-              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
             initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
           livenessProbe:
             exec:
-              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 5
@@ -56,7 +58,7 @@ spec:
               memory: "1Gi"
             limits:
               cpu: "2"
-              memory: "4Gi"
+              memory: "2Gi"
       volumes:
         - name: pg-data
           persistentVolumeClaim:

@@ -37,29 +37,38 @@ See the full design in `../.claude/plans/the-architecture-that-i-parallel-lampso
 
 ## Before you apply — fill in placeholders
 
-1. **NFS server IP** — replace `__ARBUTUS_NFS_IP__` in the three PV files:
-   ```sh
-   sed -i 's/__ARBUTUS_NFS_IP__/<real-nfs-ip>/' 10-pv-resources.yaml 12-pv-pgdata.yaml 14-pv-pgbackup.yaml
-   ```
-   Also confirm the export paths (`/export/resources`, `/export/pg_data`, `/export/pg_backup`).
+1. **NFS server** — DONE. The three PV files (`10/12/14-pv-*.yaml`) already point at the Arbutus
+   data server **`192.168.236.124`** with the cloned paths
+   `/srv/rodan-data/var/lib/docker/volumes/rodan_{resources,pg_data,pg_backup}/_data`.
+   (That VM is a `dd` block-clone of the old data server's 2 TB disk, mounted at `/srv/rodan-data`
+   and NFS-exported to the `192.168.236.0/24` subnet.)
 2. **Secret** — `cp 02-secret.template.yaml 02-secret.yaml`, set real values. Note: use
    `ADMIN_PASS` (the live `production.env` calls it `ADMIN_PASSWORD`, which `scripts/start` does
    **not** read). `RABBITMQ_URL` creds must match `RABBITMQ_DEFAULT_USER`/`PASS`.
 3. **GPU node** — label + taint it (see below).
 
-## NFS server setup (Arbutus)
+## NFS server setup (Arbutus) — DONE, recorded here for reference
 
-On the NFS server, export the three dirs to the k3s node IPs (mirrors the current setup —
-`rw,sync,no_subtree_check,no_root_squash`; `no_root_squash` is required for the postgres uid 999):
+The data server `192.168.236.124` (`/srv/rodan-data` = `dd` clone of the old 2 TB disk) exports the
+three cloned dirs to the k3s subnet (`no_root_squash` is required for the postgres uid 999):
 ```sh
-# /etc/exports  (one line per k3s node IP, per export)
-/export/resources   <node-ip>(rw,sync,no_subtree_check,no_root_squash)
-/export/pg_data     <node-ip>(rw,sync,no_subtree_check,no_root_squash)
-/export/pg_backup   <node-ip>(rw,sync,no_subtree_check,no_root_squash)
-sudo exportfs -ra && sudo exportfs -v
+# /etc/exports on 192.168.236.124
+/srv/rodan-data/var/lib/docker/volumes/rodan_resources/_data  192.168.236.0/24(rw,sync,no_subtree_check,no_root_squash)
+/srv/rodan-data/var/lib/docker/volumes/rodan_pg_data/_data    192.168.236.0/24(rw,sync,no_subtree_check,no_root_squash)
+/srv/rodan-data/var/lib/docker/volumes/rodan_pg_backup/_data  192.168.236.0/24(rw,sync,no_subtree_check,no_root_squash)
+# sudo exportfs -ra && sudo exportfs -v
 ```
-Verify from each node: `sudo mount -t nfs4 <nfs-ip>:/export/resources /mnt && ls /mnt && umount /mnt`.
-This is the #1 failure point — if a node can't mount, its pods stay `ContainerCreating`.
+
+**Every k3s node (incl. the GPU node) must have the NFS client installed**, or pods that mount these
+PVCs get stuck in `ContainerCreating`:
+```sh
+sudo apt update && sudo apt install -y nfs-common
+```
+Per-node check (resources export verified working from k3s-node-4):
+```sh
+sudo mount -t nfs4 192.168.236.124:/srv/rodan-data/var/lib/docker/volumes/rodan_resources/_data /mnt && ls /mnt && sudo umount /mnt
+```
+Also open **TCP 2049** from the k3s nodes in the Arbutus security group.
 
 ## GPU node setup
 

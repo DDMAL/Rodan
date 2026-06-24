@@ -17,8 +17,8 @@ spec:
     - nfsvers=4
     - hard
   nfs:
-    server: __ARBUTUS_NFS_IP__
-    path: /export/pg_data
+    server: 192.168.236.124
+    path: /srv/rodan-data/var/lib/docker/volumes/rodan_pg_data/_data
   claimRef:
     namespace: rodan
     name: rodan-pg-data

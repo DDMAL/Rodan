@@ -27,8 +27,9 @@ spec:
           effect: NoSchedule
         - key: CriticalAddonsOnly
           operator: Exists
-      # If using a RuntimeClass instead of a default nvidia runtime, set:
-      # runtimeClassName: nvidia
+      # k3s auto-creates the 'nvidia' RuntimeClass; the plugin must run under it so
+      # libnvidia-ml.so.1 (NVML) is injected, otherwise it detects 0 GPUs.
+      runtimeClassName: nvidia
       containers:
         - name: nvidia-device-plugin-ctr
           image: nvcr.io/nvidia/k8s-device-plugin:v0.14.5

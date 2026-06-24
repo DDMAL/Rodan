@@ -65,9 +65,11 @@ spec:
       labels:
         app: rodan-client
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: rodan-client
-          image: ddmal/rodan-client:nightly
+          image: ghcr.io/ddmal/rodan-client:k8s-migration
           ports:
             - containerPort: 80
               name: http

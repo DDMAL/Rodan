@@ -16,9 +16,11 @@ spec:
       labels:
         app: celery
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: celery
-          image: ddmal/rodan-main:v3.3.1
+          image: ghcr.io/ddmal/rodan-main:k8s-migration
           args: ["/run/start-celery"]
           envFrom:
             - configMapRef: { name: rodan-config }

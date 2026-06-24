@@ -20,8 +20,8 @@ spec:
     - timeo=600
     - retrans=3
   nfs:
-    server: __ARBUTUS_NFS_IP__
-    path: /export/resources
+    server: 192.168.236.124
+    path: /srv/rodan-data/var/lib/docker/volumes/rodan_resources/_data
   claimRef:
     namespace: rodan
     name: rodan-resources

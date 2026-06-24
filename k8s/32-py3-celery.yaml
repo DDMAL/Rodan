@@ -15,9 +15,11 @@ spec:
       labels:
         app: py3-celery
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: py3-celery
-          image: ddmal/rodan-python3-celery:v3.3.1
+          image: ghcr.io/ddmal/rodan-python3-celery:k8s-migration
           envFrom:
             - configMapRef: { name: rodan-config }
             - secretRef: { name: rodan-secrets }
