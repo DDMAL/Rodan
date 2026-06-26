@@ -34,13 +34,14 @@ spec:
           startupProbe:
             exec:
               command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
-            periodSeconds: 30
-            failureThreshold: 40      # tolerates the long wait-for rodan-main:8000 (up to 900s)
+            periodSeconds: 45
+            timeoutSeconds: 40        # default probe timeout is 1s; celery inspect ping needs far longer
+            failureThreshold: 30      # tolerates the long wait-for rodan-main:8000 (up to 900s)
           livenessProbe:
             exec:
               command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
             periodSeconds: 60
-            timeoutSeconds: 35
+            timeoutSeconds: 45
             failureThreshold: 3
           resources:
             requests:

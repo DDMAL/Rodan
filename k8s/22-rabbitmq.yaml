@@ -18,7 +18,9 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:alpine
+          # Pinned to 3.x: RabbitMQ 4.x removed `transient_nonexcl_queues`, which Celery 3.1.25
+          # (Rodan's version) relies on. The floating `:alpine` tag now resolves to 4.x and breaks it.
+          image: rabbitmq:3.13-alpine
           ports:
             - containerPort: 5672
               name: amqp

@@ -43,13 +43,14 @@ spec:
           startupProbe:
             exec:
               command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
-            periodSeconds: 30
-            failureThreshold: 40
+            periodSeconds: 45
+            timeoutSeconds: 40        # default probe timeout is 1s; celery inspect ping needs far longer
+            failureThreshold: 30
           livenessProbe:
             exec:
               command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@GPU", "-t", "30"]
             periodSeconds: 60
-            timeoutSeconds: 35
+            timeoutSeconds: 45
             failureThreshold: 3
           resources:
             requests:
