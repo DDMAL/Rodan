@@ -1,5 +1,5 @@
 # Cluster entry point: k3s Traefik. HTTP only (web entrypoint) — TLS is terminated on the
-# external edge server, which forwards plain HTTP with Host: rodan.simssa.ca and
+# external edge server, which forwards plain HTTP with Host: rodan2.simssa.ca and
 # X-Forwarded-Proto: https. All path routing stays inside the nginx container.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -11,7 +11,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: rodan.simssa.ca
+    - host: rodan2.simssa.ca
       http:
         paths:
           - path: /

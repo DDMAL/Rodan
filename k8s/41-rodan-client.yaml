@@ -1,6 +1,6 @@
 # Backbone.js static client (nginx :80 inside the image). Its runtime configuration.json is
 # injected via ConfigMap (the compose stack bind-mounts it at /client/configuration.json).
-# Public access is https via the edge, so SERVER_HTTPS=true / port 443 / host rodan.simssa.ca.
+# Public access is https via the edge, so SERVER_HTTPS=true / port 443 / host rodan2.simssa.ca.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,7 +9,7 @@ metadata:
 data:
   configuration.json: |
     {
-        "SERVER_HOST": "rodan.simssa.ca",
+        "SERVER_HOST": "rodan2.simssa.ca",
         "SERVER_PORT": "443",
         "SERVER_HTTPS": true,
         "SERVER_SOCKET_AVAILABLE": false,

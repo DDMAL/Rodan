@@ -6,7 +6,7 @@ metadata:
 data:
   # --- General ---
   TZ: "America/Toronto"
-  SERVER_HOST: "rodan.simssa.ca"
+  SERVER_HOST: "rodan2.simssa.ca"
 
   # --- Django ---
   # Matches the current production (DJANGO_ALLOWED_HOSTS=*). "*" also lets k8s httpGet probes
@@ -21,7 +21,7 @@ data:
   DJANGO_DEBUG_LOG: "/code/Rodan/database.log"
 
   # --- IIP image server (public URL the client uses; TLS terminated at edge) ---
-  IIPSRV_URL: "https://rodan.simssa.ca/fcgi-bin/iipsrv.fcgi/"
+  IIPSRV_URL: "https://rodan2.simssa.ca/fcgi-bin/iipsrv.fcgi/"
 
   # --- Postgres (non-secret connection coordinates; creds are in the Secret) ---
   POSTGRES_HOST: "postgres"

@@ -12,7 +12,7 @@ See the full design in `../.claude/plans/the-architecture-that-i-parallel-lampso
 - Storage is **NFS on Arbutus**: `resources` (`/rodan/data`, ~883 GB, RWX), `pg_data` (PG 9.6
   PGDATA, RWO, `hard`), `pg_backup` (RWX). Static PV+PVC pairs, `Retain` reclaim.
 - **Postgres runs in-cluster** (StatefulSet) on its NFS PGDATA.
-- Entry point is **Traefik Ingress** for `rodan.simssa.ca`, HTTP only — **TLS is terminated on
+- Entry point is **Traefik Ingress** for `rodan2.simssa.ca`, HTTP only — **TLS is terminated on
   an external edge server** that forwards plain HTTP. The kept `nginx` container does all internal
   routing.
 - k8s Service names intentionally match the old Docker DNS names (`postgres`, `redis`, `rabbitmq`,
@@ -32,7 +32,7 @@ See the full design in `../.claude/plans/the-architecture-that-i-parallel-lampso
 | `31/32/33-*celery.yaml` | celery / py3-celery / gpu-celery workers |
 | `40-iipsrv.yaml` / `41-rodan-client.yaml` | image server + static client |
 | `50-nginx.yaml` | reverse proxy Deployment + ClusterIP Service |
-| `51-ingress.yaml` | Traefik Ingress (`rodan.simssa.ca`) |
+| `51-ingress.yaml` | Traefik Ingress (`rodan2.simssa.ca`) |
 | `60-nvidia-device-plugin.yaml` | advertises `nvidia.com/gpu` on the GPU node |
 
 ## Before you apply — fill in placeholders
@@ -130,7 +130,7 @@ kubectl -n rodan exec deploy/py3-celery -- celery inspect ping -A rodan --workdi
 kubectl -n rodan exec deploy/gpu-celery -- celery inspect ping -A rodan --workdir /code/Rodan -d celery@GPU
 kubectl -n rodan exec deploy/gpu-celery -- nvidia-smi
 kubectl describe node <gpu-node> | grep nvidia.com/gpu       # allocatable: 1
-# external (through the edge): https://rodan.simssa.ca  — log in, open a project/image, run a workflow
+# external (through the edge): https://rodan2.simssa.ca  — log in, open a project/image, run a workflow
 ```
 
 ## Notes / gotchas
