@@ -1,13 +1,16 @@
-name: Build and push images
+name: Build, push, and deploy images
 
-# Builds all 7 Rodan images and pushes them to the private GitHub Container Registry.
+# Builds all 7 Rodan images, pushes them to the private GitHub Container Registry, and
+# (on manual dispatch or version tags) deploys the app tier to the k3s cluster.
 # Replaces the DockerHub autobuild hooks (hooks/build, hooks/push).
 #
 # Tags:
-#   git tag v*        -> ghcr.io/ddmal/<name>:<version>
+#   git tag v*        -> ghcr.io/ddmal/<name>:<version>          (+ deploy)
 #   push to develop   -> ghcr.io/ddmal/<name>:nightly
 #   pull_request       -> build only, no push (validates Dockerfiles)
-#   workflow_dispatch  -> optional tag input (defaults to "nightly")
+#   workflow_dispatch  -> optional tag input (defaults to "nightly")  (+ deploy)
+# Every pushed build also gets an immutable ghcr.io/ddmal/<name>:sha-<gitsha> tag,
+# which the deploy job pins so the rollout is guaranteed to pull the new image.
 
 on:
   push:
@@ -26,7 +29,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: build-and-push-${{ github.ref }}
+  group: build-and-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -39,6 +42,7 @@ jobs:
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
       push: ${{ steps.meta.outputs.push }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
     steps:
       - id: meta
         env:
@@ -64,7 +68,8 @@ jobs:
           TAG="$(printf '%s' "$TAG" | tr '/' '-')"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "push=$PUSH" >> "$GITHUB_OUTPUT"
-          echo "Resolved tag=$TAG push=$PUSH (event=$EVENT ref_type=$REF_TYPE ref=$REF_NAME)"
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag=$TAG push=$PUSH sha=${GITHUB_SHA::7} (event=$EVENT ref_type=$REF_TYPE ref=$REF_NAME)"
 
   # Ordered dependency chain on ONE runner so the hardcoded
   # `FROM ddmal/<base>:${VERSION}` lines resolve to the locally-built images.
@@ -74,6 +79,7 @@ jobs:
     env:
       TAG: ${{ needs.setup.outputs.tag }}
       PUSH: ${{ needs.setup.outputs.push }}
+      SHA_TAG: sha-${{ needs.setup.outputs.short_sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -99,6 +105,7 @@ jobs:
             --build-arg BRANCHES=develop \
             --build-arg VERSION="$TAG" \
             -t "$REGISTRY/$OWNER/rodan-python3-celery:$TAG" \
+            -t "$REGISTRY/$OWNER/rodan-python3-celery:$SHA_TAG" \
             -t "ddmal/rodan-python3-celery:$TAG" \
             -f python3-celery/Dockerfile \
             .
@@ -110,6 +117,7 @@ jobs:
             --build-arg VERSION="$TAG" \
             --build-arg build_hash="${{ github.sha }}" \
             -t "$REGISTRY/$OWNER/rodan-main:$TAG" \
+            -t "$REGISTRY/$OWNER/rodan-main:$SHA_TAG" \
             -t "ddmal/rodan-main:$TAG" \
             -f rodan-main/Dockerfile \
             .
@@ -119,14 +127,18 @@ jobs:
           docker build \
             --build-arg VERSION="$TAG" \
             -t "$REGISTRY/$OWNER/nginx:$TAG" \
+            -t "$REGISTRY/$OWNER/nginx:$SHA_TAG" \
             ./nginx
 
       - name: Push chain images
         if: env.PUSH == 'true'
         run: |
           docker push "$REGISTRY/$OWNER/rodan-python3-celery:$TAG"
+          docker push "$REGISTRY/$OWNER/rodan-python3-celery:$SHA_TAG"
           docker push "$REGISTRY/$OWNER/rodan-main:$TAG"
+          docker push "$REGISTRY/$OWNER/rodan-main:$SHA_TAG"
           docker push "$REGISTRY/$OWNER/nginx:$TAG"
+          docker push "$REGISTRY/$OWNER/nginx:$SHA_TAG"
 
   # Independent images — each on its own runner, in parallel.
   independent:
@@ -135,6 +147,7 @@ jobs:
     env:
       TAG: ${{ needs.setup.outputs.tag }}
       PUSH: ${{ needs.setup.outputs.push }}
+      SHA_TAG: sha-${{ needs.setup.outputs.short_sha }}
     strategy:
       fail-fast: false
       matrix:
@@ -178,9 +191,56 @@ jobs:
           docker build ${{ matrix.args }} \
             --build-arg VERSION="$TAG" \
             -t "$REGISTRY/$OWNER/${{ matrix.name }}:$TAG" \
+            -t "$REGISTRY/$OWNER/${{ matrix.name }}:$SHA_TAG" \
             -f "${{ matrix.dockerfile }}" \
             "${{ matrix.context }}"
 
       - name: Push ${{ matrix.name }}
         if: env.PUSH == 'true'
-        run: docker push "$REGISTRY/$OWNER/${{ matrix.name }}:$TAG"
+        run: |
+          docker push "$REGISTRY/$OWNER/${{ matrix.name }}:$TAG"
+          docker push "$REGISTRY/$OWNER/${{ matrix.name }}:$SHA_TAG"
+
+  # Deploy the app tier by pinning the immutable sha-<gitsha> tag (guarantees a fresh pull +
+  # gives `kubectl rollout undo` rollback). Runs only on manual dispatch or version tags.
+  # postgres / redis / rabbitmq are intentionally left alone (don't bounce the DB on every deploy).
+  deploy:
+    needs: [setup, chain, independent]
+    if: needs.setup.outputs.push == 'true' && (github.event_name == 'workflow_dispatch' || github.ref_type == 'tag')
+    runs-on: ubuntu-latest
+    env:
+      NS: rodan
+      REG: ghcr.io/ddmal
+      SHA_TAG: sha-${{ needs.setup.outputs.short_sha }}
+    steps:
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig from secret
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          set -euo pipefail
+          # Store the KUBECONFIG secret (raw YAML) via env to avoid shell-injection/quoting issues.
+          # If your secret is base64-encoded, replace the printf line with: printf '%s' "$KUBECONFIG_DATA" | base64 -d > ...
+          printf '%s' "$KUBECONFIG_DATA" > "$RUNNER_TEMP/kubeconfig"
+          chmod 600 "$RUNNER_TEMP/kubeconfig"
+          echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
+
+      - name: Roll app-tier images to the immutable SHA tag
+        run: |
+          set -euo pipefail
+          kubectl -n "$NS" set image deployment/rodan-main    rodan-main="$REG/rodan-main:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/celery         celery="$REG/rodan-main:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/py3-celery     py3-celery="$REG/rodan-python3-celery:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/gpu-celery     gpu-celery="$REG/rodan-gpu-celery:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/iipsrv          iipsrv="$REG/iipsrv:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/rodan-client    rodan-client="$REG/rodan-client:$SHA_TAG"
+          kubectl -n "$NS" set image deployment/nginx           nginx="$REG/nginx:$SHA_TAG"
+
+      - name: Wait for rollouts
+        run: |
+          set -euo pipefail
+          for d in rodan-main celery py3-celery gpu-celery iipsrv rodan-client nginx; do
+            kubectl -n "$NS" rollout status deployment/"$d" --timeout=600s
+          done
