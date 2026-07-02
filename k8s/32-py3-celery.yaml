@@ -1,0 +1,54 @@
+# Python3 Celery worker (queue "Python3"). This image's ENTRYPOINT is /run/start-celery
+# directly (no /opt/entrypoint wrapper), so no args override is needed. Node "celery@Python3".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py3-celery
+  namespace: rodan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py3-celery
+  template:
+    metadata:
+      labels:
+        app: py3-celery
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: py3-celery
+          image: ghcr.io/ddmal/rodan-python3-celery:k8s-migration
+          envFrom:
+            - configMapRef: { name: rodan-config }
+            - secretRef: { name: rodan-secrets }
+          env:
+            - name: CELERY_JOB_QUEUE
+              value: "Python3"
+          volumeMounts:
+            - name: resources
+              mountPath: /rodan/data
+          startupProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+            periodSeconds: 45
+            timeoutSeconds: 40        # default probe timeout is 1s; celery inspect ping needs far longer
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+            periodSeconds: 60
+            timeoutSeconds: 45
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "12Gi"
+      volumes:
+        - name: resources
+          persistentVolumeClaim:
+            claimName: rodan-resources

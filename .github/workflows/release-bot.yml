@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Create output folder
         run: mkdir -p ${{ github.workspace }}/checklist_items
       - name: Write checklist items to files
@@ -38,12 +40,18 @@ jobs:
 
       - name: Collect checklist items
         run: |
-          msg=$(awk 'FNR==1 && NR!=1 {print "---"}{print}' checklist_items/*.log)
-          echo "$msg" >> aggregated.log
-          sha="*SHA: ${{ github.event.pull_request.head.sha }}*"
-          sed -i "1i\\
-          $sha
-          " aggregated.log
+          set -o pipefail
+          shopt -s nullglob
+          files=(checklist_items/*.log)
+          {
+            echo "*SHA: ${{ github.event.pull_request.head.sha }}*"
+            echo
+            if [ ${#files[@]} -eq 0 ]; then
+              echo "_No merge-commit checklist items found ahead of \`master\`._"
+            else
+              awk 'FNR==1 && NR!=1 {print "---"}{print}' "${files[@]}"
+            fi
+          } > aggregated.log
 
       - name: Update Pull Request
         uses: actions/github-script@v5
