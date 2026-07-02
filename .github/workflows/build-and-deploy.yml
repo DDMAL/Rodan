@@ -14,8 +14,7 @@ name: Build, push, and deploy images
 
 on:
   push:
-    # k8s-migration is here temporarily to test image builds from this branch — remove before merge.
-    branches: [develop, k8s-migration]
+    branches: [develop]
     tags: ['v*']
   workflow_dispatch:
     inputs:
