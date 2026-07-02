@@ -5,6 +5,8 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
+      args:
+        VERSION: nightly
     image: "ddmal/nginx:nightly"
 
   iipsrv:
@@ -12,14 +14,15 @@ services:
       context: ./iipsrv
       dockerfile: Dockerfile
     image: "ddmal/iipsrv:nightly"
-    
+
   rodan:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: rodan-main/Dockerfile
       args:
         BRANCHES: develop
-    image: "ddmal/rodan:nightly"
+        VERSION: nightly
+    image: "ddmal/rodan-main:nightly"
 
   py3-celery:
     build:
@@ -39,8 +42,8 @@ services:
 
   postgres:
     build:
-      context: ./postgres
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./postgres/Dockerfile
     image: "ddmal/postgres-plpython:nightly"
 
   rodan-client:
@@ -48,4 +51,3 @@ services:
       context: ./rodan-client
       dockerfile: Dockerfile
     image: "ddmal/rodan-client:nightly"
-

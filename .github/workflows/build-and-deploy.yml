@@ -84,12 +84,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Free disk space
-        # Reclaims ~25-35 GB on ubuntu-latest. Consider re-pinning to a commit SHA for supply-chain hardening.
+        # Reclaims ~25-35 GB on ubuntu-latest.
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
           tool-cache: true
-          large-packages: false   # apt purge is slow; tool-cache + dotnet/android give the most back
-          docker-images: false    # we need docker working
+          large-packages: false
+          docker-images: false
 
       - name: Log in to GHCR
         if: env.PUSH == 'true'
@@ -221,8 +221,6 @@ jobs:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
           set -euo pipefail
-          # Store the KUBECONFIG secret (raw YAML) via env to avoid shell-injection/quoting issues.
-          # If your secret is base64-encoded, replace the printf line with: printf '%s' "$KUBECONFIG_DATA" | base64 -d > ...
           printf '%s' "$KUBECONFIG_DATA" > "$RUNNER_TEMP/kubeconfig"
           chmod 600 "$RUNNER_TEMP/kubeconfig"
           echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
