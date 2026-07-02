@@ -4,7 +4,7 @@
   - Master Branch ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ddmal/rodan/master)
   - Develop Branch ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ddmal/rodan/develop)
 
-This repository contains Docker images that can be used to set up [Rodan](https://github.com/DDMAL/rodan) locally for development. These images can also be used in the future with slight modifications for deployment to a swarm production environment. Please see the wiki for more information about deploying Rodan. [Rodan Wiki](https://github.com/DDMAL/Rodan/wiki)
+This repository contains Docker images that can be used to set up [Rodan](https://github.com/DDMAL/rodan) locally for development. The same images are deployed to **Kubernetes (k3s)** in production — see [`k8s/`](./k8s) (and [`k8s/README.md`](./k8s/README.md)) for the manifests and deployment runbook. For more general information, see the [Rodan Wiki](https://github.com/DDMAL/Rodan/wiki).
 
 #### Objectives
 
@@ -40,15 +40,14 @@ A similar concept to using `exec` is using SSH to connect to another computer. W
 
 Consult the documentation of the [Docker command line](https://docs.docker.com/engine/reference/commandline/cli/) for additional information.
 
-## Automated Build
+## CI/CD
 
-The images are rebuilt and pushed automatically on a nightly basis at 2am. This accomplished with a cron job. You must point the cron job to the nightly script on one of the staging virtual machines. Any account will do and no authentication required, add this line to the crontab. Docker hub will send a Slack notification if the image has built. We should expect 5 new images daily, or more if there was a new tagged release of any of them.
+Image builds, pushes, and deploys are handled by GitHub Actions in [`.github/workflows/build-and-deploy.yml`](./.github/workflows/build-and-deploy.yml):
 
-```shell
-0 2 * * 1-5 /srv/webapps/rodan-docker/scripts/nightly
-```
+- **Build & push** — all seven images are built and pushed to the private GitHub Container Registry at `ghcr.io/ddmal/<name>`. Triggers: push to `develop` → `:nightly`; a `v*` git tag → `:<version>`; pull requests build only (no push). Every pushed build also gets an immutable `:sha-<gitsha>` tag.
+- **Deploy** — on a `v*` tag or manual `workflow_dispatch`, the app-tier Deployments in the k3s `rodan` namespace are rolled to the new `:sha-<gitsha>` images (via `kubectl set image`). `postgres`/`redis`/`rabbitmq` are left untouched.
 
-You may also force Docker Cloud to rebuild new images when new commits are pushed to a Git repository. Unfortunately, we had problems connecting the `rodan-docker` GitHub repository to Docker Cloud due to authentication issues, so we set up a private repository on Bitbucket instead.
+See [`k8s/README.md`](./k8s/README.md) for the full deployment/runbook details.
 
 ## Additional Information
 

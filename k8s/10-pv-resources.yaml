@@ -1,0 +1,27 @@
+# Shared media volume (Django MEDIA_ROOT, /rodan/data, ~883 GB). RWX so all six
+# consumers (nginx, rodan-main, iipsrv, celery, py3-celery, gpu-celery) mount it at once.
+# Replace __ARBUTUS_NFS_IP__ and the export path with the real Arbutus NFS server.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rodan-resources-pv
+  labels:
+    app.kubernetes.io/part-of: rodan
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""          # static binding; disables dynamic provisioning
+  mountOptions:
+    - nfsvers=4
+    - soft                      # mirrors the current resources mount (soft,timeo=600,retrans=3)
+    - timeo=600
+    - retrans=3
+  nfs:
+    server: 192.168.236.124
+    path: /srv/rodan-data/var/lib/docker/volumes/rodan_resources/_data
+  claimRef:
+    namespace: rodan
+    name: rodan-resources
