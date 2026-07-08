@@ -14,7 +14,7 @@ name: Build, push, and deploy images
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, modernize-backend-py311]
     tags: ['v*']
   workflow_dispatch:
     inputs:
