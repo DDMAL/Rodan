@@ -3,16 +3,16 @@ from django.test import TestCase
 # from rodan.models.outputport import OutputPort
 # from rodan.models.runjob import RunJob
 from rodan.models.output import Output
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
 class OutputTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_runjob = mommy.make("rodan.RunJob")
-        self.test_outputport = mommy.make("rodan.OutputPort")
-        self.test_resource = mommy.make("rodan.Resource")
+        self.test_runjob = baker.make("rodan.RunJob")
+        self.test_outputport = baker.make("rodan.OutputPort")
+        self.test_resource = baker.make("rodan.Resource")
 
     def test_save(self):
         output = Output(

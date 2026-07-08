@@ -16,7 +16,6 @@ class UserPreference(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_userpreference", "View User Preference"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     user = models.OneToOneField(

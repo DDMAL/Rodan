@@ -22,7 +22,6 @@
 import os
 import re
 import math
-import six
 import sys
 import json
 from optparse import OptionParser
@@ -87,7 +86,7 @@ class GenerateJson(object):
         for im in images:
             page_data = []
 
-            for j in six.moves.range(lowest_max_zoom + 1):
+            for j in range(lowest_max_zoom + 1):
                 h = self.__incorporate_zoom(im['mx_h'], lowest_max_zoom - j)
                 w = self.__incorporate_zoom(im['mx_w'], lowest_max_zoom - j)
                 # if the dimensions of the original image are an exact multiple of 256
@@ -127,7 +126,7 @@ class GenerateJson(object):
                 'f': fn
             })
 
-        for j in six.moves.range(lowest_max_zoom + 1):
+        for j in range(lowest_max_zoom + 1):
             a_wid.append(t_wid[j] / float(len(images)))
             a_hei.append(t_hei[j] / float(len(images)))
 

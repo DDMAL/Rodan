@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
-from model_mommy import mommy
+from model_bakery import baker
 
 from rodan.constants import task_status
 from rodan.models import Resource, Job, ResourceType, RunJob
@@ -27,7 +27,7 @@ class InteractiveAcquireTestCase(
         self.setUp_rodan()
         self.setUp_user()
         self.client.force_authenticate(user=self.test_superuser)
-        self.test_runjob = mommy.make(
+        self.test_runjob = baker.make(
             "rodan.RunJob", status=task_status.WAITING_FOR_INPUT
         )
 
@@ -120,22 +120,22 @@ class InteractiveWorkingTestCase(
         from rodan.test.dummy_jobs import dummy_manual_job
 
         dummy_m_job = Job.objects.get(name=dummy_manual_job.name)
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
-        self.test_resource_in = mommy.make(
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow", project=self.test_project)
+        self.test_resource_in = baker.make(
             "rodan.Resource",
             project=self.test_project,
             resource_file="dummy",
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
         )
-        self.test_resource_out = mommy.make(
+        self.test_resource_out = baker.make(
             "rodan.Resource",
             project=self.test_project,
             resource_file="",
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
         )
         self.test_working_user_token = uuid.uuid4()
-        self.test_runjob = mommy.make(
+        self.test_runjob = baker.make(
             "rodan.RunJob",
             job_name=dummy_m_job.name,
             status=task_status.WAITING_FOR_INPUT,
@@ -146,13 +146,13 @@ class InteractiveWorkingTestCase(
             workflow_run__workflow=self.test_workflow,
         )
 
-        input_m = mommy.make(  # noqa
+        input_m = baker.make(  # noqa
             "rodan.Input",
             run_job=self.test_runjob,
             input_port_type_name="in_typeA",
             resource=self.test_resource_in,
         )
-        output_m = mommy.make(
+        output_m = baker.make(
             "rodan.Output",
             run_job=self.test_runjob,
             output_port_type_name="out_typeA",

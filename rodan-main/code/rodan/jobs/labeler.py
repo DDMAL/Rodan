@@ -98,9 +98,9 @@ class Labeler(RodanTask):
             input["resource"].labels.add(label)
 
     def test_my_task(self, testcase):
-        from model_mommy import mommy
+        from model_bakery import baker
         from rodan.models import Resource
-        rc = mommy.make("Resource")
+        rc = baker.make("Resource")
         inputs = {
             "Resource": [
                 {"resource":rc}

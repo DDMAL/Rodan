@@ -31,7 +31,6 @@ class Workflow(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_workflow", "View Workflow"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     name = models.CharField(max_length=100, db_index=True)

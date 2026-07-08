@@ -11,7 +11,7 @@ from rodan.models import (
     Job,
 )
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from model_mommy import mommy
+from model_bakery import baker
 
 
 class WorkflowJobGroupViewTestCase(
@@ -20,15 +20,15 @@ class WorkflowJobGroupViewTestCase(
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.test_workflow1 = mommy.make("rodan.Workflow")
-        self.test_workflow2 = mommy.make("rodan.Workflow")
-        self.test_workflowjob1 = mommy.make(
+        self.test_workflow1 = baker.make("rodan.Workflow")
+        self.test_workflow2 = baker.make("rodan.Workflow")
+        self.test_workflowjob1 = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow1
         )
-        self.test_workflowjob1b = mommy.make(
+        self.test_workflowjob1b = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow1
         )
-        self.test_workflowjob2 = mommy.make(
+        self.test_workflowjob2 = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow2
         )
         self.client.force_authenticate(user=self.test_superuser)
@@ -161,8 +161,8 @@ class WorkflowJobGroupActionTestCase(
     def test_import_valid_workflow(self):
         self.test_workflow.valid = True
         self.test_workflow.save()
-        self.test_new_workflow = mommy.make("rodan.Workflow")
-        mommy.make(
+        self.test_new_workflow = baker.make("rodan.Workflow")
+        baker.make(
             "rodan.WorkflowJob", workflow=self.test_new_workflow
         )  # make it non-null
         wfjgroup_obj = {
@@ -203,8 +203,8 @@ class WorkflowJobGroupActionTestCase(
     def test_import_invalid_workflow(self):
         self.test_workflow.valid = False
         self.test_workflow.save()
-        self.test_new_workflow = mommy.make("rodan.Workflow")
-        mommy.make(
+        self.test_new_workflow = baker.make("rodan.Workflow")
+        baker.make(
             "rodan.WorkflowJob", workflow=self.test_new_workflow
         )  # make it non-null
         wfjgroup_obj = {
@@ -234,7 +234,7 @@ class WorkflowJobGroupActionTestCase(
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
         wfjgroup_uuid = response.data["uuid"]
 
-        project = mommy.make("rodan.Project")
+        project = baker.make("rodan.Project")
         wf_obj = {
             "workflow_job_group": "http://localhost:8000/api/workflowjobgroup/{0}/".format(
                 wfjgroup_uuid
@@ -330,7 +330,7 @@ class WorkflowJobGroupProtectTestCase(
             "job": "http://localhost:8000/api/job/{0}/".format(job_a.pk),
             "name": "new name",
             "workflow": "http://localhost:8000/api/workflow/{0}/".format(
-                mommy.make("rodan.Workflow").pk
+                baker.make("rodan.Workflow").pk
             ),
         }
         for k, v in wfj_updates.items():

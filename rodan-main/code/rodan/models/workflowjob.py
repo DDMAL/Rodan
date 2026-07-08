@@ -42,7 +42,6 @@ class WorkflowJob(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_workflowjob", "View WorkflowJob"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     workflow = models.ForeignKey(

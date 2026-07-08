@@ -3,10 +3,10 @@ import datetime
 import os
 import re
 # import urlparse
-import six.moves.urllib.parse
+import urllib.parse
 import base64, io
 
-from celery import registry
+from celery import current_app as registry
 from django.conf import settings
 from django.urls import (
     reverse,
@@ -166,7 +166,7 @@ class ResourceList(generics.ListCreateAPIView):
             try:
                 # try to see if user provide a url to ResourceType
                 # convert to relative url
-                path = six.moves.urllib.parse.urlparse(claimed_mimetype).path
+                path = urllib.parse.urlparse(claimed_mimetype).path
                 match = resolve(path)                            # find a url route
                 restype_pk = match.kwargs.get('pk')              # extract pk
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object
@@ -238,7 +238,7 @@ class ResourceDetail(generics.RetrieveUpdateDestroyAPIView):
             try:
                 # try to see if user provide a url to ResourceType
                 # convert to relative url
-                path = six.moves.urllib.parse.urlparse(resource_type).path
+                path = urllib.parse.urlparse(resource_type).path
                 match = resolve(path)                            # find a url route
                 restype_pk = match.kwargs.get('pk')              # extract pk
                 restype_obj = ResourceType.objects.get(pk=restype_pk)   # find object

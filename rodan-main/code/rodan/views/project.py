@@ -6,7 +6,7 @@ from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerial
 from rodan.permissions import CustomObjectPermissions
 from django.conf import settings
 from django.db.models import Q
-from celery import registry
+from celery import current_app as registry
 
 
 class ProjectList(generics.ListCreateAPIView):

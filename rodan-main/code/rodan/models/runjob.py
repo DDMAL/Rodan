@@ -60,7 +60,6 @@ class RunJob(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_runjob", "View RunJob"),)
 
     STATUS_CHOICES = [
         (task_status.SCHEDULED, "Scheduled"),
@@ -135,7 +134,7 @@ class RunJob(models.Model):
         return self.workflow_run.project
 
     def delete(self):
-        from celery.task.control import revoke
+        from celery import current_app
         import logging
         from socket import error as socket_error
         import errno
@@ -146,7 +145,7 @@ class RunJob(models.Model):
         # https://docs.celeryproject.org/en/v4.3.0/reference/celery.app.control.html#celery.app.control.Control.revoke  # noqa
         # https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
         try:
-            revoke(self.celery_task_id, terminate=True, signal="SIGTERM")
+            current_app.control.revoke(self.celery_task_id, terminate=True, signal="SIGTERM")
         except socket_error as serr:
             # if serr.errno != errno.ECONNREFUSED:
             if str(errno.ECONNREFUSED) not in repr(serr):

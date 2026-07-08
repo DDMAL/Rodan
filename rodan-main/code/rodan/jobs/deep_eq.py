@@ -24,7 +24,6 @@ import datetime
 import time
 import functools
 import operator
-import six  # noqa
 import types
 
 
@@ -79,13 +78,13 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
     >>> x10, y10 = (1, 2)
     >>> deep_eq(x10, y10)
     False
-    >>> deep_eq((str(p) for p in six.moves.range(10)), (str(p) for p in six.moves.range(10)))
+    >>> deep_eq((str(p) for p in range(10)), (str(p) for p in range(10)))
     True
-    >>> str(deep_eq(six.moves.range(4), six.moves.range(4)))
+    >>> str(deep_eq(range(4), range(4)))
     'True'
-    >>> deep_eq(six.moves.range(100), six.moves.range(100))
+    >>> deep_eq(range(100), range(100))
     True
-    >>> deep_eq(six.moves.range(2), six.moves.range(5))
+    >>> deep_eq(range(2), range(5))
     False
     >>> import datetime
     >>> from datetime import datetime as dt

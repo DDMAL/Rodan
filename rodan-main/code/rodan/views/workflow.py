@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from rodan.models import Workflow, InputPort, OutputPort, Job, Resource
 from rodan.serializers.workflow import WorkflowSerializer, WorkflowListSerializer, version_map

@@ -4,7 +4,7 @@
 # import shutil
 
 from celery import (
-    registry,
+    current_app as registry,
     # chain
 )
 # from celery.task.control import revoke

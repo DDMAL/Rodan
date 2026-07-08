@@ -38,7 +38,6 @@ class ResultsPackage(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_resultspackage", "View ResultsPackage"),)
 
     DEFAULT_EXPIRY_TIME = datetime.timedelta(days=30)
 

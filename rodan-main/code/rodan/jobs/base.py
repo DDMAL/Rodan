@@ -86,16 +86,16 @@ class RodanTaskType(TaskType):
 
         # check the number of arguments of implemented function
         if "run_my_task" in attrs:
-            argspec = inspect.getargspec(attrs["run_my_task"])
+            argspec = inspect.getfullargspec(attrs["run_my_task"])
             assert len(argspec.args) == 4, "run_my_task"
         if "get_my_interface" in attrs:
-            argspec = inspect.getargspec(attrs["get_my_interface"])
+            argspec = inspect.getfullargspec(attrs["get_my_interface"])
             assert len(argspec.args) == 3, "get_my_interface"
         if "validate_my_user_input" in attrs:
-            argspec = inspect.getargspec(attrs["validate_my_user_input"])
+            argspec = inspect.getfullargspec(attrs["validate_my_user_input"])
             assert len(argspec.args) == 4, "validate_my_user_input"
         if "test_my_task" in attrs:
-            argspec = inspect.getargspec(attrs["test_my_task"])
+            argspec = inspect.getfullargspec(attrs["test_my_task"])
             assert len(argspec.args) == 2, "test_my_task"
 
         # not the abstract class

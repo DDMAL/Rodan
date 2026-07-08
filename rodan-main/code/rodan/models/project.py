@@ -42,7 +42,6 @@ class Project(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_project", "View Project"),)
 
     @property
     def project_path(self):

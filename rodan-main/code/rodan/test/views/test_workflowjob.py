@@ -1,14 +1,14 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-from model_mommy import mommy
+from model_bakery import baker
 
 
 class WorkflowJobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.test_job = mommy.make(
+        self.test_job = baker.make(
             "rodan.Job",
             settings={
                 "type": "object",
@@ -19,7 +19,7 @@ class WorkflowJobViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetU
                 },
             },
         )
-        self.test_workflow = mommy.make("rodan.Workflow")
+        self.test_workflow = baker.make("rodan.Workflow")
         self.client.force_authenticate(user=self.test_superuser)
 
     def test_create_default_settings(self):
