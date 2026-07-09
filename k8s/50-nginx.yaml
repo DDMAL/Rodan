@@ -21,7 +21,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: nginx
-          image: ghcr.io/ddmal/nginx:k8s-migration
+          image: ghcr.io/ddmal/nginx:modernize-backend-py311
           args: ["/run/start"]
           env:
             - name: TZ

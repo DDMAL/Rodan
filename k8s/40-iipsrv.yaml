@@ -19,7 +19,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: iipsrv
-          image: ghcr.io/ddmal/iipsrv:k8s-migration
+          image: ghcr.io/ddmal/iipsrv:modernize-backend-py311
           ports:
             - containerPort: 9003
               name: fcgi

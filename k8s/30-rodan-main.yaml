@@ -22,7 +22,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: rodan-main
-          image: ghcr.io/ddmal/rodan-main:k8s-migration
+          image: ghcr.io/ddmal/rodan-main:modernize-backend-py311
           args: ["/run/start"]
           envFrom:
             - configMapRef: { name: rodan-config }

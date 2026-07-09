@@ -21,7 +21,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: postgres
-          image: ghcr.io/ddmal/postgres-plpython:k8s-migration
+          image: ghcr.io/ddmal/postgres-plpython:modernize-backend-py311
           ports:
             - containerPort: 5432
               name: postgres

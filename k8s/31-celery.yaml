@@ -20,7 +20,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: celery
-          image: ghcr.io/ddmal/rodan-main:k8s-migration
+          image: ghcr.io/ddmal/rodan-main:modernize-backend-py311
           args: ["/run/start-celery"]
           envFrom:
             - configMapRef: { name: rodan-config }

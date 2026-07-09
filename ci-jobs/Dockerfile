@@ -132,7 +132,10 @@ RUN cd /vendor \
   && git checkout 4932d86b19d9008a28ae898035cfa43340e636e6 \
   && mkdir build \
   && cd build \
-  && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON ..  \
+  # GCC 12+ (Debian bookworm, via the py3.11 base) no longer transitively includes
+  # <cstdint>, so Grok's pinned source fails on undeclared uint8_t. Force-include it
+  # for every C++ TU instead of patching the third-party headers.
+  && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON -DCMAKE_CXX_FLAGS="-include cstdint" ..  \
   && make -j3
 
 # ============================
