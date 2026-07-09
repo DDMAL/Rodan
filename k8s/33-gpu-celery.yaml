@@ -19,8 +19,17 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-pull-secret
+      # MIG-backed vGPU workaround: the device plugin (migStrategy=none, the only mode that
+      # works in a vGPU guest) hands the container the PARENT GPU, but CUDA needs the MIG
+      # compute instance — whose access node /dev/nvidia-caps/nvidia-cap4 the plugin doesn't
+      # inject, so cuInit -> CUDA_ERROR_NO_DEVICE. Instead we pin to a specific node and let
+      # the NVIDIA runtime inject the MIG instance directly via NVIDIA_VISIBLE_DEVICES (which
+      # DOES inject cap4). This means NOT requesting nvidia.com/gpu (that would make the plugin
+      # overwrite NVIDIA_VISIBLE_DEVICES with the parent). The MIG UUID is per-node, hence the
+      # hostname pin. Long-term fix: a non-MIG (time-sliced) vGPU profile removes all of this.
       nodeSelector:
         gpu: "true"
+        kubernetes.io/hostname: k3s-gpu-node-2
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
@@ -37,6 +46,13 @@ spec:
           env:
             - name: CELERY_JOB_QUEUE
               value: "GPU"
+            # MIG compute-instance UUID on k3s-gpu-node-2 (nvidia-smi -L). The runtime
+            # injects this exact MIG device (incl. /dev/nvidia-caps/nvidia-cap4) so CUDA can
+            # open it. This is node-specific — it must match the node pinned above.
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "MIG-a724b14d-5057-529c-b9ef-87ebd0d2d92d"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility"
           volumeMounts:
             - name: resources
               mountPath: /rodan/data
@@ -52,6 +68,10 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 45
             failureThreshold: 3
+          # NOTE: no `nvidia.com/gpu` request here on purpose — the GPU is selected via
+          # NVIDIA_VISIBLE_DEVICES above. Requesting it would let the device plugin overwrite
+          # that env with the parent GPU UUID and re-break CUDA. The hostname pin + taint
+          # toleration keep this the only GPU workload on the node.
           resources:
             requests:
               cpu: "1"
@@ -59,7 +79,6 @@ spec:
             limits:
               cpu: "2"
               memory: "16Gi"
-              nvidia.com/gpu: 1
       volumes:
         - name: resources
           persistentVolumeClaim:

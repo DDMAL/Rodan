@@ -1,7 +1,9 @@
 # NVIDIA device plugin — advertises nvidia.com/gpu on the GPU node so gpu-celery can request it.
 # Runs only on nodes labeled gpu=true and tolerates the GPU taint.
-# Prereqs on the GPU node: NVIDIA driver (>= 460.x for the CUDA 11.2 image) + nvidia-container-toolkit,
-# with the nvidia container runtime configured (k3s detects it and wires up containerd automatically).
+# Prereqs on the GPU node: NVIDIA driver (>= 525 for the CUDA 12.x / TF 2.15 image; nodes run
+# 580.x) + nvidia-container-toolkit, with the nvidia container runtime configured (k3s detects
+# it and wires up containerd automatically). The H100 vGPUs are MIG-backed, so migStrategy=single
+# is required below (see the container args) for CUDA to see the MIG instance.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -33,6 +35,11 @@ spec:
       containers:
         - name: nvidia-device-plugin-ctr
           image: nvcr.io/nvidia/k8s-device-plugin:v0.14.5
+          # NOTE: migStrategy stays "none" (the default). These are MIG-backed *vGPUs*, and
+          # the plugin's MIG path fails in a vGPU guest ("error getting parent memory info:
+          # Insufficient Permissions") because the guest can't introspect the parent GPU.
+          # So the plugin exposes the vGPU/parent UUID; CUDA is pointed at the MIG instance
+          # via CUDA_VISIBLE_DEVICES in the gpu-celery pod instead (see k8s/33-gpu-celery.yaml).
           env:
             - name: FAIL_ON_INIT_ERROR
               value: "false"
