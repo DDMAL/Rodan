@@ -3,47 +3,36 @@ set -o errexit # Exit immediately if a command exits with a non-zero status.
 set -o nounset # Treat unset variables as an error when substituting.
 set -o xtrace # Print commands and their arguments as they are executed.
 
-cd /code/Rodan/rodan/jobs
+# Installs the external GPU job packages, ported to TensorFlow 2.15 / Python 3.11 for
+# Hopper (sm_90) GPUs (the `py311` branch of each DDMAL repo). TensorFlow itself (with the
+# CUDA 12 wheels) is installed by the gpu-celery Dockerfile via `tensorflow[and-cuda]`;
+# each repo's requirements only assert `tensorflow==2.15.1` (pip sees it satisfied). On
+# rodan-main (no CUDA) the same requirements pull the CPU TensorFlow, which is enough to
+# import/register the jobs in the API.
+#
+# text_alignment is intentionally NOT installed: it depends on the DDMAL calamari/tfaip
+# forks (cp37-only wheels, TF 2.5.1) with no Python 3.11 build, so it is deferred (also
+# commented out in rodan/registerJobs.yaml). Re-add its install once those are ported.
 
 PIP=$(which pip3) || PIP=$(which pip)
 
-cd /code/Rodan/rodan/jobs
-# Install Text Alignment
-$PIP install -r ./text_alignment/requirements.txt
-
-cat << EOF | python3
-new_backend = """{
-    "image_dim_ordering": "tf",
-    "epsilon": 1e-07,
-    "floatx": "float32",
-    "backend": "tensorflow"
-}"""
-open("keras.json", "w").write(new_backend)
-EOF
-
-# Install Background Removal
+# Background Removal
 cd /
-git clone -b v1.1.1 https://github.com/DDMAL/background_removal.git
+git clone -b py311 --depth 1 https://github.com/DDMAL/background_removal.git
 mv background_removal .background_removal
 cd .background_removal
-which pip3 && $PIP install --no-cache-dir .
- 
-# Install SAE_binarization
+$PIP install --no-cache-dir .
+
+# SAE_binarization
 cd /
-git clone -b v1.1.1 https://github.com/DDMAL/SAE_binarization.git
+git clone -b py311 --depth 1 https://github.com/DDMAL/SAE_binarization.git
 mv SAE_binarization .SAE_binarization
 cd .SAE_binarization
-which pip3 && $PIP install --no-cache-dir . 
+$PIP install --no-cache-dir .
 
-# Install Paco classifier
+# Paco classifier
 cd /
-git clone -b v2.0.4 --depth 1 https://github.com/DDMAL/Paco_classifier.git
+git clone -b py311 --depth 1 https://github.com/DDMAL/Paco_classifier.git
 mv Paco_classifier .Paco_classifier
 cd .Paco_classifier
-which pip3 && $PIP install --no-cache-dir .
-
-cd /code/Rodan/rodan
-sed -i 's/#gpu //g' /code/Rodan/rodan/settings.py
-
-# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
-pip install opencv-python==4.6.0.66
+$PIP install --no-cache-dir .

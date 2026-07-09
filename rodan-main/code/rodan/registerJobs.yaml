@@ -146,9 +146,12 @@
     }
 
 "RODAN_GPU_JOBS": {
-    "rodan.jobs.text_alignment" : {
-        "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
-    },
+    # text_alignment is deferred in the py3.11/TF2.15 modernization: it depends on the
+    # DDMAL calamari/tfaip forks, which ship only cp37 wheels pinned to TF 2.5.1 and have
+    # no Python 3.11 build. Re-enable once those are ported.
+    # "rodan.jobs.text_alignment" : {
+    #     "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
+    # },
 
     "rodan.jobs.Paco_classifier" : {
         "rodan.jobs.Paco_classifier.fast_paco_trainer" : [ "FastPacoTrainer"],

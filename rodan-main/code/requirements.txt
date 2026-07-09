@@ -58,9 +58,12 @@ model-bakery==1.17.0            # was model-mommy; test imports change model_mom
 # Dropped (py2 backports / superseded): backports.ssl-match-hostname, pathlib2, uWSGI,
 # importlib-metadata (stdlib on 3.11), model-mommy.
 
+# scikit-image is used directly by the staff_distance GPU job (skimage.segmentation /
+# filters / morphology / transform); 0.22 supports py3.11 + numpy 1.26.
+scikit-image==0.22.0
+
 # text_alignment (DEFERRED — Phase 5; calamari-ocr 1.0 + tfaip 1.0 are dead / TF-2.5-locked)
 #numpy==1.17.3
 #tensorflow==2.3.2
-#scikit-image==0.15.0
 #calamari-ocr==1.0.5
 #Unidecode==1.0.22
