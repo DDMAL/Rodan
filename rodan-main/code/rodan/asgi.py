@@ -14,6 +14,15 @@ from django.core.asgi import get_asgi_application  # noqa: E402
 # Initialise Django (populates apps) before importing anything that touches models/settings.
 django_asgi_app = get_asgi_application()
 
+# Force the root URLconf to import now, at startup, in this synchronous context. Django
+# otherwise resolves the URLconf lazily on the first request; under ASGI that runs in the
+# event loop, and rodan/urls.py imports rodan.jobs.load, which executes a synchronous ORM
+# query (ResourceType.objects.all()) at import time -> SynchronousOnlyOperation. Doing it
+# here runs that one-time job/resource-type registration once per worker at boot instead.
+from django.urls import get_resolver  # noqa: E402
+
+get_resolver().url_patterns
+
 from channels.routing import ProtocolTypeRouter, URLRouter  # noqa: E402
 from django.urls import re_path  # noqa: E402
 
