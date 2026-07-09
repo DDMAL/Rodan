@@ -25,6 +25,13 @@ COPY ./rodan-main/code /code/Rodan
 # scikit-image otherwise caches under $HOME, which www-data cannot create.
 ENV SKIMAGE_DATADIR="/tmp/.skimage_cache"
 
+# The old nvidia/cuda base set this; python:3.11-slim does not. The NVIDIA container
+# runtime reads it to decide which driver features to inject — "compute" is required for
+# CUDA (without it you get nvidia-smi but cuInit -> CUDA_ERROR_NO_DEVICE). NVIDIA_VISIBLE_DEVICES
+# is intentionally left to the k8s device plugin. (Note: the GPU also needs a valid vGPU
+# license on the host, or CUDA is blocked regardless.)
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 # System deps: git (clones the GPU job repos), build-essential (native pip builds),
 # libmagic1 (python-magic), libpq-dev (psycopg2), and the runtime libs opencv-python needs.
 RUN apt-get update \
