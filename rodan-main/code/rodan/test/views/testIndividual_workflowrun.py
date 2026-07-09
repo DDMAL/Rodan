@@ -123,7 +123,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
             workflowrun_update,
             format="json"
         )
-        anticipated_message = {"detail": "Not found."}
+        anticipated_message = {"detail": "No WorkflowRun matches the given query."}
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(anticipated_message, response.data)
 
@@ -634,7 +634,7 @@ class WorkflowRunSimpleExecutionTest(
 
     def test_automatic_job_fail(self):
         with self.settings(
-            CELERY_EAGER_PROPAGATES_EXCEPTIONS=False
+            CELERY_TASK_EAGER_PROPAGATES=False
         ):  # Turn off propagation as task will fail
             ra = self.setUp_resources_for_simple_dummy_workflow()
             self.test_resource.resource_file.save("dummy.txt", ContentFile("will fail"))

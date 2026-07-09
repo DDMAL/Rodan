@@ -32,7 +32,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_view__workflow_notfound(self):
         response = self._validate(uuid.uuid1())
-        anticipated_message = {"detail": "Not found."}
+        anticipated_message = {"detail": "No Workflow matches the given query."}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

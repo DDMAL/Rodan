@@ -55,7 +55,9 @@ class create_resource(Task):
         resource_info = resource_query.values("resource_type__mimetype", "resource_file")[0]
 
         with TemporaryDirectory() as tmpdir:
-            infile_path = resource_info["resource_file"]
+            infile_path = os.path.join(
+                settings.MEDIA_ROOT, resource_info["resource_file"]
+            )
             tmpfile = os.path.join(tmpdir, "temp")
 
             if claimed_mimetype == "application/octet-stream":

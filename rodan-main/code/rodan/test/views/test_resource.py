@@ -250,7 +250,7 @@ class ResourceProcessingTestCase(
         self.assertEqual(self.test_resource1.resource_type.mimetype, "text/plain")
 
     def test_post_bad_image(self):
-        with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False):
+        with self.settings(CELERY_TASK_EAGER_PROPAGATES=False):
             resource_obj = {
                 "project": "http://localhost:8000/api/project/{0}/".format(
                     self.test_project.uuid

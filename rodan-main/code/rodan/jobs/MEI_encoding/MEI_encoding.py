@@ -106,6 +106,7 @@ class MEI_encoding(RodanTask):
 
     def test_my_task(self, testcase):
         import re
+        import xml.etree.ElementTree as ET
         input_jsomr = "/code/Rodan/rodan/test/files/mei-encoding-test-hpf.json"
         input_text = "/code/Rodan/rodan/test/files/mei-encoding-test-ta.json"
         input_col_data = "/code/Rodan/rodan/test/files/mei-encoding-test-csd.json"
@@ -129,21 +130,18 @@ class MEI_encoding(RodanTask):
 
         # Read the gt and predicted result
         with open(output_path, "r") as fp:
-            predicted = [l.strip() for l in fp.readlines()]
+            predicted = fp.read()
         with open(gt_output_path, "r") as fp:
-            gt = [l.strip() for l in fp.readlines()]
+            gt = fp.read()
 
-        # The number lines should be identical
-        testcase.assertEqual(len(gt), len(predicted))
-
-        # also each line should be identical to its counterpart
-        # Since mei encoding creates unique ids, we use regex to replace each id with an underscore
+        # MEI encoding creates unique ids, so replace each id with an underscore.
         pattern = re.compile(r"m-\w{8}-\w{4}-\w{4}-\w{4}-\w{12}")
-        for i, (gt_line, pred_line) in enumerate(zip(gt, predicted)):
-            # Replace ids
-            gt_line = pattern.sub("_", gt_line)
-            pred_line = pattern.sub("_", pred_line)
-            # and compare if two meis are identical to each other
-            testcase.assertEqual(gt_line, pred_line, "Line {}".format(i))
+        predicted = pattern.sub("_", predicted)
+        gt = pattern.sub("_", gt)
+
+        # Compare canonicalized XML so attribute ordering does not matter. Python < 3.8
+        # serialized attributes alphabetically while >= 3.8 preserves insertion order; the
+        # stored fixture predates 3.8. C14N normalizes ordering on both sides.
+        testcase.assertEqual(ET.canonicalize(gt), ET.canonicalize(predicted))
 
         del predicted, gt

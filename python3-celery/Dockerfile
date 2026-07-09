@@ -72,6 +72,12 @@ WORKDIR /gamera4-rodan/gamera-4
 RUN python3 setup.py --nowx install
 WORKDIR /gamera4-rodan/musicstaves
 RUN python3 setup.py install
+# Musicstaves installs as an isolated egg whose gamera/toolkits/ does not merge with
+# gamera's (gamera's toolkits/__init__.py is empty, no extend_path). Move its package
+# into the gamera egg so `import gamera.toolkits.musicstaves` resolves. Self-checks.
+RUN cp -r /usr/local/lib/python3.11/site-packages/musicstaves-*.egg/gamera/toolkits/musicstaves \
+          /usr/local/lib/python3.11/site-packages/gamera-*.egg/gamera/toolkits/ \
+ && python3 -W ignore -c "import gamera.toolkits.musicstaves.stafffinder_miyao; from gamera.toolkits import musicstaves"
 
 # Change the concurency for python3 jobs
 RUN sed -i "s/concurrency=10/concurrency=3/g" /run/start-celery
