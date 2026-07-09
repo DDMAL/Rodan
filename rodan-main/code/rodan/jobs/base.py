@@ -13,7 +13,7 @@ import sys
 import time
 import uuid
 
-from celery import Task, registry
+from celery import Task, current_app as registry
 from celery.app.task import TaskType
 from django.conf import settings as rodan_settings
 from django.core.files import File

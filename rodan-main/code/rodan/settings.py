@@ -482,7 +482,11 @@ TRACEBACK_IN_ERROR_DETAIL = True
 ###############################################################################
 BROKER_CONNECTION_MAX_RETRIES = "0"
 CELERY_BROKER_URL = os.getenv("RABBITMQ_URL")
-CELERY_RESULT_BACKEND = "amqp"
+# Celery 5 removed the "amqp" result backend; "rpc://" is its documented successor and
+# keeps results flowing over the same RabbitMQ broker (no extra infra). Rodan retrieves a
+# result in exactly one place (create_archive -> .get() in views/resource.py); rpc handles
+# that. Task/workflow *state* is tracked in Rodan's own DB, not the result backend.
+CELERY_RESULT_BACKEND = "rpc://"
 CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.jobs.load",)
 if TEST:
