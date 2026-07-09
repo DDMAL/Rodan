@@ -38,7 +38,7 @@ spec:
       runtimeClassName: nvidia
       containers:
         - name: gpu-celery
-          image: ghcr.io/ddmal/rodan-gpu-celery:modernize-backend-py311
+          image: ghcr.io/ddmal/rodan-gpu-celery:nightly
           args: ["/run/start-celery"]
           envFrom:
             - configMapRef: { name: rodan-config }
