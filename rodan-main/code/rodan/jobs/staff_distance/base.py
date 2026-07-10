@@ -52,3 +52,22 @@ class StaffDistance(RodanTask):
 
 
         return True
+
+    def test_my_task(self, testcase):
+        # count_lines depends on scikit-image; skip gracefully where it is not
+        # installed so test_all_jobs stays green. Uses a real chant-manuscript
+        # fixture (CF-005.png) so the staff-line spacing is well-defined (a
+        # staff-less image would yield distance 0 -> ZeroDivision on 64/distance).
+        try:
+            import skimage  # noqa: F401
+        except ImportError:
+            return
+        input_image = "/code/Rodan/rodan/test/files/CF-005.png"
+        output_path = testcase.new_available_path()
+        inputs = {'Input Image': [{'resource_type': 'image/rgb+png', 'resource_path': input_image}]}
+        outputs = {'Resize Ratio': [{'resource_type': 'application/json', 'resource_path': output_path}]}
+        self.run_my_task(inputs, {}, outputs)
+        with open(output_path) as f:
+            result = json.load(f)
+        testcase.assertGreater(result['distance'], 0)
+        testcase.assertAlmostEqual(result['ratio'], 64 / result['distance'])
