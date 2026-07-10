@@ -6,8 +6,8 @@
 # nvidia/cuda:11.2 + TF 2.5.1 + py3.7 base, which cannot run on Hopper.
 #
 # This worker serves only the BASE + GPU job queues (CELERY_JOB_QUEUE=GPU), so it needs no
-# Gamera. GPU jobs: Paco_classifier, background_removal, SAE_binarization (TF 2.15) and
-# staff_distance (skimage/cv2). text_alignment is deferred (see scripts/install_gpu_rodan_jobs).
+# Gamera. GPU jobs: Paco_classifier, background_removal, SAE_binarization (TF 2.15),
+# staff_distance (skimage/cv2), and text_alignment (Calamari-OCR / ocrd-fork-tfaip 1.2.7).
 FROM python:3.11-slim
 
 ARG BRANCHES
@@ -59,7 +59,7 @@ RUN pip3 install --no-cache-dir "tensorflow[and-cuda]==2.15.1"
 # Rodan Python deps.
 RUN pip3 install --no-cache-dir -r /code/Rodan/requirements.txt
 
-# GPU job packages (py311 branches; text_alignment deferred). Their `tensorflow==2.15.1`
+# GPU job packages (py311 branches + text_alignment's calamari). Their `tensorflow==2.15.1`
 # pin is already satisfied by tensorflow[and-cuda] above, so pip does not reinstall TF.
 RUN set -e \
   && mkdir -p /code/jobs \

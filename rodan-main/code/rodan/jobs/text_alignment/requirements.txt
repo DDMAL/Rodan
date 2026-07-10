@@ -1,11 +1,9 @@
-#numpy==1.17.3; python_version > "3.4"
-# Specify the tensorflow url link to prevent docker hub build failure due to hash mismatch
-https://files.pythonhosted.org/packages/63/b2/2822fad63bdaedf3da841443daf92775d6fff16aba7199415e06f8d8c50f/tensorflow-2.5.1-cp37-cp37m-manylinux2010_x86_64.whl; python_version > "3.4"
-# Install calamari and tfaip from our DDMAL fork
-https://github.com/DDMAL/calamari/archive/refs/tags/DDMAL-v1.0.0.zip#egg=calamari_ocr; python_version > "3.4"
-https://github.com/DDMAL/tfaip/archive/refs/tags/v1.0.0.zip#egg=tfaip; python_version > "3.4"
-paiargparse==1.1.2; python_version > "3.4"
-scipy==1.7.3; python_version > "3.4"
-Unidecode==1.0.22; python_version > "3.4"
-scikit-image==0.17.2; python_version > "3.4"
-keras==2.5.0rc0; python_version > "3.4"
+# text_alignment OCR runs on upstream Calamari-OCR, which supports Python 3.11 and
+# TensorFlow <= 2.15 via ocrd-fork-tfaip 1.2.7 (replaces the old DDMAL calamari/tfaip
+# forks that were cp37 / TF 2.5.1 only). TensorFlow itself is provided by the GPU image
+# (tensorflow[and-cuda]==2.15.1); calamari pulls scipy/paiargparse/pillow transitively.
+# The bundled salzinnes_stgall model has been pre-migrated to the calamari v6 SavedModel
+# format so it loads without any runtime migration write.
+calamari-ocr==2.3.1
+numpy==1.26.4
+scikit-image>=0.22.0

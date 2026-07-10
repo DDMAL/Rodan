@@ -380,7 +380,9 @@ def find_rotation_angle(img, coarse_bound=4, fine_bound=0.1, rescale_amt=0.5):
     """
 
     num_trials = int(coarse_bound / fine_bound)
-    img_resized = rescale(img, rescale_amt, order=0, multichannel=False)
+    # scikit-image >= 0.23 removed the `multichannel` kwarg (deprecated since 0.19);
+    # `multichannel=False` is equivalent to `channel_axis=None`.
+    img_resized = rescale(img, rescale_amt, order=0, channel_axis=None)
 
     def project_angles(img_to_project, angles_to_try):
         best_angle = 0

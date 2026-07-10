@@ -146,12 +146,11 @@
     }
 
 "RODAN_GPU_JOBS": {
-    # text_alignment is deferred in the py3.11/TF2.15 modernization: it depends on the
-    # DDMAL calamari/tfaip forks, which ship only cp37 wheels pinned to TF 2.5.1 and have
-    # no Python 3.11 build. Re-enable once those are ported.
-    # "rodan.jobs.text_alignment" : {
-    #     "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
-    # },
+    # text_alignment runs on upstream Calamari-OCR (py3.11 + TF2.15 via ocrd-fork-tfaip 1.2.7);
+    # the bundled salzinnes_stgall model is pre-migrated to the calamari v6 SavedModel format.
+    "rodan.jobs.text_alignment" : {
+        "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
+    },
 
     "rodan.jobs.Paco_classifier" : {
         "rodan.jobs.Paco_classifier.fast_paco_trainer" : [ "FastPacoTrainer"],

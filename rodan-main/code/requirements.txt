@@ -62,8 +62,6 @@ model-bakery==1.17.0            # was model-mommy; test imports change model_mom
 # filters / morphology / transform); 0.22 supports py3.11 + numpy 1.26.
 scikit-image==0.22.0
 
-# text_alignment (DEFERRED — Phase 5; calamari-ocr 1.0 + tfaip 1.0 are dead / TF-2.5-locked)
-#numpy==1.17.3
-#tensorflow==2.3.2
-#calamari-ocr==1.0.5
-#Unidecode==1.0.22
+# text_alignment's OCR engine (calamari-ocr==2.3.1, py3.11 + TF2.15 via ocrd-fork-tfaip
+# 1.2.7) is installed on the GPU worker by scripts/install_gpu_rodan_jobs, not from here —
+# the job registers on non-GPU images via its guarded import.

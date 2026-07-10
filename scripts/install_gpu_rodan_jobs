@@ -10,9 +10,9 @@ set -o xtrace # Print commands and their arguments as they are executed.
 # rodan-main (no CUDA) the same requirements pull the CPU TensorFlow, which is enough to
 # import/register the jobs in the API.
 #
-# text_alignment is intentionally NOT installed: it depends on the DDMAL calamari/tfaip
-# forks (cp37-only wheels, TF 2.5.1) with no Python 3.11 build, so it is deferred (also
-# commented out in rodan/registerJobs.yaml). Re-add its install once those are ported.
+# text_alignment's code lives inside the Rodan repo (rodan/jobs/text_alignment), so it is
+# not cloned here; it only needs the OCR engine. Upstream Calamari-OCR supports py3.11 +
+# TF2.15 via ocrd-fork-tfaip 1.2.7, installed from the job's own requirements below.
 
 PIP=$(which pip3) || PIP=$(which pip)
 
@@ -36,3 +36,6 @@ git clone -b py311 --depth 1 https://github.com/DDMAL/Paco_classifier.git
 mv Paco_classifier .Paco_classifier
 cd .Paco_classifier
 $PIP install --no-cache-dir .
+
+# text_alignment (calamari OCR engine; the job code itself is in-Rodan)
+$PIP install --no-cache-dir -r /code/Rodan/rodan/jobs/text_alignment/requirements.txt
