@@ -109,9 +109,9 @@ class StaffFinder(object):
     def _get_staff_finding_algorithm(self, image, sfnd_alg):
         if sfnd_alg == 0:
             return musicstaves.StaffFinder_miyao(image)
-        elif sfnd_alg is 1:
+        elif sfnd_alg == 1:
             return musicstaves.StaffFinder_dalitz(image)
-        elif sfnd_alg is 2:
+        elif sfnd_alg == 2:
             return musicstaves.StaffFinder_projections(image)
         else:
             raise AomrStaffFinderNotFoundError("The staff finding algorithm was not found.")
