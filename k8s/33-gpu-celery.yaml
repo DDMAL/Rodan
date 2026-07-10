@@ -53,6 +53,14 @@ spec:
               value: "MIG-a724b14d-5057-529c-b9ef-87ebd0d2d92d"
             - name: NVIDIA_DRIVER_CAPABILITIES
               value: "compute,utility"
+            # TF 2.15.1 has no sm_90 (Hopper) cubins, so kernels JIT-compile from PTX on first use
+            # (gpu_device.cc warns "could take 30 minutes"). Persist that JIT cache on the resources
+            # PVC (instead of the ephemeral /root/.nv) and raise its cap to the 4 GiB max so large
+            # fused kernels don't evict — the compile then happens once, not on every pod restart.
+            - name: CUDA_CACHE_PATH
+              value: "/rodan/data/.cuda-cache"
+            - name: CUDA_CACHE_MAXSIZE
+              value: "4294967296"   # 4 GiB (CUDA hard max); default is only ~1 GiB
           volumeMounts:
             - name: resources
               mountPath: /rodan/data
