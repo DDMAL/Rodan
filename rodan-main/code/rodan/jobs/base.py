@@ -520,11 +520,22 @@ class RodanTaskType(TaskType):
                 check_port_types("in")
                 check_port_types("out")
 
-            # Process done
-            from rodan.jobs.load import job_list
+            # Process done.
+            #
+            # `job_list` is load.py's running tally of catalogue jobs still awaiting a code
+            # module; each job crosses itself off here so load.py can flag the leftovers as
+            # orphaned. Only do this when load.py is the active orchestrator (already in
+            # sys.modules). Importing it from a standalone job-module import (e.g. a bare
+            # `import rodan.jobs.<pkg>.<mod>`) would run load.py's module-level registration
+            # while THIS class is still mid-definition; that registration then getattrs the
+            # not-yet-bound class off its half-imported module and raises a spurious
+            # AttributeError (swallowed by register_all_jobs.py). Skipping the tally when
+            # load.py isn't orchestrating is harmless — there is no orphan sweep to feed.
+            if "rodan.jobs.load" in sys.modules:
+                from rodan.jobs.load import job_list
 
-            if attrs["name"] in job_list:
-                job_list.remove(attrs["name"])
+                if attrs["name"] in job_list:
+                    job_list.remove(attrs["name"])
 
     @staticmethod
     def _resolve_resource_types(value):
