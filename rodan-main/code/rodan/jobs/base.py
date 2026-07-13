@@ -1128,7 +1128,12 @@ class RodanTask(Task, metaclass=RodanTaskType):
         else:
             with open(template_file, "r") as f:
                 t = Template(f.read())
-                _django_template_cache = t
+                # NB: index into the cache dict — assigning `_django_template_cache = t`
+                # would replace the dict with a Template, so the NEXT interactive
+                # `get_interface` in the same worker process hits `template_file in <Template>`
+                # → TypeError and a 500 (i.e. only the first interactive editor opened per
+                # process would work). Long-standing bug; surfaced verifying Pixel.js/Neon.
+                _django_template_cache[template_file] = t
                 return (t, context)
 
     def get_my_interface(self, inputs, settings):
