@@ -25,7 +25,7 @@ numpy==1.17.3
 model-mommy==1.6.0
 pathlib2==2.3.6
 pika==1.1.0
-pillow==8.2.0
+pillow==8.3.2
 protobuf==3.17.3
 psycopg2==2.8.4
 -e git+https://github.com/deepio/pybagit.git@4eea813148bc590896000f57cde35fb86443d2f4#egg=pybagit ; python_version >= '3.0'
