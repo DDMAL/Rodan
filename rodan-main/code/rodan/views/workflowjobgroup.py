@@ -23,7 +23,7 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
 
     model = WorkflowJobGroup
     permission_classes = (permissions.IsAuthenticated,)
-    filter_fields = ("origin",)
+    filterset_fields = ("origin",)
     queryset = WorkflowJobGroup.objects.all()  # [TODO] filter according to the user?
 
     def get_queryset(self):
@@ -36,7 +36,7 @@ class WorkflowJobGroupList(generics.ListCreateAPIView):
         else:
             return WorkflowJobGroupSerializer
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(field_name="workflow_jobs__workflow")
         project = django_filters.CharFilter(field_name="workflow_jobs__workflow__project")
 

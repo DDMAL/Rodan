@@ -68,11 +68,11 @@ class ResourceList(generics.ListCreateAPIView):
     queryset = Resource.objects.all().order_by("-created")
     serializer_class = NestedLabelsResourceSerializer
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         # https://github.com/alex/django-filter/issues/273
         origin__isnull = django_filters.BooleanFilter(
             # action=lambda q, v: q.filter(origin__isnull=v)
-            method=lambda q, v: q.filter(origin__isnull=v)
+            method=lambda qs, name, value: qs.filter(origin__isnull=value)
         )
 
         # resource_type__in = django_filters.MethodFilter()
@@ -145,7 +145,7 @@ class ResourceList(generics.ListCreateAPIView):
                 resource_list_condition = Q(uuid=None)
             condition &= resource_list_condition
 
-        # then this queryset is filtered on `filter_fields`
+        # then this queryset is filtered on `filterset_fields`
         queryset = Resource.objects.filter(condition).order_by("-created")
         return queryset
 

@@ -33,7 +33,7 @@ class WorkflowList(generics.ListCreateAPIView):
     _ignore_model_permissions = True
     queryset = Workflow.objects.all().order_by("-created")
     serializer_class = WorkflowListSerializer
-    filter_fields = {
+    filterset_fields = {
         "updated": ["lt", "gt"],
         "uuid": ["exact"],
         "created": ["lt", "gt"],

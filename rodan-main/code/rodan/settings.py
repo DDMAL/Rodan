@@ -382,7 +382,8 @@ REST_FRAMEWORK = {
     "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
-        # "django_filters.rest_framework.DjangoObjectPermissionsFilter", DEPRECATED
+        # Restores object-level list scoping (DRF removed DjangoObjectPermissionsFilter in 3.9)
+        "rodan.permissions.ObjectPermissionsFilter",
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.OrderingFilter"
     ),

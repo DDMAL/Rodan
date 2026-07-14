@@ -18,7 +18,7 @@ class JobList(generics.ListAPIView):
     serializer_class = JobSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
-    filter_fields = {
+    filterset_fields = {
         # "category": map(lambda j:str(j['category']), Job.objects.values('category').distinct()),
         "category": ["exact"],
         "interactive": ["exact"],

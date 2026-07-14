@@ -32,7 +32,7 @@ class UserList(generics.ListCreateAPIView):
     serializer_class = UserListSerializer
     pagination_class = None
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         # username__in = django_filters.MethodFilter()
         username__in = django_filters.filters.CharFilter(method="filter_username__in")
 

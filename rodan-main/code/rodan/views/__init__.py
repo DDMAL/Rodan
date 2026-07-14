@@ -21,8 +21,8 @@ class RodanMetadata(SimpleMetadata):
         else:
             # [TODO] not clever enough...
             # repeating codes: https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/filters.py  # noqa
-            if hasattr(view, "filter_class"):
-                fc = view.filter_class()
+            if hasattr(view, "filterset_class"):
+                fc = view.filterset_class()
                 fields = {}
                 for k in fc.filters.keys():
                     things = k.rsplit("__", 1)
@@ -34,12 +34,12 @@ class RodanMetadata(SimpleMetadata):
                     elif len(things) == 2:
                         lookup_type = things[1]
                         fields[field].append(lookup_type)
-            elif hasattr(view, "filter_fields"):
-                if isinstance(view.filter_fields, dict):
-                    fields = view.filter_fields
+            elif hasattr(view, "filterset_fields"):
+                if isinstance(view.filterset_fields, dict):
+                    fields = view.filterset_fields
                 else:
                     fields = {}
-                    for field in view.filter_fields:
+                    for field in view.filterset_fields:
                         fields[field] = ["exact"]
             else:
                 fields = {}

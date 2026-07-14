@@ -19,7 +19,7 @@ class ConnectionList(generics.ListCreateAPIView):
     queryset = Connection.objects.all()
     serializer_class = ConnectionSerializer
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         workflow = django_filters.CharFilter(field_name="output_port__workflow_job__workflow")
         input_workflow_job = django_filters.CharFilter(field_name="input_port__workflow_job")
         output_workflow_job = django_filters.CharFilter(

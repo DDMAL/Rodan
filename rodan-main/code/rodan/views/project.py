@@ -19,7 +19,7 @@ class ProjectList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     #queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
-    filter_fields = {
+    filterset_fields = {
         "updated": ["lt", "gt"],
         "uuid": ["exact"],
         "created": ["lt", "gt"],

@@ -18,7 +18,7 @@ class WorkflowJobList(generics.ListCreateAPIView):
     _ignore_model_permissions = True
     queryset = WorkflowJob.objects.all()
     serializer_class = WorkflowJobSerializer
-    filter_fields = {
+    filterset_fields = {
         "updated": ["lt", "gt"],
         "group": ["exact"],
         "uuid": ["exact"],

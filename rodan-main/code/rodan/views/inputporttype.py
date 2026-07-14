@@ -19,7 +19,7 @@ class InputPortTypeList(generics.ListAPIView):
     serializer_class = InputPortTypeSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
-    filter_fields = {
+    filterset_fields = {
         # "job": ["exact", "icontains"],
         "job": ["exact", ],
         "minimum": ["exact", "lt", "gt"],
