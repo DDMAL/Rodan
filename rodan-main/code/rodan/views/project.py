@@ -6,7 +6,7 @@ from rodan.serializers.project import ProjectListSerializer, ProjectDetailSerial
 from rodan.permissions import CustomObjectPermissions
 from django.conf import settings
 from django.db.models import Q
-from celery import registry
+from celery import current_app as registry
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -19,7 +19,7 @@ class ProjectList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     #queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
-    filter_fields = {
+    filterset_fields = {
         "updated": ["lt", "gt"],
         "uuid": ["exact"],
         "created": ["lt", "gt"],

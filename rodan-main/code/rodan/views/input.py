@@ -15,7 +15,7 @@ class InputList(generics.ListAPIView):
     _ignore_model_permissions = True
     queryset = Input.objects.all()
     serializer_class = InputSerializer
-    filter_fields = ("resource", "run_job", "uuid", "input_port_type_name")
+    filterset_fields = ("resource", "run_job", "uuid", "input_port_type_name")
 
 
 class InputDetail(generics.RetrieveAPIView):

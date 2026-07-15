@@ -59,7 +59,15 @@ def add_view_user_permission(sender, **kwargs):
     # don't set permissions in test database
     if not settings.TEST and sender.name == 'guardian':
         content_type = ContentType.objects.get(app_label='rodan', model='user')
-        Permission.objects.get_or_create(codename='view_user', name='View User', content_type=content_type)
+        # Django >= 2.1 auto-creates a `view_user` permission (with name "Can view
+        # user") via create_permissions. Look up only on the unique fields
+        # (codename, content_type) so we find that row instead of colliding with it;
+        # keep the historical display name via defaults for a fresh DB.
+        Permission.objects.get_or_create(
+            codename='view_user',
+            content_type=content_type,
+            defaults={'name': 'View User'},
+        )
 
         group = Group.objects.get_or_create(name="view_user_permission")
         # if the group is just created, add all users to it and give them view permission

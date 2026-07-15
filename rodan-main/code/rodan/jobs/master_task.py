@@ -1,4 +1,4 @@
-from celery import registry, task
+from celery import current_app as registry, shared_task as task
 from rodan.models import (
     # UserPreference,
     RunJob,

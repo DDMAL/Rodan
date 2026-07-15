@@ -1,15 +1,15 @@
 from django.test import TestCase
 from rodan.models import ResourceType, Resource, User
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
 class ResourceTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_user = mommy.make(User)
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow")
+        self.test_user = baker.make(User)
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow")
 
         self.test_resource_data = {
             "project": self.test_project,

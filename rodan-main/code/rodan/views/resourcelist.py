@@ -21,11 +21,11 @@ class ResourceListList(generics.ListCreateAPIView):
 
     permission_classes = (permissions.IsAuthenticated, CustomObjectPermissions)
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         origin__isnull = django_filters.BooleanFilter(
             # django-filter 0.9.x
             # action=lambda q, v: q.filter(origin__isnull=v)
-            method=lambda q, v: q.filter(origin__isnull=v)
+            method=lambda qs, name, value: qs.filter(origin__isnull=value)
         )  # https://github.com/alex/django-filter/issues/273
 
         # django-filter 0.9.x

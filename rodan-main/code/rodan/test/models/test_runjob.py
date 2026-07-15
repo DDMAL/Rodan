@@ -3,18 +3,18 @@ from django.test import TestCase
 # from rodan.models.workflowrun import WorkflowRun
 # from rodan.models.workflowjob import WorkflowJob
 from rodan.models.runjob import RunJob
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
 class RunJobTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_workflowjob = mommy.make("rodan.WorkflowJob")
-        self.test_workflowrun = mommy.make(
+        self.test_workflowjob = baker.make("rodan.WorkflowJob")
+        self.test_workflowrun = baker.make(
             "rodan.WorkflowRun", workflow=self.test_workflowjob.workflow
         )
-        self.test_runjob = mommy.make(
+        self.test_runjob = baker.make(
             "rodan.RunJob",
             workflow_job=self.test_workflowjob,
             workflow_run=self.test_workflowrun,

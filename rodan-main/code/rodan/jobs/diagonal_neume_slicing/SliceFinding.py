@@ -120,13 +120,13 @@ class SliceFinder (object):
         for i, x in enumerate(projection[1:]):
 
             # found max
-            if projection[i] > x and direction is 'up':
+            if projection[i] > x and direction == 'up':
                 projection_spaces.append(projection[start_pos:i + 1])
                 start_pos = i + 1
                 direction = 'down'
 
             # found min
-            elif projection[i] < x and direction is 'down':
+            elif projection[i] < x and direction == 'down':
                 projection_spaces.append(projection[start_pos:i + 1])
                 start_pos = i + 1
                 direction = 'up'
@@ -189,7 +189,7 @@ class SliceFinder (object):
     def _find_slices(self, mm, dim):
         minima, maxima = mm
         slices = []
-        rel_max = self.x_max_proj if dim is 'x' else self.y_max_proj
+        rel_max = self.x_max_proj if dim == 'x' else self.y_max_proj
 
         for i, m in enumerate(maxima[:-1]):
             peak_L, peak_R = maxima[i], maxima[i + 1]

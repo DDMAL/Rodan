@@ -26,10 +26,10 @@ RUN yarn install
 RUN yarn build
 
 # Make Gamera files accessible to the main container.
-FROM ddmal/gamera4:2.0.0 AS gamera
+FROM ddmal/gamera4:py311 AS gamera
 
-# This release is based on Debian 11 "Bullseye"
-FROM python:3.7-slim
+# Debian 12 "Bookworm" with Python 3.11.
+FROM python:3.11-slim
 
 # Copy various scripts and make them executable.
 COPY ./scripts/start-celery /run/
@@ -62,8 +62,9 @@ RUN apt-get install -y \
   wget \
   vim
 
-# https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
-RUN pip3 install setuptools==58
+# setuptools <80 still supports the legacy `setup.py install` that Gamera/Musicstaves use;
+# py3.11 keeps stdlib distutils, which Gamera's setup.py imports directly.
+RUN pip3 install "setuptools<80" wheel
 RUN pip3 install -r /code/Rodan/requirements.txt
 
 # Install Gamera and Musicstaves.
@@ -71,9 +72,12 @@ WORKDIR /gamera4-rodan/gamera-4
 RUN python3 setup.py --nowx install
 WORKDIR /gamera4-rodan/musicstaves
 RUN python3 setup.py install
-
-# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
-RUN pip install opencv-python==4.6.0.66
+# Musicstaves installs as an isolated egg whose gamera/toolkits/ does not merge with
+# gamera's (gamera's toolkits/__init__.py is empty, no extend_path). Move its package
+# into the gamera egg so `import gamera.toolkits.musicstaves` resolves. Self-checks.
+RUN cp -r /usr/local/lib/python3.11/site-packages/musicstaves-*.egg/gamera/toolkits/musicstaves \
+          /usr/local/lib/python3.11/site-packages/gamera-*.egg/gamera/toolkits/ \
+ && python3 -W ignore -c "import gamera.toolkits.musicstaves.stafffinder_miyao; from gamera.toolkits import musicstaves"
 
 # Change the concurency for python3 jobs
 RUN sed -i "s/concurrency=10/concurrency=3/g" /run/start-celery

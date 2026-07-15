@@ -1,12 +1,11 @@
 import os
 import json
-import six
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
 from rodan.models import WorkflowRun, ResourceType
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 from django.core.files.base import ContentFile
@@ -124,7 +123,7 @@ class WorkflowRunViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMix
             workflowrun_update,
             format="json"
         )
-        anticipated_message = {"detail": "Not found."}
+        anticipated_message = {"detail": "No WorkflowRun matches the given query."}
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(anticipated_message, response.data)
 
@@ -161,13 +160,13 @@ class WorkflowRunResourceAssignmentTest(
         ra[self.url(self.test_Fip1)] = [self.url(self.test_resource)]
 
         resource_lists = []
-        for i in six.moves.range(10):
-            rl = mommy.make(
+        for i in range(10):
+            rl = baker.make(
                 "rodan.ResourceList",
                 project=self.test_project,
                 resource_type=ResourceType.objects.get(mimetype="test/a2"),
             )
-            rs = mommy.make(
+            rs = baker.make(
                 "rodan.Resource",
                 _quantity=5,
                 project=self.test_project,
@@ -313,7 +312,7 @@ class WorkflowRunResourceAssignmentTest(
 
     def test_multiple_resource_collections_same_length(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        another_resource_collection = mommy.make(
+        another_resource_collection = baker.make(
             "rodan.Resource",
             _quantity=10,
             name="dummy",
@@ -371,7 +370,7 @@ class WorkflowRunResourceAssignmentTest(
     def test_resource_not_in_project(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
         res = self.test_resourcecollection[5]
-        res.project = mommy.make("rodan.Project")
+        res.project = baker.make("rodan.Project")
         res.save()
         workflowrun_obj = {
             "workflow": "http://localhost:8000/api/workflow/{0}/".format(
@@ -500,7 +499,7 @@ class WorkflowRunResourceAssignmentTest(
 
     def test_resource_list_not_in_project(self):
         ra = self.setUp_resources_for_complex_dummy_workflow()
-        self.test_resourcelist.project = mommy.make("rodan.Project")
+        self.test_resourcelist.project = baker.make("rodan.Project")
         self.test_resourcelist.save()
         workflowrun_obj = {
             "workflow": "http://localhost:8000/api/workflow/{0}/".format(
@@ -635,7 +634,7 @@ class WorkflowRunSimpleExecutionTest(
 
     def test_automatic_job_fail(self):
         with self.settings(
-            CELERY_EAGER_PROPAGATES_EXCEPTIONS=False
+            CELERY_TASK_EAGER_PROPAGATES=False
         ):  # Turn off propagation as task will fail
             ra = self.setUp_resources_for_simple_dummy_workflow()
             self.test_resource.resource_file.save("dummy.txt", ContentFile("will fail"))
@@ -1212,19 +1211,19 @@ class WorkflowRunMultipleResourceCollectionsTest(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def setUp_multiple_resource_collections(self):
-        self.test_resourcecollection_a = mommy.make(
+        self.test_resourcecollection_a = baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
         )
-        self.test_resourcecollection_b = mommy.make(
+        self.test_resourcecollection_b = baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
         )
-        self.test_resourcecollection_c = mommy.make(
+        self.test_resourcecollection_c = baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,

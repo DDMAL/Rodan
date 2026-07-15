@@ -69,7 +69,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: rodan-client
-          image: ghcr.io/ddmal/rodan-client:k8s-migration
+          image: ghcr.io/ddmal/rodan-client:nightly
           ports:
             - containerPort: 80
               name: http

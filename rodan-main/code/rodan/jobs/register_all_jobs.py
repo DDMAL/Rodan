@@ -28,39 +28,39 @@ def register_base():
 
     for path in allJobs['BASE_JOB_PACKAGES']:
         for base_job in allJobs['BASE_JOB_PACKAGES'][path]:
-            try: 
+            try:
                 # from path import base_job as job_name
-                job_class = getattr(importlib.import_module(path), base_job)                
+                job_class = getattr(importlib.import_module(path), base_job)
                 app.register_task(job_class)
 
             except Exception as exception:
-                print(base_job + " failed to import with the following error:",  exception.__class__.__name__)
+                print(base_job + " failed to import with the following error:",  repr(exception))
 
 # Python3 Jobs
 def register_py3():
     for pack in allJobs['RODAN_PYTHON3_JOBS']:
         for path in allJobs['RODAN_PYTHON3_JOBS'][pack]:
             for py3_job in allJobs['RODAN_PYTHON3_JOBS'][pack][path]:
-                try: 
+                try:
                     #from path import py3_job as job_name
-                    job_class = getattr(importlib.import_module(path), py3_job)  
+                    job_class = getattr(importlib.import_module(path), py3_job)
                     app.register_task(job_class)
 
                 except Exception as exception:
-                    print(py3_job + " failed to import with the following error:",  exception.__class__.__name__)
+                    print(py3_job + " failed to import with the following error:",  repr(exception))
 
 
 def register_gpu():
     for pack in allJobs["RODAN_GPU_JOBS"]:
         for path in allJobs["RODAN_GPU_JOBS"][pack]:
             for gpu_job in allJobs["RODAN_GPU_JOBS"][pack][path]:
-                try: 
+                try:
                     #from path import py3_job as job_name
-                    job_class = getattr(importlib.import_module(path), gpu_job)  
+                    job_class = getattr(importlib.import_module(path), gpu_job)
                     app.register_task(job_class)
 
                 except Exception as exception:
-                    print(gpu_job + " failed to import with the following error:",  exception.__class__.__name__)
+                    print(gpu_job + " failed to import with the following error:",  repr(exception))
 
 if __name__ == "__main__":
     register_all()

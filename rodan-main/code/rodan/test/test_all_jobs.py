@@ -1,5 +1,5 @@
 import os, tempfile, shutil, uuid, types, traceback, sys
-from celery import registry
+from celery import current_app as registry
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin

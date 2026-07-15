@@ -223,8 +223,8 @@ class ProjectionSplitter (object):
         rcp = self._get_center_of_image(r_image)        # rotated center point
 
         # rotated image points
-        r_p1 = (pos, r_rows) if dim is 'x' else (0, pos)  # left / bottom
-        r_p2 = (pos, 0) if dim is 'x' else (r_cols, pos)  # top / right
+        r_p1 = (pos, r_rows) if dim == 'x' else (0, pos)  # left / bottom
+        r_p2 = (pos, 0) if dim == 'x' else (r_cols, pos)  # top / right
         # print r_p1, r_p2
 
         # # show rotated cuts

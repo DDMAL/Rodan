@@ -13,7 +13,7 @@ class OutputList(generics.ListAPIView):
     model = Output
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = OutputListSerializer
-    filter_fields = ("resource", "run_job", "uuid", "output_port_type_name")
+    filterset_fields = ("resource", "run_job", "uuid", "output_port_type_name")
     queryset = Output.objects.all()  # [TODO] restrict to the user's outputs?
 
 

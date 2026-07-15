@@ -19,7 +19,7 @@ class ResourceTypeList(generics.ListAPIView):
     serializer_class = ResourceTypeSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
-    filter_fields = {
+    filterset_fields = {
         "mimetype": ["exact", "icontains"],
         "uuid": ["exact"],
         "extension": ["exact"],

@@ -20,7 +20,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: celery
-          image: ghcr.io/ddmal/rodan-main:k8s-migration
+          image: ghcr.io/ddmal/rodan-main:nightly
           args: ["/run/start-celery"]
           envFrom:
             - configMapRef: { name: rodan-config }
@@ -33,13 +33,13 @@ spec:
               mountPath: /rodan/data
           startupProbe:
             exec:
-              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+              command: ["celery", "-A", "rodan", "--workdir", "/code/Rodan", "inspect", "ping", "-d", "celery@celery", "-t", "30"]
             periodSeconds: 45
             timeoutSeconds: 40        # default probe timeout is 1s; celery inspect ping needs far longer
             failureThreshold: 30      # tolerates the long wait-for rodan-main:8000 (up to 900s)
           livenessProbe:
             exec:
-              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@celery", "-t", "30"]
+              command: ["celery", "-A", "rodan", "--workdir", "/code/Rodan", "inspect", "ping", "-d", "celery@celery", "-t", "30"]
             periodSeconds: 60
             timeoutSeconds: 45
             failureThreshold: 3

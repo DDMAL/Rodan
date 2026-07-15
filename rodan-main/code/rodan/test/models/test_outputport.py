@@ -2,15 +2,15 @@ from django.test import TestCase
 # from rodan.models.workflowjob import WorkflowJob
 # from rodan.models.outputporttype import OutputPortType
 from rodan.models.outputport import OutputPort
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
 class OutputPortTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_workflowjob = mommy.make("rodan.WorkflowJob")
-        self.test_outputporttype = mommy.make(
+        self.test_workflowjob = baker.make("rodan.WorkflowJob")
+        self.test_outputporttype = baker.make(
             "rodan.OutputPortType", job=self.test_workflowjob.job
         )
 

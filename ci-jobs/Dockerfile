@@ -29,10 +29,11 @@ RUN yarn install
 RUN yarn build
 
 # Make Gamera files accessible to the main container.
-FROM ddmal/gamera4:fix_IC AS gamera
+FROM ddmal/gamera4:py311 AS gamera
 
-# This release is based on Debian 11 "Bullseye"
-FROM python:3.7-slim
+# Debian 12 "Bookworm" with Python 3.11 (matches python3-celery; Django 4.2 needs py>=3.8
+# and the py3.11-ported Gamera source uses the 3.9+ C-API).
+FROM python:3.11-slim
 
 # Copy various scripts and make them executable.
 # COPY ./scripts/start-celery /run/
@@ -65,8 +66,9 @@ RUN apt-get install -y \
   wget \
   vim
 
-# https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
-RUN pip3 install setuptools==58
+# setuptools <80 still supports the legacy `setup.py install` that Gamera/Musicstaves use;
+# py3.11 keeps stdlib distutils, which Gamera's setup.py imports directly.
+RUN pip3 install "setuptools<80" wheel
 RUN pip3 install -r /code/Rodan/requirements.txt
 
 # Install Gamera and Musicstaves.
@@ -74,9 +76,12 @@ WORKDIR /gamera4-rodan/gamera-4
 RUN python3 setup.py --nowx install
 WORKDIR /gamera4-rodan/musicstaves
 RUN python3 setup.py install
-
-# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
-RUN pip install opencv-python==4.6.0.66
+# Musicstaves installs as an isolated egg whose gamera/toolkits/ does not merge with
+# gamera's (gamera's toolkits/__init__.py is empty, no extend_path). Move its package
+# into the gamera egg so `import gamera.toolkits.musicstaves` resolves. Self-checks.
+RUN cp -r /usr/local/lib/python3.11/site-packages/musicstaves-*.egg/gamera/toolkits/musicstaves \
+          /usr/local/lib/python3.11/site-packages/gamera-*.egg/gamera/toolkits/ \
+ && python3 -W ignore -c "import gamera.toolkits.musicstaves.stafffinder_miyao; from gamera.toolkits import musicstaves"
 
 # ============================
 # from ./rodan-main/Dockerfile
@@ -108,12 +113,8 @@ RUN apt-get install -y \
   wget \
   vim
 
-# https://stackoverflow.com/questions/69100275/error-while-downloading-the-requirements-using-pip-install-setup-command-use-2
-RUN pip3 install setuptools==58
+RUN pip3 install "setuptools<80" wheel
 RUN pip3 install -r /code/Rodan/requirements.txt
-
-# Temporary fix for OpenCV until https://github.com/DDMAL/Rodan/issues/639 is resolved.
-RUN pip install opencv-python==4.6.0.66
 
 # From rodan-main
 RUN set -x \
@@ -137,7 +138,10 @@ RUN cd /vendor \
   && git checkout 4932d86b19d9008a28ae898035cfa43340e636e6 \
   && mkdir build \
   && cd build \
-  && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON ..  \
+  # GCC 12+ (Debian bookworm, via the py3.11 base) no longer transitively includes
+  # <cstdint>, so Grok's pinned source fails on undeclared uint8_t. Force-include it
+  # for every C++ TU instead of patching the third-party headers.
+  && /vendor/cmake-3.17.0-Linux-x86_64/bin/cmake -DBUILD_THIRDPARTY=ON -DCMAKE_CXX_FLAGS="-include cstdint" ..  \
   && make -j3
 
 # ============================

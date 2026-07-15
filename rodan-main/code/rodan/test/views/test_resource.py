@@ -4,11 +4,10 @@ import zipfile
 # from StringIO import StringIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from model_mommy import mommy
+from model_bakery import baker
 from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
-import six
 import io
 
 from rodan.constants import task_status
@@ -91,14 +90,14 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         )
 
     def test_get_results_of_workflowrun(self):
-        wfrun1 = mommy.make("rodan.WorkflowRun")
-        wfrun2 = mommy.make("rodan.WorkflowRun")
-        r1 = mommy.make("rodan.Resource")
-        r2 = mommy.make("rodan.Resource")
-        r3 = mommy.make("rodan.Resource")
-        output1a = mommy.make("rodan.Output", resource=r1, run_job__workflow_run=wfrun1)
-        output1b = mommy.make("rodan.Output", resource=r2, run_job__workflow_run=wfrun1)
-        output1c = mommy.make("rodan.Output", resource=r3, run_job__workflow_run=wfrun1)
+        wfrun1 = baker.make("rodan.WorkflowRun")
+        wfrun2 = baker.make("rodan.WorkflowRun")
+        r1 = baker.make("rodan.Resource")
+        r2 = baker.make("rodan.Resource")
+        r3 = baker.make("rodan.Resource")
+        output1a = baker.make("rodan.Output", resource=r1, run_job__workflow_run=wfrun1)
+        output1b = baker.make("rodan.Output", resource=r2, run_job__workflow_run=wfrun1)
+        output1c = baker.make("rodan.Output", resource=r3, run_job__workflow_run=wfrun1)
         res1a = output1a.resource
         res1a.origin = output1a
         res1a.save()
@@ -108,14 +107,14 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         res1c = output1c.resource
         res1c.origin = output1c
         res1c.save()
-        mommy.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res1a)
+        baker.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res1a)
 
-        r4 = mommy.make("rodan.Resource")
-        output2 = mommy.make("rodan.Output", resource=r4, run_job__workflow_run=wfrun2)
+        r4 = baker.make("rodan.Resource")
+        output2 = baker.make("rodan.Output", resource=r4, run_job__workflow_run=wfrun2)
         res2 = output2.resource
         res2.origin = output2
         res2.save()
-        mommy.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res2)
+        baker.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res2)
 
         response = self.client.get(
             "/api/resources/?format=json&result_of_workflow_run={0}".format(wfrun1.uuid)
@@ -135,13 +134,13 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(res_list[0]["uuid"], str(res2.uuid))
 
     def test_get_with_filter_uploaded(self):
-        wfrun1 = mommy.make("rodan.WorkflowRun")
-        r1 = mommy.make("rodan.Resource")
-        output1a = mommy.make("rodan.Output", resource=r1, run_job__workflow_run=wfrun1)
+        wfrun1 = baker.make("rodan.WorkflowRun")
+        r1 = baker.make("rodan.Resource")
+        output1a = baker.make("rodan.Output", resource=r1, run_job__workflow_run=wfrun1)
         res1 = output1a.resource
         res1.origin = output1a
         res1.save()
-        mommy.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res1)
+        baker.make("rodan.Input", run_job__workflow_run=wfrun1, resource=res1)
         response1 = self.client.get("/api/resources/?format=json&uploaded=false")
         res_list1 = response1.data["results"]
         self.assertEqual(len(res_list1), 1)
@@ -153,11 +152,11 @@ class ResourceViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(res_list2[0]["uuid"], str(r1.uuid))
 
     def test_get_resources_in_resourcelist(self):
-        rt = mommy.make("rodan.ResourceType")
-        r1 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
-        r2 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
-        r3 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)
-        r4 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt)  # noqa
+        rt = baker.make("rodan.ResourceType")
+        r1 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt)
+        r2 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt)
+        r3 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt)
+        r4 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt)  # noqa
         rl_obj = {
             "resources": map(
                 lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
@@ -251,7 +250,7 @@ class ResourceProcessingTestCase(
         self.assertEqual(self.test_resource1.resource_type.mimetype, "text/plain")
 
     def test_post_bad_image(self):
-        with self.settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=False):
+        with self.settings(CELERY_TASK_EAGER_PROPAGATES=False):
             resource_obj = {
                 "project": "http://localhost:8000/api/project/{0}/".format(
                     self.test_project.uuid
@@ -312,7 +311,7 @@ class ResourceArchiveTestCase(
 
     def test_get_zip(self):
         return
-        r1 = mommy.make("rodan.Resource", name="r1.txt", _create_files=True)
+        r1 = baker.make("rodan.Resource", name="r1.txt", _create_files=True)
         response = self.client.get(
             "/api/resources/archive/",
             {

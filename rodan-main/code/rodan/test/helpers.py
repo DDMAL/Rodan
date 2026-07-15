@@ -2,7 +2,7 @@ import shutil
 import os
 # import uuid
 # import time
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.models import Job, ResourceType
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -65,8 +65,8 @@ class RodanTestSetUpMixin(object):
         test_workflowjob => test_workflowjob2
         """
 
-        self.test_job = mommy.make("rodan.Job")
-        self.test_inputporttype = mommy.make(
+        self.test_job = baker.make("rodan.Job")
+        self.test_inputporttype = baker.make(
             "rodan.InputPortType",
             maximum=3,
             minimum=1,
@@ -77,7 +77,7 @@ class RodanTestSetUpMixin(object):
             ResourceType.objects.get(mimetype="test/a1"),
             ResourceType.objects.get(mimetype="test/a2"),
         )
-        self.test_outputporttype = mommy.make(
+        self.test_outputporttype = baker.make(
             "rodan.OutputPortType",
             maximum=3,
             minimum=1,
@@ -89,28 +89,28 @@ class RodanTestSetUpMixin(object):
             ResourceType.objects.get(mimetype="test/a2"),
         )
 
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow", project=self.test_project)
 
         # build this graph: test_workflowjob --> test_workflowjob2
-        self.test_workflowjob = mommy.make(
+        self.test_workflowjob = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=self.test_job,
             job_settings={"a": 1, "b": [0.4]},
         )
-        inputport = mommy.make(  # noqa
+        inputport = baker.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob,
             input_port_type=self.test_inputporttype,
         )
-        outputport = mommy.make(
+        outputport = baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob,
             output_port_type=self.test_outputporttype,
         )
 
-        test_connection = mommy.make(
+        test_connection = baker.make(
             "rodan.Connection",
             output_port=outputport,
             input_port__input_port_type=self.test_inputporttype,
@@ -119,7 +119,7 @@ class RodanTestSetUpMixin(object):
             input_port__workflow_job__job_settings={"a": 1, "b": [0.4]},
         )
         self.test_workflowjob2 = test_connection.input_port.workflow_job
-        outputport2 = mommy.make(  # noqa
+        outputport2 = baker.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob2,
             output_port_type=self.test_outputporttype,
@@ -135,23 +135,23 @@ class RodanTestSetUpMixin(object):
         dummy_a_job = Job.objects.get(name=dummy_automatic_job.name)
         dummy_m_job = Job.objects.get(name=dummy_manual_job.name)
 
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow", project=self.test_project)
 
         # build this graph: dummy_a_wfjob => dummy_m_wfjob
-        self.dummy_a_wfjob = mommy.make(
+        self.dummy_a_wfjob = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=dummy_a_job,
             job_settings={"a": 1, "b": [0.4]},
         )
-        inputport_a = mommy.make(
+        inputport_a = baker.make(
             "rodan.InputPort",
             workflow_job=self.dummy_a_wfjob,
             input_port_type=dummy_a_job.input_port_types.filter(is_list=False).first(),
         )
         self.test_inputport_a = inputport_a
-        outputport_a = mommy.make(
+        outputport_a = baker.make(
             "rodan.OutputPort",
             workflow_job=self.dummy_a_wfjob,
             output_port_type=dummy_a_job.output_port_types.filter(
@@ -159,18 +159,18 @@ class RodanTestSetUpMixin(object):
             ).first(),
         )
 
-        self.dummy_m_wfjob = mommy.make(
+        self.dummy_m_wfjob = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=dummy_m_job,
             job_settings={"a": 1, "b": [0.4]},
         )
-        inputport_m = mommy.make(
+        inputport_m = baker.make(
             "rodan.InputPort",
             workflow_job=self.dummy_m_wfjob,
             input_port_type=dummy_m_job.input_port_types.filter(is_list=False).first(),
         )
-        outputport_m = mommy.make(  # noqa
+        outputport_m = baker.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.dummy_m_wfjob,
             output_port_type=dummy_m_job.output_port_types.filter(
@@ -178,12 +178,12 @@ class RodanTestSetUpMixin(object):
             ).first(),
         )
 
-        test_connection = mommy.make(  # noqa
+        test_connection = baker.make(  # noqa
             "rodan.Connection", output_port=outputport_a, input_port=inputport_m
         )
 
     def setUp_resources_for_simple_dummy_workflow(self):
-        self.test_resource = mommy.make(
+        self.test_resource = baker.make(
             "rodan.Resource",
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
@@ -216,125 +216,125 @@ class RodanTestSetUpMixin(object):
         opt_mB = job_m.output_port_types.get(name="out_typeB")  # noqa
         opt_mL = job_m.output_port_types.get(name="out_typeL")
 
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow", project=self.test_project)
 
-        self.test_wfjob_A = mommy.make(
+        self.test_wfjob_A = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_B = mommy.make(
+        self.test_wfjob_B = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_m,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_C = mommy.make(
+        self.test_wfjob_C = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_D = mommy.make(
+        self.test_wfjob_D = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_m,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_E = mommy.make(
+        self.test_wfjob_E = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_F = mommy.make(
+        self.test_wfjob_F = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
 
-        self.test_Aip = mommy.make(
+        self.test_Aip = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_A, input_port_type=ipt_aA
         )
-        self.test_Aop = mommy.make(
+        self.test_Aop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_A, output_port_type=opt_aA
         )
-        self.test_Bop = mommy.make(
+        self.test_Bop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_B, output_port_type=opt_mL
         )
 
-        self.test_Cip1 = mommy.make(
+        self.test_Cip1 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_C, input_port_type=ipt_aB
         )
-        self.test_Cip2 = mommy.make(
+        self.test_Cip2 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_C, input_port_type=ipt_aL
         )
-        self.test_Cop1 = mommy.make(
+        self.test_Cop1 = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_C, output_port_type=opt_aA
         )
-        self.test_Cop2 = mommy.make(
+        self.test_Cop2 = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_C, output_port_type=opt_aB
         )
 
-        self.test_Dip1 = mommy.make(
+        self.test_Dip1 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
         )
-        self.test_Dip2 = mommy.make(
+        self.test_Dip2 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mB
         )
-        self.test_Dip3 = mommy.make(
+        self.test_Dip3 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mL
         )
-        self.test_Dop = mommy.make(
+        self.test_Dop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_D, output_port_type=opt_mA
         )
 
-        self.test_Eip1 = mommy.make(
+        self.test_Eip1 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_E, input_port_type=ipt_aA
         )
-        self.test_Eip2 = mommy.make(
+        self.test_Eip2 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_E, input_port_type=ipt_aB
         )
-        self.test_Eop = mommy.make(
+        self.test_Eop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_E, output_port_type=opt_aA
         )
 
-        self.test_Fip1 = mommy.make(
+        self.test_Fip1 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_F, input_port_type=ipt_aA
         )
-        self.test_Fip2 = mommy.make(
+        self.test_Fip2 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_F, input_port_type=ipt_aA
         )
-        self.test_Fop = mommy.make(
+        self.test_Fop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_F, output_port_type=opt_aL
         )
 
-        self.test_conn_Aop_Cip1 = mommy.make(
+        self.test_conn_Aop_Cip1 = baker.make(
             "rodan.Connection", output_port=self.test_Aop, input_port=self.test_Cip1
         )
-        self.test_conn_Bop_Cip2 = mommy.make(
+        self.test_conn_Bop_Cip2 = baker.make(
             "rodan.Connection", output_port=self.test_Bop, input_port=self.test_Cip2
         )
-        self.test_conn_Cop1_Dip2 = mommy.make(
+        self.test_conn_Cop1_Dip2 = baker.make(
             "rodan.Connection", output_port=self.test_Cop1, input_port=self.test_Dip2
         )
-        self.test_conn_Dop_Eip1 = mommy.make(
+        self.test_conn_Dop_Eip1 = baker.make(
             "rodan.Connection", output_port=self.test_Dop, input_port=self.test_Eip1
         )
-        self.test_conn_Dop_Fip2 = mommy.make(
+        self.test_conn_Dop_Fip2 = baker.make(
             "rodan.Connection", output_port=self.test_Dop, input_port=self.test_Fip2
         )
 
     def setUp_resources_for_complex_dummy_workflow(self):
-        self.test_resourcecollection = mommy.make(
+        self.test_resourcecollection = baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
-        ) + mommy.make(
+        ) + baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,
@@ -345,7 +345,7 @@ class RodanTestSetUpMixin(object):
             res.save()
             res.resource_file.save("dummy.txt", ContentFile("dummy text"))
 
-        self.test_resource = mommy.make(
+        self.test_resource = baker.make(
             "rodan.Resource",
             project=self.test_project,
             resource_type=ResourceType.objects.get(mimetype="test/a1"),
@@ -353,10 +353,10 @@ class RodanTestSetUpMixin(object):
 
         self.test_resource.resource_file.save("dummy.txt", ContentFile("dummy text"))
 
-        self.test_resourcelist = mommy.make(
+        self.test_resourcelist = baker.make(
             "rodan.ResourceList", project=self.test_project
         )
-        self.test_resources_in_resource_list = mommy.make(
+        self.test_resources_in_resource_list = baker.make(
             "rodan.Resource",
             _quantity=8,
             project=self.test_project,
@@ -400,75 +400,75 @@ class RodanTestSetUpMixin(object):
         ipt_mA = job_m.input_port_types.get(name="in_typeA")
         opt_mA = job_m.output_port_types.get(name="out_typeA")
 
-        self.test_project = mommy.make("rodan.Project")
-        self.test_workflow = mommy.make("rodan.Workflow", project=self.test_project)
+        self.test_project = baker.make("rodan.Project")
+        self.test_workflow = baker.make("rodan.Workflow", project=self.test_project)
 
-        self.test_wfjob_A = mommy.make(
+        self.test_wfjob_A = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_B = mommy.make(
+        self.test_wfjob_B = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_m,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_C = mommy.make(
+        self.test_wfjob_C = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_a,
             job_settings={"a": 1, "b": [0.4]},
         )
-        self.test_wfjob_D = mommy.make(
+        self.test_wfjob_D = baker.make(
             "rodan.WorkflowJob",
             workflow=self.test_workflow,
             job=job_m,
             job_settings={"a": 1, "b": [0.4]},
         )
 
-        self.test_Aip = mommy.make(
+        self.test_Aip = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_A, input_port_type=ipt_aA
         )
-        self.test_Aop = mommy.make(
+        self.test_Aop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_A, output_port_type=opt_aA
         )
 
-        self.test_Bip = mommy.make(
+        self.test_Bip = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_B, input_port_type=ipt_mA
         )
-        self.test_Bop = mommy.make(
+        self.test_Bop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_B, output_port_type=opt_mA
         )
 
-        self.test_Cip = mommy.make(
+        self.test_Cip = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_C, input_port_type=ipt_aA
         )
-        self.test_Cop = mommy.make(
+        self.test_Cop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_C, output_port_type=opt_aA
         )
 
-        self.test_Dip1 = mommy.make(
+        self.test_Dip1 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
         )
-        self.test_Dip2 = mommy.make(
+        self.test_Dip2 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
         )
-        self.test_Dip3 = mommy.make(
+        self.test_Dip3 = baker.make(
             "rodan.InputPort", workflow_job=self.test_wfjob_D, input_port_type=ipt_mA
         )
-        self.test_Dop = mommy.make(
+        self.test_Dop = baker.make(
             "rodan.OutputPort", workflow_job=self.test_wfjob_D, output_port_type=opt_mA
         )
 
-        self.test_conn_Aop_Dip1 = mommy.make(
+        self.test_conn_Aop_Dip1 = baker.make(
             "rodan.Connection", output_port=self.test_Aop, input_port=self.test_Dip1
         )
-        self.test_conn_Aop_Dip2 = mommy.make(
+        self.test_conn_Aop_Dip2 = baker.make(
             "rodan.Connection", output_port=self.test_Bop, input_port=self.test_Dip2
         )
-        self.test_conn_Aop_Dip3 = mommy.make(
+        self.test_conn_Aop_Dip3 = baker.make(
             "rodan.Connection", output_port=self.test_Cop, input_port=self.test_Dip3
         )
 

@@ -177,11 +177,11 @@ class ResourceDistributor(RodanTask):
         import numpy as np
         from rodan.models import Resource, ResourceType
         resource_types_list = list(map(lambda rt: str(rt.mimetype), ResourceType.objects.all()))
-        from model_mommy import mommy        
+        from model_bakery import baker        
 
         # Create a Resource instance using mommy
         resource_type, created = ResourceType.objects.get_or_create(mimetype="image/rgb+png")
-        rc = mommy.make(Resource, resource_type=resource_type, name="test_filename")
+        rc = baker.make(Resource, resource_type=resource_type, name="test_filename")
 
         inputs = {
                     "Resource input": [

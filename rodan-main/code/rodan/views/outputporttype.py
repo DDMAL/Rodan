@@ -17,7 +17,7 @@ class OutputPortTypeList(generics.ListAPIView):
     serializer_class = OutputPortTypeSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = ()
-    filter_fields = {
+    filterset_fields = {
         "job": ["exact", "icontains"],
         "minimum": ["exact", "lt", "gt"],
         "uuid": ["exact"],

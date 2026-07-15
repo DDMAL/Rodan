@@ -17,7 +17,6 @@ class Tempauthtoken(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_tempauthtoken", "View Temp Authtoken"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     expiry = models.DateTimeField(null=True, db_index=True)

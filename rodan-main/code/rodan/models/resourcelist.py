@@ -29,7 +29,6 @@ class ResourceList(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_resourcelist", "View ResourceList"),)
 
     def __str__(self):
         return "<ResourceList {0}>".format(self.uuid)
