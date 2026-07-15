@@ -8,11 +8,9 @@ import sys
 import tempfile
 import zipfile
 import io, base64
-import six
 
-from celery import task, registry
+from celery import shared_task as task, current_app as registry
 from celery import Task
-from celery.task.control import revoke
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.exceptions import ObjectDoesNotExist
@@ -57,7 +55,9 @@ class create_resource(Task):
         resource_info = resource_query.values("resource_type__mimetype", "resource_file")[0]
 
         with TemporaryDirectory() as tmpdir:
-            infile_path = resource_info["resource_file"]
+            infile_path = os.path.join(
+                settings.MEDIA_ROOT, resource_info["resource_file"]
+            )
             tmpfile = os.path.join(tmpdir, "temp")
 
             if claimed_mimetype == "application/octet-stream":
@@ -860,7 +860,7 @@ def cancel_workflowrun(wfrun_id):
     )
     for celery_id in runjobs_to_revoke_celery_id:
         if celery_id is not None:
-            revoke(celery_id, terminate=True)
+            registry.control.revoke(celery_id, terminate=True)
     runjobs_to_revoke_query.update(status=task_status.CANCELLED)
     wfrun.status = task_status.CANCELLED
     wfrun.save(update_fields=["status"])
@@ -900,7 +900,7 @@ def redo_runjob_tree(rj_id):
 
     def inner_redo(rj):
         if rj.celery_task_id is not None:
-            revoke(rj.celery_task_id, terminate=True)
+            registry.control.revoke(rj.celery_task_id, terminate=True)
 
         # 1. Revoke all downstream runjobs
         for o in rj.outputs.all():

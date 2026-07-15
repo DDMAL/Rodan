@@ -9,7 +9,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodan.settings")
 django.setup()
 
 app = Celery("rodan")
-app.config_from_object("django.conf:settings")
+app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
@@ -25,14 +25,15 @@ from rodan.jobs.core import (  # noqa
 )
 from rodan.jobs.master_task import master_task  # noqa
 
-# Core Rodan Tasks
-app.tasks.register(create_resource())
-app.tasks.register(create_workflowrun())
+# Core Rodan Tasks.
+# create_resource / create_workflowrun are Task *subclasses* (not auto-registered), so
+# register an instance of each explicitly.
+app.register_task(create_resource())
+app.register_task(create_workflowrun())
 
-app.tasks.register(cancel_workflowrun)
-app.tasks.register(create_diva)
-app.tasks.register(redo_runjob_tree)
-app.tasks.register(retry_workflowrun)
-app.tasks.register(send_email)
-app.tasks.register(send_templated_email)
-app.tasks.register(master_task)
+# cancel_workflowrun, create_diva, redo_runjob_tree, retry_workflowrun, send_email,
+# send_templated_email and master_task are @shared_task functions. Importing them (above)
+# already auto-registers them with this app. They must NOT be manually registered: a
+# @shared_task is a promise proxy, and registering the proxy stores it under its own name
+# in the registry, so a later lookup resolves the proxy to itself — an infinite loop
+# (RecursionError in celery.local). Celery 5 binds shared tasks to the app on finalize.

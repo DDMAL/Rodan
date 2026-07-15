@@ -125,9 +125,9 @@ self-healing via the `wait-for-app` logic baked into the images, but applying ba
 kubectl -n rodan get pods,svc,pvc,ingress
 kubectl -n rodan exec deploy/rodan-main -- curl -s -o /dev/null -w '%{http_code}\n' \
   -H 'User-Agent: k8s' localhost:8000/api/?format=json        # 200
-kubectl -n rodan exec deploy/celery     -- celery inspect ping -A rodan --workdir /code/Rodan -d celery@celery
-kubectl -n rodan exec deploy/py3-celery -- celery inspect ping -A rodan --workdir /code/Rodan -d celery@Python3
-kubectl -n rodan exec deploy/gpu-celery -- celery inspect ping -A rodan --workdir /code/Rodan -d celery@GPU
+kubectl -n rodan exec deploy/celery     -- celery -A rodan --workdir /code/Rodan inspect ping -d celery@celery
+kubectl -n rodan exec deploy/py3-celery -- celery -A rodan --workdir /code/Rodan inspect ping -d celery@Python3
+kubectl -n rodan exec deploy/gpu-celery -- celery -A rodan --workdir /code/Rodan inspect ping -d celery@GPU
 kubectl -n rodan exec deploy/gpu-celery -- nvidia-smi
 kubectl describe node <gpu-node> | grep nvidia.com/gpu       # allocatable: 1
 # external (through the edge): https://rodan2.simssa.ca  — log in, open a project/image, run a workflow

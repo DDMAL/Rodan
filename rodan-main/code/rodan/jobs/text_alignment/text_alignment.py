@@ -83,3 +83,28 @@ class text_alignment(RodanTask):
             json.dump(align.to_JSON_dict(syl_boxes, lines_peak_locs), file)
 
         return True
+
+    def test_my_task(self, testcase):
+        # Calamari-OCR is installed only in the GPU worker image; skip gracefully where it
+        # is absent (e.g. the CPU-only CI image) so test_all_jobs stays green. Real coverage
+        # runs on the GPU worker (per-job harness / live run). Uses the bundled test case.
+        try:
+            import calamari_ocr  # noqa: F401
+        except ImportError:
+            return
+        import os
+        base = os.path.join(os.path.dirname(__file__), 'test_cases')
+        output_path = testcase.new_available_path()
+        inputs = {
+            'Text Layer': [{'resource_type': 'image/rgb+png',
+                            'resource_path': os.path.join(base, 'test1.png')}],
+            'Transcript': [{'resource_type': 'text/plain',
+                            'resource_path': os.path.join(base, 'test1.txt')}],
+        }
+        outputs = {'Text Alignment JSON': [{'resource_type': 'application/json',
+                                            'resource_path': output_path}]}
+        self.run_my_task(inputs, {'OCR Model': 0}, outputs)
+        with open(output_path) as f:
+            result = json.load(f)
+        testcase.assertIn('syl_boxes', result)
+        testcase.assertGreater(len(result['syl_boxes']), 0)

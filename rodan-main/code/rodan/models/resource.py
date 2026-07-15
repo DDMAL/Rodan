@@ -14,9 +14,12 @@ logger = logging.getLogger("rodan")
 
 
 def upload_path(resource_obj, filename):
-    _, ext = os.path.splitext(filename)
+    # Return a path relative to MEDIA_ROOT; default FileSystemStorage prepends
+    # MEDIA_ROOT itself. Django 4.1+ rejects absolute upload_to results via
+    # validate_file_name (SuspiciousFileOperation).
     return os.path.join(
-        resource_obj.resource_path, "original_file"
+        os.path.relpath(resource_obj.resource_path, settings.MEDIA_ROOT),
+        "original_file",
     )
 
 
@@ -77,7 +80,6 @@ class Resource(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_resource", "View Resource"),)
 
     STATUS_CHOICES = [
         (task_status.SCHEDULED, "Scheduled"),

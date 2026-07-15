@@ -5,9 +5,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
-import six
 import uuid
 from rodan.serializers.workflow import version_map
 
@@ -33,7 +32,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_view__workflow_notfound(self):
         response = self._validate(uuid.uuid1())
-        anticipated_message = {"detail": "Not found."}
+        anticipated_message = {"detail": "No Workflow matches the given query."}
         self.assertEqual(response.data, anticipated_message)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -77,7 +76,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertTrue(retr_workflow.valid)
 
     def test_view__validation_result_invalid(self):
-        test_workflow_no_jobs = mommy.make("rodan.Workflow", project=self.test_project)
+        test_workflow_no_jobs = baker.make("rodan.Workflow", project=self.test_project)
         response = self._validate(test_workflow_no_jobs.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         retr_workflow = Workflow.objects.get(pk=test_workflow_no_jobs.uuid)
@@ -90,7 +89,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_NO_OP")
 
     def test_workflowjob__inputport_number_not_satisfy(self):
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             _quantity=10,
             output_port=self.test_workflowjob.output_ports.all()[0],
@@ -102,7 +101,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_TOO_MANY_IP")
 
     def test_workflowjob__outputport_number_not_satisfy(self):
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             _quantity=10,
             output_port__workflow_job=self.test_workflowjob,
@@ -127,8 +126,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_INVALID_SETTINGS")
 
     def test_input__type_incompatible_with_job(self):
-        new_ipt = mommy.make("rodan.InputPortType")
-        new_ip = mommy.make(  # noqa
+        new_ipt = baker.make("rodan.InputPortType")
+        new_ip = baker.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob,
             input_port_type=new_ipt,
@@ -140,7 +139,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_input__multiple_connections(self):
         ip = self.test_workflowjob2.input_ports.all()[0]
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             output_port=self.test_workflowjob.output_ports.all()[0],
             input_port=ip,
@@ -150,8 +149,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "IP_TOO_MANY_CONNECTIONS")
 
     def test_input__more_than_maximum(self):
-        for i in six.moves.range(self.test_inputporttype.maximum):
-            ip = mommy.make(  # noqa
+        for i in range(self.test_inputporttype.maximum):
+            ip = baker.make(  # noqa
                 "rodan.InputPort",
                 workflow_job=self.test_workflowjob,
                 input_port_type=self.test_inputporttype,
@@ -168,8 +167,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_TOO_FEW_IP")
 
     def test_output__type_incompatible_with_job(self):
-        new_opt = mommy.make("rodan.OutputPortType")
-        new_op = mommy.make(  # noqa
+        new_opt = baker.make("rodan.OutputPortType")
+        new_op = baker.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob,
             output_port_type=new_opt,
@@ -180,8 +179,8 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "OP_TYPE_MISMATCH")
 
     def test_output__more_than_maximum(self):
-        for o in six.moves.range(self.test_outputporttype.maximum):
-            op = mommy.make(  # noqa
+        for o in range(self.test_outputporttype.maximum):
+            op = baker.make(  # noqa
                 "rodan.OutputPort",
                 workflow_job=self.test_workflowjob,
                 output_port_type=self.test_outputporttype,
@@ -191,7 +190,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WFJ_TOO_MANY_OP")
 
     def test_output__fewer_than_minimum(self):
-        opt2 = mommy.make(  # noqa
+        opt2 = baker.make(  # noqa
             "rodan.OutputPortType", maximum=3, minimum=1, job=self.test_job
         )
         response = self._validate(self.test_workflow.uuid)
@@ -200,24 +199,24 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
 
     def test_output__resourcetype_list_conflict_case1(self):
         # CASE 1: input_port is list but output_type not.
-        new_ipt = mommy.make(
+        new_ipt = baker.make(
             "rodan.InputPortType", maximum=1, minimum=0, job=self.test_job, is_list=True
         )
         new_ipt.resource_types.add(ResourceType.objects.get(mimetype="test/b"))
-        new_ip = mommy.make(
+        new_ip = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt,
         )
         op = self.test_workflowjob.output_ports.first()
-        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
+        conn = baker.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "RESOURCETYPE_LIST_CONFLICT")
 
     def test_output__resourcetype_list_conflict_case2(self):
         # CASE 2: output_port is list but input_type not.
-        new_opt = mommy.make(
+        new_opt = baker.make(
             "rodan.OutputPortType",
             maximum=1,
             minimum=0,
@@ -225,24 +224,24 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             is_list=True,
         )
         new_opt.resource_types.add(ResourceType.objects.get(mimetype="test/b"))
-        new_op = mommy.make(
+        new_op = baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob,
             output_port_type=new_opt,
         )
 
         ipt = self.test_workflowjob.input_ports.first().input_port_type
-        new_ip = mommy.make(
+        new_ip = baker.make(
             "rodan.InputPort", workflow_job=self.test_workflowjob, input_port_type=ipt
         )
 
-        conn = mommy.make("rodan.Connection", output_port=new_op, input_port=new_ip)  # noqa
+        conn = baker.make("rodan.Connection", output_port=new_op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "RESOURCETYPE_LIST_CONFLICT")
 
     def test_output__no_common_resource_type_simple(self):
-        new_ipt = mommy.make(
+        new_ipt = baker.make(
             "rodan.InputPortType",
             maximum=1,
             minimum=0,
@@ -252,19 +251,19 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ipt.resource_types.add(
             ResourceType.objects.get(mimetype="test/b")
         )  # consider the type of opt is 'test/a1' and 'test/a2'
-        new_ip = mommy.make(
+        new_ip = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt,
         )
         op = self.test_workflowjob.output_ports.first()
-        conn = mommy.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
+        conn = baker.make("rodan.Connection", output_port=op, input_port=new_ip)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "NO_COMMON_RESOURCETYPE")
 
     def test_output__no_common_resource_type_complex(self):
-        new_ipt1 = mommy.make(
+        new_ipt1 = baker.make(
             "rodan.InputPortType",
             maximum=1,
             minimum=0,
@@ -274,7 +273,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ipt1.resource_types.add(
             ResourceType.objects.get(mimetype="test/a1")
         )  # consider the type of opt is 'test/a1' and 'test/a2'
-        new_ipt2 = mommy.make(
+        new_ipt2 = baker.make(
             "rodan.InputPortType",
             maximum=1,
             minimum=0,
@@ -284,45 +283,45 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         new_ipt2.resource_types.add(
             ResourceType.objects.get(mimetype="test/a2")
         )  # consider the type of opt is 'test/a1' and 'test/a2'
-        new_ip1 = mommy.make(  # noqa
+        new_ip1 = baker.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt1,
         )
-        new_ip2 = mommy.make(  # noqa
+        new_ip2 = baker.make(  # noqa
             "rodan.InputPort",
             workflow_job=self.test_workflowjob2,
             input_port_type=new_ipt2,
         )
         op = self.test_workflowjob.output_ports.first()  # noqa
-        conn1 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip1)  # noqa
-        conn2 = mommy.make("rodan.Connection", output_port=op, input_port=new_ip2)  # noqa
+        conn1 = baker.make("rodan.Connection", output_port=op, input_port=new_ip1)  # noqa
+        conn2 = baker.make("rodan.Connection", output_port=op, input_port=new_ip2)  # noqa
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "NO_COMMON_RESOURCETYPE")
 
     def test_graph__empty(self):
-        test_workflow_no_jobs = mommy.make("rodan.Workflow", project=self.test_project)
+        test_workflow_no_jobs = baker.make("rodan.Workflow", project=self.test_project)
         response = self._validate(test_workflow_no_jobs.uuid)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data["error_code"], "WF_EMPTY")
 
     def test_graph__not_connected(self):
-        workflowjob = mommy.make(
+        workflowjob = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow, job=self.test_job
         )
-        inputport = mommy.make(  # noqa
+        inputport = baker.make(  # noqa
             "rodan.InputPort",
             workflow_job=workflowjob,
             input_port_type=self.test_inputporttype,
         )
-        outputport = mommy.make(
+        outputport = baker.make(
             "rodan.OutputPort",
             workflow_job=workflowjob,
             output_port_type=self.test_outputporttype,
         )
 
-        test_connection = mommy.make(
+        test_connection = baker.make(
             "rodan.Connection",
             output_port=outputport,
             input_port__input_port_type=self.test_inputporttype,
@@ -330,7 +329,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__workflow_job__job=self.test_job,
         )
         test_workflowjob2 = test_connection.input_port.workflow_job  # noqa
-        outputport2 = mommy.make(  # noqa
+        outputport2 = baker.make(  # noqa
             "rodan.OutputPort",
             workflow_job=test_workflowjob2,
             output_port_type=self.test_outputporttype,
@@ -341,7 +340,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WF_NOT_CONNECTED")
 
     def test_graph__loop(self):
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             input_port__input_port_type=self.test_inputporttype,
             input_port__workflow_job=self.test_workflowjob,
@@ -354,10 +353,10 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.data["error_code"], "WF_HAS_CYCLES")
 
     def test_graph__merging_workflow(self):
-        test_no_input_workflowjob = mommy.make(
+        test_no_input_workflowjob = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow
         )
-        opt_for_no_input = mommy.make(
+        opt_for_no_input = baker.make(
             "rodan.OutputPortType",
             minimum=0,
             maximum=10,
@@ -367,7 +366,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         opt_for_no_input.resource_types.add(
             ResourceType.objects.get(mimetype="test/a1")
         )
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             output_port__workflow_job=test_no_input_workflowjob,
             output_port__output_port_type=opt_for_no_input,
@@ -375,7 +374,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__input_port_type=self.test_inputporttype,
         )
 
-        test_connection3 = mommy.make(
+        test_connection3 = baker.make(
             "rodan.Connection",
             output_port=self.test_workflowjob2.output_ports.all()[0],
             input_port__input_port_type=self.test_inputporttype,
@@ -383,7 +382,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__workflow_job__job=self.test_job,
         )
         self.test_workflowjob3 = test_connection3.input_port.workflow_job
-        mommy.make(
+        baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob3,
             output_port_type=self.test_outputporttype,
@@ -392,7 +391,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_graph__branching_workflow(self):
-        test_connection3 = mommy.make(
+        test_connection3 = baker.make(
             "rodan.Connection",
             output_port__output_port_type=self.test_outputporttype,
             output_port__workflow_job=self.test_workflowjob2,
@@ -401,13 +400,13 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__workflow_job__job=self.test_job,
         )
         self.test_workflowjob3 = test_connection3.input_port.workflow_job
-        mommy.make(
+        baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob3,
             output_port_type=self.test_outputporttype,
         )
 
-        test_connection2 = mommy.make(
+        test_connection2 = baker.make(
             "rodan.Connection",
             output_port__output_port_type=self.test_outputporttype,
             output_port__workflow_job=self.test_workflowjob2,
@@ -416,7 +415,7 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
             input_port__workflow_job__job=self.test_job,
         )
         self.test_second_output_workflowjob = test_connection2.input_port.workflow_job
-        mommy.make(
+        baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_second_output_workflowjob,
             output_port_type=self.test_outputporttype,
@@ -430,57 +429,57 @@ class WorkflowViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUpMi
         wfjob------>wfjob_2------------>wfjob_5
              `----->wfjob_3----wfjob_4--^
         """
-        self.test_workflowjob3 = mommy.make(
+        self.test_workflowjob3 = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow, job=self.test_job
         )
-        self.test_workflowjob4 = mommy.make(
+        self.test_workflowjob4 = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow, job=self.test_job
         )
-        self.test_workflowjob5 = mommy.make(
+        self.test_workflowjob5 = baker.make(
             "rodan.WorkflowJob", workflow=self.test_workflow, job=self.test_job
         )
         outputport1 = self.test_workflowjob.output_ports.first()
         outputport2 = self.test_workflowjob2.output_ports.first()
-        inputport3 = mommy.make(
+        inputport3 = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob3,
             input_port_type=self.test_inputporttype,
         )
-        outputport3 = mommy.make(
+        outputport3 = baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob3,
             output_port_type=self.test_outputporttype,
         )
-        inputport4 = mommy.make(
+        inputport4 = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob4,
             input_port_type=self.test_inputporttype,
         )
-        outputport4 = mommy.make(
+        outputport4 = baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob4,
             output_port_type=self.test_outputporttype,
         )
-        inputport5A = mommy.make(
+        inputport5A = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob5,
             input_port_type=self.test_inputporttype,
         )
-        inputport5B = mommy.make(
+        inputport5B = baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob5,
             input_port_type=self.test_inputporttype,
         )
-        outputport5 = mommy.make(  # noqa
+        outputport5 = baker.make(  # noqa
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob5,
             output_port_type=self.test_outputporttype,
         )
-        mommy.make("rodan.Connection", output_port=outputport1, input_port=inputport3)
-        mommy.make("rodan.Connection", output_port=outputport3, input_port=inputport4)
-        mommy.make("rodan.Connection", output_port=outputport4, input_port=inputport5A)
+        baker.make("rodan.Connection", output_port=outputport1, input_port=inputport3)
+        baker.make("rodan.Connection", output_port=outputport3, input_port=inputport4)
+        baker.make("rodan.Connection", output_port=outputport4, input_port=inputport5A)
 
-        mommy.make("rodan.Connection", output_port=outputport2, input_port=inputport5B)
+        baker.make("rodan.Connection", output_port=outputport2, input_port=inputport5B)
 
         response = self._validate(self.test_workflow.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -607,7 +606,7 @@ class WorkflowViewInvalidateTestCase(
 
     def test_altering_workflowgroup_should_not_invalidate(self):
         # add a wfj group
-        self.test_workflowjobgroup = mommy.make(
+        self.test_workflowjobgroup = baker.make(
             "rodan.WorkflowJobGroup", workflow=self.test_workflow
         )
         self.test_workflowjob.group = self.test_workflowjobgroup
@@ -639,7 +638,7 @@ class WorkflowViewInvalidateTestCase(
 
     def test_deleting_workflowgroup_should_not_invalidate(self):
         # add a wfj group
-        self.test_workflowjobgroup = mommy.make(
+        self.test_workflowjobgroup = baker.make(
             "rodan.WorkflowJobGroup", workflow=self.test_workflow
         )
         self.test_workflowjob.group = self.test_workflowjobgroup
@@ -662,7 +661,7 @@ class WorkflowViewInvalidateTestCase(
     def test_importing_workflow_should_not_invalidate_origin_but_invalidate_target(
         self
     ):
-        wf2 = mommy.make("rodan.Workflow", project=self.test_workflow.project)
+        wf2 = baker.make("rodan.Workflow", project=self.test_workflow.project)
         response = self.client.post(
             reverse("workflowjobgroup-list"),
             {

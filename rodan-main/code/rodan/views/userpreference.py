@@ -14,7 +14,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 
-import six.moves.urllib.parse
+import urllib.parse
 
 
 class UserPreferenceList(generics.ListCreateAPIView):
@@ -36,7 +36,7 @@ class UserPreferenceList(generics.ListCreateAPIView):
         user_url = request.data.get("user", None)
         if user_url:
             try:
-                path = six.moves.urllib.parse.urlparse(user_url).path
+                path = urllib.parse.urlparse(user_url).path
                 match = resolve(path)
                 user_pk = match.kwargs.get("pk")
             except (Resolver404, User.DoesNotExist):

@@ -13,7 +13,7 @@ import sys
 import time
 import uuid
 
-from celery import Task, registry
+from celery import Task, current_app as registry
 from celery.app.task import TaskType
 from django.conf import settings as rodan_settings
 from django.core.files import File
@@ -86,16 +86,16 @@ class RodanTaskType(TaskType):
 
         # check the number of arguments of implemented function
         if "run_my_task" in attrs:
-            argspec = inspect.getargspec(attrs["run_my_task"])
+            argspec = inspect.getfullargspec(attrs["run_my_task"])
             assert len(argspec.args) == 4, "run_my_task"
         if "get_my_interface" in attrs:
-            argspec = inspect.getargspec(attrs["get_my_interface"])
+            argspec = inspect.getfullargspec(attrs["get_my_interface"])
             assert len(argspec.args) == 3, "get_my_interface"
         if "validate_my_user_input" in attrs:
-            argspec = inspect.getargspec(attrs["validate_my_user_input"])
+            argspec = inspect.getfullargspec(attrs["validate_my_user_input"])
             assert len(argspec.args) == 4, "validate_my_user_input"
         if "test_my_task" in attrs:
-            argspec = inspect.getargspec(attrs["test_my_task"])
+            argspec = inspect.getfullargspec(attrs["test_my_task"])
             assert len(argspec.args) == 2, "test_my_task"
 
         # not the abstract class
@@ -520,11 +520,22 @@ class RodanTaskType(TaskType):
                 check_port_types("in")
                 check_port_types("out")
 
-            # Process done
-            from rodan.jobs.load import job_list
+            # Process done.
+            #
+            # `job_list` is load.py's running tally of catalogue jobs still awaiting a code
+            # module; each job crosses itself off here so load.py can flag the leftovers as
+            # orphaned. Only do this when load.py is the active orchestrator (already in
+            # sys.modules). Importing it from a standalone job-module import (e.g. a bare
+            # `import rodan.jobs.<pkg>.<mod>`) would run load.py's module-level registration
+            # while THIS class is still mid-definition; that registration then getattrs the
+            # not-yet-bound class off its half-imported module and raises a spurious
+            # AttributeError (swallowed by register_all_jobs.py). Skipping the tally when
+            # load.py isn't orchestrating is harmless — there is no orphan sweep to feed.
+            if "rodan.jobs.load" in sys.modules:
+                from rodan.jobs.load import job_list
 
-            if attrs["name"] in job_list:
-                job_list.remove(attrs["name"])
+                if attrs["name"] in job_list:
+                    job_list.remove(attrs["name"])
 
     @staticmethod
     def _resolve_resource_types(value):
@@ -1117,7 +1128,12 @@ class RodanTask(Task, metaclass=RodanTaskType):
         else:
             with open(template_file, "r") as f:
                 t = Template(f.read())
-                _django_template_cache = t
+                # NB: index into the cache dict — assigning `_django_template_cache = t`
+                # would replace the dict with a Template, so the NEXT interactive
+                # `get_interface` in the same worker process hits `template_file in <Template>`
+                # → TypeError and a 500 (i.e. only the first interactive editor opened per
+                # process would work). Long-standing bug; surfaced verifying Pixel.js/Neon.
+                _django_template_cache[template_file] = t
                 return (t, context)
 
     def get_my_interface(self, inputs, settings):

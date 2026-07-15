@@ -19,11 +19,11 @@ class RunJobList(generics.ListAPIView):
     queryset = RunJob.objects.all()
     serializer_class = RunJobSerializer
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         project = django_filters.CharFilter(field_name="workflow_run__project")
         resource_uuid__isnull = django_filters.BooleanFilter(
             # action=lambda q, v: q.filter(resource_uuid__isnull=v)
-            method=lambda q, v: q.filter(resource_uuid__isnull=v)
+            method=lambda qs, name, value: qs.filter(resource_uuid__isnull=value)
         )  # https://github.com/alex/django-filter/issues/273
 
         class Meta:

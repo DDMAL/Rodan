@@ -28,7 +28,6 @@ class Output(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_output", "View Output"),)
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     output_port = models.ForeignKey(

@@ -41,7 +41,6 @@ class WorkflowRun(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_workflowrun", "View WorkflowRun"),)
 
     STATUS_CHOICES = [
         (task_status.REQUEST_PROCESSING, "Request processing"),

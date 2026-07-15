@@ -17,7 +17,7 @@ class ResourceLabelList(generics.ListAPIView):
     serializer_class = ResourceLabelSerializer
     pagination_class = CustomPaginationWithDisablePaginationOption
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter,)
-    filter_fields = {
+    filterset_fields = {
         "uuid": ["exact"],
         "name": ["exact", "icontains"],
     }    

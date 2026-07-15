@@ -4,7 +4,7 @@
 # import shutil
 
 from celery import (
-    registry,
+    current_app as registry,
     # chain
 )
 # from celery.task.control import revoke
@@ -62,7 +62,7 @@ class WorkflowRunList(generics.ListCreateAPIView):
     _ignore_model_permissions = True
     queryset = WorkflowRun.objects.all()
     serializer_class = WorkflowRunSerializer
-    filter_fields = {
+    filterset_fields = {
         "status": ["exact"],
         "updated": ["lt", "gt"],
         "uuid": ["exact"],

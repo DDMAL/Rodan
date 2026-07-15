@@ -146,6 +146,8 @@
     }
 
 "RODAN_GPU_JOBS": {
+    # text_alignment runs on upstream Calamari-OCR (py3.11 + TF2.15 via ocrd-fork-tfaip 1.2.7);
+    # the bundled salzinnes_stgall model is pre-migrated to the calamari v6 SavedModel format.
     "rodan.jobs.text_alignment" : {
         "rodan.jobs.text_alignment.text_alignment" : [ "text_alignment" ]
     },

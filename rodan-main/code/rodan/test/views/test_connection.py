@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rodan.models.connection import Connection
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
 import uuid
 
@@ -13,7 +13,7 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.setUp_basic_workflow()
         self.client.force_authenticate(user=self.test_superuser)
 
-        self.test_inputport = mommy.make(
+        self.test_inputport = baker.make(
             "rodan.InputPort", workflow_job=self.test_workflowjob2
         )
         self.test_outputport = self.test_workflowjob.output_ports.all()[0]
@@ -104,8 +104,8 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertFalse(Connection.objects.filter(pk=test_conn_uuid))
 
     def test_post_conflict_workflow(self):
-        ip = mommy.make("rodan.InputPort")
-        op = mommy.make("rodan.OutputPort")
+        ip = baker.make("rodan.InputPort")
+        op = baker.make("rodan.OutputPort")
         conn_obj = {
             "input_port": "http://localhost:8000/api/inputport/{0}/".format(ip.uuid),
             "output_port": "http://localhost:8000/api/outputport/{0}/".format(op.uuid),
@@ -121,12 +121,12 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_patch(self):
-        conn = mommy.make(
+        conn = baker.make(
             "rodan.Connection",
             input_port=self.test_inputport,
             output_port=self.test_outputport,
         )
-        ip2 = mommy.make(
+        ip2 = baker.make(
             "rodan.InputPort",
             workflow_job__workflow=self.test_inputport.workflow_job.workflow,
         )
@@ -140,12 +140,12 @@ class ConnectionViewTestCase(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_patch_conflict_workflow(self):
-        conn = mommy.make(
+        conn = baker.make(
             "rodan.Connection",
             input_port=self.test_inputport,
             output_port=self.test_outputport,
         )
-        ip2 = mommy.make("rodan.InputPort")
+        ip2 = baker.make("rodan.InputPort")
 
         req_obj = {
             "input_port": "http://localhost:8000/api/inputport/{0}/".format(ip2.uuid)

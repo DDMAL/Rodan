@@ -66,7 +66,11 @@ USE_TZ = True
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # Installed apps
+# Keep AutoField (not BigAutoField) so the existing DB's integer PKs don't trigger migrations.
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,7 +79,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django_filters",
-    "ws4redis",
+    "channels",
     "rodan",
     "django_extensions",
     "rest_framework",
@@ -315,12 +319,12 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.request",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.csrf",
                 "django.contrib.messages.context_processors.messages",
-                "ws4redis.context_processors.default",
                 # "rodan.context_processors.list_projects",
                 # "rodan.context_processors.login_url",
 
@@ -378,7 +382,8 @@ REST_FRAMEWORK = {
     "MAX_PAGE_SIZE": 100,
     "USE_ABSOLUTE_URLS": True,
     "DEFAULT_FILTER_BACKENDS": (
-        # "django_filters.rest_framework.DjangoObjectPermissionsFilter", DEPRECATED
+        # Restores object-level list scoping (DRF removed DjangoObjectPermissionsFilter in 3.9)
+        "rodan.permissions.ObjectPermissionsFilter",
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.OrderingFilter"
     ),
@@ -417,15 +422,20 @@ CORS_ALLOW_HEADERS = [
 # 2.c  Websocket configuration
 ###############################################################################
 WEBSOCKET_URL = "/ws/"
-WSGI_APPLICATION = "ws4redis.django_runserver.application"
+WSGI_APPLICATION = "rodan.wsgi_django.application"
+ASGI_APPLICATION = "rodan.asgi.application"
+# Redis pub/sub coordinates. A Postgres plpython3 trigger (see rodan/models/__init__.py)
+# publishes row-change events to WEBSOCKET_BROADCAST_CHANNEL; the Channels consumer
+# (rodan/consumers.py) subscribes and relays them to websocket clients. This replaces the
+# retired django-websocket-redis (ws4redis). The dict name is kept because the trigger SQL
+# in rodan/models/__init__.py references settings.WS4REDIS_CONNECTION.
 WS4REDIS_CONNECTION = {
     "host": os.getenv("REDIS_HOST"),
     "port": os.getenv("REDIS_PORT"),
     "db": os.getenv("REDIS_DB"),
 }
-WS4REDIS_EXPIRE = 3600
-WS4REDIS_HEARTBEAT = "--heartbeat--"
-WS4REDIS_PREFIX = "rodan"
+WEBSOCKET_BROADCAST_CHANNEL = "rodan:broadcast:rodan"
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 ###############################################################################
 # 2.d  IIPServer Configuration (if using Diva.js)
@@ -472,15 +482,19 @@ TRACEBACK_IN_ERROR_DETAIL = True
 # 3.b  Celery Task Queue Configuration
 ###############################################################################
 BROKER_CONNECTION_MAX_RETRIES = "0"
-BROKER_URL = os.getenv("RABBITMQ_URL")
-CELERY_RESULT_BACKEND = "amqp"
+CELERY_BROKER_URL = os.getenv("RABBITMQ_URL")
+# Celery 5 removed the "amqp" result backend; "rpc://" is its documented successor and
+# keeps results flowing over the same RabbitMQ broker (no extra infra). Rodan retrieves a
+# result in exactly one place (create_archive -> .get() in views/resource.py); rpc handles
+# that. Task/workflow *state* is tracked in Rodan's own DB, not the result backend.
+CELERY_RESULT_BACKEND = "rpc://"
 CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = ("rodan.jobs.load",)
 if TEST:
     # Run Celery task synchronously, instead of sending into queue
-    CELERY_ALWAYS_EAGER = True
+    CELERY_TASK_ALWAYS_EAGER = True
     # Propagate exceptions in synchronous task running by default
-    CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+    CELERY_TASK_EAGER_PROPAGATES = True
     # Use temporary filesystem to store projects and resources during test
     import tempfile as _tempfile
     MEDIA_ROOT = _tempfile.mkdtemp() + "/"

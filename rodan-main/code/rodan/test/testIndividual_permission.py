@@ -6,7 +6,7 @@ import random
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
-from model_mommy import mommy
+from model_bakery import baker
 
 from rodan.constants import task_status
 from rodan.models import (
@@ -260,7 +260,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            workflow = mommy.make("rodan.Workflow", project=project)
+            workflow = baker.make("rodan.Workflow", project=project)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("workflow-list"))
@@ -287,7 +287,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        workflow = mommy.make("rodan.Workflow", project=project)
+        workflow = baker.make("rodan.Workflow", project=project)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("workflow-list"))
@@ -318,7 +318,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            workflowjob = mommy.make("rodan.WorkflowJob", workflow=workflow)
+            workflowjob = baker.make("rodan.WorkflowJob", workflow=workflow)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("workflowjob-list"))
@@ -345,7 +345,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        workflowjob = mommy.make("rodan.WorkflowJob", workflow=workflow)
+        workflowjob = baker.make("rodan.WorkflowJob", workflow=workflow)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("workflowjob-list"))
@@ -376,7 +376,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            inputport = mommy.make("rodan.InputPort", workflow_job=workflowjob)
+            inputport = baker.make("rodan.InputPort", workflow_job=workflowjob)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("inputport-list"))
@@ -401,7 +401,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        inputport = mommy.make("rodan.InputPort", workflow_job=workflowjob)
+        inputport = baker.make("rodan.InputPort", workflow_job=workflowjob)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("inputport-list"))
@@ -432,7 +432,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            outputport = mommy.make("rodan.OutputPort", workflow_job=workflowjob)
+            outputport = baker.make("rodan.OutputPort", workflow_job=workflowjob)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("outputport-list"))
@@ -459,7 +459,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        outputport = mommy.make("rodan.OutputPort", workflow_job=workflowjob)
+        outputport = baker.make("rodan.OutputPort", workflow_job=workflowjob)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("outputport-list"))
@@ -484,7 +484,7 @@ class PermissionStaticTestCase(
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # Connection
-        outputport2 = mommy.make(
+        outputport2 = baker.make(
             "rodan.OutputPort", workflow_job=workflowjob
         )  # for testing
         for u in [
@@ -493,7 +493,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            connection = mommy.make(
+            connection = baker.make(
                 "rodan.Connection", input_port=inputport, output_port=outputport
             )
             self.client.force_authenticate(user=u)
@@ -523,7 +523,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        connection = mommy.make(
+        connection = baker.make(
             "rodan.Connection", input_port=inputport, output_port=outputport
         )
         self.client.force_authenticate(user=self.test_outsider)
@@ -556,7 +556,7 @@ class PermissionStaticTestCase(
         #     self.test_admin,
         #     self.test_creator,
         # ]:
-        #     workflowjobcoordinateset = mommy.make(
+        #     workflowjobcoordinateset = baker.make(
         #         "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
         #     )
         #     self.client.force_authenticate(user=u)
@@ -595,7 +595,7 @@ class PermissionStaticTestCase(
         #     )
         #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        # workflowjobcoordinateset = mommy.make(
+        # workflowjobcoordinateset = baker.make(
         #     "rodan.Workflowjobcoordinateset", workflow_job=workflowjob
         # )
         # self.client.force_authenticate(user=self.test_outsider)
@@ -640,7 +640,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            resource = mommy.make("rodan.Resource", project=project)
+            resource = baker.make("rodan.Resource", project=project)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("resource-list"))
@@ -667,7 +667,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        resource = mommy.make("rodan.Resource", project=project)
+        resource = baker.make("rodan.Resource", project=project)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("resource-list"))
@@ -695,7 +695,7 @@ class PermissionStaticTestCase(
         for idx, u in enumerate(
             [self.test_worker, self.test_worker2, self.test_admin, self.test_creator]
         ):
-            workflowrun = mommy.make("rodan.WorkflowRun", project=project)
+            workflowrun = baker.make("rodan.WorkflowRun", project=project)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("workflowrun-list"))
@@ -717,7 +717,7 @@ class PermissionStaticTestCase(
                 response.data["description"], "new desc{0}".format(u.username)
             )
 
-        workflowrun = mommy.make("rodan.WorkflowRun", project=project)
+        workflowrun = baker.make("rodan.WorkflowRun", project=project)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("workflowrun-list"))
@@ -740,7 +740,7 @@ class PermissionStaticTestCase(
         for idx, u in enumerate(
             [self.test_worker, self.test_worker2, self.test_admin, self.test_creator]
         ):
-            runjob = mommy.make("rodan.RunJob", workflow_run=workflowrun)
+            runjob = baker.make("rodan.RunJob", workflow_run=workflowrun)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("runjob-list"))
@@ -752,7 +752,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        runjob = mommy.make("rodan.RunJob", workflow_run=workflowrun)
+        runjob = baker.make("rodan.RunJob", workflow_run=workflowrun)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("runjob-list"))
@@ -766,7 +766,7 @@ class PermissionStaticTestCase(
         for idx, u in enumerate(
             [self.test_worker, self.test_worker2, self.test_admin, self.test_creator]
         ):
-            input = mommy.make("rodan.Input", run_job=runjob)
+            input = baker.make("rodan.Input", run_job=runjob)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("input-list"))
@@ -776,7 +776,7 @@ class PermissionStaticTestCase(
             response = self.client.get(reverse("input-detail", kwargs={"pk": input.pk}))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        input = mommy.make("rodan.Input", run_job=runjob)
+        input = baker.make("rodan.Input", run_job=runjob)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("input-list"))
@@ -790,7 +790,7 @@ class PermissionStaticTestCase(
         for idx, u in enumerate(
             [self.test_worker, self.test_worker2, self.test_admin, self.test_creator]
         ):
-            output = mommy.make("rodan.Output", run_job=runjob)
+            output = baker.make("rodan.Output", run_job=runjob)
             self.client.force_authenticate(user=u)
 
             response = self.client.get(reverse("output-list"))
@@ -802,7 +802,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        output = mommy.make("rodan.Output", run_job=runjob)
+        output = baker.make("rodan.Output", run_job=runjob)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("output-list"))
@@ -819,7 +819,7 @@ class PermissionStaticTestCase(
             self.test_admin,
             self.test_creator,
         ]:
-            resultspackage = mommy.make(
+            resultspackage = baker.make(
                 "rodan.ResultsPackage",
                 workflow_run=workflowrun,
                 status=task_status.CANCELLED,
@@ -844,7 +844,7 @@ class PermissionStaticTestCase(
             )
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        resultspackage = mommy.make("rodan.ResultsPackage", workflow_run=workflowrun)
+        resultspackage = baker.make("rodan.ResultsPackage", workflow_run=workflowrun)
         self.client.force_authenticate(user=self.test_outsider)
 
         response = self.client.get(reverse("resultspackage-list"))

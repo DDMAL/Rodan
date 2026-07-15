@@ -1,15 +1,15 @@
 from django.test import TestCase
 from rodan.models import Workflow, User
 # from rodan.models import Project
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
 class WorkflowTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
     def setUp(self):
         self.setUp_rodan()
-        self.test_project = mommy.make("rodan.Project")
-        self.test_user = mommy.make(User)
+        self.test_project = baker.make("rodan.Project")
+        self.test_user = baker.make(User)
 
         self.test_workflow_data = {
             "name": "test workflow",
@@ -47,7 +47,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.setUp_rodan()
         self.setUp_basic_workflow()
         # add a wfj group
-        self.test_workflowjobgroup = mommy.make(
+        self.test_workflowjobgroup = baker.make(
             "rodan.WorkflowJobGroup", workflow=self.test_workflow
         )
         self.test_workflowjob.group = self.test_workflowjobgroup
@@ -57,13 +57,13 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.test_workflow.save()
 
     def test_creating_workflowjob_should_invalidate(self):
-        wfj3 = mommy.make("rodan.WorkflowJob", workflow=self.test_workflow)  # noqa
+        wfj3 = baker.make("rodan.WorkflowJob", workflow=self.test_workflow)  # noqa
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
         self.assertFalse(wf.valid)
 
     def test_altering_workflowjob_job_should_invalidate(self):
-        self.test_workflowjob.job = mommy.make("rodan.Job")
+        self.test_workflowjob.job = baker.make("rodan.Job")
         self.test_workflowjob.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -84,7 +84,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertTrue(wf.valid)
 
     def test_altering_workflowjob_group_should_not_invalidate(self):
-        self.test_workflowjob.group = mommy.make(
+        self.test_workflowjob.group = baker.make(
             "rodan.WorkflowJobGroup", workflow=self.test_workflow
         )
         self.test_workflowjob.save()
@@ -99,7 +99,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertFalse(wf.valid)
 
     def test_creating_inputport_should_invalidate(self):
-        mommy.make(
+        baker.make(
             "rodan.InputPort",
             workflow_job=self.test_workflowjob,
             input_port_type=self.test_inputporttype,
@@ -110,7 +110,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_inputport_workflow_job_should_invalidate(self):
         ip = self.test_workflowjob.input_ports.first()
-        ip.workflow_job = mommy.make("rodan.WorkflowJob")
+        ip.workflow_job = baker.make("rodan.WorkflowJob")
         ip.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -118,7 +118,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_inputport_input_port_type_should_invalidate(self):
         ip = self.test_workflowjob.input_ports.first()
-        ip.input_port_type = mommy.make("rodan.InputPortType")
+        ip.input_port_type = baker.make("rodan.InputPortType")
         ip.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -140,7 +140,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertFalse(wf.valid)
 
     def test_creating_outputport_should_invalidate(self):
-        mommy.make(
+        baker.make(
             "rodan.OutputPort",
             workflow_job=self.test_workflowjob,
             output_port_type=self.test_outputporttype,
@@ -151,7 +151,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_outputport_workflow_job_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
-        op.workflow_job = mommy.make("rodan.WorkflowJob")
+        op.workflow_job = baker.make("rodan.WorkflowJob")
         op.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -159,7 +159,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_outputport_output_port_type_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
-        op.output_port_type = mommy.make("rodan.OutputPortType")
+        op.output_port_type = baker.make("rodan.OutputPortType")
         op.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -182,7 +182,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_creating_connection_should_invalidate(self):
         op = self.test_workflowjob2.output_ports.first()
-        mommy.make(
+        baker.make(
             "rodan.Connection",
             output_port=op,
             input_port__workflow_job__workflow=self.test_workflow,
@@ -193,7 +193,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_connection_input_port_should_invalidate(self):
         conn = self.test_workflowjob.output_ports.first().connections.first()
-        conn.input_port = mommy.make("rodan.InputPort")
+        conn.input_port = baker.make("rodan.InputPort")
         conn.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -201,7 +201,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
 
     def test_altering_connection_output_port_should_invalidate(self):
         conn = self.test_workflowjob.output_ports.first().connections.first()
-        conn.output_port = mommy.make("rodan.OutputPort")
+        conn.output_port = baker.make("rodan.OutputPort")
         conn.save()
         # Refetch
         wf = Workflow.objects.get(uuid=self.test_workflow.uuid)
@@ -215,7 +215,7 @@ class WorkflowInvalidateTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetU
         self.assertFalse(wf.valid)
 
     def test_creating_workflowjobgroup_should_not_invalidate(self):
-        wfjg2 = mommy.make("rodan.WorkflowJobGroup", workflow=self.test_workflow)  # noqa
+        wfjg2 = baker.make("rodan.WorkflowJobGroup", workflow=self.test_workflow)  # noqa
         self.test_workflowjob2.group = self.test_workflowjobgroup
         self.test_workflowjob2.save()
         # Refetch

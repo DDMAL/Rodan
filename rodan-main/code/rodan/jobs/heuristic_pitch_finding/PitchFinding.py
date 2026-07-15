@@ -327,18 +327,18 @@ class PitchFinder(object):
 
         line_type = ('vertical' if x1 == x2 else 'horizontal')
 
-        if line_type is 'vertical':
+        if line_type == 'vertical':
             perp = y3 < max([y1, y2]) and y3 > min([y1, y2])
-        elif line_type is 'horizontal':
+        elif line_type == 'horizontal':
             perp = x3 < max([x1, x2]) and x3 > min([x1, x2])
 
         if not perp:
             s1 = self._find_distance_between_points(p3, p1)
             s2 = self._find_distance_between_points(p3, p2)
             return min([s1, s2])
-        elif line_type is 'vertical':
+        elif line_type == 'vertical':
             return abs(float(x3 - x1))
-        elif line_type is 'horizontal':
+        elif line_type == 'horizontal':
             return abs(float(y3 - y1))
 
     def _find_distance_between_points(self, p1, p2):

@@ -19,7 +19,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: py3-celery
-          image: ghcr.io/ddmal/rodan-python3-celery:k8s-migration
+          image: ghcr.io/ddmal/rodan-python3-celery:nightly
           envFrom:
             - configMapRef: { name: rodan-config }
             - secretRef: { name: rodan-secrets }
@@ -31,13 +31,13 @@ spec:
               mountPath: /rodan/data
           startupProbe:
             exec:
-              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+              command: ["celery", "-A", "rodan", "--workdir", "/code/Rodan", "inspect", "ping", "-d", "celery@Python3", "-t", "30"]
             periodSeconds: 45
             timeoutSeconds: 40        # default probe timeout is 1s; celery inspect ping needs far longer
             failureThreshold: 30
           livenessProbe:
             exec:
-              command: ["celery", "inspect", "ping", "-A", "rodan", "--workdir", "/code/Rodan", "-d", "celery@Python3", "-t", "30"]
+              command: ["celery", "-A", "rodan", "--workdir", "/code/Rodan", "inspect", "ping", "-d", "celery@Python3", "-t", "30"]
             periodSeconds: 60
             timeoutSeconds: 45
             failureThreshold: 3

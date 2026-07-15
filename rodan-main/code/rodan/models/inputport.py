@@ -31,7 +31,6 @@ class InputPort(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_inputport", "View InputPort"),)
         ordering = ["created"]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)

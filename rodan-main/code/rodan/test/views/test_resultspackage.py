@@ -11,7 +11,7 @@ from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
-from model_mommy import mommy
+from model_bakery import baker
 
 from rodan.constants import task_status
 from rodan.models import WorkflowRun, Job, ResultsPackage
@@ -33,7 +33,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
         self.client.force_authenticate(user=self.test_superuser)
 
     # def test_unfinished_workflowrun(self):
-    #     wfr = mommy.make('rodan.WorkflowRun', status=task_status.PROCESSING)
+    #     wfr = baker.make('rodan.WorkflowRun', status=task_status.PROCESSING)
     #     resultspackage_obj = {
     #         'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
     #         'packaging_mode': 0
@@ -46,7 +46,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #     )
 
     # def test_nonexist_port(self):
-    #     wfr = mommy.make('rodan.WorkflowRun', status=task_status.FINISHED)
+    #     wfr = baker.make('rodan.WorkflowRun', status=task_status.FINISHED)
     #     resultspackage_obj = {
     #         'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(wfr.uuid),
     #         'output_ports': ['http://localhost:8000/api/outputport/{0}/'.format(uuid.uuid1())
@@ -59,7 +59,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #         'output_ports': [u'Invalid hyperlink - Object does not exist.']})
 
     # def test_post_invalid_status(self):
-    #     wfr = mommy.make("rodan.WorkflowRun", status=task_status.FINISHED)
+    #     wfr = baker.make("rodan.WorkflowRun", status=task_status.FINISHED)
     #     resultspackage_obj = {
     #         "workflow_run": "http://localhost:8000/api/workflowrun/{0}/".format(wfr.uuid),
     #         "status": task_status.CANCELLED,
@@ -80,7 +80,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
 
     # def test_patch_cancel(self):
     #     return
-    #     wfr = mommy.make("rodan.ResultsPackage", status=task_status.SCHEDULED)
+    #     wfr = baker.make("rodan.ResultsPackage", status=task_status.SCHEDULED)
     #     req = {"status": task_status.CANCELLED}
     #     try:
     #         response = self.client.patch(
@@ -91,7 +91,7 @@ class ResultsPackageViewTest(RodanTestTearDownMixin, APITestCase, RodanTestSetUp
     #         pass
 
     # def test_patch_invalid_status_update(self):
-    #     wfr = mommy.make("rodan.ResultsPackage", status=task_status.EXPIRED)
+    #     wfr = baker.make("rodan.ResultsPackage", status=task_status.EXPIRED)
     #     req = {"status": task_status.PROCESSING}
     #     response = self.client.patch(
     #         "/api/resultspackage/{0}/".format(wfr.uuid), req, format="json"
@@ -207,7 +207,7 @@ class ResultsPackageSimpleTest(
     #     # TODO: test file names
 
     # def test_invalid_port(self):
-    #     invalid_op = mommy.make('rodan.OutputPort')
+    #     invalid_op = baker.make('rodan.OutputPort')
     #     resultspackage_obj = {
     #         'workflow_run': 'http://localhost:8000/workflowrun/{0}/'.format(
     #             self.test_workflowrun.uuid

@@ -30,7 +30,6 @@ class OutputPort(models.Model):
 
     class Meta:
         app_label = "rodan"
-        permissions = (("view_outputport", "View OutputPort"),)
         ordering = ["created"]
 
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)

@@ -1,6 +1,6 @@
-# Postgres 9.6 + plpython3 (existing image). Single instance, PGDATA on the static NFS PVC.
-# The existing PGDATA is already initialized, so the entrypoint skips initdb and the
-# POSTGRES_USER/PASSWORD/DB env are effectively no-ops on an existing cluster (kept for first-init).
+# Postgres 16 + plpython3. Single instance, PGDATA on the static NFS PVC (pg16_data, restored
+# from the old 9.6 dump). The PGDATA is already initialized, so the entrypoint skips initdb and
+# the POSTGRES_USER/PASSWORD/DB env are effectively no-ops (kept for first-init).
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -21,7 +21,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: postgres
-          image: ghcr.io/ddmal/postgres-plpython:k8s-migration
+          image: ghcr.io/ddmal/postgres-plpython:nightly
           ports:
             - containerPort: 5432
               name: postgres

@@ -9,7 +9,7 @@ import os
 import time
 import uuid
 
-from celery import registry
+from celery import current_app as registry
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, Http404

@@ -1,5 +1,6 @@
-# Postgres PGDATA (~4.1 GB), PG 9.6, owned by uid 999. Mounted only by the postgres pod.
-# 'hard' mount (DBs must not see truncated/soft-failed I/O). NFS export needs no_root_squash.
+# Postgres 16 PGDATA (dump/restored from the old 9.6 clone — Django 4.2 needs PG>=12), owned by
+# uid 999. Mounted only by the postgres pod. 'hard' mount (DBs must not see truncated/soft-failed
+# I/O). NFS export needs no_root_squash. See the PG9.6->16 runbook before first apply.
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -18,7 +19,7 @@ spec:
     - hard
   nfs:
     server: 192.168.236.124
-    path: /srv/rodan-data/var/lib/docker/volumes/rodan_pg_data/_data
+    path: /srv/rodan-data/pg16_data
   claimRef:
     namespace: rodan
     name: rodan-pg-data

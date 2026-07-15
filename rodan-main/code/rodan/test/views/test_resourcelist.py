@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
-from model_mommy import mommy
+from model_bakery import baker
 
 from rodan.models import ResourceList
 from rodan.test.helpers import RodanTestSetUpMixin, RodanTestTearDownMixin
@@ -13,9 +13,9 @@ class ResourceListViewTestCase(
     def setUp(self):
         self.setUp_rodan()
         self.setUp_user()
-        self.test_project = mommy.make("rodan.Project")
-        self.test_resourcetype = mommy.make("rodan.ResourceType")
-        self.test_resources = mommy.make(
+        self.test_project = baker.make("rodan.Project")
+        self.test_resourcetype = baker.make("rodan.ResourceType")
+        self.test_resources = baker.make(
             "rodan.Resource",
             _quantity=5,
             project=self.test_project,
@@ -50,8 +50,8 @@ class ResourceListViewTestCase(
         self.assertEqual(resources[4], self.test_resources[4])
 
     def test_create_conflict_project(self):
-        p2 = mommy.make("rodan.Project")
-        r2 = mommy.make(
+        p2 = baker.make("rodan.Project")
+        r2 = baker.make(
             "rodan.Resource", project=p2, resource_type=self.test_resourcetype
         )
         rl_obj = {
@@ -74,9 +74,9 @@ class ResourceListViewTestCase(
         self.assertEqual(response.data, anticipated_message)
 
     def test_create_conflict_resourcetype(self):
-        p2 = mommy.make("rodan.Project")
-        rt2 = mommy.make("rodan.ResourceType")
-        r2 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt2)
+        p2 = baker.make("rodan.Project")
+        rt2 = baker.make("rodan.ResourceType")
+        r2 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt2)
         rl_obj = {
             "resources": map(
                 # lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
@@ -112,8 +112,8 @@ class ResourceListViewTestCase(
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
         rl_uuid = response.data["uuid"]
 
-        rt2 = mommy.make("rodan.ResourceType")
-        r2 = mommy.make("rodan.Resource", project=self.test_project, resource_type=rt2)
+        rt2 = baker.make("rodan.ResourceType")
+        r2 = baker.make("rodan.Resource", project=self.test_project, resource_type=rt2)
         rl_obj = {
             "resources": map(
                 # lambda x: "http://localhost:8000/api/resource/{0}/".format(x.uuid),
@@ -157,8 +157,8 @@ class ResourceListViewTestCase(
         assert response.status_code == status.HTTP_201_CREATED, "This should pass"
         rl_uuid = response.data["uuid"]
 
-        p2 = mommy.make("rodan.Project")
-        r2 = mommy.make(
+        p2 = baker.make("rodan.Project")
+        r2 = baker.make(
             "rodan.Resource", project=p2, resource_type=self.test_resourcetype
         )
         rl_obj = {
@@ -182,7 +182,7 @@ class ResourceListViewTestCase(
         self.assertEqual(response.data, anticipated_message)
 
     def test_create_empty_resourcelist(self):
-        p2 = mommy.make("rodan.Project")
+        p2 = baker.make("rodan.Project")
         rl_obj1 = {
             "resources": [],
             "name": "test resource list1",

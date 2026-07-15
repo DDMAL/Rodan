@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.db.models import ProtectedError
-from model_mommy import mommy
+from model_bakery import baker
 from rodan.test.helpers import RodanTestTearDownMixin, RodanTestSetUpMixin
 
 
@@ -10,21 +10,21 @@ class ProjectTestCase(RodanTestTearDownMixin, TestCase, RodanTestSetUpMixin):
 
     def test_delete_project_with_workflowrun(self):
         return
-        prj = mommy.make("rodan.Project")
-        wfrun = mommy.make("rodan.WorkflowRun", project=prj)
-        rj = mommy.make("rodan.RunJob", workflow_run=wfrun)
-        resi = mommy.make("rodan.Resource", project=prj)
-        reso = mommy.make("rodan.Resource", project=prj)
-        i = mommy.make("rodan.Input", run_job=rj, resource=resi)  # noqa
-        o = mommy.make("rodan.Output", run_job=rj, resource=reso)
+        prj = baker.make("rodan.Project")
+        wfrun = baker.make("rodan.WorkflowRun", project=prj)
+        rj = baker.make("rodan.RunJob", workflow_run=wfrun)
+        resi = baker.make("rodan.Resource", project=prj)
+        reso = baker.make("rodan.Resource", project=prj)
+        i = baker.make("rodan.Input", run_job=rj, resource=resi)  # noqa
+        o = baker.make("rodan.Output", run_job=rj, resource=reso)
         reso.origin = o
         reso.save()
 
-        wfrun2 = mommy.make("rodan.WorkflowRun", project=prj)
-        rj2 = mommy.make("rodan.RunJob", workflow_run=wfrun2)  # noqa
-        reso2 = mommy.make("rodan.Resource", project=prj)
-        i2 = mommy.make("rodan.Input", run_job=rj, resource=reso)  # noqa
-        o2 = mommy.make("rodan.Output", run_job=rj, resource=reso2)  # noqa
+        wfrun2 = baker.make("rodan.WorkflowRun", project=prj)
+        rj2 = baker.make("rodan.RunJob", workflow_run=wfrun2)  # noqa
+        reso2 = baker.make("rodan.Resource", project=prj)
+        i2 = baker.make("rodan.Input", run_job=rj, resource=reso)  # noqa
+        o2 = baker.make("rodan.Output", run_job=rj, resource=reso2)  # noqa
         reso2.origin = o
         reso2.save()
 

@@ -23,6 +23,8 @@ cd /code/Rodan
 /run/wait-for-app redis:6379
 /run/wait-for-app rodan-main:8000 --timeout=900
 
-runuser -u root -- celery worker -A rodan --workdir /code/Rodan -Q ${CELERY_JOB_QUEUE} --concurrency=10 --max-tasks-per-child=1 -n "${CELERY_JOB_QUEUE}" -l INFO --logfile /code/Rodan/rodan-celery-${CELERY_JOB_QUEUE}.log &
+# Celery 5 CLI: global options (-A, --workdir) precede the `worker` subcommand; the old
+# Celery 4 `celery worker -A ...` form was removed in 5.0.
+runuser -u root -- celery -A rodan --workdir /code/Rodan worker -Q ${CELERY_JOB_QUEUE} --concurrency=10 --max-tasks-per-child=1 -n "${CELERY_JOB_QUEUE}" -l INFO --logfile /code/Rodan/rodan-celery-${CELERY_JOB_QUEUE}.log &
 child_2=$!
 wait "$child_2"

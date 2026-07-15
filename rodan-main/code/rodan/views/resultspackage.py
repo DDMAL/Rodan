@@ -4,8 +4,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from celery import registry
-from celery.task.control import revoke
+from celery import current_app as registry
 from django.conf import settings
 from django.utils import timezone
 import django_filters
@@ -35,7 +34,7 @@ class ResultsPackageList(generics.ListCreateAPIView):
     queryset = ResultsPackage.objects.all()
     serializer_class = ResultsPackageListSerializer
 
-    class filter_class(django_filters.FilterSet):
+    class filterset_class(django_filters.FilterSet):
         project = django_filters.CharFilter(field_name="workflow_run__project")
 
         class Meta:
@@ -111,7 +110,7 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
 
         if (old_status in (task_status.SCHEDULED, task_status.PROCESSING)
                 and new_status == task_status.CANCELLED):
-            revoke(rp.celery_task_id, terminate=True)
+            registry.control.revoke(rp.celery_task_id, terminate=True)
             serializer = self.get_serializer(
                 rp, data={"status": task_status.CANCELLED}, partial=True
             )
@@ -135,7 +134,7 @@ class ResultsPackageDetail(generics.RetrieveDestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if instance.celery_task_id:
-            revoke(
+            registry.control.revoke(
                 instance.celery_task_id, terminate=True
             )  # revoke scheduled expiry task
         instance.delete()
