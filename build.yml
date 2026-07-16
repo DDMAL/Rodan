@@ -7,13 +7,13 @@ services:
       dockerfile: Dockerfile
       args:
         VERSION: nightly
-    image: "ddmal/nginx:nightly"
+    image: "ghcr.io/ddmal/nginx:nightly"
 
   iipsrv:
     build:
       context: ./iipsrv
       dockerfile: Dockerfile
-    image: "ddmal/iipsrv:nightly"
+    image: "ghcr.io/ddmal/iipsrv:nightly"
 
   rodan:
     build:
@@ -22,7 +22,7 @@ services:
       args:
         BRANCHES: develop
         VERSION: nightly
-    image: "ddmal/rodan-main:nightly"
+    image: "ghcr.io/ddmal/rodan-main:nightly"
 
   py3-celery:
     build:
@@ -30,7 +30,7 @@ services:
       dockerfile: ./python3-celery/Dockerfile
       args:
         BRANCHES: develop
-    image: "ddmal/rodan-python3-celery:nightly"
+    image: "ghcr.io/ddmal/rodan-python3-celery:nightly"
 
   gpu-celery:
     build:
@@ -38,16 +38,16 @@ services:
       dockerfile: ./gpu-celery/Dockerfile
       args:
         BRANCHES: develop
-    image: "ddmal/rodan-gpu-celery:nightly"
+    image: "ghcr.io/ddmal/rodan-gpu-celery:nightly"
 
   postgres:
     build:
       context: .
       dockerfile: ./postgres/Dockerfile
-    image: "ddmal/postgres-plpython:nightly"
+    image: "ghcr.io/ddmal/postgres-plpython:nightly"
 
   rodan-client:
     build:
       context: ./rodan-client
       dockerfile: Dockerfile
-    image: "ddmal/rodan-client:nightly"
+    image: "ghcr.io/ddmal/rodan-client:nightly"
