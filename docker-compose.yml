@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   nginx:
-    image: "ddmal/nginx:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/nginx:${DOCKER_TAG}"
     command: /run/start
     depends_on:
       - celery
@@ -20,7 +20,7 @@ services:
       - "resources:/rodan/data"
 
   rodan-main:
-    image: "ddmal/rodan-main:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
     healthcheck:
       test:
         [
@@ -48,18 +48,18 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   rodan-client:
-    image: "ddmal/rodan-client:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-client:${DOCKER_TAG}"
     volumes:
       - "./rodan-client/code:/code"
       - "./rodan-client/config/configuration.json:/client/configuration.json"
 
   iipsrv:
-    image: "ddmal/iipsrv:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/iipsrv:${DOCKER_TAG}"
     volumes:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
     command: bash -c "tail -f /dev/null"
     environment:
       TZ: America/Toronto
@@ -95,7 +95,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-python3-celery:${DOCKER_TAG}"
     command: bash -c "tail -f /dev/null"
     environment:
       TZ: America/Toronto
@@ -114,7 +114,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-gpu-celery:${DOCKER_TAG}"
     command: bash -c "tail -f /dev/null"
     environment:
       TZ: America/Toronto
@@ -143,7 +143,7 @@ services:
       - postgres
 
   postgres:
-    image: "ddmal/postgres-plpython:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/postgres-plpython:${DOCKER_TAG}"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-U", "postgres" ]
       interval: 10s
