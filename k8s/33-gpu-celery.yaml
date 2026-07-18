@@ -25,8 +25,12 @@ spec:
       # inject, so cuInit -> CUDA_ERROR_NO_DEVICE. Instead we pin to a specific node and let
       # the NVIDIA runtime inject the MIG instance directly via NVIDIA_VISIBLE_DEVICES (which
       # DOES inject cap4). This means NOT requesting nvidia.com/gpu (that would make the plugin
-      # overwrite NVIDIA_VISIBLE_DEVICES with the parent). The MIG UUID is per-node, hence the
-      # hostname pin. Long-term fix: a non-MIG (time-sliced) vGPU profile removes all of this.
+      # overwrite NVIDIA_VISIBLE_DEVICES with the parent). We select the MIG via "all" rather
+      # than a specific MIG UUID: the node has exactly one 1g.24gb MIG instance and this pod is
+      # the only GPU workload pinned here, so "all" resolves to that MIG — and, unlike a
+      # hardcoded UUID, survives node reboots (which regenerate MIG UUIDs and otherwise CrashLoop
+      # the pod with "failed to get device handle from UUID: Not Found").
+      # Long-term fix: a non-MIG (time-sliced) vGPU profile removes all of this.
       nodeSelector:
         gpu: "true"
         kubernetes.io/hostname: k3s-gpu-node-2
@@ -46,11 +50,12 @@ spec:
           env:
             - name: CELERY_JOB_QUEUE
               value: "GPU"
-            # MIG compute-instance UUID on k3s-gpu-node-2 (nvidia-smi -L). The runtime
-            # injects this exact MIG device (incl. /dev/nvidia-caps/nvidia-cap4) so CUDA can
-            # open it. This is node-specific — it must match the node pinned above.
+            # "all" -> the single 1g.24gb MIG instance on the pinned node (the runtime injects
+            # it incl. /dev/nvidia-caps/nvidia-cap4 so CUDA can open it). Reboot-proof: avoids a
+            # node-specific MIG UUID that changes on every reboot/MIG-reconfig. See the workaround
+            # note above for why we don't request nvidia.com/gpu.
             - name: NVIDIA_VISIBLE_DEVICES
-              value: "MIG-a724b14d-5057-529c-b9ef-87ebd0d2d92d"
+              value: "all"
             - name: NVIDIA_DRIVER_CAPABILITIES
               value: "compute,utility"
             # TF 2.15.1 has no sm_90 (Hopper) cubins, so kernels JIT-compile from PTX on first use
