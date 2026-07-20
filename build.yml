@@ -22,6 +22,11 @@ services:
       args:
         BRANCHES: develop
         VERSION: nightly
+      # nginx/Dockerfile does `FROM ddmal/rodan-main:${VERSION}` (Docker Hub namespace).
+      # Emit that tag alongside the ghcr one so a local `make build` resolves the base
+      # without a manual retag (CI does the same via an extra `-t ddmal/rodan-main:$TAG`).
+      tags:
+        - "ddmal/rodan-main:nightly"
     image: "ghcr.io/ddmal/rodan-main:nightly"
 
   py3-celery:
@@ -30,6 +35,11 @@ services:
       dockerfile: ./python3-celery/Dockerfile
       args:
         BRANCHES: develop
+      # rodan-main/Dockerfile does `FROM ddmal/rodan-python3-celery:${VERSION}` (Docker Hub
+      # namespace). Emit that tag alongside the ghcr one so a local `make build` resolves the
+      # base without a manual retag (CI does the same via an extra `-t ddmal/...:$TAG`).
+      tags:
+        - "ddmal/rodan-python3-celery:nightly"
     image: "ghcr.io/ddmal/rodan-python3-celery:nightly"
 
   gpu-celery:
