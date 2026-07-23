@@ -11,6 +11,11 @@ RUN apk add --no-cache \
 
 RUN wget https://github.com/ruven/iipsrv/archive/refs/heads/master.zip && unzip master.zip
 WORKDIR /iipsrv-master
+# Patch upstream OpenJPEG 8-bit decode bug: the mask for 8-bit output data is
+# 0x000000f (4-bit / low nibble only), which renders every 8-bit JP2 ~32x too
+# dark. It must be 0x000000ff (full 8-bit byte). See src/OpenJPEGImage.cc.
+RUN sed -i 's/& 0x000000f)/\& 0x000000ff)/' src/OpenJPEGImage.cc \
+  && grep -q '& 0x000000ff)' src/OpenJPEGImage.cc
 RUN ./autogen.sh
 RUN ./configure --enable-openjpeg
 RUN make
