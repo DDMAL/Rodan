@@ -18,6 +18,10 @@ services:
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
+      # Local-only override: pass the real request scheme instead of the hardcoded
+      # `X-Scheme https` baked into the prod image, so DRF emits http:// URLs over
+      # plain-HTTP local dev (Django's SECURE_PROXY_SSL_HEADER trusts X-Scheme).
+      - "./nginx/config/rodan.local.conf:/etc/nginx/sites-available/rodan.conf"
 
   rodan-main:
     image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
@@ -31,7 +35,7 @@ services:
       timeout: "5s"
       retries: 2
       start_period: "2m"
-    command: bash -c "tail -f /dev/null"
+    command: /run/start
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
@@ -60,7 +64,7 @@ services:
 
   celery:
     image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    command: /run/start-celery
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
@@ -70,12 +74,12 @@ services:
         [
           "CMD",
           "celery",
-          "inspect",
-          "ping",
           "-A",
           "rodan",
           "--workdir",
           "/code/Rodan",
+          "inspect",
+          "ping",
           "-d",
           "celery@celery"
         ]
@@ -115,7 +119,7 @@ services:
 
   gpu-celery:
     image: "ghcr.io/ddmal/rodan-gpu-celery:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    command: /run/start-celery
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
