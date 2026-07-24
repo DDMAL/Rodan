@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
-import math
 import os
 import shutil
 import subprocess
@@ -221,29 +220,13 @@ def create_diva(resource_id):
         # Tiff is one of those formats.
         # This means we can convert to JPEG2000 for IIPSRV after converting the
         # original to tiff.
-        #
-        # IIPImage/Diva serve the JP2 as a multi-resolution pyramid. The JP2 must
-        # therefore be TILED (-t) and carry enough resolution levels (-n) that the
-        # full image reduces down into a single tile. Otherwise IIP has to decode
-        # huge single-tile regions and fabricate the missing "virtual" resolution
-        # levels itself, which corrupts tiles (rainbow noise / 404s) when zooming.
-        # Match the tile size to Diva's 256px request tiles, and derive the number
-        # of resolution levels from the image size so the smallest level fits in
-        # one tile: n = ceil(log2(max_dim / tile)) + 1.
-        tile_size = 256
-        max_dim = max(rgb_im.size)
-        # +1 because n counts levels (decompositions + 1); cap at 9 since a
-        # 256px tile cannot hold more than 8 wavelet decompositions.
-        num_resolutions = max(1, math.ceil(math.log2(max_dim / tile_size))) + 1
-        num_resolutions = min(num_resolutions, 9)
         subprocess.check_call(
             args=[
                 # With Grok + OpenJPEG  # noqa
                 "/vendor/grok/build/bin/grk_compress",
                 "-i", tiff_file,
                 "-o", jp2_file,
-                "-t", "{0},{0}".format(tile_size),
-                "-n", str(num_resolutions),
+                "-n", "5",
                 "-c", "[256,256],[256,256],[128,128]",
                 "-SOP",
                 "-p", "LRCP",
