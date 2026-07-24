@@ -13,9 +13,44 @@ This repository contains Docker images that can be used to set up [Rodan](https:
 
 ## Quick Start
 
+### Run the stack locally
+
+Requires Docker (with Compose). The app images are pulled from `ghcr.io/ddmal/*:nightly`.
+
+```bash
+make run
+```
+
+`make run` runs `docker compose up` (with `DOCKER_TAG=nightly` already set for you). **Every container starts itself** — `rodan-main` runs migrations, creates the admin user, collects static files, and launches gunicorn on `:8000`; the `celery`, `py3-celery`, and `gpu-celery` workers start their Celery workers; `nginx` serves the app. There is **no manual start step**.
+
+> Do **not** run `docker compose exec … /run/start` by hand. The container already runs it on startup, so a second one just fails to bind port 8000 — and because gunicorn logs to `/code/Rodan/gunicorn-error.log` (not your terminal), the command looks like it "silently exited".
+
+Give it a minute or two on first boot (migrations + `collectstatic`), then open:
+
+```
+http://localhost
+```
+
+nginx serves the app on port 80 over plain HTTP — you do **not** need to expose `8000:8000`. Log in with the seeded admin account (Rodan logs in by **email**, not username):
+
+- **email:** `admin@rodan2.simssa.ca`
+- **password:** `rodan`
+
+(These come from `scripts/local.env` — `ADMIN_EMAIL` / `ADMIN_PASS`.)
+
+If you run `docker compose up` directly instead of `make run`, set the image tag first — otherwise the images resolve to a blank tag and fail:
+
+```bash
+DOCKER_TAG=nightly docker compose up -d      # or put DOCKER_TAG=nightly in a .env file
+```
+
+Other useful targets: `make stop`, `make clean`, `make build` (rebuild all images), `make health`.
+
+### Working on Rodan / Rodan Jobs (source checkout)
+
 If you are working on **Rodan** or **Rodan Jobs**
 
-- Make sure you have Rodan submodule cloned in `${repository_root}/rodan/code` and **it is up to date** with the branch you wish to work with. The branches should be either `develop`, or the **name of the feature** you would like to include into develop. The `master` branch is only for version releases and is supposed to be a guaranteed working version.
+- Make sure you have Rodan submodule cloned in `${repository_root}/rodan-main/code` and **it is up to date** with the branch you wish to work with. The branches should be either `develop`, or the **name of the feature** you would like to include into develop. The `master` branch is only for version releases and is supposed to be a guaranteed working version.
 - Follow the instructions here: https://github.com/DDMAL/Rodan/wiki/Working-on-Rodan
   - Note the `BRANCHES` environment variable in the installation scripts, you can set the environment variable locally by running the following command: `export BRANCHES="develop"`.
 
@@ -36,7 +71,7 @@ A similar concept to using `exec` is using SSH to connect to another computer. W
 
 - `docker compose exec <service_name> <command>`
 - The command could be anything eg: `/opt/some_directory/my_shell_script.sh`
-- A command you will use frequently is: `docker compose exec rodan bash` or `docker compose exec celery bash` for investigating problems. **You should not be using this command to edit files, use `docker volumes` and your IDE outside of the container.**
+- A command you will use frequently is: `docker compose exec rodan-main bash` or `docker compose exec celery bash` for investigating problems. **You should not be using this command to edit files, use `docker volumes` and your IDE outside of the container.**
 
 Consult the documentation of the [Docker command line](https://docs.docker.com/engine/reference/commandline/cli/) for additional information.
 
