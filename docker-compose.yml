@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   nginx:
-    image: "ddmal/nginx:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/nginx:${DOCKER_TAG}"
     command: /run/start
     depends_on:
       - celery
@@ -18,9 +18,13 @@ services:
       - "9002:9002"
     volumes:
       - "resources:/rodan/data"
+      # Local-only override: pass the real request scheme instead of the hardcoded
+      # `X-Scheme https` baked into the prod image, so DRF emits http:// URLs over
+      # plain-HTTP local dev (Django's SECURE_PROXY_SSL_HEADER trusts X-Scheme).
+      - "./nginx/config/rodan.local.conf:/etc/nginx/sites-available/rodan.conf"
 
   rodan-main:
-    image: "ddmal/rodan-main:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
     healthcheck:
       test:
         [
@@ -31,7 +35,7 @@ services:
       timeout: "5s"
       retries: 2
       start_period: "2m"
-    command: bash -c "tail -f /dev/null"
+    command: /run/start
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
@@ -48,19 +52,19 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   rodan-client:
-    image: "ddmal/rodan-client:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-client:${DOCKER_TAG}"
     volumes:
       - "./rodan-client/code:/code"
       - "./rodan-client/config/configuration.json:/client/configuration.json"
 
   iipsrv:
-    image: "ddmal/iipsrv:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/iipsrv:${DOCKER_TAG}"
     volumes:
       - "resources:/rodan/data"
 
   celery:
-    image: "ddmal/rodan-main:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    image: "ghcr.io/ddmal/rodan-main:${DOCKER_TAG}"
+    command: /run/start-celery
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
@@ -70,12 +74,12 @@ services:
         [
           "CMD",
           "celery",
-          "inspect",
-          "ping",
           "-A",
           "rodan",
           "--workdir",
           "/code/Rodan",
+          "inspect",
+          "ping",
           "-d",
           "celery@celery"
         ]
@@ -95,7 +99,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/rodan-python3-celery:${DOCKER_TAG}"
     command: bash -c "tail -f /dev/null"
     environment:
       TZ: America/Toronto
@@ -114,8 +118,8 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   gpu-celery:
-    image: "ddmal/rodan-gpu-celery:${DOCKER_TAG}"
-    command: bash -c "tail -f /dev/null"
+    image: "ghcr.io/ddmal/rodan-gpu-celery:${DOCKER_TAG}"
+    command: /run/start-celery
     environment:
       TZ: America/Toronto
       SERVER_HOST: localhost
@@ -143,7 +147,7 @@ services:
       - postgres
 
   postgres:
-    image: "ddmal/postgres-plpython:${DOCKER_TAG}"
+    image: "ghcr.io/ddmal/postgres-plpython:${DOCKER_TAG}"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-U", "postgres" ]
       interval: 10s
@@ -153,7 +157,11 @@ services:
       - ./scripts/local.env
 
   rabbitmq:
-    image: "rabbitmq:alpine"
+    # Pinned to the 3.13 line to match production (3.13.7). RabbitMQ 4.x disables the
+    # `transient_nonexcl_queues` feature by default, which Celery's pidbox/reply/event
+    # queues (and `celery inspect`) declare — an unpinned `rabbitmq:alpine` now resolves
+    # to 4.x and breaks the workers with "Feature transient_nonexcl_queues is deprecated".
+    image: "rabbitmq:3.13-alpine"
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
       interval: "30s"

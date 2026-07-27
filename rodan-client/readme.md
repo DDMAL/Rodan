@@ -3,8 +3,7 @@
 2. Navigate to rodan. `make run_arm`
 3. Navigate to rodan. `docker compose -f arm-compose.yml exec rodan-main /run/start`
 4. Navigate to rodan. `docker compose -f arm-compose.yml exec celery /run/start-celery`
-5. Navigate to rodan. `docker compose -f arm-compose.yml exec py3-celery /run/start-celery`
-6. `docker compose -f arm-compose.yml exec rodan-client bash` to go to rodan-client container
+5. `docker compose -f arm-compose.yml exec rodan-client bash` to go to rodan-client container
 7. Inside the container: `cd /code; yarn install`
 8. Navigate to rodan-cleint: `cp local-dev/COPYconfiguration code/configuration.json`
 9. Navigate to rodan-client: `cp local-dev/CPCONFIGFILE code/src/js/configuration.js`
@@ -16,7 +15,7 @@
 To Run Rodan Client locally, you must have docker installed and have the docker images pulled from the nightly tag.
 After installing docker, you can continue by replacing the docker-compose file with the one in the local-dev directory under the rodan-client directory. (dont forget to make the nginx container the same way as you do to run Rodan main for M1 systems)
 
-After the installation, you have to `make run` and `docker compose exec rodan-main /run/start` to have the rodan-main container run.
+After the installation, `make run` brings the whole stack up and `rodan-main` starts automatically — you do **not** need to run `docker compose exec rodan-main /run/start` by hand. The main `docker-compose.yml` auto-starts it, so running it a second time just fails to bind port 8000.
 
 Next, you will need to CLI into the rodan client and make some manual changes to the config.json file. do `docker compose exec rodan-client bash`.
 

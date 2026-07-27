@@ -19,7 +19,7 @@ build:
 	@docker compose -f build.yml build --no-cache py3-celery
 	# rodan(-main) and rodan-client next — nginx is FROM rodan-main.
 	@docker compose -f build.yml build --no-cache --parallel rodan rodan-client
-	@docker compose -f build.yml build --no-cache --parallel nginx gpu-celery postgres
+	@docker compose -f build.yml build --no-cache --parallel nginx gpu-celery postgres iipsrv
 	@echo "[+] Done."
 
 run: remote_jobs
@@ -50,14 +50,21 @@ clean_git:
 health:
 	@docker inspect --format "{{json .State.Health }}" $(log) | jq
 
-$(JOBS_PATH)/neon_wrapper/Neon/package.json:
-	@cd $(JOBS_PATH); \
-		git clone --recurse-submodules -b develop https://github.com/DDMAL/neon_wrapper.git
-
-$(JOBS_PATH)/neon_wrapper/static/editor.html: $(JOBS_PATH)/neon_wrapper/Neon/package.json
-	@cd $(JOBS_PATH)/neon_wrapper; \
-		yarn install && \
-		yarn build
+# Neon's webpack build needs the exact toolchain baked into the rodan-python3-celery image
+# (Alpine node 16 / yarn) and fails on newer host Node versions. So instead of building on the
+# host, extract the already-built neon_wrapper (source + static/editor.html + Python package)
+# out of that image — built by `make build`, or pulled from GHCR if absent.
+$(JOBS_PATH)/neon_wrapper/static/editor.html:
+	@echo "[-] Extracting pre-built neon_wrapper from rodan-python3-celery:$(DOCKER_TAG)..."
+	@docker image inspect ghcr.io/ddmal/rodan-python3-celery:$(DOCKER_TAG) >/dev/null 2>&1 || \
+		docker pull ghcr.io/ddmal/rodan-python3-celery:$(DOCKER_TAG)
+	@# Remove any existing copy as root — the containers run as root and may own __pycache__
+	@# files under the bind-mounted jobs dir that the host user cannot delete.
+	@docker run --rm --entrypoint sh -v $(abspath $(JOBS_PATH)):/jobs ghcr.io/ddmal/rodan-python3-celery:$(DOCKER_TAG) -c "rm -rf /jobs/neon_wrapper"
+	@cid=$$(docker create ghcr.io/ddmal/rodan-python3-celery:$(DOCKER_TAG)); \
+		docker cp $$cid:/code/Rodan/rodan/jobs/neon_wrapper $(JOBS_PATH)/neon_wrapper; \
+		docker rm $$cid >/dev/null
+	@echo "[+] neon_wrapper ready."
 
 $(JOBS_PATH)/pixel_wrapper/package.json:
 	@cd $(JOBS_PATH); git clone --recurse-submodules -b develop https://github.com/DDMAL/pixel_wrapper.git
