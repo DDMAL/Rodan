@@ -47,10 +47,11 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 10
             failureThreshold: 3
+          # Sized from Prometheus 15d: ~0.05 core, WS <=226Mi; the 1Gi limit sets the 40% memory watermark.
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "100m"
+              memory: "256Mi"
             limits:
               cpu: "1"
               memory: "1Gi"

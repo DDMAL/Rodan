@@ -36,13 +36,14 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 5
+          # Sized from Prometheus 15d: ~0.003 core, WS <=11Mi (ws pub/sub only).
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: "25m"
+              memory: "32Mi"
             limits:
-              cpu: "1"
-              memory: "1Gi"
+              cpu: "250m"
+              memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
