@@ -44,13 +44,14 @@ spec:
               port: 80
             initialDelaySeconds: 30
             periodSeconds: 30
+          # Sized from Prometheus 15d: <0.01 core, WS ~11Mi.
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: "25m"
+              memory: "64Mi"
             limits:
               cpu: "500m"
-              memory: "1Gi"
+              memory: "512Mi"
       volumes:
         - name: resources
           persistentVolumeClaim:

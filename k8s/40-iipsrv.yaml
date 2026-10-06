@@ -36,10 +36,11 @@ spec:
               port: 9003
             initialDelaySeconds: 15
             periodSeconds: 30
+          # Sized from Prometheus 15d: idle, WS ~6Mi; limit kept for bursty tile decoding.
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: "25m"
+              memory: "64Mi"
             limits:
               cpu: "1"
               memory: "2Gi"
