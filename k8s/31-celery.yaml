@@ -18,6 +18,16 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-pull-secret
+      # Pinned to Rodan's GPU node for its memory headroom (68 GiB): create_diva on a p99
+      # (~120 Mpx) image peaks ~3.3 GB and 3 concurrent p90 images ~6.2 GB, more than the shared
+      # nodes have free. Tolerates the GPU taint but does NOT use the nvidia RuntimeClass, so
+      # gpu-celery stays the only GPU consumer on the node.
+      nodeSelector:
+        kubernetes.io/hostname: k3s-gpu-node-2
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: celery
           image: ghcr.io/ddmal/rodan-main:nightly
@@ -43,13 +53,14 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 45
             failureThreshold: 3
+          # Idle ~0.4Gi; limit covers 3 concurrent large create_diva conversions (concurrency=3).
           resources:
             requests:
-              cpu: "500m"
-              memory: "2Gi"
+              cpu: "250m"
+              memory: "1Gi"
             limits:
               cpu: "4"
-              memory: "12Gi"
+              memory: "10Gi"
       volumes:
         - name: resources
           persistentVolumeClaim:
