@@ -54,13 +54,14 @@ spec:
                   value: k8s-healthcheck
             periodSeconds: 15
             timeoutSeconds: 10
+          # Sized from Prometheus 15d: <0.09 core, WS <=257Mi; one uvicorn worker can't use >1 core.
           resources:
             requests:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: "100m"
+              memory: "384Mi"
             limits:
-              cpu: "2"
-              memory: "4Gi"
+              cpu: "1"
+              memory: "2Gi"
       volumes:
         - name: resources
           persistentVolumeClaim:

@@ -52,12 +52,13 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
+          # Sized from Prometheus 15d idle: <0.16 core (nightly dump), WS <=255Mi; 2Gi limit leaves room for page cache.
           resources:
             requests:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: "100m"
+              memory: "512Mi"
             limits:
-              cpu: "2"
+              cpu: "1"
               memory: "2Gi"
       volumes:
         - name: pg-data

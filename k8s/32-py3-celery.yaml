@@ -17,6 +17,14 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-pull-secret
+      # Pinned to Rodan's GPU node for memory headroom (see 31-celery.yaml). No nvidia
+      # RuntimeClass: CPU-only worker.
+      nodeSelector:
+        kubernetes.io/hostname: k3s-gpu-node-2
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: py3-celery
           image: ghcr.io/ddmal/rodan-python3-celery:nightly
@@ -41,13 +49,15 @@ spec:
             periodSeconds: 60
             timeoutSeconds: 45
             failureThreshold: 3
+          # Idle ~0.3Gi; heaviest jobs measured: Non-Interactive Classifier 2.2 GB, Sauvola 1.6 GB.
+          # Limit covers 3 heavy jobs at once (concurrency=3).
           resources:
             requests:
-              cpu: "500m"
-              memory: "2Gi"
+              cpu: "250m"
+              memory: "1Gi"
             limits:
               cpu: "4"
-              memory: "12Gi"
+              memory: "8Gi"
       volumes:
         - name: resources
           persistentVolumeClaim:

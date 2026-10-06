@@ -13,7 +13,7 @@ services:
       - "resources:/rodan/data"
   
   rodan-main:
-    image: "ddmal/rodan-main:nightly"
+    image: "ghcr.io/ddmal/rodan-main:nightly"
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/curl -H 'User-Agent: docker-healthcheck' http://localhost:8000/api/?format=json || exit 1"]
       interval: "10s"
@@ -37,13 +37,13 @@ services:
 
 
   iipsrv:
-    image: "ddmal/iipsrv:nightly"
+    image: "ghcr.io/ddmal/iipsrv:nightly"
     volumes:
       - "resources:/rodan/data"
 
       
   celery:
-    image: "ddmal/rodan-main:nightly"
+    image: "ghcr.io/ddmal/rodan-main:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: celery
@@ -65,7 +65,7 @@ services:
       - "./rodan-main/code:/code/Rodan"
 
   py3-celery:
-    image: "ddmal/rodan-python3-celery:nightly"
+    image: "ghcr.io/ddmal/rodan-python3-celery:nightly"
     command: bash -c "tail -f /dev/null"
     environment:
       CELERY_JOB_QUEUE: Python3
@@ -93,7 +93,7 @@ services:
       - postgres
 
   postgres:
-    image: "ddmal/postgres-plpython:nightly"
+    image: "ghcr.io/ddmal/postgres-plpython:nightly"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
       interval: 10s
@@ -115,7 +115,7 @@ services:
       - ./scripts/local.env
 
   rodan-client:
-    image: "ddmal/rodan-client:nightly"
+    image: "ghcr.io/ddmal/rodan-client:nightly"
     command: bash -c "tail -f /dev/null"
     ports:
       - "8080:9002"

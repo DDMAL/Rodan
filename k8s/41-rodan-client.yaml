@@ -82,13 +82,14 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+          # Sized from Prometheus 15d: static nginx, WS ~4Mi.
           resources:
             requests:
-              cpu: "50m"
-              memory: "64Mi"
+              cpu: "10m"
+              memory: "32Mi"
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "128Mi"
       volumes:
         - name: client-config
           configMap:
